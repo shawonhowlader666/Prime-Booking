@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Console\Commands;
 
@@ -29,7 +29,7 @@ class WarmCache extends Command
             $this->info('🗑️  Existing cache cleared.');
         }
 
-        $this->info('🔥 Warming Prime Aviation cache...');
+        $this->info('🔥 Warming PRIME BOOKING cache...');
         $start = microtime(true);
 
         // ── Featured Properties ──────────────────────────────────────────
@@ -63,3 +63,4 @@ class WarmCache extends Command
         return Command::SUCCESS;
     }
 }
+

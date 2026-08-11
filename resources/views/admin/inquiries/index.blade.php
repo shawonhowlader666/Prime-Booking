@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'Guest Inquiries & Messages | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'Guest Inquiries & Messages | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -120,3 +120,4 @@
 
 </div>
 @endsection
+

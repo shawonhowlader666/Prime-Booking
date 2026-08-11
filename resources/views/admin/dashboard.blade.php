@@ -1,6 +1,6 @@
-@extends('layouts.admin')
+﻿@extends('layouts.admin')
 
-@section('title', 'Sales Summary Reports | Prime Aviation Admin')
+@section('title', 'Sales Summary Reports | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -405,4 +405,5 @@ function exportTable(type) {
 }
 </script>
 @endsection
+
 

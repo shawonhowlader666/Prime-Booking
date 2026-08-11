@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'Edit: ' . $property->name . ' | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'Edit: ' . $property->name . ' | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -254,3 +254,4 @@ function previewImage(url) {
 }
 </script>
 @endsection
+

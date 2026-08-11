@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'home'])
+﻿@extends('layouts.main', ['activePage' => 'home'])
 
-@section('title', 'Secure Booking & Checkout | Prime Aviation')
+@section('title', 'Secure Booking & Checkout | PRIME BOOKING')
 
 @section('content')
 {{-- Stepper Progress Bar (Agoda 1:1 Parity) --}}
@@ -172,7 +172,7 @@
                     </button>
                     
                     <div class="text-center mt-3 text-muted small" style="font-size: 11.5px;">
-                        By clicking "Confirm &amp; Pay", you agree to Prime Aviation's <a href="{{ route('terms') }}" target="_blank" class="text-primary text-decoration-none">Terms of Service</a> and <a href="{{ route('privacy') }}" target="_blank" class="text-primary text-decoration-none">Cancellation Policy</a>.
+                        By clicking "Confirm &amp; Pay", you agree to PRIME BOOKING's <a href="{{ route('terms') }}" target="_blank" class="text-primary text-decoration-none">Terms of Service</a> and <a href="{{ route('privacy') }}" target="_blank" class="text-primary text-decoration-none">Cancellation Policy</a>.
                     </div>
                 </div>
 
@@ -269,3 +269,4 @@ function appendReq(text) {
 }
 </script>
 @endsection
+

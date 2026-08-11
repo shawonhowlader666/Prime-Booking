@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -18,7 +18,7 @@ class DatabaseSeeder extends Seeder
         $admin = User::firstOrCreate(
             ['email' => 'admin@primeavn.com'],
             [
-                'name' => 'Prime Aviation Admin',
+                'name' => 'PRIME BOOKING Admin',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'phone' => '01770887733',
@@ -283,3 +283,4 @@ class DatabaseSeeder extends Seeder
         );
     }
 }
+

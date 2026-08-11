@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'homes'])
+﻿@extends('layouts.main', ['activePage' => 'homes'])
 
-@section('title', 'Vacation Homes & Luxury Apartments | Prime Aviation')
+@section('title', 'Vacation Homes & Luxury Apartments | PRIME BOOKING')
 
 @section('content')
 {{-- Hero Subheader --}}
@@ -79,3 +79,4 @@
     </div>
 </div>
 @endsection
+

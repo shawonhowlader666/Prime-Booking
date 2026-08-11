@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'bookings'])
+﻿@extends('layouts.main', ['activePage' => 'bookings'])
 
-@section('title', 'My Account & Booking History | Prime Aviation')
+@section('title', 'My Account & Booking History | PRIME BOOKING')
 
 @section('content')
 <div style="background-color: #f8fafc; min-height: 80vh; padding: 40px 16px;">
@@ -162,3 +162,4 @@
     </div>
 </div>
 @endsection
+

@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'messages'])
+﻿@extends('layouts.main', ['activePage' => 'messages'])
 
-@section('title', 'Property Messages & Inquiries | Prime Aviation')
+@section('title', 'Property Messages & Inquiries | PRIME BOOKING')
 
 @section('content')
 <div class="py-4" style="background-color: #f4f6fa; min-height: 85vh;">
@@ -99,3 +99,4 @@
     </div>
 </div>
 @endsection
+

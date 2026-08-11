@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -60,7 +60,7 @@
 
             <p class="greeting">
                 Dear <strong>{{ $booking->guest_name }}</strong>, 👋<br><br>
-                Thank you for choosing <strong>Prime Aviation</strong>! Your booking has been confirmed.
+                Thank you for choosing <strong>PRIME BOOKING</strong>! Your booking has been confirmed.
                 We look forward to making your stay unforgettable.
             </p>
 
@@ -164,12 +164,12 @@
                 <a href="#" title="WhatsApp" style="background:#25d366;">w</a>
             </div>
             <p>
-                <strong>Prime Aviation</strong> — Bangladesh's Premium Travel & Hotel Booking Platform<br>
+                <strong>PRIME BOOKING</strong> — Bangladesh's Premium Travel & Hotel Booking Platform<br>
                 <a href="{{ config('app.url') }}">www.primeaviation.com</a> &bull;
                 <a href="{{ config('app.url') }}/privacy">Privacy Policy</a> &bull;
                 <a href="{{ config('app.url') }}/terms">Terms</a><br><br>
-                You received this email because you made a booking on Prime Aviation.<br>
-                &copy; {{ date('Y') }} Prime Aviation. All rights reserved.
+                You received this email because you made a booking on PRIME BOOKING.<br>
+                &copy; {{ date('Y') }} PRIME BOOKING. All rights reserved.
             </p>
         </div>
 
@@ -177,3 +177,4 @@
 </div>
 </body>
 </html>
+

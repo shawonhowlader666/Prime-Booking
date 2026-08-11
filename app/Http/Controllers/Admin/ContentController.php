@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -12,7 +12,7 @@ class ContentController extends Controller
     public function hero()
     {
         $heroSettings = [
-            'site_name'    => SiteSetting::get('site_name', 'Prime Aviation'),
+            'site_name'    => SiteSetting::get('site_name', 'PRIME BOOKING'),
             'site_tagline' => SiteSetting::get('site_tagline', 'Bangladesh\'s #1 Hotel & Flight Platform'),
             'hero_banner'  => SiteSetting::get('hero_banner_title', 'Find Your Next Stay or Flight'),
         ];
@@ -64,3 +64,4 @@ class ContentController extends Controller
         return back()->with('success', 'Featured Tourist Destinations updated successfully in DB!');
     }
 }
+

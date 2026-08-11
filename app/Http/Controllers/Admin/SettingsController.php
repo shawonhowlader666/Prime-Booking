@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -13,7 +13,7 @@ class SettingsController extends Controller
     {
         $company = config('company');
         $siteSettings = [
-            'site_name'        => SiteSetting::get('site_name', 'Prime Aviation'),
+            'site_name'        => SiteSetting::get('site_name', 'PRIME BOOKING'),
             'default_currency' => SiteSetting::get('currency', 'BDT'),
             'commission_rate'  => SiteSetting::get('platform_commission', '12'),
             'support_phone'    => SiteSetting::get('support_phone', '+880 1700 000000'),
@@ -52,4 +52,5 @@ class SettingsController extends Controller
         return redirect()->back()->with('success', 'System settings & platform configurations updated successfully in DB!');
     }
 }
+
 

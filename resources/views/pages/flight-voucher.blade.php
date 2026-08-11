@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flight e-Ticket Voucher — {{ $ticket['pnr'] }} | Prime Aviation</title>
+    <title>Flight e-Ticket Voucher — {{ $ticket['pnr'] }} | PRIME BOOKING</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; color: #1e293b; background: #f8fafc; margin: 0; padding: 20px; }
         .voucher-card { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
@@ -29,7 +29,7 @@
     <div class="voucher-card">
         <div class="header-bar">
             <div>
-                <div style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">PRIME AVIATION E-TICKET</div>
+                <div style="font-size: 18px; font-weight: 800; letter-spacing: 0.5px;">PRIME BOOKING E-TICKET</div>
                 <div style="font-size: 11px; opacity: 0.8;">Official Boarding Pass &amp; Flight Itinerary</div>
             </div>
             <div>
@@ -96,10 +96,11 @@
         </div>
 
         <div class="footer-bar">
-            <div style="font-size: 11px; color: #64748b;">Issued via Prime Aviation Air Mobility System</div>
+            <div style="font-size: 11px; color: #64748b;">Issued via PRIME BOOKING Air Mobility System</div>
             <div style="font-size: 11px; font-weight: 700; color: #0b2545;">Issue Timestamp: {{ $ticket['issued_at'] }}</div>
         </div>
     </div>
 
 </body>
 </html>
+

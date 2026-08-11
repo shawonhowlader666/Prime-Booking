@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'System Settings & Currency | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'System Settings & Currency | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -67,7 +67,7 @@
                     <div class="row g-3">
                         <div class="col-md-6">
                             <label class="form-label">Platform Title / Brand Name <span style="color:#ff4d4f;">*</span></label>
-                            <input type="text" name="site_name" class="form-control" value="Prime Aviation &amp; Booking">
+                            <input type="text" name="site_name" class="form-control" value="PRIME BOOKING &amp; Booking">
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Support Contact Phone <span style="color:#ff4d4f;">*</span></label>
@@ -167,3 +167,4 @@
 
 </div>
 @endsection
+

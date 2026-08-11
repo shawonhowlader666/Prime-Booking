@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Mail;
 
@@ -30,7 +30,7 @@ class BookingConfirmationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: '✅ Booking Confirmed — ' . $this->booking->booking_reference . ' | Prime Aviation',
+            subject: '✅ Booking Confirmed — ' . $this->booking->booking_reference . ' | PRIME BOOKING',
         );
     }
 
@@ -46,3 +46,4 @@ class BookingConfirmationMail extends Mailable
         );
     }
 }
+

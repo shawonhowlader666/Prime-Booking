@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'Homepage Hero Slider Control | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'Homepage Hero Slider Control | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -88,3 +88,4 @@
 
 </div>
 @endsection
+

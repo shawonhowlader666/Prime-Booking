@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'Promo Coupons & Discounts | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'Promo Coupons & Discounts | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -325,3 +325,4 @@ function generateCode() {
 }
 </script>
 @endsection
+

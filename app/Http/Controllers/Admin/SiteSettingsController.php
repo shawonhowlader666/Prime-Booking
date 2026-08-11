@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -108,7 +108,7 @@ class SiteSettingsController extends Controller
             ['key'=>'currency',               'group'=>'payment', 'value'=>'BDT', 'type'=>'text', 'label'=>'Default Currency'],
 
             // ── General ───────────────────────────────────────────────────
-            ['key'=>'site_name',         'group'=>'general', 'value'=>'Prime Aviation', 'type'=>'text', 'label'=>'Site Name'],
+            ['key'=>'site_name',         'group'=>'general', 'value'=>'PRIME BOOKING', 'type'=>'text', 'label'=>'Site Name'],
             ['key'=>'site_tagline',      'group'=>'general', 'value'=>'Bangladesh\'s #1 Hotel Booking Platform', 'type'=>'text', 'label'=>'Tagline'],
             ['key'=>'support_email',     'group'=>'general', 'value'=>'support@primeaviation.com', 'type'=>'text', 'label'=>'Support Email'],
             ['key'=>'support_phone',     'group'=>'general', 'value'=>'+880 1700 000000', 'type'=>'text', 'label'=>'Support Phone'],
@@ -126,3 +126,4 @@ class SiteSettingsController extends Controller
         return back()->with('success', 'Default settings seeded successfully.');
     }
 }
+

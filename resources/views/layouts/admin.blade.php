@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Prime Aviation Admin Panel')</title>
+    <title>@yield('title', 'PRIME BOOKING Admin Panel')</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -727,7 +727,7 @@
                 <i class="fa-solid fa-paper-plane"></i>
             </div>
             <div>
-                <span class="sb-brand-title">PRIME AVIATION</span>
+                <span class="sb-brand-title">PRIME BOOKING</span>
                 <span class="sb-brand-subtitle">OTA Travel &amp; Hospitality</span>
             </div>
             <button onclick="toggleSidebar()" class="ms-auto d-lg-none" style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;padding:4px;">
@@ -849,7 +849,7 @@
                 <button class="btn-mobile-toggle" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <span class="engine-badge">PRIME AVIATION ENGINE v1.0</span>
+                <span class="engine-badge">PRIME BOOKING ENGINE v1.0</span>
             </div>
 
             <div class="admin-topbar-right">
@@ -891,3 +891,4 @@
     @yield('scripts')
 </body>
 </html>
+

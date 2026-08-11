@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'Booking Details #' . ($booking->booking_reference ?? $booking->id) . ' | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'Booking Details #' . ($booking->booking_reference ?? $booking->id) . ' | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -196,3 +196,4 @@
 
 </div>
 @endsection
+

@@ -1,4 +1,4 @@
-@extends('layouts.main', ['activePage' => 'hotels'])
+﻿@extends('layouts.main', ['activePage' => 'hotels'])
 
 @php
     use App\Services\CurrencyService;
@@ -24,7 +24,7 @@
     $nights = $nights ?? 1;
 @endphp
 
-@section('title', e($property->name) . ' — Book Hotels in ' . ($property->city ?: 'Bangladesh') . ' | Prime Aviation')
+@section('title', e($property->name) . ' — Book Hotels in ' . ($property->city ?: 'Bangladesh') . ' | PRIME BOOKING')
 @section('meta_description', 'Book ' . e($property->name) . ' in ' . e($property->city) . '. ' . $revCount . ' verified guest reviews. Best rate guaranteed.')
 
 @section('content')
@@ -1425,3 +1425,4 @@
     </div>
 </div>
 @endsection
+

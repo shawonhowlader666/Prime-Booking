@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Console\Commands;
 
@@ -17,7 +17,7 @@ class PlatformHealthCheckCommand extends Command
     public function handle(): int
     {
         $this->info('=====================================================');
-        $this->info('      PRIME AVIATION ENTERPRISE HEALTH DIAGNOSTIC    ');
+        $this->info('      PRIME BOOKING ENTERPRISE HEALTH DIAGNOSTIC    ');
         $this->info('=====================================================');
 
         $rows = [];
@@ -65,3 +65,4 @@ class PlatformHealthCheckCommand extends Command
         return self::SUCCESS;
     }
 }
+

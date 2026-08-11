@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
@@ -61,7 +61,7 @@ class AuthController extends Controller
             'user'  => $this->formatUser($user),
             'token' => $token,
             'token_type' => 'Bearer',
-        ], 'Registration successful! Welcome to Prime Aviation.');
+        ], 'Registration successful! Welcome to PRIME BOOKING.');
     }
 
     // ─── Login ────────────────────────────────────────────────────────────
@@ -190,3 +190,4 @@ class AuthController extends Controller
         return $base;
     }
 }
+

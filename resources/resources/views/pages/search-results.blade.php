@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'services'])
+﻿@extends('layouts.main', ['activePage' => 'services'])
 
-@section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | Prime Aviation')
+@section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING')
 
 @section('content')
 {{-- 1. Agoda Official "Just a moment!" Loading Modal Overlay (Image 1 Parity) --}}
@@ -118,3 +118,4 @@ function showLoadingModal() {
 }
 </script>
 @endsection
+

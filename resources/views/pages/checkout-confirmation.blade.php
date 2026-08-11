@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'home'])
+﻿@extends('layouts.main', ['activePage' => 'home'])
 
-@section('title', 'Booking Confirmed #' . $booking->booking_reference . ' | Prime Aviation')
+@section('title', 'Booking Confirmed #' . $booking->booking_reference . ' | PRIME BOOKING')
 
 @section('content')
 <div class="py-5 bg-light" style="min-height: 80vh;">
@@ -124,3 +124,4 @@
     </div>
 </div>
 @endsection
+

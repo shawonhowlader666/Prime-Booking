@@ -1,4 +1,4 @@
-# ✈️ Prime Aviation — Enterprise Travel & Air Mobility SaaS Platform
+﻿# ✈️ PRIME BOOKING — Enterprise Travel & Air Mobility SaaS Platform
 
 [![Laravel](https://img.shields.io/badge/Laravel-11.x-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)](https://laravel.com)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://mysql.com)
@@ -6,7 +6,7 @@
 [![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?style=for-the-badge&logo=docker&logoColor=white)](https://docker.com)
 [![License](https://img.shields.io/badge/License-MIT-blue.style=for-the-badge)](#)
 
-**Prime Aviation** is an enterprise-grade Travel & Air Mobility SaaS platform engineered with Agoda-level feature parity, multi-tenant vendor property management, live domestic flight booking, multi-currency price conversion, and real-time AJAX search autocomplete.
+**PRIME BOOKING** is an enterprise-grade Travel & Air Mobility SaaS platform engineered with Agoda-level feature parity, multi-tenant vendor property management, live domestic flight booking, multi-currency price conversion, and real-time AJAX search autocomplete.
 
 ---
 
@@ -116,4 +116,5 @@ php artisan prime:health-check
 ---
 
 ## 📄 License
-The Prime Aviation SaaS Platform is open-sourced software licensed under the [MIT License](LICENSE).
+The PRIME BOOKING SaaS Platform is open-sourced software licensed under the [MIT License](LICENSE).
+

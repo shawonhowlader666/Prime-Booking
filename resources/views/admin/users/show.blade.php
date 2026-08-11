@@ -1,5 +1,5 @@
-@extends('layouts.admin')
-@section('title', 'User Profile: ' . $user->name . ' | Prime Aviation Admin')
+﻿@extends('layouts.admin')
+@section('title', 'User Profile: ' . $user->name . ' | PRIME BOOKING Admin')
 
 @section('content')
 
@@ -154,3 +154,4 @@
 
 </div>
 @endsection
+

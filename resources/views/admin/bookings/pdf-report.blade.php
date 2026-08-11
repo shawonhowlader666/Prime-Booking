@@ -1,8 +1,8 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Master Reservations Financial Report | Prime Aviation</title>
+    <title>Master Reservations Financial Report | PRIME BOOKING</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 12px; color: #1e293b; margin: 20px; background: #fff; }
         .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #2067e1; padding-bottom: 12px; margin-bottom: 20px; }
@@ -26,7 +26,7 @@
 
     <div class="header">
         <div>
-            <div class="logo">PRIME AVIATION</div>
+            <div class="logo">PRIME BOOKING</div>
             <div style="font-size: 11px; color: #64748b;">Master Reservations & Financial Ledger Report</div>
         </div>
         <div style="text-align: right; font-size: 11px; color: #64748b;">
@@ -76,7 +76,8 @@
     </table>
 
     <div style="margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 10px; font-size: 10px; color: #94a3b8; text-align: center;">
-        Prime Aviation Confidential Audit Log — Computer Generated Document
+        PRIME BOOKING Confidential Audit Log — Computer Generated Document
     </div>
 </body>
 </html>
+

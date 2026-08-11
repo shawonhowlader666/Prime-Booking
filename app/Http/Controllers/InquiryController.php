@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace App\Http\Controllers;
 
@@ -26,6 +26,7 @@ class InquiryController extends Controller
             // Ignore DB error if table doesn't exist yet
         }
 
-        return redirect()->back()->with('success', 'Thank you! Your inquiry has been received by Prime Aviation. Our team will contact you shortly at ' . $validated['phone'] . '.');
+        return redirect()->back()->with('success', 'Thank you! Your inquiry has been received by PRIME BOOKING. Our team will contact you shortly at ' . $validated['phone'] . '.');
     }
 }
+

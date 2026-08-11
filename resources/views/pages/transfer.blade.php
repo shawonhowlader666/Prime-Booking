@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'transfer'])
+﻿@extends('layouts.main', ['activePage' => 'transfer'])
 
-@section('title', 'Airport Transfer & Taxi Rides | Prime Aviation')
+@section('title', 'Airport Transfer & Taxi Rides | PRIME BOOKING')
 
 @section('content')
 {{-- Hero Subheader --}}
@@ -119,3 +119,4 @@
     </div>
 </div>
 @endsection
+

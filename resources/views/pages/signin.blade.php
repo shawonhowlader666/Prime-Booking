@@ -1,6 +1,6 @@
-@extends('layouts.main')
+﻿@extends('layouts.main')
 
-@section('title', 'Sign In to Prime Aviation | Admin, Vendor & User Login')
+@section('title', 'Sign In to PRIME BOOKING | Admin, Vendor & User Login')
 
 @section('content')
 <div class="py-5" style="background-color: #f8fafc; min-height: 82vh; display: flex; align-items: center; justify-content: center;">
@@ -84,7 +84,7 @@
 
                 {{-- Footer Disclaimer --}}
                 <div class="text-center mt-3 text-secondary" style="font-size: 11.5px; line-height: 1.5; color: #64748b !important;">
-                    By signing in, you agree to Prime Aviation's 
+                    By signing in, you agree to PRIME BOOKING's 
                     <a href="{{ route('terms') }}" class="text-decoration-none fw-semibold" style="color: #2067e1;">Terms of Use</a> 
                     and 
                     <a href="{{ route('privacy') }}" class="text-decoration-none fw-semibold" style="color: #2067e1;">Privacy Policy</a>.
@@ -102,3 +102,4 @@ function quickFill(cred, pass) {
 }
 </script>
 @endsection
+

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 namespace Database\Seeders;
 
@@ -32,7 +32,7 @@ class PromotionSeeder extends Seeder
             ['key'=>'payment_nagad_enabled',  'group'=>'payment', 'value'=>'1', 'type'=>'boolean', 'label'=>'Enable Nagad', 'description'=>''],
             ['key'=>'payment_card_enabled',   'group'=>'payment', 'value'=>'1', 'type'=>'boolean', 'label'=>'Enable Card Payment', 'description'=>''],
             ['key'=>'currency',               'group'=>'payment', 'value'=>'BDT', 'type'=>'text', 'label'=>'Default Currency', 'description'=>''],
-            ['key'=>'site_name',              'group'=>'general', 'value'=>'Prime Aviation', 'type'=>'text', 'label'=>'Site Name', 'description'=>''],
+            ['key'=>'site_name',              'group'=>'general', 'value'=>'PRIME BOOKING', 'type'=>'text', 'label'=>'Site Name', 'description'=>''],
             ['key'=>'site_tagline',           'group'=>'general', 'value'=>"Bangladesh's #1 Hotel Booking Platform", 'type'=>'text', 'label'=>'Tagline', 'description'=>''],
             ['key'=>'support_email',          'group'=>'general', 'value'=>'support@primeaviation.com', 'type'=>'text', 'label'=>'Support Email', 'description'=>''],
             ['key'=>'support_phone',          'group'=>'general', 'value'=>'+880 1700 000000', 'type'=>'text', 'label'=>'Support Phone', 'description'=>''],
@@ -161,3 +161,4 @@ class PromotionSeeder extends Seeder
         $this->command->info('✅ Promotions, Destinations & Settings seeded successfully!');
     }
 }
+

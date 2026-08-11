@@ -1,6 +1,6 @@
-@extends('layouts.main')
+﻿@extends('layouts.main')
 
-@section('title', 'Airport Taxi & Chauffeur Transfer | Prime Aviation')
+@section('title', 'Airport Taxi & Chauffeur Transfer | PRIME BOOKING')
 
 @section('content')
 <div class="py-4 bg-light" style="min-height: 85vh;">
@@ -134,3 +134,4 @@
     </div>
 </div>
 @endsection
+

@@ -1,6 +1,6 @@
-@extends('layouts.main', ['activePage' => 'services'])
+﻿@extends('layouts.main', ['activePage' => 'services'])
 
-@section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | Prime Aviation')
+@section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING')
 
 @section('content')
 @include('components.search.loading-skeleton-modal')
@@ -276,7 +276,7 @@
                                 map = L.map('agodaMapContainer').setView([{{ $centerLat }}, {{ $centerLng }}], 13);
 
                                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                                    attribution: '&copy; OpenStreetMap contributors | Prime Aviation Map'
+                                    attribution: '&copy; OpenStreetMap contributors | PRIME BOOKING Map'
                                 }).addTo(map);
 
                                 var properties = @json($mapProperties);
@@ -321,3 +321,4 @@
     </button>
 </div>
 @endsection
+

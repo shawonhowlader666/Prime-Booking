@@ -1,0 +1,7 @@
+cluster.name: "prime-aviation-cluster"
+network.host: 0.0.0.0
+http.port: 9200
+discovery.type: single-node
+xpack.security.enabled: false
+xpack.security.http.ssl.enabled: false
+indices.query.bool.max_clause_count: 1024

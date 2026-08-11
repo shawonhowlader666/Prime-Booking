@@ -1,0 +1,26 @@
+name: Staging Deployment Pipeline
+
+on:
+  push:
+    branches: [ develop ]
+
+jobs:
+  deploy-staging:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Deploy to Staging Server via SSH
+        uses: appleboy/ssh-action@v0.1.8
+        with:
+          host: ${{ secrets.STAGING_SERVER_IP }}
+          username: ${{ secrets.STAGING_SERVER_USER }}
+          key: ${{ secrets.STAGING_SSH_KEY }}
+          script: |
+            cd /var/www/staging-prime-aviation
+            git pull origin develop
+            composer install --optimize-autoloader
+            php artisan migrate --force
+            php artisan cache:clear
+            php artisan queue:restart
+            echo "Staging Deployment Completed!"

@@ -1,0 +1,13 @@
+===================================================================
+PRIME AVIATION PLATFORM - SYSTEM ENVIRONMENT SPECIFICATIONS
+===================================================================
+Project Name: Prime Aviation Online Travel Platform
+Location: C:\Users\Shawon\Desktop\prime-aviation
+Framework: Laravel 12.64.0
+PHP Version: 8.2.12 (cli) ZTS Visual C++ 2019 x64
+Composer Version: 2.9.5
+Database Engine: MySQL 8.0 / MariaDB (DB_CONNECTION=mysql, Port: 3306)
+Frontend Architecture: Blade Templating + Custom CSS / Bootstrap 5 / Tailwind CSS + Vanilla JS / Alpine.js
+Coding Standards: PSR-12, Service-Repository Pattern, Eager Loading, Redis Caching Ready
+Primary Target Scale: 10M+ Users, Sub-50ms DB Queries, Agoda Parity UI/UX
+===================================================================

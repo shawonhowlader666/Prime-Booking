@@ -64,35 +64,39 @@
                         </div>
                     </div>
 
-                    {{-- Clean & Minimal Cookie / Network JSON Input --}}
+                    {{-- Interactive Mode Switcher Pill Buttons (Background changes on click) --}}
                     <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-1.5">
-                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;">
-                                Cookie Header or Network JSON Payload <span class="text-danger">*</span>
-                            </label>
-                            @php
-                                $savedCookieGlobal = \App\Models\SiteSetting::get('ota_saved_cookie_agoda', '');
-                            @endphp
-                            @if(!empty($savedCookieGlobal))
-                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:10.5px;">
-                                    <i class="fa-solid fa-circle-check me-1"></i> Cookie Active
-                                </span>
-                            @endif
-                        </div>
-                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste browser Cookie header or F12 Network JSON payload here..." style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
-                        
-                        <div class="d-flex align-items-center justify-content-between mt-1.5" style="font-size:11.5px;">
-                            <span class="text-muted"><i class="fa-solid fa-circle-info me-1 text-primary"></i> Auto-detects Cookie strings & Network JSON payloads</span>
-                            <div class="d-flex align-items-center gap-2.5">
-                                <a href="javascript:void(0)" onclick="fillSampleNetworkJson()" class="text-decoration-none text-secondary fw-semibold">
-                                    <i class="fa-solid fa-code me-1 text-primary"></i> Sample JSON
-                                </a>
-                                <span class="text-muted">•</span>
-                                <a href="javascript:void(0)" onclick="fillSampleJson()" class="text-decoration-none text-secondary fw-semibold">
-                                    <i class="fa-solid fa-cookie me-1 text-warning"></i> Sample Cookie
-                                </a>
+                        <div class="d-flex align-items-center justify-content-between mb-2 flex-wrap gap-2">
+                            <div class="d-flex align-items-center gap-2">
+                                <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;">
+                                    Payload Source <span class="text-danger">*</span>
+                                </label>
+                                @php
+                                    $savedCookieGlobal = \App\Models\SiteSetting::get('ota_saved_cookie_agoda', '');
+                                @endphp
+                                @if(!empty($savedCookieGlobal))
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:10px;">
+                                        <i class="fa-solid fa-circle-check me-1"></i> Cookie Active
+                                    </span>
+                                @endif
+                            </div>
+
+                            {{-- Interactive Pill Toggle Buttons --}}
+                            <div class="btn-group p-0.5" role="group" style="background:#f1f5f9; border-radius:6px; border:1px solid #cbd5e1;">
+                                <button type="button" class="btn btn-xs fw-bold px-2.5 py-1" id="modeBtnCookie" onclick="switchPayloadMode('cookie')" style="font-size:11px; border-radius:4px; transition:all 0.2s ease; background:var(--primary); color:#ffffff; border:none; box-shadow:0 1px 2px rgba(0,0,0,0.12);">
+                                    <i class="fa-solid fa-cookie-bite me-1"></i> Cookie Header
+                                </button>
+                                <button type="button" class="btn btn-xs fw-bold px-2.5 py-1" id="modeBtnJson" onclick="switchPayloadMode('json')" style="font-size:11px; border-radius:4px; transition:all 0.2s ease; background:transparent; color:#64748b; border:none;">
+                                    <i class="fa-solid fa-code me-1"></i> Network JSON
+                                </button>
                             </div>
                         </div>
+
+                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste browser Cookie header here... (e.g. agoda.sid=12345; _ga=...; rCookie=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
+                        
+                        <small class="text-muted d-block mt-1.5" style="font-size:11.5px;">
+                            <i class="fa-solid fa-circle-info me-1 text-primary"></i> Click buttons above to toggle between Cookie Header & Network JSON modes.
+                        </small>
                     </div>
 
                     {{-- Live Execution Console Logs inside Modal --}}
@@ -287,6 +291,48 @@ function fillSampleNetworkJson() {
             ]
         };
         txt.value = JSON.stringify(sampleNetworkJson, null, 2);
+    }
+}
+
+function switchPayloadMode(mode) {
+    var btnCookie = document.getElementById('modeBtnCookie');
+    var btnJson = document.getElementById('modeBtnJson');
+    var txt = document.getElementById('jsonPayloadInputModal');
+    
+    if (mode === 'cookie') {
+        if (btnCookie) {
+            btnCookie.style.background = 'var(--primary)';
+            btnCookie.style.color = '#ffffff';
+            btnCookie.style.boxShadow = '0 1px 3px rgba(0,0,0,0.12)';
+        }
+        if (btnJson) {
+            btnJson.style.background = 'transparent';
+            btnJson.style.color = '#64748b';
+            btnJson.style.boxShadow = 'none';
+        }
+        if (txt) {
+            txt.placeholder = "Paste browser Cookie header here... (e.g. agoda.sid=12345; _ga=...; rCookie=...)";
+            if (!txt.value || txt.value.trim().startsWith('{')) {
+                fillSampleJson();
+            }
+        }
+    } else {
+        if (btnJson) {
+            btnJson.style.background = 'var(--primary)';
+            btnJson.style.color = '#ffffff';
+            btnJson.style.boxShadow = '0 1px 3px rgba(0,0,0,0.12)';
+        }
+        if (btnCookie) {
+            btnCookie.style.background = 'transparent';
+            btnCookie.style.color = '#64748b';
+            btnCookie.style.boxShadow = 'none';
+        }
+        if (txt) {
+            txt.placeholder = "Paste F12 Network JSON response payload here...";
+            if (!txt.value || !txt.value.trim().startsWith('{')) {
+                fillSampleNetworkJson();
+            }
+        }
     }
 }
 

@@ -65,13 +65,13 @@
                     {{-- Target City Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Target City / Region <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <select name="target_city" id="targetCitySelect" class="form-select" style="border-radius:6px 0 0 6px;" required>
+                        <div class="d-flex align-items-center" style="gap:6px;">
+                            <select name="target_city" id="targetCitySelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;" required>
                                 @foreach($cities as $c)
                                     <option value="{{ $c }}" {{ $c === "Cox's Bazar" ? 'selected' : '' }}>{{ $c }}</option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('city')" title="Add New City Option" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('city')" title="Add New City Option" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -80,15 +80,15 @@
                     {{-- Max Limit Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Max Limit (Hotels to Process)</label>
-                        <div class="input-group">
-                            <select name="max_limit" id="maxLimitSelect" class="form-select" style="border-radius:6px 0 0 6px;">
+                        <div class="d-flex align-items-center" style="gap:6px;">
+                            <select name="max_limit" id="maxLimitSelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;">
                                 <option value="10">10 Properties</option>
                                 <option value="25">25 Properties</option>
                                 <option value="50" selected>50 Properties (Recommended)</option>
                                 <option value="100">100 Properties</option>
                                 <option value="200">200 Properties</option>
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('limit')" title="Add Custom Limit Option" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('limit')" title="Add Custom Limit Option" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -101,13 +101,13 @@
                     {{-- Property Type Override Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Property Type Override</label>
-                        <div class="input-group">
-                            <select name="override_type" id="overrideTypeSelect" class="form-select" style="border-radius:6px 0 0 6px;">
+                        <div class="d-flex align-items-center" style="gap:6px;">
+                            <select name="override_type" id="overrideTypeSelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;">
                                 @foreach($propertyTypes as $key => $label)
                                     <option value="{{ $key }}">{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('type')" title="Add New Property Type" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('type')" title="Add New Property Type" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -116,13 +116,13 @@
                     {{-- Default Status Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Default Listing Status</label>
-                        <div class="input-group">
-                            <select name="override_status" id="overrideStatusSelect" class="form-select" style="border-radius:6px 0 0 6px;">
+                        <div class="d-flex align-items-center" style="gap:6px;">
+                            <select name="override_status" id="overrideStatusSelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;">
                                 <option value="active" selected>🟢 Active &amp; Published (Live immediately)</option>
                                 <option value="pending">🟡 Pending Review (Draft mode)</option>
                                 <option value="inactive">🔴 Inactive</option>
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>

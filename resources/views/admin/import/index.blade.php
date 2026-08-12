@@ -162,30 +162,98 @@
         </div>
     </div>
 
-    {{-- Execution Console Logs --}}
+    {{-- Recent Live Imported Property Inventory Table --}}
     <div class="form-card" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:20px;">
-        <h6 class="form-section-title d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
-            <span class="d-flex align-items-center gap-2" style="font-size:14px; font-weight:600;">
-                <i class="fa-solid fa-terminal text-primary"></i> Live Importer Execution Console &amp; Audit Log
-            </span>
-            <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1 text-white" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none;">
-                    <i class="fa-solid fa-cloud-arrow-down me-1"></i> + Launch Importer Popup
-                </button>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size:10px; font-weight:600;">
-                    <i class="fa-solid fa-spinner fa-spin me-1"></i> Real-Time Audit
-                </span>
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 flex-wrap gap-2">
+            <div>
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size:14.5px;">
+                    <i class="fa-solid fa-list-check text-primary"></i>
+                    Recent Live Imported Properties Audit Trail
+                </h6>
+                <small class="text-secondary" style="font-size:11.5px;">Real-time inventory synchronized from Agoda &amp; Booking.com into MySQL database.</small>
             </div>
-        </h6>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1.5 text-white" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12px; border-radius:4px; background:var(--primary); border:none;">
+                    <i class="fa-solid fa-plus me-1"></i> Sync New OTA Hotels
+                </button>
+                <a href="{{ route('admin.properties.index') }}" class="btn btn-sm btn-outline-secondary fw-bold px-3 py-1.5" style="font-size:12px; border-radius:4px;">
+                    <i class="fa-solid fa-external-link me-1"></i> View All Properties
+                </a>
+            </div>
+        </div>
 
-        <div id="importLogsConsole" style="background:#090d16; color:#38bdf8; font-family:'Courier New', Courier, monospace; font-size:12px; padding:16px 18px; border-radius:4px; height:320px; overflow-y:auto; line-height:1.7; border:1px solid #1e293b;">
-            @if(session('import_logs') && is_array(session('import_logs')))
-                @foreach(session('import_logs') as $log)
-                    <div style="color:#52c41a; margin-bottom:4px;"><i class="fa-solid fa-angle-right me-1.5" style="color:#38bdf8;"></i> {{ $log }}</div>
-                @endforeach
-            @else
-                <div style="color:#94a3b8; font-style:italic;"><i class="fa-solid fa-terminal me-2" style="color:#1890ff;"></i> Console ready. Click "+ Sync New OTA Hotels" to launch popup importer card...</div>
-            @endif
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0" style="font-size:12.5px;">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:45px;">#</th>
+                        <th>Property Name</th>
+                        <th>City / Region</th>
+                        <th>Category</th>
+                        <th>Rating / Reviews</th>
+                        <th>Base Price</th>
+                        <th>Status</th>
+                        <th class="text-end">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($recentImports as $index => $prop)
+                    <tr>
+                        <td class="text-secondary fw-bold">{{ $index + 1 }}</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2.5">
+                                @if(!empty($prop->primary_image))
+                                    <img src="{{ $prop->primary_image }}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1;">
+                                @else
+                                    <div class="d-flex align-items-center justify-content-center bg-light text-secondary rounded" style="width:36px; height:36px; border:1px solid #e2e8f0;">
+                                        <i class="fa-solid fa-hotel"></i>
+                                    </div>
+                                @endif
+                                <div>
+                                    <strong style="font-size:13px; display:block; color:#0f172a;">{{ Str::limit($prop->name, 35) }}</strong>
+                                    <small class="text-secondary" style="font-size:11px;">ID: #PROP-{{ $prop->id }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-dark border" style="font-size:11px;">
+                                <i class="fa-solid fa-location-dot me-1 text-primary"></i> {{ $prop->city ?? 'Cox\'s Bazar' }}
+                            </span>
+                        </td>
+                        <td><span class="text-capitalize text-secondary">{{ $prop->property_type ?? 'Hotel' }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-1 text-warning" style="font-size:11px;">
+                                <i class="fa-solid fa-star"></i>
+                                <strong class="text-dark">{{ number_format($prop->rating_score ?? 4.8, 1) }}</strong>
+                                <small class="text-secondary">({{ $prop->total_reviews ?? 120 }})</small>
+                            </div>
+                        </td>
+                        <td>
+                            <strong style="color:#059669;">৳ {{ number_format($prop->base_price ?? $prop->starting_price ?? 2500) }}</strong>
+                        </td>
+                        <td>
+                            @if(($prop->status ?? 'active') === 'active')
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:10px;">🟢 Live</span>
+                            @else
+                                <span class="badge bg-warning-subtle text-warning border border-warning-subtle px-2 py-1" style="font-size:10px;">🟡 Pending</span>
+                            @endif
+                        </td>
+                        <td class="text-end">
+                            <a href="{{ route('admin.properties.edit', $prop->id) }}" class="btn btn-sm btn-light border p-1 px-2" title="Edit Property" style="font-size:11px;">
+                                <i class="fa-solid fa-pen text-secondary"></i>
+                            </a>
+                        </td>
+                    </tr>
+                    @empty
+                    <tr>
+                        <td colspan="8" class="text-center py-4 text-secondary">
+                            <i class="fa-solid fa-box-open fa-2x mb-2 d-block text-muted"></i>
+                            No imported properties found yet. Click <strong>"+ Sync New OTA Hotels"</strong> to run real-time sync!
+                        </td>
+                    </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
     </div>
 
@@ -309,21 +377,23 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="5" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;">{{ old('cookie_header', $savedCookie ?? '') }}</textarea>
+                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;">{{ old('cookie_header', $savedCookie ?? '') }}</textarea>
                         <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
                             💡 <strong>একবার কুকি দিলে তা সেভ হয়ে থাকবে</strong> — পরবর্তীতে আর পেস্ট করতে হবে না, অটোমেটিক সেভ করা কুকি দিয়ে সিঙ্ক হবে!
                         </small>
                     </div>
 
-                    {{-- How it works summary box inside modal --}}
-                    <div class="p-3 border rounded" style="background:#f8fafc; border-color:#e2e8f0!important;">
-                        <small class="text-dark fw-bold d-block mb-1" style="font-size:12px;">
-                            <i class="fa-solid fa-lightbulb text-warning me-1"></i> Quick 3-Step Cookie Import:
-                        </small>
-                        <small class="text-secondary" style="font-size:11.5px; line-height:1.5; display:block;">
-                            1. Agoda/Booking এ ঢুকুন &rarr; 2. F12 Network tab থেকে <code>Cookie:</code> লাইনটি কপি করুন &rarr; 3. ওপরের ঘরে পেস্ট করে সিঙ্ক বাটন চাপুন!
-                        </small>
+                    {{-- Live Execution Console Logs inside Modal --}}
+                    @if(session('import_logs') && is_array(session('import_logs')))
+                    <div class="mt-3">
+                        <label class="form-label fw-semibold text-dark mb-1" style="font-size:12.5px;"><i class="fa-solid fa-terminal text-primary me-1"></i> Live Synchronization Audit Log</label>
+                        <div id="importLogsConsole" style="background:#090d16; color:#38bdf8; font-family:'Courier New', Courier, monospace; font-size:11.5px; padding:12px 14px; border-radius:4px; height:180px; overflow-y:auto; line-height:1.6; border:1px solid #1e293b;">
+                            @foreach(session('import_logs') as $log)
+                                <div style="color:#52c41a; margin-bottom:3px;"><i class="fa-solid fa-angle-right me-1" style="color:#38bdf8;"></i> {{ $log }}</div>
+                            @endforeach
+                        </div>
                     </div>
+                    @endif
 
                 </div>
 
@@ -512,6 +582,11 @@ document.addEventListener('DOMContentLoaded', function() {
     saved.forEach(function(channelName) {
         appendOtaChannelCard(channelName);
     });
+
+    @if(session('import_logs'))
+        var syncModal = new bootstrap.Modal(document.getElementById('syncOtaCookieModal'));
+        syncModal.show();
+    @endif
 });
 
 function switchImportTab(mode) {

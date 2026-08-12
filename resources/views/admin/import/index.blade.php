@@ -20,21 +20,21 @@
                 Import real hotels, room categories, pricing, amenities &amp; photo galleries directly from Agoda, Booking.com, or API payloads.
             </p>
         </div>
-        <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px;">
+        <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
             <i class="fa-solid fa-hotel me-1"></i> View Property Inventory
         </a>
     </div>
 </div>
 
 @if(session('success'))
-<div class="admin-alert success d-flex align-items-center justify-content-between mb-4">
+<div class="admin-alert success d-flex align-items-center justify-content-between mb-4" style="border-radius:4px;">
     <div><i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}</div>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
 @endif
 
 @if(session('error'))
-<div class="admin-alert error d-flex align-items-center justify-content-between mb-4">
+<div class="admin-alert error d-flex align-items-center justify-content-between mb-4" style="border-radius:4px;">
     <div><i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}</div>
     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 </div>
@@ -43,14 +43,14 @@
 <div class="row g-4">
     {{-- Left Import Form Column --}}
     <div class="col-lg-7">
-        <div class="form-card">
+        <div class="form-card" style="border-radius:4px;">
             
             {{-- Mode Switcher Tabs --}}
-            <div class="d-flex align-items-center gap-2 mb-4 p-1 rounded-3" style="background:#f1f5f9; border:1px solid #e2e8f0;">
-                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 active-import-tab" id="tabPayload" onclick="switchImportTab('json_payload')" style="font-size:13px; border-radius:6px; background:#ffffff; color:var(--primary); box-shadow:0 2px 6px rgba(0,0,0,0.06)!important;">
+            <div class="d-flex align-items-center gap-2 mb-4 p-1" style="background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px;">
+                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 active-import-tab" id="tabPayload" onclick="switchImportTab('json_payload')" style="font-size:13px; border-radius:4px; background:#ffffff; color:var(--primary); box-shadow:0 2px 6px rgba(0,0,0,0.06)!important;">
                     <i class="fa-solid fa-code me-1"></i> Paste Network JSON Payload
                 </button>
-                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 text-secondary" id="tabApi" onclick="switchImportTab('api_fetch')" style="font-size:13px; border-radius:6px; background:transparent;">
+                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 text-secondary" id="tabApi" onclick="switchImportTab('api_fetch')" style="font-size:13px; border-radius:4px; background:transparent;">
                     <i class="fa-solid fa-link me-1"></i> Live API Fetch (Cookie / Token)
                 </button>
             </div>
@@ -66,12 +66,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Target City / Region <span class="text-danger">*</span></label>
                         <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="target_city" id="targetCitySelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;" required>
+                            <select name="target_city" id="targetCitySelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
                                 @foreach($cities as $c)
                                     <option value="{{ $c }}" {{ $c === "Cox's Bazar" ? 'selected' : '' }}>{{ $c }}</option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('city')" title="Add New City Option" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('city')" title="Add New City Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -81,14 +81,14 @@
                     <div class="col-md-6">
                         <label class="form-label">Max Limit (Hotels to Process)</label>
                         <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="max_limit" id="maxLimitSelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;">
+                            <select name="max_limit" id="maxLimitSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
                                 <option value="10">10 Properties</option>
                                 <option value="25">25 Properties</option>
                                 <option value="50" selected>50 Properties (Recommended)</option>
                                 <option value="100">100 Properties</option>
                                 <option value="200">200 Properties</option>
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('limit')" title="Add Custom Limit Option" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('limit')" title="Add Custom Limit Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -102,12 +102,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Property Type Override</label>
                         <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="override_type" id="overrideTypeSelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;">
+                            <select name="override_type" id="overrideTypeSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
                                 @foreach($propertyTypes as $key => $label)
                                     <option value="{{ $key }}">{{ $label }}</option>
                                 @endforeach
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('type')" title="Add New Property Type" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('type')" title="Add New Property Type" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -117,12 +117,12 @@
                     <div class="col-md-6">
                         <label class="form-label">Default Listing Status</label>
                         <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="override_status" id="overrideStatusSelect" class="form-select flex-grow-1" style="height:38px; border-radius:6px;">
+                            <select name="override_status" id="overrideStatusSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
                                 <option value="active" selected>🟢 Active &amp; Published (Live immediately)</option>
                                 <option value="pending">🟡 Pending Review (Draft mode)</option>
                                 <option value="inactive">🔴 Inactive</option>
                             </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:6px; height:38px; min-width:40px; flex-shrink:0;">
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
                                 <i class="fa-solid fa-plus"></i>
                             </button>
                         </div>
@@ -138,7 +138,7 @@
                                 <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Agoda/Booking Data
                             </button>
                         </div>
-                        <textarea name="json_payload" id="jsonPayloadInput" class="form-control font-monospace" rows="10" placeholder='Paste your API response JSON here (e.g. [{"name": "Royal Tulip Beach Resort", "starRating": 5, "price": 12500, "images": [...]}, ...])'></textarea>
+                        <textarea name="json_payload" id="jsonPayloadInput" class="form-control font-monospace" rows="10" placeholder='Paste your API response JSON here (e.g. [{"name": "Royal Tulip Beach Resort", "starRating": 5, "price": 12500, "images": [...]}, ...])' style="border-radius:4px;"></textarea>
                         <small class="text-muted d-block mt-1" style="font-size:11.5px;">
                             💡 Open F12 Network tab on Agoda/Booking.com, copy the JSON response array or object, and paste it directly here.
                         </small>
@@ -149,23 +149,23 @@
                 <div id="sectionApiFetch" style="display: none;">
                     <div class="mb-3">
                         <label class="form-label">API Endpoint URL <span class="text-danger">*</span></label>
-                        <input type="url" name="endpoint_url" class="form-control" placeholder="https://www.agoda.com/api/cronos/search/getsearchhotelssync">
+                        <input type="url" name="endpoint_url" class="form-control" placeholder="https://www.agoda.com/api/cronos/search/getsearchhotelssync" style="border-radius:4px;">
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Cookie Header (Optional)</label>
-                        <textarea name="cookie_header" class="form-control font-monospace" rows="3" placeholder="agoda.sid=...; _ga=...; access_token=..."></textarea>
+                        <textarea name="cookie_header" class="form-control font-monospace" rows="3" placeholder="agoda.sid=...; _ga=...; access_token=..." style="border-radius:4px;"></textarea>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Authorization Bearer Token (Optional)</label>
-                        <input type="text" name="authorization_token" class="form-control font-monospace" placeholder="Bearer eyJhbGciOiJSUzI1NiIs...">
+                        <input type="text" name="authorization_token" class="form-control font-monospace" placeholder="Bearer eyJhbGciOiJSUzI1NiIs..." style="border-radius:4px;">
                     </div>
                 </div>
 
                 {{-- Submit Button --}}
                 <div class="pt-2">
-                    <button type="submit" class="btn text-white fw-bold px-4 py-2 w-100" style="background:var(--primary); border-radius:6px; font-size:14px; border:none;" id="btnSubmitImport">
+                    <button type="submit" class="btn text-white fw-bold px-4 py-2 w-100" style="background:var(--primary); border-radius:4px; font-size:14px; border:none;" id="btnSubmitImport">
                         <i class="fa-solid fa-bolt me-2"></i> Start Importing Real Hotel Data
                     </button>
                 </div>
@@ -178,7 +178,7 @@
     <div class="col-lg-5">
         
         {{-- How it works card --}}
-        <div class="form-card mb-4" style="background:#fafafa;">
+        <div class="form-card mb-4" style="background:#fafafa; border-radius:4px;">
             <h6 class="form-section-title d-flex align-items-center gap-2">
                 <i class="fa-solid fa-circle-info"></i> Best Smart Logic Features
             </h6>
@@ -207,13 +207,13 @@
         </div>
 
         {{-- Execution Console Logs --}}
-        <div class="form-card">
+        <div class="form-card" style="border-radius:4px;">
             <h6 class="form-section-title d-flex align-items-center justify-content-between">
                 <span><i class="fa-solid fa-terminal me-1"></i> Import Execution Logs</span>
-                <span class="badge bg-secondary" style="font-size:10px;">Real-Time Audit</span>
+                <span class="badge bg-secondary" style="font-size:10px; border-radius:4px;">Real-Time Audit</span>
             </h6>
 
-            <div id="importLogsConsole" style="background:#0f172a; color:#38bdf8; font-family:monospace; font-size:12px; padding:14px; border-radius:6px; height:240px; overflow-y:auto; line-height:1.5;">
+            <div id="importLogsConsole" style="background:#0f172a; color:#38bdf8; font-family:monospace; font-size:12px; padding:14px; border-radius:4px; height:240px; overflow-y:auto; line-height:1.5;">
                 @if(session('import_logs') && is_array(session('import_logs')))
                     @foreach(session('import_logs') as $log)
                         <div>{{ $log }}</div>
@@ -230,8 +230,8 @@
 {{-- Stockifly 1:1 Matching Interactive Modal for [+] Add Option --}}
 <div class="modal fade" id="addOptionModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content border-0 shadow-lg" style="border-radius:12px; overflow:hidden;">
-            <div class="modal-header text-white" style="background:#001529; border-bottom:1px solid rgba(255,255,255,0.1);">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:4px; overflow:hidden;">
+            <div class="modal-header text-white" style="background:#001529; border-bottom:1px solid rgba(255,255,255,0.1); border-radius:4px 4px 0 0;">
                 <h6 class="modal-title fw-bold" id="addOptionModalTitle">
                     <i class="fa-solid fa-plus-circle me-1" style="color:var(--primary);"></i> Add New Option
                 </h6>
@@ -241,15 +241,15 @@
                 <input type="hidden" id="addOptionCategory">
                 <div class="mb-3">
                     <label class="form-label fw-semibold" id="addOptionLabel">Option Value</label>
-                    <input type="text" id="addOptionInput" class="form-control" placeholder="Type new option..." style="height:42px; font-size:14px;">
+                    <input type="text" id="addOptionInput" class="form-control" placeholder="Type new option..." style="height:42px; font-size:14px; border-radius:4px;">
                 </div>
                 <div id="addOptionHelpText" class="text-secondary small">
                     This option will be added to the dropdown list dynamically and selected.
                 </div>
             </div>
-            <div class="modal-footer bg-light">
-                <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal" style="font-size:13px;">Cancel</button>
-                <button type="button" class="btn text-white px-4 fw-bold" onclick="saveNewOption()" style="background:var(--primary); font-size:13px;">
+            <div class="modal-footer bg-light" style="border-radius:0 0 4px 4px;">
+                <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal" style="font-size:13px; border-radius:4px;">Cancel</button>
+                <button type="button" class="btn text-white px-4 fw-bold" onclick="saveNewOption()" style="background:var(--primary); font-size:13px; border-radius:4px;">
                     <i class="fa-solid fa-check me-1"></i> Save &amp; Select Option
                 </button>
             </div>

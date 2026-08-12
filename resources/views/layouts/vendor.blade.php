@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -29,6 +29,48 @@
             --font-size-table-body:   13px;
             --font-size-page-header:  19px;
         }
+
+        /* ============================================================
+         * STRICT RULE: Admin & Vendor Panel — Maximum 4px Border-Radius
+         * ============================================================ */
+        .btn,
+        .btn-primary,
+        .btn-secondary,
+        .btn-success,
+        .btn-danger,
+        .btn-warning,
+        .btn-info,
+        .btn-light,
+        .btn-dark,
+        .btn-outline-primary,
+        .btn-outline-secondary,
+        .btn-export-csv,
+        .btn-export-pdf,
+        .btn-add-primary,
+        .btn-signout,
+        .btn-table-action,
+        .card,
+        .form-card,
+        .page-header-card,
+        .modal-content,
+        .form-control,
+        .form-select,
+        .input-group-text,
+        .badge,
+        .alert,
+        .admin-alert,
+        .nav-tabs .nav-link,
+        .nav-pills .nav-link,
+        .dropdown-menu,
+        .table-responsive,
+        .active-import-tab,
+        .table,
+        .modal-dialog,
+        .modal-header,
+        .modal-footer {
+            border-radius: 4px !important;
+        }
+
         *, *::before, *::after { box-sizing: border-box; }
         body {
             font-family: var(--font-main);

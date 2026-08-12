@@ -62,7 +62,7 @@
                 </span>
             </div>
         </div>
-        <div class="row g-3">
+        <div class="row g-3" id="otaChannelsContainer">
             <div class="col-md-3 col-6">
                 <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
@@ -369,6 +369,11 @@ function openAddOptionModal(category) {
         label.innerText = 'Status Name';
         input.placeholder = 'e.g. draft, archived';
         help.innerText = 'Custom listing status option for property batch import.';
+    } else if (category === 'ota_channel') {
+        title.innerHTML = '<i class="fa-solid fa-globe text-primary me-1"></i> Add Custom OTA Channel';
+        label.innerText = 'OTA Website / Channel Name';
+        input.placeholder = 'e.g. Traveloka, MakeMyTrip, Goibibo, Klook, ShareTrip';
+        help.innerText = 'Add a new custom OTA website channel to the active feeds dashboard.';
     }
 
     var bsModal = new bootstrap.Modal(document.getElementById('addOptionModal'));
@@ -417,12 +422,51 @@ function saveNewOption() {
         var opt = new Option('🔵 ' + val, val.toLowerCase(), true, true);
         select.add(opt, select.options[0]);
         select.value = val.toLowerCase();
+
+    } else if (currentCategory === 'ota_channel') {
+        appendOtaChannelCard(val);
+        saveOtaChannelToStorage(val);
     }
 
     var modalEl = document.getElementById('addOptionModal');
     var modal = bootstrap.Modal.getInstance(modalEl);
     if (modal) modal.hide();
 }
+
+function appendOtaChannelCard(name) {
+    var otaContainer = document.getElementById('otaChannelsContainer');
+    if (!otaContainer) return;
+    var count = otaContainer.children.length + 1;
+    var otaId = 'OTA-' + (count < 10 ? '0' + count : count);
+    var col = document.createElement('div');
+    col.className = 'col-md-3 col-6';
+    col.innerHTML = '<div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">' +
+        '<div class="d-flex align-items-center gap-2">' +
+            '<span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>' +
+            '<div>' +
+                '<strong style="font-size:12px; display:block; color:#1e293b;">' + name + '</strong>' +
+                '<small style="font-size:10.5px; color:#64748b;">Custom Channel Active</small>' +
+            '</div>' +
+        '</div>' +
+        '<span class="badge bg-primary-subtle text-primary" style="font-size:10px;">' + otaId + '</span>' +
+    '</div>';
+    otaContainer.appendChild(col);
+}
+
+function saveOtaChannelToStorage(name) {
+    var saved = JSON.parse(localStorage.getItem('custom_ota_channels') || '[]');
+    if (!saved.includes(name)) {
+        saved.push(name);
+        localStorage.setItem('custom_ota_channels', JSON.stringify(saved));
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    var saved = JSON.parse(localStorage.getItem('custom_ota_channels') || '[]');
+    saved.forEach(function(channelName) {
+        appendOtaChannelCard(channelName);
+    });
+});
 
 function switchImportTab(mode) {
     document.getElementById('importModeInput').value = mode;

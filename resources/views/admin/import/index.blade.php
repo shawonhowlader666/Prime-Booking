@@ -16,8 +16,9 @@
             OTA Data Importer
         </h1>
         <div class="d-flex align-items-center gap-2">
-            <button type="button" class="btn btn-sm btn-primary text-white fw-bold d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12.5px; padding:7px 16px; border-radius:4px; background:var(--primary); border:none;">
-                <i class="fa-solid fa-cloud-arrow-down me-1.5"></i> + Sync New OTA Hotels
+            <button type="button" class="btn btn-sm btn-primary text-white fw-bold d-inline-flex align-items-center justify-content-center shadow-sm" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12.5px; height:36px; padding:0 18px; gap:8px; border-radius:4px; background:var(--primary); border:none;">
+                <i class="fa-solid fa-cloud-arrow-down" style="font-size:14px;"></i>
+                <span>+ Sync New OTA Hotels</span>
             </button>
             <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
                 <i class="fa-solid fa-hotel me-1"></i> View Property Inventory

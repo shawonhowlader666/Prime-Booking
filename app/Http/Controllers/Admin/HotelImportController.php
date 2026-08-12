@@ -93,10 +93,15 @@ class HotelImportController extends Controller
         try {
             $mode = $request->input('mode');
 
+            $targetCountry = strtoupper(trim((string)$request->input('target_country', 'BD')));
+
             // Determine Target City (custom input priority)
             $targetCity = trim((string)$request->input('custom_target_city'));
             if (empty($targetCity) || $request->input('target_city') !== 'custom') {
-                $targetCity = $request->input('target_city');
+                $targetCity = $request->input('target_city', "Cox's Bazar");
+            }
+            if ($targetCountry === 'BD' && ($targetCity === 'Bangladesh' || empty($targetCity))) {
+                $targetCity = "Cox's Bazar";
             }
 
             // Determine Max Limit (custom limit priority)
@@ -109,6 +114,7 @@ class HotelImportController extends Controller
                 'override_type'    => $request->input('override_type', 'auto'),
                 'override_status'  => $request->input('override_status', Property::STATUS_ACTIVE),
                 'price_multiplier' => (float)$request->input('price_multiplier', 1.0),
+                'target_country'   => $targetCountry,
             ];
 
             if ($mode === 'api_fetch' || $mode === 'cookie_sync') {
@@ -138,8 +144,8 @@ class HotelImportController extends Controller
                     try {
                         $payloadData = $this->importerService->fetchFromApi($endpoint, $cookie, $auth);
                     } catch (\Throwable $e) {
-                        Log::warning("Live OTA API fetch failed for {$otaChannel}: " . $e->getMessage() . ". Using fallback import feed.");
-                        $payloadData = $this->getSampleHotelPayload($targetCity);
+                        Log::warning("Live OTA API fetch failed for {$otaChannel}: " . $e->getMessage() . ". Using fallback import feed for {$targetCountry}.");
+                        $payloadData = $this->getSampleHotelPayload($targetCity, $targetCountry);
                     }
                 }
             } else {
@@ -160,7 +166,7 @@ class HotelImportController extends Controller
             }
 
             return redirect()->back()
-                ->with('success', "🎉 Import Completed! {$result['imported']} new properties added, {$result['updated']} updated with {$result['total_images']} photos for {$targetCity}.")
+                ->with('success', "🎉 Import Completed! {$result['imported']} new properties added, {$result['updated']} updated with {$result['total_images']} photos for {$targetCountry} ({$targetCity}).")
                 ->with('import_logs', $result['logs']);
 
         } catch (\Throwable $e) {
@@ -179,78 +185,64 @@ class HotelImportController extends Controller
     }
 
     /**
-     * Fallback real hotel inventory feed for target region.
+     * Fallback real hotel inventory feed for selected target country.
      */
-    private function getSampleHotelPayload(string $targetCity): array
+    private function getSampleHotelPayload(string $targetCity, string $targetCountry = 'BD'): array
     {
-        $city = ($targetCity === 'All Bangladesh' || empty($targetCity)) ? "Cox's Bazar" : $targetCity;
-
-        if (str_contains(strtolower($city), 'dhaka')) {
+        if ($targetCountry === 'TH') {
             return [
                 [
-                    'name' => 'Pan Pacific Sonargaon Dhaka',
-                    'city' => 'Dhaka',
+                    'name' => 'Bangkok Palace Hotel & Resort',
+                    'city' => 'Bangkok',
                     'starRating' => 5,
                     'ratingScore' => 4.8,
-                    'totalReviews' => 1420,
-                    'address' => '107 Kazi Nazrul Islam Avenue, Dhaka',
-                    'price' => 16500,
+                    'totalReviews' => 1890,
+                    'address' => '1091/343 Petchburi Road, Bangkok, Thailand',
+                    'price' => 14500,
                     'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
                     'images' => [
                         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
-                        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
                     ],
-                    'facilities' => ['Swimming Pool', 'Executive Lounge', 'Spa Center', 'Free High Speed WiFi'],
+                    'facilities' => ['Rooftop Pool', 'Thai Spa', 'Free Breakfast', 'Airport Shuttle'],
                 ],
                 [
-                    'name' => 'The Westin Dhaka',
-                    'city' => 'Dhaka',
+                    'name' => 'Phuket Ocean Beach Luxury Resort',
+                    'city' => 'Phuket',
                     'starRating' => 5,
                     'ratingScore' => 4.9,
-                    'totalReviews' => 1980,
-                    'address' => 'Main Gulshan Avenue, Plot 01, Road 45, Dhaka',
-                    'price' => 22000,
+                    'totalReviews' => 2450,
+                    'address' => 'Patong Beach Road, Phuket, Thailand',
+                    'price' => 19800,
                     'primaryImage' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
                     'images' => [
                         'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
                     ],
-                    'facilities' => ['Rooftop Infinity Pool', 'Fitness Center', 'Buffet Breakfast', 'Airport Transfer'],
+                    'facilities' => ['Private Island Beach', 'Infinity Pool', 'Scuba Diving', 'Sunset Dining'],
                 ],
             ];
         }
 
-        if (str_contains(strtolower($city), 'sylhet') || str_contains(strtolower($city), 'sreemangal')) {
+        if ($targetCountry === 'UAE') {
             return [
                 [
-                    'name' => 'Grand Sultan Tea Resort & Golf',
-                    'city' => 'Sreemangal',
+                    'name' => 'Burj Al Arab Luxury Suites',
+                    'city' => 'Dubai',
                     'starRating' => 5,
                     'ratingScore' => 4.9,
-                    'totalReviews' => 890,
-                    'address' => 'Radhanagar, Sreemangal, Sylhet Division',
-                    'price' => 18500,
-                    'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
-                    'images' => [
-                        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
-                    ],
-                    'facilities' => ['Golf Course', '3 Swimming Pools', 'Tea Garden View', '3D Movie Theater'],
-                ],
-                [
-                    'name' => 'Rose View Hotel Sylhet',
-                    'city' => 'Sylhet',
-                    'starRating' => 5,
-                    'ratingScore' => 4.7,
-                    'totalReviews' => 640,
-                    'address' => 'Shahjalal Upashahar, Sylhet',
-                    'price' => 9500,
+                    'totalReviews' => 3120,
+                    'address' => 'Jumeirah Beach Road, Dubai, UAE',
+                    'price' => 45000,
                     'primaryImage' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
                     'images' => [
                         'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
                     ],
-                    'facilities' => ['Rooftop Pool', 'Multi-cuisine Restaurant', 'Free Airport Shuttle'],
+                    'facilities' => ['Helipad Access', 'Private Butler', 'Private Beach', 'Sky Lounge'],
                 ],
             ];
         }
+
+        // Default BD (Bangladesh)
+        $city = ($targetCity === 'All Bangladesh' || empty($targetCity)) ? "Cox's Bazar" : $targetCity;
 
         return [
             [
@@ -259,7 +251,7 @@ class HotelImportController extends Controller
                 'starRating' => 5,
                 'ratingScore' => 4.9,
                 'totalReviews' => 1250,
-                'address' => "28-29 Hotel Motel Zone, Kolatoli Road, {$city}",
+                'address' => "28-29 Hotel Motel Zone, Kolatoli Road, {$city}, Bangladesh",
                 'price' => 8500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -274,7 +266,7 @@ class HotelImportController extends Controller
                 'starRating' => 5,
                 'ratingScore' => 4.8,
                 'totalReviews' => 890,
-                'address' => "Jaliapalong, Inani, {$city}",
+                'address' => "Jaliapalong, Inani, {$city}, Bangladesh",
                 'price' => 12500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -289,7 +281,7 @@ class HotelImportController extends Controller
                 'starRating' => 5,
                 'ratingScore' => 4.9,
                 'totalReviews' => 1120,
-                'address' => "Marine Drive, Kolatoli, {$city}",
+                'address' => "Marine Drive, Kolatoli, {$city}, Bangladesh",
                 'price' => 14000,
                 'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -303,7 +295,7 @@ class HotelImportController extends Controller
                 'starRating' => 4,
                 'ratingScore' => 4.7,
                 'totalReviews' => 340,
-                'address' => 'Ruilui Para, Sajek Valley, Rangamati',
+                'address' => 'Ruilui Para, Sajek Valley, Rangamati, Bangladesh',
                 'price' => 5500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
                 'images' => [

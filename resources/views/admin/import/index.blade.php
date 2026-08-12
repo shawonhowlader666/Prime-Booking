@@ -26,19 +26,88 @@
     </div>
 </div>
 
-@if(session('success'))
-<div class="admin-alert success d-flex align-items-center justify-content-between mb-4" style="border-radius:4px;">
-    <div><i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}</div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+{{-- PAGE CONTENT --}}
+<div class="page-content-area">
 
-@if(session('error'))
-<div class="admin-alert error d-flex align-items-center justify-content-between mb-4" style="border-radius:4px;">
-    <div><i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}</div>
-    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-</div>
-@endif
+    @if(session('success'))
+    <div class="admin-alert success d-flex align-items-center justify-content-between mb-4" style="border-radius:4px;">
+        <div><i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    @if(session('error'))
+    <div class="admin-alert error d-flex align-items-center justify-content-between mb-4" style="border-radius:4px;">
+        <div><i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    @endif
+
+    {{-- Active OTA Cookie Channels & Live Feeds Hub --}}
+    <div class="form-card mb-4" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:16px 20px;">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+            <div>
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size:14px;">
+                    <i class="fa-solid fa-cookie-bite text-warning"></i>
+                    Active OTA Cookie Channels &amp; Real-Time Importer Status
+                </h6>
+                <small class="text-secondary" style="font-size:11.5px;">Monitor active OTA browser cookies, API tokens, and live payload data channels.</small>
+            </div>
+            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px; font-weight:600;">
+                <i class="fa-solid fa-signal me-1"></i> Importer Engine Active
+            </span>
+        </div>
+        <div class="row g-3">
+            <div class="col-md-3 col-6">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
+                        <div>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Agoda Global API</strong>
+                            <small style="font-size:10.5px; color:#64748b;">Cookie Header Ready</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">OTA-01</span>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
+                        <div>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Booking.com Engine</strong>
+                            <small style="font-size:10.5px; color:#64748b;">JSON Parser Active</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-success-subtle text-success" style="font-size:10px;">OTA-02</span>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot" style="background:#1890ff; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(24,144,255,0.2);"></span>
+                        <div>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Expedia / Hotels.com</strong>
+                            <small style="font-size:10.5px; color:#64748b;">Payload Bridge Ready</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-warning-subtle text-warning" style="font-size:10px;">OTA-03</span>
+                </div>
+            </div>
+            <div class="col-md-3 col-6">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="pulse-dot" style="background:#fa8c16; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(250,140,22,0.2);"></span>
+                        <div>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Trip.com / Airbnb</strong>
+                            <small style="font-size:10.5px; color:#64748b;">Data Import Active</small>
+                        </div>
+                    </div>
+                    <span class="badge bg-info-subtle text-info" style="font-size:10px;">OTA-04</span>
+                </div>
+            </div>
+        </div>
+    </div>
 
 <div class="row g-4">
     {{-- Left Import Form Column --}}
@@ -226,6 +295,7 @@
 
     </div>
 </div>
+</div> {{-- end page-content-area --}}
 
 {{-- Stockifly 1:1 Matching Interactive Modal for [+] Add Option --}}
 <div class="modal fade" id="addOptionModal" tabindex="-1" aria-hidden="true">

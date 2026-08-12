@@ -568,50 +568,24 @@
                 <i class="fa-solid fa-chart-pie"></i> <span>Vendor Overview</span>
             </a>
 
-            <div class="sb-section-header">Property &amp; Inventory</div>
-            @php $isVendorInventoryActive = request()->routeIs('vendor.availability.*', 'vendor.properties.create'); @endphp
-            <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isVendorInventoryActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorInventory" aria-expanded="{{ $isVendorInventoryActive ? 'true' : 'false' }}">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Property &amp; Rates</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
-                </button>
-                <div class="collapse {{ $isVendorInventoryActive ? 'show' : '' }}" id="menuVendorInventory">
-                    <div class="sb-sub-menu">
-                        <a href="{{ route('vendor.availability.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rates &amp; Calendar
-                        </a>
-                        <a href="{{ route('vendor.properties.create') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.create') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Add New Property
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <div class="sb-section-header">Property &amp; Rates</div>
+            <a href="{{ route('vendor.availability.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-calendar-days"></i> <span>Rates &amp; Calendar</span>
+            </a>
+            <a href="{{ route('vendor.properties.create') }}" class="sb-nav-item {{ request()->routeIs('vendor.properties.create') ? 'active' : '' }}">
+                <i class="fa-solid fa-circle-plus"></i> <span>Add New Property</span>
+            </a>
 
             <div class="sb-section-header">Marketing &amp; Content</div>
-            @php $isVendorMarketingActive = request()->routeIs('vendor.packages.*', 'vendor.reviews.*', 'vendor.promotions.*'); @endphp
-            <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isVendorMarketingActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorMarketing" aria-expanded="{{ $isVendorMarketingActive ? 'true' : 'false' }}">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-bullhorn" style="width:16px;text-align:center;"></i> <span>Marketing &amp; Reviews</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
-                </button>
-                <div class="collapse {{ $isVendorMarketingActive ? 'show' : '' }}" id="menuVendorMarketing">
-                    <div class="sb-sub-menu">
-                        <a href="{{ route('vendor.packages.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.packages.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> My Tour Packages
-                        </a>
-                        <a href="{{ route('vendor.promotions.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.promotions.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Promo Codes
-                        </a>
-                        <a href="{{ route('vendor.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.reviews.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Reviews
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <a href="{{ route('vendor.packages.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.packages.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-suitcase-rolling"></i> <span>Tour Packages</span>
+            </a>
+            <a href="{{ route('vendor.promotions.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.promotions.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-tags"></i> <span>Promo Codes</span>
+            </a>
+            <a href="{{ route('vendor.reviews.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.reviews.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-star"></i> <span>Guest Reviews</span>
+            </a>
 
             <div class="sb-section-header">Finance &amp; Account</div>
             <a href="{{ route('vendor.payouts.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.payouts.*') ? 'active' : '' }}">
@@ -623,7 +597,7 @@
 
             <div class="sb-section-header">Live Site</div>
             <a href="{{ route('home') }}" target="_blank" class="sb-nav-item" style="color:rgba(80,210,255,0.8);">
-                <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>View Public Site</span>
+                <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>Public Website</span>
             </a>
         </nav>
     </aside>

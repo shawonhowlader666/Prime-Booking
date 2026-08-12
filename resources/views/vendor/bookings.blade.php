@@ -17,11 +17,6 @@
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('vendorBookingsTable', 'vendor_bookings')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('vendorBookingsTable', 'vendor_bookings')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button type="button" class="btn-tbl-print" onclick="printTable('vendorBookingsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-            <div style="position:relative; display:inline-block;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('vendorBookingsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
-                <div class="col-vis-dropdown" id="colVisDropdown_vendorBookingsTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('vendorBookingsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
         </div>
     </div>
 </div>
@@ -69,6 +64,7 @@
             <table class="table-stockifly" id="vendorBookingsTable" style="width:100%;">
                 <thead>
                     <tr>
+                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('vendorBookingsTable', this)" title="Select All Rows"></th>
                         <th>Booking Ref</th>
                         <th>Guest Info</th>
                         <th>Property</th>
@@ -76,12 +72,13 @@
                         <th>Total Amount</th>
                         <th>Payment</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Actions</th>
+                        <th style="text-align:right;">Actions <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('vendorBookingsTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_vendorBookingsTable" style="display:none;"></div></div></th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($bookings as $b)
                     <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td style="font-family:monospace; font-weight:700; font-size:13px;">
                             {{ $b->booking_reference }}
                         </td>

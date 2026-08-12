@@ -18,11 +18,6 @@
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('reviewsTable', 'reviews')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('reviewsTable', 'reviews')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button type="button" class="btn-tbl-print" onclick="printTable('reviewsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-            <div style="position:relative; display:inline-block;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('reviewsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
-                <div class="col-vis-dropdown" id="colVisDropdown_reviewsTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('reviewsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
         </div>
     </div>
 </div>
@@ -53,18 +48,20 @@
             <table class="table-stockifly" id="reviewsTable" style="width:100%;">
                 <thead>
                     <tr>
+                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('reviewsTable', this)" title="Select All Rows"></th>
                         <th>Guest Name</th>
                         <th>Property Name</th>
                         <th>Rating Stars</th>
                         <th>Review Comment</th>
                         <th>Submitted Date</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Actions</th>
+                        <th style="text-align:right;">Actions <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('reviewsTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_reviewsTable" style="display:none;"></div></div></th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($reviews as $r)
                     <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b;">{{ $r->guest_name }}</strong>
                         </td>

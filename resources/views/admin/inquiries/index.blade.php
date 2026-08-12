@@ -18,11 +18,6 @@
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('inquiriesTable', 'inquiries')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('inquiriesTable', 'inquiries')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button type="button" class="btn-tbl-print" onclick="printTable('inquiriesTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-            <div style="position:relative; display:inline-block;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('inquiriesTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
-                <div class="col-vis-dropdown" id="colVisDropdown_inquiriesTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('inquiriesTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
         </div>
     </div>
 </div>
@@ -71,18 +66,20 @@
             <table class="table-stockifly" id="inquiriesTable" style="width:100%;">
                 <thead>
                     <tr>
+                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('inquiriesTable', this)" title="Select All Rows"></th>
                         <th>Guest Name &amp; Contact</th>
                         <th>Requested Service</th>
                         <th>Destination</th>
                         <th>Date &amp; Passengers</th>
                         <th>Message Note</th>
                         <th>Submitted At</th>
-                        <th style="text-align:right;">Actions</th>
+                        <th style="text-align:right;">Actions <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('inquiriesTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_inquiriesTable" style="display:none;"></div></div></th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($inquiries as $inq)
                     <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ $inq->name }}</strong>
                             <span style="font-size:11px; color:#8c8c8c;">{{ $inq->phone }} | {{ $inq->email ?? 'No Email' }}</span>

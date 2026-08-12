@@ -18,11 +18,6 @@
             <a href="{{ route('admin.bookings.export') }}" class="btn-export-csv" title="Export CSV"><i class="fa-solid fa-file-csv"></i> CSV</a>
             <a href="{{ route('admin.bookings.export-pdf') }}" target="_blank" class="btn-export-pdf" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</a>
             <button type="button" class="btn-tbl-print" onclick="printTable('bookingsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-            <div style="position:relative; display:inline-block;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('bookingsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
-                <div class="col-vis-dropdown" id="colVisDropdown_bookingsTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('bookingsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
         </div>
     </div>
 </div>
@@ -146,6 +141,7 @@
             <table class="table-stockifly" id="bookingsTable" style="width:100%;">
                 <thead>
                     <tr>
+                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('bookingsTable', this)" title="Select All Rows"></th>
                         <th>Booking Ref</th>
                         <th>Guest Details</th>
                         <th>Property Name</th>
@@ -153,12 +149,13 @@
                         <th>Total Amount</th>
                         <th>Payment</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Actions</th>
+                        <th style="text-align:right;">Actions <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('bookingsTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_bookingsTable" style="display:none;"></div></div></th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($bookings as $b)
                     <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td>
                             <strong style="color:var(--primary); font-size:13px;">{{ $b->booking_reference ?? 'PRM-'.str_pad($b->id,4,'0',STR_PAD_LEFT) }}</strong>
                             <span style="font-size:11px; color:#8c8c8c; display:block;">{{ $b->created_at ? $b->created_at->format('M d, Y') : 'N/A' }}</span>

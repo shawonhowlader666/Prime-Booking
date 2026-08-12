@@ -17,11 +17,6 @@
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('vendorEarningsTable', 'vendor_earnings')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('vendorEarningsTable', 'vendor_earnings')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button type="button" class="btn-tbl-print" onclick="printTable('vendorEarningsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-            <div style="position:relative; display:inline-block;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('vendorEarningsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
-                <div class="col-vis-dropdown" id="colVisDropdown_vendorEarningsTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('vendorEarningsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
         </div>
     </div>
 </div>
@@ -90,16 +85,18 @@
             <table class="table-stockifly" id="vendorEarningsTable" style="width:100%;">
                 <thead>
                     <tr>
+                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('vendorEarningsTable', this)" title="Select All Rows"></th>
                         <th>Month</th>
                         <th>Gross Booking Volume</th>
                         <th>Platform Fee (12%)</th>
-                        <th>Net Payable</th>
+                        <th style="text-align:right;">Net Payable <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('vendorEarningsTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_vendorEarningsTable" style="display:none;"></div></div></th>
                     </tr>
                 </thead>
                 <tbody>
                 @foreach(($monthlyData['labels'] ?? []) as $idx => $label)
                     @php $rev = $monthlyData['revenue'][$idx] ?? 0; @endphp
                     <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td><strong>{{ $label }}</strong></td>
                         <td>{{ CurrencyService::format($rev) }}</td>
                         <td style="color:#dc2626;">-{{ CurrencyService::format($rev * 0.12) }}</td>

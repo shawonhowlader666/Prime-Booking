@@ -331,11 +331,21 @@
         }
         .btn-add-primary:hover { background: var(--primary-active); color: #fff; }
 
+        .btn-tbl-gear {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 26px; height: 26px; padding: 0; font-size: 12px;
+            border-radius: 4px !important; border: 1px solid #d9d9d9;
+            color: #595959; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1; vertical-align: middle;
+        }
+        .btn-tbl-gear:hover { background: #f5f5f5; border-color: #bfbfbf; color: var(--primary); }
+        .btn-tbl-gear.active-col { border-color: var(--primary); color: var(--primary); background: #e6f7ff; }
+
         .col-vis-dropdown {
             position: absolute; top: calc(100% + 6px); right: 0; z-index: 1090;
             background: #fff; border: 1px solid #e8e8e8;
-            border-radius: 4px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
-            min-width: 180px; padding: 6px 0;
+            border-radius: 4px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            min-width: 190px; padding: 6px 0; text-align: left; font-weight: normal;
         }
         .col-vis-item {
             display: flex; align-items: center; gap: 8px;
@@ -346,7 +356,7 @@
         .col-vis-item input[type=checkbox] { accent-color: var(--primary); width: 14px; height: 14px; }
 
         tr.row-selected td { background: #e6f7ff !important; }
-        .tbl-select-checkbox { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+        .tbl-select-checkbox { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; vertical-align: middle; }
 
         .tbl-search-wrap { position: relative; display: flex; align-items: center; }
         .tbl-search-input {
@@ -910,60 +920,27 @@
         });
     }
 
-    function toggleSelectAll(tableId, btn) {
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        const isSelecting = btn.classList.toggle('is-selecting');
-        const rows = table.querySelectorAll('tbody tr');
-
-        if (isSelecting) {
-            btn.innerHTML = '<i class="fa-solid fa-square-xmark"></i> Deselect';
-            const thead = table.querySelector('thead tr');
-            if (thead && !thead.querySelector('.th-checkbox')) {
-                const thCheck = document.createElement('th');
-                thCheck.className = 'th-checkbox';
-                thCheck.style = 'width:36px;text-align:center;';
-                thCheck.innerHTML = '<input type="checkbox" class="tbl-select-checkbox" id="masterCheck_'+tableId+'" onchange="masterCheckToggle(this, \''+tableId+'\')">';
-                thead.insertBefore(thCheck, thead.firstChild);
-            }
-            rows.forEach(row => {
-                if (!row.querySelector('.td-checkbox')) {
-                    const td = document.createElement('td');
-                    td.className = 'td-checkbox';
-                    td.style = 'width:36px;text-align:center;';
-                    td.innerHTML = '<input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="rowCheckChange(\''+tableId+'\')">';
-                    row.insertBefore(td, row.firstChild);
-                }
-            });
-        } else {
-            btn.innerHTML = '<i class="fa-solid fa-square-check"></i> Select';
-            const thCheck = table.querySelector('.th-checkbox');
-            if (thCheck) thCheck.remove();
-            table.querySelectorAll('.td-checkbox').forEach(td => td.remove());
-            table.querySelectorAll('tr.row-selected').forEach(r => r.classList.remove('row-selected'));
-        }
-    }
-
-    function masterCheckToggle(master, tableId) {
+    function toggleAllRows(tableId, masterCheckbox) {
         const table = document.getElementById(tableId);
         if (!table) return;
         const checkboxes = table.querySelectorAll('.tbl-row-check');
         checkboxes.forEach(cb => {
-            cb.checked = master.checked;
-            cb.closest('tr').classList.toggle('row-selected', master.checked);
+            cb.checked = masterCheckbox.checked;
+            const row = cb.closest('tr');
+            if (row) row.classList.toggle('row-selected', masterCheckbox.checked);
         });
     }
 
-    function rowCheckChange(tableId) {
-        const table = document.getElementById(tableId);
-        if (!table) return;
-        const all = table.querySelectorAll('.tbl-row-check');
-        const checked = table.querySelectorAll('.tbl-row-check:checked');
-        const master = document.getElementById('masterCheck_' + tableId);
-        if (master) master.checked = all.length === checked.length;
-        all.forEach(cb => {
-            cb.closest('tr').classList.toggle('row-selected', cb.checked);
-        });
+    function updateRowHighlight(checkbox) {
+        const row = checkbox.closest('tr');
+        if (row) row.classList.toggle('row-selected', checkbox.checked);
+        const table = checkbox.closest('table');
+        if (table) {
+            const all = table.querySelectorAll('.tbl-row-check');
+            const checked = table.querySelectorAll('.tbl-row-check:checked');
+            const master = table.querySelector('.tbl-master-check');
+            if (master) master.checked = all.length > 0 && all.length === checked.length;
+        }
     }
 
     function toggleColVis(tableId, btn) {
@@ -972,7 +949,7 @@
         if (!drop) return;
         const isVisible = drop.style.display === 'block';
         document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
-        document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
+        document.querySelectorAll('.btn-tbl-gear, .btn-tbl-col').forEach(b => b.classList.remove('active-col'));
 
         if (!isVisible) {
             const table = document.getElementById(tableId);
@@ -980,8 +957,9 @@
             const headers = table.querySelectorAll('thead th');
             drop.innerHTML = '';
             headers.forEach((th, i) => {
-                if (th.classList.contains('th-checkbox')) return;
-                const label = th.textContent.trim() || 'Column ' + (i + 1);
+                if (th.classList.contains('th-checkbox') || th.querySelector('.tbl-master-check')) return;
+                let label = th.innerText.replace(/\n/g, ' ').replace('Actions', '').trim() || 'Column ' + (i + 1);
+                if (!label) return;
                 const item = document.createElement('label');
                 item.className = 'col-vis-item';
                 const checked = th.style.display !== 'none';
@@ -997,8 +975,8 @@
         const table = document.getElementById(tableId);
         if (!table) return;
         const display = checkbox.checked ? '' : 'none';
-        table.querySelectorAll('thead th, tbody td, tfoot td').forEach(row => {
-            const cells = row.parentElement ? Array.from(row.parentElement.children) : [];
+        table.querySelectorAll('tr').forEach(row => {
+            const cells = Array.from(row.children);
             if (cells[colIndex]) cells[colIndex].style.display = display;
         });
     }
@@ -1006,7 +984,7 @@
     document.addEventListener('click', function(e) {
         if (!e.target.closest('[onclick*="toggleColVis"]') && !e.target.closest('.col-vis-dropdown')) {
             document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
-            document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
+            document.querySelectorAll('.btn-tbl-gear, .btn-tbl-col').forEach(b => b.classList.remove('active-col'));
         }
     });
     </script>

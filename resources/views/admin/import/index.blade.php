@@ -14,18 +14,16 @@
         <div>
             <h1 class="page-title">
                 <i class="fa-solid fa-cloud-arrow-down" style="color:var(--primary); margin-right:8px;"></i>
-                Global OTA Inventory Automation &amp; Data Synchronization Engine
+                OTA Data Importer
             </h1>
             <p class="text-secondary mb-0" style="font-size:12.5px; margin-top:2px;">
-                Automated OTA property data synchronization and multi-channel inventory management.
+                Sync and manage multi-channel property inventory.
             </p>
         </div>
+        <div class="d-flex align-items-center gap-2">
             <button type="button" class="btn btn-sm btn-primary text-white fw-bold d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12.5px; padding:7px 16px; border-radius:4px; background:var(--primary); border:none;">
                 <i class="fa-solid fa-cloud-arrow-down me-1.5"></i> + Sync New OTA Hotels
             </button>
-            <a href="{{ asset('downloads/prime-booking-importer.zip') }}" download class="btn btn-sm btn-success text-white fw-bold d-inline-flex align-items-center shadow-sm" style="font-size:12.5px; padding:7px 14px; border-radius:4px; text-decoration:none;">
-                <i class="fa-solid fa-puzzle-piece me-1.5"></i> Download Chrome Extension (v1.0)
-            </a>
             <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
                 <i class="fa-solid fa-hotel me-1"></i> View Property Inventory
             </a>

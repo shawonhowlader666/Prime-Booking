@@ -14,7 +14,7 @@
                     <a href="javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('Agoda/Booking Active Cookie Copied to Clipboard! Now paste into Prime Booking Importer.');})();" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag to Bookmark Bar or click to copy Cookie script!" onclick="copyCookieScript(event)">
                         <i class="fa-solid fa-puzzle-piece me-1.5" style="color:#fbbf24;"></i> Copy Cookie
                     </a>
-                    <a href="javascript:(function(){var responseText=prompt('Agoda Network JSON Extractor: Paste or view Network response JSON payload here:');if(responseText){navigator.clipboard.writeText(responseText);alert('Network JSON Copied to Clipboard!');}})();" class="btn btn-sm btn-outline-primary fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; cursor:grab; background:#fff;" title="Drag to Bookmark Bar or click to copy Network JSON script!" onclick="copyNetworkJsonScript(event)">
+                    <a href="javascript:(function(){var d=window.__INITIAL_STATE__||window.agodaData||window.hotelResults||null;if(!d){var s=document.querySelector('script[type=\x22application/ld+json\x22]');if(s){try{d=JSON.parse(s.innerText);}catch(e){}}}if(d){var str=JSON.stringify(d);navigator.clipboard.writeText(str);alert('🎉 Agoda Live Hotel JSON Automatically Extracted & Copied to Clipboard ('+str.length+' chars)! Now paste into Prime Booking Importer.');}else{var m=prompt('Agoda Live Extractor: Open F12 Network -> Response -> Copy JSON & paste here:');if(m){navigator.clipboard.writeText(m);alert('Network JSON Copied to Clipboard!');}}})();" class="btn btn-sm btn-outline-primary fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; cursor:grab; background:#fff;" title="Drag to Bookmark Bar or click to copy Network JSON script!" onclick="copyNetworkJsonScript(event)">
                         <i class="fa-solid fa-code me-1.5 text-primary"></i> Copy Network JSON
                     </a>
                     <button type="button" class="btn-close ms-1" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -262,11 +262,11 @@ function copyNetworkJsonScript(e) {
         switchPayloadMode('json');
     }
 
-    var bookmarkletScript = "javascript:(function(){var responseText=prompt('Agoda Network JSON Extractor: Paste or view Network response JSON payload here:');if(responseText){navigator.clipboard.writeText(responseText);alert('Network JSON Copied to Clipboard!');}})();";
+    var bookmarkletScript = "javascript:(function(){var d=window.__INITIAL_STATE__||window.agodaData||window.hotelResults||null;if(!d){var s=document.querySelector('script[type=\x22application/ld+json\x22]');if(s){try{d=JSON.parse(s.innerText);}catch(e){}}}if(d){var str=JSON.stringify(d);navigator.clipboard.writeText(str);alert('🎉 Agoda Live Hotel JSON Automatically Extracted & Copied to Clipboard ('+str.length+' chars)! Now paste into Prime Booking Importer.');}else{var m=prompt('Agoda Live Extractor: Open F12 Network -> Response -> Copy JSON & paste here:');if(m){navigator.clipboard.writeText(m);alert('Network JSON Copied to Clipboard!');}}})();";
 
     if (navigator.clipboard) {
         navigator.clipboard.writeText(bookmarkletScript).then(function() {
-            alert("✅ Network JSON Mode Activated!\n\n1-Click JSON Extractor script copied to clipboard! Drag button to Bookmarks Bar for 1-click copying on Agoda.");
+            alert("✅ Network JSON Mode Activated!\n\n1-Click Auto-Extractor script copied to clipboard! Drag button to Bookmarks Bar for 1-click copying on Agoda.");
         }).catch(function() {
             alert("✅ Network JSON Mode Activated!");
         });

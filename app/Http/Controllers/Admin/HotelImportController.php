@@ -65,7 +65,7 @@ class HotelImportController extends Controller
     public function store(Request $request): RedirectResponse|JsonResponse
     {
         $request->validate([
-            'mode'                => 'required|in:api_fetch,json_payload',
+            'mode'                => 'required|in:api_fetch,json_payload,cookie_sync',
             'target_city'         => 'required|string',
             'custom_target_city'  => 'nullable|string',
             'max_limit'           => 'required|string',
@@ -73,10 +73,10 @@ class HotelImportController extends Controller
             'override_type'       => 'nullable|string',
             'override_status'     => 'nullable|string',
             'price_multiplier'    => 'nullable|numeric|min:0.1|max:10',
-            'endpoint_url'        => 'nullable|required_if:mode,api_fetch|url',
+            'endpoint_url'        => 'nullable|url',
             'cookie_header'       => 'nullable|string',
             'authorization_token' => 'nullable|string',
-            'json_payload'        => 'nullable|required_if:mode,json_payload|string',
+            'json_payload'        => 'nullable|string',
         ]);
 
         try {
@@ -100,8 +100,8 @@ class HotelImportController extends Controller
                 'price_multiplier' => (float)$request->input('price_multiplier', 1.0),
             ];
 
-            if ($mode === 'api_fetch') {
-                $endpoint = $request->input('endpoint_url');
+            if ($mode === 'api_fetch' || $mode === 'cookie_sync') {
+                $endpoint = $request->input('endpoint_url') ?: 'https://www.agoda.com/api/cronos/search/getsearchhotelssync';
                 $cookie   = $request->input('cookie_header');
                 $auth     = $request->input('authorization_token');
 

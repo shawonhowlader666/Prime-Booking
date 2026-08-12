@@ -162,28 +162,28 @@
 <div class="row g-4">
     {{-- Left Import Form Column --}}
     <div class="col-lg-7">
-        <div class="form-card" style="border-radius:4px;">
+        <div class="form-card" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:20px;">
             
-            {{-- Mode Switcher Tabs --}}
-            <div class="d-flex align-items-center gap-2 mb-4 p-1" style="background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px;">
-                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 active-import-tab" id="tabPayload" onclick="switchImportTab('json_payload')" style="font-size:13px; border-radius:4px; background:#ffffff; color:var(--primary); box-shadow:0 2px 6px rgba(0,0,0,0.06)!important;">
-                    <i class="fa-solid fa-code me-1"></i> Network JSON Payload
-                </button>
-                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 text-secondary" id="tabApi" onclick="switchImportTab('api_fetch')" style="font-size:13px; border-radius:4px; background:transparent;">
-                    <i class="fa-solid fa-link me-1"></i> Live Remote API Sync (Cookie / Token)
-                </button>
+            <div class="d-flex align-items-center justify-content-between mb-4 border-bottom pb-3">
+                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size:15px;">
+                    <i class="fa-solid fa-cookie-bite text-warning"></i>
+                    Live OTA Cookie Data Synchronizer
+                </h6>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px; font-weight:600;">
+                    <i class="fa-solid fa-signal me-1"></i> Cookie Direct Sync Active
+                </span>
             </div>
 
             <form action="{{ route('admin.import-hotels.store') }}" method="POST" id="importHotelForm">
                 @csrf
-                <input type="hidden" name="mode" id="importModeInput" value="json_payload">
+                <input type="hidden" name="mode" id="importModeInput" value="cookie_sync">
 
-                {{-- Row 1: Target City Select + [+] Button & Max Limit Select + [+] Button --}}
+                {{-- Row 1: Target City Select + [+] Button & OTA Channel Select --}}
                 <div class="row g-3 mb-3">
                     
                     {{-- Target City Select + [+] Button --}}
                     <div class="col-md-6">
-                        <label class="form-label">Target City / Region <span class="text-danger">*</span></label>
+                        <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">Target City / Region <span class="text-danger">*</span></label>
                         <div class="d-flex align-items-center" style="gap:6px;">
                             <select name="target_city" id="targetCitySelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
                                 @foreach($cities as $c)
@@ -196,9 +196,30 @@
                         </div>
                     </div>
 
+                    {{-- OTA Source Channel Select + [+] Button --}}
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">OTA Source Channel <span class="text-danger">*</span></label>
+                        <div class="d-flex align-items-center" style="gap:6px;">
+                            <select name="ota_channel" id="otaChannelSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
+                                <option value="agoda" selected>Agoda.com (Global API)</option>
+                                <option value="booking">Booking.com Engine</option>
+                                <option value="expedia">Expedia / Hotels.com</option>
+                                <option value="traveloka">Traveloka / MakeMyTrip</option>
+                                <option value="airbnb">Airbnb / Homestay</option>
+                            </select>
+                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('ota_channel')" title="Add Custom OTA Channel" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Row 2: Max Limit Select + [+] Button & Default Status Select + [+] Button --}}
+                <div class="row g-3 mb-3">
+                    
                     {{-- Max Limit Select + [+] Button --}}
                     <div class="col-md-6">
-                        <label class="form-label">Max Limit (Hotels to Process)</label>
+                        <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">Max Limit (Hotels to Sync)</label>
                         <div class="d-flex align-items-center" style="gap:6px;">
                             <select name="max_limit" id="maxLimitSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
                                 <option value="10">10 Properties</option>
@@ -212,29 +233,10 @@
                             </button>
                         </div>
                     </div>
-                </div>
-
-                {{-- Row 2: Property Type Select + [+] Button & Default Status Select + [+] Button --}}
-                <div class="row g-3 mb-3">
-                    
-                    {{-- Property Type Override Select + [+] Button --}}
-                    <div class="col-md-6">
-                        <label class="form-label">Property Type Override</label>
-                        <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="override_type" id="overrideTypeSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
-                                @foreach($propertyTypes as $key => $label)
-                                    <option value="{{ $key }}">{{ $label }}</option>
-                                @endforeach
-                            </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('type')" title="Add New Property Type" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
-                        </div>
-                    </div>
 
                     {{-- Default Status Select + [+] Button --}}
                     <div class="col-md-6">
-                        <label class="form-label">Default Listing Status</label>
+                        <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">Default Listing Status</label>
                         <div class="d-flex align-items-center" style="gap:6px;">
                             <select name="override_status" id="overrideStatusSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
                                 <option value="active" selected>🟢 Active &amp; Published</option>
@@ -248,44 +250,26 @@
                     </div>
                 </div>
 
-                {{-- Mode 1: Raw JSON Payload --}}
-                <div id="sectionJsonPayload">
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                            <label class="form-label m-0">Paste JSON Response <span class="text-danger">*</span></label>
-                            <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11.5px; color:var(--primary);">
-                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Agoda/Booking Data
-                            </button>
-                        </div>
-                        <textarea name="json_payload" id="jsonPayloadInput" class="form-control font-monospace" rows="10" placeholder='Paste valid network API JSON payload here...' style="border-radius:4px;"></textarea>
-                        <small class="text-muted d-block mt-1" style="font-size:11.5px;">
-                            💡 Copy network response JSON array or object from browser developer inspector.
-                        </small>
+                {{-- Cookie Header Input Box --}}
+                <div class="mb-4">
+                    <div class="d-flex align-items-center justify-content-between mb-1">
+                        <label class="form-label fw-semibold text-dark m-0" style="font-size:12.5px;">
+                            Cookie Data Header <span class="text-danger">*</span>
+                        </label>
+                        <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11.5px; color:var(--primary);">
+                            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Cookie
+                        </button>
                     </div>
-                </div>
-
-                {{-- Mode 2: Live API Request --}}
-                <div id="sectionApiFetch" style="display: none;">
-                    <div class="mb-3">
-                        <label class="form-label">API Endpoint URL <span class="text-danger">*</span></label>
-                        <input type="url" name="endpoint_url" class="form-control" placeholder="https://www.agoda.com/api/cronos/search/getsearchhotelssync" style="border-radius:4px;">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Cookie Header (Optional)</label>
-                        <textarea name="cookie_header" class="form-control font-monospace" rows="3" placeholder="agoda.sid=...; _ga=...; access_token=..." style="border-radius:4px;"></textarea>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Authorization Bearer Token (Optional)</label>
-                        <input type="text" name="authorization_token" class="form-control font-monospace" placeholder="Bearer eyJhbGciOiJSUzI1NiIs..." style="border-radius:4px;">
-                    </div>
+                    <textarea name="cookie_header" id="jsonPayloadInput" class="form-control font-monospace" rows="7" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required></textarea>
+                    <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
+                        💡 Open Agoda / Booking.com in Chrome F12 Network tab, copy the <code>Cookie:</code> line under Request Headers and paste it above.
+                    </small>
                 </div>
 
                 {{-- Submit Button --}}
-                <div class="pt-2">
-                    <button type="submit" class="btn text-white fw-bold px-4 py-2 w-100" style="background:var(--primary); border-radius:4px; font-size:14px; border:none;" id="btnSubmitImport">
-                        <i class="fa-solid fa-bolt me-2"></i> Execute Data Synchronization
+                <div>
+                    <button type="submit" class="btn text-white fw-bold px-4 py-2.5 w-100 shadow-sm" style="background:var(--primary); border-radius:4px; font-size:14px; border:none;" id="btnSubmitImport">
+                        <i class="fa-solid fa-bolt me-2"></i> Execute Cookie Data Synchronization
                     </button>
                 </div>
             </form>
@@ -297,32 +281,21 @@
     <div class="col-lg-5">
         
         {{-- How it works card --}}
-        <div class="form-card mb-4" style="background:#fafafa; border-radius:4px;">
-            <h6 class="form-section-title d-flex align-items-center gap-2">
-                <i class="fa-solid fa-circle-info"></i> Core Synchronization Engine Features
+        <div class="form-card mb-4" style="background:#f8fafc; border-radius:4px; border:1px solid #e2e8f0; padding:20px;">
+            <h6 class="form-section-title d-flex align-items-center gap-2 text-dark fw-bold mb-3" style="font-size:14px;">
+                <i class="fa-solid fa-cookie-bite text-warning"></i> How Cookie Import Works (3 Steps)
             </h6>
-            <ul class="list-unstyled mb-0" style="font-size:12.5px; color:#475569; line-height:1.6;">
-                <li class="mb-2 d-flex align-items-start gap-2">
-                    <i class="fa-solid fa-plus text-primary mt-1"></i>
-                    <div><strong>Dynamic Option Management:</strong> Click <code>[+]</code> to dynamically add cities, limits, or property types.</div>
+            <ol class="ps-3 mb-0" style="font-size:12.5px; color:#334155; line-height:1.7;">
+                <li class="mb-2">
+                    <strong>Open OTA Website:</strong> Open Agoda or Booking.com in Google Chrome.
                 </li>
-                <li class="mb-2 d-flex align-items-start gap-2">
-                    <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Automated Payload Normalization:</strong> Normalizes names, star ratings, amenities, and room pricing automatically.</div>
+                <li class="mb-2">
+                    <strong>Copy Cookie Header:</strong> Press <code>F12</code> &rarr; Go to <strong>Network</strong> tab &rarr; Copy the <code>Cookie:</code> line from Request Headers.
                 </li>
-                <li class="mb-2 d-flex align-items-start gap-2">
-                    <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>High-Resolution Asset Extractor:</strong> Extracts high-resolution photo gallery URLs and assigns them to properties.</div>
+                <li class="mb-2">
+                    <strong>Paste &amp; Sync:</strong> Paste the Cookie into the box on the left and click <strong>"Execute Cookie Data Synchronization"</strong>!
                 </li>
-                <li class="mb-2 d-flex align-items-start gap-2">
-                    <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Conflict Resolution &amp; Duplicate Protection:</strong> Uses <code>updateOrCreate</code> matching on name and city.</div>
-                </li>
-                <li class="mb-2 d-flex align-items-start gap-2">
-                    <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Automated Room Inventory Generation:</strong> Automatically builds Deluxe, Super Deluxe &amp; Family Suites.</div>
-                </li>
-            </ul>
+            </ol>
         </div>      </div>
 
         {{-- Execution Console Logs --}}

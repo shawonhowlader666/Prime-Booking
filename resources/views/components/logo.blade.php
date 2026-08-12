@@ -6,9 +6,9 @@
 ])
 
 @php
-    $logoPath = asset('images/logo.png');
+    $logoPath = asset('images/logo.png') . '?v=2';
     $numericHeight = preg_replace('/[^0-9]/', '', (string)$height);
-    $calculatedWidth = $numericHeight ? (int)($numericHeight * 3.5) . 'px' : 'auto';
+    $calculatedWidth = $numericHeight ? (int)($numericHeight * 2.1) . 'px' : 'auto';
 @endphp
 
 <img src="{{ $logoPath }}" 

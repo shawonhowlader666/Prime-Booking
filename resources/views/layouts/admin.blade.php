@@ -226,12 +226,11 @@
 
         /* ============================================================
          * Top Header Bar — exact Stockifly header height & style
-         * ============================================================ */
-        .admin-topbar {
+         * ==================================================        .admin-topbar {
             background: #ffffff;
-            border-bottom: 1px solid #f0f0f0;
+            border-bottom: 1px solid #e8e8e8;
             padding: 0 24px;
-            height: 48px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -239,50 +238,56 @@
             top: 0;
             z-index: 100;
             flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
         }
-        .admin-topbar-left { display: flex; align-items: center; gap: 12px; }
-        .admin-topbar-right { display: flex; align-items: center; gap: 12px; }
+        .admin-topbar-left { display: flex; align-items: center; gap: 14px; }
+        .admin-topbar-right { display: flex; align-items: center; gap: 14px; }
 
         .engine-badge {
             background: rgba(24,144,255,0.08);
             color: #1890ff;
-            font-size: 11px;
+            font-size: 12.5px;
             font-weight: 700;
-            padding: 3px 10px;
-            border-radius: 4px;
+            padding: 5px 14px;
+            border-radius: 4px !important;
             border: 1px solid rgba(24,144,255,0.2);
             letter-spacing: 0.3px;
         }
 
         .topbar-user-name {
-            font-size: 12.5px;
+            font-size: 14px;
             font-weight: 700;
             color: #1e293b;
             display: block;
             line-height: 1.2;
         }
         .topbar-user-role {
-            font-size: 10.5px;
-            color: #8c8c8c;
+            font-size: 11.5px;
+            color: #64748b;
             display: block;
+            margin-top: 1px;
         }
         .topbar-avatar {
-            width: 32px;
-            height: 32px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #f0f0f0;
+            border: 2px solid #e2e8f0;
         }
         .btn-signout {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
-            padding: 5px 14px;
-            border-radius: 6px;
+            padding: 6px 16px;
+            border-radius: 4px !important;
             border: 1.5px solid #ff4d4f;
             color: #ff4d4f;
             background: #fff;
             transition: all 0.15s;
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }nter;
             line-height: 1.5;
         }
         .btn-signout:hover {

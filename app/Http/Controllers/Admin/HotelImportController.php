@@ -11,6 +11,7 @@ use App\Models\Room;
 use App\Models\SiteSetting;
 use App\Services\HotelImporterService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\View\View;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\JsonResponse;

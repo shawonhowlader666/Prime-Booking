@@ -27,36 +27,40 @@
                 <div class="modal-body p-4">
 
                     {{-- Target Country Selection (Clean Professional Text) --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Target Market / Country <span class="text-danger">*</span></label>
-                        <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="target_country" id="targetCountrySelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
-                                <option value="BD" selected>Bangladesh (Primary Market)</option>
-                                <option value="TH">Thailand</option>
-                                <option value="UAE">UAE / Dubai</option>
-                                <option value="MY">Malaysia</option>
-                                <option value="IN">India</option>
-                                <option value="GLOBAL">Global / All Markets</option>
-                            </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('target_country')" title="Add Custom Target Country" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
+                    {{-- Target Country & Target OTA Source Channel Side-by-Side (2 Columns) --}}
+                    <div class="row g-3 mb-3">
+                        {{-- Target Market / Country --}}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Target Market / Country <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center" style="gap:6px;">
+                                <select name="target_country" id="targetCountrySelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
+                                    <option value="BD" selected>Bangladesh (Primary Market)</option>
+                                    <option value="TH">Thailand</option>
+                                    <option value="UAE">UAE / Dubai</option>
+                                    <option value="MY">Malaysia</option>
+                                    <option value="IN">India</option>
+                                    <option value="GLOBAL">Global / All Markets</option>
+                                </select>
+                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('target_country')" title="Add Custom Target Country" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    
-                    {{-- Target OTA Source Channel Selection + [+] Button --}}
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Target OTA Source Channel <span class="text-danger">*</span></label>
-                        <div class="d-flex align-items-center" style="gap:6px;">
-                            <select name="ota_channel" id="otaChannelSelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
-                                <option value="agoda" selected>Agoda.com (Global API)</option>
-                                <option value="booking">Booking.com Engine</option>
-                                <option value="expedia">Expedia / Hotels.com</option>
-                                <option value="airbnb">Trip.com / Airbnb</option>
-                            </select>
-                            <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('ota_channel')" title="Add Custom OTA Channel" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                <i class="fa-solid fa-plus"></i>
-                            </button>
+
+                        {{-- Target OTA Source Channel --}}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Target OTA Source Channel <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center" style="gap:6px;">
+                                <select name="ota_channel" id="otaChannelSelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
+                                    <option value="agoda" selected>Agoda.com (Global API)</option>
+                                    <option value="booking">Booking.com Engine</option>
+                                    <option value="expedia">Expedia / Hotels.com</option>
+                                    <option value="airbnb">Trip.com / Airbnb</option>
+                                </select>
+                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('ota_channel')" title="Add Custom OTA Channel" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
                         </div>
                     </div>
 

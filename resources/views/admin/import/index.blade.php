@@ -315,94 +315,36 @@
                     <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             </div>
-
             <form action="{{ route('admin.import-hotels.store') }}" method="POST" id="importHotelFormModal">
                 @csrf
                 <input type="hidden" name="mode" value="cookie_sync">
+                <input type="hidden" name="target_city" value="Cox's Bazar">
+                <input type="hidden" name="ota_channel" value="agoda">
+                <input type="hidden" name="max_limit" value="50">
+                <input type="hidden" name="override_status" value="active">
 
                 <div class="modal-body p-4">
                     
-                    {{-- Row 1: Target City Select + [+] Button & OTA Channel Select --}}
-                    <div class="row g-3 mb-3">
-                        
-                        {{-- Target City Select + [+] Button --}}
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">Target City / Region <span class="text-danger">*</span></label>
-                            <div class="d-flex align-items-center" style="gap:6px;">
-                                <select name="target_city" id="targetCitySelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
-                                    @foreach($cities as $c)
-                                        <option value="{{ $c }}" {{ $c === "Cox's Bazar" ? 'selected' : '' }}>{{ $c }}</option>
-                                    @endforeach
-                                </select>
-                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('city')" title="Add New City Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
+                    {{-- Automated 1-Click Sync Banner --}}
+                    <div class="p-3 mb-3 border rounded d-flex align-items-center gap-3" style="background:#f0f9ff; border-color:#bae6fd!important;">
+                        <div class="p-2 rounded-circle bg-white text-primary shadow-sm" style="font-size:18px; width:40px; height:40px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
                         </div>
-
-                        {{-- OTA Source Channel Select + [+] Button --}}
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">OTA Source Channel <span class="text-danger">*</span></label>
-                            <div class="d-flex align-items-center" style="gap:6px;">
-                                <select name="ota_channel" id="otaChannelSelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
-                                    <option value="agoda" selected>Agoda.com (Global API)</option>
-                                    <option value="booking">Booking.com Engine</option>
-                                    <option value="expedia">Expedia / Hotels.com</option>
-                                    <option value="traveloka">Traveloka / MakeMyTrip</option>
-                                    <option value="airbnb">Airbnb / Homestay</option>
-                                </select>
-                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('ota_channel')" title="Add Custom OTA Channel" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Row 2: Max Limit Select + [+] Button & Default Status Select + [+] Button --}}
-                    <div class="row g-3 mb-3">
-                        
-                        {{-- Max Limit Select + [+] Button --}}
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">Max Limit (Hotels to Sync)</label>
-                            <div class="d-flex align-items-center" style="gap:6px;">
-                                <select name="max_limit" id="maxLimitSelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
-                                    <option value="10">10 Properties</option>
-                                    <option value="25">25 Properties</option>
-                                    <option value="50" selected>50 Properties (Recommended)</option>
-                                    <option value="100">100 Properties</option>
-                                    <option value="200">200 Properties</option>
-                                </select>
-                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('limit')" title="Add Custom Limit Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        {{-- Default Status Select + [+] Button --}}
-                        <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark" style="font-size:12.5px;">Default Listing Status</label>
-                            <div class="d-flex align-items-center" style="gap:6px;">
-                                <select name="override_status" id="overrideStatusSelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
-                                    <option value="active" selected>🟢 Active &amp; Published</option>
-                                    <option value="pending">🟡 Pending Review</option>
-                                    <option value="inactive">🔴 Inactive</option>
-                                </select>
-                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
-                                    <i class="fa-solid fa-plus"></i>
-                                </button>
-                            </div>
+                        <div>
+                            <strong style="font-size:13px; color:#0369a1; display:block;">⚡ 1-Click Automatic Hotel Synchronization</strong>
+                            <span style="font-size:11.5px; color:#0e7490;">কুকি দিলে ডাটাবেজে হোটেল নাম, রুম, ক্যাটাগরি, প্রাইস ও রেটিং **অটোমেটিক ইম্পোর্ট** হয়ে সেভ হয়ে যাবে!</span>
                         </div>
                     </div>
 
                     {{-- Cookie Header Input Box --}}
                     <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-1">
-                            <label class="form-label fw-semibold text-dark m-0" style="font-size:12.5px;">
-                                Cookie Data Header <span class="text-danger">*</span>
+                        <div class="d-flex align-items-center justify-content-between mb-1.5">
+                            <label class="form-label fw-bold text-dark m-0" style="font-size:13px;">
+                                Cookie Header Data <span class="text-danger">*</span>
                             </label>
                             <div class="d-flex align-items-center gap-2">
                                 @if(!empty($savedCookie))
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:10px;">
+                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:10.5px;">
                                         <i class="fa-solid fa-database me-1"></i> Saved Vault Cookie Active
                                     </span>
                                 @endif
@@ -411,16 +353,16 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;">{{ old('cookie_header', $savedCookie ?? '') }}</textarea>
-                        <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
-                            💡 <strong>একবার কুকি দিলে তা সেভ হয়ে থাকবে</strong> — পরবর্তীতে আর পেস্ট করতে হবে না, অটোমেটিক সেভ করা কুকি দিয়ে সিঙ্ক হবে!
+                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="5" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;">{{ old('cookie_header', $savedCookie ?? '') }}</textarea>
+                        <small class="text-secondary d-block mt-2" style="font-size:11.5px;">
+                            💡 <strong>একবার কুকি দিলে তা ডাটাবেজে সেভ থাকবে</strong> — পরবর্তীতে আর পেস্ট করতে হবে না, অটোমেটিক সব হোটেল সিঙ্ক হবে!
                         </small>
                     </div>
 
                     {{-- Live Execution Console Logs inside Modal --}}
                     @if(session('import_logs') && is_array(session('import_logs')))
                     <div class="mt-3">
-                        <label class="form-label fw-semibold text-dark mb-1" style="font-size:12.5px;"><i class="fa-solid fa-terminal text-primary me-1"></i> Live Synchronization Audit Log</label>
+                        <label class="form-label fw-semibold text-dark mb-1" style="font-size:12.5px;"><i class="fa-solid fa-terminal text-primary me-1"></i> Live Automatic Synchronization Audit Log</label>
                         <div id="importLogsConsole" style="background:#090d16; color:#38bdf8; font-family:'Courier New', Courier, monospace; font-size:11.5px; padding:12px 14px; border-radius:4px; height:180px; overflow-y:auto; line-height:1.6; border:1px solid #1e293b;">
                             @foreach(session('import_logs') as $log)
                                 <div style="color:#52c41a; margin-bottom:3px;"><i class="fa-solid fa-angle-right me-1" style="color:#38bdf8;"></i> {{ $log }}</div>
@@ -434,7 +376,7 @@
                 <div class="modal-footer border-top px-4 py-3" style="background:#f8fafc;">
                     <button type="button" class="btn btn-light fw-bold px-3 py-2" data-bs-dismiss="modal" style="border-radius:4px; font-size:13px;">Cancel</button>
                     <button type="submit" class="btn text-white fw-bold px-4 py-2 shadow-sm" style="background:var(--primary); border-radius:4px; font-size:13px; border:none;" id="btnSubmitImportModal">
-                        <i class="fa-solid fa-bolt me-1.5"></i> Execute Cookie Data Synchronization
+                        <i class="fa-solid fa-bolt me-1.5"></i> Execute 1-Click Auto Synchronization
                     </button>
                 </div>
             </form>

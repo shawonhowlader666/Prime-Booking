@@ -35,9 +35,17 @@
     <div class="page-filters-bar">
         <form method="GET" action="{{ route('admin.bookings.index') }}">
             <div class="row g-2 align-items-end">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Booking Status</label>
-                    <select name="status" class="form-select" onchange="this.form.submit()">
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Start Date</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">End Date</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Booking Status</label>
+                    <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
                         <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
@@ -45,24 +53,22 @@
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
                     </select>
                 </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Payment Status</label>
-                    <select name="payment_status" class="form-select" onchange="this.form.submit()">
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Payment Status</label>
+                    <select name="payment_status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('payment_status') == 'all' ? 'selected' : '' }}>All Payments</option>
                         <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid / Verified</option>
                         <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid / Pending</option>
                         <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4">
-                    <label class="form-label">Search Guest / Reference</label>
-                    <div style="display:flex;">
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by ref, guest name, or phone…" style="border-radius:4px 0 0 4px !important; border-right:none;">
-                        <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Search Ref / Guest</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search ref, guest name, phone..." style="height:32px; font-size:12px;">
                 </div>
-                <div class="col-12 col-sm-6 col-md-2 text-end">
-                    <a href="{{ route('admin.bookings.index') }}" class="btn-table-action" style="padding: 6px 12px; height: 32px; display: inline-flex; align-items: center;">Reset Filters</a>
+                <div class="col-12 col-md-1 d-flex gap-1 justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100" style="height:32px; font-size:12px; font-weight:600;" title="Apply Filter"><i class="fa-solid fa-filter"></i></button>
+                    <a href="{{ route('admin.bookings.index') }}" class="btn btn-light border btn-sm" style="height:32px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
                 </div>
             </div>
         </form>

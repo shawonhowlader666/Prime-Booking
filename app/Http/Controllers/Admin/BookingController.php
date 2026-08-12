@@ -16,8 +16,14 @@ class BookingController extends Controller
         if ($request->status && $request->status !== 'all') {
             $query->where('booking_status', $request->status);
         }
-        if ($request->payment && $request->payment !== 'all') {
-            $query->where('payment_status', $request->payment);
+        if ($request->payment_status && $request->payment_status !== 'all') {
+            $query->where('payment_status', $request->payment_status);
+        }
+        if ($request->filled('start_date')) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+        if ($request->filled('end_date')) {
+            $query->whereDate('created_at', '<=', $request->end_date);
         }
         if ($request->search) {
             $query->where(function ($q) use ($request) {

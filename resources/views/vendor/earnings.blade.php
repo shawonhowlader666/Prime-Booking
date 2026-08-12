@@ -66,6 +66,24 @@
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
+    {{-- FILTER BAR --}}
+    <div class="page-filters-bar mb-3">
+        <form method="GET" action="{{ route('vendor.earnings.index') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-6 col-md-4">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Start Date</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-4">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">End Date</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-12 col-md-4 d-flex gap-1 justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100" style="height:32px; font-size:12px; font-weight:600;" title="Apply Filter"><i class="fa-solid fa-filter me-1"></i> Filter Date Range</button>
+                    <a href="{{ route('vendor.earnings.index') }}" class="btn btn-light border btn-sm" style="height:32px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
+                </div>
+            </div>
+        </form>
     </div>
 
     {{-- Monthly Breakdown Table --}}

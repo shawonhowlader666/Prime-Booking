@@ -27,21 +27,30 @@
     <div class="page-filters-bar">
         <form action="{{ route('vendor.bookings.index') }}" method="GET">
             <div class="row g-2 align-items-end">
-                <div class="col-md-5">
-                    <label class="form-label">Search Guest / Reference</label>
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by Guest Name, Email, or Booking Ref...">
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Start Date</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
                 </div>
-                <div class="col-md-4">
-                    <label class="form-label">Booking Status</label>
-                    <select name="status" class="form-select">
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">End Date</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Booking Status</label>
+                    <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="">All Statuses</option>
                         <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                     </select>
                 </div>
-                <div class="col-md-3">
-                    <button type="submit" class="btn btn-primary w-100 fw-bold" style="height:32px; font-size:12px; border-radius:4px !important;"><i class="fa-solid fa-filter me-1"></i> Filter</button>
+                <div class="col-12 col-md-4">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Search Guest / Reference</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search ref, guest name, phone..." style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-12 col-md-1 d-flex gap-1 justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100" style="height:32px; font-size:12px; font-weight:600;" title="Apply Filter"><i class="fa-solid fa-filter"></i></button>
+                    <a href="{{ route('vendor.bookings.index') }}" class="btn btn-light border btn-sm" style="height:32px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
                 </div>
             </div>
         </form>

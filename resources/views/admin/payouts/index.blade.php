@@ -72,9 +72,34 @@
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
         </div>
+    {{-- FILTER BAR --}}
+    <div class="page-filters-bar mb-3">
+        <form method="GET" action="{{ route('admin.payouts.index') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-6 col-md-3">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Start Date</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">End Date</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Payout Status</label>
+                    <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
+                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Approval</option>
+                        <option value="paid" {{ request('status') == 'paid' ? 'selected' : '' }}>Completed / Paid</option>
+                        <option value="rejected" {{ request('status') == 'rejected' ? 'selected' : '' }}>Rejected</option>
+                    </select>
+                </div>
+                <div class="col-6 col-md-3 d-flex gap-1 justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100" style="height:32px; font-size:12px; font-weight:600;" title="Apply Filter"><i class="fa-solid fa-filter me-1"></i> Filter Date</button>
+                    <a href="{{ route('admin.payouts.index') }}" class="btn btn-light border btn-sm" style="height:32px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
+                </div>
+            </div>
+        </form>
     </div>
-
-    {{-- Payouts Table --}}
     <div class="data-table-card">
         <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
             <div style="display:flex; align-items:center; gap:8px;">

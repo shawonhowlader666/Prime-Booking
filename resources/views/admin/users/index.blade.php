@@ -35,32 +35,38 @@
     <div class="page-filters-bar">
         <form method="GET" action="{{ route('admin.users.index') }}">
             <div class="row g-2 align-items-end">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Role Filter</label>
-                    <select name="role" class="form-select" onchange="this.form.submit()">
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Start Date</label>
+                    <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">End Date</label>
+                    <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
+                </div>
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Role Filter</label>
+                    <select name="role" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('role') == 'all' ? 'selected' : '' }}>All Roles</option>
                         <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admins</option>
                         <option value="vendor" {{ request('role') == 'vendor' ? 'selected' : '' }}>Vendors / Partners</option>
                         <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>Guests / Customers</option>
                     </select>
                 </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Account Status</label>
-                    <select name="status" class="form-select" onchange="this.form.submit()">
+                <div class="col-6 col-md-2">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Account Status</label>
+                    <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
                         <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
                         <option value="banned" {{ request('status') == 'banned' ? 'selected' : '' }}>Banned / Suspended</option>
                     </select>
                 </div>
-                <div class="col-12 col-sm-6 col-md-4">
-                    <label class="form-label">Search Users</label>
-                    <div style="display:flex;">
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name, email, phone..." style="border-radius:4px 0 0 4px !important; border-right:none;">
-                        <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                    </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Search Users</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Name, email, phone..." style="height:32px; font-size:12px;">
                 </div>
-                <div class="col-12 col-sm-6 col-md-2 text-end">
-                    <a href="{{ route('admin.users.index') }}" class="btn-table-action" style="padding: 6px 12px; height: 32px; display: inline-flex; align-items: center;">Reset</a>
+                <div class="col-12 col-md-1 d-flex gap-1 justify-content-end">
+                    <button type="submit" class="btn btn-primary btn-sm w-100" style="height:32px; font-size:12px; font-weight:600;" title="Apply Filter"><i class="fa-solid fa-filter"></i></button>
+                    <a href="{{ route('admin.users.index') }}" class="btn btn-light border btn-sm" style="height:32px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
                 </div>
             </div>
         </form>

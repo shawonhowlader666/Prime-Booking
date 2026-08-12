@@ -1661,6 +1661,9 @@
             </div>
 
             <div class="admin-topbar-right">
+                <button type="button" class="btn btn-sm btn-primary text-white fw-bold d-inline-flex align-items-center me-2 shadow-sm" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12px; height:34px; padding:0 12px; border-radius:4px; background:var(--primary); border:none;" title="Quick 1-Click OTA Hotel Importer Modal">
+                    <i class="fa-solid fa-cloud-arrow-down me-1.5"></i> ⚡ Sync OTA
+                </button>
                 <div class="dropdown me-2">
                     <button class="btn btn-light position-relative p-2" style="border-radius:4px !important; border:1px solid #e2e8f0; height:34px; width:34px; display:flex; align-items:center; justify-content:center;" type="button" data-bs-toggle="dropdown">
                         <i class="fa-solid fa-bell text-secondary" style="font-size:14px;"></i>
@@ -1988,6 +1991,8 @@
         }
     });
     </script>
+
+    @include('admin.import.modal-partial')
 
     @yield('scripts')
 </body>

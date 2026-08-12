@@ -510,9 +510,9 @@
         .table-stockifly { width:100%; border-collapse:collapse; background:#fff; font-size: var(--font-size-table-body); }
         .table-stockifly thead tr th {
             background: var(--primary) !important;
-            color:#fff !important; font-size: var(--font-size-table-header) !important;
-            font-weight:700 !important; text-transform:uppercase !important;
-            letter-spacing:0.5px !important; padding:6px 12px !important;
+            color:#fff !important; font-size: 11.5px !important;
+            font-weight:600 !important; text-transform:uppercase !important;
+            letter-spacing:0.3px !important; padding:6px 12px !important;
             border-bottom:1px solid #e8e8e8 !important;
             border-right:1px solid rgba(255,255,255,0.15) !important; white-space:nowrap;
         }
@@ -521,7 +521,7 @@
             padding:5px 12px !important; border-bottom:1px solid #f0f0f0 !important;
             border-right:1px solid #f0f0f0 !important;
             font-size: var(--font-size-table-body) !important;
-            color:#333 !important; vertical-align:middle; white-space:nowrap; background:#fff;
+            color:#1e293b !important; font-weight:500 !important; vertical-align:middle; white-space:nowrap; background:#fff;
         }
         .table-stockifly tbody tr td:last-child { border-right:none !important; }
         .table-stockifly tbody tr:nth-child(even) td { background: var(--primary-transparent-10) !important; }

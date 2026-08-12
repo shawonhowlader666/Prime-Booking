@@ -804,7 +804,8 @@
             border-bottom: 1px solid #f0f0f0 !important;
             border-right: 1px solid #f0f0f0 !important;
             font-size: var(--font-size-table-body) !important;
-            color: #333333 !important;
+            color: #1e293b !important;
+            font-weight: 500 !important;
             vertical-align: middle;
             white-space: nowrap;
             background: #ffffff;

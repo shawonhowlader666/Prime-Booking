@@ -96,52 +96,107 @@
             </div>
         </div>
         <div class="row g-2.5" id="otaChannelsContainer">
+            {{-- Agoda --}}
             <div class="col-md-3 col-6">
                 <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
-                        <div>
-                            <strong style="font-size:12px; display:block; color:#1e293b;">Agoda Global API</strong>
-                            <small style="font-size:10px; color:#64748b;">Cookie Header Active</small>
-                        </div>
+                        @if($cookieStatus['agoda'] ?? false)
+                            <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);" title="Active Vault Cookie"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Agoda Global API</strong>
+                                <small style="font-size:10px; color:#52c41a; font-weight:600;">Cookie Active</small>
+                            </div>
+                        @else
+                            <span class="pulse-dot" style="background:#ff4d4f; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(255,77,79,0.2);" title="Cookie Expired or Not Set"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Agoda Global API</strong>
+                                <small style="font-size:10px; color:#ff4d4f; font-weight:600;">Cookie Expired</small>
+                            </div>
+                        @endif
                     </div>
-                    <span class="badge bg-primary-subtle text-primary" style="font-size:9.5px;">OTA-01</span>
+                    @if($cookieStatus['agoda'] ?? false)
+                        <span class="badge bg-success-subtle text-success" style="font-size:9.5px;">ACTIVE</span>
+                    @else
+                        <span class="badge bg-danger-subtle text-danger" style="font-size:9.5px;">EXPIRED</span>
+                    @endif
                 </div>
             </div>
+
+            {{-- Booking.com --}}
             <div class="col-md-3 col-6">
                 <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
-                        <div>
-                            <strong style="font-size:12px; display:block; color:#1e293b;">Booking.com Engine</strong>
-                            <small style="font-size:10px; color:#64748b;">JSON Parser Active</small>
-                        </div>
+                        @if($cookieStatus['booking'] ?? false)
+                            <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);" title="Active Vault Cookie"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Booking.com Engine</strong>
+                                <small style="font-size:10px; color:#52c41a; font-weight:600;">Cookie Active</small>
+                            </div>
+                        @else
+                            <span class="pulse-dot" style="background:#ff4d4f; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(255,77,79,0.2);" title="Cookie Expired or Not Set"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Booking.com Engine</strong>
+                                <small style="font-size:10px; color:#ff4d4f; font-weight:600;">Cookie Expired</small>
+                            </div>
+                        @endif
                     </div>
-                    <span class="badge bg-success-subtle text-success" style="font-size:9.5px;">OTA-02</span>
+                    @if($cookieStatus['booking'] ?? false)
+                        <span class="badge bg-success-subtle text-success" style="font-size:9.5px;">ACTIVE</span>
+                    @else
+                        <span class="badge bg-danger-subtle text-danger" style="font-size:9.5px;">EXPIRED</span>
+                    @endif
                 </div>
             </div>
+
+            {{-- Expedia / Hotels.com --}}
             <div class="col-md-3 col-6">
                 <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="pulse-dot" style="background:#1890ff; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(24,144,255,0.2);"></span>
-                        <div>
-                            <strong style="font-size:12px; display:block; color:#1e293b;">Expedia / Hotels.com</strong>
-                            <small style="font-size:10px; color:#64748b;">Payload Bridge Ready</small>
-                        </div>
+                        @if($cookieStatus['expedia'] ?? false)
+                            <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);" title="Active Vault Cookie"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Expedia / Hotels.com</strong>
+                                <small style="font-size:10px; color:#52c41a; font-weight:600;">Cookie Active</small>
+                            </div>
+                        @else
+                            <span class="pulse-dot" style="background:#ff4d4f; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(255,77,79,0.2);" title="Cookie Expired or Not Set"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Expedia / Hotels.com</strong>
+                                <small style="font-size:10px; color:#ff4d4f; font-weight:600;">Cookie Expired</small>
+                            </div>
+                        @endif
                     </div>
-                    <span class="badge bg-warning-subtle text-warning" style="font-size:9.5px;">OTA-03</span>
+                    @if($cookieStatus['expedia'] ?? false)
+                        <span class="badge bg-success-subtle text-success" style="font-size:9.5px;">ACTIVE</span>
+                    @else
+                        <span class="badge bg-danger-subtle text-danger" style="font-size:9.5px;">EXPIRED</span>
+                    @endif
                 </div>
             </div>
+
+            {{-- Trip.com / Airbnb --}}
             <div class="col-md-3 col-6">
                 <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
-                        <span class="pulse-dot" style="background:#fa8c16; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(250,140,22,0.2);"></span>
-                        <div>
-                            <strong style="font-size:12px; display:block; color:#1e293b;">Trip.com / Airbnb</strong>
-                            <small style="font-size:10px; color:#64748b;">Data Import Active</small>
-                        </div>
+                        @if($cookieStatus['airbnb'] ?? false)
+                            <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);" title="Active Vault Cookie"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Trip.com / Airbnb</strong>
+                                <small style="font-size:10px; color:#52c41a; font-weight:600;">Cookie Active</small>
+                            </div>
+                        @else
+                            <span class="pulse-dot" style="background:#ff4d4f; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(255,77,79,0.2);" title="Cookie Expired or Not Set"></span>
+                            <div>
+                                <strong style="font-size:12px; display:block; color:#1e293b;">Trip.com / Airbnb</strong>
+                                <small style="font-size:10px; color:#ff4d4f; font-weight:600;">Cookie Expired</small>
+                            </div>
+                        @endif
                     </div>
-                    <span class="badge bg-info-subtle text-info" style="font-size:9.5px;">OTA-04</span>
+                    @if($cookieStatus['airbnb'] ?? false)
+                        <span class="badge bg-success-subtle text-success" style="font-size:9.5px;">ACTIVE</span>
+                    @else
+                        <span class="badge bg-danger-subtle text-danger" style="font-size:9.5px;">EXPIRED</span>
+                    @endif
                 </div>
             </div>
         </div>

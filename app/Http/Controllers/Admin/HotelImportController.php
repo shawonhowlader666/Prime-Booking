@@ -60,7 +60,14 @@ class HotelImportController extends Controller
         $savedCookie   = SiteSetting::get('ota_saved_cookie_agoda', '');
         $recentImports = Property::latest()->take(10)->get();
 
-        return view('admin.import.index', compact('cities', 'propertyTypes', 'stats', 'savedCookie', 'recentImports'));
+        $cookieStatus = [
+            'agoda'   => !empty(SiteSetting::get('ota_saved_cookie_agoda', '')),
+            'booking' => !empty(SiteSetting::get('ota_saved_cookie_booking', '')),
+            'expedia' => !empty(SiteSetting::get('ota_saved_cookie_expedia', '')),
+            'airbnb'  => !empty(SiteSetting::get('ota_saved_cookie_airbnb', '')),
+        ];
+
+        return view('admin.import.index', compact('cities', 'propertyTypes', 'stats', 'savedCookie', 'recentImports', 'cookieStatus'));
     }
 
     /**

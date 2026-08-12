@@ -241,7 +241,12 @@
 
         /* ===== Filter Bar (same as admin) ===== */
         .page-filters-bar {
-            background:#fff; border-bottom:1px solid #f0f0f0; padding:10px 24px;
+            background:#fff;
+            border: 1px solid #e8e8e8;
+            padding: 14px 24px;
+            margin: 0 24px 18px 24px;
+            border-radius: 4px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .page-filters-bar .form-label {
             font-size:11px; font-weight:600; color:#8c8c8c; margin-bottom:4px;
@@ -250,7 +255,7 @@
         .page-filters-bar .form-select,
         .page-filters-bar .form-control {
             font-size: var(--font-size-input); height:32px; padding:3px 10px;
-            border-radius:6px; border:1px solid #d9d9d9; color:#334155;
+            border-radius:4px !important; border:1px solid #d9d9d9; color:#334155;
             background:#fff; transition:border-color 0.15s;
         }
         .page-filters-bar .form-select:focus,
@@ -259,14 +264,14 @@
         }
         .page-filters-bar .btn-search {
             height:32px; padding:0 12px; font-size:13px;
-            border-radius:0 6px 6px 0; background: var(--primary);
+            border-radius:0 4px 4px 0 !important; background: var(--primary);
             color:#fff; border:none; cursor:pointer; transition:background 0.15s;
         }
         .page-filters-bar .btn-search:hover { background: var(--primary-active); }
-        .page-filters-bar .input-group .form-control { border-radius:6px 0 0 6px; border-right:none; }
+        .page-filters-bar .input-group .form-control { border-radius:4px 0 0 4px !important; border-right:none; }
 
         /* ===== Content Area (same as admin) ===== */
-        .page-content-area { padding:24px; flex:1; }
+        .page-content-area { padding: 0 24px 24px 24px; flex:1; }
 
         /* ===== Data Table Card (same as admin) ===== */
         .data-table-card {

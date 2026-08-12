@@ -405,8 +405,11 @@
          * ============================================================ */
         .page-filters-bar {
             background: #ffffff;
-            border-bottom: 1px solid #f0f0f0;
-            padding: 10px 24px;
+            border: 1px solid #e8e8e8;
+            padding: 14px 24px;
+            margin: 0 24px 18px 24px;
+            border-radius: 4px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .page-filters-bar .form-label {
             font-size: 11px;
@@ -421,7 +424,7 @@
             font-size: var(--font-size-input);
             height: 32px;
             padding: 3px 10px;
-            border-radius: 6px;
+            border-radius: 4px !important;
             border: 1px solid #d9d9d9;
             color: #334155;
             background-color: #ffffff;
@@ -436,7 +439,7 @@
             height: 32px;
             padding: 0 12px;
             font-size: 13px;
-            border-radius: 0 6px 6px 0;
+            border-radius: 0 4px 4px 0 !important;
             background: var(--primary);
             color: #fff;
             border: none;
@@ -444,14 +447,14 @@
             transition: background 0.15s;
         }
         .page-filters-bar .btn-search:hover { background: var(--primary-active); }
-        .page-filters-bar .input-group .form-control { border-radius: 6px 0 0 6px; }
+        .page-filters-bar .input-group .form-control { border-radius: 4px 0 0 4px !important; }
 
         /* ============================================================
          * Page Content Area (admin-page-table-content)
-         * padding: 24px — exact Stockifly spacing
+         * padding: 0 24px 24px 24px — exact Stockifly spacing
          * ============================================================ */
         .page-content-area {
-            padding: 24px;
+            padding: 0 24px 24px 24px;
             flex: 1;
         }
 

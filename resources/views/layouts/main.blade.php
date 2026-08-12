@@ -78,6 +78,7 @@
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
     <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}?v=2">
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
@@ -89,16 +90,19 @@
             --agoda-blue: #2067e1;
             --agoda-navy: #002d72;
             --agoda-red: #ff567d;
-            /* Agoda.com Exact Confirmed Font Stack */
-            --agoda-font: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+            --agoda-font: 'Barlow', BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, sans-serif;
         }
-        /* Agoda Exact Global Font Reset */
+        /* Barlow Thin & Tall Global Font Reset */
         html, body, input, button, select, textarea,
         h1, h2, h3, h4, h5, h6, p, span, a, li, div, label {
-            font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+            font-family: 'Barlow', BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+            font-weight: 400 !important;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
+        }
+        .fw-bold, .fw-bolder, strong, b, h1, h2, h3, h4, h5, h6 {
+            font-weight: 500 !important;
         }
         body {
             background: linear-gradient(180deg, #e2eafc 0%, #edf2fb 50%, #f4f7fc 100%);

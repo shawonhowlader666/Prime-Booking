@@ -153,9 +153,9 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="saas-label">Primary Brand Theme Color</label>
-                                    <div class="d-flex gap-2">
-                                        <input type="color" name="primary_color" class="form-control form-control-color saas-input p-1" value="{{ old('primary_color', $siteSettings['primary_color']) }}" style="width:40px;">
-                                        <input type="text" class="form-control saas-input" value="{{ old('primary_color', $siteSettings['primary_color']) }}" readonly style="font-family:monospace;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <input type="color" name="primary_color" id="primaryColorInput" class="form-control saas-input p-0" value="{{ old('primary_color', $siteSettings['primary_color']) }}" style="width:34px; height:32px; border-radius:4px !important; cursor:pointer;" oninput="document.getElementById('primaryColorHex').value = this.value">
+                                        <input type="text" id="primaryColorHex" class="form-control saas-input" value="{{ old('primary_color', $siteSettings['primary_color']) }}" readonly style="font-family:monospace; width:100px;">
                                     </div>
                                 </div>
                                 <div class="col-12">
@@ -468,6 +468,20 @@
     background: var(--primary) !important;
     color: #ffffff !important;
     box-shadow: 0 2px 8px rgba(32,103,225,0.25);
+}
+
+/* Custom 4px Rounded Color Picker Swatch */
+input[type="color"]::-webkit-color-swatch-wrapper {
+    padding: 2px !important;
+    border-radius: 4px !important;
+}
+input[type="color"]::-webkit-color-swatch {
+    border: none !important;
+    border-radius: 3px !important;
+}
+input[type="color"]::-moz-color-swatch {
+    border: none !important;
+    border-radius: 3px !important;
 }
 </style>
 

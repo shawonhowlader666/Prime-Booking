@@ -12,23 +12,7 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">Guest Reviews &amp; Rating Moderation</h1>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button class="btn-export-csv" onclick="exportTableCSV('reviewsTable', 'reviews')">
-                <i class="fa-solid fa-file-csv"></i> CSV
-            </button>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('reviewsTable', this)" title="Select / Deselect All Rows">
-                <i class="fa-solid fa-check-square"></i> Select
-            </button>
-            <div style="position:relative;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('reviewsTable', this)" title="Show / Hide Columns">
-                    <i class="fa-solid fa-table-columns"></i> SL
-                </button>
-                <div class="col-vis-dropdown" id="colVisDropdown_reviewsTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-print" onclick="printTable('reviewsTable')" title="Print Table">
-                <i class="fa-solid fa-print"></i> Print
-            </button>
-        </div>
+        <span class="badge bg-warning text-dark px-3 py-2" style="font-size:12px; font-weight:600;"><i class="fa-solid fa-star me-1"></i> Quality Moderation</span>
     </div>
 </div>
 
@@ -47,6 +31,8 @@
             <h6>All Guest Testimonials &amp; Ratings</h6>
             <span class="live-feed-badge">Moderation Feed</span>
         </div>
+
+        <x-table-toolbar tableId="reviewsTable" exportName="reviews" searchPlaceholder="Search reviews..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="reviewsTable" style="width:100%;">

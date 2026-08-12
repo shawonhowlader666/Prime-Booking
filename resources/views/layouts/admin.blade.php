@@ -11,6 +11,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- DataTables + Buttons (Bootstrap 5 theme) -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/2.4.2/css/buttons.bootstrap5.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.7.0/css/select.bootstrap5.min.css">
 
     <style>
         /* ============================================================
@@ -28,6 +32,7 @@
 
             /* Stockifly layout vars */
             --sidebar-width: 250px;
+            --sidebar-collapsed-width: 64px;
             --admin-body-bg: #f0f2f5;
             --admin-card-border: #e8e8e8;
 
@@ -152,10 +157,55 @@
             z-index: 1040;
             overflow-y: auto;
             overflow-x: hidden;
-            transition: transform 0.25s ease;
+            transition: width 0.22s cubic-bezier(.4,0,.2,1), transform 0.25s ease;
             display: flex;
             flex-direction: column;
         }
+
+        /* ─── Collapsed Sidebar (icon-only) ─────────────────────────── */
+        #stockiflySidebar.sb-collapsed {
+            width: var(--sidebar-collapsed-width);
+            overflow: visible;
+        }
+        #stockiflySidebar.sb-collapsed .sb-brand-title,
+        #stockiflySidebar.sb-collapsed .sb-brand-subtitle,
+        #stockiflySidebar.sb-collapsed .sb-section-header,
+        #stockiflySidebar.sb-collapsed .sb-nav-item span,
+        #stockiflySidebar.sb-collapsed .sb-nav-toggle span,
+        #stockiflySidebar.sb-collapsed .sb-nav-toggle .chevron-icon,
+        #stockiflySidebar.sb-collapsed .sb-sub-menu,
+        #stockiflySidebar.sb-collapsed .sb-nav-item > span { display: none !important; }
+        #stockiflySidebar.sb-collapsed .sb-nav-item,
+        #stockiflySidebar.sb-collapsed .sb-nav-toggle {
+            justify-content: center;
+            padding: 10px 0;
+            gap: 0;
+        }
+        #stockiflySidebar.sb-collapsed .sb-nav-item i,
+        #stockiflySidebar.sb-collapsed .sb-nav-toggle i:first-child {
+            font-size: 17px;
+            width: 100%;
+            text-align: center;
+            margin: 0;
+        }
+        #stockiflySidebar.sb-collapsed .sb-brand {
+            justify-content: center;
+            padding: 14px 0;
+        }
+        #stockiflySidebar.sb-collapsed .sb-brand-icon { margin: 0; }
+        /* Tooltip on hover when collapsed */
+        #stockiflySidebar.sb-collapsed .sb-nav-item,
+        #stockiflySidebar.sb-collapsed .sb-nav-toggle { position: relative; }
+        #stockiflySidebar.sb-collapsed .sb-nav-item:hover::after,
+        #stockiflySidebar.sb-collapsed .sb-nav-toggle:hover::after {
+            content: attr(data-label);
+            position: absolute; left: calc(100% + 8px); top: 50%; transform: translateY(-50%);
+            background: #001529; color: #fff; font-size: 12px; font-weight: 600;
+            padding: 4px 10px; border-radius: 4px; white-space: nowrap;
+            z-index: 2000; box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+            pointer-events: none;
+        }
+        #stockiflyContent.sb-collapsed-content { margin-left: var(--sidebar-collapsed-width); }
 
         /* Custom Scrollbar for Admin Sidebar */
         #stockiflySidebar::-webkit-scrollbar,
@@ -368,6 +418,26 @@
             font-size: 14px;
         }
 
+        /* ─── Desktop Sidebar Collapse Toggle ───────────────────────── */
+        .btn-sidebar-collapse {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: rgba(255,255,255,0.6);
+            font-size: 13px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .btn-sidebar-collapse:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
+        #stockiflySidebar.sb-collapsed .btn-sidebar-collapse { margin: 0 auto; }
+
         /* ============================================================
          * Page Header (AdminPageHeader) — exact .page-content-sub-header
          * from Stockifly app.css — white bg, left blue border accent
@@ -415,81 +485,102 @@
             line-height: 1.3;
         }
 
-        /* Page header action buttons — exact Stockifly ExportTable button style */
-        .btn-export-csv {
-            display: inline-flex;
+        /* ============================================================
+         * Stockifly SaaS Data Table Toolbar & Action Buttons
+         * ============================================================ */
+        .saas-table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e8e8e8;
+            border-radius: 4px 4px 0 0 !important;
+        }
+
+        .saas-toolbar-actions {
+            display: flex;
             align-items: center;
             gap: 6px;
-            padding: 5px 14px;
-            font-size: 12.5px;
-            font-weight: 600;
-            border-radius: 6px;
-            border: 1.5px solid #52c41a;
-            color: #52c41a;
-            background: #fff;
-            cursor: pointer;
-            transition: all 0.15s;
-            line-height: 1.5;
-            text-decoration: none;
+            flex-wrap: wrap;
         }
 
-        .btn-export-csv:hover {
-            background: #52c41a;
-            color: #fff;
-        }
-
-        .btn-export-pdf {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 5px 14px;
-            font-size: 12.5px;
-            font-weight: 600;
-            border-radius: 6px;
-            border: 1.5px solid var(--primary);
-            color: #ffffff;
-            background: var(--primary);
-            cursor: pointer;
-            transition: all 0.15s;
-            line-height: 1.5;
-            text-decoration: none;
-        }
-
-        .btn-export-pdf:hover {
-            background: var(--primary-active);
-            border-color: var(--primary-active);
-        }
-
-        /* ── SaaS Toolbar Buttons (Select All / Col Visibility / Print) ─ */
-        .btn-tbl-col {
+        /* ── Action Buttons ────────────────────────────────────────── */
+        .btn-tbl-copy {
             display: inline-flex; align-items: center; gap: 5px;
-            padding: 5px 13px; font-size: 12px; font-weight: 600;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
             border-radius: 4px !important; border: 1.5px solid #d9d9d9;
             color: #595959; background: #fff; cursor: pointer;
-            transition: all 0.15s; line-height: 1.5; text-decoration: none;
-            white-space: nowrap;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
         }
-        .btn-tbl-col:hover { background: #f5f5f5; border-color: #bfbfbf; color: #262626; }
-        .btn-tbl-col.active-col { border-color: var(--primary); color: var(--primary); background: #e6f7ff; }
+        .btn-tbl-copy:hover { background: #f5f5f5; border-color: #bfbfbf; color: #262626; }
+
+        .btn-tbl-excel {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #52c41a;
+            color: #52c41a; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-excel:hover { background: #52c41a; color: #fff; }
+
+        .btn-export-csv {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #13c2c2;
+            color: #13c2c2; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-export-csv:hover { background: #13c2c2; color: #fff; }
+
+        .btn-export-pdf {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #ff4d4f;
+            color: #ff4d4f; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-export-pdf:hover { background: #ff4d4f; color: #fff; }
 
         .btn-tbl-print {
             display: inline-flex; align-items: center; gap: 5px;
-            padding: 5px 13px; font-size: 12px; font-weight: 600;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
             border-radius: 4px !important; border: 1.5px solid #722ed1;
             color: #722ed1; background: #fff; cursor: pointer;
-            transition: all 0.15s; line-height: 1.5; white-space: nowrap;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
         }
         .btn-tbl-print:hover { background: #722ed1; color: #fff; }
 
+        .btn-tbl-col {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #8c8c8c;
+            color: #595959; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-col:hover { background: #f5f5f5; border-color: #595959; color: #262626; }
+        .btn-tbl-col.active-col { border-color: var(--primary); color: var(--primary); background: #e6f7ff; }
+
         .btn-tbl-select {
             display: inline-flex; align-items: center; gap: 5px;
-            padding: 5px 13px; font-size: 12px; font-weight: 600;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
             border-radius: 4px !important; border: 1.5px solid #fa8c16;
             color: #fa8c16; background: #fff; cursor: pointer;
-            transition: all 0.15s; line-height: 1.5; white-space: nowrap;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
         }
         .btn-tbl-select:hover { background: #fa8c16; color: #fff; }
         .btn-tbl-select.is-selecting { background: #fa8c16; color: #fff; }
+
+        .btn-add-primary {
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 14px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: none;
+            color: #ffffff; background: var(--primary); cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; text-decoration: none;
+        }
+        .btn-add-primary:hover { background: var(--primary-active); color: #fff; }
 
         /* Column Visibility Dropdown */
         .col-vis-dropdown {
@@ -510,24 +601,35 @@
         tr.row-selected td { background: #e6f7ff !important; }
         .tbl-select-checkbox { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
 
-        .btn-add-primary {
-            display: inline-flex;
+        /* Table Search Input */
+        .tbl-search-wrap {
+            position: relative;
+            display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 5px 16px;
-            font-size: 12.5px;
-            font-weight: 600;
-            border-radius: 6px;
-            border: none;
-            color: #ffffff;
-            background: var(--primary);
-            cursor: pointer;
-            transition: all 0.15s;
-            line-height: 1.5;
-            text-decoration: none;
         }
-
-        .btn-add-primary:hover {
+        .tbl-search-input {
+            height: 32px;
+            padding: 4px 12px 4px 30px;
+            font-size: 12px;
+            border-radius: 4px !important;
+            border: 1px solid #d9d9d9;
+            color: #334155;
+            background: #ffffff;
+            width: 220px;
+            transition: all 0.15s;
+        }
+        .tbl-search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-transparent-10);
+            outline: none;
+        }
+        .tbl-search-icon {
+            position: absolute;
+            left: 10px;
+            color: #bfbfbf;
+            font-size: 12px;
+            pointer-events: none;
+        }
             background: var(--primary-active);
             color: #fff;
         }
@@ -1323,6 +1425,11 @@
                 <span class="sb-brand-title">PRIME BOOKING</span>
                 <span class="sb-brand-subtitle">OTA Travel &amp; Hospitality</span>
             </div>
+            {{-- Desktop collapse toggle --}}
+            <button class="btn-sidebar-collapse d-none d-lg-flex" id="btnCollapseDesktop" onclick="collapseSidebar()" title="Toggle Sidebar">
+                <i class="fa-solid fa-chevron-left" id="collapseIcon"></i>
+            </button>
+            {{-- Mobile close --}}
             <button onclick="toggleSidebar()" class="ms-auto d-lg-none"
                 style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;padding:4px;">
                 <i class="fa-solid fa-xmark"></i>
@@ -1333,7 +1440,7 @@
         <nav style="padding: 8px 0 60px 0; flex: 1; overflow-y: auto;">
 
             <div class="sb-section-header">Overview</div>
-            <a href="{{ route('admin.dashboard') }}" class="sb-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+            <a href="{{ route('admin.dashboard') }}" class="sb-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-label="Dashboard">
                 <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
             </a>
 
@@ -1342,7 +1449,7 @@
             {{-- 1. Bookings & Reservations --}}
             @php $isBookingsActive = request()->routeIs('admin.bookings.*', 'admin.inquiries.*', 'admin.reviews.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isBookingsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuBookings" aria-expanded="{{ $isBookingsActive ? 'true' : 'false' }}">
+                <button class="sb-nav-toggle {{ $isBookingsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuBookings" aria-expanded="{{ $isBookingsActive ? 'true' : 'false' }}" data-label="Reservations">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-receipt" style="width:16px;text-align:center;"></i> <span>Reservations</span>
                     </div>
@@ -1366,7 +1473,7 @@
             {{-- 2. Properties & Inventory --}}
             @php $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}">
+                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}" data-label="Properties">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Properties</span>
                     </div>
@@ -1390,7 +1497,7 @@
             {{-- 3. Marketing & Sales --}}
             @php $isMarketingActive = request()->routeIs('admin.promotions.*', 'admin.packages.*', 'admin.deals.*', 'admin.coupons.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isMarketingActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuMarketing" aria-expanded="{{ $isMarketingActive ? 'true' : 'false' }}">
+                <button class="sb-nav-toggle {{ $isMarketingActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuMarketing" aria-expanded="{{ $isMarketingActive ? 'true' : 'false' }}" data-label="Marketing">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-bullhorn" style="width:16px;text-align:center;"></i> <span>Marketing</span>
                     </div>
@@ -1417,7 +1524,7 @@
             {{-- 4. Users, Vendors & Payouts --}}
             @php $isAccountsActive = request()->routeIs('admin.users.*', 'admin.tenants.*', 'admin.payouts.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isAccountsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuAccounts" aria-expanded="{{ $isAccountsActive ? 'true' : 'false' }}">
+                <button class="sb-nav-toggle {{ $isAccountsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuAccounts" aria-expanded="{{ $isAccountsActive ? 'true' : 'false' }}" data-label="Users &amp; Vendors">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-users-gear" style="width:16px;text-align:center;"></i> <span>Users &amp; Vendors</span>
                     </div>
@@ -1441,7 +1548,7 @@
             {{-- 5. Website CMS & Banners --}}
             @php $isCMSActive = request()->routeIs('admin.cms.*', 'admin.content.hero', 'admin.destinations.*', 'admin.amenities.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isCMSActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuCMS" aria-expanded="{{ $isCMSActive ? 'true' : 'false' }}">
+                <button class="sb-nav-toggle {{ $isCMSActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuCMS" aria-expanded="{{ $isCMSActive ? 'true' : 'false' }}" data-label="CMS Pages">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-file-lines" style="width:16px;text-align:center;"></i> <span>CMS Pages</span>
                     </div>
@@ -1466,10 +1573,10 @@
             </div>
 
             <div class="sb-section-header">System</div>
-            <a href="{{ route('admin.settings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.settings.*', 'admin.site-settings.*', 'admin.gateways.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.settings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.settings.*', 'admin.site-settings.*', 'admin.gateways.*') ? 'active' : '' }}" data-label="Settings">
                 <i class="fa-solid fa-gear"></i> <span>Settings</span>
             </a>
-            <a href="{{ route('admin.activity.index') }}" class="sb-nav-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
+            <a href="{{ route('admin.activity.index') }}" class="sb-nav-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}" data-label="Audit Logs">
                 <i class="fa-solid fa-shield-halved"></i> <span>Activity Audit Logs</span>
             </a>
 
@@ -1483,7 +1590,7 @@
             </div>
 
             <div class="sb-section-header">Live Site</div>
-            <a href="{{ route('home') }}" target="_blank" class="sb-nav-item" style="color: rgba(80,210,255,0.8);">
+            <a href="{{ route('home') }}" target="_blank" class="sb-nav-item" style="color: rgba(80,210,255,0.8);" data-label="Public Website">
                 <i class="fa-solid fa-arrow-up-right-from-square"></i> <span>Public Website</span>
             </a>
 
@@ -1573,13 +1680,196 @@
             sb.classList.toggle('show-mobile');
             bd.style.display = sb.classList.contains('show-mobile') ? 'block' : 'none';
         }
+
+        // ── Desktop Sidebar Collapse ─────────────────────────────────────
+        function collapseSidebar() {
+            const sb = document.getElementById('stockiflySidebar');
+            const content = document.getElementById('stockiflyContent');
+            const icon = document.getElementById('collapseIcon');
+            const isCollapsed = sb.classList.toggle('sb-collapsed');
+            content.classList.toggle('sb-collapsed-content', isCollapsed);
+
+            if (icon) {
+                icon.className = isCollapsed
+                    ? 'fa-solid fa-chevron-right'
+                    : 'fa-solid fa-chevron-left';
+            }
+
+            // Collapse open Bootstrap accordion sub-menus when minimizing
+            if (isCollapsed) {
+                document.querySelectorAll('#stockiflySidebar .collapse.show').forEach(el => {
+                    el.classList.remove('show');
+                });
+            }
+
+            // Persist state in localStorage
+            localStorage.setItem('sbCollapsed', isCollapsed ? '1' : '0');
+        }
+
+        // Restore sidebar collapse state on page load
+        document.addEventListener('DOMContentLoaded', function () {
+            if (localStorage.getItem('sbCollapsed') === '1') {
+                const sb = document.getElementById('stockiflySidebar');
+                const content = document.getElementById('stockiflyContent');
+                const icon = document.getElementById('collapseIcon');
+                sb.classList.add('sb-collapsed');
+                content.classList.add('sb-collapsed-content');
+                if (icon) icon.className = 'fa-solid fa-chevron-right';
+            }
+        });
     </script>
 
     {{-- ═══════════════════════════════════════════════════════════════
-         GLOBAL SAAS TABLE TOOLBAR — Select All, Col Visibility, Print
+         GLOBAL SAAS TABLE TOOLBAR — Copy, XL, CSV, PDF, Print, SL, Select, Search
          ═══════════════════════════════════════════════════════════════ --}}
     <script>
-    // ── 1. SELECT ALL ROWS ──────────────────────────────────────────
+    // ── Toast Notification Helper ────────────────────────────────────
+    function showSaasToast(message, type = 'success') {
+        let toastContainer = document.getElementById('saasToastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'saasToastContainer';
+            toastContainer.style = 'position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px;';
+            document.body.appendChild(toastContainer);
+        }
+        const toast = document.createElement('div');
+        const bg = type === 'success' ? '#52c41a' : (type === 'info' ? '#1890ff' : '#ff4d4f');
+        toast.style = `background:${bg}; color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; gap:8px; transition:all 0.2s ease; opacity:0; transform:translateY(10px);`;
+        toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 200); }, 3000);
+    }
+
+    // ── 1. COPY TO CLIPBOARD ─────────────────────────────────────────
+    function copyTableToClipboard(tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        let text = '';
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cols = row.querySelectorAll('th, td');
+            let rowText = [];
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                rowText.push(col.innerText.replace(/\s+/g, ' ').trim());
+            });
+            if (rowText.length) text += rowText.join('\t') + '\n';
+        });
+        navigator.clipboard.writeText(text).then(() => {
+            showSaasToast('Table data copied to clipboard!', 'success');
+        }).catch(() => {
+            showSaasToast('Failed to copy table data.', 'error');
+        });
+    }
+
+    // ── 2. EXPORT EXCEL (XL) ──────────────────────────────────────────
+    function exportTableExcel(tableId, filename) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        let html = '<meta charset="UTF-8"><table>';
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            html += '<tr>';
+            const cols = row.querySelectorAll('th, td');
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                const tag = col.tagName.toLowerCase();
+                html += `<${tag}>${col.innerText.trim()}</${tag}>`;
+            });
+            html += '</tr>';
+        });
+        html += '</table>';
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.xls';
+        link.click();
+        showSaasToast('Excel report downloaded!', 'success');
+    }
+
+    // ── 3. EXPORT CSV ─────────────────────────────────────────────────
+    function exportTableCSV(tableId, filename) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cols = row.querySelectorAll('th, td');
+            let rowData = [];
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                const cellText = col.innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""');
+                rowData.push('"' + cellText + '"');
+            });
+            if (rowData.length) csv.push(rowData.join(','));
+        });
+        const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+        link.click();
+        showSaasToast('CSV report downloaded!', 'success');
+    }
+
+    // ── 4. EXPORT / PRINT PDF ─────────────────────────────────────────
+    function exportTablePDF(tableId, filename) {
+        printTable(tableId);
+    }
+
+    // ── 5. PRINT TABLE ────────────────────────────────────────────────
+    function printTable(tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) { window.print(); return; }
+        const pageTitle = document.querySelector('.page-title')?.textContent?.trim() || 'Table Report';
+        const printDate = new Date().toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        const printWin = window.open('', '_blank', 'width=1050,height=700');
+        printWin.document.write(`<!DOCTYPE html><html><head>
+            <title>${pageTitle} — Print</title>
+            <style>
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; margin: 0; padding: 20px; }
+                .print-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1890ff; padding-bottom: 10px; margin-bottom: 16px; }
+                .print-header h1 { font-size: 16px; font-weight: 700; color: #1890ff; margin: 0; }
+                .print-header small { color: #8c8c8c; font-size: 11px; }
+                table { width: 100%; border-collapse: collapse; }
+                th { background: #1890ff; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 600; }
+                td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; font-size: 11px; vertical-align: middle; }
+                tr:nth-child(even) td { background: #fafafa; }
+                .th-checkbox, .td-checkbox { display: none; }
+                @media print { body { padding: 10px; } }
+            </style>
+        </head><body>
+            <div class="print-header">
+                <div>
+                    <h1>${pageTitle}</h1>
+                    <small>Generated: ${printDate} — PRIME BOOKING Admin</small>
+                </div>
+            </div>
+            ${table.outerHTML}
+            <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body></html>`);
+        printWin.document.close();
+    }
+
+    // ── 6. INSTANT TABLE SEARCH FILTER ────────────────────────────────
+    function filterTableSearch(tableId, query) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const rows = table.querySelectorAll('tbody tr');
+        const q = query.toLowerCase().trim();
+        rows.forEach(row => {
+            if (row.querySelector('td[colspan]')) return;
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+
+    // ── 7. SELECT ALL ROWS MODE ───────────────────────────────────────
     function toggleSelectAll(tableId, btn) {
         const table = document.getElementById(tableId);
         if (!table) return;
@@ -1588,9 +1878,8 @@
 
         if (isSelecting) {
             btn.innerHTML = '<i class="fa-solid fa-square-xmark"></i> Deselect';
-            // Add checkbox column header if not already present
             const thead = table.querySelector('thead tr');
-            if (!thead.querySelector('.th-checkbox')) {
+            if (thead && !thead.querySelector('.th-checkbox')) {
                 const thCheck = document.createElement('th');
                 thCheck.className = 'th-checkbox';
                 thCheck.style = 'width:36px;text-align:center;';
@@ -1607,8 +1896,7 @@
                 }
             });
         } else {
-            btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Select';
-            // Remove checkbox column
+            btn.innerHTML = '<i class="fa-solid fa-square-check"></i> Select';
             const thCheck = table.querySelector('.th-checkbox');
             if (thCheck) thCheck.remove();
             table.querySelectorAll('.td-checkbox').forEach(td => td.remove());
@@ -1618,6 +1906,7 @@
 
     function masterCheckToggle(master, tableId) {
         const table = document.getElementById(tableId);
+        if (!table) return;
         const checkboxes = table.querySelectorAll('.tbl-row-check');
         checkboxes.forEach(cb => {
             cb.checked = master.checked;
@@ -1627,6 +1916,7 @@
 
     function rowCheckChange(tableId) {
         const table = document.getElementById(tableId);
+        if (!table) return;
         const all = table.querySelectorAll('.tbl-row-check');
         const checked = table.querySelectorAll('.tbl-row-check:checked');
         const master = document.getElementById('masterCheck_' + tableId);
@@ -1636,13 +1926,12 @@
         });
     }
 
-    // ── 2. COLUMN VISIBILITY ────────────────────────────────────────
+    // ── 8. COLUMN VISIBILITY ──────────────────────────────────────────
     function toggleColVis(tableId, btn) {
         const dropId = 'colVisDropdown_' + tableId;
         const drop = document.getElementById(dropId);
         if (!drop) return;
         const isVisible = drop.style.display === 'block';
-        // Close all open dropdowns first
         document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
         document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
 
@@ -1675,70 +1964,7 @@
         });
     }
 
-    // ── 3. PRINT TABLE ──────────────────────────────────────────────
-    function printTable(tableId) {
-        const table = document.getElementById(tableId);
-        if (!table) { window.print(); return; }
-        // Get page title from breadcrumb or h1
-        const pageTitle = document.querySelector('.page-title')?.textContent?.trim() || 'Table Report';
-        const printDate = new Date().toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' });
-
-        const printWin = window.open('', '_blank', 'width=1050,height=700');
-        printWin.document.write(`<!DOCTYPE html><html><head>
-            <title>${pageTitle} — Print</title>
-            <style>
-                * { box-sizing: border-box; }
-                body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; margin: 0; padding: 20px; }
-                .print-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1890ff; padding-bottom: 10px; margin-bottom: 16px; }
-                .print-header h1 { font-size: 16px; font-weight: 700; color: #1890ff; margin: 0; }
-                .print-header small { color: #8c8c8c; font-size: 11px; }
-                table { width: 100%; border-collapse: collapse; }
-                th { background: #1890ff; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 600; }
-                td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; font-size: 11px; vertical-align: middle; }
-                tr:nth-child(even) td { background: #fafafa; }
-                .th-checkbox, .td-checkbox { display: none; }
-                @media print { body { padding: 10px; } }
-            </style>
-        </head><body>
-            <div class="print-header">
-                <div>
-                    <h1>${pageTitle}</h1>
-                    <small>Generated: ${printDate} — PRIME BOOKING Admin</small>
-                </div>
-                <img src="/images/logo.png" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
-            </div>
-            ${table.outerHTML}
-            <script>window.onload = function(){ window.print(); window.close(); }<\/script>
-        </body></html>`);
-        printWin.document.close();
-    }
-
-    // ── 4. CSV EXPORT ───────────────────────────────────────────────
-    function exportTableCSV(tableId, filename) {
-        const table = document.getElementById(tableId);
-        if (!table) { alert('Export feature coming soon!'); return; }
-        let csv = [];
-        const rows = table.querySelectorAll('tr');
-        rows.forEach(row => {
-            const cols = row.querySelectorAll('th, td');
-            let rowData = [];
-            cols.forEach(col => {
-                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox')) return;
-                // Skip action column
-                const text = col.innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""');
-                rowData.push('"' + text + '"');
-            });
-            if (rowData.length) csv.push(rowData.join(','));
-        });
-        const csvContent = csv.join('\n');
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.csv';
-        link.click();
-    }
-
-    // ── Close col-vis dropdown on outside click ──────────────────────
+    // Close col-vis dropdown on outside click
     document.addEventListener('click', function(e) {
         if (!e.target.closest('[onclick*="toggleColVis"]') && !e.target.closest('.col-vis-dropdown')) {
             document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');

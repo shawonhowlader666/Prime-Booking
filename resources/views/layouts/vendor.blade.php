@@ -235,28 +235,127 @@
             margin:0; line-height:1.3;
         }
 
-        /* ===== Buttons (same as admin) ===== */
+        /* ============================================================
+         * Stockifly SaaS Data Table Toolbar & Action Buttons (Vendor)
+         * ============================================================ */
+        .saas-table-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 12px 20px;
+            background: #ffffff;
+            border-bottom: 1px solid #e8e8e8;
+            border-radius: 4px 4px 0 0 !important;
+        }
+
+        .saas-toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .btn-tbl-copy {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #d9d9d9;
+            color: #595959; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-copy:hover { background: #f5f5f5; border-color: #bfbfbf; color: #262626; }
+
+        .btn-tbl-excel {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #52c41a;
+            color: #52c41a; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-excel:hover { background: #52c41a; color: #fff; }
+
         .btn-export-csv {
-            display:inline-flex; align-items:center; gap:6px;
-            padding:5px 14px; font-size:12.5px; font-weight:600;
-            border-radius:6px; border:1.5px solid #52c41a; color:#52c41a;
-            background:#fff; cursor:pointer; transition:all 0.15s; text-decoration:none; line-height:1.5;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #13c2c2;
+            color: #13c2c2; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
         }
-        .btn-export-csv:hover { background:#52c41a; color:#fff; }
+        .btn-export-csv:hover { background: #13c2c2; color: #fff; }
+
         .btn-export-pdf {
-            display:inline-flex; align-items:center; gap:6px;
-            padding:5px 14px; font-size:12.5px; font-weight:600;
-            border-radius:6px; border:none; color:#fff;
-            background: var(--primary); cursor:pointer; transition:all 0.15s; text-decoration:none; line-height:1.5;
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #ff4d4f;
+            color: #ff4d4f; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
         }
-        .btn-export-pdf:hover { background: var(--primary-active); color:#fff; }
+        .btn-export-pdf:hover { background: #ff4d4f; color: #fff; }
+
+        .btn-tbl-print {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #722ed1;
+            color: #722ed1; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-print:hover { background: #722ed1; color: #fff; }
+
+        .btn-tbl-col {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #8c8c8c;
+            color: #595959; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-col:hover { background: #f5f5f5; border-color: #595959; color: #262626; }
+        .btn-tbl-col.active-col { border-color: var(--primary); color: var(--primary); background: #e6f7ff; }
+
+        .btn-tbl-select {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 12px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #fa8c16;
+            color: #fa8c16; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap; text-decoration: none;
+        }
+        .btn-tbl-select:hover { background: #fa8c16; color: #fff; }
+        .btn-tbl-select.is-selecting { background: #fa8c16; color: #fff; }
+
         .btn-add-primary {
-            display:inline-flex; align-items:center; gap:6px;
-            padding:5px 16px; font-size:12.5px; font-weight:600;
-            border-radius:6px; border:none; color:#fff;
-            background: var(--primary); cursor:pointer; transition:all 0.15s; text-decoration:none; line-height:1.5;
+            display: inline-flex; align-items: center; gap: 6px;
+            padding: 5px 14px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: none;
+            color: #ffffff; background: var(--primary); cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; text-decoration: none;
         }
-        .btn-add-primary:hover { background: var(--primary-active); color:#fff; }
+        .btn-add-primary:hover { background: var(--primary-active); color: #fff; }
+
+        .col-vis-dropdown {
+            position: absolute; top: calc(100% + 6px); right: 0; z-index: 1090;
+            background: #fff; border: 1px solid #e8e8e8;
+            border-radius: 4px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            min-width: 180px; padding: 6px 0;
+        }
+        .col-vis-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 14px; font-size: 12.5px; color: #333;
+            cursor: pointer; user-select: none;
+        }
+        .col-vis-item:hover { background: #f5f5f5; }
+        .col-vis-item input[type=checkbox] { accent-color: var(--primary); width: 14px; height: 14px; }
+
+        tr.row-selected td { background: #e6f7ff !important; }
+        .tbl-select-checkbox { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+
+        .tbl-search-wrap { position: relative; display: flex; align-items: center; }
+        .tbl-search-input {
+            height: 32px; padding: 4px 12px 4px 30px; font-size: 12px;
+            border-radius: 4px !important; border: 1px solid #d9d9d9;
+            color: #334155; background: #ffffff; width: 220px; transition: all 0.15s;
+        }
+        .tbl-search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-transparent-10); outline: none; }
+        .tbl-search-icon { position: absolute; left: 10px; color: #bfbfbf; font-size: 12px; pointer-events: none; }
 
         /* ===== Filter Bar (same as admin) ===== */
         .page-filters-bar {
@@ -669,6 +768,248 @@
             sb.classList.toggle('show-mobile');
             bd.style.display = sb.classList.contains('show-mobile') ? 'block' : 'none';
         }
+    </script>
+
+    {{-- Global SaaS Table Toolbar JS (Vendor) --}}
+    <script>
+    function showSaasToast(message, type = 'success') {
+        let toastContainer = document.getElementById('saasToastContainer');
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'saasToastContainer';
+            toastContainer.style = 'position:fixed; bottom:24px; right:24px; z-index:9999; display:flex; flex-direction:column; gap:8px;';
+            document.body.appendChild(toastContainer);
+        }
+        const toast = document.createElement('div');
+        const bg = type === 'success' ? '#52c41a' : (type === 'info' ? '#1890ff' : '#ff4d4f');
+        toast.style = `background:${bg}; color:#fff; padding:10px 18px; border-radius:4px; font-size:13px; font-weight:600; box-shadow:0 4px 12px rgba(0,0,0,0.15); display:flex; align-items:center; gap:8px; transition:all 0.2s ease; opacity:0; transform:translateY(10px);`;
+        toast.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-info-circle'}"></i> <span>${message}</span>`;
+        toastContainer.appendChild(toast);
+        setTimeout(() => { toast.style.opacity = '1'; toast.style.transform = 'translateY(0)'; }, 10);
+        setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 200); }, 3000);
+    }
+
+    function copyTableToClipboard(tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        let text = '';
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cols = row.querySelectorAll('th, td');
+            let rowText = [];
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                rowText.push(col.innerText.replace(/\s+/g, ' ').trim());
+            });
+            if (rowText.length) text += rowText.join('\t') + '\n';
+        });
+        navigator.clipboard.writeText(text).then(() => {
+            showSaasToast('Table data copied to clipboard!', 'success');
+        }).catch(() => {
+            showSaasToast('Failed to copy table data.', 'error');
+        });
+    }
+
+    function exportTableExcel(tableId, filename) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        let html = '<meta charset="UTF-8"><table>';
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            html += '<tr>';
+            const cols = row.querySelectorAll('th, td');
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                const tag = col.tagName.toLowerCase();
+                html += `<${tag}>${col.innerText.trim()}</${tag}>`;
+            });
+            html += '</tr>';
+        });
+        html += '</table>';
+        const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.xls';
+        link.click();
+        showSaasToast('Excel report downloaded!', 'success');
+    }
+
+    function exportTableCSV(tableId, filename) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            if (row.style.display === 'none') return;
+            const cols = row.querySelectorAll('th, td');
+            let rowData = [];
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                const cellText = col.innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""');
+                rowData.push('"' + cellText + '"');
+            });
+            if (rowData.length) csv.push(rowData.join(','));
+        });
+        const blob = new Blob([csv.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+        link.click();
+        showSaasToast('CSV report downloaded!', 'success');
+    }
+
+    function exportTablePDF(tableId, filename) {
+        printTable(tableId);
+    }
+
+    function printTable(tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) { window.print(); return; }
+        const pageTitle = document.querySelector('.page-title')?.textContent?.trim() || 'Vendor Report';
+        const printDate = new Date().toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        const printWin = window.open('', '_blank', 'width=1050,height=700');
+        printWin.document.write(`<!DOCTYPE html><html><head>
+            <title>${pageTitle} — Print</title>
+            <style>
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; margin: 0; padding: 20px; }
+                .print-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #fa8c16; padding-bottom: 10px; margin-bottom: 16px; }
+                .print-header h1 { font-size: 16px; font-weight: 700; color: #fa8c16; margin: 0; }
+                .print-header small { color: #8c8c8c; font-size: 11px; }
+                table { width: 100%; border-collapse: collapse; }
+                th { background: #fa8c16; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 600; }
+                td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; font-size: 11px; vertical-align: middle; }
+                tr:nth-child(even) td { background: #fafafa; }
+                .th-checkbox, .td-checkbox { display: none; }
+                @media print { body { padding: 10px; } }
+            </style>
+        </head><body>
+            <div class="print-header">
+                <div>
+                    <h1>${pageTitle}</h1>
+                    <small>Generated: ${printDate} — Vendor Partner Portal</small>
+                </div>
+            </div>
+            ${table.outerHTML}
+            <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body></html>`);
+        printWin.document.close();
+    }
+
+    function filterTableSearch(tableId, query) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const rows = table.querySelectorAll('tbody tr');
+        const q = query.toLowerCase().trim();
+        rows.forEach(row => {
+            if (row.querySelector('td[colspan]')) return;
+            const text = row.textContent.toLowerCase();
+            row.style.display = text.includes(q) ? '' : 'none';
+        });
+    }
+
+    function toggleSelectAll(tableId, btn) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const isSelecting = btn.classList.toggle('is-selecting');
+        const rows = table.querySelectorAll('tbody tr');
+
+        if (isSelecting) {
+            btn.innerHTML = '<i class="fa-solid fa-square-xmark"></i> Deselect';
+            const thead = table.querySelector('thead tr');
+            if (thead && !thead.querySelector('.th-checkbox')) {
+                const thCheck = document.createElement('th');
+                thCheck.className = 'th-checkbox';
+                thCheck.style = 'width:36px;text-align:center;';
+                thCheck.innerHTML = '<input type="checkbox" class="tbl-select-checkbox" id="masterCheck_'+tableId+'" onchange="masterCheckToggle(this, \''+tableId+'\')">';
+                thead.insertBefore(thCheck, thead.firstChild);
+            }
+            rows.forEach(row => {
+                if (!row.querySelector('.td-checkbox')) {
+                    const td = document.createElement('td');
+                    td.className = 'td-checkbox';
+                    td.style = 'width:36px;text-align:center;';
+                    td.innerHTML = '<input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="rowCheckChange(\''+tableId+'\')">';
+                    row.insertBefore(td, row.firstChild);
+                }
+            });
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-square-check"></i> Select';
+            const thCheck = table.querySelector('.th-checkbox');
+            if (thCheck) thCheck.remove();
+            table.querySelectorAll('.td-checkbox').forEach(td => td.remove());
+            table.querySelectorAll('tr.row-selected').forEach(r => r.classList.remove('row-selected'));
+        }
+    }
+
+    function masterCheckToggle(master, tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const checkboxes = table.querySelectorAll('.tbl-row-check');
+        checkboxes.forEach(cb => {
+            cb.checked = master.checked;
+            cb.closest('tr').classList.toggle('row-selected', master.checked);
+        });
+    }
+
+    function rowCheckChange(tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const all = table.querySelectorAll('.tbl-row-check');
+        const checked = table.querySelectorAll('.tbl-row-check:checked');
+        const master = document.getElementById('masterCheck_' + tableId);
+        if (master) master.checked = all.length === checked.length;
+        all.forEach(cb => {
+            cb.closest('tr').classList.toggle('row-selected', cb.checked);
+        });
+    }
+
+    function toggleColVis(tableId, btn) {
+        const dropId = 'colVisDropdown_' + tableId;
+        const drop = document.getElementById(dropId);
+        if (!drop) return;
+        const isVisible = drop.style.display === 'block';
+        document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
+        document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
+
+        if (!isVisible) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const headers = table.querySelectorAll('thead th');
+            drop.innerHTML = '';
+            headers.forEach((th, i) => {
+                if (th.classList.contains('th-checkbox')) return;
+                const label = th.textContent.trim() || 'Column ' + (i + 1);
+                const item = document.createElement('label');
+                item.className = 'col-vis-item';
+                const checked = th.style.display !== 'none';
+                item.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleColumn('${tableId}', ${i}, this)"> ${label}`;
+                drop.appendChild(item);
+            });
+            drop.style.display = 'block';
+            btn.classList.add('active-col');
+        }
+    }
+
+    function toggleColumn(tableId, colIndex, checkbox) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const display = checkbox.checked ? '' : 'none';
+        table.querySelectorAll('thead th, tbody td, tfoot td').forEach(row => {
+            const cells = row.parentElement ? Array.from(row.parentElement.children) : [];
+            if (cells[colIndex]) cells[colIndex].style.display = display;
+        });
+    }
+
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[onclick*="toggleColVis"]') && !e.target.closest('.col-vis-dropdown')) {
+            document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
+        }
+    });
     </script>
     @yield('scripts')
 </body>

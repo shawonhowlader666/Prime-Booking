@@ -43,8 +43,10 @@
             <span class="live-feed-badge">Live Ledger</span>
         </div>
 
+        <x-table-toolbar tableId="vendorBookingsTable" exportName="vendor_bookings" searchPlaceholder="Search guest, ref..." />
+
         <div style="overflow-x:auto;">
-            <table class="table-stockifly" style="width:100%;">
+            <table class="table-stockifly" id="vendorBookingsTable" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Booking Ref</th>

@@ -12,23 +12,7 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">User Accounts &amp; Role Management</h1>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button class="btn-export-csv" onclick="exportTableCSV('usersTable', 'users')">
-                <i class="fa-solid fa-file-csv"></i> CSV
-            </button>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('usersTable', this)" title="Select / Deselect All Rows">
-                <i class="fa-solid fa-check-square"></i> Select
-            </button>
-            <div style="position:relative;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('usersTable', this)" title="Show / Hide Columns">
-                    <i class="fa-solid fa-table-columns"></i> SL
-                </button>
-                <div class="col-vis-dropdown" id="colVisDropdown_usersTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-print" onclick="printTable('usersTable')" title="Print Table">
-                <i class="fa-solid fa-print"></i> Print
-            </button>
-        </div>
+        <span class="badge bg-primary px-3 py-2" style="font-size:12px; font-weight:600;"><i class="fa-solid fa-users me-1"></i> Directory Management</span>
     </div>
 </div>
 
@@ -138,6 +122,8 @@
             <h6>User Directory &amp; Permissions Control</h6>
             <span class="live-feed-badge">Active Directory</span>
         </div>
+
+        <x-table-toolbar tableId="usersTable" exportName="users" searchPlaceholder="Search users, email, role..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="usersTable" style="width:100%;">

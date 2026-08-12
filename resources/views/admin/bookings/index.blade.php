@@ -12,26 +12,7 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">Booking &amp; Reservation Management</h1>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <a href="{{ route('admin.bookings.export') }}" class="btn-export-csv" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-csv"></i> CSV
-            </a>
-            <a href="{{ route('admin.bookings.export-pdf') }}" target="_blank" class="btn-export-pdf" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-pdf"></i> PDF
-            </a>
-            <button type="button" class="btn-tbl-select" id="btnSelectAll" onclick="toggleSelectAll('bookingsTable', this)" title="Select / Deselect All Rows">
-                <i class="fa-solid fa-check-square"></i> Select
-            </button>
-            <div style="position:relative;">
-                <button type="button" class="btn-tbl-col" id="btnColVis" onclick="toggleColVis('bookingsTable', this)" title="Show / Hide Columns">
-                    <i class="fa-solid fa-table-columns"></i> SL
-                </button>
-                <div class="col-vis-dropdown" id="colVisDropdown_bookingsTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-print" onclick="printTable('bookingsTable')" title="Print Table">
-                <i class="fa-solid fa-print"></i> Print
-            </button>
-        </div>
+        <span class="badge bg-primary px-3 py-2" style="font-size:12px; font-weight:600;"><i class="fa-solid fa-list-check me-1"></i> Real-time SaaS Orders Feed</span>
     </div>
 </div>
 
@@ -143,6 +124,8 @@
             <h6>Master Reservations &amp; Guest Orders</h6>
             <span class="live-feed-badge">Live System Feed</span>
         </div>
+
+        <x-table-toolbar tableId="bookingsTable" exportName="bookings" searchPlaceholder="Search guest name, ref, phone..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="bookingsTable" style="width:100%;">

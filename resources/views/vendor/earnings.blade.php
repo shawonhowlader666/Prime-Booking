@@ -67,8 +67,10 @@
             <h6>Monthly Revenue Statement</h6>
         </div>
 
+        <x-table-toolbar tableId="vendorEarningsTable" exportName="vendor_earnings" searchPlaceholder="Search month..." />
+
         <div style="overflow-x:auto;">
-            <table class="table-stockifly" style="width:100%;">
+            <table class="table-stockifly" id="vendorEarningsTable" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Month</th>

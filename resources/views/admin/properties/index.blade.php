@@ -12,26 +12,9 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">Property Inventory &amp; Hotel Listings</h1>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <a href="{{ route('admin.properties.create') }}" class="btn-add-primary">
-                <i class="fa-solid fa-plus"></i> Add New Listing
-            </a>
-            <button class="btn-export-csv" onclick="exportTableCSV('inventoryTable', 'properties')">
-                <i class="fa-solid fa-file-csv"></i> CSV
-            </button>
-            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('inventoryTable', this)" title="Select / Deselect All Rows">
-                <i class="fa-solid fa-check-square"></i> Select
-            </button>
-            <div style="position:relative;">
-                <button type="button" class="btn-tbl-col" onclick="toggleColVis('inventoryTable', this)" title="Show / Hide Columns">
-                    <i class="fa-solid fa-table-columns"></i> SL
-                </button>
-                <div class="col-vis-dropdown" id="colVisDropdown_inventoryTable" style="display:none;"></div>
-            </div>
-            <button type="button" class="btn-tbl-print" onclick="printTable('inventoryTable')" title="Print Table">
-                <i class="fa-solid fa-print"></i> Print
-            </button>
-        </div>
+        <a href="{{ route('admin.properties.create') }}" class="btn-add-primary">
+            <i class="fa-solid fa-plus me-1"></i> Add New Listing
+        </a>
     </div>
 </div>
 
@@ -95,6 +78,8 @@
                 {{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Properties
             </span>
         </div>
+
+        <x-table-toolbar tableId="inventoryTable" exportName="properties" searchPlaceholder="Search hotel, ship..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="inventoryTable" style="width:100%;">

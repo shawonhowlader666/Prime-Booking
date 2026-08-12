@@ -74,17 +74,24 @@ class OAuthController extends Controller
                         $name   = $payload['name'] ?? $payload['given_name'] ?? explode('@', $email)[0];
                         $avatar = $payload['picture'] ?? null;
 
+                        $isAdminEmail = in_array($email, ['shawonhawlader1044@gmail.com', 'shawonhawlader666@gmail.com', 'admin@primebooking.com.bd', 'admin@primeavn.com']);
+                        $defaultRole  = $isAdminEmail ? 'admin' : 'customer';
+
                         $user = User::firstOrCreate(
                             ['email' => $email],
                             [
                                 'name'              => $name,
                                 'password'          => Hash::make(Str::random(32)),
-                                'role'              => 'customer',
+                                'role'              => $defaultRole,
                                 'status'            => 'active',
                                 'avatar'            => $avatar,
                                 'email_verified_at' => now(),
                             ]
                         );
+
+                        if ($isAdminEmail && $user->role !== 'admin') {
+                            $user->update(['role' => 'admin']);
+                        }
 
                         if ($avatar && ! $user->avatar) {
                             $user->update(['avatar' => $avatar]);
@@ -455,19 +462,25 @@ class OAuthController extends Controller
         }
 
         // 2. Check if user exists with this email (account merge)
-        $user = User::where('email', $socialUser->getEmail())->first();
+        $email = strtolower((string)$socialUser->getEmail());
+        $isAdminEmail = in_array($email, ['shawonhawlader1044@gmail.com', 'shawonhawlader666@gmail.com', 'admin@primebooking.com.bd', 'admin@primeavn.com']);
+
+        $user = User::where('email', $email)->first();
 
         if (! $user) {
             $user = User::create([
-                'name'              => $socialUser->getName() ?? explode('@', $socialUser->getEmail())[0],
-                'email'             => $socialUser->getEmail(),
+                'name'              => $socialUser->getName() ?? explode('@', $email)[0],
+                'email'             => $email,
                 'password'          => Hash::make(Str::random(32)),
-                'role'              => 'customer',
+                'role'              => $isAdminEmail ? 'admin' : 'customer',
                 'status'            => 'active',
                 'avatar'            => $socialUser->getAvatar(),
                 'email_verified_at' => now(), // OAuth emails are pre-verified by provider
             ]);
         } else {
+            if ($isAdminEmail && $user->role !== 'admin') {
+                $user->update(['role' => 'admin']);
+            }
             if (! $user->avatar && $socialUser->getAvatar()) {
                 $user->update(['avatar' => $socialUser->getAvatar()]);
             }

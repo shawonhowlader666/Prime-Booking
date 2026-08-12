@@ -147,6 +147,7 @@
                     </tbody>
                 </table>
             </div>
+            <x-table-footer :items="$destinations" :perPage="20" />
         </div>
 
     </div>

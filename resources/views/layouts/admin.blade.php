@@ -129,17 +129,35 @@
          * ============================================================ */
         #stockiflySidebar {
             width: var(--sidebar-width);
-            min-height: 100vh;
+            height: 100vh;
+            max-height: 100vh;
             background-color: #001529;
             color: rgba(255,255,255,0.85);
             position: fixed;
             top: 0;
             left: 0;
+            bottom: 0;
             z-index: 1040;
             overflow-y: auto;
+            overflow-x: hidden;
             transition: transform 0.25s ease;
             display: flex;
             flex-direction: column;
+        }
+
+        /* Custom Scrollbar for Admin Sidebar */
+        #stockiflySidebar::-webkit-scrollbar,
+        #stockiflySidebar nav::-webkit-scrollbar {
+            width: 5px;
+        }
+        #stockiflySidebar::-webkit-scrollbar-thumb,
+        #stockiflySidebar nav::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 4px;
+        }
+        #stockiflySidebar::-webkit-scrollbar-thumb:hover,
+        #stockiflySidebar nav::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.4);
         }
 
         /* Sidebar brand bar */
@@ -863,6 +881,83 @@
         .action-gear-dropdown .dropdown-item.text-warning:hover {
             background: #fffbeb;
             color: #d97706 !important;
+        }
+
+        /* ============================================================
+         * Stockifly Table Footer & Pagination System
+         * ============================================================ */
+        .stockifly-table-footer {
+            padding: 12px 18px;
+            border-top: 1px solid #f0f0f0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 12px;
+            font-size: 12.5px;
+            color: #64748b;
+        }
+        .stockifly-table-footer .footer-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stockifly-table-footer .footer-right {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .stockifly-table-footer select.per-page-select {
+            height: 30px;
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 4px !important;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            background-color: #ffffff;
+            cursor: pointer;
+            outline: none;
+        }
+        .stockifly-table-footer select.per-page-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px var(--primary-transparent-10);
+        }
+
+        /* Bootstrap Pagination override */
+        .pagination {
+            margin: 0;
+            gap: 4px;
+            display: flex;
+            align-items: center;
+        }
+        .pagination .page-item .page-link {
+            padding: 5px 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #475569;
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px !important;
+            transition: all 0.15s ease;
+            text-decoration: none;
+        }
+        .pagination .page-item:hover .page-link {
+            background: #f1f5f9;
+            color: var(--primary);
+            border-color: #cbd5e1;
+        }
+        .pagination .page-item.active .page-link {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 2px 6px rgba(32,103,225,0.25);
+        }
+        .pagination .page-item.disabled .page-link {
+            color: #cbd5e1;
+            background: #f8fafc;
+            border-color: #f1f5f9;
+            cursor: not-allowed;
         }
     </style>
     @yield('head')

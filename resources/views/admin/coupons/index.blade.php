@@ -175,11 +175,7 @@
             </table>
         </div>
 
-        @if(method_exists($coupons, 'links'))
-            <div style="padding:10px 16px; border-top:1px solid #f0f0f0; font-size:12px;">
-                {{ $coupons->links() }}
-            </div>
-        @endif
+        <x-table-footer :items="$coupons" :perPage="20" />
     </div>
 
 </div>

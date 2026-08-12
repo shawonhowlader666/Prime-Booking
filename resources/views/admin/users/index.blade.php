@@ -225,13 +225,7 @@
             </table>
         </div>
 
-        <div style="padding:12px 16px; border-top:1px solid #f0f0f0; font-size:12px; color:#8c8c8c;">
-            @if(method_exists($users, 'links'))
-                {{ $users->links() }}
-            @else
-                Showing all registered accounts
-            @endif
-        </div>
+        <x-table-footer :items="$users" :perPage="25" />
     </div>
 
 </div>

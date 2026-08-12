@@ -198,9 +198,7 @@
                 </tbody>
             </table>
         </div>
-        <div style="padding:10px 16px; border-top:1px solid #f0f0f0; font-size:12px; color:#8c8c8c;">
-            {{ $tenants->links() }}
-        </div>
+        <x-table-footer :items="$tenants" :perPage="15" />
     </div>
 
 </div>

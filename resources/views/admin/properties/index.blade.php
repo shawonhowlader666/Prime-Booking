@@ -186,13 +186,7 @@
             </table>
         </div>
 
-        <div style="padding:10px 16px; border-top:1px solid #f0f0f0; font-size:12px; color:#8c8c8c;">
-            @if(isset($properties) && method_exists($properties, 'links'))
-                {{ $properties->links() }}
-            @else
-                Showing all active listings
-            @endif
-        </div>
+        <x-table-footer :items="$properties" :perPage="15" />
     </div>
 
 </div>

@@ -64,33 +64,35 @@
                         </div>
                     </div>
 
-                    {{-- Sync Input Section with Cookie / Network JSON Pill Selector --}}
+                    {{-- Clean & Minimal Cookie / Network JSON Input --}}
                     <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-1.5 flex-wrap gap-2">
-                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;" id="inputLabelText">
-                                Cookie / Network JSON Payload <span class="text-danger">*</span>
+                        <div class="d-flex align-items-center justify-content-between mb-1.5">
+                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;">
+                                Cookie Header or Network JSON Payload <span class="text-danger">*</span>
                             </label>
-                            <div class="d-flex align-items-center gap-2">
-                                @php
-                                    $savedCookieGlobal = \App\Models\SiteSetting::get('ota_saved_cookie_agoda', '');
-                                @endphp
-                                @if(!empty($savedCookieGlobal))
-                                    <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:10.5px;">
-                                        <i class="fa-solid fa-database me-1"></i> Vault Cookie Active
-                                    </span>
-                                @endif
-                                <button type="button" class="btn btn-outline-primary btn-sm px-2 py-0.5 fw-bold" onclick="fillSampleNetworkJson()" style="font-size:11px; border-radius:4px;">
-                                    <i class="fa-solid fa-code me-1"></i> Add Network JSON
-                                </button>
-                                <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11px; color:var(--primary);">
-                                    <i class="fa-solid fa-cookie-bite me-1"></i> Fill Sample Cookie
-                                </button>
+                            @php
+                                $savedCookieGlobal = \App\Models\SiteSetting::get('ota_saved_cookie_agoda', '');
+                            @endphp
+                            @if(!empty($savedCookieGlobal))
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:10.5px;">
+                                    <i class="fa-solid fa-circle-check me-1"></i> Cookie Active
+                                </span>
+                            @endif
+                        </div>
+                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste browser Cookie header or F12 Network JSON payload here..." style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
+                        
+                        <div class="d-flex align-items-center justify-content-between mt-1.5" style="font-size:11.5px;">
+                            <span class="text-muted"><i class="fa-solid fa-circle-info me-1 text-primary"></i> Auto-detects Cookie strings & Network JSON payloads</span>
+                            <div class="d-flex align-items-center gap-2.5">
+                                <a href="javascript:void(0)" onclick="fillSampleNetworkJson()" class="text-decoration-none text-secondary fw-semibold">
+                                    <i class="fa-solid fa-code me-1 text-primary"></i> Sample JSON
+                                </a>
+                                <span class="text-muted">•</span>
+                                <a href="javascript:void(0)" onclick="fillSampleJson()" class="text-decoration-none text-secondary fw-semibold">
+                                    <i class="fa-solid fa-cookie me-1 text-warning"></i> Sample Cookie
+                                </a>
                             </div>
                         </div>
-                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste Agoda/Booking Network JSON response or browser Cookie header here... (Auto-detects payload type)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
-                        <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
-                            Auto-detects whether you paste a browser Cookie string OR a Network JSON payload.
-                        </small>
                     </div>
 
                     {{-- Live Execution Console Logs inside Modal --}}

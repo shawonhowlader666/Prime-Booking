@@ -1148,31 +1148,13 @@
             </div>
 
             {{-- 6. System & Settings --}}
-            @php $isSettingsActive = request()->routeIs('admin.gateways.*', 'admin.site-settings.*', 'admin.settings.*', 'admin.activity.*'); @endphp
-            <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isSettingsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuSettings" aria-expanded="{{ $isSettingsActive ? 'true' : 'false' }}">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-gear" style="width:16px;text-align:center;"></i> <span>System &amp; Settings</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
-                </button>
-                <div class="collapse {{ $isSettingsActive ? 'show' : '' }}" id="menuSettings">
-                    <div class="sb-sub-menu">
-                        <a href="{{ route('admin.site-settings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.site-settings.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Platform Settings
-                        </a>
-                        <a href="{{ route('admin.gateways.index') }}" class="sb-sub-item {{ request()->routeIs('admin.gateways.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payment Gateways
-                        </a>
-                        <a href="{{ route('admin.settings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.settings.index') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Currency &amp; System
-                        </a>
-                        <a href="{{ route('admin.activity.index') }}" class="sb-sub-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Activity Audit Logs
-                        </a>
-                    </div>
-                </div>
-            </div>
+            <div class="sb-section-header">System</div>
+            <a href="{{ route('admin.settings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.settings.*', 'admin.site-settings.*', 'admin.gateways.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-gear"></i> <span>Settings</span>
+            </a>
+            <a href="{{ route('admin.activity.index') }}" class="sb-nav-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-shield-halved"></i> <span>Activity Audit Logs</span>
+            </a>
 
             <div class="pt-3 pb-1">
                 <form action="/admin/system/cache-clear" method="POST" style="padding:0 12px;">

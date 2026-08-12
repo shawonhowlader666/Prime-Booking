@@ -12,9 +12,9 @@
     <div style="position:absolute;inset:0;border-radius:0 0 0 32px;overflow:hidden;z-index:0;">
         {{-- Dynamic hero slides from DB destinations or fallback to static images --}}
         @php
-            $heroSlides = $destinations->filter(fn($d) => $d->image_url)->take(8);
-            $heroTitles = $destinations->filter(fn($d) => $d->image_url)->take(8)
-                ->map(fn($d) => strtoupper($d->city . ($d->country && $d->country !== 'Bangladesh' ? ', '.$d->country : '') . ' — BEST HOTELS & STAYS'));
+            $destList = collect($destinations ?? []);
+            $heroSlides = $destList->filter(fn($d) => !empty($d->image_url))->take(8);
+            $heroTitles = $heroSlides->map(fn($d) => strtoupper($d->city . ($d->country && $d->country !== 'Bangladesh' ? ', '.$d->country : '') . ' — BEST HOTELS & STAYS'));
 
             // Fallback static slides if no destinations in DB yet
             $staticSlides = [

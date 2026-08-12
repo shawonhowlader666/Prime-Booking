@@ -147,7 +147,7 @@
                 <i class="fa-solid fa-building" style="font-size: 12px;"></i> {{ __('Hotels & Resorts') }}
             </button>
             <button type="button" class="agoda-tab-btn" id="tabHomes">
-                <i class="fa-solid fa-ship" style="font-size: 12px; color: #0284c7;"></i> {{ __('Sundarban Ships & Houseboats') }}
+                <i class="fa-solid fa-ship" style="font-size: 12px; color: #0284c7;"></i> {{ __('Sundarbans Ship & Tanguar Haor Houseboat') }}
             </button>
             <button type="button" class="agoda-tab-btn" id="tabLongStays">
                 <i class="fa-solid fa-house-user" style="font-size: 12px; color: #16a34a;"></i> {{ __('Home Stay / Long stays') }}

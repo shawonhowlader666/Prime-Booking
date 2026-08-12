@@ -16,8 +16,8 @@
     <title>@yield('title', 'Prime Booking | Hotels, Flights & Ship Cruise Booking in Bangladesh | হোটেল বুকিং বিডি')</title>
 
     <!-- Comprehensive SEO Meta Tags (Bilingual English & Bangla for BD Market) -->
-    <meta name="description" content="@yield('meta_description', 'Book 2,000+ hotels, resorts, ship cruises, domestic flights & airport transfers across Bangladesh at guaranteed lowest prices. Cox\'s Bazar, Sajek, Sylhet, Sundarban & Dhaka hotel booking. কক্সবাজার, সাজেক ও সিলেট হোটেল বুকিং।')">
-    <meta name="keywords" content="@yield('meta_keywords', 'hotel booking bangladesh, online hotel booking bd, cheap hotels cox\'s bazar, sajek valley resort, sundarban cruise booking, sylhet hotel booking, dhaka 5 star hotel, air ticket booking bangladesh, হোটেল বুকিং বাংলাদেশ, কক্সবাজার হোটেল, সাজেক রিসোর্ট, প্রাইম বুকিং')">
+    <meta name="description" content="@yield('meta_description', 'Book 2,000+ hotels, resorts, ship cruises, domestic flights & airport transfers across Bangladesh at guaranteed lowest prices. Coxs Bazar, Sajek, Sylhet, Sundarban & Dhaka hotel booking. কক্সবাজার, সাজেক ও সিলেট হোটেল বুকিং।')">
+    <meta name="keywords" content="@yield('meta_keywords', 'hotel booking bangladesh, online hotel booking bd, cheap hotels coxs bazar, sajek valley resort, sundarban cruise booking, sylhet hotel booking, dhaka 5 star hotel, air ticket booking bangladesh, হোটেল বুকিং বাংলাদেশ, কক্সবাজার হোটেল, সাজেক রিসোর্ট, প্রাইম বুকিং')">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
 
@@ -33,7 +33,7 @@
     <meta property="og:type" content="website">
     <meta property="og:site_name" content="Prime Booking Bangladesh">
     <meta property="og:title" content="@yield('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')">
-    <meta property="og:description" content="@yield('og_description', 'Book top hotels in Cox\'s Bazar, Sajek, Sylhet & Dhaka with instant confirmation and free cancellation. সেরা দামে বাংলাদেশ হোটেল ও ক্রুজ বুকিং করুন।')">
+    <meta property="og:description" content="@yield('og_description', 'Book top hotels in Coxs Bazar, Sajek, Sylhet & Dhaka with instant confirmation and free cancellation. সেরা দামে বাংলাদেশ হোটেল ও ক্রুজ বুকিং করুন।')">
     <meta property="og:url" content="{{ url()->current() }}">
     <meta property="og:image" content="@yield('og_image', asset('images/logo-brand.png'))">
 
@@ -41,14 +41,14 @@
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@PrimeBookingBD">
     <meta name="twitter:title" content="@yield('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')">
-    <meta name="twitter:description" content="@yield('og_description', 'Book top hotels in Cox\'s Bazar, Sajek, Sylhet & Dhaka with instant confirmation.')">
+    <meta name="twitter:description" content="@yield('og_description', 'Book top hotels in Coxs Bazar, Sajek, Sylhet & Dhaka with instant confirmation.')">
     <meta name="twitter:image" content="@yield('og_image', asset('images/logo-brand.png'))">
 
     <!-- Schema.org JSON-LD Structured Data (Google Rich Snippet for Travel Agency) -->
     <script type="application/ld+json">
     {
-      "@context": "https://schema.org",
-      "@type": "TravelAgency",
+      "{{ '@context' }}": "https://schema.org",
+      "{{ '@type' }}": "TravelAgency",
       "name": "Prime Booking",
       "alternateName": "প্রাইম বুকিং বাংলাদেশ",
       "url": "https://primebooking.com.bd",
@@ -58,14 +58,14 @@
       "telephone": "+8801606352642",
       "priceRange": "৳৳ - ৳৳৳৳",
       "address": {
-        "@type": "PostalAddress",
+        "{{ '@type' }}": "PostalAddress",
         "streetAddress": "Gulshan 2",
         "addressLocality": "Dhaka",
         "postalCode": "1212",
         "addressCountry": "BD"
       },
       "geo": {
-        "@type": "GeoCoordinates",
+        "{{ '@type' }}": "GeoCoordinates",
         "latitude": 23.8103,
         "longitude": 90.4125
       },

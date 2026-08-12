@@ -9,8 +9,20 @@
         <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
         <span class="sep">-</span><strong style="color:#333;">Earnings &amp; Payouts</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">Vendor Financial Statements</h1>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('vendorEarningsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('vendorEarningsTable', 'vendor_earnings')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('vendorEarningsTable', 'vendor_earnings')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="exportTablePDF('vendorEarningsTable', 'vendor_earnings')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-print" onclick="printTable('vendorEarningsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('vendorEarningsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
+                <div class="col-vis-dropdown" id="colVisDropdown_vendorEarningsTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('vendorEarningsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
+        </div>
     </div>
 </div>
 
@@ -63,11 +75,16 @@
 
     {{-- Monthly Breakdown Table --}}
     <div class="data-table-card">
-        <div class="data-table-card-header">
-            <h6>Monthly Revenue Statement</h6>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">Monthly Revenue Statement</h6>
+                <span class="live-feed-badge">Financial Audit</span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search statement..." onkeyup="filterTableSearch('vendorEarningsTable', this.value)">
+            </div>
         </div>
-
-        <x-table-toolbar tableId="vendorEarningsTable" exportName="vendor_earnings" searchPlaceholder="Search month..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="vendorEarningsTable" style="width:100%;">

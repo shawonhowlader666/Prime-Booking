@@ -10,11 +10,21 @@
         <span class="sep">-</span><span>Inventory</span>
         <span class="sep">-</span><strong style="color:#333;">Properties & Listings</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">Property Inventory &amp; Hotel Listings</h1>
-        <a href="{{ route('admin.properties.create') }}" class="btn-add-primary">
-            <i class="fa-solid fa-plus me-1"></i> Add New Listing
-        </a>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inventoryTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('inventoryTable', 'properties')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('inventoryTable', 'properties')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="exportTablePDF('inventoryTable', 'properties')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-print" onclick="printTable('inventoryTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('inventoryTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
+                <div class="col-vis-dropdown" id="colVisDropdown_inventoryTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('inventoryTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
+            <a href="{{ route('admin.properties.create') }}" class="btn-add-primary ms-1"><i class="fa-solid fa-plus me-1"></i> Add New Listing</a>
+        </div>
     </div>
 </div>
 
@@ -72,14 +82,18 @@
     @endif
 
     <div class="data-table-card">
-        <div class="data-table-card-header">
-            <h6>All Hotel, Ship &amp; Cottage Inventory Items</h6>
-            <span style="font-size:12px; color:#8c8c8c;">
-                {{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Properties
-            </span>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">All Hotel, Ship &amp; Cottage Inventory Items</h6>
+                <span style="font-size:12px; color:#8c8c8c;">
+                    ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)
+                </span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
+            </div>
         </div>
-
-        <x-table-toolbar tableId="inventoryTable" exportName="properties" searchPlaceholder="Search hotel, ship..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="inventoryTable" style="width:100%;">

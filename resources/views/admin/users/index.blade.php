@@ -10,9 +10,20 @@
         <span class="sep">-</span><span>Users</span>
         <span class="sep">-</span><strong style="color:#333;">All Accounts</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">User Accounts &amp; Role Management</h1>
-        <span class="badge bg-primary px-3 py-2" style="font-size:12px; font-weight:600;"><i class="fa-solid fa-users me-1"></i> Directory Management</span>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('usersTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('usersTable', 'users')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('usersTable', 'users')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="exportTablePDF('usersTable', 'users')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-print" onclick="printTable('usersTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('usersTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
+                <div class="col-vis-dropdown" id="colVisDropdown_usersTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('usersTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
+        </div>
     </div>
 </div>
 
@@ -118,12 +129,16 @@
 
     {{-- Main Table --}}
     <div class="data-table-card">
-        <div class="data-table-card-header">
-            <h6>User Directory &amp; Permissions Control</h6>
-            <span class="live-feed-badge">Active Directory</span>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">User Directory &amp; Permissions Control</h6>
+                <span class="live-feed-badge">Active Directory</span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search users..." onkeyup="filterTableSearch('usersTable', this.value)">
+            </div>
         </div>
-
-        <x-table-toolbar tableId="usersTable" exportName="users" searchPlaceholder="Search users, email, role..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="usersTable" style="width:100%;">

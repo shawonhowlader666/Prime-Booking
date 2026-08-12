@@ -10,9 +10,20 @@
         <span class="sep">-</span><span>Reservations</span>
         <span class="sep">-</span><strong style="color:#333;">All Bookings</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">Booking &amp; Reservation Management</h1>
-        <span class="badge bg-primary px-3 py-2" style="font-size:12px; font-weight:600;"><i class="fa-solid fa-list-check me-1"></i> Real-time SaaS Orders Feed</span>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('bookingsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('bookingsTable', 'bookings')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <a href="{{ route('admin.bookings.export') }}" class="btn-export-csv" title="Export CSV"><i class="fa-solid fa-file-csv"></i> CSV</a>
+            <a href="{{ route('admin.bookings.export-pdf') }}" target="_blank" class="btn-export-pdf" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</a>
+            <button type="button" class="btn-tbl-print" onclick="printTable('bookingsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('bookingsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
+                <div class="col-vis-dropdown" id="colVisDropdown_bookingsTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('bookingsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
+        </div>
     </div>
 </div>
 
@@ -120,12 +131,16 @@
 
     {{-- Main Table --}}
     <div class="data-table-card">
-        <div class="data-table-card-header">
-            <h6>Master Reservations &amp; Guest Orders</h6>
-            <span class="live-feed-badge">Live System Feed</span>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">Master Reservations &amp; Guest Orders</h6>
+                <span class="live-feed-badge">Live System Feed</span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search table..." onkeyup="filterTableSearch('bookingsTable', this.value)">
+            </div>
         </div>
-
-        <x-table-toolbar tableId="bookingsTable" exportName="bookings" searchPlaceholder="Search guest name, ref, phone..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="bookingsTable" style="width:100%;">

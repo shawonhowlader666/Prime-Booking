@@ -9,8 +9,20 @@
         <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
         <span class="sep">-</span><strong style="color:#333;">Bookings Ledger</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">Guest Reservations &amp; Bookings</h1>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('vendorBookingsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('vendorBookingsTable', 'vendor_bookings')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('vendorBookingsTable', 'vendor_bookings')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="exportTablePDF('vendorBookingsTable', 'vendor_bookings')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-print" onclick="printTable('vendorBookingsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('vendorBookingsTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
+                <div class="col-vis-dropdown" id="colVisDropdown_vendorBookingsTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('vendorBookingsTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
+        </div>
     </div>
 </div>
 
@@ -38,12 +50,16 @@
 
     {{-- Table --}}
     <div class="data-table-card">
-        <div class="data-table-card-header">
-            <h6>Guest Reservations</h6>
-            <span class="live-feed-badge">Live Ledger</span>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">Guest Reservations</h6>
+                <span class="live-feed-badge">Live Ledger</span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search bookings..." onkeyup="filterTableSearch('vendorBookingsTable', this.value)">
+            </div>
         </div>
-
-        <x-table-toolbar tableId="vendorBookingsTable" exportName="vendor_bookings" searchPlaceholder="Search guest, ref..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="vendorBookingsTable" style="width:100%;">

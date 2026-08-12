@@ -10,9 +10,20 @@
         <span class="sep">-</span><span>Support</span>
         <span class="sep">-</span><strong style="color:#333;">Inquiries &amp; Messages</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">Customer Inquiries &amp; Support Messages</h1>
-        <span class="badge bg-info px-3 py-2" style="font-size:12px; font-weight:600;"><i class="fa-solid fa-headset me-1"></i> Customer Support</span>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inquiriesTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('inquiriesTable', 'inquiries')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('inquiriesTable', 'inquiries')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="exportTablePDF('inquiriesTable', 'inquiries')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-print" onclick="printTable('inquiriesTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <div style="position:relative; display:inline-block;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('inquiriesTable', this)" title="Column Visibility Settings"><i class="fa-solid fa-table-columns"></i> SL</button>
+                <div class="col-vis-dropdown" id="colVisDropdown_inquiriesTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('inquiriesTable', this)" title="Select Row Mode"><i class="fa-solid fa-square-check"></i> Select</button>
+        </div>
     </div>
 </div>
 
@@ -45,12 +56,16 @@
 
     {{-- Main Table --}}
     <div class="data-table-card">
-        <div class="data-table-card-header">
-            <h6>Inbox &amp; Booking Requests</h6>
-            <span class="live-feed-badge">Live Support Feed</span>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">Inbox &amp; Booking Requests</h6>
+                <span class="live-feed-badge">Live Support Feed</span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search inquiries..." onkeyup="filterTableSearch('inquiriesTable', this.value)">
+            </div>
         </div>
-
-        <x-table-toolbar tableId="inquiriesTable" exportName="inquiries" searchPlaceholder="Search inquiries..." />
 
         <div style="overflow-x:auto;">
             <table class="table-stockifly" id="inquiriesTable" style="width:100%;">

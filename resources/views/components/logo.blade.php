@@ -6,9 +6,9 @@
 ])
 
 @php
-    $logoPath = ($mode === 'dark') ? asset('images/logo-dark.svg') : asset('images/logo.svg');
+    $logoPath = asset('images/logo.png');
     $numericHeight = preg_replace('/[^0-9]/', '', (string)$height);
-    $calculatedWidth = $numericHeight ? (int)($numericHeight * 2.15) . 'px' : 'auto';
+    $calculatedWidth = $numericHeight ? (int)($numericHeight * 3.5) . 'px' : 'auto';
 @endphp
 
 <img src="{{ $logoPath }}" 

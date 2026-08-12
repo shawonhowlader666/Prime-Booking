@@ -7,10 +7,11 @@
 <div class="page-header-card mb-3">
     <div class="page-breadcrumb mb-1">
         <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">/</span><strong style="color:#333;">Settings</strong>
+        <span class="sep">/</span><a href="{{ route('admin.settings.index') }}">Settings</a>
+        <span class="sep">/</span><strong id="breadcrumb-active-tab" style="color:#333;">My Profile</strong>
     </div>
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <h1 class="page-title m-0" style="font-size:18px; font-weight:700;">Settings</h1>
+        <h1 class="page-title m-0" id="page-title-text" style="font-size:18px; font-weight:700;">My Profile</h1>
         <button class="btn btn-primary" style="height:32px; padding:0 16px; font-size:12.5px; border-radius:4px !important;" onclick="document.getElementById('stockiflySettingsForm').submit()">
             <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
         </button>
@@ -471,20 +472,33 @@
 </style>
 
 <script>
+function updateSettingsHeader(tabEl) {
+    const titleText = tabEl.querySelector('strong') ? tabEl.querySelector('strong').innerText : 'Settings';
+    const breadcrumbTab = document.getElementById('breadcrumb-active-tab');
+    const pageTitle = document.getElementById('page-title-text');
+    if (breadcrumbTab) breadcrumbTab.innerText = titleText;
+    if (pageTitle) pageTitle.innerText = titleText;
+}
+
 document.addEventListener("DOMContentLoaded", function() {
-    const activeTab = localStorage.getItem('stockifly_active_settings_tab');
-    if (activeTab) {
-        const tabTrigger = document.querySelector(`#${activeTab}`);
+    const activeTabId = localStorage.getItem('stockifly_active_settings_tab');
+    if (activeTabId) {
+        const tabTrigger = document.querySelector(`#${activeTabId}`);
         if (tabTrigger) {
             const tab = new bootstrap.Tab(tabTrigger);
             tab.show();
+            updateSettingsHeader(tabTrigger);
         }
+    } else {
+        const defaultTab = document.querySelector('.saas-settings-tabs .nav-link.active');
+        if (defaultTab) updateSettingsHeader(defaultTab);
     }
 
     const tabButtons = document.querySelectorAll('.saas-settings-tabs .nav-link');
     tabButtons.forEach(btn => {
         btn.addEventListener('shown.bs.tab', function(e) {
             localStorage.setItem('stockifly_active_settings_tab', e.target.id);
+            updateSettingsHeader(e.target);
         });
     });
 });

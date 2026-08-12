@@ -336,31 +336,8 @@
             </form>
 
         </div>
-    </div>
 </div>
-            <h6 class="form-section-title d-flex align-items-center justify-content-between mb-3">
-                <span class="d-flex align-items-center gap-2" style="font-size:13.5px; font-weight:600;">
-                    <i class="fa-solid fa-terminal text-primary"></i> Live Importer Execution Console &amp; Audit Log
-                </span>
-                <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size:10px; font-weight:600;">
-                    <i class="fa-solid fa-spinner fa-spin me-1"></i> Real-Time Audit
-                </span>
-            </h6>
-
-            <div id="importLogsConsole" style="background:#090d16; color:#38bdf8; font-family:'Courier New', Courier, monospace; font-size:12px; padding:14px 16px; border-radius:4px; height:240px; overflow-y:auto; line-height:1.6; border:1px solid #1e293b;">
-                @if(session('import_logs') && is_array(session('import_logs')))
-                    @foreach(session('import_logs') as $log)
-                        <div style="color:#52c41a; margin-bottom:3px;"><i class="fa-solid fa-angle-right me-1" style="color:#38bdf8;"></i> {{ $log }}</div>
-                    @endforeach
-                @else
-                    <div style="color:#94a3b8; font-style:italic;"><i class="fa-solid fa-terminal me-2" style="color:#1890ff;"></i> Console ready. Click "Execute Data Synchronization" to run batch operation...</div>
-                @endif
-            </div>
-        </div>
-
-    </div>
 </div>
-</div> {{-- end page-content-area --}}
 
 {{-- Stockifly 1:1 Matching Interactive Modal for [+] Add Option --}}
 <div class="modal fade" id="addOptionModal" tabindex="-1" aria-hidden="true">

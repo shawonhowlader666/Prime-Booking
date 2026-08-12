@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Prime Booking Importer</title>
+  <style>
+    body {
+      width: 320px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 16px;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      border-bottom: 1px solid #1e293b;
+      padding-bottom: 10px;
+    }
+    .header h2 {
+      font-size: 15px;
+      margin: 0;
+      color: #38bdf8;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: #94a3b8;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+    select, input {
+      width: 100%;
+      padding: 8px 10px;
+      border-radius: 4px;
+      border: 1px solid #334155;
+      background: #1e293b;
+      color: #fff;
+      font-size: 12px;
+      box-sizing: border-box;
+    }
+    .btn {
+      width: 100%;
+      padding: 10px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+    .btn-secondary {
+      background: #334155;
+      color: #e2e8f0;
+    }
+    .btn-secondary:hover {
+      background: #475569;
+    }
+    #statusMsg {
+      font-size: 11px;
+      margin-top: 10px;
+      padding: 6px;
+      border-radius: 4px;
+      display: none;
+      text-align: center;
+    }
+    .status-success {
+      background: #064e3b;
+      color: #34d399;
+    }
+    .status-error {
+      background: #881337;
+      color: #f43f5e;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div style="width: 24px; height: 24px; background: #0284c7; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 12px;">P</div>
+    <div>
+      <h2>PRIME BOOKING</h2>
+      <small style="font-size: 10px; color: #94a3b8;">OTA Data Extractor v1.0</small>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Target City / Region</label>
+    <select id="targetCity">
+      <option value="Cox's Bazar" selected>Cox's Bazar</option>
+      <option value="Sajek">Sajek</option>
+      <option value="Sylhet">Sylhet</option>
+      <option value="Dhaka">Dhaka</option>
+      <option value="Sundarban">Sundarban</option>
+      <option value="Kuakata">Kuakata</option>
+      <option value="Chittagong">Chittagong</option>
+      <option value="Bandarban">Bandarban</option>
+      <option value="Saint Martin">Saint Martin</option>
+    </select>
+  </div>
+
+  <div class="form-group">
+    <label>Listing Status</label>
+    <select id="listingStatus">
+      <option value="active">🟢 Active & Published</option>
+      <option value="pending">🟡 Pending Review</option>
+    </select>
+  </div>
+
+  <button class="btn btn-primary" id="btnExtractCopy">⚡ Extract & Copy Clean JSON</button>
+  <button class="btn btn-secondary" id="btnOpenImporter">🌐 Open Admin Importer Page</button>
+
+  <div id="statusMsg"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

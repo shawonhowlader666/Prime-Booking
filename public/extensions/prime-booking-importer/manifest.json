@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Prime Booking OTA Data Importer",
+  "version": "1.0.0",
+  "description": "1-Click Hotel, Room & Photo Gallery Extractor for Agoda, Booking.com, Expedia & Airbnb.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "clipboardWrite"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Prime Booking OTA Importer"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.agoda.com/*",
+        "*://*.booking.com/*",
+        "*://*.expedia.com/*",
+        "*://*.hotels.com/*",
+        "*://*.airbnb.com/*",
+        "*://*.traveloka.com/*"
+      ],
+      "js": ["content.js"]
+    }
+  ]
+}

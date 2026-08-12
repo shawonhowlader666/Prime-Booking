@@ -20,9 +20,14 @@
                 Automated OTA property data synchronization and multi-channel inventory management.
             </p>
         </div>
-        <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
-            <i class="fa-solid fa-hotel me-1"></i> View Property Inventory
-        </a>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ asset('downloads/prime-booking-importer.zip') }}" download class="btn btn-sm btn-success text-white fw-bold d-inline-flex align-items-center shadow-sm" style="font-size:12.5px; padding:7px 14px; border-radius:4px; text-decoration:none;">
+                <i class="fa-solid fa-puzzle-piece me-1.5"></i> Download Chrome Extension (v1.0)
+            </a>
+            <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
+                <i class="fa-solid fa-hotel me-1"></i> View Property Inventory
+            </a>
+        </div>
     </div>
 </div>
 

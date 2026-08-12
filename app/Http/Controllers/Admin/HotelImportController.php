@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\FeaturedDestination;
 use App\Models\Property;
+use App\Models\Room;
 use App\Services\HotelImporterService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;

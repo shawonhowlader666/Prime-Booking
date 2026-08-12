@@ -59,59 +59,73 @@
                 @csrf
                 <input type="hidden" name="mode" id="importModeInput" value="json_payload">
 
-                {{-- Row 1: Dynamic Target City / Region & Custom City Input --}}
+                {{-- Row 1: Target City Select + [+] Button & Max Limit Select + [+] Button --}}
                 <div class="row g-3 mb-3">
+                    
+                    {{-- Target City Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Target City / Region <span class="text-danger">*</span></label>
-                        <select name="target_city" id="targetCitySelect" class="form-select" onchange="toggleCustomCityInput(this.value)" required>
-                            @foreach($cities as $c)
-                                <option value="{{ $c }}" {{ $c === "Cox's Bazar" ? 'selected' : '' }}>{{ $c }}</option>
-                            @endforeach
-                            <option value="custom">✏️ + Add / Type Custom City Name...</option>
-                        </select>
+                        <div class="input-group">
+                            <select name="target_city" id="targetCitySelect" class="form-select" style="border-radius:6px 0 0 6px;" required>
+                                @foreach($cities as $c)
+                                    <option value="{{ $c }}" {{ $c === "Cox's Bazar" ? 'selected' : '' }}>{{ $c }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('city')" title="Add New City Option" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
 
-                    <div class="col-md-6" id="customCityContainer" style="display: none;">
-                        <label class="form-label">Type Custom City Name <span class="text-danger">*</span></label>
-                        <input type="text" name="custom_target_city" id="customCityInput" class="form-control" placeholder="e.g. Saint Martin, Dubai, Bangkok">
-                    </div>
-
+                    {{-- Max Limit Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Max Limit (Hotels to Process)</label>
-                        <select name="max_limit" id="maxLimitSelect" class="form-select" onchange="toggleCustomLimitInput(this.value)">
-                            <option value="10">10 Properties</option>
-                            <option value="25">25 Properties</option>
-                            <option value="50" selected>50 Properties (Recommended)</option>
-                            <option value="100">100 Properties</option>
-                            <option value="200">200 Properties</option>
-                            <option value="custom">✏️ + Custom Limit Count...</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6" id="customLimitContainer" style="display: none;">
-                        <label class="form-label">Custom Max Count (1 - 1000)</label>
-                        <input type="number" name="custom_max_limit" id="customLimitInput" class="form-control" min="1" max="1000" placeholder="e.g. 150">
+                        <div class="input-group">
+                            <select name="max_limit" id="maxLimitSelect" class="form-select" style="border-radius:6px 0 0 6px;">
+                                <option value="10">10 Properties</option>
+                                <option value="25">25 Properties</option>
+                                <option value="50" selected>50 Properties (Recommended)</option>
+                                <option value="100">100 Properties</option>
+                                <option value="200">200 Properties</option>
+                            </select>
+                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('limit')" title="Add Custom Limit Option" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {{-- Row 2: Property Type & Default Status Options --}}
+                {{-- Row 2: Property Type Select + [+] Button & Default Status Select + [+] Button --}}
                 <div class="row g-3 mb-3">
+                    
+                    {{-- Property Type Override Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Property Type Override</label>
-                        <select name="override_type" class="form-select">
-                            @foreach($propertyTypes as $key => $label)
-                                <option value="{{ $key }}">{{ $label }}</option>
-                            @endforeach
-                        </select>
+                        <div class="input-group">
+                            <select name="override_type" id="overrideTypeSelect" class="form-select" style="border-radius:6px 0 0 6px;">
+                                @foreach($propertyTypes as $key => $label)
+                                    <option value="{{ $key }}">{{ $label }}</option>
+                                @endforeach
+                            </select>
+                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('type')" title="Add New Property Type" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
 
+                    {{-- Default Status Select + [+] Button --}}
                     <div class="col-md-6">
                         <label class="form-label">Default Listing Status</label>
-                        <select name="override_status" class="form-select">
-                            <option value="active" selected>🟢 Active &amp; Published (Live immediately)</option>
-                            <option value="pending">🟡 Pending Review (Draft mode)</option>
-                            <option value="inactive">🔴 Inactive</option>
-                        </select>
+                        <div class="input-group">
+                            <select name="override_status" id="overrideStatusSelect" class="form-select" style="border-radius:6px 0 0 6px;">
+                                <option value="active" selected>🟢 Active &amp; Published (Live immediately)</option>
+                                <option value="pending">🟡 Pending Review (Draft mode)</option>
+                                <option value="inactive">🔴 Inactive</option>
+                            </select>
+                            <button type="button" class="btn text-white fw-bold px-3" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:0 6px 6px 0;">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -170,8 +184,8 @@
             </h6>
             <ul class="list-unstyled mb-0" style="font-size:12.5px; color:#475569; line-height:1.6;">
                 <li class="mb-2 d-flex align-items-start gap-2">
-                    <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Dynamic City &amp; Limit Selection:</strong> Select from registered destinations or type any custom city (e.g. Saint Martin, Dubai).</div>
+                    <i class="fa-solid fa-plus text-primary mt-1"></i>
+                    <div><strong>Interactive [+] Option Adders:</strong> Click <code>[+]</code> beside any dropdown to instantly add custom cities, limits, or property types.</div>
                 </li>
                 <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-check text-success mt-1"></i>
@@ -213,31 +227,122 @@
     </div>
 </div>
 
+{{-- Stockifly 1:1 Matching Interactive Modal for [+] Add Option --}}
+<div class="modal fade" id="addOptionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:12px; overflow:hidden;">
+            <div class="modal-header text-white" style="background:#001529; border-bottom:1px solid rgba(255,255,255,0.1);">
+                <h6 class="modal-title fw-bold" id="addOptionModalTitle">
+                    <i class="fa-solid fa-plus-circle me-1" style="color:var(--primary);"></i> Add New Option
+                </h6>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <input type="hidden" id="addOptionCategory">
+                <div class="mb-3">
+                    <label class="form-label fw-semibold" id="addOptionLabel">Option Value</label>
+                    <input type="text" id="addOptionInput" class="form-control" placeholder="Type new option..." style="height:42px; font-size:14px;">
+                </div>
+                <div id="addOptionHelpText" class="text-secondary small">
+                    This option will be added to the dropdown list dynamically and selected.
+                </div>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-secondary px-4 fw-bold" data-bs-dismiss="modal" style="font-size:13px;">Cancel</button>
+                <button type="button" class="btn text-white px-4 fw-bold" onclick="saveNewOption()" style="background:var(--primary); font-size:13px;">
+                    <i class="fa-solid fa-check me-1"></i> Save &amp; Select Option
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-function toggleCustomCityInput(val) {
-    var customContainer = document.getElementById('customCityContainer');
-    var customInput = document.getElementById('customCityInput');
-    if (val === 'custom') {
-        customContainer.style.display = 'block';
-        customInput.required = true;
-        customInput.focus();
-    } else {
-        customContainer.style.display = 'none';
-        customInput.required = false;
+var currentCategory = 'city';
+
+function openAddOptionModal(category) {
+    currentCategory = category;
+    document.getElementById('addOptionCategory').value = category;
+    var input = document.getElementById('addOptionInput');
+    input.value = '';
+
+    var title = document.getElementById('addOptionModalTitle');
+    var label = document.getElementById('addOptionLabel');
+    var help = document.getElementById('addOptionHelpText');
+
+    if (category === 'city') {
+        title.innerHTML = '<i class="fa-solid fa-location-dot text-primary me-1"></i> Add New Target City / Region';
+        label.innerText = 'City / Region Name';
+        input.placeholder = 'e.g. Saint Martin, Bandarban, Dubai, Male';
+        help.innerText = 'Adding a new city will save it to the database destinations and select it for import.';
+    } else if (category === 'limit') {
+        title.innerHTML = '<i class="fa-solid fa-list-ol text-primary me-1"></i> Add Custom Processing Limit';
+        label.innerText = 'Max Limit Count (Number)';
+        input.placeholder = 'e.g. 150';
+        help.innerText = 'Enter any numeric count between 1 and 1000.';
+    } else if (category === 'type') {
+        title.innerHTML = '<i class="fa-solid fa-hotel text-primary me-1"></i> Add New Property Type';
+        label.innerText = 'Property Type Name';
+        input.placeholder = 'e.g. Houseboat, Yacht, Treehouse, Capsule';
+        help.innerText = 'This property category will be available in the importer.';
+    } else if (category === 'status') {
+        title.innerHTML = '<i class="fa-solid fa-toggle-on text-primary me-1"></i> Add Custom Listing Status';
+        label.innerText = 'Status Name';
+        input.placeholder = 'e.g. draft, archived';
+        help.innerText = 'Custom listing status option for property batch import.';
     }
+
+    var bsModal = new bootstrap.Modal(document.getElementById('addOptionModal'));
+    bsModal.show();
+
+    setTimeout(function() { input.focus(); }, 300);
 }
 
-function toggleCustomLimitInput(val) {
-    var customContainer = document.getElementById('customLimitContainer');
-    var customInput = document.getElementById('customLimitInput');
-    if (val === 'custom') {
-        customContainer.style.display = 'block';
-        customInput.required = true;
-        customInput.focus();
-    } else {
-        customContainer.style.display = 'none';
-        customInput.required = false;
+function saveNewOption() {
+    var val = document.getElementById('addOptionInput').value.trim();
+    if (!val) {
+        alert('Please enter a valid option value.');
+        return;
     }
+
+    if (currentCategory === 'city') {
+        var select = document.getElementById('targetCitySelect');
+        var opt = new Option('📍 ' + val, val, true, true);
+        select.add(opt, select.options[0]);
+        select.value = val;
+
+        // Save to DB asynchronously
+        fetch('{{ route("admin.featured-destinations.ajax-add") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ city: val, country: 'Bangladesh' })
+        }).catch(function(err) { console.log('City AJAX save note:', err); });
+
+    } else if (currentCategory === 'limit') {
+        var select = document.getElementById('maxLimitSelect');
+        var opt = new Option('⚡ ' + val + ' Properties', val, true, true);
+        select.add(opt, select.options[0]);
+        select.value = val;
+
+    } else if (currentCategory === 'type') {
+        var select = document.getElementById('overrideTypeSelect');
+        var opt = new Option('🏠 ' + val, val.toLowerCase(), true, true);
+        select.add(opt, select.options[0]);
+        select.value = val.toLowerCase();
+
+    } else if (currentCategory === 'status') {
+        var select = document.getElementById('overrideStatusSelect');
+        var opt = new Option('🔵 ' + val, val.toLowerCase(), true, true);
+        select.add(opt, select.options[0]);
+        select.value = val.toLowerCase();
+    }
+
+    var modalEl = document.getElementById('addOptionModal');
+    var modal = bootstrap.Modal.getInstance(modalEl);
+    if (modal) modal.hide();
 }
 
 function switchImportTab(mode) {

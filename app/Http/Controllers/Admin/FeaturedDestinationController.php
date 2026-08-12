@@ -44,6 +44,37 @@ class FeaturedDestinationController extends Controller
             ->with('success', "\"{$dest->city}\" destination added successfully.");
     }
 
+    public function ajaxStore(Request $request)
+    {
+        $request->validate([
+            'city'    => 'required|string|max:80',
+            'country' => 'nullable|string|max:50',
+        ]);
+
+        $city = trim($request->city);
+        $country = trim($request->country ?: 'Bangladesh');
+
+        $dest = FeaturedDestination::firstOrCreate(
+            ['city' => $city],
+            [
+                'country'     => $country,
+                'image_url'   => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
+                'description' => "Explore stays in {$city}, {$country}.",
+                'is_active'   => true,
+                'is_featured' => true,
+            ]
+        );
+
+        Cache::forget('featured_destinations');
+
+        return response()->json([
+            'success' => true,
+            'city'    => $dest->city,
+            'country' => $dest->country,
+            'message' => "{$dest->city} added successfully!",
+        ]);
+    }
+
     public function edit(FeaturedDestination $destination)
     {
         return view('admin.destinations.edit', compact('destination'));

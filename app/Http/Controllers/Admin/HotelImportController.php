@@ -116,10 +116,14 @@ class HotelImportController extends Controller
                 $cookie   = $request->input('cookie_header');
                 $auth     = $request->input('authorization_token');
 
+                $otaChannel = strtolower($request->input('ota_channel', 'agoda'));
+                $cookieKey  = 'ota_saved_cookie_' . $otaChannel;
+
                 if (!empty($cookie)) {
+                    SiteSetting::set($cookieKey, $cookie);
                     SiteSetting::set('ota_saved_cookie_agoda', $cookie);
                 } else {
-                    $cookie = SiteSetting::get('ota_saved_cookie_agoda', '');
+                    $cookie = SiteSetting::get($cookieKey, SiteSetting::get('ota_saved_cookie_agoda', ''));
                 }
 
                 $payloadData = $this->importerService->fetchFromApi($endpoint, $cookie, $auth);

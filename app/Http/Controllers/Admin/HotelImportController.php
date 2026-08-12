@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\FeaturedDestination;
+use App\Models\Property;
 use App\Services\HotelImporterService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -25,7 +27,28 @@ class HotelImportController extends Controller
      */
     public function index(): View
     {
-        return view('admin.import.index');
+        $destCities   = FeaturedDestination::active()->pluck('city')->toArray();
+        $propCities   = Property::whereNotNull('city')->distinct()->pluck('city')->toArray();
+        $defaultCities = [
+            "Cox's Bazar", "Sajek", "Sylhet", "Dhaka", "Sundarban", "Kuakata",
+            "Chittagong", "Bandarban", "Sreemangal", "Saint Martin", "Khagrachhari",
+            "Rajshahi", "Barisal", "Rangamati", "Dubai", "Bangkok", "Singapore"
+        ];
+
+        $cities = array_values(array_unique(array_filter(array_merge($destCities, $propCities, $defaultCities))));
+        sort($cities);
+
+        $propertyTypes = [
+            'auto'      => '✨ Auto-Detect from Data',
+            'hotel'     => '🏨 Hotel',
+            'resort'    => '🏖️ Resort',
+            'apartment' => '🏢 Apartment',
+            'villa'     => '🏡 Villa',
+            'homestay'  => '🏠 Homestay / Guest House',
+            'cottage'   => '🪵 Eco Cottage',
+        ];
+
+        return view('admin.import.index', compact('cities', 'propertyTypes'));
     }
 
     /**
@@ -36,7 +59,12 @@ class HotelImportController extends Controller
         $request->validate([
             'mode'                => 'required|in:api_fetch,json_payload',
             'target_city'         => 'required|string',
-            'max_limit'           => 'required|integer|min:1|max:200',
+            'custom_target_city'  => 'nullable|string',
+            'max_limit'           => 'required|string',
+            'custom_max_limit'    => 'nullable|integer|min:1|max:1000',
+            'override_type'       => 'nullable|string',
+            'override_status'     => 'nullable|string',
+            'price_multiplier'    => 'nullable|numeric|min:0.1|max:10',
             'endpoint_url'        => 'nullable|required_if:mode,api_fetch|url',
             'cookie_header'       => 'nullable|string',
             'authorization_token' => 'nullable|string',
@@ -44,9 +72,25 @@ class HotelImportController extends Controller
         ]);
 
         try {
-            $mode       = $request->input('mode');
-            $targetCity = $request->input('target_city');
-            $maxLimit   = (int)$request->input('max_limit', 50);
+            $mode = $request->input('mode');
+
+            // Determine Target City (custom input priority)
+            $targetCity = trim((string)$request->input('custom_target_city'));
+            if (empty($targetCity) || $request->input('target_city') !== 'custom') {
+                $targetCity = $request->input('target_city');
+            }
+
+            // Determine Max Limit (custom limit priority)
+            $maxLimit = (int)$request->input('custom_max_limit');
+            if ($maxLimit <= 0 || $request->input('max_limit') !== 'custom') {
+                $maxLimit = (int)$request->input('max_limit', 50);
+            }
+
+            $options = [
+                'override_type'    => $request->input('override_type', 'auto'),
+                'override_status'  => $request->input('override_status', Property::STATUS_ACTIVE),
+                'price_multiplier' => (float)$request->input('price_multiplier', 1.0),
+            ];
 
             if ($mode === 'api_fetch') {
                 $endpoint = $request->input('endpoint_url');
@@ -58,7 +102,7 @@ class HotelImportController extends Controller
                 $payloadData = $request->input('json_payload');
             }
 
-            $result = $this->importerService->importPayload($payloadData, $targetCity, $maxLimit);
+            $result = $this->importerService->importPayload($payloadData, $targetCity, $maxLimit, $options);
 
             if ($request->wantsJson()) {
                 return response()->json($result);
@@ -72,7 +116,7 @@ class HotelImportController extends Controller
             }
 
             return redirect()->back()
-                ->with('success', "🎉 Import Completed! {$result['imported']} new properties added, {$result['updated']} updated with {$result['total_images']} photos.")
+                ->with('success', "🎉 Import Completed! {$result['imported']} new properties added, {$result['updated']} updated with {$result['total_images']} photos for {$targetCity}.")
                 ->with('import_logs', $result['logs']);
 
         } catch (\Throwable $e) {

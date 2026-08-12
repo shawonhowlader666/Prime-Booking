@@ -59,28 +59,58 @@
                 @csrf
                 <input type="hidden" name="mode" id="importModeInput" value="json_payload">
 
+                {{-- Row 1: Dynamic Target City / Region & Custom City Input --}}
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
                         <label class="form-label">Target City / Region <span class="text-danger">*</span></label>
-                        <select name="target_city" class="form-select" required>
-                            <option value="Cox's Bazar" selected>Cox's Bazar</option>
-                            <option value="Sajek">Sajek Valley</option>
-                            <option value="Sylhet">Sylhet</option>
-                            <option value="Dhaka">Dhaka</option>
-                            <option value="Sundarban">Sundarbans</option>
-                            <option value="Kuakata">Kuakata</option>
-                            <option value="Chittagong">Chittagong</option>
+                        <select name="target_city" id="targetCitySelect" class="form-select" onchange="toggleCustomCityInput(this.value)" required>
+                            @foreach($cities as $c)
+                                <option value="{{ $c }}" {{ $c === "Cox's Bazar" ? 'selected' : '' }}>{{ $c }}</option>
+                            @endforeach
+                            <option value="custom">✏️ + Add / Type Custom City Name...</option>
                         </select>
                     </div>
 
+                    <div class="col-md-6" id="customCityContainer" style="display: none;">
+                        <label class="form-label">Type Custom City Name <span class="text-danger">*</span></label>
+                        <input type="text" name="custom_target_city" id="customCityInput" class="form-control" placeholder="e.g. Saint Martin, Dubai, Bangkok">
+                    </div>
+
                     <div class="col-md-6">
-                        <label class="form-label">Max Limit (Hotels to process)</label>
-                        <select name="max_limit" class="form-select">
+                        <label class="form-label">Max Limit (Hotels to Process)</label>
+                        <select name="max_limit" id="maxLimitSelect" class="form-select" onchange="toggleCustomLimitInput(this.value)">
                             <option value="10">10 Properties</option>
                             <option value="25">25 Properties</option>
                             <option value="50" selected>50 Properties (Recommended)</option>
                             <option value="100">100 Properties</option>
                             <option value="200">200 Properties</option>
+                            <option value="custom">✏️ + Custom Limit Count...</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6" id="customLimitContainer" style="display: none;">
+                        <label class="form-label">Custom Max Count (1 - 1000)</label>
+                        <input type="number" name="custom_max_limit" id="customLimitInput" class="form-control" min="1" max="1000" placeholder="e.g. 150">
+                    </div>
+                </div>
+
+                {{-- Row 2: Property Type & Default Status Options --}}
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Property Type Override</label>
+                        <select name="override_type" class="form-select">
+                            @foreach($propertyTypes as $key => $label)
+                                <option value="{{ $key }}">{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Default Listing Status</label>
+                        <select name="override_status" class="form-select">
+                            <option value="active" selected>🟢 Active &amp; Published (Live immediately)</option>
+                            <option value="pending">🟡 Pending Review (Draft mode)</option>
+                            <option value="inactive">🔴 Inactive</option>
                         </select>
                     </div>
                 </div>
@@ -141,6 +171,10 @@
             <ul class="list-unstyled mb-0" style="font-size:12.5px; color:#475569; line-height:1.6;">
                 <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-check text-success mt-1"></i>
+                    <div><strong>Dynamic City &amp; Limit Selection:</strong> Select from registered destinations or type any custom city (e.g. Saint Martin, Dubai).</div>
+                </li>
+                <li class="mb-2 d-flex align-items-start gap-2">
+                    <i class="fa-solid fa-check text-success mt-1"></i>
                     <div><strong>Smart Auto-Normalization:</strong> Automatically parses hotel names, star ratings, ratings, amenities, and room pricing.</div>
                 </li>
                 <li class="mb-2 d-flex align-items-start gap-2">
@@ -180,6 +214,32 @@
 </div>
 
 <script>
+function toggleCustomCityInput(val) {
+    var customContainer = document.getElementById('customCityContainer');
+    var customInput = document.getElementById('customCityInput');
+    if (val === 'custom') {
+        customContainer.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+    } else {
+        customContainer.style.display = 'none';
+        customInput.required = false;
+    }
+}
+
+function toggleCustomLimitInput(val) {
+    var customContainer = document.getElementById('customLimitContainer');
+    var customInput = document.getElementById('customLimitInput');
+    if (val === 'custom') {
+        customContainer.style.display = 'block';
+        customInput.required = true;
+        customInput.focus();
+    } else {
+        customContainer.style.display = 'none';
+        customInput.required = false;
+    }
+}
+
 function switchImportTab(mode) {
     document.getElementById('importModeInput').value = mode;
     

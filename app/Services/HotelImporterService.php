@@ -72,12 +72,14 @@ class HotelImporterService
      * @param array<string, mixed>|string $rawInput
      * @param string $targetCity
      * @param int $maxLimit
+     * @param array<string, mixed> $options
      * @return array{success: bool, imported: int, updated: int, total_images: int, message: string, logs: list<string>}
      */
     public function importPayload(
         mixed $rawInput,
         string $targetCity = "Cox's Bazar",
-        int $maxLimit = 50
+        int $maxLimit = 50,
+        array $options = []
     ): array {
         $logs = [];
 
@@ -114,7 +116,12 @@ class HotelImporterService
         $updatedCount  = 0;
         $totalImages   = 0;
 
-        $logs[] = "Found " . count($hotelList) . " candidate hotel records in JSON.";
+        $overrideType    = $options['override_type'] ?? 'auto';
+        $overrideStatus  = $options['override_status'] ?? Property::STATUS_ACTIVE;
+        $priceMultiplier = (float)($options['price_multiplier'] ?? 1.0);
+        if ($priceMultiplier <= 0) $priceMultiplier = 1.0;
+
+        $logs[] = "Processing " . count($hotelList) . " candidate hotel records for city: {$targetCity}.";
 
         foreach (array_slice($hotelList, 0, $maxLimit) as $index => $item) {
             try {
@@ -123,7 +130,15 @@ class HotelImporterService
                     continue;
                 }
 
-                DB::transaction(function () use ($normalized, &$importedCount, &$updatedCount, &$totalImages, &$logs) {
+                // Apply dynamic overrides
+                if ($overrideType !== 'auto' && ! empty($overrideType)) {
+                    $normalized['type'] = $overrideType;
+                }
+
+                $normalized['price_per_night'] = round($normalized['price_per_night'] * $priceMultiplier, 2);
+                $normalized['original_price']  = round($normalized['original_price'] * $priceMultiplier, 2);
+
+                DB::transaction(function () use ($normalized, $overrideStatus, &$importedCount, &$updatedCount, &$totalImages, &$logs) {
                     $existing = Property::where('name', $normalized['name'])
                         ->where('city', $normalized['city'])
                         ->first();
@@ -149,7 +164,7 @@ class HotelImporterService
                             'images'                  => $normalized['images'],
                             'amenities'               => $normalized['amenities'],
                             'is_featured'             => $normalized['is_featured'],
-                            'status'                  => Property::STATUS_ACTIVE,
+                            'status'                  => $overrideStatus,
                             'rooms_left'              => rand(3, 12),
                             'no_credit_card_required' => true,
                             'free_cancellation'       => true,
@@ -163,10 +178,10 @@ class HotelImporterService
 
                     if ($isNew) {
                         $importedCount++;
-                        $logs[] = "✅ Imported: {$property->name} (৳" . number_format((float)$property->price_per_night) . "/night)";
+                        $logs[] = "✅ Imported: {$property->name} ({$property->city}) — ৳" . number_format((float)$property->price_per_night) . "/night";
                     } else {
                         $updatedCount++;
-                        $logs[] = "🔄 Updated: {$property->name}";
+                        $logs[] = "🔄 Updated: {$property->name} ({$property->city})";
                     }
 
                     $totalImages += count($normalized['images'] ?? []);
@@ -183,7 +198,7 @@ class HotelImporterService
             'imported'     => $importedCount,
             'updated'      => $updatedCount,
             'total_images' => $totalImages,
-            'message'      => "Successfully processed " . ($importedCount + $updatedCount) . " properties.",
+            'message'      => "Successfully processed " . ($importedCount + $updatedCount) . " properties for {$targetCity}.",
             'logs'         => $logs,
         ];
     }

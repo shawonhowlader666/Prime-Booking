@@ -19,6 +19,13 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
 
+        // ── Exclude External Callback / One-Tap POSTs from CSRF Protection ──
+        $middleware->validateCsrfTokens(except: [
+            'auth/*',
+            'auth/*/*',
+            'payment/*',
+        ]);
+
         // ── Web Middleware Stack ──────────────────────────────────────────
         $middleware->web(append: [
             \App\Http\Middleware\SetLocale::class,

@@ -46,10 +46,10 @@ class OAuthController extends Controller
     // =========================================================================
 
     /**
-     * Redirect the user to the OAuth provider's authorization page.
-     * GET /auth/{provider}/redirect
+     * Redirect the user to the OAuth provider's authorization page or handle One-Tap POST payload.
+     * GET/POST /auth/{provider}/redirect
      */
-    public function redirect(string $provider)
+    public function redirect(Request $request, string $provider)
     {
         if (in_array($provider, self::COMING_SOON)) {
             return redirect()->back()
@@ -58,6 +58,46 @@ class OAuthController extends Controller
 
         if (! in_array($provider, self::LIVE_PROVIDERS)) {
             abort(404);
+        }
+
+        // ── Handle Google One-Tap POST Credential Payload ────────────────────
+        if ($request->isMethod('post') && $request->filled('credential')) {
+            try {
+                $idToken = $request->input('credential');
+                $parts   = explode('.', $idToken);
+                if (count($parts) === 3) {
+                    $payloadJson = base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1]));
+                    $payload     = json_decode($payloadJson, true);
+
+                    if (is_array($payload) && ! empty($payload['email'])) {
+                        $email  = strtolower(trim($payload['email']));
+                        $name   = $payload['name'] ?? $payload['given_name'] ?? explode('@', $email)[0];
+                        $avatar = $payload['picture'] ?? null;
+
+                        $user = User::firstOrCreate(
+                            ['email' => $email],
+                            [
+                                'name'              => $name,
+                                'password'          => Hash::make(Str::random(32)),
+                                'role'              => 'customer',
+                                'status'            => 'active',
+                                'avatar'            => $avatar,
+                                'email_verified_at' => now(),
+                            ]
+                        );
+
+                        if ($avatar && ! $user->avatar) {
+                            $user->update(['avatar' => $avatar]);
+                        }
+
+                        $this->loginUser($request, $user);
+
+                        return redirect()->route('home')->with('success', "Welcome back, {$user->name}!");
+                    }
+                }
+            } catch (\Throwable $e) {
+                Log::error("Google One-Tap POST handler error: " . $e->getMessage());
+            }
         }
 
         return Socialite::driver($provider)->redirect();

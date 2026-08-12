@@ -68,15 +68,6 @@ Route::get('/flights/voucher/{pnr}', [App\Http\Controllers\Web\FlightBookingCont
 Route::get('/transfers', [App\Http\Controllers\Web\TransferBookingController::class, 'index'])->name('transfers.index');
 Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->name('transfers.book');
 
-// Authentication & OAuth Social Login Routes (Google, Facebook)
-Route::get('/auth/{provider}/redirect', [OAuthController::class, 'redirect'])->name('auth.social.redirect');
-Route::get('/auth/{provider}/callback', [OAuthController::class, 'callback'])->name('auth.social.callback');
-Route::get('/auth/{provider}', [OAuthController::class, 'redirect'])->name('oauth.redirect');
-Route::post('/auth/email', [OAuthController::class, 'handleEmail'])->name('auth.email');
-Route::post('/auth/logout', [OAuthController::class, 'logout'])->name('auth.logout');
-Route::post('/logout', [OAuthController::class, 'logout'])->name('logout');
-Route::post('/auth/demo-select', [OAuthController::class, 'demoSelect'])->name('oauth.demo-select');
-
 Route::get('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->name('booking.form');
@@ -343,13 +334,13 @@ Route::get('/list-your-property',  [PageController::class, 'hostProperty'])->nam
 // OAuth Social Login (Google, Facebook, Apple) — Laravel Socialite
 // ─────────────────────────────────────────────────────────────────────────────
 
-// Step 1: Redirect user to provider OAuth page
-Route::get('/auth/{provider}/redirect', [OAuthController::class, 'redirect'])
+// Step 1: Redirect user to provider OAuth page (GET or POST for One-Tap)
+Route::match(['get', 'post'], '/auth/{provider}/redirect', [OAuthController::class, 'redirect'])
     ->name('auth.social.redirect')
     ->where('provider', 'google|facebook|apple');
 
 // Step 2: Handle provider callback & auto login/register
-Route::get('/auth/{provider}/callback', [OAuthController::class, 'callback'])
+Route::match(['get', 'post'], '/auth/{provider}/callback', [OAuthController::class, 'callback'])
     ->name('auth.social.callback')
     ->where('provider', 'google|facebook|apple');
 

@@ -11,10 +11,13 @@
                     </h5>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <a href="javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('Agoda/Booking Active Cookie Copied to Clipboard!');})();" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag this button to your browser Bookmark Bar or click to copy script!" onclick="copyCookieScript(event)">
+                    <a href="javascript:void(0);" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag to Bookmark Bar or click to copy Cookie script!" onclick="copyCookieScript(event)">
                         <i class="fa-solid fa-puzzle-piece me-1.5" style="color:#fbbf24;"></i> Copy Cookie
                     </a>
-                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; cursor:grab; background:#fff;" title="Drag to Bookmark Bar or click to copy Network JSON script!" onclick="copyNetworkJsonScript(event)">
+                        <i class="fa-solid fa-code me-1.5 text-primary"></i> Copy Network JSON
+                    </a>
+                    <button type="button" class="btn-close ms-1" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
             </div>
             <form action="{{ route('admin.import-hotels.store') }}" method="POST" id="importHotelFormModal">
@@ -243,6 +246,20 @@ function copyCookieScript(e) {
         });
     } else {
         prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
+    }
+}
+
+function copyNetworkJsonScript(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    var script = "javascript:(function(){var jsonStr=prompt('Agoda Network JSON Extractor loaded! Paste or view F12 Network response JSON here:');if(jsonStr){navigator.clipboard.writeText(jsonStr);alert('Network JSON Copied to Clipboard!');}})();";
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(script).then(function() {
+            alert("Copy Network JSON Script Copied to Clipboard!\n\nTip: You can DRAG this button onto your browser's Bookmarks Bar to create a 1-click Agoda Network JSON Extractor button!");
+        }).catch(function() {
+            prompt("Copy this 1-Click Network JSON Extractor Bookmarklet script:", script);
+        });
+    } else {
+        prompt("Copy this 1-Click Network JSON Extractor Bookmarklet script:", script);
     }
 }
 

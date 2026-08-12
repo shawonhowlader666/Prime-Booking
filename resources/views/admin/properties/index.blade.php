@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Property Inventory | PRIME BOOKING Admin')
 
 @section('content')
@@ -128,25 +128,46 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            <a href="{{ route('admin.properties.edit', $p->id) }}" class="btn-table-action primary">
-                                Edit <i class="fa-solid fa-pen ms-1"></i>
-                            </a>
-                            <a href="{{ route('admin.rooms.index', $p->id) }}" class="btn-table-action" style="margin-left:4px; background:#f6ffed; color:#389e0d; border-color:#b7eb8f;" title="Manage Room Types">
-                                Rooms <i class="fa-solid fa-bed ms-1"></i>
-                            </a>
-                            <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn-table-action" style="margin-left:4px;">
-                                    {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Activate' }}
+                            <div class="dropdown action-gear-dropdown d-inline-block">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <i class="fa-solid fa-gear"></i>
                                 </button>
-                            </form>
-                            <a href="{{ route('hotels.show', $p->id) }}" target="_blank" class="btn-table-action" style="margin-left:4px;" title="View live">
-                                View <i class="fa-solid fa-external-link"></i>
-                            </a>
-                            <form action="{{ route('admin.properties.destroy', $p->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this listing permanently?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-table-action danger" style="margin-left:4px;">Delete <i class="fa-solid fa-trash"></i></button>
-                            </form>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.properties.edit', $p->id) }}">
+                                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Listing
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.rooms.index', $p->id) }}">
+                                            <i class="fa-solid fa-bed text-success me-2"></i> Manage Rooms
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-secondary">
+                                                <i class="fa-solid {{ ($p->status ?? 'active') == 'active' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }} me-2"></i> 
+                                                {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Activate' }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('hotels.show', $p->id) }}" target="_blank">
+                                            <i class="fa-solid fa-arrow-up-right-from-square text-info me-2"></i> View Live Site
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form action="{{ route('admin.properties.destroy', $p->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this listing permanently?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                <i class="fa-solid fa-trash me-2"></i> Delete Property
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @empty

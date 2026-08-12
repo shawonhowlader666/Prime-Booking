@@ -178,25 +178,35 @@
                         @endif
                     </td>
                     <td>
-                        <div class="d-flex gap-1 flex-wrap">
-                            <a href="{{ route('admin.promotions.edit', $promo) }}"
-                               class="btn btn-sm btn-outline-primary" title="Edit" style="padding:2px 8px;font-size:11px;">
-                                <i class="fa-solid fa-pen"></i>
-                            </a>
-                            <form action="{{ route('admin.promotions.toggle', $promo) }}" method="POST" class="d-inline">
-                                @csrf
-                                <button type="submit" class="btn btn-sm {{ $promo->is_active ? 'btn-outline-warning' : 'btn-outline-success' }}"
-                                    title="{{ $promo->is_active ? 'Deactivate' : 'Activate' }}" style="padding:2px 8px;font-size:11px;">
-                                    <i class="fa-solid {{ $promo->is_active ? 'fa-toggle-off' : 'fa-toggle-on' }}"></i>
-                                </button>
-                            </form>
-                            <form action="{{ route('admin.promotions.destroy', $promo) }}" method="POST" class="d-inline"
-                                onsubmit="return confirm('Delete this promotion?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-outline-danger" style="padding:2px 8px;font-size:11px;">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
+                        <div class="dropdown action-gear-dropdown d-inline-block">
+                            <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                <i class="fa-solid fa-gear"></i>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                <li>
+                                    <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.promotions.edit', $promo) }}">
+                                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Promotion Banner
+                                    </a>
+                                </li>
+                                <li>
+                                    <form action="{{ route('admin.promotions.toggle', $promo) }}" method="POST" class="m-0">
+                                        @csrf
+                                        <button type="submit" class="dropdown-item py-1.5 px-3 text-warning">
+                                            <i class="fa-solid {{ $promo->is_active ? 'fa-toggle-off' : 'fa-toggle-on' }} me-2"></i> 
+                                            {{ $promo->is_active ? 'Deactivate Banner' : 'Activate Banner' }}
+                                        </button>
+                                    </form>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <form action="{{ route('admin.promotions.destroy', $promo) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this promotion?')">
+                                        @csrf @method('DELETE')
+                                        <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                            <i class="fa-solid fa-trash me-2"></i> Delete Promotion
+                                        </button>
+                                    </form>
+                                </li>
+                            </ul>
                         </div>
                     </td>
                 </tr>

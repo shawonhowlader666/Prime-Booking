@@ -71,6 +71,34 @@
             border-radius: 4px !important;
         }
 
+        /* ============================================================
+         * Action Gear Hover & Dropdown Styles for Admin & Vendor Tables
+         * ============================================================ */
+        .action-gear-dropdown {
+            position: relative;
+        }
+        .action-gear-dropdown:hover .dropdown-menu {
+            display: block;
+            margin-top: 0;
+        }
+        .action-gear-btn {
+            transition: all 0.15s ease;
+        }
+        .action-gear-dropdown:hover .action-gear-btn {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+        }
+        .dropdown-item {
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #334155;
+            transition: background 0.12s ease;
+        }
+        .dropdown-item:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+        }
+
         *, *::before, *::after { box-sizing: border-box; }
         body {
             font-family: var(--font-main);
@@ -166,8 +194,13 @@
 
         /* ===== Page Header (same as admin) ===== */
         .page-header-card {
-            background:#fff; border-bottom:1px solid #f0f0f0;
-            padding:14px 24px; border-left:3px solid var(--primary);
+            background:#fff;
+            border: 1px solid #e8e8e8;
+            border-left: 4px solid var(--primary);
+            padding: 16px 24px;
+            margin: 18px 24px 18px 24px;
+            border-radius: 4px !important;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
         .page-breadcrumb {
             font-size:12px; color:#8c8c8c; margin-bottom:6px;

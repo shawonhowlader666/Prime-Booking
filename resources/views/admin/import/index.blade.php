@@ -199,11 +199,21 @@
         <div class="modal-content" style="border-radius:6px; border:none; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
             
             <div class="modal-header border-bottom px-4 py-3" style="background:#f8fafc; border-top-left-radius:6px; border-top-right-radius:6px;">
-                <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="syncOtaCookieModalLabel" style="font-size:15px;">
-                    <i class="fa-solid fa-cookie-bite text-warning"></i>
-                    Live OTA Cookie Data Synchronizer
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-2">
+                    <h5 class="modal-title fw-bold text-dark d-flex align-items-center gap-2" id="syncOtaCookieModalLabel" style="font-size:15px;">
+                        <i class="fa-solid fa-cookie-bite text-warning"></i>
+                        Live OTA Cookie Data Synchronizer
+                    </h5>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" onclick="copyCookieScript()" style="font-size:11.5px; border-radius:4px;">
+                        <i class="fa-solid fa-copy me-1"></i> Copy 1-Click Cookie Script
+                    </button>
+                    <a href="{{ asset('downloads/prime-booking-importer.zip') }}" download class="btn btn-sm btn-outline-success fw-bold px-2 py-1" style="font-size:11.5px; border-radius:4px; text-decoration:none;">
+                        <i class="fa-solid fa-puzzle-piece me-1"></i> Extension (.zip)
+                    </a>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
 
             <form action="{{ route('admin.import-hotels.store') }}" method="POST" id="importHotelFormModal">
@@ -506,6 +516,19 @@ function saveOtaChannelToStorage(name) {
     if (!saved.includes(name)) {
         saved.push(name);
         localStorage.setItem('custom_ota_channels', JSON.stringify(saved));
+    }
+}
+
+function copyCookieScript() {
+    var script = "javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('✅ Active Cookie Copied to Clipboard! Now paste into Prime Booking Importer.');})();";
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(script).then(function() {
+            alert("✅ 1-Click Cookie Script Copied!\n\nPaste this script as a browser Bookmark URL. Whenever you open Agoda or Booking.com, click the bookmark to copy active cookies in 1-click!");
+        }).catch(function() {
+            prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
+        });
+    } else {
+        prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
     }
 }
 

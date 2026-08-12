@@ -93,7 +93,12 @@
                     {{-- Live Execution Console Logs inside Modal --}}
                     @if(session('import_logs') && is_array(session('import_logs')))
                     <div class="mt-3">
-                        <label class="form-label fw-semibold text-dark mb-1" style="font-size:12.5px;"><i class="fa-solid fa-terminal text-primary me-1"></i> Live Synchronization Audit Log</label>
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="form-label fw-semibold text-dark m-0" style="font-size:12.5px;"><i class="fa-solid fa-terminal text-primary me-1"></i> Live Synchronization Audit Log</label>
+                            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px;">
+                                <i class="fa-solid fa-check-double me-1"></i> Batch Synced: {{ max(0, count(session('import_logs')) - 1) }} Properties Processed
+                            </span>
+                        </div>
                         <div id="importLogsConsole" style="background:#090d16; color:#38bdf8; font-family:'Courier New', Courier, monospace; font-size:11.5px; padding:12px 14px; border-radius:4px; height:180px; overflow-y:auto; line-height:1.6; border:1px solid #1e293b;">
                             @foreach(session('import_logs') as $log)
                                 <div style="color:#52c41a; margin-bottom:3px;"><i class="fa-solid fa-angle-right me-1" style="color:#38bdf8;"></i> {{ $log }}</div>

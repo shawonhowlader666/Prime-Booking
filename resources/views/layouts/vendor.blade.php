@@ -109,6 +109,7 @@
         }
 
         /* ===== Sidebar — Vendor teal accent instead of blue ===== */
+        /* ===== Sidebar — Vendor teal accent instead of blue ===== */
         #vendorSidebar {
             width: var(--sidebar-width);
             height: 100vh;
@@ -120,9 +121,79 @@
             z-index: 1040;
             overflow-y: auto;
             overflow-x: hidden;
-            transition: transform 0.25s ease;
+            transition: width 0.25s ease, transform 0.25s ease;
             display: flex;
             flex-direction: column;
+        }
+
+        /* ─── Desktop Sidebar Collapse Toggle ───────────────────────── */
+        .btn-sidebar-collapse {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            color: rgba(255,255,255,0.6);
+            font-size: 13px;
+            transition: all 0.15s;
+            flex-shrink: 0;
+            margin-left: auto;
+        }
+        .btn-sidebar-collapse:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
+        #vendorSidebar.sb-collapsed .btn-sidebar-collapse { margin: 0 auto; }
+
+        /* Icon-only collapsed sidebar state */
+        @media (min-width: 992px) {
+            #vendorSidebar.sb-collapsed {
+                width: 64px !important;
+            }
+            #vendorSidebar.sb-collapsed .sb-brand-text,
+            #vendorSidebar.sb-collapsed .sb-section-header,
+            #vendorSidebar.sb-collapsed .sb-nav-item span,
+            #vendorSidebar.sb-collapsed .sb-nav-toggle span,
+            #vendorSidebar.sb-collapsed .chevron-icon,
+            #vendorSidebar.sb-collapsed .sb-sub-menu {
+                display: none !important;
+            }
+            #vendorSidebar.sb-collapsed .sb-brand {
+                padding: 14px 10px;
+                justify-content: center;
+            }
+            #vendorSidebar.sb-collapsed .sb-nav-item,
+            #vendorSidebar.sb-collapsed .sb-nav-toggle {
+                padding: 10px 0;
+                justify-content: center;
+                position: relative;
+            }
+            #vendorSidebar.sb-collapsed .sb-nav-item i,
+            #vendorSidebar.sb-collapsed .sb-nav-toggle i {
+                margin: 0;
+            }
+            #vendorSidebar.sb-collapsed .sb-nav-item[data-label]:hover::after,
+            #vendorSidebar.sb-collapsed .sb-nav-toggle[data-label]:hover::after {
+                content: attr(data-label);
+                position: absolute;
+                left: 68px;
+                top: 50%;
+                transform: translateY(-50%);
+                background: #001529;
+                color: #fff;
+                font-size: 12px;
+                font-weight: 600;
+                padding: 4px 10px;
+                border-radius: 4px;
+                white-space: nowrap;
+                z-index: 1090;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+                pointer-events: none;
+            }
+            #vendorContent.sb-collapsed-content {
+                margin-left: 64px !important;
+            }
         }
 
         /* Custom Scrollbar for Vendor Sidebar */
@@ -670,10 +741,13 @@
     <aside id="vendorSidebar">
         <div class="sb-brand">
             <div class="sb-brand-icon"><i class="fa-solid fa-hotel"></i></div>
-            <div>
+            <div class="sb-brand-text">
                 <span class="sb-brand-title">VENDOR PORTAL</span>
                 <span class="sb-brand-subtitle">Hotel Partner Dashboard</span>
             </div>
+            <button class="btn-sidebar-collapse d-none d-lg-flex" onclick="collapseVendorSidebar()" title="Toggle Sidebar">
+                <i class="fa-solid fa-chevron-left" id="collapseIconVendor"></i>
+            </button>
             <button onclick="toggleSidebar()" class="ms-auto d-lg-none"
                 style="background:none;border:none;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;padding:4px;">
                 <i class="fa-solid fa-xmark"></i>
@@ -990,6 +1064,38 @@
             if (cells[colIndex]) cells[colIndex].style.display = display;
         });
     }
+
+    function collapseVendorSidebar() {
+        const sb = document.getElementById('vendorSidebar');
+        const content = document.getElementById('vendorContent');
+        const icon = document.getElementById('collapseIconVendor');
+        const isCollapsed = sb.classList.toggle('sb-collapsed');
+        content.classList.toggle('sb-collapsed-content', isCollapsed);
+
+        if (icon) {
+            icon.className = isCollapsed ? 'fa-solid fa-chevron-right' : 'fa-solid fa-chevron-left';
+        }
+
+        if (isCollapsed) {
+            document.querySelectorAll('#vendorSidebar .collapse.show').forEach(el => el.classList.remove('show'));
+        }
+
+        localStorage.setItem('vendorSbCollapsed', isCollapsed ? '1' : '0');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (localStorage.getItem('vendorSbCollapsed') === '1') {
+            const sb = document.getElementById('vendorSidebar');
+            const content = document.getElementById('vendorContent');
+            const icon = document.getElementById('collapseIconVendor');
+            if (sb && content) {
+                sb.classList.add('sb-collapsed');
+                content.classList.add('sb-collapsed-content');
+                if (icon) icon.className = 'fa-solid fa-chevron-right';
+                document.querySelectorAll('#vendorSidebar .collapse.show').forEach(el => el.classList.remove('show'));
+            }
+        }
+    });
 
     document.addEventListener('click', function(e) {
         if (!e.target.closest('[onclick*="toggleColVis"]') && !e.target.closest('.col-vis-dropdown')) {

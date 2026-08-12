@@ -17,18 +17,6 @@
     </div>
 </div>
 
-{{-- FILTER / INFO BAR --}}
-<div class="page-filters-bar">
-    <div class="row g-2 align-items-center">
-        <div class="col-auto">
-            <span style="font-size:12.5px; color:#595959; font-weight:600;">
-                <i class="fa-solid fa-circle-info" style="color:var(--primary);"></i>
-                Lower your commission rate and get priority placement on Prime Aviation OTA search results.
-            </span>
-        </div>
-    </div>
-</div>
-
 {{-- PAGE CONTENT --}}
 <div class="page-content-area">
 
@@ -37,6 +25,18 @@
             <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
         </div>
     @endif
+
+    {{-- FILTER / INFO BAR --}}
+    <div class="page-filters-bar">
+        <div class="row g-2 align-items-center">
+            <div class="col-auto">
+                <span style="font-size:12.5px; color:#595959; font-weight:600;">
+                    <i class="fa-solid fa-circle-info" style="color:var(--primary);"></i>
+                    Lower your commission rate and get priority placement on Prime Aviation OTA search results.
+                </span>
+            </div>
+        </div>
+    </div>
 
     {{-- Current Plan KPI --}}
     <div class="row g-3 mb-4">

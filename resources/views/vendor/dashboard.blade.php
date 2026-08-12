@@ -9,15 +9,15 @@
         <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
         <span class="sep">-</span><strong style="color:#333;">Vendor Overview</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
         <h1 class="page-title">Vendor Partner Dashboard Overview</h1>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <a href="{{ route('vendor.property.create') }}" class="btn-add-primary">
-                <i class="fa-solid fa-plus"></i> Add Property
-            </a>
-            <button class="btn-export-csv" onclick="alert('Exporting...')">
-                <i class="fa-solid fa-file-csv"></i> Export CSV
-            </button>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('vendorDashboardBookingsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('vendorDashboardBookingsTable', 'vendor_dashboard')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('vendorDashboardBookingsTable', 'vendor_dashboard')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="exportTablePDF('vendorDashboardBookingsTable', 'vendor_dashboard')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-print" onclick="printTable('vendorDashboardBookingsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
+            <a href="{{ route('vendor.property.create') }}" class="btn-add-primary ms-1"><i class="fa-solid fa-plus me-1"></i> Add Property</a>
         </div>
     </div>
 </div>
@@ -146,26 +146,34 @@
 
     {{-- Recent Bookings Table --}}
     <div class="data-table-card mt-3">
-        <div class="data-table-card-header">
-            <h6>Recent Guest Bookings</h6>
-            <span class="live-feed-badge">Real-Time Feed</span>
+        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <h6 style="margin:0;">Recent Guest Bookings</h6>
+                <span class="live-feed-badge">Real-Time Feed</span>
+            </div>
+            <div class="tbl-search-wrap">
+                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
+                <input type="text" class="tbl-search-input" placeholder="Quick search recent..." onkeyup="filterTableSearch('vendorDashboardBookingsTable', this.value)">
+            </div>
         </div>
         <div style="overflow-x:auto;">
-            <table class="table-stockifly" style="width:100%;">
+            <table class="table-stockifly" id="vendorDashboardBookingsTable" style="width:100%;">
                 <thead>
                     <tr>
+                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('vendorDashboardBookingsTable', this)" title="Select All Rows"></th>
                         <th>Booking Ref</th>
                         <th>Guest Name</th>
                         <th>Property</th>
                         <th>Check-in / Check-out</th>
                         <th>Amount (BDT)</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Action</th>
+                        <th style="text-align:right;">Action <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('vendorDashboardBookingsTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_vendorDashboardBookingsTable" style="display:none;"></div></div></th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($recentBookings ?? [] as $b)
                     <tr>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td>
                             <a href="{{ route('vendor.bookings.show', $b->booking_reference) }}" style="color:var(--primary); font-weight:700; text-decoration:none;">{{ $b->booking_reference }}</a><br>
                             <span style="font-size:11px; color:#8c8c8c;">{{ $b->created_at->format('M d, Y') }}</span>

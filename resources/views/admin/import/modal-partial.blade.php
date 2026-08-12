@@ -64,11 +64,11 @@
                         </div>
                     </div>
 
-                    {{-- Cookie Header Input Box --}}
+                    {{-- Sync Input Section with Cookie / Network JSON Pill Selector --}}
                     <div class="mb-3">
-                        <div class="d-flex align-items-center justify-content-between mb-1.5">
-                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;">
-                                Cookie Header Data <span class="text-danger">*</span>
+                        <div class="d-flex align-items-center justify-content-between mb-1.5 flex-wrap gap-2">
+                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;" id="inputLabelText">
+                                Cookie / Network JSON Payload <span class="text-danger">*</span>
                             </label>
                             <div class="d-flex align-items-center gap-2">
                                 @php
@@ -79,14 +79,17 @@
                                         <i class="fa-solid fa-database me-1"></i> Vault Cookie Active
                                     </span>
                                 @endif
-                                <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11.5px; color:var(--primary);">
-                                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Cookie
+                                <button type="button" class="btn btn-outline-primary btn-sm px-2 py-0.5 fw-bold" onclick="fillSampleNetworkJson()" style="font-size:11px; border-radius:4px;">
+                                    <i class="fa-solid fa-code me-1"></i> Add Network JSON
+                                </button>
+                                <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11px; color:var(--primary);">
+                                    <i class="fa-solid fa-cookie-bite me-1"></i> Fill Sample Cookie
                                 </button>
                             </div>
                         </div>
-                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste browser Cookie header or F12 JSON Network payload here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
+                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste Agoda/Booking Network JSON response or browser Cookie header here... (Auto-detects payload type)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
                         <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
-                            Vaulted cookies persist automatically for background sync.
+                            Auto-detects whether you paste a browser Cookie string OR a Network JSON payload.
                         </small>
                     </div>
 
@@ -241,6 +244,47 @@ function fillSampleJson() {
     var txt = document.getElementById('jsonPayloadInputModal');
     if (txt) {
         txt.value = "agoda.sid=123456789; _ga=GA1.1.987654321.1600000000; booking_session=abcxyz987654321;";
+    }
+}
+
+function fillSampleNetworkJson() {
+    var txt = document.getElementById('jsonPayloadInputModal');
+    if (txt) {
+        var sampleNetworkJson = {
+            "status": "success",
+            "provider": "Agoda Global API Network Payload",
+            "results": [
+                {
+                    "name": "Pan Pacific Sonargaon Dhaka",
+                    "city": "Dhaka",
+                    "starRating": 5,
+                    "ratingScore": 4.9,
+                    "totalReviews": 1850,
+                    "address": "107 Kazi Nazrul Islam Avenue, Dhaka, Bangladesh",
+                    "price": 16500,
+                    "primaryImage": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80",
+                    "images": [
+                        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80"
+                    ],
+                    "amenities": ["Outdoor Swimming Pool", "Spa & Wellness", "Free WiFi", "Breakfast Included"]
+                },
+                {
+                    "name": "The Westin Dhaka Luxury Suites",
+                    "city": "Dhaka",
+                    "starRating": 5,
+                    "ratingScore": 4.9,
+                    "totalReviews": 2100,
+                    "address": "Main Gulshan Avenue, Plot 01, Road 45, Dhaka, Bangladesh",
+                    "price": 22000,
+                    "primaryImage": "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80",
+                    "images": [
+                        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80"
+                    ],
+                    "amenities": ["Rooftop Infinity Pool", "Heavenly Spa", "Valet Parking", "Fine Dining"]
+                }
+            ]
+        };
+        txt.value = JSON.stringify(sampleNetworkJson, null, 2);
     }
 }
 

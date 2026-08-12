@@ -31,15 +31,15 @@
         }
 
         /* ============================================================
-         * Ultra-Thin & Fine Typography Rule (No Heavy/Chunky Bold Text)
+         * Medium & Fine Typography Rule (Crisp Medium Weight 500)
          * ============================================================ */
         body, button, input, select, textarea, th, td, h1, h2, h3, h4, h5, h6, label, span, p, a, div {
-            font-weight: 400 !important;
+            font-weight: 500 !important;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
         }
         .fw-bold, .fw-bolder, strong, b, .page-title, .kpi-value, .topbar-user-name, .engine-badge {
-            font-weight: 500 !important;
+            font-weight: 600 !important;
         }
 
         /* ============================================================

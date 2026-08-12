@@ -310,7 +310,7 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     <a href="javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('✅ Agoda/Booking Active Cookie Copied to Clipboard!');})();" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag this button to your browser Bookmark Bar or click to copy script!" onclick="copyCookieScript(event)">
-                        <i class="fa-solid fa-bookmark me-1.5" style="color:#f59e0b;"></i> Copy BL Cookie
+                        <i class="fa-solid fa-puzzle-piece me-1.5" style="color:#fbbf24;"></i> Copy Cookie
                     </a>
                     <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -545,7 +545,7 @@ function copyCookieScript(e) {
     var script = "javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('✅ Active Cookie Copied to Clipboard! Now paste into Prime Booking Importer.');})();";
     if (navigator.clipboard) {
         navigator.clipboard.writeText(script).then(function() {
-            alert("✅ Copy BL Cookie Script Copied to Clipboard!\n\n💡 Tip: You can also DRAG this button directly onto your browser's Bookmarks Bar to create a 1-click Cookie Extractor button!");
+            alert("✅ Copy Cookie Script Copied to Clipboard!\n\n💡 Tip: You can also DRAG this button directly onto your browser's Bookmarks Bar to create a 1-click Cookie Extractor button!");
         }).catch(function() {
             prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
         });

@@ -114,6 +114,46 @@
         </div>
     </div>
 
+    {{-- Real MySQL Live Database Metrics Bar --}}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3 col-6">
+            <div class="form-card py-2 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
+                <div>
+                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Total DB Inventory</span>
+                    <strong style="font-size:15px; color:#0f172a;">{{ number_format($stats['total_properties'] ?? 0) }} Properties</strong>
+                </div>
+                <div class="p-2 rounded-circle" style="background:#e6f7ff; color:#1890ff;"><i class="fa-solid fa-hotel"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="form-card py-2 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
+                <div>
+                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Active Published</span>
+                    <strong style="font-size:15px; color:#52c41a;">{{ number_format($stats['active_published'] ?? 0) }} Live</strong>
+                </div>
+                <div class="p-2 rounded-circle" style="background:#f6ffed; color:#52c41a;"><i class="fa-solid fa-circle-check"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="form-card py-2 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
+                <div>
+                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Covered Cities</span>
+                    <strong style="font-size:15px; color:#1890ff;">{{ number_format($stats['total_cities'] ?? 0) }} Regions</strong>
+                </div>
+                <div class="p-2 rounded-circle" style="background:#e6f7ff; color:#1890ff;"><i class="fa-solid fa-location-dot"></i></div>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="form-card py-2 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
+                <div>
+                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Room Categories</span>
+                    <strong style="font-size:15px; color:#fa8c16;">{{ number_format($stats['total_rooms'] ?? 0) }} Rooms</strong>
+                </div>
+                <div class="p-2 rounded-circle" style="background:#fff7e6; color:#fa8c16;"><i class="fa-solid fa-bed"></i></div>
+            </div>
+        </div>
+    </div>
+
 <div class="row g-4">
     {{-- Left Import Form Column --}}
     <div class="col-lg-7">

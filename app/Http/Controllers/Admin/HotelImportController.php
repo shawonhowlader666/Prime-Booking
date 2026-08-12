@@ -48,7 +48,14 @@ class HotelImportController extends Controller
             'cottage'   => '🪵 Eco Cottage',
         ];
 
-        return view('admin.import.index', compact('cities', 'propertyTypes'));
+        $stats = [
+            'total_properties' => Property::count(),
+            'total_cities'     => Property::whereNotNull('city')->distinct()->count('city'),
+            'total_rooms'      => Room::count(),
+            'active_published' => Property::where('status', 'active')->count(),
+        ];
+
+        return view('admin.import.index', compact('cities', 'propertyTypes', 'stats'));
     }
 
     /**

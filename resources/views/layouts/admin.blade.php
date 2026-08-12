@@ -326,8 +326,8 @@
         .admin-topbar {
             background: #ffffff;
             border-bottom: 1px solid #e8e8e8;
-            padding: 0 24px;
-            height: 60px;
+            padding: 0 20px;
+            height: 52px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -335,73 +335,92 @@
             top: 0;
             z-index: 100;
             flex-shrink: 0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .admin-topbar-left {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .admin-topbar-right {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
         }
 
         .engine-badge {
-            background: rgba(24, 144, 255, 0.08);
-            color: #1890ff;
-            font-size: 12.5px;
-            font-weight: 700;
-            padding: 5px 14px;
-            border-radius: 4px !important;
-            border: 1px solid rgba(24, 144, 255, 0.2);
-            letter-spacing: 0.3px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 11px;
+            font-weight: 600;
+            padding: 3px 10px;
+            border-radius: 20px !important;
+            border: 1px solid #e2e8f0;
+            letter-spacing: 0.2px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .engine-badge .pulse-dot {
+            width: 6px;
+            height: 6px;
+            background-color: #52c41a;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 0 2px rgba(82, 196, 26, 0.25);
         }
 
         .topbar-user-name {
-            font-size: 14px;
-            font-weight: 700;
+            font-size: 13px;
+            font-weight: 600;
             color: #1e293b;
             display: block;
             line-height: 1.2;
         }
 
         .topbar-user-role {
-            font-size: 11.5px;
-            color: #64748b;
+            font-size: 11px;
+            color: #8c8c8c;
             display: block;
             margin-top: 1px;
         }
 
         .topbar-avatar {
-            width: 38px;
-            height: 38px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid #e2e8f0;
+            border: 1.5px solid #e2e8f0;
         }
 
         .btn-signout {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
-            padding: 6px 16px;
+            padding: 4px 12px;
+            height: 30px;
             border-radius: 4px !important;
-            border: 1.5px solid #ff4d4f;
-            color: #ff4d4f;
-            background: #fff;
-            transition: all 0.15s;
+            border: 1px solid #ff4d4f !important;
+            color: #ff4d4f !important;
+            background: #ffffff !important;
+            transition: all 0.15s ease-in-out;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            outline: none !important;
+            box-shadow: none !important;
+            text-decoration: none;
+            line-height: 1;
         }
 
         .btn-signout:hover {
-            background: #ff4d4f;
-            color: #fff;
+            background: #ff4d4f !important;
+            color: #ffffff !important;
+            border-color: #ff4d4f !important;
+            box-shadow: 0 2px 6px rgba(255, 77, 79, 0.2) !important;
         }
 
         .btn-mobile-toggle {
@@ -632,6 +651,14 @@
             border-color: var(--primary);
             box-shadow: 0 0 0 2px var(--primary-transparent-10);
             outline: none;
+        }
+        .tbl-search-icon {
+            position: absolute;
+            left: 10px;
+            z-index: 2;
+            color: #bfbfbf;
+            font-size: 12px;
+            pointer-events: none;
         }
         /* ============================================================
          * Filter Bar — exact .admin-page-filters-wrapper from Stockifly
@@ -1608,7 +1635,7 @@
                 <button class="btn-mobile-toggle" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <span class="engine-badge">PRIME BOOKING ENGINE v1.0</span>
+                <span class="engine-badge"><span class="pulse-dot"></span> PRIME BOOKING ENGINE v1.0</span>
             </div>
 
             <div class="admin-topbar-right">

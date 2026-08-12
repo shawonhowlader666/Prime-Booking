@@ -183,29 +183,38 @@
         /* ===== Top bar ===== */
         .admin-topbar {
             background:#fff; border-bottom:1px solid #e8e8e8;
-            padding:0 24px; height:60px;
-            display:flex; align-items:center; justify-content:space-between;
-            position:sticky; top:0; z-index:100; flex-shrink:0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+            padding:0 20px; height:52px; display:flex; align-items:center;
+            justify-content:space-between; position:sticky; top:0; z-index:100; flex-shrink:0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-        .admin-topbar-left { display:flex; align-items:center; gap:14px; }
-        .admin-topbar-right { display:flex; align-items:center; gap:14px; }
+        .admin-topbar-left { display:flex; align-items:center; gap:12px; }
+        .admin-topbar-right { display:flex; align-items:center; gap:12px; }
         .engine-badge {
-            background:rgba(250,140,22,0.1); color:#fa8c16;
-            font-size:12.5px; font-weight:700; padding:5px 14px;
-            border-radius:4px !important; border:1px solid rgba(250,140,22,0.25);
-            letter-spacing: 0.3px;
+            background: #fff7e6; color: #d46b08;
+            font-size: 11px; font-weight: 600; padding: 3px 10px;
+            border-radius: 20px !important; border: 1px solid #ffd591;
+            letter-spacing: 0.2px; display: inline-flex; align-items: center; gap: 6px;
         }
-        .topbar-user-name { font-size:14px; font-weight:700; color:#1e293b; display:block; line-height:1.2; }
-        .topbar-user-role { font-size:11.5px; color:#64748b; display:block; margin-top:1px; }
-        .topbar-avatar { width:38px; height:38px; border-radius:50%; object-fit:cover; border:2px solid #e2e8f0; }
+        .engine-badge .pulse-dot {
+            width: 6px; height: 6px; background-color: #fa8c16;
+            border-radius: 50%; display: inline-block;
+            box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.25);
+        }
+        .topbar-user-name { font-size:13px; font-weight:600; color:#1e293b; display:block; line-height:1.2; }
+        .topbar-user-role { font-size:11px; color:#8c8c8c; display:block; margin-top:1px; }
+        .topbar-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid #e2e8f0; }
         .btn-signout {
-            font-size:13px; font-weight:600; padding:6px 16px;
-            border-radius:4px !important; border:1.5px solid #ff4d4f; color:#ff4d4f;
-            background:#fff; transition:all 0.15s; cursor:pointer; line-height:1.5;
-            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 12px; font-weight: 600; padding: 4px 12px; height: 30px;
+            border-radius: 4px !important; border: 1px solid #ff4d4f !important;
+            color: #ff4d4f !important; background: #ffffff !important;
+            transition: all 0.15s ease-in-out; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 5px;
+            outline: none !important; box-shadow: none !important; text-decoration: none; line-height: 1;
         }
-        .btn-signout:hover { background:#ff4d4f; color:#fff; }
+        .btn-signout:hover {
+            background: #ff4d4f !important; color: #ffffff !important;
+            border-color: #ff4d4f !important; box-shadow: 0 2px 6px rgba(255, 77, 79, 0.2) !important;
+        }
         .btn-mobile-toggle {
             background:none; border:1px solid #d9d9d9; border-radius:6px;
             width:32px; height:32px; display:none; align-items:center;
@@ -365,7 +374,7 @@
             color: #334155; background: #ffffff; width: 220px; transition: all 0.15s;
         }
         .tbl-search-input:focus { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-transparent-10); outline: none; }
-        .tbl-search-icon { position: absolute; left: 10px; color: #bfbfbf; font-size: 12px; pointer-events: none; }
+        .tbl-search-icon { position: absolute; left: 10px; z-index: 2; color: #bfbfbf; font-size: 12px; pointer-events: none; }
 
         .page-filters-bar {
             background:#fff;

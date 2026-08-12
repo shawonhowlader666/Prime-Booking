@@ -6,8 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'PRIME BOOKING Admin Panel')</title>
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -36,9 +35,9 @@
             --admin-body-bg: #f0f2f5;
             --admin-card-border: #e8e8e8;
 
-            /* Stockifly font scale — exact from app.css */
-            --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            --font-heading: 'Plus Jakarta Sans', sans-serif;
+            /* Stockifly font scale — Inter razor-sharp SaaS font */
+            --font-main: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-size-base: 13px;
             --font-size-btn: 13px;
             --font-size-input: 13px;
@@ -773,10 +772,10 @@
         .table-stockifly thead tr th {
             background: var(--primary) !important;
             color: #ffffff !important;
-            font-size: var(--font-size-table-header) !important;
-            font-weight: 700 !important;
+            font-size: 11.5px !important;
+            font-weight: 600 !important;
             text-transform: uppercase !important;
-            letter-spacing: 0.5px !important;
+            letter-spacing: 0.3px !important;
             padding: 6px 12px !important;
             border-bottom: 1px solid #e8e8e8 !important;
             border-right: 1px solid rgba(255, 255, 255, 0.15) !important;

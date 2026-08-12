@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Vendor Partner Portal | PRIME BOOKING')</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -19,8 +19,8 @@
             --sidebar-width:          250px;
             --admin-body-bg:          #f0f2f5;
             --admin-card-border:      #e8e8e8;
-            --font-main:              'Plus Jakarta Sans', -apple-system, sans-serif;
-            --font-heading:           'Plus Jakarta Sans', sans-serif;
+            --font-main:              'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            --font-heading:           'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-size-base:         13px;
             --font-size-btn:          13px;
             --font-size-input:        13px;

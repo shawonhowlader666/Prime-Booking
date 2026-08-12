@@ -25,9 +25,21 @@
             --font-size-btn:          13px;
             --font-size-input:        13px;
             --font-size-sidebar:      13px;
-            --font-size-table-header: 12px;
+            --font-size-table-header: 11.5px;
             --font-size-table-body:   13px;
-            --font-size-page-header:  19px;
+            --font-size-page-header:  18px;
+        }
+
+        /* ============================================================
+         * Ultra-Thin & Fine Typography Rule (No Heavy/Chunky Bold Text)
+         * ============================================================ */
+        body, button, input, select, textarea, th, td, h1, h2, h3, h4, h5, h6, label, span, p, a, div {
+            font-weight: 400 !important;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        .fw-bold, .fw-bolder, strong, b, .page-title, .kpi-value, .topbar-user-name, .engine-badge {
+            font-weight: 500 !important;
         }
 
         /* ============================================================

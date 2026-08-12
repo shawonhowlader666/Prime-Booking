@@ -1,21 +1,17 @@
 @extends('layouts.admin')
-@section('title', 'Platform & Profile Settings — Stockifly SaaS')
+@section('title', 'Settings — PRIME BOOKING')
 
 @section('content')
 
 {{-- PAGE HEADER --}}
-<div class="page-header-card">
-    <div class="page-breadcrumb">
+<div class="page-header-card mb-3">
+    <div class="page-breadcrumb mb-1">
         <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>System</span>
-        <span class="sep">-</span><strong style="color:#333;">Settings &amp; Control Hub</strong>
+        <span class="sep">/</span><strong style="color:#333;">Settings</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:4px;">
-        <div>
-            <h1 class="page-title" style="font-size:18px;">Stockifly SaaS Settings &amp; Control Hub</h1>
-            <p class="text-muted mb-0" style="font-size:11.5px;">Manage platform identity, VIP tier rules, booking taxes, payment vault, and mail SMTP configuration</p>
-        </div>
-        <button class="btn-stockifly-primary" style="height:32px; padding:0 14px; font-size:12px;" onclick="document.getElementById('stockiflySettingsForm').submit()">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <h1 class="page-title m-0" style="font-size:18px; font-weight:700;">Settings</h1>
+        <button class="btn btn-primary" style="height:32px; padding:0 16px; font-size:12.5px; border-radius:4px !important;" onclick="document.getElementById('stockiflySettingsForm').submit()">
             <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
         </button>
     </div>
@@ -51,8 +47,8 @@
                         <button class="nav-link active" id="tab-profile-tab" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab">
                             <i class="fa-solid fa-user-gear" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
-                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">My Profile &amp; Account</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Admin credentials &amp; password</small>
+                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">My Profile</strong>
+                                <small class="opacity-75" style="font-size:10.5px;">Account &amp; security</small>
                             </div>
                         </button>
 
@@ -60,7 +56,7 @@
                             <i class="fa-solid fa-building-flag" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
                                 <strong class="d-block" style="font-size:12.5px; line-height:1.2;">Company &amp; Brand</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Site title, tagline &amp; theme</small>
+                                <small class="opacity-75" style="font-size:10.5px;">Branding &amp; theme</small>
                             </div>
                         </button>
 
@@ -68,7 +64,7 @@
                             <i class="fa-solid fa-sliders" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
                                 <strong class="d-block" style="font-size:12.5px; line-height:1.2;">Booking Rules &amp; Tax</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Commission %, VAT &amp; cancellation</small>
+                                <small class="opacity-75" style="font-size:10.5px;">Commission &amp; VAT</small>
                             </div>
                         </button>
 
@@ -76,7 +72,7 @@
                             <i class="fa-solid fa-crown" style="font-size:14px; width:20px; color:#eab308;"></i>
                             <div class="text-start ms-2">
                                 <strong class="d-block" style="font-size:12.5px; line-height:1.2;">VIP Loyalty Rules</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Silver, Gold &amp; Diamond tiers</small>
+                                <small class="opacity-75" style="font-size:10.5px;">Tier discounts &amp; rules</small>
                             </div>
                         </button>
 
@@ -92,7 +88,7 @@
                             <i class="fa-solid fa-paper-plane" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
                                 <strong class="d-block" style="font-size:12.5px; line-height:1.2;">Mail &amp; SMTP Server</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Email dispatch configuration</small>
+                                <small class="opacity-75" style="font-size:10.5px;">Email dispatch settings</small>
                             </div>
                         </button>
 
@@ -100,7 +96,7 @@
                             <i class="fa-solid fa-shield-halved" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
                                 <strong class="d-block" style="font-size:12.5px; line-height:1.2;">System Security &amp; Cache</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Purge cache &amp; database log</small>
+                                <small class="opacity-75" style="font-size:10.5px;">Purge cache &amp; logs</small>
                             </div>
                         </button>
                     </div>
@@ -115,9 +111,9 @@
                     <div class="tab-pane fade show active" id="tab-profile" role="tabpanel">
                         <div class="stockifly-card p-3 mb-3">
                             <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name ?? 'Admin') }}&background=1890ff&color=fff&size=80" class="rounded-circle shadow-sm" style="width:48px; height:48px;" alt="Avatar">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name ?? 'Admin') }}&background=1890ff&color=fff&size=80" class="rounded-circle shadow-sm" style="width:44px; height:44px;" alt="Avatar">
                                 <div>
-                                    <h6 class="fw-bold text-dark mb-0" style="font-size:14px;">{{ $user->name ?? 'Administrator' }}</h6>
+                                    <h6 class="fw-bold text-dark mb-0" style="font-size:13.5px;">{{ $user->name ?? 'Administrator' }}</h6>
                                     <small class="text-muted d-block" style="font-size:11px;">Super Admin Account | ID: #{{ $user->id ?? 1 }}</small>
                                 </div>
                             </div>
@@ -136,7 +132,7 @@
                                     <input type="text" name="phone" class="form-control saas-input" value="{{ old('phone', $user->phone ?? '') }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="saas-label">Change Account Password</label>
+                                    <label class="saas-label">Change Password</label>
                                     <input type="password" name="new_password" class="form-control saas-input" placeholder="Leave blank to keep current">
                                 </div>
                             </div>
@@ -178,13 +174,13 @@
                                     <input type="text" name="support_address" class="form-control saas-input" value="{{ old('support_address', $siteSettings['support_address']) }}">
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-check form-switch pt-2">
+                                    <div class="form-check form-switch pt-1">
                                         <input class="form-check-input" type="checkbox" name="maintenance_mode" id="checkMaintenance" {{ $siteSettings['maintenance_mode'] == '1' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold ms-1" style="font-size:12px;" for="checkMaintenance">Enable System Maintenance Mode</label>
+                                        <label class="form-check-label fw-bold ms-1" style="font-size:12px;" for="checkMaintenance">Enable Maintenance Mode</label>
                                     </div>
                                 </div>
                                 <div class="col-md-6">
-                                    <div class="form-check form-switch pt-2">
+                                    <div class="form-check form-switch pt-1">
                                         <input class="form-check-input" type="checkbox" name="new_registrations" id="checkReg" {{ $siteSettings['new_registrations'] == '1' ? 'checked' : '' }}>
                                         <label class="form-check-label fw-bold ms-1" style="font-size:12px;" for="checkReg">Allow Public User Registrations</label>
                                     </div>

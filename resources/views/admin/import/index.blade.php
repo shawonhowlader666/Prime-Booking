@@ -256,13 +256,20 @@
                         <label class="form-label fw-semibold text-dark m-0" style="font-size:12.5px;">
                             Cookie Data Header <span class="text-danger">*</span>
                         </label>
-                        <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11.5px; color:var(--primary);">
-                            <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Cookie
-                        </button>
+                        <div class="d-flex align-items-center gap-2">
+                            @if(!empty($savedCookie))
+                                <span class="badge bg-success-subtle text-success border border-success-subtle" style="font-size:10px;">
+                                    <i class="fa-solid fa-database me-1"></i> Saved Vault Cookie Active
+                                </span>
+                            @endif
+                            <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11.5px; color:var(--primary);">
+                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Cookie
+                            </button>
+                        </div>
                     </div>
-                    <textarea name="cookie_header" id="jsonPayloadInput" class="form-control font-monospace" rows="7" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required></textarea>
+                    <textarea name="cookie_header" id="jsonPayloadInput" class="form-control font-monospace" rows="7" placeholder="Paste your browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;">{{ old('cookie_header', $savedCookie ?? '') }}</textarea>
                     <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
-                        💡 Open Agoda / Booking.com in Chrome F12 Network tab, copy the <code>Cookie:</code> line under Request Headers and paste it above.
+                        💡 <strong>একবার কুকি দিলে তা সেভ হয়ে থাকবে</strong> — পরবর্তীতে আর পেস্ট করতে হবে না, অটোমেটিক সেভ করা কুকি দিয়ে সিঙ্ক হবে!
                     </small>
                 </div>
 

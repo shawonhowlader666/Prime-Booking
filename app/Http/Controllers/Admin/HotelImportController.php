@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\FeaturedDestination;
 use App\Models\Property;
 use App\Models\Room;
+use App\Models\SiteSetting;
 use App\Services\HotelImporterService;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -56,7 +57,9 @@ class HotelImportController extends Controller
             'active_published' => Property::where('status', 'active')->count(),
         ];
 
-        return view('admin.import.index', compact('cities', 'propertyTypes', 'stats'));
+        $savedCookie = SiteSetting::get('ota_saved_cookie_agoda', '');
+
+        return view('admin.import.index', compact('cities', 'propertyTypes', 'stats', 'savedCookie'));
     }
 
     /**
@@ -104,6 +107,12 @@ class HotelImportController extends Controller
                 $endpoint = $request->input('endpoint_url') ?: 'https://www.agoda.com/api/cronos/search/getsearchhotelssync';
                 $cookie   = $request->input('cookie_header');
                 $auth     = $request->input('authorization_token');
+
+                if (!empty($cookie)) {
+                    SiteSetting::set('ota_saved_cookie_agoda', $cookie);
+                } else {
+                    $cookie = SiteSetting::get('ota_saved_cookie_agoda', '');
+                }
 
                 $payloadData = $this->importerService->fetchFromApi($endpoint, $cookie, $auth);
             } else {

@@ -90,9 +90,6 @@
                 <span class="fw-bold text-dark d-flex align-items-center gap-1.5" style="font-size:13px;">
                     <i class="fa-solid fa-cookie-bite text-warning"></i> Active OTA Channels:
                 </span>
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:10.5px; font-weight:600;">
-                    <i class="fa-solid fa-signal me-1"></i> Universal Engine Active
-                </span>
             </div>
         </div>
         <div class="row g-2.5" id="otaChannelsContainer">

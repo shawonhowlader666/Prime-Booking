@@ -237,29 +237,41 @@ function saveNewOption() {
 
 function copyCookieScript(e) {
     if (e && e.preventDefault) e.preventDefault();
+
+    if (typeof switchPayloadMode === 'function') {
+        switchPayloadMode('cookie');
+    }
+
     var script = "javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('Active Cookie Copied to Clipboard! Now paste into Prime Booking Importer.');})();";
+
     if (navigator.clipboard) {
         navigator.clipboard.writeText(script).then(function() {
-            alert("Copy Cookie Script Copied to Clipboard!\n\nTip: You can also DRAG this button directly onto your browser's Bookmarks Bar to create a 1-click Cookie Extractor button!");
+            alert("✅ Cookie Sync Mode Activated!\n\n1-Click Cookie Extractor script copied to clipboard! Drag button to Bookmarks Bar for 1-click copying on Agoda.");
         }).catch(function() {
-            prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
+            alert("✅ Cookie Sync Mode Activated!");
         });
     } else {
-        prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
+        alert("✅ Cookie Sync Mode Activated!");
     }
 }
 
 function copyNetworkJsonScript(e) {
     if (e && e.preventDefault) e.preventDefault();
-    var script = "javascript:(function(){var jsonStr=prompt('Agoda Network JSON Extractor loaded! Paste or view F12 Network response JSON here:');if(jsonStr){navigator.clipboard.writeText(jsonStr);alert('Network JSON Copied to Clipboard!');}})();";
+
+    if (typeof switchPayloadMode === 'function') {
+        switchPayloadMode('json');
+    }
+
+    var bookmarkletScript = "javascript:(function(){var responseText=prompt('Agoda Network JSON Extractor: Paste or view Network response JSON payload here:');if(responseText){navigator.clipboard.writeText(responseText);alert('Network JSON Copied to Clipboard!');}})();";
+
     if (navigator.clipboard) {
-        navigator.clipboard.writeText(script).then(function() {
-            alert("Copy Network JSON Script Copied to Clipboard!\n\nTip: You can DRAG this button onto your browser's Bookmarks Bar to create a 1-click Agoda Network JSON Extractor button!");
+        navigator.clipboard.writeText(bookmarkletScript).then(function() {
+            alert("✅ Network JSON Mode Activated!\n\n1-Click JSON Extractor script copied to clipboard! Drag button to Bookmarks Bar for 1-click copying on Agoda.");
         }).catch(function() {
-            prompt("Copy this 1-Click Network JSON Extractor Bookmarklet script:", script);
+            alert("✅ Network JSON Mode Activated!");
         });
     } else {
-        prompt("Copy this 1-Click Network JSON Extractor Bookmarklet script:", script);
+        alert("✅ Network JSON Mode Activated!");
     }
 }
 

@@ -12,9 +12,21 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">User Accounts &amp; Role Management</h1>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <button class="btn-export-csv" onclick="alert('Exporting Users CSV...')">
-                <i class="fa-solid fa-file-csv"></i> Export CSV
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button class="btn-export-csv" onclick="exportTableCSV('usersTable', 'users')">
+                <i class="fa-solid fa-file-csv"></i> CSV
+            </button>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('usersTable', this)" title="Select / Deselect All Rows">
+                <i class="fa-solid fa-check-square"></i> Select
+            </button>
+            <div style="position:relative;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('usersTable', this)" title="Show / Hide Columns">
+                    <i class="fa-solid fa-table-columns"></i> SL
+                </button>
+                <div class="col-vis-dropdown" id="colVisDropdown_usersTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-print" onclick="printTable('usersTable')" title="Print Table">
+                <i class="fa-solid fa-print"></i> Print
             </button>
         </div>
     </div>
@@ -128,7 +140,7 @@
         </div>
 
         <div style="overflow-x:auto;">
-            <table class="table-stockifly" style="width:100%;">
+            <table class="table-stockifly" id="usersTable" style="width:100%;">
                 <thead>
                     <tr>
                         <th>User &amp; Auth Provider</th>

@@ -12,9 +12,23 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">Guest Reviews &amp; Rating Moderation</h1>
-        <button class="btn-export-csv" onclick="alert('Exporting Reviews CSV...')">
-            <i class="fa-solid fa-file-csv"></i> Export CSV
-        </button>
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+            <button class="btn-export-csv" onclick="exportTableCSV('reviewsTable', 'reviews')">
+                <i class="fa-solid fa-file-csv"></i> CSV
+            </button>
+            <button type="button" class="btn-tbl-select" onclick="toggleSelectAll('reviewsTable', this)" title="Select / Deselect All Rows">
+                <i class="fa-solid fa-check-square"></i> Select
+            </button>
+            <div style="position:relative;">
+                <button type="button" class="btn-tbl-col" onclick="toggleColVis('reviewsTable', this)" title="Show / Hide Columns">
+                    <i class="fa-solid fa-table-columns"></i> SL
+                </button>
+                <div class="col-vis-dropdown" id="colVisDropdown_reviewsTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-print" onclick="printTable('reviewsTable')" title="Print Table">
+                <i class="fa-solid fa-print"></i> Print
+            </button>
+        </div>
     </div>
 </div>
 
@@ -35,7 +49,7 @@
         </div>
 
         <div style="overflow-x:auto;">
-            <table class="table-stockifly" style="width:100%;">
+            <table class="table-stockifly" id="reviewsTable" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Guest Name</th>

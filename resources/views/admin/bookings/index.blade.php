@@ -12,13 +12,25 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">Booking &amp; Reservation Management</h1>
-        <div style="display:flex; align-items:center; gap:8px;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <a href="{{ route('admin.bookings.export') }}" class="btn-export-csv" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-csv"></i> Export CSV
+                <i class="fa-solid fa-file-csv"></i> CSV
             </a>
             <a href="{{ route('admin.bookings.export-pdf') }}" target="_blank" class="btn-export-pdf" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
+                <i class="fa-solid fa-file-pdf"></i> PDF
             </a>
+            <button type="button" class="btn-tbl-select" id="btnSelectAll" onclick="toggleSelectAll('bookingsTable', this)" title="Select / Deselect All Rows">
+                <i class="fa-solid fa-check-square"></i> Select
+            </button>
+            <div style="position:relative;">
+                <button type="button" class="btn-tbl-col" id="btnColVis" onclick="toggleColVis('bookingsTable', this)" title="Show / Hide Columns">
+                    <i class="fa-solid fa-table-columns"></i> SL
+                </button>
+                <div class="col-vis-dropdown" id="colVisDropdown_bookingsTable" style="display:none;"></div>
+            </div>
+            <button type="button" class="btn-tbl-print" onclick="printTable('bookingsTable')" title="Print Table">
+                <i class="fa-solid fa-print"></i> Print
+            </button>
         </div>
     </div>
 </div>
@@ -133,7 +145,7 @@
         </div>
 
         <div style="overflow-x:auto;">
-            <table class="table-stockifly" style="width:100%;">
+            <table class="table-stockifly" id="bookingsTable" style="width:100%;">
                 <thead>
                     <tr>
                         <th>Booking Ref</th>

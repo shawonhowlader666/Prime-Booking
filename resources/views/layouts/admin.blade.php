@@ -460,6 +460,56 @@
             border-color: var(--primary-active);
         }
 
+        /* ── SaaS Toolbar Buttons (Select All / Col Visibility / Print) ─ */
+        .btn-tbl-col {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 13px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #d9d9d9;
+            color: #595959; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; text-decoration: none;
+            white-space: nowrap;
+        }
+        .btn-tbl-col:hover { background: #f5f5f5; border-color: #bfbfbf; color: #262626; }
+        .btn-tbl-col.active-col { border-color: var(--primary); color: var(--primary); background: #e6f7ff; }
+
+        .btn-tbl-print {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 13px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #722ed1;
+            color: #722ed1; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap;
+        }
+        .btn-tbl-print:hover { background: #722ed1; color: #fff; }
+
+        .btn-tbl-select {
+            display: inline-flex; align-items: center; gap: 5px;
+            padding: 5px 13px; font-size: 12px; font-weight: 600;
+            border-radius: 4px !important; border: 1.5px solid #fa8c16;
+            color: #fa8c16; background: #fff; cursor: pointer;
+            transition: all 0.15s; line-height: 1.5; white-space: nowrap;
+        }
+        .btn-tbl-select:hover { background: #fa8c16; color: #fff; }
+        .btn-tbl-select.is-selecting { background: #fa8c16; color: #fff; }
+
+        /* Column Visibility Dropdown */
+        .col-vis-dropdown {
+            position: absolute; top: calc(100% + 6px); right: 0; z-index: 1090;
+            background: #fff; border: 1px solid #e8e8e8;
+            border-radius: 4px !important; box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+            min-width: 180px; padding: 6px 0;
+        }
+        .col-vis-item {
+            display: flex; align-items: center; gap: 8px;
+            padding: 6px 14px; font-size: 12.5px; color: #333;
+            cursor: pointer; user-select: none;
+        }
+        .col-vis-item:hover { background: #f5f5f5; }
+        .col-vis-item input[type=checkbox] { accent-color: var(--primary); width: 14px; height: 14px; }
+
+        /* Select-mode row highlight */
+        tr.row-selected td { background: #e6f7ff !important; }
+        .tbl-select-checkbox { accent-color: var(--primary); width: 15px; height: 15px; cursor: pointer; }
+
         .btn-add-primary {
             display: inline-flex;
             align-items: center;
@@ -1523,6 +1573,178 @@
             sb.classList.toggle('show-mobile');
             bd.style.display = sb.classList.contains('show-mobile') ? 'block' : 'none';
         }
+    </script>
+
+    {{-- ═══════════════════════════════════════════════════════════════
+         GLOBAL SAAS TABLE TOOLBAR — Select All, Col Visibility, Print
+         ═══════════════════════════════════════════════════════════════ --}}
+    <script>
+    // ── 1. SELECT ALL ROWS ──────────────────────────────────────────
+    function toggleSelectAll(tableId, btn) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const isSelecting = btn.classList.toggle('is-selecting');
+        const rows = table.querySelectorAll('tbody tr');
+
+        if (isSelecting) {
+            btn.innerHTML = '<i class="fa-solid fa-square-xmark"></i> Deselect';
+            // Add checkbox column header if not already present
+            const thead = table.querySelector('thead tr');
+            if (!thead.querySelector('.th-checkbox')) {
+                const thCheck = document.createElement('th');
+                thCheck.className = 'th-checkbox';
+                thCheck.style = 'width:36px;text-align:center;';
+                thCheck.innerHTML = '<input type="checkbox" class="tbl-select-checkbox" id="masterCheck_'+tableId+'" onchange="masterCheckToggle(this, \''+tableId+'\')">';
+                thead.insertBefore(thCheck, thead.firstChild);
+            }
+            rows.forEach(row => {
+                if (!row.querySelector('.td-checkbox')) {
+                    const td = document.createElement('td');
+                    td.className = 'td-checkbox';
+                    td.style = 'width:36px;text-align:center;';
+                    td.innerHTML = '<input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="rowCheckChange(\''+tableId+'\')">';
+                    row.insertBefore(td, row.firstChild);
+                }
+            });
+        } else {
+            btn.innerHTML = '<i class="fa-solid fa-check-square"></i> Select';
+            // Remove checkbox column
+            const thCheck = table.querySelector('.th-checkbox');
+            if (thCheck) thCheck.remove();
+            table.querySelectorAll('.td-checkbox').forEach(td => td.remove());
+            table.querySelectorAll('tr.row-selected').forEach(r => r.classList.remove('row-selected'));
+        }
+    }
+
+    function masterCheckToggle(master, tableId) {
+        const table = document.getElementById(tableId);
+        const checkboxes = table.querySelectorAll('.tbl-row-check');
+        checkboxes.forEach(cb => {
+            cb.checked = master.checked;
+            cb.closest('tr').classList.toggle('row-selected', master.checked);
+        });
+    }
+
+    function rowCheckChange(tableId) {
+        const table = document.getElementById(tableId);
+        const all = table.querySelectorAll('.tbl-row-check');
+        const checked = table.querySelectorAll('.tbl-row-check:checked');
+        const master = document.getElementById('masterCheck_' + tableId);
+        if (master) master.checked = all.length === checked.length;
+        all.forEach(cb => {
+            cb.closest('tr').classList.toggle('row-selected', cb.checked);
+        });
+    }
+
+    // ── 2. COLUMN VISIBILITY ────────────────────────────────────────
+    function toggleColVis(tableId, btn) {
+        const dropId = 'colVisDropdown_' + tableId;
+        const drop = document.getElementById(dropId);
+        if (!drop) return;
+        const isVisible = drop.style.display === 'block';
+        // Close all open dropdowns first
+        document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
+        document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
+
+        if (!isVisible) {
+            const table = document.getElementById(tableId);
+            if (!table) return;
+            const headers = table.querySelectorAll('thead th');
+            drop.innerHTML = '';
+            headers.forEach((th, i) => {
+                if (th.classList.contains('th-checkbox')) return;
+                const label = th.textContent.trim() || 'Column ' + (i + 1);
+                const item = document.createElement('label');
+                item.className = 'col-vis-item';
+                const checked = th.style.display !== 'none';
+                item.innerHTML = `<input type="checkbox" ${checked ? 'checked' : ''} onchange="toggleColumn('${tableId}', ${i}, this)"> ${label}`;
+                drop.appendChild(item);
+            });
+            drop.style.display = 'block';
+            btn.classList.add('active-col');
+        }
+    }
+
+    function toggleColumn(tableId, colIndex, checkbox) {
+        const table = document.getElementById(tableId);
+        if (!table) return;
+        const display = checkbox.checked ? '' : 'none';
+        table.querySelectorAll('thead th, tbody td, tfoot td').forEach(row => {
+            const cells = row.parentElement ? Array.from(row.parentElement.children) : [];
+            if (cells[colIndex]) cells[colIndex].style.display = display;
+        });
+    }
+
+    // ── 3. PRINT TABLE ──────────────────────────────────────────────
+    function printTable(tableId) {
+        const table = document.getElementById(tableId);
+        if (!table) { window.print(); return; }
+        // Get page title from breadcrumb or h1
+        const pageTitle = document.querySelector('.page-title')?.textContent?.trim() || 'Table Report';
+        const printDate = new Date().toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        const printWin = window.open('', '_blank', 'width=1050,height=700');
+        printWin.document.write(`<!DOCTYPE html><html><head>
+            <title>${pageTitle} — Print</title>
+            <style>
+                * { box-sizing: border-box; }
+                body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 12px; color: #333; margin: 0; padding: 20px; }
+                .print-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 2px solid #1890ff; padding-bottom: 10px; margin-bottom: 16px; }
+                .print-header h1 { font-size: 16px; font-weight: 700; color: #1890ff; margin: 0; }
+                .print-header small { color: #8c8c8c; font-size: 11px; }
+                table { width: 100%; border-collapse: collapse; }
+                th { background: #1890ff; color: #fff; padding: 7px 10px; text-align: left; font-size: 11px; font-weight: 600; }
+                td { padding: 6px 10px; border-bottom: 1px solid #f0f0f0; font-size: 11px; vertical-align: middle; }
+                tr:nth-child(even) td { background: #fafafa; }
+                .th-checkbox, .td-checkbox { display: none; }
+                @media print { body { padding: 10px; } }
+            </style>
+        </head><body>
+            <div class="print-header">
+                <div>
+                    <h1>${pageTitle}</h1>
+                    <small>Generated: ${printDate} — PRIME BOOKING Admin</small>
+                </div>
+                <img src="/images/logo.png" style="height:36px; object-fit:contain;" onerror="this.style.display='none'">
+            </div>
+            ${table.outerHTML}
+            <script>window.onload = function(){ window.print(); window.close(); }<\/script>
+        </body></html>`);
+        printWin.document.close();
+    }
+
+    // ── 4. CSV EXPORT ───────────────────────────────────────────────
+    function exportTableCSV(tableId, filename) {
+        const table = document.getElementById(tableId);
+        if (!table) { alert('Export feature coming soon!'); return; }
+        let csv = [];
+        const rows = table.querySelectorAll('tr');
+        rows.forEach(row => {
+            const cols = row.querySelectorAll('th, td');
+            let rowData = [];
+            cols.forEach(col => {
+                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox')) return;
+                // Skip action column
+                const text = col.innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""');
+                rowData.push('"' + text + '"');
+            });
+            if (rowData.length) csv.push(rowData.join(','));
+        });
+        const csvContent = csv.join('\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename + '_' + new Date().toISOString().slice(0, 10) + '.csv';
+        link.click();
+    }
+
+    // ── Close col-vis dropdown on outside click ──────────────────────
+    document.addEventListener('click', function(e) {
+        if (!e.target.closest('[onclick*="toggleColVis"]') && !e.target.closest('.col-vis-dropdown')) {
+            document.querySelectorAll('.col-vis-dropdown').forEach(d => d.style.display = 'none');
+            document.querySelectorAll('.btn-tbl-col').forEach(b => b.classList.remove('active-col'));
+        }
+    });
     </script>
 
     @yield('scripts')

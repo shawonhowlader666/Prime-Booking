@@ -17,7 +17,7 @@
                 Global OTA Inventory Automation &amp; Data Synchronization Engine
             </h1>
             <p class="text-secondary mb-0" style="font-size:12.5px; margin-top:2px;">
-                Enterprise-grade automated data importer for Bangladesh hotels, luxury resorts, ship cruises &amp; global property inventories.
+                Automated OTA property data synchronization and multi-channel inventory management.
             </p>
         </div>
         <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
@@ -51,7 +51,7 @@
                     <i class="fa-solid fa-cookie-bite text-warning"></i>
                     Active OTA Cookie Channels &amp; Universal Importer Engine
                 </h6>
-                <small class="text-secondary" style="font-size:11.5px;">Supports Agoda, Booking.com, Traveloka, MakeMyTrip, Goibibo, Expedia, Airbnb &amp; Custom API Feeds.</small>
+                <small class="text-secondary" style="font-size:11.5px;">Multi-channel OTA API integration and real-time cookie data streams.</small>
             </div>
             <div class="d-flex align-items-center gap-2">
                 <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" onclick="openAddOptionModal('ota_channel')" style="font-size:11px; border-radius:4px;">
@@ -69,7 +69,7 @@
                         <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
                         <div>
                             <strong style="font-size:12px; display:block; color:#1e293b;">Agoda Global API</strong>
-                            <small style="font-size:10.5px; color:#64748b;">Cookie Header Ready</small>
+                            <small style="font-size:10.5px; color:#64748b;">Cookie Header Active</small>
                         </div>
                     </div>
                     <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">OTA-01</span>
@@ -192,8 +192,8 @@
                         <label class="form-label">Default Listing Status</label>
                         <div class="d-flex align-items-center" style="gap:6px;">
                             <select name="override_status" id="overrideStatusSelect" class="form-select flex-grow-1" style="height:38px; border-radius:4px;">
-                                <option value="active" selected>🟢 Active &amp; Published (Live immediately)</option>
-                                <option value="pending">🟡 Pending Review (Draft mode)</option>
+                                <option value="active" selected>🟢 Active &amp; Published</option>
+                                <option value="pending">🟡 Pending Review</option>
                                 <option value="inactive">🔴 Inactive</option>
                             </select>
                             <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('status')" title="Add Status Option" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
@@ -212,9 +212,9 @@
                                 <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Agoda/Booking Data
                             </button>
                         </div>
-                        <textarea name="json_payload" id="jsonPayloadInput" class="form-control font-monospace" rows="10" placeholder='Paste your API response JSON here (e.g. [{"name": "Royal Tulip Beach Resort", "starRating": 5, "price": 12500, "images": [...]}, ...])' style="border-radius:4px;"></textarea>
+                        <textarea name="json_payload" id="jsonPayloadInput" class="form-control font-monospace" rows="10" placeholder='Paste valid network API JSON payload here...' style="border-radius:4px;"></textarea>
                         <small class="text-muted d-block mt-1" style="font-size:11.5px;">
-                            💡 Open F12 Network tab on Agoda/Booking.com, copy the JSON response array or object, and paste it directly here.
+                            💡 Copy network response JSON array or object from browser developer inspector.
                         </small>
                     </div>
                 </div>
@@ -240,7 +240,7 @@
                 {{-- Submit Button --}}
                 <div class="pt-2">
                     <button type="submit" class="btn text-white fw-bold px-4 py-2 w-100" style="background:var(--primary); border-radius:4px; font-size:14px; border:none;" id="btnSubmitImport">
-                        <i class="fa-solid fa-bolt me-2"></i> Start Importing Real Hotel Data
+                        <i class="fa-solid fa-bolt me-2"></i> Execute Data Synchronization
                     </button>
                 </div>
             </form>
@@ -254,31 +254,31 @@
         {{-- How it works card --}}
         <div class="form-card mb-4" style="background:#fafafa; border-radius:4px;">
             <h6 class="form-section-title d-flex align-items-center gap-2">
-                <i class="fa-solid fa-circle-info"></i> Best Smart Logic Features
+                <i class="fa-solid fa-circle-info"></i> Core Synchronization Engine Features
             </h6>
             <ul class="list-unstyled mb-0" style="font-size:12.5px; color:#475569; line-height:1.6;">
                 <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-plus text-primary mt-1"></i>
-                    <div><strong>Interactive [+] Option Adders:</strong> Click <code>[+]</code> beside any dropdown to instantly add custom cities, limits, or property types.</div>
+                    <div><strong>Dynamic Option Management:</strong> Click <code>[+]</code> to dynamically add cities, limits, or property types.</div>
                 </li>
                 <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Smart Auto-Normalization:</strong> Automatically parses hotel names, star ratings, ratings, amenities, and room pricing.</div>
+                    <div><strong>Automated Payload Normalization:</strong> Normalizes names, star ratings, amenities, and room pricing automatically.</div>
                 </li>
                 <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Photo Gallery Extractor:</strong> Extracts high-resolution image URLs and associates them with properties.</div>
+                    <div><strong>High-Resolution Asset Extractor:</strong> Extracts high-resolution photo gallery URLs and assigns them to properties.</div>
                 </li>
                 <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Duplicate Prevention:</strong> Uses <code>updateOrCreate</code> matching on name and city to prevent duplicate records.</div>
+                    <div><strong>Conflict Resolution &amp; Duplicate Protection:</strong> Uses <code>updateOrCreate</code> matching on name and city.</div>
                 </li>
-                <li class="d-flex align-items-start gap-2">
+                <li class="mb-2 d-flex align-items-start gap-2">
                     <i class="fa-solid fa-check text-success mt-1"></i>
-                    <div><strong>Auto Room Generation:</strong> Automatically builds Deluxe, Super Deluxe &amp; Family Suites so booking flow works instantly.</div>
+                    <div><strong>Automated Room Inventory Generation:</strong> Automatically builds Deluxe, Super Deluxe &amp; Family Suites.</div>
                 </li>
             </ul>
-        </div>
+        </div>      </div>
 
         {{-- Execution Console Logs --}}
         <div class="form-card" style="border-radius:4px;">

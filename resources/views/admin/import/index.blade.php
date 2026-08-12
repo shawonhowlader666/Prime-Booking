@@ -83,72 +83,68 @@
         </div>
     </div>
 
-    {{-- Active OTA Cookie Channels & Live Feeds Hub --}}
-    <div class="form-card mb-4" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:18px 20px;">
-        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 flex-wrap gap-2">
-            <div>
-                <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-cookie-bite text-warning"></i>
-                    Active OTA Cookie Channels &amp; Universal Importer Engine
-                </h6>
-                <small class="text-secondary" style="font-size:11.5px;">Multi-channel OTA API integration and real-time cookie data streams.</small>
-            </div>
+    {{-- Active OTA Channels Grid --}}
+    <div class="form-card mb-4" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:14px 18px;">
+        <div class="d-flex align-items-center justify-content-between mb-2.5 flex-wrap gap-2">
             <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1" onclick="openAddOptionModal('ota_channel')" style="font-size:11px; border-radius:4px;">
-                    <i class="fa-solid fa-plus me-1"></i> Add Custom OTA Channel
-                </button>
-                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px; font-weight:600;">
-                    <i class="fa-solid fa-signal me-1"></i> Universal Parser Active
+                <span class="fw-bold text-dark d-flex align-items-center gap-1.5" style="font-size:13px;">
+                    <i class="fa-solid fa-cookie-bite text-warning"></i> Active OTA Channels:
+                </span>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-0.5" style="font-size:10.5px; font-weight:600;">
+                    <i class="fa-solid fa-signal me-1"></i> Universal Engine Active
                 </span>
             </div>
+            <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" onclick="openAddOptionModal('ota_channel')" style="font-size:11px; border-radius:4px;">
+                <i class="fa-solid fa-plus me-1"></i> Add Custom OTA Channel
+            </button>
         </div>
-        <div class="row g-3" id="otaChannelsContainer">
+        <div class="row g-2.5" id="otaChannelsContainer">
             <div class="col-md-3 col-6">
-                <div class="p-2.5 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
                         <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
                         <div>
-                            <strong style="font-size:12.5px; display:block; color:#1e293b;">Agoda Global API</strong>
-                            <small style="font-size:10.5px; color:#64748b;">Cookie Header Active</small>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Agoda Global API</strong>
+                            <small style="font-size:10px; color:#64748b;">Cookie Header Active</small>
                         </div>
                     </div>
-                    <span class="badge bg-primary-subtle text-primary" style="font-size:10px;">OTA-01</span>
+                    <span class="badge bg-primary-subtle text-primary" style="font-size:9.5px;">OTA-01</span>
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="p-2.5 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
                         <span class="pulse-dot" style="background:#52c41a; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(82,196,26,0.2);"></span>
                         <div>
-                            <strong style="font-size:12.5px; display:block; color:#1e293b;">Booking.com Engine</strong>
-                            <small style="font-size:10.5px; color:#64748b;">JSON Parser Active</small>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Booking.com Engine</strong>
+                            <small style="font-size:10px; color:#64748b;">JSON Parser Active</small>
                         </div>
                     </div>
-                    <span class="badge bg-success-subtle text-success" style="font-size:10px;">OTA-02</span>
+                    <span class="badge bg-success-subtle text-success" style="font-size:9.5px;">OTA-02</span>
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="p-2.5 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
                         <span class="pulse-dot" style="background:#1890ff; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(24,144,255,0.2);"></span>
                         <div>
-                            <strong style="font-size:12.5px; display:block; color:#1e293b;">Expedia / Hotels.com</strong>
-                            <small style="font-size:10.5px; color:#64748b;">Payload Bridge Ready</small>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Expedia / Hotels.com</strong>
+                            <small style="font-size:10px; color:#64748b;">Payload Bridge Ready</small>
                         </div>
                     </div>
-                    <span class="badge bg-warning-subtle text-warning" style="font-size:10px;">OTA-03</span>
+                    <span class="badge bg-warning-subtle text-warning" style="font-size:9.5px;">OTA-03</span>
                 </div>
             </div>
             <div class="col-md-3 col-6">
-                <div class="p-2.5 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
+                <div class="p-2 border rounded d-flex align-items-center justify-content-between" style="background:#f8fafc; border-color:#e2e8f0!important;">
                     <div class="d-flex align-items-center gap-2">
                         <span class="pulse-dot" style="background:#fa8c16; width:8px; height:8px; border-radius:50%; display:inline-block; box-shadow:0 0 0 2px rgba(250,140,22,0.2);"></span>
                         <div>
-                            <strong style="font-size:12.5px; display:block; color:#1e293b;">Trip.com / Airbnb</strong>
-                            <small style="font-size:10.5px; color:#64748b;">Data Import Active</small>
+                            <strong style="font-size:12px; display:block; color:#1e293b;">Trip.com / Airbnb</strong>
+                            <small style="font-size:10px; color:#64748b;">Data Import Active</small>
                         </div>
                     </div>
-                    <span class="badge bg-info-subtle text-info" style="font-size:10px;">OTA-04</span>
+                    <span class="badge bg-info-subtle text-info" style="font-size:9.5px;">OTA-04</span>
                 </div>
             </div>
         </div>

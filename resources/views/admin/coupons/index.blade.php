@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Promo Coupons & Discounts | PRIME BOOKING Admin')
 
 @section('content')
@@ -130,24 +130,36 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            {{-- Edit Button — opens pre-filled edit modal --}}
-                            <button type="button" class="btn-table-action primary"
-                                onclick="openEditModal({{ $c->id }}, '{{ $c->code }}', '{{ $c->type }}', {{ $c->amount }}, {{ $c->min_spend ?? 0 }}, {{ $c->usage_limit ?? 0 }}, '{{ $c->expires_at ?? '' }}', '{{ $c->status ?? 'active' }}')"
-                                style="margin-right:4px;">
-                                Edit <i class="fa-solid fa-pen ms-1"></i>
-                            </button>
-                            {{-- Toggle Active/Inactive --}}
-                            <form action="{{ route('admin.coupons.toggle', $c->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn-table-action" style="margin-right:4px;">
-                                    {{ ($c->status ?? 'active') == 'active' ? 'Deactivate' : 'Activate' }}
+                            <div class="dropdown action-gear-dropdown d-inline-block">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <i class="fa-solid fa-gear"></i>
                                 </button>
-                            </form>
-                            {{-- Delete --}}
-                            <form action="{{ route('admin.coupons.destroy', $c->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete coupon {{ $c->code }}?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-table-action danger">Delete <i class="fa-solid fa-trash"></i></button>
-                            </form>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    <li>
+                                        <button type="button" class="dropdown-item py-1.5 px-3"
+                                            onclick="openEditModal({{ $c->id }}, '{{ $c->code }}', '{{ $c->type }}', {{ $c->amount }}, {{ $c->min_spend ?? 0 }}, {{ $c->usage_limit ?? 0 }}, '{{ $c->expires_at ?? '' }}', '{{ $c->status ?? 'active' }}')">
+                                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Coupon Code
+                                        </button>
+                                    </li>
+                                    <li>
+                                        <form action="{{ route('admin.coupons.toggle', $c->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-warning">
+                                                <i class="fa-solid fa-power-off me-2"></i> {{ ($c->status ?? 'active') == 'active' ? 'Deactivate Coupon' : 'Activate Coupon' }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form action="{{ route('admin.coupons.destroy', $c->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete coupon {{ $c->code }}?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                <i class="fa-solid fa-trash me-2"></i> Delete Coupon
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @empty

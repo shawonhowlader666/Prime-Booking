@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Vendor Payouts & Settlement | PRIME BOOKING Admin')
 
 @section('content')
@@ -114,16 +114,31 @@
                                 {{ ucfirst($p->status) }}
                             </span>
                         </td>
-                        <td style="text-align:right;">
-                            @if(strtolower($p->status) == 'pending')
-                                <form action="{{ route('admin.payouts.update-status', $p->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <input type="hidden" name="status" value="paid">
-                                    <button type="submit" class="btn-table-action success">Approve &amp; Pay <i class="fa-solid fa-check"></i></button>
-                                </form>
-                            @else
-                                <span style="font-size:11px; color:#8c8c8c;">Completed</span>
-                            @endif
+                        <td style="text-align:right; white-space:nowrap;">
+                            <div class="dropdown action-gear-dropdown d-inline-block">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    @if(strtolower($p->status) == 'pending')
+                                        <li>
+                                            <form action="{{ route('admin.payouts.update-status', $p->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <input type="hidden" name="status" value="paid">
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-success">
+                                                    <i class="fa-solid fa-check me-2"></i> Approve &amp; Pay Out
+                                                </button>
+                                            </form>
+                                        </li>
+                                    @else
+                                        <li>
+                                            <span class="dropdown-item-text py-1.5 px-3 text-muted">
+                                                <i class="fa-solid fa-check-double me-2"></i> Completed
+                                            </span>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @empty

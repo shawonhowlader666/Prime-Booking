@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Guest Reviews & Moderation | PRIME BOOKING Admin')
 
 @section('content')
@@ -71,16 +71,31 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            <form action="{{ route('admin.reviews.toggle', $r->id) }}" method="POST" style="display:inline;">
-                                @csrf
-                                <button type="submit" class="btn-table-action primary">
-                                    {{ strtolower($r->status) == 'approved' ? 'Unapprove' : 'Approve' }}
+                            <div class="dropdown action-gear-dropdown d-inline-block">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <i class="fa-solid fa-gear"></i>
                                 </button>
-                            </form>
-                            <form action="{{ route('admin.reviews.destroy', $r->id) }}" method="POST" style="display:inline;" onsubmit="return confirm('Delete this review permanently?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-table-action danger" style="margin-left:4px;">Delete <i class="fa-solid fa-trash"></i></button>
-                            </form>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    <li>
+                                        <form action="{{ route('admin.reviews.toggle', $r->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-primary">
+                                                <i class="fa-solid {{ strtolower($r->status) == 'approved' ? 'fa-xmark' : 'fa-check' }} me-2"></i>
+                                                {{ strtolower($r->status) == 'approved' ? 'Unapprove Review' : 'Approve Review' }}
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form action="{{ route('admin.reviews.destroy', $r->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this review permanently?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                <i class="fa-solid fa-trash me-2"></i> Delete Review
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @empty

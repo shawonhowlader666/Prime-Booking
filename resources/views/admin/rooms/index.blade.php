@@ -108,16 +108,27 @@
                             @endif
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            <a href="{{ route('admin.rooms.edit', [$property->id, $room->id]) }}" class="btn-table-action primary">
-                                Edit <i class="fa-solid fa-pen ms-1"></i>
-                            </a>
-                            <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" style="display:inline;"
-                                onsubmit="return confirm('Delete room type &quot;{{ $room->name }}&quot;?')">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-table-action danger" style="margin-left:4px;">
-                                    Delete <i class="fa-solid fa-trash"></i>
+                            <div class="dropdown action-gear-dropdown d-inline-block">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <i class="fa-solid fa-gear"></i>
                                 </button>
-                            </form>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.rooms.edit', [$property->id, $room->id]) }}">
+                                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Room Type
+                                        </a>
+                                    </li>
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" class="m-0" onsubmit="return confirm('Delete room type &quot;{{ $room->name }}&quot;?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                <i class="fa-solid fa-trash me-2"></i> Delete Room Type
+                                            </button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @empty

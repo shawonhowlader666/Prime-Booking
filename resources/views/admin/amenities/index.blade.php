@@ -61,12 +61,21 @@
                             <td><strong>{{ $am->name }}</strong></td>
                             <td><span class="badge bg-light text-dark border">{{ ucfirst($am->category) }}</span></td>
                             <td>
-                                <form action="{{ route('admin.amenities.destroy', $am) }}" method="POST" onsubmit="return confirm('Delete amenity?')">
-                                    @csrf @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-outline-danger" style="padding:2px 8px;font-size:11px;">
-                                        <i class="fa-solid fa-trash"></i>
+                                <div class="dropdown action-gear-dropdown d-inline-block">
+                                    <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                        <i class="fa-solid fa-gear"></i>
                                     </button>
-                                </form>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                        <li>
+                                            <form action="{{ route('admin.amenities.destroy', $am) }}" method="POST" class="m-0" onsubmit="return confirm('Delete amenity?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                    <i class="fa-solid fa-trash me-2"></i> Delete Amenity
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </td>
                         </tr>
                         @empty

@@ -84,10 +84,19 @@
                                 {{ ucfirst($b->effective_status) }}
                             </span>
                         </td>
-                        <td style="text-align:right;">
-                            <a href="{{ route('vendor.bookings.show', $b->booking_reference) }}" class="btn-table-action primary">
-                                Details <i class="fa-solid fa-chevron-right ms-1"></i>
-                            </a>
+                        <td style="text-align:right; white-space:nowrap;">
+                            <div class="dropdown action-gear-dropdown d-inline-block">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('vendor.bookings.show', $b->booking_reference) }}">
+                                            <i class="fa-solid fa-eye text-primary me-2"></i> View Reservation Details
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
                         </td>
                     </tr>
                 @empty

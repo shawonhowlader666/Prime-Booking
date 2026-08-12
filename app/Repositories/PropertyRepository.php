@@ -50,7 +50,7 @@ class PropertyRepository
      * Get featured properties for the homepage carousel.
      * Uses idx_props_status_featured composite index.
      */
-    public function getFeatured(int $limit = 6): Collection
+    public function getFeatured(int $limit = 8): Collection
     {
         return Cache::remember("properties:featured:{$limit}", self::TTL_FEATURED, function () use ($limit): Collection {
             $props = Property::select(Property::LIST_COLUMNS)
@@ -59,13 +59,17 @@ class PropertyRepository
                 ->limit($limit)
                 ->get();
 
-            // Fallback: newest active if no featured set yet
-            if ($props->isEmpty()) {
-                $props = Property::select(Property::LIST_COLUMNS)
+            // If fewer than limit, pad with newest active properties
+            if ($props->count() < $limit) {
+                $existingIds = $props->pluck('id')->toArray();
+                $needed = $limit - $props->count();
+                $additional = Property::select(Property::LIST_COLUMNS)
                     ->active()
+                    ->whereNotIn('id', $existingIds)
                     ->orderByDesc('id')
-                    ->limit($limit)
+                    ->limit($needed)
                     ->get();
+                $props = $props->merge($additional);
             }
 
             return $props;

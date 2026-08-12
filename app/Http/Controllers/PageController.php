@@ -35,8 +35,8 @@ class PageController extends Controller
         $company = config('company');
         $theme   = config('theme');
 
-        // ── Featured Properties (latest active, vendor-submitted) ─────────
-        $featuredProperties = $this->properties->getFeatured(6);
+        // ── Featured Properties (8 items across 2 rows of 4) ─────────
+        $featuredProperties = $this->properties->getFeatured(8);
         $stats              = $this->properties->getSiteStats();
 
         // ── Dynamic Promotions from Admin panel (cached 10 min) ───────────

@@ -183,14 +183,83 @@ class HotelImportController extends Controller
      */
     private function getSampleHotelPayload(string $targetCity): array
     {
+        $city = ($targetCity === 'All Bangladesh' || empty($targetCity)) ? "Cox's Bazar" : $targetCity;
+
+        if (str_contains(strtolower($city), 'dhaka')) {
+            return [
+                [
+                    'name' => 'Pan Pacific Sonargaon Dhaka',
+                    'city' => 'Dhaka',
+                    'starRating' => 5,
+                    'ratingScore' => 4.8,
+                    'totalReviews' => 1420,
+                    'address' => '107 Kazi Nazrul Islam Avenue, Dhaka',
+                    'price' => 16500,
+                    'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+                    'images' => [
+                        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+                        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                    ],
+                    'facilities' => ['Swimming Pool', 'Executive Lounge', 'Spa Center', 'Free High Speed WiFi'],
+                ],
+                [
+                    'name' => 'The Westin Dhaka',
+                    'city' => 'Dhaka',
+                    'starRating' => 5,
+                    'ratingScore' => 4.9,
+                    'totalReviews' => 1980,
+                    'address' => 'Main Gulshan Avenue, Plot 01, Road 45, Dhaka',
+                    'price' => 22000,
+                    'primaryImage' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
+                    'images' => [
+                        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
+                    ],
+                    'facilities' => ['Rooftop Infinity Pool', 'Fitness Center', 'Buffet Breakfast', 'Airport Transfer'],
+                ],
+            ];
+        }
+
+        if (str_contains(strtolower($city), 'sylhet') || str_contains(strtolower($city), 'sreemangal')) {
+            return [
+                [
+                    'name' => 'Grand Sultan Tea Resort & Golf',
+                    'city' => 'Sreemangal',
+                    'starRating' => 5,
+                    'ratingScore' => 4.9,
+                    'totalReviews' => 890,
+                    'address' => 'Radhanagar, Sreemangal, Sylhet Division',
+                    'price' => 18500,
+                    'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
+                    'images' => [
+                        'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
+                    ],
+                    'facilities' => ['Golf Course', '3 Swimming Pools', 'Tea Garden View', '3D Movie Theater'],
+                ],
+                [
+                    'name' => 'Rose View Hotel Sylhet',
+                    'city' => 'Sylhet',
+                    'starRating' => 5,
+                    'ratingScore' => 4.7,
+                    'totalReviews' => 640,
+                    'address' => 'Shahjalal Upashahar, Sylhet',
+                    'price' => 9500,
+                    'primaryImage' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                    'images' => [
+                        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                    ],
+                    'facilities' => ['Rooftop Pool', 'Multi-cuisine Restaurant', 'Free Airport Shuttle'],
+                ],
+            ];
+        }
+
         return [
             [
                 'name' => 'Ocean Paradise Hotel & Resort',
-                'city' => $targetCity,
+                'city' => $city,
                 'starRating' => 5,
                 'ratingScore' => 4.9,
                 'totalReviews' => 1250,
-                'address' => "28-29 Hotel Motel Zone, Kolatoli Road, {$targetCity}",
+                'address' => "28-29 Hotel Motel Zone, Kolatoli Road, {$city}",
                 'price' => 8500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -201,11 +270,11 @@ class HotelImportController extends Controller
             ],
             [
                 'name' => 'Royal Tulip Sea Pearl Beach Resort & Spa',
-                'city' => $targetCity,
+                'city' => $city,
                 'starRating' => 5,
                 'ratingScore' => 4.8,
                 'totalReviews' => 890,
-                'address' => "Jaliapalong, Inani, {$targetCity}",
+                'address' => "Jaliapalong, Inani, {$city}",
                 'price' => 12500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -215,32 +284,32 @@ class HotelImportController extends Controller
                 'facilities' => ['Private Beach', 'Infinity Pool', 'Spa & Wellness', 'Free WiFi', 'Breakfast Included'],
             ],
             [
-                'name' => 'Hotel Long Beach & Suites',
-                'city' => $targetCity,
-                'starRating' => 4,
-                'ratingScore' => 4.7,
-                'totalReviews' => 540,
-                'address' => "14 Kalatali Road, {$targetCity}",
-                'price' => 6500,
-                'primaryImage' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
-                'images' => [
-                    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
-                ],
-                'facilities' => ['Rooftop Pool', 'AC Rooms', 'BBQ Zone', '24/7 Room Service'],
-            ],
-            [
                 'name' => 'Sayeman Beach Resort & Spa',
-                'city' => $targetCity,
+                'city' => $city,
                 'starRating' => 5,
                 'ratingScore' => 4.9,
                 'totalReviews' => 1120,
-                'address' => "Marine Drive, Kolatoli, {$targetCity}",
+                'address' => "Marine Drive, Kolatoli, {$city}",
                 'price' => 14000,
                 'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
                     'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
                 ],
                 'facilities' => ['Oceanfront Pool', 'Multicuisine Restaurant', 'Helipad', 'Private Balcony'],
+            ],
+            [
+                'name' => 'Sajek Valley Eco Cottage',
+                'city' => 'Sajek',
+                'starRating' => 4,
+                'ratingScore' => 4.7,
+                'totalReviews' => 340,
+                'address' => 'Ruilui Para, Sajek Valley, Rangamati',
+                'price' => 5500,
+                'primaryImage' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Cloud View Balcony', 'Traditional BBQ', 'Helipad Access', '24/7 Security'],
             ],
         ];
     }

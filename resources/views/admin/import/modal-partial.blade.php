@@ -20,11 +20,53 @@
             <form action="{{ route('admin.import-hotels.store') }}" method="POST" id="importHotelFormModal">
                 @csrf
                 <input type="hidden" name="mode" value="cookie_sync">
-                <input type="hidden" name="target_city" value="Cox's Bazar">
                 <input type="hidden" name="max_limit" value="50">
                 <input type="hidden" name="override_status" value="active">
 
                 <div class="modal-body p-4">
+
+                    {{-- Target Country & Target City Selection Grid --}}
+                    <div class="row g-3 mb-3">
+                        {{-- Target Destination Market / Country --}}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Target Market / Country <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center" style="gap:6px;">
+                                <select name="target_country" id="targetCountrySelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
+                                    <option value="BD" selected>🇧🇩 Bangladesh (Primary Market)</option>
+                                    <option value="TH">🇹🇭 Thailand</option>
+                                    <option value="UAE">🇦🇪 UAE / Dubai</option>
+                                    <option value="MY">🇲🇾 Malaysia</option>
+                                    <option value="IN">🇮🇳 India</option>
+                                    <option value="GLOBAL">🌐 Global / All Markets</option>
+                                </select>
+                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('target_country')" title="Add Custom Target Country" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        {{-- Target City / Region --}}
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Target City / Region <span class="text-danger">*</span></label>
+                            <div class="d-flex align-items-center" style="gap:6px;">
+                                <select name="target_city" id="targetCitySelectModal" class="form-select flex-grow-1" style="height:38px; border-radius:4px;" required>
+                                    <option value="Cox's Bazar" selected>📍 Cox's Bazar</option>
+                                    <option value="Dhaka">📍 Dhaka</option>
+                                    <option value="Sylhet">📍 Sylhet</option>
+                                    <option value="Chittagong">📍 Chittagong</option>
+                                    <option value="Sajek">📍 Sajek Valley</option>
+                                    <option value="Sreemangal">📍 Sreemangal</option>
+                                    <option value="Bandarban">📍 Bandarban</option>
+                                    <option value="Sundarban">📍 Sundarban</option>
+                                    <option value="Kuakata">📍 Kuakata</option>
+                                    <option value="All Bangladesh">🇧🇩 All Bangladesh Top Destinations</option>
+                                </select>
+                                <button type="button" class="btn text-white fw-bold px-3 d-inline-flex align-items-center justify-content-center shadow-none" onclick="openAddOptionModal('city')" title="Add Custom Target City" style="background:var(--primary); border:none; border-radius:4px; height:38px; min-width:40px; flex-shrink:0;">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     
                     {{-- Target OTA Source Channel Selection + [+] Button --}}
                     <div class="mb-3">
@@ -62,7 +104,7 @@
                                 </button>
                             </div>
                         </div>
-                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste browser Cookie header here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
+                        <textarea name="cookie_header" id="jsonPayloadInputModal" class="form-control font-monospace" rows="4" placeholder="Paste browser Cookie header or F12 JSON Network payload here... (e.g. agoda.sid=...; _ga=...; booking_session=...)" style="border-radius:4px; border-color:#cbd5e1; font-size:12px;" required>{{ old('cookie_header', $savedCookieGlobal ?? '') }}</textarea>
                         <small class="text-secondary d-block mt-1.5" style="font-size:11.5px;">
                             💡 Vaulted cookies persist automatically for background sync.
                         </small>
@@ -138,7 +180,17 @@ function openAddOptionModal(category) {
     var label = document.getElementById('addOptionLabel');
     var help = document.getElementById('addOptionHelpText');
 
-    if (category === 'ota_channel') {
+    if (category === 'target_country') {
+        if (title) title.innerHTML = '<i class="fa-solid fa-earth-americas text-primary me-1"></i> Add Custom Target Country';
+        if (label) label.innerText = 'Country / Market Name';
+        if (input) input.placeholder = 'e.g. Singapore, Malaysia, Saudi Arabia, UK';
+        if (help) help.innerText = 'Add a custom target country destination market.';
+    } else if (category === 'city') {
+        if (title) title.innerHTML = '<i class="fa-solid fa-location-dot text-primary me-1"></i> Add Custom Target City / Region';
+        if (label) label.innerText = 'City / Region Name';
+        if (input) input.placeholder = 'e.g. Saint Martin, Bandarban, Rangamati, Khulna';
+        if (help) help.innerText = 'Add a new city / destination for hotel synchronization.';
+    } else if (category === 'ota_channel') {
         if (title) title.innerHTML = '<i class="fa-solid fa-globe text-primary me-1"></i> Add Custom OTA Channel';
         if (label) label.innerText = 'OTA Website / Channel Name';
         if (input) input.placeholder = 'e.g. Traveloka, MakeMyTrip, Goibibo, Klook, ShareTrip';
@@ -162,7 +214,21 @@ function saveNewOption() {
         return;
     }
 
-    if (currentCategory === 'ota_channel') {
+    if (currentCategory === 'target_country') {
+        var countrySelectModal = document.getElementById('targetCountrySelectModal');
+        if (countrySelectModal) {
+            var opt = new Option('🌐 ' + val, val, true, true);
+            countrySelectModal.add(opt, countrySelectModal.options[0]);
+            countrySelectModal.value = val;
+        }
+    } else if (currentCategory === 'city') {
+        var citySelectModal = document.getElementById('targetCitySelectModal');
+        if (citySelectModal) {
+            var opt = new Option('📍 ' + val, val, true, true);
+            citySelectModal.add(opt, citySelectModal.options[0]);
+            citySelectModal.value = val;
+        }
+    } else if (currentCategory === 'ota_channel') {
         var otaSelectModal = document.getElementById('otaChannelSelectModal');
         if (otaSelectModal) {
             var opt = new Option(val + ' (Custom Channel)', val.toLowerCase(), true, true);

@@ -9,6 +9,11 @@ class Room extends Model
 {
     use HasFactory;
 
+    public const TYPE_STANDARD     = 'standard';
+    public const TYPE_DELUXE       = 'deluxe';
+    public const TYPE_SUPER_DELUXE = 'super_deluxe';
+    public const TYPE_SUITE        = 'suite';
+
     protected $fillable = [
         'property_id',
         'name',

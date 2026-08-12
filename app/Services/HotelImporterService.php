@@ -393,42 +393,54 @@ class HotelImporterService
 
         $roomTypes = [
             [
-                'name'           => 'Deluxe King Room',
-                'type'           => Room::TYPE_DELUXE,
-                'price_multiplier' => 1.0,
-                'capacity'       => 2,
-                'bed'            => '1 Extra-Large Double Bed',
+                'name'               => 'Deluxe King Room',
+                'price_multiplier'   => 1.0,
+                'max_guests'         => 2,
+                'max_adults'         => 2,
+                'max_children'       => 1,
+                'bed_type'           => '1 King Bed',
+                'breakfast_included' => true,
+                'free_cancellation'  => true,
             ],
             [
-                'name'           => 'Super Deluxe Ocean View Room',
-                'type'           => Room::TYPE_SUPER_DELUXE,
-                'price_multiplier' => 1.25,
-                'capacity'       => 2,
-                'bed'            => '1 King Bed',
+                'name'               => 'Super Deluxe Ocean View Room',
+                'price_multiplier'   => 1.25,
+                'max_guests'         => 3,
+                'max_adults'         => 2,
+                'max_children'       => 2,
+                'bed_type'           => '1 Extra Large King Bed',
+                'breakfast_included' => true,
+                'free_cancellation'  => true,
             ],
             [
-                'name'           => 'Executive Family Suite',
-                'type'           => Room::TYPE_SUITE,
-                'price_multiplier' => 1.6,
-                'capacity'       => 4,
-                'bed'            => '2 King Beds',
+                'name'               => 'Executive Family Suite',
+                'price_multiplier'   => 1.6,
+                'max_guests'         => 4,
+                'max_adults'         => 4,
+                'max_children'       => 2,
+                'bed_type'           => '2 King Beds',
+                'breakfast_included' => true,
+                'free_cancellation'  => true,
             ],
         ];
 
         foreach ($roomTypes as $r) {
-            $roomPrice = round($basePrice * $r['price_multiplier']);
+            $roomPrice = round($basePrice * $r['price_multiplier'], 2);
 
             Room::create([
-                'property_id'     => $property->id,
-                'name'            => $r['name'],
-                'room_type'       => $r['type'],
-                'price_per_night' => $roomPrice,
-                'capacity'        => $r['capacity'],
-                'bed_type'        => $r['bed'],
-                'description'     => "Spacious {$r['name']} equipped with modern furnishings, climate control, LED TV, mini-bar, and high-speed Wi-Fi.",
-                'amenities'       => ['Free Wi-Fi', 'Air Conditioning', 'Flat-screen TV', 'Ensuite Bathroom', 'Balcony View'],
-                'is_available'    => true,
-                'quantity'        => rand(5, 15),
+                'property_id'        => $property->id,
+                'name'               => $r['name'],
+                'max_guests'         => $r['max_guests'],
+                'max_adults'         => $r['max_adults'],
+                'max_children'       => $r['max_children'],
+                'room_size_sqm'      => rand(28, 65),
+                'bed_type'           => $r['bed_type'],
+                'price_per_night'    => $roomPrice,
+                'total_rooms'        => rand(5, 15),
+                'breakfast_included' => $r['breakfast_included'],
+                'free_cancellation'  => $r['free_cancellation'],
+                'facilities'         => ['Free Wi-Fi', 'Air Conditioning', 'Flat-screen TV', 'Ensuite Bathroom', 'Balcony View'],
+                'images'             => $property->images ?? [$property->primary_image],
             ]);
         }
     }

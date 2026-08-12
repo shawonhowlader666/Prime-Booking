@@ -818,66 +818,76 @@
         }
 
         /* ============================================================
-         * KPI Stats Cards — exact Stockifly StateWidget
+         * KPI Stats Cards — exact Stockifly StateWidget (Equal Height & Compact Font)
          * ============================================================ */
         .kpi-card {
             background: #ffffff;
             border: 1px solid #e8e8e8;
-            border-radius: 8px;
-            padding: 16px 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 6px !important;
+            padding: 14px 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
         }
 
         .kpi-card:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.10);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
         }
 
         .kpi-card .kpi-icon {
-            width: 42px;
-            height: 42px;
-            border-radius: 8px;
+            width: 36px;
+            height: 36px;
+            border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 15px;
             color: #ffffff;
             flex-shrink: 0;
         }
 
         .kpi-card .kpi-value {
-            font-size: 22px;
-            font-weight: 800;
-            color: #1e293b;
+            font-size: 17px;
+            font-weight: 700;
+            color: #0f172a;
             margin: 0;
-            line-height: 1.2;
-            font-family: var(--font-heading);
+            line-height: 1.25;
+            letter-spacing: -0.2px;
         }
 
         .kpi-card .kpi-label {
-            font-size: 12px;
+            font-size: 11px;
             color: #64748b;
             margin: 2px 0 0;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
             font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+            line-height: 1.3;
+            min-height: 28px;
+            display: flex;
+            align-items: center;
         }
 
         .kpi-card .kpi-growth-up {
-            font-size: 12px;
+            font-size: 11px;
             color: #28c76f;
-            font-weight: 700;
-            margin-top: 4px;
+            font-weight: 600;
+            margin-top: 6px;
+            line-height: 1.2;
         }
 
         .kpi-card .kpi-growth-down {
-            font-size: 12px;
+            font-size: 11px;
             color: #ea5455;
-            font-weight: 700;
-            margin-top: 4px;
+            font-weight: 600;
+            margin-top: 6px;
+            line-height: 1.2;
         }
 
         .kpi-card .kpi-accent-bar {

@@ -226,7 +226,8 @@
 
         /* ============================================================
          * Top Header Bar — exact Stockifly header height & style
-         * ==================================================        .admin-topbar {
+         * ============================================================ */
+        .admin-topbar {
             background: #ffffff;
             border-bottom: 1px solid #e8e8e8;
             padding: 0 24px;
@@ -287,8 +288,6 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-        }nter;
-            line-height: 1.5;
         }
         .btn-signout:hover {
             background: #ff4d4f;
@@ -316,7 +315,6 @@
         .page-header-card {
             background: #ffffff;
             border: 1px solid #e8e8e8;
-            border-left: 4px solid var(--primary);
             padding: 16px 24px;
             margin: 18px 24px 18px 24px;
             border-radius: 4px !important;

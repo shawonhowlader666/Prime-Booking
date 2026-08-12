@@ -199,7 +199,6 @@
         .page-header-card {
             background:#fff;
             border: 1px solid #e8e8e8;
-            border-left: 4px solid var(--primary);
             padding: 16px 24px;
             margin: 18px 24px 18px 24px;
             border-radius: 4px !important;

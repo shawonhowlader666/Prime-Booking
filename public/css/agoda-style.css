@@ -10,18 +10,19 @@
     --agoda-navy: #002d72;
     --agoda-red: #d91b42;
     --agoda-amber: #f59e0b;
-    /* Agoda Exact Font Stack */
-    --agoda-font: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    /* Barlow Thin & Tall Font Stack */
+    --agoda-font: 'Barlow', -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-/* Global: Agoda Exact Font Stack applied to every element */
+/* Global: Barlow Thin & Tall Font Stack applied to every element */
 *, *::before, *::after {
     box-sizing: border-box;
 }
 
 html, body, input, button, select, textarea,
 h1, h2, h3, h4, h5, h6, p, span, a, li, label, td, th, div {
-    font-family: BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    font-family: 'Barlow', -apple-system, "Segoe UI", Roboto, sans-serif !important;
+    font-weight: 400 !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;

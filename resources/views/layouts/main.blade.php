@@ -83,25 +83,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     
     <!-- Agoda Custom 100% Design System -->
-    <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}?v=3">
     
     <style>
         :root {
             --agoda-blue: #2067e1;
             --agoda-navy: #002d72;
             --agoda-red: #ff567d;
-            --agoda-font: 'Barlow', BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, sans-serif;
+            --agoda-font: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
         /* Barlow Thin & Tall Global Font Reset */
+        *, *::before, *::after,
         html, body, input, button, select, textarea,
-        h1, h2, h3, h4, h5, h6, p, span, a, li, div, label {
-            font-family: 'Barlow', BlinkMacSystemFont, -apple-system, "Segoe UI", Roboto, sans-serif !important;
+        h1, h2, h3, h4, h5, h6, p, span, a, li, div, label, td, th {
+            font-family: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
             font-weight: 400 !important;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
         }
-        .fw-bold, .fw-bolder, strong, b, h1, h2, h3, h4, h5, h6 {
+        .fw-bold, .fw-bolder, strong, b, h1, h2, h3, h4, h5, h6, .hero-title, .search-btn {
             font-weight: 500 !important;
         }
         body {

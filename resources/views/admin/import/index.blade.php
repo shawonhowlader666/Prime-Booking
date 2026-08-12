@@ -94,9 +94,6 @@
                     <i class="fa-solid fa-signal me-1"></i> Universal Engine Active
                 </span>
             </div>
-            <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" onclick="openAddOptionModal('ota_channel')" style="font-size:11px; border-radius:4px;">
-                <i class="fa-solid fa-plus me-1"></i> Add Custom OTA Channel
-            </button>
         </div>
         <div class="row g-2.5" id="otaChannelsContainer">
             <div class="col-md-3 col-6">

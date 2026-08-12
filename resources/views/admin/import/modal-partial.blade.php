@@ -11,10 +11,10 @@
                     </h5>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <a href="javascript:void(0);" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag to Bookmark Bar or click to copy Cookie script!" onclick="copyCookieScript(event)">
+                    <a href="javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('Agoda/Booking Active Cookie Copied to Clipboard! Now paste into Prime Booking Importer.');})();" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag to Bookmark Bar or click to copy Cookie script!" onclick="copyCookieScript(event)">
                         <i class="fa-solid fa-puzzle-piece me-1.5" style="color:#fbbf24;"></i> Copy Cookie
                     </a>
-                    <a href="javascript:void(0);" class="btn btn-sm btn-outline-primary fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; cursor:grab; background:#fff;" title="Drag to Bookmark Bar or click to copy Network JSON script!" onclick="copyNetworkJsonScript(event)">
+                    <a href="javascript:(function(){var responseText=prompt('Agoda Network JSON Extractor: Paste or view Network response JSON payload here:');if(responseText){navigator.clipboard.writeText(responseText);alert('Network JSON Copied to Clipboard!');}})();" class="btn btn-sm btn-outline-primary fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; cursor:grab; background:#fff;" title="Drag to Bookmark Bar or click to copy Network JSON script!" onclick="copyNetworkJsonScript(event)">
                         <i class="fa-solid fa-code me-1.5 text-primary"></i> Copy Network JSON
                     </a>
                     <button type="button" class="btn-close ms-1" data-bs-dismiss="modal" aria-label="Close"></button>

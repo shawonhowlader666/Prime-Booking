@@ -263,13 +263,25 @@ class HotelImporterService
      */
     protected function isHotelLikeObject(array $obj): bool
     {
+        // Filter out Schema.org site/organization metadata
+        $type = strtolower((string)($obj['@type'] ?? $obj['type'] ?? ''));
+        if (in_array($type, ['organization', 'website', 'searchaction'], true)) {
+            return false;
+        }
+
+        $name = strtolower((string)($obj['name'] ?? $obj['hotelName'] ?? $obj['propertyName'] ?? $obj['title'] ?? ''));
+        if (in_array($name, ['agoda.com', 'agoda', 'booking.com', 'expedia', 'airbnb', 'trip.com'], true)) {
+            return false;
+        }
+
         $keys = array_change_key_case($obj, CASE_LOWER);
-        return isset($keys['name']) ||
+        return isset($keys['hotelid']) ||
+               isset($keys['hotel_id']) ||
+               isset($keys['propertyid']) ||
                isset($keys['hotelname']) ||
                isset($keys['propertyname']) ||
-               isset($keys['title']) ||
-               isset($keys['hotel_name']) ||
-               isset($keys['displayname']);
+               isset($keys['starrating']) ||
+               (isset($keys['name']) && (isset($keys['price']) || isset($keys['rating']) || isset($keys['city']) || isset($keys['address'])));
     }
 
     /**

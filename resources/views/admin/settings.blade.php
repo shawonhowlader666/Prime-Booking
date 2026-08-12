@@ -474,4 +474,24 @@
 }
 </style>
 
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const activeTab = localStorage.getItem('stockifly_active_settings_tab');
+    if (activeTab) {
+        const tabTrigger = document.querySelector(`#${activeTab}`);
+        if (tabTrigger) {
+            const tab = new bootstrap.Tab(tabTrigger);
+            tab.show();
+        }
+    }
+
+    const tabButtons = document.querySelectorAll('.saas-settings-tabs .nav-link');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('shown.bs.tab', function(e) {
+            localStorage.setItem('stockifly_active_settings_tab', e.target.id);
+        });
+    });
+});
+</script>
+
 @endsection

@@ -10,16 +10,11 @@
         <span class="sep">-</span><span>Inventory</span>
         <span class="sep">-</span><strong style="color:#333;">OTA Data Importer</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <div>
-            <h1 class="page-title">
-                <i class="fa-solid fa-cloud-arrow-down" style="color:var(--primary); margin-right:8px;"></i>
-                OTA Data Importer
-            </h1>
-            <p class="text-secondary mb-0" style="font-size:12.5px; margin-top:2px;">
-                Sync and manage multi-channel property inventory.
-            </p>
-        </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+        <h1 class="page-title m-0">
+            <i class="fa-solid fa-cloud-arrow-down" style="color:var(--primary); margin-right:8px;"></i>
+            OTA Data Importer
+        </h1>
         <div class="d-flex align-items-center gap-2">
             <button type="button" class="btn btn-sm btn-primary text-white fw-bold d-inline-flex align-items-center shadow-sm" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12.5px; padding:7px 16px; border-radius:4px; background:var(--primary); border:none;">
                 <i class="fa-solid fa-cloud-arrow-down me-1.5"></i> + Sync New OTA Hotels
@@ -99,9 +94,6 @@
                 <small class="text-secondary" style="font-size:11.5px;">Multi-channel OTA API integration and real-time cookie data streams.</small>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1.5 text-white" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12px; border-radius:4px; background:var(--primary); border:none;">
-                    <i class="fa-solid fa-plus me-1"></i> Sync New OTA Hotels
-                </button>
                 <button type="button" class="btn btn-sm btn-outline-secondary fw-bold px-2 py-1" onclick="openAddOptionModal('ota_channel')" style="font-size:11px; border-radius:4px;">
                     <i class="fa-solid fa-plus me-1"></i> Add Custom OTA Channel
                 </button>
@@ -173,9 +165,6 @@
                 <small class="text-secondary" style="font-size:11.5px;">Real-time inventory synchronized from Agoda &amp; Booking.com into MySQL database.</small>
             </div>
             <div class="d-flex align-items-center gap-2">
-                <button type="button" class="btn btn-sm btn-primary fw-bold px-3 py-1.5 text-white" data-bs-toggle="modal" data-bs-target="#syncOtaCookieModal" style="font-size:12px; border-radius:4px; background:var(--primary); border:none;">
-                    <i class="fa-solid fa-plus me-1"></i> Sync New OTA Hotels
-                </button>
                 <a href="{{ route('admin.properties.index') }}" class="btn btn-sm btn-outline-secondary fw-bold px-3 py-1.5" style="font-size:12px; border-radius:4px;">
                     <i class="fa-solid fa-external-link me-1"></i> View All Properties
                 </a>

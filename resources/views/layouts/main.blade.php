@@ -13,9 +13,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Shawon Howlader - Software Engineer (+8801606352642)">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'Prime Booking | Online Travel Agency & Lowest Price Guarantee')</title>
+    <title>@yield('title', 'Prime Booking | Hotels, Flights & Ship Cruise Booking in Bangladesh | হোটেল বুকিং বিডি')</title>
 
-    <!-- Brand Favicon -->
+    <!-- Comprehensive SEO Meta Tags (Bilingual English & Bangla for BD Market) -->
+    <meta name="description" content="@yield('meta_description', 'Book 2,000+ hotels, resorts, ship cruises, domestic flights & airport transfers across Bangladesh at guaranteed lowest prices. Cox\'s Bazar, Sajek, Sylhet, Sundarban & Dhaka hotel booking. কক্সবাজার, সাজেক ও সিলেট হোটেল বুকিং।')">
+    <meta name="keywords" content="@yield('meta_keywords', 'hotel booking bangladesh, online hotel booking bd, cheap hotels cox\'s bazar, sajek valley resort, sundarban cruise booking, sylhet hotel booking, dhaka 5 star hotel, air ticket booking bangladesh, হোটেল বুকিং বাংলাদেশ, কক্সবাজার হোটেল, সাজেক রিসোর্ট, প্রাইম বুকিং')">
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
+    <link rel="canonical" href="@yield('canonical_url', url()->current())">
+
+    <!-- Geo-Location Meta Tags for Bangladesh SEO ranking -->
+    <meta name="geo.region" content="BD-13">
+    <meta name="geo.placename" content="Dhaka, Bangladesh">
+    <meta name="geo.position" content="23.8103;90.4125">
+    <meta name="ICBM" content="23.8103, 90.4125">
+
+    <!-- Open Graph (OG) / Social Media Sharing Tags -->
+    <meta property="og:locale" content="en_US">
+    <meta property="og:locale:alternate" content="bn_BD">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Prime Booking Bangladesh">
+    <meta property="og:title" content="@yield('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')">
+    <meta property="og:description" content="@yield('og_description', 'Book top hotels in Cox\'s Bazar, Sajek, Sylhet & Dhaka with instant confirmation and free cancellation. সেরা দামে বাংলাদেশ হোটেল ও ক্রুজ বুকিং করুন।')">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="@yield('og_image', asset('images/logo-brand.png'))">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@PrimeBookingBD">
+    <meta name="twitter:title" content="@yield('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')">
+    <meta name="twitter:description" content="@yield('og_description', 'Book top hotels in Cox\'s Bazar, Sajek, Sylhet & Dhaka with instant confirmation.')">
+    <meta name="twitter:image" content="@yield('og_image', asset('images/logo-brand.png'))">
+
+    <!-- Schema.org JSON-LD Structured Data (Google Rich Snippet for Travel Agency) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "TravelAgency",
+      "name": "Prime Booking",
+      "alternateName": "প্রাইম বুকিং বাংলাদেশ",
+      "url": "https://primebooking.com.bd",
+      "logo": "https://primebooking.com.bd/images/logo.png",
+      "image": "https://primebooking.com.bd/images/logo.png",
+      "description": "Leading online travel platform in Bangladesh for booking hotels, resorts, ship cruises, flights and airport transfers.",
+      "telephone": "+8801606352642",
+      "priceRange": "৳৳ - ৳৳৳৳",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Gulshan 2",
+        "addressLocality": "Dhaka",
+        "postalCode": "1212",
+        "addressCountry": "BD"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 23.8103,
+        "longitude": 90.4125
+      },
+      "sameAs": [
+        "https://www.facebook.com/primebookingbd"
+      ]
+    }
+    </script>
     <link rel="icon" type="image/svg+xml" href="{{ asset('images/logo-icon.svg') }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">

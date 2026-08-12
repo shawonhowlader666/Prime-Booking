@@ -1,2 +1,9 @@
 User-agent: *
-Disallow:
+Allow: /
+Disallow: /admin/
+Disallow: /vendor/
+Disallow: /login
+Disallow: /register
+Disallow: /api/
+
+Sitemap: https://primebooking.com.bd/sitemap.xml

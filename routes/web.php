@@ -41,6 +41,13 @@ use App\Http\Controllers\Vendor\VendorPackageController;
 use App\Http\Controllers\Vendor\VendorReviewController;
 
 
+// Dynamic SEO XML Sitemap for Googlebot & Search Engines
+Route::get('/sitemap.xml', function () {
+    $properties = \App\Models\Property::active()->select('slug', 'updated_at')->get();
+    $packages   = \App\Models\TourPackage::where('status', 'active')->select('slug', 'updated_at')->get();
+    return response()->view('sitemap', compact('properties', 'packages'))->header('Content-Type', 'text/xml');
+})->name('sitemap');
+
 // Public Front-end Routes
 Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/currency/switch/{code}', [PageController::class, 'switchCurrency'])->name('currency.switch');

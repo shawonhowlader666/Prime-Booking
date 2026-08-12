@@ -14,10 +14,10 @@
         <div>
             <h1 class="page-title">
                 <i class="fa-solid fa-cloud-arrow-down" style="color:var(--primary); margin-right:8px;"></i>
-                OTA Real Hotel Data Importer Tool
+                Global OTA Inventory Automation &amp; Data Synchronization Engine
             </h1>
             <p class="text-secondary mb-0" style="font-size:12.5px; margin-top:2px;">
-                Import real hotels, room categories, pricing, amenities &amp; photo galleries directly from Agoda, Booking.com, or API payloads.
+                Enterprise-grade automated data importer for Bangladesh hotels, luxury resorts, ship cruises &amp; global property inventories.
             </p>
         </div>
         <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px; border-radius:4px;">
@@ -122,10 +122,10 @@
             {{-- Mode Switcher Tabs --}}
             <div class="d-flex align-items-center gap-2 mb-4 p-1" style="background:#f1f5f9; border:1px solid #e2e8f0; border-radius:4px;">
                 <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 active-import-tab" id="tabPayload" onclick="switchImportTab('json_payload')" style="font-size:13px; border-radius:4px; background:#ffffff; color:var(--primary); box-shadow:0 2px 6px rgba(0,0,0,0.06)!important;">
-                    <i class="fa-solid fa-code me-1"></i> Paste Network JSON Payload
+                    <i class="fa-solid fa-code me-1"></i> Network JSON Payload
                 </button>
                 <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 text-secondary" id="tabApi" onclick="switchImportTab('api_fetch')" style="font-size:13px; border-radius:4px; background:transparent;">
-                    <i class="fa-solid fa-link me-1"></i> Live API Fetch (Cookie / Token)
+                    <i class="fa-solid fa-link me-1"></i> Live Remote API Sync (Cookie / Token)
                 </button>
             </div>
 

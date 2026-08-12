@@ -465,12 +465,13 @@
          * Table Card — exact Stockifly .table-card / .main-table-card
          * border: 1px solid #e8e8e8, border-radius: 8px, shadow: 0 4px 20px rgba(0,0,0,0.05)
          * ============================================================ */
-        .data-table-card {
+        .data-table-card,
+        .stockifly-card {
             background: #ffffff;
             border: 1px solid #e8e8e8;
-            border-radius: 8px;
-            overflow: hidden;
+            border-radius: 4px !important;
             box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            min-height: 220px;
         }
         .data-table-card-header {
             padding: 12px 16px;
@@ -786,6 +787,83 @@
         .admin-alert.success { background: rgba(40,199,111,0.08); border-color: rgba(40,199,111,0.3); color: #15803d; }
         .admin-alert.error   { background: rgba(234,84,85,0.08); border-color: rgba(234,84,85,0.3); color: #dc2626; }
         .admin-alert.info    { background: rgba(24,144,255,0.08); border-color: rgba(24,144,255,0.3); color: #1890ff; }
+
+        /* ============================================================
+         * Action Gear Hover Dropdown System (Stockifly Style)
+         * ============================================================ */
+        .action-gear-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .action-gear-btn {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            border-radius: 4px !important;
+            background: #f1f5f9;
+            color: #475569;
+            border: 1px solid #cbd5e1 !important;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s ease;
+        }
+        .action-gear-btn:hover,
+        .action-gear-dropdown:hover .action-gear-btn {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 2px 8px rgba(32,103,225,0.25);
+        }
+        .action-gear-dropdown:hover .dropdown-menu {
+            display: block !important;
+            margin-top: 0;
+        }
+        .action-gear-dropdown .dropdown-menu {
+            min-width: 180px;
+            padding: 4px 0;
+            border-radius: 4px !important;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
+            background: #ffffff;
+            z-index: 2000 !important;
+            right: 0 !important;
+            left: auto !important;
+        }
+        
+        /* Auto dropup for last 3 rows in tables to prevent bottom clipping */
+        tbody tr:nth-last-child(-n+3) .action-gear-dropdown .dropdown-menu {
+            top: auto !important;
+            bottom: 100% !important;
+            margin-bottom: 4px !important;
+            margin-top: 0 !important;
+        }
+
+        .action-gear-dropdown .dropdown-item {
+            padding: 7px 14px;
+            font-size: 12.5px;
+            font-weight: 500;
+            color: #334155;
+            display: flex;
+            align-items: center;
+            transition: background 0.12s ease, color 0.12s ease;
+        }
+        .action-gear-dropdown .dropdown-item:hover {
+            background: #f8fafc;
+            color: var(--primary);
+        }
+        .action-gear-dropdown .dropdown-item.text-danger:hover {
+            background: #fef2f2;
+            color: #dc2626 !important;
+        }
+        .action-gear-dropdown .dropdown-item.text-success:hover {
+            background: #f0fdf4;
+            color: #16a34a !important;
+        }
+        .action-gear-dropdown .dropdown-item.text-warning:hover {
+            background: #fffbeb;
+            color: #d97706 !important;
+        }
     </style>
     @yield('head')
 </head>

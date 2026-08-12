@@ -272,11 +272,8 @@
                     </h5>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" onclick="copyCookieScript()" style="font-size:11.5px; border-radius:4px;">
-                        <i class="fa-solid fa-copy me-1"></i> Copy 1-Click Cookie Script
-                    </button>
-                    <a href="{{ asset('downloads/prime-booking-importer.zip') }}" download class="btn btn-sm btn-outline-success fw-bold px-2 py-1" style="font-size:11.5px; border-radius:4px; text-decoration:none;">
-                        <i class="fa-solid fa-puzzle-piece me-1"></i> Extension (.zip)
+                    <a href="javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('✅ Agoda/Booking Active Cookie Copied to Clipboard!');})();" class="btn btn-sm btn-primary text-white fw-bold px-2.5 py-1 d-inline-flex align-items-center shadow-sm" style="font-size:11.5px; border-radius:4px; background:var(--primary); border:none; cursor:grab;" title="Drag this button to your browser Bookmark Bar or click to copy script!" onclick="copyCookieScript(event)">
+                        <i class="fa-solid fa-bookmark me-1.5" style="color:#f59e0b;"></i> Copy BL Cookie
                     </a>
                     <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -564,11 +561,12 @@ function saveOtaChannelToStorage(name) {
     }
 }
 
-function copyCookieScript() {
+function copyCookieScript(e) {
+    if (e && e.preventDefault) e.preventDefault();
     var script = "javascript:(function(){navigator.clipboard.writeText(document.cookie);alert('✅ Active Cookie Copied to Clipboard! Now paste into Prime Booking Importer.');})();";
     if (navigator.clipboard) {
         navigator.clipboard.writeText(script).then(function() {
-            alert("✅ 1-Click Cookie Script Copied!\n\nPaste this script as a browser Bookmark URL. Whenever you open Agoda or Booking.com, click the bookmark to copy active cookies in 1-click!");
+            alert("✅ Copy BL Cookie Script Copied to Clipboard!\n\n💡 Tip: You can also DRAG this button directly onto your browser's Bookmarks Bar to create a 1-click Cookie Extractor button!");
         }).catch(function() {
             prompt("Copy this 1-Click Cookie Extractor Bookmarklet script:", script);
         });

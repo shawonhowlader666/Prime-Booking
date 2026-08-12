@@ -27,41 +27,6 @@
     </div>
 </div>
 
-{{-- FILTER BAR --}}
-<div class="page-filters-bar">
-    <form method="GET" action="{{ route('admin.users.index') }}">
-        <div class="row g-2 align-items-end">
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Role Filter</label>
-                <select name="role" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {{ request('role') == 'all' ? 'selected' : '' }}>All Roles</option>
-                    <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admins</option>
-                    <option value="vendor" {{ request('role') == 'vendor' ? 'selected' : '' }}>Vendors / Partners</option>
-                    <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>Guests / Customers</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Account Status</label>
-                <select name="status" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
-                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
-                    <option value="banned" {{ request('status') == 'banned' ? 'selected' : '' }}>Banned / Suspended</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4">
-                <label class="form-label">Search Users</label>
-                <div style="display:flex;">
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name, email, phone..." style="border-radius:6px 0 0 6px; border-right:none;">
-                    <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-2 text-end">
-                <a href="{{ route('admin.users.index') }}" class="btn-table-action" style="padding: 6px 12px; height: 32px; display: inline-flex; align-items: center;">Reset</a>
-            </div>
-        </div>
-    </form>
-</div>
-
 {{-- PAGE CONTENT --}}
 <div class="page-content-area">
 
@@ -70,6 +35,41 @@
             <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
         </div>
     @endif
+
+    {{-- FILTER BAR --}}
+    <div class="page-filters-bar">
+        <form method="GET" action="{{ route('admin.users.index') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Role Filter</label>
+                    <select name="role" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ request('role') == 'all' ? 'selected' : '' }}>All Roles</option>
+                        <option value="admin" {{ request('role') == 'admin' ? 'selected' : '' }}>Admins</option>
+                        <option value="vendor" {{ request('role') == 'vendor' ? 'selected' : '' }}>Vendors / Partners</option>
+                        <option value="user" {{ request('role') == 'user' ? 'selected' : '' }}>Guests / Customers</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Account Status</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
+                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="banned" {{ request('status') == 'banned' ? 'selected' : '' }}>Banned / Suspended</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <label class="form-label">Search Users</label>
+                    <div style="display:flex;">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name, email, phone..." style="border-radius:4px 0 0 4px !important; border-right:none;">
+                        <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-2 text-end">
+                    <a href="{{ route('admin.users.index') }}" class="btn-table-action" style="padding: 6px 12px; height: 32px; display: inline-flex; align-items: center;">Reset</a>
+                </div>
+            </div>
+        </form>
+    </div>
 
     {{-- KPI Cards --}}
     <div class="row g-3 mb-4">

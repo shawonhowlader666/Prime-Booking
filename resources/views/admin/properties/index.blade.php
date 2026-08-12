@@ -28,50 +28,6 @@
     </div>
 </div>
 
-{{-- FILTER BAR --}}
-<div class="page-filters-bar">
-    <form method="GET" action="{{ route('admin.properties.index') }}">
-        <div class="row g-2 align-items-end">
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">City / Region</label>
-                <select name="city" class="form-select" onchange="this.form.submit()">
-                    <option value="">All Cities</option>
-                    <option>Cox's Bazar</option>
-                    <option>Dhaka</option>
-                    <option>Sylhet</option>
-                    <option>Sajek</option>
-                    <option>Sundarban</option>
-                    <option>Kuakata</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Property Type</label>
-                <select name="type" class="form-select" onchange="this.form.submit()">
-                    <option value="all">All Types</option>
-                    <option value="hotel">Hotel &amp; Resort</option>
-                    <option value="houseboat">Ship &amp; Houseboat</option>
-                    <option value="homestay">Eco Cottage</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Listing Status</label>
-                <select name="status" class="form-select" onchange="this.form.submit()">
-                    <option value="all">All Properties</option>
-                    <option value="active">Active / Listed</option>
-                    <option value="inactive">Draft / Unlisted</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Search Listings</label>
-                <div style="display:flex;">
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name…" style="border-radius:6px 0 0 6px; border-right:none;">
-                    <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
-        </div>
-    </form>
-</div>
-
 {{-- PAGE CONTENT --}}
 <div class="page-content-area">
 
@@ -80,6 +36,50 @@
             <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
         </div>
     @endif
+
+    {{-- FILTER BAR --}}
+    <div class="page-filters-bar">
+        <form method="GET" action="{{ route('admin.properties.index') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">City / Region</label>
+                    <select name="city" class="form-select" onchange="this.form.submit()">
+                        <option value="">All Cities</option>
+                        <option>Cox's Bazar</option>
+                        <option>Dhaka</option>
+                        <option>Sylhet</option>
+                        <option>Sajek</option>
+                        <option>Sundarban</option>
+                        <option>Kuakata</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Property Type</label>
+                    <select name="type" class="form-select" onchange="this.form.submit()">
+                        <option value="all">All Types</option>
+                        <option value="hotel">Hotel &amp; Resort</option>
+                        <option value="houseboat">Ship &amp; Houseboat</option>
+                        <option value="homestay">Eco Cottage</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Listing Status</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all">All Properties</option>
+                        <option value="active">Active / Listed</option>
+                        <option value="inactive">Draft / Unlisted</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Search Listings</label>
+                    <div style="display:flex;">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name…" style="border-radius:4px 0 0 4px !important; border-right:none;">
+                        <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 
     <div class="data-table-card">
         <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">

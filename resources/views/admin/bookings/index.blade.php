@@ -27,43 +27,6 @@
     </div>
 </div>
 
-{{-- FILTER BAR --}}
-<div class="page-filters-bar">
-    <form method="GET" action="{{ route('admin.bookings.index') }}">
-        <div class="row g-2 align-items-end">
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Booking Status</label>
-                <select name="status" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
-                    <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-3">
-                <label class="form-label">Payment Status</label>
-                <select name="payment" class="form-select" onchange="this.form.submit()">
-                    <option value="all" {{ request('payment') == 'all' ? 'selected' : '' }}>All Payments</option>
-                    <option value="paid" {{ request('payment') == 'paid' ? 'selected' : '' }}>Paid</option>
-                    <option value="pending" {{ request('payment') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="refunded" {{ request('payment') == 'refunded' ? 'selected' : '' }}>Refunded</option>
-                </select>
-            </div>
-            <div class="col-12 col-sm-6 col-md-4">
-                <label class="form-label">Search Guest / Ref / Phone</label>
-                <div style="display:flex;">
-                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name, ref, email, phone..." style="border-radius:6px 0 0 6px; border-right:none;">
-                    <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
-                </div>
-            </div>
-            <div class="col-12 col-sm-6 col-md-2 text-end">
-                <a href="{{ route('admin.bookings.index') }}" class="btn-table-action" style="padding: 6px 12px; height: 32px; display: inline-flex; align-items: center;">Reset Filters</a>
-            </div>
-        </div>
-    </form>
-</div>
-
 {{-- PAGE CONTENT --}}
 <div class="page-content-area">
 
@@ -72,6 +35,43 @@
             <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
         </div>
     @endif
+
+    {{-- FILTER BAR --}}
+    <div class="page-filters-bar">
+        <form method="GET" action="{{ route('admin.bookings.index') }}">
+            <div class="row g-2 align-items-end">
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Booking Status</label>
+                    <select name="status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-3">
+                    <label class="form-label">Payment Status</label>
+                    <select name="payment_status" class="form-select" onchange="this.form.submit()">
+                        <option value="all" {{ request('payment_status') == 'all' ? 'selected' : '' }}>All Payments</option>
+                        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid / Verified</option>
+                        <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid / Pending</option>
+                        <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                    </select>
+                </div>
+                <div class="col-12 col-sm-6 col-md-4">
+                    <label class="form-label">Search Guest / Reference</label>
+                    <div style="display:flex;">
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by ref, guest name, or phone…" style="border-radius:4px 0 0 4px !important; border-right:none;">
+                        <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-6 col-md-2 text-end">
+                    <a href="{{ route('admin.bookings.index') }}" class="btn-table-action" style="padding: 6px 12px; height: 32px; display: inline-flex; align-items: center;">Reset Filters</a>
+                </div>
+            </div>
+        </form>
+    </div>
 
     {{-- KPI Cards --}}
     <div class="row g-3 mb-4">

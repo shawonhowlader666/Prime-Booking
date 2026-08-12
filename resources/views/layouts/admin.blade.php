@@ -623,26 +623,15 @@
             box-shadow: 0 0 0 2px var(--primary-transparent-10);
             outline: none;
         }
-        .tbl-search-icon {
-            position: absolute;
-            left: 10px;
-            color: #bfbfbf;
-            font-size: 12px;
-            pointer-events: none;
-        }
-            background: var(--primary-active);
-            color: #fff;
-        }
-
         /* ============================================================
          * Filter Bar — exact .admin-page-filters-wrapper from Stockifly
-         * padding: 10px 16px, bg: white
+         * padding: 14px 20px, bg: white
          * ============================================================ */
         .page-filters-bar {
             background: #ffffff;
             border: 1px solid #e8e8e8;
-            padding: 14px 24px;
-            margin: 0 24px 18px 24px;
+            padding: 14px 20px;
+            margin-bottom: 18px;
             border-radius: 4px !important;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }

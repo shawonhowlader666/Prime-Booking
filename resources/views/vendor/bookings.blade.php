@@ -29,24 +29,28 @@
 <div class="page-content-area">
 
     {{-- Filter Bar --}}
-    <form action="{{ route('vendor.bookings.index') }}" method="GET" class="mb-4">
-        <div class="row g-2">
-            <div class="col-md-5">
-                <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by Guest Name, Email, or Booking Ref...">
+    <div class="page-filters-bar">
+        <form action="{{ route('vendor.bookings.index') }}" method="GET">
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label">Search Guest / Reference</label>
+                    <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by Guest Name, Email, or Booking Ref...">
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">Booking Status</label>
+                    <select name="status" class="form-select">
+                        <option value="">All Statuses</option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <button type="submit" class="btn btn-primary w-100 fw-bold" style="height:32px; font-size:12px; border-radius:4px !important;"><i class="fa-solid fa-filter me-1"></i> Filter</button>
+                </div>
             </div>
-            <div class="col-md-3">
-                <select name="status" class="form-select">
-                    <option value="">All Statuses</option>
-                    <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                </select>
-            </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn btn-primary w-100 fw-bold"><i class="fa-solid fa-filter me-1"></i> Filter</button>
-            </div>
-        </div>
-    </form>
+        </form>
+    </div>
 
     {{-- Table --}}
     <div class="data-table-card">

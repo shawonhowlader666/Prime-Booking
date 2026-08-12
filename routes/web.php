@@ -218,6 +218,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/transfers/{id}', [App\Http\Controllers\Admin\AdminTransferController::class, 'destroy'])->name('transfers.destroy');
 
 
+    // OTA Hotel Data Importer Tool
+    Route::get('/import-hotels', [App\Http\Controllers\Admin\HotelImportController::class, 'index'])->name('import-hotels.index');
+    Route::post('/import-hotels', [App\Http\Controllers\Admin\HotelImportController::class, 'store'])->name('import-hotels.store');
+
     // Payment Gateways & API Vault
     Route::get('/payment-gateways', [PaymentGatewayController::class, 'index'])->name('gateways.index');
     Route::put('/payment-gateways/{id}', [PaymentGatewayController::class, 'update'])->name('gateways.update');

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -751,6 +751,9 @@
             <div class="sb-section-header">Properties &amp; Stock</div>
             <a href="{{ route('admin.properties.index') }}" class="sb-nav-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
                 <i class="fa-solid fa-hotel"></i> <span>Property Inventory</span>
+            </a>
+            <a href="{{ route('admin.import-hotels.index') }}" class="sb-nav-item {{ request()->routeIs('admin.import-hotels.*') ? 'active' : '' }}">
+                <i class="fa-solid fa-cloud-arrow-down"></i> <span>OTA Data Importer</span>
             </a>
             <a href="{{ route('admin.properties.create') }}" class="sb-nav-item {{ request()->routeIs('admin.properties.create') ? 'active' : '' }}">
                 <i class="fa-solid fa-circle-plus"></i> <span>Add New Listing</span>

@@ -1,0 +1,273 @@
+@extends('layouts.admin')
+@section('title', 'OTA Hotel Data Importer | PRIME BOOKING Admin')
+
+@section('content')
+
+{{-- PAGE HEADER --}}
+<div class="page-header-card">
+    <div class="page-breadcrumb">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><span>Inventory</span>
+        <span class="sep">-</span><strong style="color:#333;">OTA Data Importer</strong>
+    </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+        <div>
+            <h1 class="page-title">
+                <i class="fa-solid fa-cloud-arrow-down" style="color:var(--primary); margin-right:8px;"></i>
+                OTA Real Hotel Data Importer Tool
+            </h1>
+            <p class="text-secondary mb-0" style="font-size:12.5px; margin-top:2px;">
+                Import real hotels, room categories, pricing, amenities &amp; photo galleries directly from Agoda, Booking.com, or API payloads.
+            </p>
+        </div>
+        <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; padding:6px 14px;">
+            <i class="fa-solid fa-hotel me-1"></i> View Property Inventory
+        </a>
+    </div>
+</div>
+
+@if(session('success'))
+<div class="admin-alert success d-flex align-items-center justify-content-between mb-4">
+    <div><i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}</div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+@if(session('error'))
+<div class="admin-alert error d-flex align-items-center justify-content-between mb-4">
+    <div><i class="fa-solid fa-circle-exclamation me-2"></i> {{ session('error') }}</div>
+    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+</div>
+@endif
+
+<div class="row g-4">
+    {{-- Left Import Form Column --}}
+    <div class="col-lg-7">
+        <div class="form-card">
+            
+            {{-- Mode Switcher Tabs --}}
+            <div class="d-flex align-items-center gap-2 mb-4 p-1 rounded-3" style="background:#f1f5f9; border:1px solid #e2e8f0;">
+                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 active-import-tab" id="tabPayload" onclick="switchImportTab('json_payload')" style="font-size:13px; border-radius:6px; background:#ffffff; color:var(--primary); box-shadow:0 2px 6px rgba(0,0,0,0.06)!important;">
+                    <i class="fa-solid fa-code me-1"></i> Paste Network JSON Payload
+                </button>
+                <button type="button" class="btn flex-fill fw-bold py-2 shadow-none border-0 text-secondary" id="tabApi" onclick="switchImportTab('api_fetch')" style="font-size:13px; border-radius:6px; background:transparent;">
+                    <i class="fa-solid fa-link me-1"></i> Live API Fetch (Cookie / Token)
+                </button>
+            </div>
+
+            <form action="{{ route('admin.import-hotels.store') }}" method="POST" id="importHotelForm">
+                @csrf
+                <input type="hidden" name="mode" id="importModeInput" value="json_payload">
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Target City / Region <span class="text-danger">*</span></label>
+                        <select name="target_city" class="form-select" required>
+                            <option value="Cox's Bazar" selected>Cox's Bazar</option>
+                            <option value="Sajek">Sajek Valley</option>
+                            <option value="Sylhet">Sylhet</option>
+                            <option value="Dhaka">Dhaka</option>
+                            <option value="Sundarban">Sundarbans</option>
+                            <option value="Kuakata">Kuakata</option>
+                            <option value="Chittagong">Chittagong</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label">Max Limit (Hotels to process)</label>
+                        <select name="max_limit" class="form-select">
+                            <option value="10">10 Properties</option>
+                            <option value="25">25 Properties</option>
+                            <option value="50" selected>50 Properties (Recommended)</option>
+                            <option value="100">100 Properties</option>
+                            <option value="200">200 Properties</option>
+                        </select>
+                    </div>
+                </div>
+
+                {{-- Mode 1: Raw JSON Payload --}}
+                <div id="sectionJsonPayload">
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center justify-content-between mb-1">
+                            <label class="form-label m-0">Paste JSON Response <span class="text-danger">*</span></label>
+                            <button type="button" class="btn btn-link text-decoration-none p-0 small fw-bold" onclick="fillSampleJson()" style="font-size:11.5px; color:var(--primary);">
+                                <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Fill Sample Agoda/Booking Data
+                            </button>
+                        </div>
+                        <textarea name="json_payload" id="jsonPayloadInput" class="form-control font-monospace" rows="10" placeholder='Paste your API response JSON here (e.g. [{"name": "Royal Tulip Beach Resort", "starRating": 5, "price": 12500, "images": [...]}, ...])'></textarea>
+                        <small class="text-muted d-block mt-1" style="font-size:11.5px;">
+                            💡 Open F12 Network tab on Agoda/Booking.com, copy the JSON response array or object, and paste it directly here.
+                        </small>
+                    </div>
+                </div>
+
+                {{-- Mode 2: Live API Request --}}
+                <div id="sectionApiFetch" style="display: none;">
+                    <div class="mb-3">
+                        <label class="form-label">API Endpoint URL <span class="text-danger">*</span></label>
+                        <input type="url" name="endpoint_url" class="form-control" placeholder="https://www.agoda.com/api/cronos/search/getsearchhotelssync">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Cookie Header (Optional)</label>
+                        <textarea name="cookie_header" class="form-control font-monospace" rows="3" placeholder="agoda.sid=...; _ga=...; access_token=..."></textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Authorization Bearer Token (Optional)</label>
+                        <input type="text" name="authorization_token" class="form-control font-monospace" placeholder="Bearer eyJhbGciOiJSUzI1NiIs...">
+                    </div>
+                </div>
+
+                {{-- Submit Button --}}
+                <div class="pt-2">
+                    <button type="submit" class="btn text-white fw-bold px-4 py-2 w-100" style="background:var(--primary); border-radius:6px; font-size:14px; border:none;" id="btnSubmitImport">
+                        <i class="fa-solid fa-bolt me-2"></i> Start Importing Real Hotel Data
+                    </button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+
+    {{-- Right Information & Execution Console Column --}}
+    <div class="col-lg-5">
+        
+        {{-- How it works card --}}
+        <div class="form-card mb-4" style="background:#fafafa;">
+            <h6 class="form-section-title d-flex align-items-center gap-2">
+                <i class="fa-solid fa-circle-info"></i> Best Smart Logic Features
+            </h6>
+            <ul class="list-unstyled mb-0" style="font-size:12.5px; color:#475569; line-height:1.6;">
+                <li class="mb-2 d-flex align-items-start gap-2">
+                    <i class="fa-solid fa-check text-success mt-1"></i>
+                    <div><strong>Smart Auto-Normalization:</strong> Automatically parses hotel names, star ratings, ratings, amenities, and room pricing.</div>
+                </li>
+                <li class="mb-2 d-flex align-items-start gap-2">
+                    <i class="fa-solid fa-check text-success mt-1"></i>
+                    <div><strong>Photo Gallery Extractor:</strong> Extracts high-resolution image URLs and associates them with properties.</div>
+                </li>
+                <li class="mb-2 d-flex align-items-start gap-2">
+                    <i class="fa-solid fa-check text-success mt-1"></i>
+                    <div><strong>Duplicate Prevention:</strong> Uses <code>updateOrCreate</code> matching on name and city to prevent duplicate records.</div>
+                </li>
+                <li class="d-flex align-items-start gap-2">
+                    <i class="fa-solid fa-check text-success mt-1"></i>
+                    <div><strong>Auto Room Generation:</strong> Automatically builds Deluxe, Super Deluxe &amp; Family Suites so booking flow works instantly.</div>
+                </li>
+            </ul>
+        </div>
+
+        {{-- Execution Console Logs --}}
+        <div class="form-card">
+            <h6 class="form-section-title d-flex align-items-center justify-content-between">
+                <span><i class="fa-solid fa-terminal me-1"></i> Import Execution Logs</span>
+                <span class="badge bg-secondary" style="font-size:10px;">Real-Time Audit</span>
+            </h6>
+
+            <div id="importLogsConsole" style="background:#0f172a; color:#38bdf8; font-family:monospace; font-size:12px; padding:14px; border-radius:6px; height:240px; overflow-y:auto; line-height:1.5;">
+                @if(session('import_logs') && is_array(session('import_logs')))
+                    @foreach(session('import_logs') as $log)
+                        <div>{{ $log }}</div>
+                    @endforeach
+                @else
+                    <div class="text-muted">Console ready. Click "Start Importing" to execute batch operation...</div>
+                @endif
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script>
+function switchImportTab(mode) {
+    document.getElementById('importModeInput').value = mode;
+    
+    var tabPayload = document.getElementById('tabPayload');
+    var tabApi = document.getElementById('tabApi');
+    var sectionJson = document.getElementById('sectionJsonPayload');
+    var sectionApi = document.getElementById('sectionApiFetch');
+
+    if (mode === 'json_payload') {
+        sectionJson.style.display = 'block';
+        sectionApi.style.display = 'none';
+        
+        tabPayload.style.background = '#ffffff';
+        tabPayload.style.color = 'var(--primary)';
+        tabPayload.classList.add('shadow-sm');
+
+        tabApi.style.background = 'transparent';
+        tabApi.style.color = '#64748b';
+        tabApi.classList.remove('shadow-sm');
+    } else {
+        sectionJson.style.display = 'none';
+        sectionApi.style.display = 'block';
+
+        tabApi.style.background = '#ffffff';
+        tabApi.style.color = 'var(--primary)';
+        tabApi.classList.add('shadow-sm');
+
+        tabPayload.style.background = 'transparent';
+        tabPayload.style.color = '#64748b';
+        tabPayload.classList.remove('shadow-sm');
+    }
+}
+
+function fillSampleJson() {
+    var sample = [
+        {
+            "name": "MV Zabin Sundarban Luxury Ship Cruise",
+            "city": "Sundarban",
+            "starRating": 5,
+            "ratingScore": 4.9,
+            "totalReviews": 320,
+            "address": "Mongla Port & Sundarbans Waterway, Khulna",
+            "price": 18500,
+            "primaryImage": "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80",
+                "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1000&q=80"
+            ],
+            "facilities": ["Full Ocean View Deck", "Buffet Dining", "AC Cabins", "Guided Jungle Safari"]
+        },
+        {
+            "name": "Royal Tulip Sea Pearl Beach Resort & Spa",
+            "city": "Cox's Bazar",
+            "starRating": 5,
+            "ratingScore": 4.8,
+            "totalReviews": 890,
+            "address": "Jaliapalong, Inani, Cox's Bazar",
+            "price": 12500,
+            "primaryImage": "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80",
+                "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80"
+            ],
+            "facilities": ["Private Beach", "Infinity Pool", "Spa & Wellness", "Free WiFi", "Breakfast Included"]
+        },
+        {
+            "name": "Sajek Valley Eco Cottage",
+            "city": "Sajek",
+            "starRating": 4,
+            "ratingScore": 4.7,
+            "totalReviews": 145,
+            "address": "Ruilui Para, Sajek Valley, Rangamati",
+            "price": 4500,
+            "primaryImage": "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80",
+            "images": [
+                "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80"
+            ],
+            "facilities": ["Cloud View Balcony", "Traditional BBQ", "Helipad Access", "24/7 Security"]
+        }
+    ];
+
+    document.getElementById('jsonPayloadInput').value = JSON.stringify(sample, null, 2);
+}
+
+document.getElementById('importHotelForm').addEventListener('submit', function() {
+    var btn = document.getElementById('btnSubmitImport');
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i> Importing Real Hotel Data... Please wait';
+});
+</script>
+@endsection

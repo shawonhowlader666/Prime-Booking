@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -22,14 +22,7 @@ class SiteSettingsController extends Controller
 {
     public function index()
     {
-        $groups = [
-            'vip'      => SiteSetting::group('vip'),
-            'booking'  => SiteSetting::group('booking'),
-            'payment'  => SiteSetting::group('payment'),
-            'general'  => SiteSetting::group('general'),
-        ];
-
-        return view('admin.settings.index', compact('groups'));
+        return redirect()->route('admin.settings.index');
     }
 
     /** Update all settings at once (grouped form submit) */

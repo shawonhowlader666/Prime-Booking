@@ -1,5 +1,5 @@
-﻿@extends('layouts.admin')
-@section('title', 'System Settings & Currency | PRIME BOOKING Admin')
+@extends('layouts.admin')
+@section('title', 'Platform & Profile Settings — Stockifly SaaS')
 
 @section('content')
 
@@ -7,13 +7,16 @@
 <div class="page-header-card">
     <div class="page-breadcrumb">
         <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>Config</span>
-        <span class="sep">-</span><strong style="color:#333;">Currency &amp; System</strong>
+        <span class="sep">-</span><span>System</span>
+        <span class="sep">-</span><strong style="color:#333;">Settings &amp; Profile</strong>
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <h1 class="page-title">System Settings &amp; Currency Configuration</h1>
-        <button class="btn-export-pdf" onclick="document.getElementById('settingsForm').submit()">
-            <i class="fa-solid fa-check"></i> Save Settings
+        <div>
+            <h1 class="page-title">Stockifly Platform Settings &amp; Admin Profile</h1>
+            <p class="text-muted mb-0" style="font-size:12px;">Manage admin credentials, brand identity, payment gateways, and mail SMTP configuration</p>
+        </div>
+        <button class="btn-stockifly-primary" onclick="document.getElementById('stockiflySettingsForm').submit()">
+            <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
         </button>
     </div>
 </div>
@@ -27,144 +30,313 @@
         </div>
     @endif
 
-    <div class="row g-3">
-        {{-- Settings Form --}}
-        <div class="col-lg-8">
-            <form id="settingsForm" action="{{ route('admin.settings.update') }}" method="POST">
-                @csrf
-
-                {{-- Currency & Commission --}}
-                <div class="form-card mb-3">
-                    <div class="form-section-title">
-                        <i class="fa-solid fa-bangladeshi-taka-sign me-1"></i> Platform Currency &amp; Commission Settings
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Default Platform Currency <span style="color:#ff4d4f;">*</span></label>
-                            <select name="default_currency" class="form-select">
-                                <option value="BDT" selected>BDT (৳ — Bangladeshi Taka)</option>
-                                <option value="USD">USD ($ — US Dollar)</option>
-                                <option value="EUR">EUR (€ — Euro)</option>
-                                <option value="SAR">SAR (﷼ — Saudi Riyal)</option>
-                                <option value="AED">AED (د.إ — UAE Dirham)</option>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Platform Commission Rate (%) <span style="color:#ff4d4f;">*</span></label>
-                            <div style="display:flex;">
-                                <input type="number" name="commission_rate" class="form-control" value="12" min="0" max="100" style="border-radius:6px 0 0 6px; border-right:none;">
-                                <span class="input-group-text" style="border-radius:0 6px 6px 0; border-left:none;">% Per Booking</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Platform Branding --}}
-                <div class="form-card mb-3">
-                    <div class="form-section-title">
-                        <i class="fa-solid fa-sliders me-1"></i> Platform Branding &amp; Support Info
-                    </div>
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Platform Title / Brand Name <span style="color:#ff4d4f;">*</span></label>
-                            <input type="text" name="site_name" class="form-control" value="PRIME BOOKING &amp; Booking">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Support Contact Phone <span style="color:#ff4d4f;">*</span></label>
-                            <input type="text" name="support_phone" class="form-control" value="+880 1770 887733">
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Support Email Address <span style="color:#ff4d4f;">*</span></label>
-                            <input type="email" name="support_email" class="form-control" value="support@primeavn.com">
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Payment Gateways --}}
-                <div class="form-card mb-3">
-                    <div class="form-section-title">
-                        <i class="fa-solid fa-credit-card me-1"></i> Active Payment Gateway Control
-                    </div>
-                    <div style="display:flex; flex-direction:column; gap:12px;">
-                        @foreach([
-                            ['enable_bkash', 'bkashCheck', 'bKash Merchant Gateway (MFS)', '#e2136e'],
-                            ['enable_nagad', 'nagadCheck', 'Nagad Direct Pay (MFS)', '#f7941e'],
-                            ['enable_card', 'cardCheck', 'Visa / Mastercard / Amex Credit Cards', '#1890ff'],
-                        ] as $gw)
-                        <div style="display:flex; align-items:center; justify-content:space-between; padding:10px 14px; background:#fafafa; border:1px solid #f0f0f0; border-radius:6px;">
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <div style="width:8px; height:8px; background:{{ $gw[3] }}; border-radius:50%;"></div>
-                                <span style="font-size:13px; font-weight:600; color:#334155;">{{ $gw[2] }}</span>
-                            </div>
-                            <div class="form-check form-switch mb-0">
-                                <input class="form-check-input" type="checkbox" name="{{ $gw[0] }}" value="1" id="{{ $gw[1] }}" checked style="width:36px; height:18px; cursor:pointer;">
-                            </div>
-                        </div>
-                        @endforeach
-                    </div>
-                </div>
-
-                {{-- Save button (bottom) --}}
-                <div style="display:flex; justify-content:flex-end; gap:8px;">
-                    <button type="submit" class="btn-add-primary" style="padding: 7px 28px; font-size:13px;">
-                        Save System Settings <i class="fa-solid fa-check ms-1"></i>
-                    </button>
-                </div>
-            </form>
+    @if($errors->any())
+        <div class="admin-alert error mb-3">
+            <ul class="mb-0 ps-3">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
         </div>
+    @endif
 
-        {{-- System Health Card --}}
-        <div class="col-lg-4">
-            <div class="data-table-card mb-3">
-                <div class="data-table-card-header">
-                    <h6>System Health &amp; Cache</h6>
-                    <span class="live-feed-badge">Live Status</span>
-                </div>
-                <div style="padding:16px;">
-                    @foreach([
-                        ['Laravel Framework', 'v11.x', 'active'],
-                        ['PHP Engine', 'v8.2.12', 'active'],
-                        ['MySQL Database', 'Connected', 'confirmed'],
-                        ['Cache Status', 'Healthy', 'confirmed'],
-                        ['Queue Worker', 'Running', 'active'],
-                    ] as $sys)
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:7px 0; border-bottom:1px solid #f0f0f0; font-size:12.5px;">
-                        <span style="color:#8c8c8c;">{{ $sys[0] }}</span>
-                        <span class="badge-status {{ $sys[2] }}">{{ $sys[1] }}</span>
-                    </div>
-                    @endforeach
-                    <div style="margin-top:14px;">
-                        <button type="button" class="btn-table-action danger" style="width:100%; justify-content:center; padding:8px;" onclick="alert('System caches cleared successfully!');">
-                            Clear System Cache <i class="fa-solid fa-broom ms-1"></i>
+    <form id="stockiflySettingsForm" action="{{ route('admin.settings.update') }}" method="POST">
+        @csrf
+
+        <div class="row g-4">
+            {{-- LEFT SIDEBAR TABS --}}
+            <div class="col-lg-3">
+                <div class="stockifly-card p-2" style="position:sticky; top:80px;">
+                    <div class="nav flex-column nav-pills saas-settings-tabs" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                        <button class="nav-link active" id="tab-profile-tab" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab">
+                            <i class="fa-solid fa-user-gear"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block">My Profile &amp; Account</strong>
+                                <small class="opacity-75">Admin credentials &amp; password</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-company-tab" data-bs-toggle="pill" data-bs-target="#tab-company" type="button" role="tab">
+                            <i class="fa-solid fa-building-flag"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block">Company &amp; Brand</strong>
+                                <small class="opacity-75">Site name, logo &amp; theme</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-currency-tab" data-bs-toggle="pill" data-bs-target="#tab-currency" type="button" role="tab">
+                            <i class="fa-solid fa-coins"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block">Currency &amp; Rates</strong>
+                                <small class="opacity-75">BDT symbol &amp; commission</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-payments-tab" data-bs-toggle="pill" data-bs-target="#tab-payments" type="button" role="tab">
+                            <i class="fa-solid fa-credit-card"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block">Payment Gateways</strong>
+                                <small class="opacity-75">bKash, Nagad, Cards &amp; Vault</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-mail-tab" data-bs-toggle="pill" data-bs-target="#tab-mail" type="button" role="tab">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block">Mail &amp; SMTP Server</strong>
+                                <small class="opacity-75">Email dispatch configuration</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-system-tab" data-bs-toggle="pill" data-bs-target="#tab-system" type="button" role="tab">
+                            <i class="fa-solid fa-shield-halved"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block">System &amp; Security</strong>
+                                <small class="opacity-75">Cache flush &amp; database</small>
+                            </div>
                         </button>
                     </div>
                 </div>
             </div>
 
-            {{-- SaaS Plan Summary --}}
-            <div class="data-table-card">
-                <div class="data-table-card-header">
-                    <h6>Active SaaS Plans</h6>
-                </div>
-                <div style="padding:14px;">
-                    @foreach([
-                        ['Starter', 'BDT 2,500/mo', '3 vendors', '#28c76f'],
-                        ['Professional', 'BDT 6,000/mo', '7 vendors', '#1890ff'],
-                        ['Enterprise', 'BDT 15,000/mo', '2 vendors', '#7367f0'],
-                    ] as $plan)
-                    <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid #f0f0f0; font-size:12.5px;">
-                        <div>
-                            <strong style="color:#1e293b; font-size:13px; display:block;">{{ $plan[0] }}</strong>
-                            <span style="color:#8c8c8c; font-size:11px;">{{ $plan[2] }}</span>
+            {{-- RIGHT TAB PANES --}}
+            <div class="col-lg-9">
+                <div class="tab-content" id="v-pills-tabContent">
+
+                    {{-- TAB 1: PROFILE & ACCOUNT --}}
+                    <div class="tab-pane fade show active" id="tab-profile" role="tabpanel">
+                        <div class="stockifly-card p-4 mb-3">
+                            <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
+                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name ?? 'Admin') }}&background=1890ff&color=fff&size=100" class="rounded-circle shadow-sm" style="width:64px; height:64px;" alt="Avatar">
+                                <div>
+                                    <h5 class="fw-bold text-dark mb-1">{{ $user->name ?? 'Administrator' }}</h5>
+                                    <span class="badge bg-primary-subtle text-primary fw-bold">Super Admin Role</span>
+                                    <small class="text-muted d-block mt-1">ID: #{{ $user->id ?? 1 }} | Joined: {{ $user->created_at ? $user->created_at->format('M Y') : 'System' }}</small>
+                                </div>
+                            </div>
+
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Full Administrator Name</label>
+                                    <input type="text" name="name" class="form-control" value="{{ old('name', $user->name ?? '') }}" placeholder="Enter full name">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Account Email Address</label>
+                                    <input type="email" name="email" class="form-control" value="{{ old('email', $user->email ?? '') }}" placeholder="admin@primebooking.com.bd">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Contact Phone Number</label>
+                                    <input type="text" name="phone" class="form-control" value="{{ old('phone', $user->phone ?? '') }}" placeholder="+880 1700 000000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Change Account Password</label>
+                                    <input type="password" name="new_password" class="form-control" placeholder="Leave blank to keep current password">
+                                </div>
+                            </div>
                         </div>
-                        <span style="font-weight:700; color:{{ $plan[3] }}; font-size:12.5px;">{{ $plan[1] }}</span>
                     </div>
-                    @endforeach
+
+                    {{-- TAB 2: COMPANY & BRAND --}}
+                    <div class="tab-pane fade" id="tab-company" role="tabpanel">
+                        <div class="stockifly-card p-4 mb-3">
+                            <div class="form-section-title mb-3 pb-2 border-bottom fw-bold text-primary">
+                                <i class="fa-solid fa-building me-1"></i> Platform Identity &amp; Branding
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Platform Brand Name</label>
+                                    <input type="text" name="site_name" class="form-control" value="{{ old('site_name', $siteSettings['site_name']) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Primary Brand Color</label>
+                                    <div class="d-flex gap-2">
+                                        <input type="color" name="primary_color" class="form-control form-control-color" value="{{ old('primary_color', $siteSettings['primary_color']) }}" style="width:48px; height:34px; padding:2px;">
+                                        <input type="text" class="form-control" value="{{ old('primary_color', $siteSettings['primary_color']) }}" readonly style="font-family:monospace;">
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Site Subtitle / Tagline</label>
+                                    <input type="text" name="site_tagline" class="form-control" value="{{ old('site_tagline', $siteSettings['site_tagline']) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Support Hotline Number</label>
+                                    <input type="text" name="support_phone" class="form-control" value="{{ old('support_phone', $siteSettings['support_phone']) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Support Email Address</label>
+                                    <input type="email" name="support_email" class="form-control" value="{{ old('support_email', $siteSettings['support_email']) }}">
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label fw-bold">Corporate Office Address</label>
+                                    <input type="text" name="support_address" class="form-control" value="{{ old('support_address', $siteSettings['support_address']) }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 3: CURRENCY & RATES --}}
+                    <div class="tab-pane fade" id="tab-currency" role="tabpanel">
+                        <div class="stockifly-card p-4 mb-3">
+                            <div class="form-section-title mb-3 pb-2 border-bottom fw-bold text-primary">
+                                <i class="fa-solid fa-bangladeshi-taka-sign me-1"></i> Currency &amp; Commission Configuration
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Default Platform Currency</label>
+                                    <select name="default_currency" class="form-select">
+                                        <option value="BDT" {{ $siteSettings['default_currency'] === 'BDT' ? 'selected' : '' }}>BDT (৳ — Bangladeshi Taka)</option>
+                                        <option value="USD" {{ $siteSettings['default_currency'] === 'USD' ? 'selected' : '' }}>USD ($ — US Dollar)</option>
+                                        <option value="EUR" {{ $siteSettings['default_currency'] === 'EUR' ? 'selected' : '' }}>EUR (€ — Euro)</option>
+                                        <option value="SAR" {{ $siteSettings['default_currency'] === 'SAR' ? 'selected' : '' }}>SAR (﷼ — Saudi Riyal)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Platform Vendor Commission Rate (%)</label>
+                                    <div class="input-group">
+                                        <input type="number" name="commission_rate" class="form-control" value="{{ old('commission_rate', $siteSettings['commission_rate']) }}" min="0" max="100">
+                                        <span class="input-group-text">% Per Booking</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 4: PAYMENT GATEWAYS --}}
+                    <div class="tab-pane fade" id="tab-payments" role="tabpanel">
+                        <div class="stockifly-card p-4 mb-3">
+                            <div class="form-section-title mb-3 pb-2 border-bottom fw-bold text-primary">
+                                <i class="fa-solid fa-credit-card me-1"></i> Payment Gateways &amp; Merchant Vault
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 h-100 bg-light">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" name="enable_bkash" id="checkBkash" {{ $siteSettings['enable_bkash'] == '1' ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="checkBkash">bKash Merchant</label>
+                                        </div>
+                                        <small class="text-muted d-block">Enable bKash Checkout &amp; Direct Pay API</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 h-100 bg-light">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" name="enable_nagad" id="checkNagad" {{ $siteSettings['enable_nagad'] == '1' ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="checkNagad">Nagad Direct</label>
+                                        </div>
+                                        <small class="text-muted d-block">Enable Nagad Payment Gateway Integration</small>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="border rounded p-3 h-100 bg-light">
+                                        <div class="form-check form-switch mb-2">
+                                            <input class="form-check-input" type="checkbox" name="enable_card" id="checkCard" {{ $siteSettings['enable_card'] == '1' ? 'checked' : '' }}>
+                                            <label class="form-check-label fw-bold" for="checkCard">SSLCommerz / Cards</label>
+                                        </div>
+                                        <small class="text-muted d-block">Enable Visa, MasterCard &amp; Internet Banking</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 5: MAIL & SMTP SERVER --}}
+                    <div class="tab-pane fade" id="tab-mail" role="tabpanel">
+                        <div class="stockifly-card p-4 mb-3">
+                            <div class="form-section-title mb-3 pb-2 border-bottom fw-bold text-primary">
+                                <i class="fa-solid fa-paper-plane me-1"></i> Mail &amp; SMTP Configuration
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">SMTP Mail Host</label>
+                                    <input type="text" name="mail_host" class="form-control" value="{{ old('mail_host', $siteSettings['mail_host']) }}" placeholder="smtp.mailtrap.io">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">SMTP Port</label>
+                                    <input type="text" name="mail_port" class="form-control" value="{{ old('mail_port', $siteSettings['mail_port']) }}" placeholder="587">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Encryption</label>
+                                    <select name="mail_encryption" class="form-select">
+                                        <option value="tls" {{ $siteSettings['mail_encryption'] === 'tls' ? 'selected' : '' }}>TLS</option>
+                                        <option value="ssl" {{ $siteSettings['mail_encryption'] === 'ssl' ? 'selected' : '' }}>SSL</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">SMTP Username</label>
+                                    <input type="text" name="mail_username" class="form-control" value="{{ old('mail_username', $siteSettings['mail_username']) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">SMTP Password</label>
+                                    <input type="password" name="mail_password" class="form-control" value="{{ old('mail_password', $siteSettings['mail_password']) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Sender Name</label>
+                                    <input type="text" name="mail_from_name" class="form-control" value="{{ old('mail_from_name', $siteSettings['mail_from_name']) }}">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Sender Email Address</label>
+                                    <input type="email" name="mail_from_address" class="form-control" value="{{ old('mail_from_address', $siteSettings['mail_from_address']) }}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 6: SYSTEM & SECURITY --}}
+                    <div class="tab-pane fade" id="tab-system" role="tabpanel">
+                        <div class="stockifly-card p-4 mb-3">
+                            <div class="form-section-title mb-3 pb-2 border-bottom fw-bold text-primary">
+                                <i class="fa-solid fa-shield-halved me-1"></i> System Maintenance &amp; Cache Utility
+                            </div>
+                            <div class="d-flex align-items-center justify-content-between p-3 border rounded bg-light mb-3">
+                                <div>
+                                    <strong class="d-block text-dark">Clear System Cache &amp; Compiled Views</strong>
+                                    <small class="text-muted">Purges all cached configuration, routes, and compiled views</small>
+                                </div>
+                                <button type="button" class="btn btn-outline-warning btn-sm fw-bold px-3" onclick="document.getElementById('flushCacheForm').submit()">
+                                    <i class="fa-solid fa-rotate me-1"></i> Flush Cache Now
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
-    </div>
+
+    </form>
+
+    <form id="flushCacheForm" action="/admin/system/cache-clear" method="POST" class="d-none">
+        @csrf
+    </form>
 
 </div>
-@endsection
 
+<style>
+.saas-settings-tabs .nav-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 14px;
+    border-radius: 4px !important;
+    color: #475569;
+    background: transparent;
+    border: 1px solid transparent;
+    transition: all 0.15s ease;
+    margin-bottom: 4px;
+}
+.saas-settings-tabs .nav-link:hover {
+    background: #f8fafc;
+    color: var(--primary);
+}
+.saas-settings-tabs .nav-link.active {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(32,103,225,0.25);
+}
+.saas-settings-tabs .nav-link i {
+    font-size: 18px;
+    width: 24px;
+    text-align: center;
+}
+</style>
+
+@endsection

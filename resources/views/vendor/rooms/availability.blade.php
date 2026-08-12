@@ -1,36 +1,37 @@
-@extends('layouts.main', ['activePage' => 'vendor'])
+@extends('layouts.vendor')
 
 @php use App\Services\CurrencyService; @endphp
 
 @section('title', 'Room Availability & Seasonal Rates Calendar | Vendor Partner')
 
 @section('content')
-<div class="py-4" style="background-color: #f8fafc; min-height: 85vh;">
-    <div style="max-width: 1240px; margin: 0 auto; padding: 0 15px;">
+<div class="page-header-card mb-3">
+    <div class="page-breadcrumb mb-1">
+        <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">/</span><span>Inventory</span>
+        <span class="sep">/</span><strong style="color:#333;">Rates &amp; Calendar</strong>
+    </div>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        <h1 class="page-title m-0" style="font-size:18px; font-weight:700;">Rates &amp; Availability Calendar</h1>
         
-        <div class="d-flex flex-wrap align-items-center justify-content-between mb-4 pb-3 border-bottom gap-3">
-            <div>
-                <h3 class="fw-bold mb-1 text-dark" style="font-size: 24px;">
-                    <i class="fa-solid fa-calendar-days text-primary me-2"></i> {{ __('Room Availability & Rates Calendar') }}
-                </h3>
-                <p class="text-secondary small mb-0">Set custom weekend/peak-season nightly rates and block dates for maintenance or full bookings.</p>
-            </div>
-            
-            {{-- Property & Room Selector Dropdown --}}
-            <form action="{{ route('vendor.availability.index') }}" method="GET" class="d-flex gap-2">
-                <select name="room_id" class="form-select fw-bold rounded-pill shadow-xs" onchange="this.form.submit()" style="font-size: 13.5px; border-color: #2067e1;">
-                    @foreach($properties as $p)
-                        <optgroup label="{{ $p->name }} ({{ $p->city }})">
-                            @foreach($p->rooms as $r)
-                                <option value="{{ $r->id }}" {{ $selectedRoom && $selectedRoom->id === $r->id ? 'selected' : '' }}>
-                                    {{ $r->name }} — Base: {{ CurrencyService::format($r->price_per_night) }}/night
-                                </option>
-                            @endforeach
-                        </optgroup>
-                    @endforeach
-                </select>
-            </form>
-        </div>
+        {{-- Property & Room Selector Dropdown --}}
+        <form action="{{ route('vendor.availability.index') }}" method="GET" class="d-flex gap-2 m-0">
+            <select name="room_id" class="form-select saas-input fw-bold" onchange="this.form.submit()" style="font-size:12px; width:280px;">
+                @foreach($properties as $p)
+                    <optgroup label="{{ $p->name }} ({{ $p->city }})">
+                        @foreach($p->rooms as $r)
+                            <option value="{{ $r->id }}" {{ $selectedRoom && $selectedRoom->id === $r->id ? 'selected' : '' }}>
+                                {{ $r->name }} — Base: {{ CurrencyService::format($r->price_per_night) }}/night
+                            </option>
+                        @endforeach
+                    </optgroup>
+                @endforeach
+            </select>
+        </form>
+    </div>
+</div>
+
+<div class="page-content-area">
 
         @if(session('success'))
             <div class="alert alert-success alert-dismissible fade show rounded-3 mb-4" role="alert">
@@ -128,18 +129,17 @@
 
         </div>
         @else
-        <div class="card border-0 shadow-sm rounded-4 p-5 text-center bg-white">
+        <div class="stockifly-card p-5 text-center">
             <i class="fa-solid fa-bed display-3 text-secondary opacity-25 d-block mb-3"></i>
             <h5 class="fw-bold text-dark">No Rooms Registered Yet</h5>
             <p class="text-secondary small mb-4">You need to register at least one room under your property to manage availability calendars.</p>
             <div>
-                <a href="{{ route('vendor.properties.create') }}" class="btn text-white fw-bold px-4 py-2 rounded-pill" style="background-color: #2067e1;">
+                <a href="{{ route('vendor.properties.create') }}" class="btn btn-primary text-white fw-bold px-4 py-2" style="border-radius:4px !important;">
                     Add Property &amp; Rooms Now →
                 </a>
             </div>
         </div>
         @endif
 
-    </div>
 </div>
 @endsection

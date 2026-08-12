@@ -151,6 +151,7 @@
                 </tbody>
             </table>
         </div>
+        <x-table-footer :paginator="$payouts" />
     </div>
 
 </div>

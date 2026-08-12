@@ -1493,12 +1493,44 @@
             </div>
 
             <div class="admin-topbar-right">
+                <div class="dropdown me-2">
+                    <button class="btn btn-light position-relative p-2" style="border-radius:4px !important; border:1px solid #e2e8f0; height:34px; width:34px; display:flex; align-items:center; justify-content:center;" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-bell text-secondary" style="font-size:14px;"></i>
+                        @php
+                            $pendingPropertiesCount = \App\Models\Property::where('status', 'pending')->count();
+                            $pendingPayoutsCount = \App\Models\Payout::where('status', 'pending')->count();
+                            $totalAlerts = $pendingPropertiesCount + $pendingPayoutsCount;
+                        @endphp
+                        @if($totalAlerts > 0)
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:9.5px; padding:3px 6px;">
+                                {{ $totalAlerts }}
+                            </span>
+                        @endif
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border p-1" style="min-width:240px; border-radius:4px !important; font-size:12px;">
+                        <li class="dropdown-header fw-bold text-dark py-1">System Action Center</li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li>
+                            <a href="{{ route('admin.properties.index') }}?status=pending" class="dropdown-item py-1.5 d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-hotel me-1 text-warning"></i> Pending Properties</span>
+                                <span class="badge bg-warning text-dark">{{ $pendingPropertiesCount }}</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="{{ route('admin.payouts.index') }}" class="dropdown-item py-1.5 d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-wallet me-1 text-primary"></i> Pending Payouts</span>
+                                <span class="badge bg-primary">{{ $pendingPayoutsCount }}</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
                 <div
                     style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid #f0f0f0;">
-                    <img src="https://ui-avatars.com/api/?name=Shawon+Ahmed&background=1890ff&color=fff&size=64"
+                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=1890ff&color=fff&size=64"
                         class="topbar-avatar" alt="Admin">
                     <div class="d-none d-sm-block">
-                        <span class="topbar-user-name">Shawon Ahmed</span>
+                        <span class="topbar-user-name">{{ auth()->user()->name ?? 'Shawon Ahmed' }}</span>
                         <span class="topbar-user-role">Super Administrator</span>
                     </div>
                 </div>

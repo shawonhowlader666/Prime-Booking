@@ -242,17 +242,15 @@ class HotelImportController extends Controller
             ];
         }
 
-        // Default BD (Bangladesh)
-        $city = ($targetCity === 'All Bangladesh' || empty($targetCity)) ? "Cox's Bazar" : $targetCity;
-
+        // Default BD (Bangladesh) - Comprehensive National Inventory
         return [
             [
                 'name' => 'Ocean Paradise Hotel & Resort',
-                'city' => $city,
+                'city' => "Cox's Bazar",
                 'starRating' => 5,
                 'ratingScore' => 4.9,
                 'totalReviews' => 1250,
-                'address' => "28-29 Hotel Motel Zone, Kolatoli Road, {$city}, Bangladesh",
+                'address' => "28-29 Hotel Motel Zone, Kolatoli Road, Cox's Bazar, Bangladesh",
                 'price' => 8500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -263,11 +261,11 @@ class HotelImportController extends Controller
             ],
             [
                 'name' => 'Royal Tulip Sea Pearl Beach Resort & Spa',
-                'city' => $city,
+                'city' => "Cox's Bazar",
                 'starRating' => 5,
                 'ratingScore' => 4.8,
                 'totalReviews' => 890,
-                'address' => "Jaliapalong, Inani, {$city}, Bangladesh",
+                'address' => "Jaliapalong, Inani, Cox's Bazar, Bangladesh",
                 'price' => 12500,
                 'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
@@ -278,17 +276,101 @@ class HotelImportController extends Controller
             ],
             [
                 'name' => 'Sayeman Beach Resort & Spa',
-                'city' => $city,
+                'city' => "Cox's Bazar",
                 'starRating' => 5,
                 'ratingScore' => 4.9,
                 'totalReviews' => 1120,
-                'address' => "Marine Drive, Kolatoli, {$city}, Bangladesh",
+                'address' => "Marine Drive, Kolatoli, Cox's Bazar, Bangladesh",
                 'price' => 14000,
                 'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
                 'images' => [
                     'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
                 ],
                 'facilities' => ['Oceanfront Pool', 'Multicuisine Restaurant', 'Helipad', 'Private Balcony'],
+            ],
+            [
+                'name' => 'Hotel Long Beach & Suites',
+                'city' => "Cox's Bazar",
+                'starRating' => 4,
+                'ratingScore' => 4.7,
+                'totalReviews' => 740,
+                'address' => "14 Kalatali Road, Cox's Bazar, Bangladesh",
+                'price' => 6800,
+                'primaryImage' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Rooftop Pool', 'AC Rooms', 'BBQ Zone', '24/7 Room Service'],
+            ],
+            [
+                'name' => 'Pan Pacific Sonargaon Dhaka',
+                'city' => 'Dhaka',
+                'starRating' => 5,
+                'ratingScore' => 4.8,
+                'totalReviews' => 1420,
+                'address' => '107 Kazi Nazrul Islam Avenue, Dhaka, Bangladesh',
+                'price' => 16500,
+                'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Outdoor Pool', 'Health Club', 'Executive Lounge', 'Fine Dining'],
+            ],
+            [
+                'name' => 'The Westin Dhaka',
+                'city' => 'Dhaka',
+                'starRating' => 5,
+                'ratingScore' => 4.9,
+                'totalReviews' => 1980,
+                'address' => 'Main Gulshan Avenue, Plot 01, Road 45, Dhaka, Bangladesh',
+                'price' => 22000,
+                'primaryImage' => 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Rooftop Infinity Pool', 'Heavenly Spa', '24/7 Fitness Center', 'Valet Parking'],
+            ],
+            [
+                'name' => 'Grand Sultan Tea Resort & Golf',
+                'city' => 'Sreemangal',
+                'starRating' => 5,
+                'ratingScore' => 4.9,
+                'totalReviews' => 890,
+                'address' => 'Radhanagar, Sreemangal, Sylhet Division, Bangladesh',
+                'price' => 18500,
+                'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Golf Course', '3 Swimming Pools', 'Tea Garden View', 'Movie Theater'],
+            ],
+            [
+                'name' => 'Rose View Hotel Sylhet',
+                'city' => 'Sylhet',
+                'starRating' => 5,
+                'ratingScore' => 4.7,
+                'totalReviews' => 640,
+                'address' => 'Shahjalal Upashahar, Sylhet, Bangladesh',
+                'price' => 9500,
+                'primaryImage' => 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Rooftop Pool', 'Multi-cuisine Restaurant', 'Free Airport Shuttle'],
+            ],
+            [
+                'name' => 'Radisson Blu Chattogram Bay View',
+                'city' => 'Chittagong',
+                'starRating' => 5,
+                'ratingScore' => 4.8,
+                'totalReviews' => 1100,
+                'address' => 'SS Khaled Road, Lalkhan Bazar, Chittagong, Bangladesh',
+                'price' => 17500,
+                'primaryImage' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Circular Swimming Pool', 'Bay View Dining', 'Spa & Fitness', 'Convention Center'],
             ],
             [
                 'name' => 'Sajek Valley Eco Cottage',
@@ -303,6 +385,34 @@ class HotelImportController extends Controller
                     'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=1000&q=80',
                 ],
                 'facilities' => ['Cloud View Balcony', 'Traditional BBQ', 'Helipad Access', '24/7 Security'],
+            ],
+            [
+                'name' => 'Nilgiri Resort Bandarban',
+                'city' => 'Bandarban',
+                'starRating' => 4,
+                'ratingScore' => 4.8,
+                'totalReviews' => 520,
+                'address' => 'Thanchi Road, Bandarban Hill Tracts, Bangladesh',
+                'price' => 7500,
+                'primaryImage' => 'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Peak Mountain View', 'Eco Cottages', 'Dining Deck', '24/7 Security'],
+            ],
+            [
+                'name' => 'MV Zabin Sundarban Luxury Cruise Ship',
+                'city' => 'Sundarbans',
+                'starRating' => 5,
+                'ratingScore' => 4.9,
+                'totalReviews' => 380,
+                'address' => 'Mongla Port & Waterways, Sundarbans, Khulna, Bangladesh',
+                'price' => 21000,
+                'primaryImage' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80',
+                'images' => [
+                    'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1000&q=80',
+                ],
+                'facilities' => ['Full Sun Deck', 'Buffet Dining', 'AC Cabins', 'Jungle Safari Guide'],
             ],
         ];
     }

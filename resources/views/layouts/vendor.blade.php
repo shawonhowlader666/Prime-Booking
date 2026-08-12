@@ -517,6 +517,31 @@
             border-color: var(--primary) !important; box-shadow: 0 2px 6px rgba(32,103,225,0.25);
         }
         .pagination .page-item.disabled .page-link { color: #cbd5e1; background: #f8fafc; border-color: #f1f5f9; cursor: not-allowed; }
+
+        /* ============================================================
+         * Stockifly Accordion Sub-menu System
+         * ============================================================ */
+        .sb-nav-group { margin-bottom: 2px; }
+        .sb-nav-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 9px 16px; color: rgba(255,255,255,0.65);
+            background: transparent; border: none; font-weight: 500;
+            font-size: var(--font-size-sidebar); cursor: pointer;
+            transition: all 0.15s ease; text-align: left;
+        }
+        .sb-nav-toggle:hover { color: #ffffff; background-color: rgba(24,144,255,0.12); }
+        .sb-nav-toggle .chevron-icon { font-size: 10px; transition: transform 0.2s ease; opacity: 0.7; }
+        .sb-nav-toggle[aria-expanded="true"] { color: #ffffff; background-color: rgba(255,255,255,0.06); }
+        .sb-nav-toggle[aria-expanded="true"] .chevron-icon { transform: rotate(90deg); }
+        .sb-sub-menu { background-color: #000c17; padding: 4px 0; border-left: 2px solid var(--primary); }
+        .sb-sub-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 16px 7px 36px; color: rgba(255,255,255,0.6);
+            text-decoration: none; font-weight: 500; font-size: 12.5px;
+            transition: all 0.15s ease;
+        }
+        .sb-sub-item:hover { color: #ffffff; background-color: rgba(24,144,255,0.12); }
+        .sb-sub-item.active { color: #ffffff; background-color: var(--primary); font-weight: 600; }
     </style>
     @yield('head')
 </head>
@@ -538,31 +563,60 @@
         </div>
 
         <nav style="padding:8px 0 60px 0; flex:1; overflow-y:auto;">
-            <div class="sb-section-header">My Properties &amp; Inventory</div>
+            <div class="sb-section-header">Overview</div>
             <a href="{{ route('vendor.dashboard') }}" class="sb-nav-item {{ request()->routeIs('vendor.dashboard') ? 'active' : '' }}">
                 <i class="fa-solid fa-chart-pie"></i> <span>Vendor Overview</span>
             </a>
-            <a href="{{ route('vendor.availability.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-calendar-days"></i> <span>Rates &amp; Calendar</span>
-            </a>
-            <a href="{{ route('vendor.properties.create') }}" class="sb-nav-item {{ request()->routeIs('vendor.properties.create') ? 'active' : '' }}">
-                <i class="fa-solid fa-circle-plus"></i> <span>Add New Property</span>
-            </a>
 
-            <div class="sb-section-header">Finance &amp; Payouts</div>
+            <div class="sb-section-header">Property &amp; Inventory</div>
+            @php $isVendorInventoryActive = request()->routeIs('vendor.availability.*', 'vendor.properties.create'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isVendorInventoryActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorInventory" aria-expanded="{{ $isVendorInventoryActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Property &amp; Rates</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isVendorInventoryActive ? 'show' : '' }}" id="menuVendorInventory">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('vendor.availability.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rates &amp; Calendar
+                        </a>
+                        <a href="{{ route('vendor.properties.create') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.create') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Add New Property
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sb-section-header">Marketing &amp; Content</div>
+            @php $isVendorMarketingActive = request()->routeIs('vendor.packages.*', 'vendor.reviews.*', 'vendor.promotions.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isVendorMarketingActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorMarketing" aria-expanded="{{ $isVendorMarketingActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-bullhorn" style="width:16px;text-align:center;"></i> <span>Marketing &amp; Reviews</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isVendorMarketingActive ? 'show' : '' }}" id="menuVendorMarketing">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('vendor.packages.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.packages.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> My Tour Packages
+                        </a>
+                        <a href="{{ route('vendor.promotions.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.promotions.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Promo Codes
+                        </a>
+                        <a href="{{ route('vendor.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.reviews.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Reviews
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="sb-section-header">Finance &amp; Account</div>
             <a href="{{ route('vendor.payouts.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.payouts.*') ? 'active' : '' }}">
                 <i class="fa-solid fa-wallet"></i> <span>Earnings &amp; Payouts</span>
             </a>
-
-            <div class="sb-section-header">Marketing &amp; Content</div>
-            <a href="{{ route('vendor.packages.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.packages.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-suitcase-rolling"></i> <span>My Tour Packages</span>
-            </a>
-            <a href="{{ route('vendor.reviews.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.reviews.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-star"></i> <span>Guest Reviews</span>
-            </a>
-
-            <div class="sb-section-header">Subscription</div>
             <a href="{{ route('vendor.plans.index') }}" class="sb-nav-item {{ request()->routeIs('vendor.plans.index') ? 'active' : '' }}">
                 <i class="fa-solid fa-crown" style="color:#fa8c16;"></i> <span>SaaS Plans &amp; Billing</span>
             </a>

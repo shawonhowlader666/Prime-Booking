@@ -959,6 +959,31 @@
             border-color: #f1f5f9;
             cursor: not-allowed;
         }
+
+        /* ============================================================
+         * Stockifly Accordion Sub-menu System
+         * ============================================================ */
+        .sb-nav-group { margin-bottom: 2px; }
+        .sb-nav-toggle {
+            display: flex; align-items: center; justify-content: space-between;
+            width: 100%; padding: 9px 16px; color: rgba(255,255,255,0.65);
+            background: transparent; border: none; font-weight: 500;
+            font-size: var(--font-size-sidebar); cursor: pointer;
+            transition: all 0.15s ease; text-align: left;
+        }
+        .sb-nav-toggle:hover { color: #ffffff; background-color: rgba(24,144,255,0.12); }
+        .sb-nav-toggle .chevron-icon { font-size: 10px; transition: transform 0.2s ease; opacity: 0.7; }
+        .sb-nav-toggle[aria-expanded="true"] { color: #ffffff; background-color: rgba(255,255,255,0.06); }
+        .sb-nav-toggle[aria-expanded="true"] .chevron-icon { transform: rotate(90deg); }
+        .sb-sub-menu { background-color: #000c17; padding: 4px 0; border-left: 2px solid var(--primary); }
+        .sb-sub-item {
+            display: flex; align-items: center; gap: 10px;
+            padding: 7px 16px 7px 36px; color: rgba(255,255,255,0.6);
+            text-decoration: none; font-weight: 500; font-size: 12.5px;
+            transition: all 0.15s ease;
+        }
+        .sb-sub-item:hover { color: #ffffff; background-color: rgba(24,144,255,0.12); }
+        .sb-sub-item.active { color: #ffffff; background-color: var(--primary); font-weight: 600; }
     </style>
     @yield('head')
 </head>
@@ -987,101 +1012,177 @@
         </div>
 
         <!-- Nav Menu -->
-        <nav style="padding: 8px 0; flex: 1; overflow-y: auto;">
+        <nav style="padding: 8px 0 60px 0; flex: 1; overflow-y: auto;">
 
-            <div class="sb-section-header">Main Dashboard</div>
+            <div class="sb-section-header">Overview</div>
             <a href="{{ route('admin.dashboard') }}" class="sb-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="fa-solid fa-chart-pie"></i> <span>Sales &amp; Summary</span>
             </a>
 
-            <div class="sb-section-header">Reservations</div>
-            <a href="{{ route('admin.bookings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-receipt"></i> <span>All Bookings</span>
-            </a>
+            <div class="sb-section-header">Core Management</div>
 
-            <div class="sb-section-header">Properties &amp; Stock</div>
-            <a href="{{ route('admin.properties.index') }}" class="sb-nav-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
-                <i class="fa-solid fa-hotel"></i> <span>Property Inventory</span>
-            </a>
-            <a href="{{ route('admin.import-hotels.index') }}" class="sb-nav-item {{ request()->routeIs('admin.import-hotels.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-cloud-arrow-down"></i> <span>OTA Data Importer</span>
-            </a>
-            <a href="{{ route('admin.properties.create') }}" class="sb-nav-item {{ request()->routeIs('admin.properties.create') ? 'active' : '' }}">
-                <i class="fa-solid fa-circle-plus"></i> <span>Add New Listing</span>
-            </a>
-
-            <div class="sb-section-header">Marketing &amp; Sales</div>
-            <a href="{{ route('admin.promotions.index') }}" class="sb-nav-item {{ request()->routeIs('admin.promotions.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-bullhorn"></i> <span>Promotions Manager</span>
-            </a>
-            <a href="{{ route('admin.packages.index') }}" class="sb-nav-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-suitcase-rolling"></i> <span>Tour Packages</span>
-            </a>
-            <a href="{{ route('admin.deals.index') }}" class="sb-nav-item {{ request()->routeIs('admin.deals.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-tag"></i> <span>Deals &amp; Offers</span>
-            </a>
-            <a href="{{ route('admin.coupons.index') }}" class="sb-nav-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-ticket"></i> <span>Promo Coupons</span>
-            </a>
-
-            <div class="sb-section-header">Finance &amp; Payouts</div>
-            <a href="{{ route('admin.payouts.index') }}" class="sb-nav-item {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-hand-holding-dollar"></i> <span>Vendor Payouts</span>
-            </a>
-
-            <div class="sb-section-header">User &amp; Vendor Management</div>
-            <a href="{{ route('admin.users.index') }}" class="sb-nav-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-users"></i> <span>User Accounts</span>
-            </a>
-            <a href="{{ route('admin.tenants.index') }}" class="sb-nav-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-users-gear"></i> <span>Vendor Tenants</span>
-            </a>
-
-            <div class="sb-section-header">Website Content (CMS)</div>
-            <a href="{{ route('admin.cms.index') }}" class="sb-nav-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-file-lines"></i> <span>Website Pages CMS</span>
-            </a>
-            <a href="{{ route('admin.content.hero') }}" class="sb-nav-item {{ request()->routeIs('admin.content.hero') ? 'active' : '' }}">
-                <i class="fa-solid fa-images"></i> <span>Hero Banner Slider</span>
-            </a>
-            <a href="{{ route('admin.destinations.index') }}" class="sb-nav-item {{ request()->routeIs('admin.destinations.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-map-location-dot"></i> <span>Featured Destinations</span>
-            </a>
-            <a href="{{ route('admin.amenities.index') }}" class="sb-nav-item {{ request()->routeIs('admin.amenities.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-list-check"></i> <span>Amenities Catalog</span>
-            </a>
-
-            <div class="sb-section-header">Quality &amp; Inbox</div>
-            <a href="{{ route('admin.reviews.index') }}" class="sb-nav-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-star"></i> <span>Guest Reviews</span>
-            </a>
-            <a href="{{ route('admin.inquiries.index') }}" class="sb-nav-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-envelope"></i> <span>Guest Inquiries</span>
-            </a>
-
-            <div class="sb-section-header">Settings &amp; Config</div>
-            <a href="{{ route('admin.gateways.index') }}" class="sb-nav-item {{ request()->routeIs('admin.gateways.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-credit-card"></i> <span>Payment Gateways Vault</span>
-            </a>
-            <a href="{{ route('admin.site-settings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.site-settings.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-sliders"></i> <span>Platform Settings</span>
-            </a>
-            <a href="{{ route('admin.settings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.settings.index') ? 'active' : '' }}">
-                <i class="fa-solid fa-gear"></i> <span>Currency &amp; System</span>
-            </a>
-
-            <div class="sb-section-header">Security &amp; Audit</div>
-            <a href="{{ route('admin.activity.index') }}" class="sb-nav-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
-                <i class="fa-solid fa-shield-halved"></i> <span>Activity Log</span>
-            </a>
-            {{-- System Cache Flush --}}
-            <form action="/admin/system/cache-clear" method="POST" style="padding:0 8px; margin:2px 0;">
-                @csrf
-                <button type="submit" class="sb-nav-item" style="width:100%; text-align:left; background:none; border:none; cursor:pointer;"
-                    onclick="return confirm('Clear all Redis/file caches?')">
-                    <i class="fa-solid fa-rotate" style="color:#ff9f43;"></i> <span style="color:rgba(255,255,255,0.7);">Flush Cache</span>
+            {{-- 1. Bookings & Reservations --}}
+            @php $isBookingsActive = request()->routeIs('admin.bookings.*', 'admin.inquiries.*', 'admin.reviews.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isBookingsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuBookings" aria-expanded="{{ $isBookingsActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-receipt" style="width:16px;text-align:center;"></i> <span>Reservations &amp; Inbox</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
-            </form>
+                <div class="collapse {{ $isBookingsActive ? 'show' : '' }}" id="menuBookings">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.bookings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Bookings
+                        </a>
+                        <a href="{{ route('admin.inquiries.index') }}" class="sb-sub-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Inquiries
+                        </a>
+                        <a href="{{ route('admin.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Reviews
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 2. Properties & Inventory --}}
+            @php $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Properties &amp; Inventory</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isPropertiesActive ? 'show' : '' }}" id="menuProperties">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.properties.index') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property Inventory
+                        </a>
+                        <a href="{{ route('admin.import-hotels.index') }}" class="sb-sub-item {{ request()->routeIs('admin.import-hotels.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> OTA Data Importer
+                        </a>
+                        <a href="{{ route('admin.properties.create') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.create') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Add New Listing
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 3. Marketing & Sales --}}
+            @php $isMarketingActive = request()->routeIs('admin.promotions.*', 'admin.packages.*', 'admin.deals.*', 'admin.coupons.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isMarketingActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuMarketing" aria-expanded="{{ $isMarketingActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-bullhorn" style="width:16px;text-align:center;"></i> <span>Marketing &amp; Sales</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isMarketingActive ? 'show' : '' }}" id="menuMarketing">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.promotions.index') }}" class="sb-sub-item {{ request()->routeIs('admin.promotions.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Promotions Manager
+                        </a>
+                        <a href="{{ route('admin.packages.index') }}" class="sb-sub-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Tour Packages
+                        </a>
+                        <a href="{{ route('admin.deals.index') }}" class="sb-sub-item {{ request()->routeIs('admin.deals.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Deals &amp; Offers
+                        </a>
+                        <a href="{{ route('admin.coupons.index') }}" class="sb-sub-item {{ request()->routeIs('admin.coupons.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Promo Coupons
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 4. Users, Vendors & Payouts --}}
+            @php $isAccountsActive = request()->routeIs('admin.users.*', 'admin.tenants.*', 'admin.payouts.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isAccountsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuAccounts" aria-expanded="{{ $isAccountsActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-users-gear" style="width:16px;text-align:center;"></i> <span>Users &amp; Vendors</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isAccountsActive ? 'show' : '' }}" id="menuAccounts">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.users.index') }}" class="sb-sub-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> User Accounts
+                        </a>
+                        <a href="{{ route('admin.tenants.index') }}" class="sb-sub-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Tenants
+                        </a>
+                        <a href="{{ route('admin.payouts.index') }}" class="sb-sub-item {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Payouts
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 5. Website CMS & Banners --}}
+            @php $isCMSActive = request()->routeIs('admin.cms.*', 'admin.content.hero', 'admin.destinations.*', 'admin.amenities.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isCMSActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuCMS" aria-expanded="{{ $isCMSActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-file-lines" style="width:16px;text-align:center;"></i> <span>Website CMS</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isCMSActive ? 'show' : '' }}" id="menuCMS">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.cms.index') }}" class="sb-sub-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Website Pages CMS
+                        </a>
+                        <a href="{{ route('admin.content.hero') }}" class="sb-sub-item {{ request()->routeIs('admin.content.hero') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Hero Banner Slider
+                        </a>
+                        <a href="{{ route('admin.destinations.index') }}" class="sb-sub-item {{ request()->routeIs('admin.destinations.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Featured Destinations
+                        </a>
+                        <a href="{{ route('admin.amenities.index') }}" class="sb-sub-item {{ request()->routeIs('admin.amenities.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Amenities Catalog
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 6. System & Settings --}}
+            @php $isSettingsActive = request()->routeIs('admin.gateways.*', 'admin.site-settings.*', 'admin.settings.*', 'admin.activity.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isSettingsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuSettings" aria-expanded="{{ $isSettingsActive ? 'true' : 'false' }}">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-gear" style="width:16px;text-align:center;"></i> <span>System &amp; Settings</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isSettingsActive ? 'show' : '' }}" id="menuSettings">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.site-settings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.site-settings.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Platform Settings
+                        </a>
+                        <a href="{{ route('admin.gateways.index') }}" class="sb-sub-item {{ request()->routeIs('admin.gateways.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payment Gateways
+                        </a>
+                        <a href="{{ route('admin.settings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.settings.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Currency &amp; System
+                        </a>
+                        <a href="{{ route('admin.activity.index') }}" class="sb-sub-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Activity Audit Logs
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-3 pb-1">
+                <form action="/admin/system/cache-clear" method="POST" style="padding:0 12px;">
+                    @csrf
+                    <button type="submit" class="sb-nav-item border-0 w-100" style="background:rgba(255,255,255,0.04); border-radius:4px; font-size:12px; cursor:pointer;"
+                        onclick="return confirm('Clear all Redis/file caches?')">
+                        <i class="fa-solid fa-rotate text-warning me-2"></i> <span>Flush System Cache</span>
+                    </button>
+                </form>
+            </div>
 
             <div class="sb-section-header">Live Site</div>
             <a href="{{ route('home') }}" target="_blank" class="sb-nav-item" style="color: rgba(80,210,255,0.8);">

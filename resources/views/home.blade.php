@@ -553,7 +553,7 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
         </div>
         <div class="row g-3">
             @foreach($featuredProperties as $prop)
-            <div class="col-sm-6 col-lg-4">
+            <div class="col-6 col-md-4 col-lg-3">
                 <a href="{{ route('hotels.show', $prop->id) }}" class="text-decoration-none text-dark">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100" style="transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.14)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                         @php

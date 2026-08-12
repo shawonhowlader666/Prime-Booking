@@ -45,17 +45,22 @@
 
     {{-- Active OTA Cookie Channels & Live Feeds Hub --}}
     <div class="form-card mb-4" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:16px 20px;">
-        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2">
+        <div class="d-flex align-items-center justify-content-between mb-3 border-bottom pb-2 flex-wrap gap-2">
             <div>
                 <h6 class="mb-0 fw-bold text-dark d-flex align-items-center gap-2" style="font-size:14px;">
                     <i class="fa-solid fa-cookie-bite text-warning"></i>
-                    Active OTA Cookie Channels &amp; Real-Time Importer Status
+                    Active OTA Cookie Channels &amp; Universal Importer Engine
                 </h6>
-                <small class="text-secondary" style="font-size:11.5px;">Monitor active OTA browser cookies, API tokens, and live payload data channels.</small>
+                <small class="text-secondary" style="font-size:11.5px;">Supports Agoda, Booking.com, Traveloka, MakeMyTrip, Goibibo, Expedia, Airbnb &amp; Custom API Feeds.</small>
             </div>
-            <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px; font-weight:600;">
-                <i class="fa-solid fa-signal me-1"></i> Importer Engine Active
-            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button type="button" class="btn btn-sm btn-outline-primary fw-bold px-2 py-1" onclick="openAddOptionModal('ota_channel')" style="font-size:11px; border-radius:4px;">
+                    <i class="fa-solid fa-plus me-1"></i> Add Custom OTA Channel
+                </button>
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1" style="font-size:11px; font-weight:600;">
+                    <i class="fa-solid fa-signal me-1"></i> Universal Parser Active
+                </span>
+            </div>
         </div>
         <div class="row g-3">
             <div class="col-md-3 col-6">

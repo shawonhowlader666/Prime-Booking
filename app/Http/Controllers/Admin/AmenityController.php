@@ -28,7 +28,7 @@ class AmenityController extends Controller
             }
         }
 
-        $amenities = Amenity::orderBy('category')->orderBy('name')->get();
+        $amenities = Amenity::withCount('properties')->orderBy('category')->orderBy('name')->get();
         return view('admin.amenities.index', compact('amenities'));
     }
 

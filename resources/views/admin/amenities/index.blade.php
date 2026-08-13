@@ -89,6 +89,7 @@
                         <th>Amenity Name &amp; Key</th>
                         <th>FontAwesome Icon Class</th>
                         <th>Category Group</th>
+                        <th>Linked Hotel Properties</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
                 </thead>
@@ -112,6 +113,11 @@
                         <td>
                             <span class="badge bg-light text-primary border border-primary border-opacity-25" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:4px;">
                                 {{ ucfirst($am->category) }}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 fw-bold" style="font-size:11px; padding:4px 8px; border-radius:4px;">
+                                <i class="fa-solid fa-hotel me-1"></i> {{ $am->properties_count }} Hotels Linked
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">

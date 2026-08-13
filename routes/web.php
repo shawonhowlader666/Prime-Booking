@@ -191,6 +191,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // Dynamic Content Managers (Tour Packages, Deals, CMS, Amenities)
     Route::get('/packages', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'index'])->name('packages.index');
+    Route::get('/packages/create', [App\Http\Controllers\Admin\TourPackageController::class, 'create'])->name('packages.create');
+    Route::post('/packages', [App\Http\Controllers\Admin\TourPackageController::class, 'store'])->name('packages.store');
+    Route::get('/packages/{package}/edit', [App\Http\Controllers\Admin\TourPackageController::class, 'edit'])->name('packages.edit');
+    Route::put('/packages/{package}', [App\Http\Controllers\Admin\TourPackageController::class, 'update'])->name('packages.update');
     Route::post('/packages/{id}/status', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'toggleStatus'])->name('packages.toggle');
     Route::delete('/packages/{id}', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'destroy'])->name('packages.destroy');
     Route::resource('deals', DealController::class);

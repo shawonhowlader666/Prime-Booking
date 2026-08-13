@@ -52,11 +52,17 @@ class SiteSetting extends Model
 
     public static function set(string $key, mixed $value): void
     {
+        $strVal = is_array($value) ? json_encode($value) : (string) $value;
+        // Prevent MySQL text column truncation error (TEXT max 65,535 bytes)
+        if (strlen($strVal) > 65000) {
+            $strVal = substr($strVal, 0, 64000);
+        }
+
         $setting = static::where('key', $key)->first();
         if ($setting) {
-            $setting->update(['value' => is_array($value) ? json_encode($value) : (string) $value]);
+            $setting->update(['value' => $strVal]);
         } else {
-            static::create(['key' => $key, 'value' => is_array($value) ? json_encode($value) : (string) $value, 'label' => ucwords(str_replace('_', ' ', $key))]);
+            static::create(['key' => $key, 'value' => $strVal, 'label' => ucwords(str_replace('_', ' ', $key))]);
         }
         // Invalidate cache
         Cache::forget("site_setting:{$key}");

@@ -91,6 +91,9 @@ class HotelImportController extends Controller
             'json_payload'        => 'nullable|string',
         ]);
 
+        @ini_set('memory_limit', '512M');
+        @set_time_limit(300);
+
         try {
             $mode = $request->input('mode');
 
@@ -126,19 +129,19 @@ class HotelImportController extends Controller
                 $otaChannel = strtolower($request->input('ota_channel', 'agoda'));
                 $cookieKey  = 'ota_saved_cookie_' . $otaChannel;
 
-                if (!empty($cookie)) {
-                    SiteSetting::set($cookieKey, $cookie);
-                    SiteSetting::set('ota_saved_cookie_agoda', $cookie);
-                } else {
-                    $cookie = SiteSetting::get($cookieKey, SiteSetting::get('ota_saved_cookie_agoda', ''));
-                }
-
                 // Check if user pasted a raw JSON payload string directly in cookie box
                 if (!empty($cookie) && (str_starts_with($cookie, '[') || str_starts_with($cookie, '{'))) {
                     $jsonTest = json_decode($cookie, true);
                     if (json_last_error() === JSON_ERROR_NONE && is_array($jsonTest)) {
                         $payloadData = $jsonTest;
                     }
+                }
+
+                if (!empty($cookie) && !isset($payloadData) && strlen($cookie) < 1000) {
+                    SiteSetting::set($cookieKey, $cookie);
+                    SiteSetting::set('ota_saved_cookie_agoda', $cookie);
+                } elseif (empty($cookie)) {
+                    $cookie = SiteSetting::get($cookieKey, SiteSetting::get('ota_saved_cookie_agoda', ''));
                 }
 
                 if (!isset($payloadData)) {

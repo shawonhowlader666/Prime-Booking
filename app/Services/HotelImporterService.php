@@ -419,7 +419,11 @@ class HotelImporterService
             $images = [$primaryImage];
         }
 
-        // Extract Amenities
+        // Extract Geo Coordinates
+        $lat = $summary['geoInfo']['latitude'] ?? $item['latitude'] ?? null;
+        $lng = $summary['geoInfo']['longitude'] ?? $item['longitude'] ?? null;
+
+        // Extract Amenities & Room Facilities
         $amenities = [];
         if (! empty($highlight)) {
             foreach ($highlight as $f) {
@@ -430,6 +434,14 @@ class HotelImporterService
                 }
             }
         }
+        $roomFacs = $item['enrichment']['roomInformation']['facilities'] ?? [];
+        if (! empty($roomFacs) && is_array($roomFacs)) {
+            foreach ($roomFacs as $rf) {
+                if (is_array($rf) && ! empty($rf['propertyFacilityName'])) {
+                    $amenities[] = $rf['propertyFacilityName'];
+                }
+            }
+        }
         if (empty($amenities)) {
             $amenities = $item['amenities'] ?? $item['facilities'] ?? ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
         }
@@ -437,9 +449,11 @@ class HotelImporterService
         // Determine Property Type
         $type = Property::TYPE_HOTEL;
         $lowerName = strtolower($name);
+        $rawPropType = strtolower((string)($summary['propertyType'] ?? ''));
         if (str_contains($lowerName, 'resort'))   $type = Property::TYPE_RESORT;
         elseif (str_contains($lowerName, 'villa'))  $type = Property::TYPE_VILLA;
         elseif (str_contains($lowerName, 'cottage')) $type = Property::TYPE_COTTAGE;
+        elseif (str_contains($lowerName, 'apartment') || $rawPropType === 'singleroom' || $rawPropType === 'nonhotel') $type = Property::TYPE_APARTMENT;
         elseif (str_contains($lowerName, 'stay') || str_contains($lowerName, 'home')) $type = Property::TYPE_HOMESTAY;
 
         return [
@@ -450,6 +464,8 @@ class HotelImporterService
             'star_rating'     => $star,
             'rating_score'    => $score,
             'total_reviews'   => (int)$reviews,
+            'latitude'        => $lat,
+            'longitude'       => $lng,
             'description'     => $item['description'] ?? "Experience luxury and modern comfort at {$name} in {$city}. High-speed WiFi, premier dining, and signature hospitality.",
             'price_per_night' => $price,
             'original_price'  => $originalPrice,

@@ -6,13 +6,13 @@
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
     <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1"></i> Dashboard</a>
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
         <span class="sep">-</span><a href="{{ route('admin.properties.index') }}">Inventory</a>
         <span class="sep">-</span><strong style="color:#333;">Add New Listing</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:8px;">
         <h1 class="page-title m-0">Add New Property Listing</h1>
-        <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:6px;">
+        <a href="{{ route('admin.properties.index') }}" class="btn-table-action" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
             <i class="fa-solid fa-arrow-left"></i> <span>Back to Inventory</span>
         </a>
     </div>
@@ -24,32 +24,32 @@
         @csrf
 
         @if ($errors->any())
-            <div class="admin-alert error mb-4" style="border-radius:4px; padding:12px 16px;">
+            <div class="admin-alert error mb-4" style="border-radius:4px; padding:14px 18px;">
                 <i class="fa-solid fa-circle-xmark me-2"></i>
-                <strong>Please fix the errors below:</strong>
+                <strong>Please fix the input errors below:</strong>
                 <span class="ms-2">{{ implode(', ', $errors->all()) }}</span>
             </div>
         @endif
 
-        {{-- SINGLE CLEAN WHITE SAAS CARD --}}
-        <div class="form-card" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:24px;">
+        {{-- SINGLE CLEAN WHITE SAAS CARD CONTAINER --}}
+        <div class="form-card" style="border-radius:4px; background:#ffffff; border:1px solid #e2e8f0; padding:28px;">
 
             {{-- 1. PROPERTY DETAILS --}}
-            <div class="border-bottom pb-2.5 mb-3.5">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-hotel text-primary" style="font-size:14px; width:18px;"></i>
+            <div class="border-bottom pb-2.5 mb-4">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-hotel text-primary me-2.5" style="font-size:15px; width:20px;"></i>
                     <span>Property Details &amp; Classification</span>
-                </h6>
+                </h5>
             </div>
             <div class="row g-3.5 mb-4">
                 <div class="col-md-6">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Property Name <span style="color:#ff4d4f;">*</span></label>
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Property Full Name <span style="color:#ff4d4f;">*</span></label>
                     <input type="text" name="name" class="form-control" value="{{ old('name') }}"
-                        placeholder="e.g. Royal Tulip Sea Pearl Beach Resort & Spa" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                        placeholder="e.g. Royal Tulip Sea Pearl Beach Resort & Spa" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
                 <div class="col-md-3">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Property Type <span style="color:#ff4d4f;">*</span></label>
-                    <select name="type" class="form-select" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <select name="type" class="form-select" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                         <option value="hotel" {{ old('type') == 'hotel' ? 'selected' : '' }}>Hotel &amp; Resort</option>
                         <option value="resort" {{ old('type') == 'resort' ? 'selected' : '' }}>Beach Resort &amp; Spa</option>
                         <option value="houseboat" {{ old('type') == 'houseboat' ? 'selected' : '' }}>Ship &amp; Houseboat</option>
@@ -59,7 +59,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">City / Destination <span style="color:#ff4d4f;">*</span></label>
-                    <select name="city" class="form-select" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <select name="city" class="form-select" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                         <option value="Cox's Bazar Sea Beach" {{ old('city') == "Cox's Bazar Sea Beach" ? 'selected' : '' }}>Cox's Bazar Sea Beach</option>
                         <option value="Dhaka City" {{ old('city') == 'Dhaka City' ? 'selected' : '' }}>Dhaka City</option>
                         <option value="Sylhet & Sreemangal" {{ old('city') == 'Sylhet & Sreemangal' ? 'selected' : '' }}>Sylhet &amp; Sreemangal</option>
@@ -72,7 +72,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Star Rating <span style="color:#ff4d4f;">*</span></label>
-                    <select name="star_rating" class="form-select" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <select name="star_rating" class="form-select" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                         <option value="5" {{ old('star_rating') == '5' ? 'selected' : '' }}>5 Star Luxury</option>
                         <option value="4" {{ old('star_rating') == '4' ? 'selected' : '' }}>4 Star Premium</option>
                         <option value="3" {{ old('star_rating') == '3' ? 'selected' : '' }}>3 Star Standard</option>
@@ -81,7 +81,7 @@
                 </div>
                 <div class="col-md-3">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Vendor Account</label>
-                    <select name="vendor_id" class="form-select" style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <select name="vendor_id" class="form-select" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                         <option value="">Admin Managed (Prime Booking)</option>
                         @if(isset($vendors))
                             @foreach($vendors as $v)
@@ -93,42 +93,42 @@
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Full Physical Address <span style="color:#ff4d4f;">*</span></label>
                     <input type="text" name="address" class="form-control" value="{{ old('address') }}"
-                        placeholder="e.g. Inani Beach, Marine Drive Road, Kolatoli, Cox's Bazar 4700" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                        placeholder="e.g. Inani Beach, Marine Drive Road, Kolatoli, Cox's Bazar 4700" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
                 <div class="col-md-12">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Nearest Landmark / Distance</label>
                     <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark') }}"
-                        placeholder="e.g. 2 mins walk from Kolatoli Beach Point" style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                        placeholder="e.g. 2 mins walk from Kolatoli Beach Point" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
             </div>
 
             {{-- 2. PRICING & POLICIES --}}
-            <div class="border-bottom pb-2.5 mb-3.5 mt-4">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-bangladeshi-taka-sign text-success" style="font-size:14px; width:18px;"></i>
+            <div class="border-bottom pb-2.5 mb-4 mt-5">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-bangladeshi-taka-sign text-success me-2.5" style="font-size:15px; width:20px;"></i>
                     <span>Pricing &amp; Booking Options</span>
-                </h6>
+                </h5>
             </div>
             <div class="row g-3.5 mb-4">
                 <div class="col-md-4">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Base Price Per Night (BDT ৳) <span style="color:#ff4d4f;">*</span></label>
                     <div style="display:flex;">
-                        <span class="input-group-text bg-light text-dark fw-bold" style="font-size:12px; border-radius:4px 0 0 4px; padding:0 12px; height:38px;">৳ BDT</span>
+                        <span class="input-group-text bg-light text-dark fw-bold" style="font-size:12.5px; border-radius:4px 0 0 4px; padding:0 14px; height:38px;">৳ BDT</span>
                         <input type="number" name="price_per_night" class="form-control"
-                            value="{{ old('price_per_night') }}" placeholder="8500" required style="font-size:13px; border-radius:0 4px 4px 0; height:38px; padding:0 12px;">
+                            value="{{ old('price_per_night') }}" placeholder="8500" required style="font-size:13px; border-radius:0 4px 4px 0; height:38px; padding:0 14px;">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Original Crossed-Out Rate (BDT)</label>
                     <div style="display:flex;">
-                        <span class="input-group-text bg-light text-muted" style="font-size:12px; border-radius:4px 0 0 4px; padding:0 12px; height:38px;">৳ BDT</span>
+                        <span class="input-group-text bg-light text-muted" style="font-size:12.5px; border-radius:4px 0 0 4px; padding:0 14px; height:38px;">৳ BDT</span>
                         <input type="number" name="original_price" class="form-control"
-                            value="{{ old('original_price') }}" placeholder="11000" style="font-size:13px; border-radius:0 4px 4px 0; height:38px; padding:0 12px;">
+                            value="{{ old('original_price') }}" placeholder="11000" style="font-size:13px; border-radius:0 4px 4px 0; height:38px; padding:0 14px;">
                     </div>
                 </div>
                 <div class="col-md-4">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Visibility Status</label>
-                    <select name="status" class="form-select" style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <select name="status" class="form-select" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                         <option value="active" {{ old('status', 'active') == 'active' ? 'selected' : '' }}>Active — Published Live</option>
                         <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive — Draft Mode</option>
                     </select>
@@ -161,56 +161,56 @@
             </div>
 
             {{-- 3. MEDIA & GALLERY --}}
-            <div class="border-bottom pb-2.5 mb-3.5 mt-4">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-images text-purple" style="font-size:14px; width:18px; color:#7367f0;"></i>
+            <div class="border-bottom pb-2.5 mb-4 mt-5">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-images me-2.5" style="font-size:15px; width:20px; color:#7367f0;"></i>
                     <span>Media Assets &amp; Video Property Tour</span>
-                </h6>
+                </h5>
             </div>
             <div class="row g-3.5 mb-4">
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Primary Thumbnail Image URL <span style="color:#ff4d4f;">*</span></label>
                     <input type="url" name="primary_image" id="primaryImgUrl" class="form-control"
                         value="{{ old('primary_image') }}" placeholder="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80"
-                        oninput="previewImage(this.value)" style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
-                    <div id="imgPreviewWrap" class="mt-2" style="display:none;">
-                        <img id="imgPreview" src="" style="height:75px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
+                        oninput="previewImage(this.value)" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                    <div id="imgPreviewWrap" class="mt-2.5" style="display:none;">
+                        <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Video Tour URL (YouTube Embed / MP4)</label>
                     <input type="url" name="video_url" class="form-control"
-                        value="{{ old('video_url') }}" placeholder="https://www.youtube.com/embed/..." style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                        value="{{ old('video_url') }}" placeholder="https://www.youtube.com/embed/..." style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
                 <div class="col-md-12">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Gallery Image URLs (one per line)</label>
                     <textarea name="gallery_images" class="form-control" rows="3"
-                        placeholder="https://images.unsplash.com/photo-1571896349842...&#10;https://images.unsplash.com/photo-1582719478250..." style="font-size:13px; border-radius:4px; padding:10px 12px;">{{ old('gallery_images') }}</textarea>
+                        placeholder="https://images.unsplash.com/photo-1571896349842...&#10;https://images.unsplash.com/photo-1582719478250..." style="font-size:13px; border-radius:4px; padding:12px 14px;">{{ old('gallery_images') }}</textarea>
                 </div>
             </div>
 
             {{-- 4. DESCRIPTION --}}
-            <div class="border-bottom pb-2.5 mb-3.5 mt-4">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-align-left text-warning" style="font-size:14px; width:18px;"></i>
-                    <span>Property Description &amp; Policies</span>
-                </h6>
+            <div class="border-bottom pb-2.5 mb-4 mt-5">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-align-left text-warning me-2.5" style="font-size:15px; width:20px;"></i>
+                    <span>Property Description &amp; Guest Policies</span>
+                </h5>
             </div>
             <div class="row g-3.5 mb-4">
                 <div class="col-md-12">
                     <textarea name="description" class="form-control" rows="4"
-                        placeholder="Describe property location highlights, room features, check-in policies, complimentary breakfast..." required style="font-size:13px; border-radius:4px; padding:10px 12px;">{{ old('description') }}</textarea>
+                        placeholder="Describe property location highlights, room features, check-in policies, complimentary breakfast..." required style="font-size:13px; border-radius:4px; padding:12px 14px;">{{ old('description') }}</textarea>
                 </div>
             </div>
 
             {{-- 5. AMENITIES --}}
-            <div class="border-bottom pb-2.5 mb-3.5 mt-4">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-list-check text-primary" style="font-size:14px; width:18px;"></i>
+            <div class="border-bottom pb-2.5 mb-4 mt-5">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-list-check text-primary me-2.5" style="font-size:15px; width:20px;"></i>
                     <span>Property Amenities &amp; On-Site Facilities</span>
-                </h6>
+                </h5>
             </div>
-            <div class="row g-2.5 mb-4">
+            <div class="row g-3 mb-4">
                 @foreach([
                     ['wifi',       'fa-wifi',              'Free WiFi'],
                     ['pool',       'fa-person-swimming',   'Swimming Pool'],
@@ -226,11 +226,11 @@
                     ['transfer',   'fa-van-shuttle',       'Airport Shuttle'],
                 ] as $am)
                 <div class="col-6 col-md-3">
-                    <div class="p-2 px-2.5 border bg-light d-flex align-items-center gap-2.5" style="border-radius:4px; cursor:pointer;">
+                    <div class="p-2.5 px-3 border bg-light d-flex align-items-center gap-2.5" style="border-radius:4px; cursor:pointer;">
                         <input type="checkbox" name="amenities[]" value="{{ $am[0] }}" id="am_{{ $am[0] }}"
                             {{ in_array($am[0], old('amenities', [])) ? 'checked' : '' }} style="cursor:pointer; margin-top:0;">
-                        <label for="am_{{ $am[0] }}" class="mb-0 text-dark fw-semibold d-flex align-items-center gap-2" style="cursor:pointer; font-size:12px;">
-                            <i class="fa-solid {{ $am[1] }} text-primary" style="width:14px;"></i> <span>{!! $am[2] !!}</span>
+                        <label for="am_{{ $am[0] }}" class="mb-0 text-dark fw-semibold d-flex align-items-center gap-2" style="cursor:pointer; font-size:12.5px;">
+                            <i class="fa-solid {{ $am[1] }} text-primary" style="width:16px;"></i> <span>{!! $am[2] !!}</span>
                         </label>
                     </div>
                 </div>
@@ -238,11 +238,11 @@
             </div>
 
             {{-- 6. ROOM TYPES SETUP --}}
-            <div class="border-bottom pb-2.5 mb-3.5 mt-4">
-                <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:14.5px;">
-                    <i class="fa-solid fa-bed text-success" style="font-size:14px; width:18px;"></i>
+            <div class="border-bottom pb-2.5 mb-4 mt-5">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-bed text-success me-2.5" style="font-size:15px; width:20px;"></i>
                     <span>Initial Room Categories Setup (Optional)</span>
-                </h6>
+                </h5>
             </div>
             <div class="row g-3.5 mb-4">
                 @foreach([
@@ -253,7 +253,7 @@
                 <div class="col-md-4">
                     <div class="p-3 border bg-light" style="border-radius:4px;">
                         <label class="form-label fw-bold text-dark mb-2" style="font-size:12.5px;">{{ $r[0] }}</label>
-                        <div class="row g-2">
+                        <div class="row g-2.5">
                             <div class="col-6">
                                 <label class="form-label text-secondary mb-1" style="font-size:11px;">Price/Night (BDT)</label>
                                 <input type="number" name="room_price[]" class="form-control form-control-sm" placeholder="{{ $r[1] }}" style="font-size:12px; border-radius:4px; height:34px; padding:0 10px;">
@@ -271,14 +271,14 @@
             </div>
 
             {{-- ACTIONS --}}
-            <div class="d-flex align-items-center justify-content-end gap-2.5 pt-3.5 border-top" style="border-color:#e2e8f0 !important;">
-                <a href="{{ route('admin.properties.index') }}" class="btn btn-light text-secondary border fw-bold d-inline-flex align-items-center gap-1.5" style="border-radius:4px; font-size:13px; height:38px; padding:0 20px;">
+            <div class="d-flex align-items-center justify-content-end gap-3 pt-4 border-top mt-5" style="border-color:#e2e8f0 !important;">
+                <a href="{{ route('admin.properties.index') }}" class="btn btn-light text-secondary border fw-bold d-inline-flex align-items-center gap-2" style="border-radius:4px; font-size:13px; height:38px; padding:0 20px;">
                     <span>Cancel</span>
                 </a>
-                <button type="submit" name="action" value="draft" class="btn btn-outline-secondary fw-bold d-inline-flex align-items-center gap-1.5" style="border-radius:4px; font-size:13px; height:38px; padding:0 20px;">
+                <button type="submit" name="action" value="draft" class="btn btn-outline-secondary fw-bold d-inline-flex align-items-center gap-2" style="border-radius:4px; font-size:13px; height:38px; padding:0 20px;">
                     <i class="fa-solid fa-floppy-disk"></i> <span>Save as Draft</span>
                 </button>
-                <button type="submit" name="action" value="publish" class="btn btn-primary text-white fw-bold d-inline-flex align-items-center gap-1.5" style="background-color:var(--primary); border-radius:4px; font-size:13px; height:38px; padding:0 24px; border:none;">
+                <button type="submit" name="action" value="publish" class="btn btn-primary text-white fw-bold d-inline-flex align-items-center gap-2" style="background-color:var(--primary); border-radius:4px; font-size:13px; height:38px; padding:0 24px; border:none;">
                     <i class="fa-solid fa-rocket"></i> <span>Publish Listing Live</span>
                 </button>
             </div>

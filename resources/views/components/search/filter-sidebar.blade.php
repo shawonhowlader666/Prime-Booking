@@ -27,7 +27,7 @@
             <a href="{{ route('search.index') }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
         </div>
 
-        <form action="{{ route('search.index') }}" method="GET">
+        <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
             <input type="hidden" name="destination" value="{{ request('destination') }}">
             <input type="hidden" name="check_in" value="{{ request('check_in') }}">
             <input type="hidden" name="check_out" value="{{ request('check_out') }}">
@@ -44,22 +44,22 @@
             {{-- 2.1 Location Filter — Instant Zero-Reload Client-Side Cascade Engine --}}
             @php
                 $geoConfig = config('bangladesh-geo.divisions', []);
-                $selectedDivision = request('division', '');
-                $selectedDistrict = request('district', '');
-                $selectedUpazila  = request('upazila', '');
+                $selectedDivision = (string) request('division', '');
+                $selectedDistrict = (string) request('district', '');
+                $selectedUpazila  = (string) request('upazila', '');
             @endphp
             <div class="mb-4 pb-3 border-bottom" id="locationFilterWidget">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="fw-bold text-dark m-0 d-block" style="font-size: 13px;">Location</label>
-                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ ($selectedDivision || $selectedDistrict || $selectedUpazila) ? '' : 'd-none' }}" style="font-size: 11.5px; color: #2067e1;">Reset</a>
+                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ (!empty($selectedDivision) || !empty($selectedDistrict) || !empty($selectedUpazila)) ? '' : 'd-none' }}" style="font-size: 11.5px; color: #2067e1;">Reset</a>
                 </div>
 
-                <!-- Step 1: Region Select (Always Visible) -->
+                <!-- Step 1: Region Select (Default: Select region...) -->
                 <div class="mb-2" id="geoDivisionContainer">
                     <select name="division" id="divisionSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
-                        <option value="">Select region...</option>
+                        <option value="" {{ empty($selectedDivision) ? 'selected' : '' }}>Select region...</option>
                         @foreach($geoConfig as $divKey => $divInfo)
-                            <option value="{{ $divKey }}" {{ $selectedDivision === $divKey ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
+                            <option value="{{ $divKey }}" {{ ($selectedDivision !== '' && $selectedDivision === (string)$divKey) ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -89,10 +89,11 @@
                 </div>
             </div>
 
-            <!-- Instant In-Memory JS Cascade Engine (Zero Network Latency) -->
+            <!-- Global Live AJAX Search Filter Engine (Zero Page Reload Flashing) -->
             <script>
             document.addEventListener('DOMContentLoaded', function () {
                 const geoData = @json($geoConfig);
+                const filterForm = document.getElementById('filterSidebarForm');
                 const divisionSelect = document.getElementById('divisionSelectFilter');
                 const districtSelect = document.getElementById('districtSelectFilter');
                 const upazilaSelect  = document.getElementById('upazilaSelectFilter');
@@ -100,11 +101,66 @@
                 const upazilaContainer  = document.getElementById('geoUpazilaContainer');
                 const resetBtn = document.getElementById('resetLocationBtn');
 
+                function triggerAjaxFilterSearch() {
+                    const resultsContainer = document.getElementById('searchResultsContainer');
+                    if (!resultsContainer || !filterForm) {
+                        filterForm.submit();
+                        return;
+                    }
+
+                    resultsContainer.style.opacity = '0.35';
+                    resultsContainer.style.transition = 'opacity 0.15s ease-in-out';
+
+                    const formData = new FormData(filterForm);
+                    const params = new URLSearchParams();
+                    
+                    for (const [key, val] of formData.entries()) {
+                        if (val !== '' && val !== null) {
+                            params.append(key, val);
+                        }
+                    }
+
+                    const targetUrl = filterForm.action + '?' + params.toString();
+
+                    fetch(targetUrl, {
+                        headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                    })
+                    .then(res => res.text())
+                    .then(html => {
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+                        const newFeed = doc.getElementById('searchResultsContainer');
+                        if (newFeed) {
+                            resultsContainer.innerHTML = newFeed.innerHTML;
+                        }
+                        resultsContainer.style.opacity = '1';
+                        history.pushState(null, '', targetUrl);
+                    })
+                    .catch(err => {
+                        console.error('AJAX Filter Error:', err);
+                        resultsContainer.style.opacity = '1';
+                    });
+                }
+
+                // Attach to form submit
+                if (filterForm) {
+                    filterForm.addEventListener('submit', function (e) {
+                        e.preventDefault();
+                        triggerAjaxFilterSearch();
+                    });
+
+                    // Attach to all input/checkbox change events in sidebar
+                    filterForm.querySelectorAll('input[type="checkbox"], input[type="radio"], select:not(#divisionSelectFilter):not(#districtSelectFilter):not(#upazilaSelectFilter)').forEach(function (el) {
+                        el.addEventListener('change', function () {
+                            triggerAjaxFilterSearch();
+                        });
+                    });
+                }
+
                 // 1. Region Change (Instant DOM Populate in < 1ms, ZERO Page Reload)
                 divisionSelect.addEventListener('change', function () {
                     const selDiv = this.value;
                     
-                    // Reset child selects
                     districtSelect.innerHTML = '<option value="">Select city / district...</option>';
                     upazilaSelect.innerHTML  = '<option value="">Select area / spot...</option>';
                     upazilaContainer.classList.add('d-none');
@@ -121,11 +177,10 @@
                         resetBtn.classList.remove('d-none');
                     } else {
                         districtContainer.classList.add('d-none');
-                        if (!selDiv) {
-                            resetBtn.classList.add('d-none');
-                            this.form.submit();
-                        }
+                        if (!selDiv) resetBtn.classList.add('d-none');
                     }
+
+                    triggerAjaxFilterSearch();
                 });
 
                 // 2. District Change (Instant DOM Populate in < 1ms, ZERO Page Reload)
@@ -133,7 +188,6 @@
                     const selDiv = divisionSelect.value;
                     const selDist = this.value;
 
-                    // Reset child select
                     upazilaSelect.innerHTML = '<option value="">Select area / spot...</option>';
 
                     if (selDiv && selDist && geoData[selDiv] && geoData[selDiv].districts[selDist] && geoData[selDiv].districts[selDist].upazilas) {
@@ -149,13 +203,12 @@
                         upazilaContainer.classList.add('d-none');
                     }
                     
-                    // Trigger search filter for the selected district
-                    this.form.submit();
+                    triggerAjaxFilterSearch();
                 });
 
-                // 3. Upazila Change (Filter Trigger)
+                // 3. Upazila Change
                 upazilaSelect.addEventListener('change', function () {
-                    this.form.submit();
+                    triggerAjaxFilterSearch();
                 });
 
                 // 4. Reset Button Click (Instant Reset)
@@ -167,7 +220,7 @@
                         districtContainer.classList.add('d-none');
                         upazilaContainer.classList.add('d-none');
                         resetBtn.classList.add('d-none');
-                        divisionSelect.form.submit();
+                        triggerAjaxFilterSearch();
                     });
                 }
             });

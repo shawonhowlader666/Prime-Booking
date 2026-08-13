@@ -1,4 +1,4 @@
-﻿@extends('layouts.main', ['activePage' => 'services'])
+@extends('layouts.main', ['activePage' => 'services'])
 
 @section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING')
 
@@ -60,7 +60,7 @@
         </div>
 
         {{-- Right Results Feed --}}
-        <div class="col-lg-9">
+        <div class="col-lg-9" id="searchResultsContainer">
             
             {{-- Green Prime Homes Promo Banner (Agoda Standard 1:1 Parity) --}}
             <div class="mb-4 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 12px !important; padding: 16px 20px;">

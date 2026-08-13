@@ -278,6 +278,8 @@ class HotelImporterService
         return isset($keys['hotelid']) ||
                isset($keys['hotel_id']) ||
                isset($keys['propertyid']) ||
+               isset($keys['propertyresulttype']) ||
+               isset($keys['informationsummary']) ||
                isset($keys['hotelname']) ||
                isset($keys['propertyname']) ||
                isset($keys['starrating']) ||
@@ -296,18 +298,23 @@ class HotelImporterService
     public function normalizeHotelData(array $item, string $targetCity): array
     {
         $content = (is_array($item['content'] ?? null)) ? $item['content'] : [];
-        $reviewsData = (is_array($item['reviews']['cumulative'] ?? null)) ? $item['reviews']['cumulative'] : ((is_array($item['reviews'] ?? null)) ? $item['reviews'] : []);
-        $highlight = (is_array($item['highlight']['favoriteFeatures']['features'] ?? null)) ? $item['highlight']['favoriteFeatures']['features'] : [];
+        $summary = (is_array($content['informationSummary'] ?? null)) ? $content['informationSummary'] : [];
+        $reviewsData = (is_array($content['reviews']['contentReview'][0]['cumulative'] ?? null))
+            ? $content['reviews']['contentReview'][0]['cumulative']
+            : ((is_array($item['reviews']['cumulative'] ?? null)) ? $item['reviews']['cumulative'] : ((is_array($item['reviews'] ?? null)) ? $item['reviews'] : []));
+        $highlight = (is_array($content['highlight']['favoriteFeatures']['features'] ?? null))
+            ? $content['highlight']['favoriteFeatures']['features']
+            : ((is_array($item['highlight']['favoriteFeatures']['features'] ?? null)) ? $item['highlight']['favoriteFeatures']['features'] : []);
 
         // Extract Name
-        $name = $content['name'] ?? $item['name'] ?? $item['hotelName'] ?? $item['propertyName'] ?? $item['title'] ?? $item['displayName'] ?? '';
+        $name = $summary['displayName'] ?? $summary['localeName'] ?? $summary['defaultName'] ?? $content['name'] ?? $item['name'] ?? $item['hotelName'] ?? $item['propertyName'] ?? $item['title'] ?? $item['displayName'] ?? '';
         if (is_array($name)) {
             $name = $name['translation'] ?? $name['text'] ?? $name['value'] ?? (is_string(reset($name)) ? reset($name) : '');
         }
         $name = trim((string)$name);
 
         // Extract City
-        $city = $content['city']['name'] ?? $content['city'] ?? $item['city'] ?? $item['cityName'] ?? $item['locationName'] ?? $targetCity;
+        $city = $summary['address']['city']['name'] ?? $summary['address']['area']['name'] ?? $content['city']['name'] ?? $content['city'] ?? $item['city'] ?? $item['cityName'] ?? $item['locationName'] ?? $targetCity;
         if (is_array($city)) {
             $city = $city['name'] ?? $city['translation'] ?? $targetCity;
         }
@@ -316,13 +323,13 @@ class HotelImporterService
         }
 
         // Extract Address
-        $address = $content['address']['addressLine1'] ?? $item['address'] ?? $item['streetAddress'] ?? $item['formattedAddress'] ?? $item['location'] ?? "{$city}, Bangladesh";
+        $address = $summary['address']['addressLine1'] ?? $content['address']['addressLine1'] ?? $item['address'] ?? $item['streetAddress'] ?? $item['formattedAddress'] ?? $item['location'] ?? "{$city}, Bangladesh";
         if (is_array($address)) {
             $address = implode(', ', array_filter(array_values($address), 'is_string'));
         }
 
         // Extract Star Rating
-        $star = $content['starRating'] ?? $item['starRating'] ?? $item['stars'] ?? $item['category'] ?? $item['rating'] ?? rand(3, 5);
+        $star = $summary['rating'] ?? $content['starRating'] ?? $item['starRating'] ?? $item['stars'] ?? $item['category'] ?? $item['rating'] ?? rand(3, 5);
         $star = min(5, max(1, (int)$star));
 
         // Extract Rating Score
@@ -337,9 +344,38 @@ class HotelImporterService
         $reviews = $reviewsData['reviewCount'] ?? $item['totalReviews'] ?? $item['reviewCount'] ?? $item['reviewsCount'] ?? rand(25, 450);
 
         // Extract Price
-        $price = $item['price'] ?? $item['pricePerNight'] ?? $item['minPrice'] ?? $item['rate'] ?? $item['amount'] ?? null;
-        if (is_array($price)) {
-            $price = $price['amount'] ?? $price['min'] ?? $price['value'] ?? $price['formatted'] ?? rand(3500, 18500);
+        $price = null;
+        if (! empty($item['pricingSummaries']) && is_array($item['pricingSummaries'])) {
+            foreach ($item['pricingSummaries'] as $ps) {
+                $pVal = $ps['price']['perRoomPerNight']['inclusive']['display'] ?? $ps['price']['perRoomPerNight']['exclusive']['display'] ?? null;
+                if (is_numeric($pVal)) {
+                    $price = (float)$pVal * 115; // Convert USD to BDT
+                    break;
+                }
+            }
+        }
+        if (! $price && ! empty($item['pricing']['offers']) && is_array($item['pricing']['offers'])) {
+            foreach ($item['pricing']['offers'] as $off) {
+                if (! empty($off['roomOffers']) && is_array($off['roomOffers'])) {
+                    foreach ($off['roomOffers'] as $ro) {
+                        if (! empty($ro['room']['pricing']) && is_array($ro['room']['pricing'])) {
+                            foreach ($ro['room']['pricing'] as $pr) {
+                                $pVal = $pr['price']['perRoomPerNight']['inclusive']['display'] ?? $pr['price']['perRoomPerNight']['exclusive']['display'] ?? $pr['price']['perNight']['inclusive']['display'] ?? $pr['price']['perNight']['exclusive']['display'] ?? null;
+                                if (is_numeric($pVal)) {
+                                    $price = (float)$pVal * 115; // Convert USD to BDT
+                                    break 3;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        if (! $price) {
+            $price = $item['price'] ?? $item['pricePerNight'] ?? $item['minPrice'] ?? $item['rate'] ?? $item['amount'] ?? null;
+            if (is_array($price)) {
+                $price = $price['amount'] ?? $price['min'] ?? $price['value'] ?? $price['formatted'] ?? rand(3500, 18500);
+            }
         }
         if (! is_numeric($price)) {
             $price = rand(3800, 16500);
@@ -349,18 +385,21 @@ class HotelImporterService
 
         // Extract Image Gallery URLs
         $images = [];
-        if (! empty($item['images']) && is_array($item['images'])) {
-            foreach ($item['images'] as $img) {
+        $hotelImages = $content['images']['hotelImages'] ?? $item['images'] ?? [];
+        if (! empty($hotelImages) && is_array($hotelImages)) {
+            foreach ($hotelImages as $img) {
                 if (is_string($img)) {
-                    $images[] = $img;
-                } elseif (is_array($img) && ! empty($img['url'] ?? $img['src'] ?? $img['fullUrl'])) {
-                    $images[] = $img['url'] ?? $img['src'] ?? $img['fullUrl'];
+                    $images[] = (str_starts_with($img, '//') ? 'https:' . $img : $img);
+                } elseif (is_array($img)) {
+                    $imgUrl = $img['url'] ?? $img['src'] ?? $img['fullUrl'] ?? null;
+                    if (! $imgUrl && ! empty($img['urls']) && is_array($img['urls'])) {
+                        $firstUrlObj = reset($img['urls']);
+                        $imgUrl = $firstUrlObj['value'] ?? null;
+                    }
+                    if ($imgUrl) {
+                        $images[] = (str_starts_with($imgUrl, '//') ? 'https:' . $imgUrl : $imgUrl);
+                    }
                 }
-            }
-        } elseif (! empty($item['photoGallery']) && is_array($item['photoGallery'])) {
-            foreach ($item['photoGallery'] as $p) {
-                if (is_string($p)) $images[] = $p;
-                elseif (is_array($p)) $images[] = $p['url'] ?? $p['path'] ?? '';
             }
         }
 

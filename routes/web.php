@@ -30,7 +30,6 @@ use App\Http\Controllers\Admin\SiteSettingsController;
 use App\Http\Controllers\Admin\TourPackageController;
 use App\Http\Controllers\Admin\DealController;
 use App\Http\Controllers\Admin\CmsContentController;
-use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\PaymentGatewayController;
 use App\Http\Controllers\Vendor\VendorController;
 use App\Http\Controllers\Vendor\VendorDashboardController;

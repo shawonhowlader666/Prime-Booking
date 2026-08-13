@@ -185,13 +185,13 @@
                     <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; right: 0; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 20px; z-index: 99999; border: 1px solid #e0e0e0; text-align: left !important;">
 
                         <!-- DEFAULT STATE: Shown when input is clicked (Image 2 Exact Match) -->
-                        <div id="agodaStaticSearchSuggestions">
+                        <div id="agodaStaticSearchSuggestions" style="text-align: left !important;">
                             <!-- Recent search header -->
-                            <div style="font-size: 12px; font-weight: 500; color: #757575; margin-bottom: 10px;">Recent search</div>
+                            <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.8px; text-align: left !important;">Recent search</div>
 
                             <!-- Recent search 3 horizontal pill cards -->
-                            <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 16px; scrollbar-width: none;">
-                                <div onclick="selectDestination('Dhaka, Bangladesh')" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; min-width: 200px; flex-shrink: 0; cursor: pointer; background: #f5f8ff; transition: border-color 0.15s;" onmouseover="this.style.borderColor='#2067e1'" onmouseout="this.style.borderColor='#e0e0e0'">
+                            <div style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 16px; scrollbar-width: none; text-align: left !important;">
+                                <div onclick="selectDestination('Dhaka, Bangladesh')" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; min-width: 200px; flex-shrink: 0; cursor: pointer; background: #f5f8ff; transition: border-color 0.15s; text-align: left !important;" onmouseover="this.style.borderColor='#2067e1'" onmouseout="this.style.borderColor='#e0e0e0'">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3px;">
                                         <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.2;">Dhaka, Bangladesh</span>
                                         <span style="font-size: 11px; color: #757575; margin-left: 8px;"><i class="fa-solid fa-user-group" style="font-size: 10px;"></i> 2</span>
@@ -199,7 +199,7 @@
                                     <div style="font-size: 11.5px; color: #757575;">8 Sep 2026 - 15 Sep 2026</div>
                                 </div>
 
-                                <div onclick="selectDestination('Dhaka, Bangladesh')" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; min-width: 200px; flex-shrink: 0; cursor: pointer; background: #f5f8ff; transition: border-color 0.15s;" onmouseover="this.style.borderColor='#2067e1'" onmouseout="this.style.borderColor='#e0e0e0'">
+                                <div onclick="selectDestination('Dhaka, Bangladesh')" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; min-width: 200px; flex-shrink: 0; cursor: pointer; background: #f5f8ff; transition: border-color 0.15s; text-align: left !important;" onmouseover="this.style.borderColor='#2067e1'" onmouseout="this.style.borderColor='#e0e0e0'">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3px;">
                                         <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.2;">Dhaka, Bangladesh</span>
                                         <span style="font-size: 11px; color: #757575; margin-left: 8px;"><i class="fa-solid fa-user-group" style="font-size: 10px;"></i> 2</span>
@@ -207,7 +207,7 @@
                                     <div style="font-size: 11.5px; color: #757575;">1 Sep 2026 - 30 Sep 2026</div>
                                 </div>
 
-                                <div onclick="selectDestination('Jatra Flagship Khulna City Centre, Khulna, Bangladesh')" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; min-width: 240px; flex-shrink: 0; cursor: pointer; background: #f5f8ff; transition: border-color 0.15s;" onmouseover="this.style.borderColor='#2067e1'" onmouseout="this.style.borderColor='#e0e0e0'">
+                                <div onclick="selectDestination('Jatra Flagship Khulna City Centre, Khulna, Bangladesh')" style="border: 1px solid #e0e0e0; border-radius: 6px; padding: 10px 14px; min-width: 240px; flex-shrink: 0; cursor: pointer; background: #f5f8ff; transition: border-color 0.15s; text-align: left !important;" onmouseover="this.style.borderColor='#2067e1'" onmouseout="this.style.borderColor='#e0e0e0'">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 3px;">
                                         <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.2;">Jatra Flagship Khulna City Centre, Khulna, Bangladesh</span>
                                         <span style="font-size: 11px; color: #757575; margin-left: 8px;"><i class="fa-solid fa-user-group" style="font-size: 10px;"></i> 2</span>
@@ -217,54 +217,54 @@
                             </div>
 
                             <!-- Two column section: Bangladesh (Left) + International (Right) -->
-                            <div style="display: flex; gap: 32px;">
+                            <div style="display: flex; gap: 32px; text-align: left !important;">
 
                                 <!-- Left column: Destinations in Bangladesh with 6 city photos -->
-                                <div style="flex: 1.4; min-width: 0; border-right: 1px solid #f1f5f9; padding-right: 24px;">
-                                    <div style="font-size: 12px; font-weight: 500; color: #757575; margin-bottom: 14px;">Destinations in Bangladesh</div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 16px; column-gap: 16px;">
-                                        <div onclick="selectDestination('Chittagong, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
+                                <div style="flex: 1.4; min-width: 0; border-right: 1px solid #f1f5f9; padding-right: 24px; text-align: left !important;">
+                                    <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.8px; text-align: left !important;">Destinations in Bangladesh</div>
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 16px; column-gap: 16px; text-align: left !important;">
+                                        <div onclick="selectDestination('Chittagong, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left !important;">
                                             <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=100&q=75" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Chittagong">
-                                            <span style="font-size: 13.5px; color: #1a1a1a;"><strong>Chittagong</strong> <span style="font-weight: 400; color: #757575;">(59)</span></span>
+                                            <span style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Chittagong</strong> <span style="font-weight: 400; color: #757575;">(59)</span></span>
                                         </div>
-                                        <div onclick="selectDestination('Cox's Bazar, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
+                                        <div onclick="selectDestination('Cox\'s Bazar, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left !important;">
                                             <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=100&q=75" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Cox's Bazar">
-                                            <span style="font-size: 13.5px; color: #1a1a1a;"><strong>Cox's Bazar</strong> <span style="font-weight: 400; color: #757575;">(118)</span></span>
+                                            <span style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Cox's Bazar</strong> <span style="font-weight: 400; color: #757575;">(118)</span></span>
                                         </div>
-                                        <div onclick="selectDestination('Sreemangal Upazila, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
+                                        <div onclick="selectDestination('Sreemangal Upazila, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left !important;">
                                             <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=100&q=75" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Sreemangal">
-                                            <span style="font-size: 13.5px; color: #1a1a1a;"><strong>Sreemangal Upazila</strong> <span style="font-weight: 400; color: #757575;">(25)</span></span>
+                                            <span style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Sreemangal Upazila</strong> <span style="font-weight: 400; color: #757575;">(25)</span></span>
                                         </div>
-                                        <div onclick="selectDestination('Sylhet, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
+                                        <div onclick="selectDestination('Sylhet, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left !important;">
                                             <img src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=100&q=75" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Sylhet">
-                                            <span style="font-size: 13.5px; color: #1a1a1a;"><strong>Sylhet</strong> <span style="font-weight: 400; color: #757575;">(95)</span></span>
+                                            <span style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Sylhet</strong> <span style="font-weight: 400; color: #757575;">(95)</span></span>
                                         </div>
-                                        <div onclick="selectDestination('Dhaka, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
+                                        <div onclick="selectDestination('Dhaka, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left !important;">
                                             <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=100&q=75" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Dhaka">
-                                            <span style="font-size: 13.5px; color: #1a1a1a;"><strong>Dhaka</strong> <span style="font-weight: 400; color: #757575;">(538)</span></span>
+                                            <span style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Dhaka</strong> <span style="font-weight: 400; color: #757575;">(538)</span></span>
                                         </div>
-                                        <div onclick="selectDestination('Rajshahi, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer;">
+                                        <div onclick="selectDestination('Rajshahi, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; padding: 4px 6px; border-radius: 6px; cursor: pointer; text-align: left !important;">
                                             <img src="https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=100&q=75" style="width: 48px; height: 48px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Rajshahi">
-                                            <span style="font-size: 13.5px; color: #1a1a1a;"><strong>Rajshahi</strong> <span style="font-weight: 400; color: #757575;">(11)</span></span>
+                                            <span style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Rajshahi</strong> <span style="font-weight: 400; color: #757575;">(11)</span></span>
                                         </div>
                                     </div>
                                 </div>
 
                                 <!-- Right column: International destinations -->
-                                <div style="flex: 1; min-width: 0;">
-                                    <div style="font-size: 12px; font-weight: 500; color: #757575; margin-bottom: 14px;">International destinations</div>
-                                    <div style="display: flex; flex-direction: column; gap: 14px;">
-                                        <div onclick="selectDestination('Singapore')" class="agoda-popover-item" style="padding: 2px 6px; border-radius: 4px; cursor: pointer;">
-                                            <div style="font-size: 13.5px; color: #1a1a1a;"><strong>Singapore</strong> <span style="color: #757575; font-weight: 400;">(1,326)</span></div>
-                                            <div style="font-size: 11.5px; color: #b05e29; margin-top: 1px;">shopping, restaurants</div>
+                                <div style="flex: 1; min-width: 0; text-align: left !important;">
+                                    <div style="font-size: 11px; font-weight: 700; color: #64748b; margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.8px; text-align: left !important;">International destinations</div>
+                                    <div style="display: flex; flex-direction: column; gap: 14px; text-align: left !important;">
+                                        <div onclick="selectDestination('Singapore')" class="agoda-popover-item" style="padding: 2px 6px; border-radius: 4px; cursor: pointer; text-align: left !important;">
+                                            <div style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Singapore</strong> <span style="color: #757575; font-weight: 400;">(1,326)</span></div>
+                                            <div style="font-size: 11.5px; color: #b05e29; margin-top: 1px; text-align: left !important;">shopping, restaurants</div>
                                         </div>
-                                        <div onclick="selectDestination('Bangkok, Thailand')" class="agoda-popover-item" style="padding: 2px 6px; border-radius: 4px; cursor: pointer;">
-                                            <div style="font-size: 13.5px; color: #1a1a1a;"><strong>Bangkok</strong> <span style="color: #757575; font-weight: 400;">(12,048)</span></div>
-                                            <div style="font-size: 11.5px; color: #b05e29; margin-top: 1px;">shopping, restaurants</div>
+                                        <div onclick="selectDestination('Bangkok, Thailand')" class="agoda-popover-item" style="padding: 2px 6px; border-radius: 4px; cursor: pointer; text-align: left !important;">
+                                            <div style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Bangkok</strong> <span style="color: #757575; font-weight: 400;">(12,048)</span></div>
+                                            <div style="font-size: 11.5px; color: #b05e29; margin-top: 1px; text-align: left !important;">shopping, restaurants</div>
                                         </div>
-                                        <div onclick="selectDestination('Kuala Lumpur, Malaysia')" class="agoda-popover-item" style="padding: 2px 6px; border-radius: 4px; cursor: pointer;">
-                                            <div style="font-size: 13.5px; color: #1a1a1a;"><strong>Kuala Lumpur</strong> <span style="color: #757575; font-weight: 400;">(19,902)</span></div>
-                                            <div style="font-size: 11.5px; color: #b05e29; margin-top: 1px;">shopping, restaurants</div>
+                                        <div onclick="selectDestination('Kuala Lumpur, Malaysia')" class="agoda-popover-item" style="padding: 2px 6px; border-radius: 4px; cursor: pointer; text-align: left !important;">
+                                            <div style="font-size: 13.5px; color: #1a1a1a; text-align: left !important;"><strong>Kuala Lumpur</strong> <span style="color: #757575; font-weight: 400;">(19,902)</span></div>
+                                            <div style="font-size: 11.5px; color: #b05e29; margin-top: 1px; text-align: left !important;">shopping, restaurants</div>
                                         </div>
                                     </div>
                                 </div>

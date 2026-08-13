@@ -240,10 +240,14 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 14px 16px;
+            padding: 0 16px;
+            height: 56px;
+            min-height: 56px;
+            max-height: 56px;
             background-color: #002140;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             flex-shrink: 0;
+            box-sizing: border-box;
         }
 
         .sb-brand-icon {
@@ -332,13 +336,15 @@
         }
 
         /* ============================================================
-         * Top Header Bar — exact Stockifly header height & style
+         * Top Header Bar — Matching Dark Blue #002140 & Equal 56px Height
          * ============================================================ */
         .admin-topbar {
-            background: #ffffff;
-            border-bottom: 1px solid #e8e8e8;
+            background-color: #002140;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
             padding: 0 20px;
-            height: 52px;
+            height: 56px;
+            min-height: 56px;
+            max-height: 56px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -346,7 +352,8 @@
             top: 0;
             z-index: 100;
             flex-shrink: 0;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
 
         .admin-topbar-left {
@@ -362,13 +369,13 @@
         }
 
         .engine-badge {
-            background: #f1f5f9;
-            color: #475569;
+            background: rgba(255, 255, 255, 0.08);
+            color: #e2e8f0;
             font-size: 11px;
             font-weight: 600;
-            padding: 3px 10px;
+            padding: 4px 12px;
             border-radius: 20px !important;
-            border: 1px solid #e2e8f0;
+            border: 1px solid rgba(255, 255, 255, 0.12);
             letter-spacing: 0.2px;
             display: inline-flex;
             align-items: center;
@@ -387,14 +394,14 @@
         .topbar-user-name {
             font-size: 13px;
             font-weight: 600;
-            color: #1e293b;
+            color: #ffffff;
             display: block;
             line-height: 1.2;
         }
 
         .topbar-user-role {
             font-size: 11px;
-            color: #8c8c8c;
+            color: rgba(255, 255, 255, 0.55);
             display: block;
             margin-top: 1px;
         }
@@ -404,7 +411,7 @@
             height: 32px;
             border-radius: 50%;
             object-fit: cover;
-            border: 1.5px solid #e2e8f0;
+            border: 1.5px solid rgba(255, 255, 255, 0.25);
         }
 
         .btn-signout {
@@ -413,9 +420,9 @@
             padding: 4px 12px;
             height: 30px;
             border-radius: 4px !important;
-            border: 1px solid #ff4d4f !important;
-            color: #ff4d4f !important;
-            background: #ffffff !important;
+            border: 1px solid rgba(239, 68, 68, 0.6) !important;
+            color: #fca5a5 !important;
+            background: rgba(239, 68, 68, 0.12) !important;
             transition: all 0.15s ease-in-out;
             cursor: pointer;
             display: inline-flex;
@@ -428,15 +435,15 @@
         }
 
         .btn-signout:hover {
-            background: #ff4d4f !important;
+            background: #ef4444 !important;
             color: #ffffff !important;
-            border-color: #ff4d4f !important;
-            box-shadow: 0 2px 6px rgba(255, 77, 79, 0.2) !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
         }
 
         .btn-mobile-toggle {
-            background: none;
-            border: 1px solid #d9d9d9;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 6px;
             width: 32px;
             height: 32px;
@@ -444,7 +451,7 @@
             align-items: center;
             justify-content: center;
             cursor: pointer;
-            color: #595959;
+            color: #ffffff;
             font-size: 14px;
         }
 
@@ -1662,8 +1669,8 @@
 
             <div class="admin-topbar-right">
                 <div class="dropdown me-2">
-                    <button class="btn btn-light position-relative p-2" style="border-radius:4px !important; border:1px solid #e2e8f0; height:34px; width:34px; display:flex; align-items:center; justify-content:center;" type="button" data-bs-toggle="dropdown">
-                        <i class="fa-solid fa-bell text-secondary" style="font-size:14px;"></i>
+                    <button class="btn position-relative p-2" style="border-radius:4px !important; border:1px solid rgba(255,255,255,0.15); background:rgba(255,255,255,0.08); height:34px; width:34px; display:flex; align-items:center; justify-content:center;" type="button" data-bs-toggle="dropdown">
+                        <i class="fa-solid fa-bell" style="font-size:14px; color:#ffffff;"></i>
                         @php
                             $pendingPropertiesCount = \App\Models\Property::where('status', 'pending')->count();
                             $pendingPayoutsCount = \App\Models\Payout::where('status', 'pending')->count();
@@ -1694,7 +1701,7 @@
                 </div>
 
                 <div
-                    style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid #f0f0f0;">
+                    style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid rgba(255,255,255,0.12);">
                     <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=1890ff&color=fff&size=64"
                         class="topbar-avatar" alt="Admin">
                     <div class="d-none d-sm-block">

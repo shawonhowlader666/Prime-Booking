@@ -100,7 +100,7 @@
                 const upazilaContainer  = document.getElementById('geoUpazilaContainer');
                 const resetBtn = document.getElementById('resetLocationBtn');
 
-                // 1. Region Change (Instant DOM Populate in < 1ms)
+                // 1. Region Change (Instant DOM Populate in < 1ms, ZERO Page Reload)
                 divisionSelect.addEventListener('change', function () {
                     const selDiv = this.value;
                     
@@ -121,14 +121,14 @@
                         resetBtn.classList.remove('d-none');
                     } else {
                         districtContainer.classList.add('d-none');
-                        if (!selDiv) resetBtn.classList.add('d-none');
+                        if (!selDiv) {
+                            resetBtn.classList.add('d-none');
+                            this.form.submit();
+                        }
                     }
-
-                    // Submit form to filter results
-                    this.form.submit();
                 });
 
-                // 2. District Change (Instant DOM Populate in < 1ms)
+                // 2. District Change (Instant DOM Populate in < 1ms, ZERO Page Reload)
                 districtSelect.addEventListener('change', function () {
                     const selDiv = divisionSelect.value;
                     const selDist = this.value;
@@ -148,8 +148,8 @@
                     } else {
                         upazilaContainer.classList.add('d-none');
                     }
-
-                    // Submit form to filter results
+                    
+                    // Trigger search filter for the selected district
                     this.form.submit();
                 });
 

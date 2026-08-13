@@ -211,6 +211,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // Financial & Vendor Payouts
     Route::get('/payouts', [PayoutController::class, 'index'])->name('payouts.index');
+    Route::post('/payouts/store', [PayoutController::class, 'store'])->name('payouts.store');
     Route::post('/payouts/{id}/status', [PayoutController::class, 'updateStatus'])->name('payouts.update-status');
 
     // Guest Reviews Moderation

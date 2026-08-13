@@ -41,6 +41,19 @@ use App\Http\Controllers\Vendor\VendorPackageController;
 use App\Http\Controllers\Vendor\VendorReviewController;
 
 
+// Secure System Deployment & Cache Purge Route
+Route::get('/admin/deploy-sync-secret-key-9808165d', function () {
+    \Illuminate\Support\Facades\Artisan::call('view:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    $gitOut = @shell_exec('cd ' . base_path() . ' && git pull origin master 2>&1');
+    return response()->json([
+        'success'  => true,
+        'message'  => 'View cache cleared and git sync executed successfully!',
+        'git_output' => $gitOut,
+    ]);
+});
+
 // Dynamic SEO XML Sitemap for Googlebot & Search Engines
 Route::get('/sitemap.xml', function () {
     $properties = \App\Models\Property::active()->select('slug', 'updated_at')->get();

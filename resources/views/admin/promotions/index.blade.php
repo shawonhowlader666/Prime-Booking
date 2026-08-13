@@ -269,9 +269,7 @@
             </table>
         </div>
 
-        @if(method_exists($promotions, 'hasPages') && $promotions->hasPages())
-        <div class="px-3 py-2 border-top">{{ $promotions->links() }}</div>
-        @endif
+        <x-table-footer :items="$promotions" :perPage="15" />
     </div>
 
 </div>

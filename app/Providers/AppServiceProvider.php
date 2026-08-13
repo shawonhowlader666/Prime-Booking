@@ -50,7 +50,8 @@ class AppServiceProvider extends ServiceProvider
             });
         }
 
-        // ── Pagination — use Bootstrap 5 style ─────────────────────────
-        \Illuminate\Pagination\Paginator::useBootstrap();
+        // ── Pagination — use Stockifly truncated SaaS style ─────────────────────────
+        \Illuminate\Pagination\Paginator::defaultView('vendor.pagination.stockifly');
+        \Illuminate\Pagination\Paginator::defaultSimpleView('vendor.pagination.stockifly');
     }
 }

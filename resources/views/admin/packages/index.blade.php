@@ -162,9 +162,7 @@
             </table>
         </div>
 
-        @if(method_exists($packages, 'hasPages') && $packages->hasPages())
-        <div class="px-3 py-2 border-top">{{ $packages->links() }}</div>
-        @endif
+        <x-table-footer :items="$packages" :perPage="15" />
     </div>
 
 </div>

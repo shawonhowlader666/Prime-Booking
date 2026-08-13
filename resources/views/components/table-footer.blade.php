@@ -21,7 +21,7 @@
 
     <div class="footer-right">
         @if(isset($items) && method_exists($items, 'links'))
-            {{ $items->links('pagination::bootstrap-5') }}
+            {{ $items->onEachSide(1)->links('vendor.pagination.stockifly') }}
         @endif
     </div>
 </div>

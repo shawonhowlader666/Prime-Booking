@@ -45,32 +45,33 @@
         $sumRedemptions     = $couponColl->sum('used_count');
         $percCouponsCount   = $couponColl->where('type', 'percentage')->count();
     @endphp
+    {{-- Stockifly KPI Summary Cards Row --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-3">
-            <div class="kpi-card" style="padding:16px 20px;">
-                <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">TOTAL COUPONS</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ $totalCouponsCount }} Listed</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10px; font-weight:700;">TOTAL COUPONS</p>
+                <p class="kpi-value" style="font-size:18px; font-weight:800; color:#1e293b; margin:0;">{{ $totalCouponsCount }}</p>
                 <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="kpi-card" style="padding:16px 20px;">
-                <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE COUPONS</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $activeCouponsCount }} Active</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#28c76f; font-size:10px; font-weight:700;">ACTIVE COUPONS</p>
+                <p class="kpi-value" style="font-size:18px; font-weight:800; color:#28c76f; margin:0;">{{ $activeCouponsCount }}</p>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="kpi-card" style="padding:16px 20px;">
-                <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">TOTAL REDEMPTIONS</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $sumRedemptions }} Uses</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10px; font-weight:700;">TOTAL REDEMPTIONS</p>
+                <p class="kpi-value" style="font-size:18px; font-weight:800; color:#ff9f43; margin:0;">{{ $sumRedemptions }}</p>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="kpi-card" style="padding:16px 20px;">
-                <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">% DISCOUNT COUPONS</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#7367f0; margin:0;">{{ $percCouponsCount }} Percentage</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#7367f0; font-size:10px; font-weight:700;">% DISCOUNT COUPONS</p>
+                <p class="kpi-value" style="font-size:18px; font-weight:800; color:#7367f0; margin:0;">{{ $percCouponsCount }}</p>
                 <div class="kpi-accent-bar" style="background:#7367f0;"></div>
             </div>
         </div>

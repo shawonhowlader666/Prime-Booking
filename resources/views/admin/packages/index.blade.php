@@ -50,21 +50,21 @@
         <div class="col-6 col-md-3">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE LIVE</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $packages->where('is_active', true)->count() }} Active</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $packages->where('status', 'active')->count() }} Active</p>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
         </div>
         <div class="col-6 col-md-3">
             <div class="kpi-card" style="padding:16px 20px;">
-                <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">FEATURED ON HOMEPAGE</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $packages->where('is_featured', true)->count() }} Featured</p>
+                <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">SUNDARBANS &amp; CRUISE</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $packages->filter(fn($p) => str_contains(strtolower($p->destination), 'sundarban'))->count() }} Packages</p>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
         <div class="col-6 col-md-3">
             <div class="kpi-card" style="padding:16px 20px;">
-                <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">PROMOTIONAL BADGES</p>
-                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#7367f0; margin:0;">{{ $packages->whereNotNull('badge')->count() }} Badged</p>
+                <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">HILL TRACTS &amp; SAJEK</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#7367f0; margin:0;">{{ $packages->filter(fn($p) => str_contains(strtolower($p->destination), 'sajek'))->count() }} Packages</p>
                 <div class="kpi-accent-bar" style="background:#7367f0;"></div>
             </div>
         </div>
@@ -85,9 +85,10 @@
                     <tr>
                         <th style="width:50px;">#</th>
                         <th style="width:260px;">Package Banner &amp; Title</th>
+                        <th>Destination</th>
                         <th>Duration</th>
-                        <th>Base Price (BDT)</th>
-                        <th>Includes Highlights</th>
+                        <th>Price / Person</th>
+                        <th>Inclusions</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -98,34 +99,34 @@
                         <td><strong>#{{ $pkg->id }}</strong></td>
                         <td>
                             <div class="d-flex align-items-center gap-2.5">
-                                <img src="{{ $pkg->image_url ?: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=80' }}" alt="" style="width: 52px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0;">
+                                <img src="{{ $pkg->featured_image ?: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=80' }}" alt="" style="width: 52px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0;">
                                 <div>
                                     <div style="font-weight:700; font-size:13px; color:#1e293b;">
                                         {{ $pkg->title }}
-                                        @if($pkg->badge)
-                                        <span class="badge bg-warning text-dark ms-1" style="font-size:9.5px; padding:2px 6px; font-weight:800;">{{ $pkg->badge }}</span>
-                                        @endif
                                     </div>
                                     <small style="color:#64748b; font-size:11px;">Added: {{ $pkg->created_at?->format('d M Y') }}</small>
                                 </div>
                             </div>
                         </td>
                         <td>
+                            <span class="badge bg-info text-dark" style="font-size:11px; padding:4px 8px; border-radius:4px;">{{ $pkg->destination }}</span>
+                        </td>
+                        <td>
                             <span class="badge bg-light text-dark border" style="font-size:12px; font-weight:600; padding:4px 8px; border-radius:4px;">
-                                <i class="fa-solid fa-clock me-1 text-primary"></i> {{ $pkg->days }}
+                                <i class="fa-solid fa-clock me-1 text-primary"></i> {{ $pkg->duration_days }}D / {{ $pkg->duration_nights }}N
                             </span>
                         </td>
                         <td style="font-weight:700; color:#28c76f; font-size:13.5px;">
-                            ৳ {{ number_format($pkg->price) }} BDT
+                            ৳ {{ number_format($pkg->price_per_person) }} BDT
                         </td>
                         <td style="max-width:240px;">
-                            @if(is_array($pkg->includes) && count($pkg->includes) > 0)
+                            @if(is_array($pkg->inclusions) && count($pkg->inclusions) > 0)
                             <div class="d-flex flex-wrap gap-1">
-                                @foreach(array_slice($pkg->includes, 0, 2) as $inc)
+                                @foreach(array_slice($pkg->inclusions, 0, 2) as $inc)
                                 <span class="badge bg-light text-secondary border" style="font-size:10.5px;">✓ {{ $inc }}</span>
                                 @endforeach
-                                @if(count($pkg->includes) > 2)
-                                <span class="badge bg-light text-primary border" style="font-size:10.5px;">+{{ count($pkg->includes) - 2 }} more</span>
+                                @if(count($pkg->inclusions) > 2)
+                                <span class="badge bg-light text-primary border" style="font-size:10.5px;">+{{ count($pkg->inclusions) - 2 }} more</span>
                                 @endif
                             </div>
                             @else
@@ -133,7 +134,7 @@
                             @endif
                         </td>
                         <td>
-                            @if($pkg->is_active)
+                            @if($pkg->status === 'active')
                             <span class="badge-status confirmed">🟢 Active</span>
                             @else
                             <span class="badge-status cancelled">⚪ Inactive</span>
@@ -165,7 +166,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5" style="background:#ffffff;">
+                        <td colspan="8" class="text-center py-5" style="background:#ffffff;">
                             <div style="max-width:340px; margin:0 auto; padding:24px 0;">
                                 <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
                                     <i class="fa-solid fa-suitcase-rolling"></i>

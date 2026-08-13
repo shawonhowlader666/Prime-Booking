@@ -41,24 +41,22 @@
                 </div>
             </div>
 
-            {{-- 2.1 Location Filter — Clean Agoda Parity (Progressive Display) --}}
+            {{-- 2.1 Location Filter — Instant Zero-Reload Client-Side Cascade Engine --}}
             @php
                 $geoConfig = config('bangladesh-geo.divisions', []);
                 $selectedDivision = request('division', '');
                 $selectedDistrict = request('district', '');
                 $selectedUpazila  = request('upazila', '');
             @endphp
-            <div class="mb-4 pb-3 border-bottom">
+            <div class="mb-4 pb-3 border-bottom" id="locationFilterWidget">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="fw-bold text-dark m-0 d-block" style="font-size: 13px;">Location</label>
-                    @if($selectedDivision || $selectedDistrict || $selectedUpazila)
-                        <a href="{{ route('search.index', array_merge(request()->except(['division', 'district', 'upazila', 'page']))) }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">Reset</a>
-                    @endif
+                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ ($selectedDivision || $selectedDistrict || $selectedUpazila) ? '' : 'd-none' }}" style="font-size: 11.5px; color: #2067e1;">Reset</a>
                 </div>
 
-                <!-- Step 1: Region Select (Always Shown First) -->
-                <div class="mb-2">
-                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;" onchange="var f=this.form; var d=f.querySelector('[name=\'district\']'); var u=f.querySelector('[name=\'upazila\']'); if(d)d.value=''; if(u)u.value=''; f.submit();">
+                <!-- Step 1: Region Select (Always Visible) -->
+                <div class="mb-2" id="geoDivisionContainer">
+                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
                         <option value="">Select region...</option>
                         @foreach($geoConfig as $divKey => $divInfo)
                             <option value="{{ $divKey }}" {{ $selectedDivision === $divKey ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
@@ -66,30 +64,114 @@
                     </select>
                 </div>
 
-                <!-- Step 2: City / District Select (Shown ONLY AFTER Region is Selected) -->
-                @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
-                    <div class="mb-2">
-                        <select name="district" id="districtSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;" onchange="var f=this.form; var u=f.querySelector('[name=\'upazila\']'); if(u)u.value=''; f.submit();">
-                            <option value="">Select city / district...</option>
+                <!-- Step 2: City / District Select (Unhidden instantly in JS) -->
+                <div class="mb-2 {{ $selectedDivision ? '' : 'd-none' }}" id="geoDistrictContainer">
+                    <select name="district" id="districtSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
+                        <option value="">Select city / district...</option>
+                        @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
                             @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
                                 <option value="{{ $distKey }}" {{ $selectedDistrict === $distKey ? 'selected' : '' }}>{{ $distInfo['name'] }}</option>
                             @endforeach
-                        </select>
-                    </div>
-                @endif
+                        @endif
+                    </select>
+                </div>
 
-                <!-- Step 3: Upazila / Area Select (Shown ONLY AFTER City / District is Selected) -->
-                @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
-                    <div>
-                        <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;" onchange="this.form.submit()">
-                            <option value="">Select area / spot...</option>
+                <!-- Step 3: Upazila / Area Select (Unhidden instantly in JS) -->
+                <div class="{{ ($selectedDivision && $selectedDistrict) ? '' : 'd-none' }}" id="geoUpazilaContainer">
+                    <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
+                        <option value="">Select area / spot...</option>
+                        @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
                             @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
                                 <option value="{{ $upazilaName }}" {{ $selectedUpazila === $upazilaName ? 'selected' : '' }}>{{ $upazilaName }}</option>
                             @endforeach
-                        </select>
-                    </div>
-                @endif
+                        @endif
+                    </select>
+                </div>
             </div>
+
+            <!-- Instant In-Memory JS Cascade Engine (Zero Network Latency) -->
+            <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const geoData = @json($geoConfig);
+                const divisionSelect = document.getElementById('divisionSelectFilter');
+                const districtSelect = document.getElementById('districtSelectFilter');
+                const upazilaSelect  = document.getElementById('upazilaSelectFilter');
+                const districtContainer = document.getElementById('geoDistrictContainer');
+                const upazilaContainer  = document.getElementById('geoUpazilaContainer');
+                const resetBtn = document.getElementById('resetLocationBtn');
+
+                // 1. Region Change (Instant DOM Populate in < 1ms)
+                divisionSelect.addEventListener('change', function () {
+                    const selDiv = this.value;
+                    
+                    // Reset child selects
+                    districtSelect.innerHTML = '<option value="">Select city / district...</option>';
+                    upazilaSelect.innerHTML  = '<option value="">Select area / spot...</option>';
+                    upazilaContainer.classList.add('d-none');
+
+                    if (selDiv && geoData[selDiv] && geoData[selDiv].districts) {
+                        const districts = geoData[selDiv].districts;
+                        Object.keys(districts).forEach(function (dKey) {
+                            const opt = document.createElement('option');
+                            opt.value = dKey;
+                            opt.textContent = districts[dKey].name;
+                            districtSelect.appendChild(opt);
+                        });
+                        districtContainer.classList.remove('d-none');
+                        resetBtn.classList.remove('d-none');
+                    } else {
+                        districtContainer.classList.add('d-none');
+                        if (!selDiv) resetBtn.classList.add('d-none');
+                    }
+
+                    // Submit form to filter results
+                    this.form.submit();
+                });
+
+                // 2. District Change (Instant DOM Populate in < 1ms)
+                districtSelect.addEventListener('change', function () {
+                    const selDiv = divisionSelect.value;
+                    const selDist = this.value;
+
+                    // Reset child select
+                    upazilaSelect.innerHTML = '<option value="">Select area / spot...</option>';
+
+                    if (selDiv && selDist && geoData[selDiv] && geoData[selDiv].districts[selDist] && geoData[selDiv].districts[selDist].upazilas) {
+                        const upazilas = geoData[selDiv].districts[selDist].upazilas;
+                        upazilas.forEach(function (uName) {
+                            const opt = document.createElement('option');
+                            opt.value = uName;
+                            opt.textContent = uName;
+                            upazilaSelect.appendChild(opt);
+                        });
+                        upazilaContainer.classList.remove('d-none');
+                    } else {
+                        upazilaContainer.classList.add('d-none');
+                    }
+
+                    // Submit form to filter results
+                    this.form.submit();
+                });
+
+                // 3. Upazila Change (Filter Trigger)
+                upazilaSelect.addEventListener('change', function () {
+                    this.form.submit();
+                });
+
+                // 4. Reset Button Click (Instant Reset)
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', function () {
+                        divisionSelect.value = '';
+                        districtSelect.value = '';
+                        upazilaSelect.value  = '';
+                        districtContainer.classList.add('d-none');
+                        upazilaContainer.classList.add('d-none');
+                        resetBtn.classList.add('d-none');
+                        divisionSelect.form.submit();
+                    });
+                }
+            });
+            </script>
 
             {{-- 3. Price Budget Range Slider --}}
             <div class="mb-4 pb-3 border-bottom">

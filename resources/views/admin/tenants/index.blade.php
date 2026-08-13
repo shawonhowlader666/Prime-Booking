@@ -93,6 +93,7 @@
                         <th>Owner &amp; Contact</th>
                         <th>SaaS Plan</th>
                         <th>Commission Rate</th>
+                        <th>Listed Hotels</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -114,6 +115,11 @@
                             </span>
                         </td>
                         <td><strong style="color:#28c76f; font-size:13.5px;">{{ $tenant->commission_rate }}%</strong></td>
+                        <td>
+                            <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="badge bg-primary bg-opacity-10 text-primary fw-bold text-decoration-none" style="font-size:11.5px; padding:4px 8px; border-radius:4px;">
+                                <i class="fa-solid fa-hotel me-1"></i> {{ $tenant->properties_count ?? 0 }} Properties
+                            </a>
+                        </td>
                         <td>
                             <span class="badge-status {{ $tenant->status == 'active' ? 'confirmed' : 'cancelled' }}">
                                 {{ ucfirst($tenant->status) }}

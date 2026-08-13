@@ -28,4 +28,14 @@ class Tenant extends Model
     {
         return $query->where('status', 'active');
     }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'email', 'email');
+    }
+
+    public function properties()
+    {
+        return $this->hasMany(Property::class, 'vendor_id', 'id');
+    }
 }

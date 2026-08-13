@@ -80,7 +80,7 @@ class PropertyManagementController extends Controller
         // Determine publish status — "Save as Draft" button vs "Publish Live"
         $status = $request->action === 'draft' ? 'inactive' : 'active';
 
-        Property::create([
+        $property = Property::create([
             'name'             => $request->name,
             'slug'             => Str::slug($request->name) . '-' . time(),
             'type'             => $request->type,
@@ -90,7 +90,7 @@ class PropertyManagementController extends Controller
             'price_per_night'  => (float) $request->price_per_night,
             'original_price'   => $request->original_price ? (float) $request->original_price : null,
             'description'      => $request->description,
-            'primary_image'    => $request->primary_image,
+            'primary_image'    => $request->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
             'video_url'        => $request->video_url ?: null,
             'latitude'         => $request->latitude ? (float)$request->latitude : null,
             'longitude'        => $request->longitude ? (float)$request->longitude : null,
@@ -101,6 +101,25 @@ class PropertyManagementController extends Controller
             'status'           => $status,
             'vendor_id'        => $request->vendor_id ?: null,
         ]);
+
+        if ($request->has('room_type') && is_array($request->room_type)) {
+            foreach ($request->room_type as $i => $rtName) {
+                $price = !empty($request->room_price[$i]) ? (float)$request->room_price[$i] : null;
+                $qty   = !empty($request->room_qty[$i]) ? (int)$request->room_qty[$i] : 5;
+                if ($price && $price > 0) {
+                    try {
+                        \App\Models\Room::create([
+                            'property_id'    => $property->id,
+                            'name'           => $rtName,
+                            'price_per_night'=> $price,
+                            'total_rooms'    => $qty,
+                            'available_rooms'=> $qty,
+                            'max_occupancy'  => $request->room_beds[$i] ?? 2,
+                        ]);
+                    } catch (\Exception $e) {}
+                }
+            }
+        }
 
         $msg = $status === 'active' ? 'Property published live successfully!' : 'Property saved as draft.';
         return redirect()->route('admin.properties.index')->with('success', $msg);

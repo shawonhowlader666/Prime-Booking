@@ -295,35 +295,46 @@ class HotelImporterService
      */
     public function normalizeHotelData(array $item, string $targetCity): array
     {
+        $content = (is_array($item['content'] ?? null)) ? $item['content'] : [];
+        $reviewsData = (is_array($item['reviews']['cumulative'] ?? null)) ? $item['reviews']['cumulative'] : ((is_array($item['reviews'] ?? null)) ? $item['reviews'] : []);
+        $highlight = (is_array($item['highlight']['favoriteFeatures']['features'] ?? null)) ? $item['highlight']['favoriteFeatures']['features'] : [];
+
         // Extract Name
-        $name = $item['name'] ?? $item['hotelName'] ?? $item['propertyName'] ?? $item['title'] ?? $item['displayName'] ?? '';
+        $name = $content['name'] ?? $item['name'] ?? $item['hotelName'] ?? $item['propertyName'] ?? $item['title'] ?? $item['displayName'] ?? '';
         if (is_array($name)) {
             $name = $name['translation'] ?? $name['text'] ?? $name['value'] ?? (is_string(reset($name)) ? reset($name) : '');
         }
         $name = trim((string)$name);
 
         // Extract City
-        $city = $item['city'] ?? $item['cityName'] ?? $item['locationName'] ?? $targetCity;
-        if (empty($city) || strtolower($city) === 'unknown') {
+        $city = $content['city']['name'] ?? $content['city'] ?? $item['city'] ?? $item['cityName'] ?? $item['locationName'] ?? $targetCity;
+        if (is_array($city)) {
+            $city = $city['name'] ?? $city['translation'] ?? $targetCity;
+        }
+        if (empty($city) || strtolower((string)$city) === 'unknown') {
             $city = $targetCity;
         }
 
         // Extract Address
-        $address = $item['address'] ?? $item['streetAddress'] ?? $item['formattedAddress'] ?? $item['location'] ?? "{$city}, Bangladesh";
+        $address = $content['address']['addressLine1'] ?? $item['address'] ?? $item['streetAddress'] ?? $item['formattedAddress'] ?? $item['location'] ?? "{$city}, Bangladesh";
         if (is_array($address)) {
             $address = implode(', ', array_filter(array_values($address), 'is_string'));
         }
 
         // Extract Star Rating
-        $star = $item['starRating'] ?? $item['stars'] ?? $item['category'] ?? $item['rating'] ?? rand(3, 5);
+        $star = $content['starRating'] ?? $item['starRating'] ?? $item['stars'] ?? $item['category'] ?? $item['rating'] ?? rand(3, 5);
         $star = min(5, max(1, (int)$star));
 
         // Extract Rating Score
-        $score = $item['ratingScore'] ?? $item['reviewScore'] ?? $item['score'] ?? $item['userRating'] ?? 4.5;
-        $score = min(5.0, max(3.5, (float)$score));
+        $rawScore = $reviewsData['score'] ?? $item['ratingScore'] ?? $item['reviewScore'] ?? $item['score'] ?? $item['userRating'] ?? 4.5;
+        $score = (float)$rawScore;
+        if ($score > 5.0) {
+            $score = round($score / 2, 1);
+        }
+        $score = min(5.0, max(3.5, $score));
 
         // Extract Total Reviews
-        $reviews = $item['totalReviews'] ?? $item['reviewCount'] ?? $item['reviewsCount'] ?? rand(25, 450);
+        $reviews = $reviewsData['reviewCount'] ?? $item['totalReviews'] ?? $item['reviewCount'] ?? $item['reviewsCount'] ?? rand(25, 450);
 
         // Extract Price
         $price = $item['price'] ?? $item['pricePerNight'] ?? $item['minPrice'] ?? $item['rate'] ?? $item['amount'] ?? null;
@@ -370,7 +381,19 @@ class HotelImporterService
         }
 
         // Extract Amenities
-        $amenities = $item['amenities'] ?? $item['facilities'] ?? ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
+        $amenities = [];
+        if (! empty($highlight)) {
+            foreach ($highlight as $f) {
+                if (is_string($f)) {
+                    $amenities[] = $f;
+                } elseif (is_array($f) && ! empty($f['title'])) {
+                    $amenities[] = $f['title'];
+                }
+            }
+        }
+        if (empty($amenities)) {
+            $amenities = $item['amenities'] ?? $item['facilities'] ?? ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
+        }
 
         // Determine Property Type
         $type = Property::TYPE_HOTEL;

@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Booking Management | PRIME BOOKING Admin')
+@section('title', 'Booking Management — PRIME BOOKING Admin')
 
 @section('content')
 
@@ -11,7 +11,10 @@
         <span class="sep">-</span><strong style="color:#333;">All Bookings</strong>
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
-        <h1 class="page-title">Booking &amp; Reservation Management</h1>
+        <div>
+            <h1 class="page-title">Booking &amp; Reservation Management</h1>
+            <span style="font-size:12px; color:#8c8c8c;">Monitor, process, and manage all platform reservations &amp; guest orders</span>
+        </div>
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('bookingsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
             <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('bookingsTable', 'bookings')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
@@ -22,7 +25,7 @@
     </div>
 </div>
 
-{{-- PAGE CONTENT --}}
+{{-- PAGE CONTENT AREA --}}
 <div class="page-content-area">
 
     @if(session('success'))
@@ -32,71 +35,73 @@
     @endif
 
     {{-- FILTER BAR --}}
-    <div class="page-filters-bar">
+    <div class="page-filters-bar mb-3">
         <form method="GET" action="{{ route('admin.bookings.index') }}">
             <div class="row g-2 align-items-end">
                 <div class="col-6 col-md-2">
-                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Start Date</label>
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Start Date</label>
                     <input type="date" name="start_date" value="{{ request('start_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
                 </div>
                 <div class="col-6 col-md-2">
-                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">End Date</label>
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">End Date</label>
                     <input type="date" name="end_date" value="{{ request('end_date') }}" class="form-control form-control-sm" style="height:32px; font-size:12px;">
                 </div>
                 <div class="col-6 col-md-2">
-                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Booking Status</label>
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Booking Status</label>
                     <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
-                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>🟢 Confirmed</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏰ Pending</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>✅ Completed</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>❌ Cancelled</option>
                     </select>
                 </div>
                 <div class="col-6 col-md-2">
-                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Payment Status</label>
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Payment Status</label>
                     <select name="payment_status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('payment_status') == 'all' ? 'selected' : '' }}>All Payments</option>
-                        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid / Verified</option>
-                        <option value="unpaid" {{ request('payment_status') == 'unpaid' ? 'selected' : '' }}>Unpaid / Pending</option>
-                        <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
+                        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>💳 Paid / Verified</option>
+                        <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>⏳ Unpaid / Pending</option>
+                        <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>↩️ Refunded</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-3">
-                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px;">Search Ref / Guest</label>
+                    <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Search Ref / Guest</label>
                     <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search ref, guest name, phone..." style="height:32px; font-size:12px;">
                 </div>
                 <div class="col-12 col-md-1 d-flex gap-1 justify-content-end">
-                    <button type="submit" class="btn btn-primary btn-sm w-100" style="height:32px; font-size:12px; font-weight:600;" title="Apply Filter"><i class="fa-solid fa-filter"></i></button>
-                    <a href="{{ route('admin.bookings.index') }}" class="btn btn-light border btn-sm" style="height:32px; font-size:12px; font-weight:600; display:inline-flex; align-items:center; justify-content:center;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
+                    <button type="submit" class="btn-add-primary flex-grow-1" style="height:32px; font-size:12px; justify-content:center;" title="Apply Filter"><i class="fa-solid fa-filter"></i></button>
+                    <a href="{{ route('admin.bookings.index') }}" class="btn-tbl-copy" style="height:32px; font-size:12px; display:inline-flex; align-items:center; justify-content:center; padding:0 10px;" title="Reset Filters"><i class="fa-solid fa-rotate-left"></i></a>
                 </div>
             </div>
         </form>
     </div>
 
-    {{-- KPI Cards --}}
+    {{-- KPI SUMMARY ROW --}}
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; gap:14px;">
-                    <div class="kpi-icon" style="background:#7367f0;"><i class="fa-solid fa-receipt"></i></div>
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-value">{{ $stats['total'] ?? 0 }}</p>
-                        <p class="kpi-label">Total Bookings</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-globe"></i> Lifetime Reservations</p>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">TOTAL BOOKINGS</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ $stats['total'] ?? 0 }} Orders</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-receipt"></i>
                     </div>
                 </div>
-                <div class="kpi-accent-bar" style="background:#7367f0;"></div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; gap:14px;">
-                    <div class="kpi-icon" style="background:#28c76f;"><i class="fa-solid fa-circle-check"></i></div>
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-value">{{ $stats['confirmed'] ?? 0 }}</p>
-                        <p class="kpi-label">Confirmed Stays</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-check-double"></i> Ready for Check-in</p>
+                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">CONFIRMED STAYS</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['confirmed'] ?? 0 }} Stays</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-circle-check"></i>
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
@@ -104,12 +109,13 @@
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; gap:14px;">
-                    <div class="kpi-icon" style="background:#ff9f43;"><i class="fa-solid fa-clock"></i></div>
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-value">{{ $stats['pending'] ?? 0 }}</p>
-                        <p class="kpi-label">Pending Action</p>
-                        <p class="kpi-growth-down"><i class="fa-solid fa-hourglass-half"></i> Requires Approval</p>
+                        <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">PENDING ACTION</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $stats['pending'] ?? 0 }} Pending</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-clock"></i>
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
@@ -117,34 +123,31 @@
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; gap:14px;">
-                    <div class="kpi-icon" style="background:#00cfe8;"><i class="fa-solid fa-bangladeshi-taka-sign"></i></div>
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-value">BDT {{ number_format($stats['revenue'] ?? 0) }}</p>
-                        <p class="kpi-label">Paid Booking Revenue</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-shield-halved"></i> Verified Transactions</p>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">PAID BOOKING REVENUE</p>
+                        <p class="kpi-value" style="font-size:18px; font-weight:800; color:#1890ff; margin:0;">BDT {{ number_format($stats['revenue'] ?? 0) }}</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-bangladeshi-taka-sign"></i>
                     </div>
                 </div>
-                <div class="kpi-accent-bar" style="background:#00cfe8;"></div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
     </div>
 
-    {{-- Main Table --}}
-    <div class="data-table-card">
-        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <h6 style="margin:0;">Master Reservations &amp; Guest Orders</h6>
-                <span class="live-feed-badge">Live System Feed</span>
-            </div>
-            <div class="tbl-search-wrap">
-                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
-                <input type="text" class="tbl-search-input" placeholder="Quick search table..." onkeyup="filterTableSearch('bookingsTable', this.value)">
+    {{-- SAAS DATA TABLE CARD --}}
+    <div class="data-table-card p-0">
+        <div class="saas-table-toolbar">
+            <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-receipt me-1 text-primary"></i> Master Reservations &amp; Guest Orders ({{ count($bookings) }} Listed)</h6>
+            <div style="width:240px;">
+                <input type="text" class="form-control form-control-sm" placeholder="Quick search table..." onkeyup="filterTableSearch('bookingsTable', this.value)">
             </div>
         </div>
 
-        <div style="overflow-x:auto;">
-            <table class="table-stockifly" id="bookingsTable" style="width:100%;">
+        <div class="table-responsive">
+            <table class="table table-stockifly mb-0" id="bookingsTable">
                 <thead>
                     <tr>
                         <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('bookingsTable', this)" title="Select All Rows"></th>
@@ -155,7 +158,7 @@
                         <th>Total Amount</th>
                         <th>Payment</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Actions <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('bookingsTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_bookingsTable" style="display:none;"></div></div></th>
+                        <th style="text-align:right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -185,11 +188,11 @@
                             </span>
                         </td>
                         <td>
-                            <span class="badge-status {{ strtolower($b->booking_status ?? $b->status ?? 'confirmed') }}">
+                            <span class="badge-status {{ strtolower($b->booking_status ?? $b->status ?? 'confirmed') == 'confirmed' ? 'confirmed' : (strtolower($b->booking_status ?? $b->status) == 'cancelled' ? 'cancelled' : 'pending') }}">
                                 {{ ucfirst($b->booking_status ?? $b->status ?? 'Confirmed') }}
                             </span>
                         </td>
-                        <td style="text-align:right; white-space:nowrap;">
+                        <td style="text-align:right;">
                             <div class="dropdown action-gear-dropdown d-inline-block">
                                 <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
@@ -197,15 +200,33 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
                                     <li>
                                         <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.bookings.show', $b->id) }}">
-                                            <i class="fa-solid fa-eye text-primary me-2"></i> View &amp; Edit Order
+                                            <i class="fa-solid fa-eye text-primary me-2"></i> View Order Details
                                         </a>
+                                    </li>
+                                    <li>
+                                        <form action="{{ route('admin.bookings.update-status', $b->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <input type="hidden" name="status" value="confirmed">
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-success">
+                                                <i class="fa-solid fa-circle-check me-2"></i> Mark Confirmed
+                                            </button>
+                                        </form>
+                                    </li>
+                                    <li>
+                                        <form action="{{ route('admin.bookings.update-payment', $b->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <input type="hidden" name="payment_status" value="paid">
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-primary">
+                                                <i class="fa-solid fa-credit-card me-2"></i> Mark Payment Paid
+                                            </button>
+                                        </form>
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
-                                        <form action="{{ route('admin.bookings.destroy', $b->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this booking record?')">
+                                        <form action="{{ route('admin.bookings.destroy', $b->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this booking record permanently?')">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
-                                                <i class="fa-solid fa-trash me-2"></i> Delete Order
+                                                <i class="fa-solid fa-trash me-2"></i> Delete Booking
                                             </button>
                                         </form>
                                     </li>
@@ -215,9 +236,14 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align:center; padding:32px; color:#8c8c8c;">
-                            <i class="fa-solid fa-inbox" style="font-size:28px; color:#d9d9d9; display:block; margin-bottom:8px;"></i>
-                            No booking records found in database.
+                        <td colspan="9" class="text-center py-5" style="background:#ffffff;">
+                            <div style="max-width:340px; margin:0 auto; padding:24px 0;">
+                                <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                                    <i class="fa-solid fa-receipt"></i>
+                                </div>
+                                <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Booking Records Found</h6>
+                                <p style="font-size:12px; color:#64748b; margin-bottom:16px;">There are no reservations matching your current filter criteria in the database.</p>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

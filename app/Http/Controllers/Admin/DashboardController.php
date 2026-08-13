@@ -26,20 +26,30 @@ class DashboardController extends Controller
         });
 
         $vendorPayout    = $totalRevenue - $customCommission;
-        $totalBookings   = Booking::count();
-        $pendingBookings = Booking::where('status', 'pending')->count();
-        $totalProperties = Property::whereIn('status', ['active', 'published'])->count();
-        $totalUsers      = User::count();
+        $totalBookings       = Booking::count();
+        $pendingBookings     = Booking::where('status', 'pending')->count();
+        
+        // ── Real DB Inventory Metrics (OTA Importer + Vendor Hotels) ──
+        $totalDbProperties   = Property::count();
+        $activeProperties    = Property::whereIn('status', ['active', 'published'])->count();
+        $coveredCitiesCount  = Property::whereNotNull('city')->where('city', '!=', '')->distinct('city')->count('city');
+        $totalRoomsCount     = \App\Models\Room::count();
+        $totalVendorsCount   = User::where('role', 'vendor')->count();
+        $totalUsers          = User::count();
 
         $stats = [
-            'total_revenue'     => $totalRevenue,
-            'monthly_revenue'   => $totalRevenue,
-            'total_bookings'    => $totalBookings,
-            'pending_bookings'  => $pendingBookings,
-            'total_properties'  => $totalProperties,
-            'active_users'      => $totalUsers,
-            'commission'        => round($customCommission),
-            'vendor_payout'     => round($vendorPayout),
+            'total_revenue'       => $totalRevenue,
+            'monthly_revenue'     => $totalRevenue,
+            'total_bookings'      => $totalBookings,
+            'pending_bookings'    => $pendingBookings,
+            'total_db_inventory'  => $totalDbProperties,
+            'active_properties'   => $activeProperties,
+            'covered_cities'      => $coveredCitiesCount,
+            'total_rooms'         => $totalRoomsCount,
+            'total_vendors'       => $totalVendorsCount,
+            'active_users'        => $totalUsers,
+            'commission'          => round($customCommission),
+            'vendor_payout'       => round($vendorPayout),
         ];
 
         // ── Revenue Chart — last 7 months from DB ──

@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 
 @section('title', 'Sales Summary Reports | PRIME BOOKING Admin')
 
@@ -81,7 +81,70 @@
         </div>
     @endif
 
-    {{-- KPI Cards --}}
+    {{-- ── GLOBAL DB INVENTORY KPI CARDS (OTA Importer + Vendor Hub) ── --}}
+    <div class="row g-3 mb-3">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700; letter-spacing:0.5px;">TOTAL DB INVENTORY</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ number_format($stats['total_db_inventory'] ?? 190) }} Properties</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-building"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700; letter-spacing:0.5px;">ACTIVE PUBLISHED</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#52c41a; margin:0;">{{ number_format($stats['active_properties'] ?? 186) }} Live</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#52c41a; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#52c41a;"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700; letter-spacing:0.5px;">COVERED CITIES &amp; REGIONS</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1890ff; margin:0;">{{ $stats['covered_cities'] ?? 13 }} Regions</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
+            </div>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700; letter-spacing:0.5px;">ROOM CATEGORIES &amp; SUITES</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#fa8c16; margin:0;">{{ number_format($stats['total_rooms'] ?? 569) }} Rooms</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#fa8c16; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#fa8c16;"></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- Financial KPI Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
@@ -125,11 +188,11 @@
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
                 <div style="display:flex; align-items:flex-start; gap:14px;">
-                    <div class="kpi-icon" style="background:#ff9f43;"><i class="fa-solid fa-hotel"></i></div>
+                    <div class="kpi-icon" style="background:#ff9f43;"><i class="fa-solid fa-users"></i></div>
                     <div>
-                        <p class="kpi-value">{{ $stats['total_properties'] ?? 9 }} Listings</p>
-                        <p class="kpi-label">Active Properties</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-location-dot"></i> 100% Bangladesh Hubs</p>
+                        <p class="kpi-value">{{ $stats['total_vendors'] ?? 24 }} Partners</p>
+                        <p class="kpi-label">Onboarded Vendors</p>
+                        <p class="kpi-growth-up"><i class="fa-solid fa-user-check"></i> {{ $stats['active_users'] ?? 150 }} Total Registered</p>
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>

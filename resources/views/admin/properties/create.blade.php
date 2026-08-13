@@ -20,9 +20,8 @@
 
 {{-- PAGE CONTENT --}}
 <div class="page-content-area">
-    <div style="max-width:1050px; margin:0 auto;">
-        <form action="{{ route('admin.properties.store') }}" method="POST">
-            @csrf
+    <form action="{{ route('admin.properties.store') }}" method="POST">
+        @csrf
 
             @if ($errors->any())
                 <div class="admin-alert error mb-3" style="border-radius:4px; padding:10px 14px;">
@@ -278,12 +277,9 @@
                     <button type="submit" name="action" value="publish" class="btn btn-primary text-white fw-bold px-4 py-1.5" style="background-color:var(--primary); border-radius:4px; font-size:12.5px; border:none;">
                         Publish Listing Live <i class="fa-solid fa-rocket ms-1"></i>
                     </button>
-                </div>
-
             </div>
 
         </form>
-    </div>
 </div>
 
 @endsection

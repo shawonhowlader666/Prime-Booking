@@ -138,7 +138,7 @@
 <!-- Fixed Dark Backdrop Blur Overlay (Agoda Official Focus Blur) -->
 <div id="agodaSearchBackdropOverlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(15, 23, 42, 0.55); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); z-index: 1000; transition: opacity 0.25s ease;"></div>
 
-<div id="agodaSearchBarWrapper" style="max-width: 1140px; margin: 0 auto 38px auto; position: relative; z-index: 1005;">
+<div id="agodaSearchBarWrapper" style="max-width: 1140px; margin: 0 auto 38px auto; position: relative; z-index: 1005; text-align: left !important;">
 
     <!-- Top White Floating Capsule Tab Pod Container (Customized for Bangladesh Travel Parity) -->
     <div style="position: relative; top: 16px; margin-left: 24px; margin-bottom: -16px; z-index: 5; display: inline-flex;">
@@ -159,7 +159,7 @@
     </div>
 
     <!-- Main Search Card Body (Agoda 100% 1:1 Exact Match) -->
-    <div style="background-color: #ffffff; border-radius: 16px; padding: 24px 40px 44px 40px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); border: 1px solid #cbd5e1; position: relative; z-index: 1;">
+    <div style="background-color: #ffffff; border-radius: 16px; padding: 24px 40px 44px 40px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); border: 1px solid #cbd5e1; position: relative; z-index: 1; text-align: left !important;">
         
         <!-- Form 1: Standard Hotel / Homes / Long Stays Search Form -->
         <form action="{{ route('search.index') }}" method="GET" id="agodaFormStandard" onsubmit="showAgodaSearchLoading();">
@@ -182,8 +182,7 @@
                     </div>
 
                     <!-- Destination Autocomplete Popover Card  Agoda Pixel Perfect -->
-                                        <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (Image 2 & Image 3 match) -->
-                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; right: 0; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 20px; z-index: 99999; border: 1px solid #e0e0e0;">
+                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; right: 0; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 24px rgba(0,0,0,0.18); padding: 20px; z-index: 99999; border: 1px solid #e0e0e0; text-align: left !important;">
 
                         <!-- DEFAULT STATE: Shown when input is clicked (Image 2 Exact Match) -->
                         <div id="agodaStaticSearchSuggestions">

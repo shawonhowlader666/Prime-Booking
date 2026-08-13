@@ -32,6 +32,11 @@ class PageController extends Controller
     // ─────────────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
+        // Disable Varnish & Browser Caching for Homepage to serve fresh views
+        header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
+        header('Pragma: no-cache');
+        header('Expires: 0');
+
         $company = config('company');
         $theme   = config('theme');
 

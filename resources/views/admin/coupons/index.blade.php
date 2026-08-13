@@ -164,10 +164,17 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" style="text-align:center; padding:40px; color:#8c8c8c;">
-                            <i class="fa-solid fa-ticket" style="font-size:32px; color:#d9d9d9; display:block; margin-bottom:10px;"></i>
-                            <strong style="display:block; font-size:14px; color:#1e293b; margin-bottom:6px;">No Promo Coupons Yet</strong>
-                            <span style="font-size:12px;">Click "Create New Coupon" to add your first discount code.</span>
+                        <td colspan="7" class="text-center py-5" style="background:#ffffff;">
+                            <div style="max-width:340px; margin:0 auto; padding:24px 0;">
+                                <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                                    <i class="fa-solid fa-ticket"></i>
+                                </div>
+                                <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Promo Coupons Yet</h6>
+                                <p style="font-size:12px; color:#64748b; margin-bottom:16px;">There are no active discount codes created in the system database.</p>
+                                <button type="button" class="btn-add-primary d-inline-flex align-items-center gap-1" style="font-size:12px;" data-bs-toggle="modal" data-bs-target="#addCouponModal">
+                                    <i class="fa-solid fa-plus"></i> Create First Coupon
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 @endforelse

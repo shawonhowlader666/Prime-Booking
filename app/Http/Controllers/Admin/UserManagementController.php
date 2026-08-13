@@ -91,18 +91,27 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if ($user->role === 'super_admin') {
+        if (in_array($user->role, ['super_admin'])) {
             return back()->with('error', 'Cannot ban a Super Admin account.');
         }
 
         $user->update(['status' => 'banned']);
 
-        // Revoke all API tokens immediately
+        // Revoke all Sanctum API tokens immediately
         $user->tokens()->delete();
 
-        $this->log('banned', $user, "BANNED user: {$user->name} ({$user->email})");
+        // High-Security IP Firewall Ban
+        $ip = request()->ip();
+        if ($ip && !in_array($ip, ['127.0.0.1', '::1'])) {
+            \App\Models\BannedIp::firstOrCreate(
+                ['ip_address' => $ip],
+                ['user_id' => $user->id, 'reason' => 'User Account Banned', 'banned_by' => auth()->user()?->name ?? 'Admin']
+            );
+        }
 
-        return back()->with('success', "User \"{$user->name}\" has been banned.");
+        $this->log('banned', $user, "BANNED user and blocked IP ({$ip}): {$user->name} ({$user->email})");
+
+        return back()->with('success', "User \"{$user->name}\" and IP address have been banned from system.");
     }
 
     // ─── Unban / Activate ─────────────────────────────────────────────────
@@ -111,6 +120,10 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
         $user->update(['status' => 'active']);
+
+        // Remove IP firewall ban if exists
+        \App\Models\BannedIp::where('user_id', $user->id)->delete();
+
         $this->log('activated', $user, "Activated user: {$user->email}");
         return back()->with('success', "User \"{$user->name}\" is now active.");
     }

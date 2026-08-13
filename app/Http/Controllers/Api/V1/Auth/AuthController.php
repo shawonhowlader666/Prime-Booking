@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
@@ -22,6 +22,13 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
+        if (\App\Models\BannedIp::where('ip_address', $request->ip())->exists()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Registration blocked: Your IP address or device has been suspended due to security policy violations.'
+            ], 403);
+        }
+
         $validator = Validator::make($request->all(), [
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
@@ -83,8 +90,8 @@ class AuthController extends Controller
             return $this->error('Invalid email or password.', 401);
         }
 
-        if ($user->isBanned()) {
-            return $this->error('Your account has been suspended. Contact support.', 403);
+        if ($user->isBanned() || \App\Models\BannedIp::where('ip_address', $request->ip())->exists()) {
+            return $this->error('Your account or network has been suspended due to security policy violations. Contact support.', 403);
         }
 
         if (!$user->isActive()) {

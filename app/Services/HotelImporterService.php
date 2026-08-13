@@ -160,7 +160,7 @@ class HotelImporterService
                         'amenities'               => $normalized['amenities'],
                         'is_featured'             => $normalized['is_featured'],
                         'status'                  => $overrideStatus,
-                        'rooms_left'              => rand(3, 12),
+                        'rooms_left'              => $normalized['rooms_left'] ?? rand(3, 12),
                         'no_credit_card_required' => true,
                         'free_cancellation'       => true,
                         'location_score'          => (float)number_format(rand(82, 98) / 10, 1),
@@ -473,7 +473,7 @@ class HotelImporterService
             $amenities = ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
         }
 
-        // Determine Property Type
+        // Determine Property Type & Available Inventory
         $type = Property::TYPE_HOTEL;
         $lowerName = strtolower($name);
         $rawPropType = strtolower((string)($summary['propertyType'] ?? ''));
@@ -482,6 +482,9 @@ class HotelImporterService
         elseif (str_contains($lowerName, 'cottage')) $type = Property::TYPE_COTTAGE;
         elseif (str_contains($lowerName, 'apartment') || $rawPropType === 'singleroom' || $rawPropType === 'nonhotel') $type = Property::TYPE_APARTMENT;
         elseif (str_contains($lowerName, 'stay') || str_contains($lowerName, 'home')) $type = Property::TYPE_HOMESTAY;
+
+        $availRooms = $item['pricing']['offers'][0]['roomOffers'][0]['room']['availableRooms'] ?? null;
+        $roomsLeft = (is_numeric($availRooms) && (int)$availRooms > 0) ? (int)$availRooms : rand(3, 12);
 
         return [
             'name'             => $name,
@@ -501,6 +504,7 @@ class HotelImporterService
             'images'           => array_values(array_unique(array_filter($images))),
             'amenities'        => array_values(array_unique($amenities)),
             'is_featured'      => ($star >= 4),
+            'rooms_left'       => $roomsLeft,
         ];
     }
 

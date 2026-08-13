@@ -102,6 +102,30 @@
                                 <small class="opacity-75" style="font-size:10.5px;">Purge cache &amp; logs</small>
                             </div>
                         </button>
+
+                        <button class="nav-link" id="tab-seo-tab" data-bs-toggle="pill" data-bs-target="#tab-seo" type="button" role="tab">
+                            <i class="fa-solid fa-magnifying-glass-chart" style="font-size:14px; width:20px;"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">SEO &amp; Analytics</strong>
+                                <small class="opacity-75" style="font-size:10.5px;">Google, Meta &amp; tracking</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-social-tab" data-bs-toggle="pill" data-bs-target="#tab-social" type="button" role="tab">
+                            <i class="fa-solid fa-share-nodes" style="font-size:14px; width:20px;"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">Social Media Links</strong>
+                                <small class="opacity-75" style="font-size:10.5px;">FB, WhatsApp, YouTube</small>
+                            </div>
+                        </button>
+
+                        <button class="nav-link" id="tab-sms-tab" data-bs-toggle="pill" data-bs-target="#tab-sms" type="button" role="tab">
+                            <i class="fa-solid fa-sms" style="font-size:14px; width:20px;"></i>
+                            <div class="text-start ms-2">
+                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">SMS Gateway</strong>
+                                <small class="opacity-75" style="font-size:10.5px;">Booking SMS notifications</small>
+                            </div>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -115,7 +139,7 @@
                         <div class="stockifly-card p-3 mb-3">
                             <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
                                 <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; background:#f1f5f9; border:2px solid var(--primary); flex-shrink:0;">
-                                    <img src="{{ $user->avatar ?: ('https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'Admin') . '&background=7367f0&color=fff&size=80') }}" class="w-100 h-100" style="object-fit:cover;" alt="Avatar">
+                                    <img src="{{ $user?->avatar ?: ('https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'Admin') . '&background=7367f0&color=fff&size=80') }}" class="w-100 h-100" style="object-fit:cover;" alt="Avatar">
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">{{ $user->name ?? 'Administrator' }} (ID #{{ $user->id ?? 1 }})</h6>
@@ -504,6 +528,130 @@
                                 <a href="{{ route('admin.activity.index') }}" class="btn btn-outline-primary btn-sm fw-bold px-3" style="font-size:11.5px;">
                                     <i class="fa-solid fa-shield-halved me-1"></i> View Audit Logs
                                 </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 8: SEO & ANALYTICS --}}
+                    <div class="tab-pane fade" id="tab-seo" role="tabpanel">
+                        <div class="stockifly-card p-3 mb-3">
+                            <div class="saas-section-title mb-3 pb-2 border-bottom">
+                                <i class="fa-solid fa-magnifying-glass-chart me-1"></i> SEO, Google Analytics &amp; Meta Tracking
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-12">
+                                    <label class="saas-label">Default Meta Page Title</label>
+                                    <input type="text" name="seo_meta_title" class="form-control saas-input" value="{{ old('seo_meta_title', $siteSettings['seo_meta_title']) }}" placeholder="e.g. Prime Booking — Bangladesh's Best Hotel Booking Platform">
+                                </div>
+                                <div class="col-12">
+                                    <label class="saas-label">Default Meta Description</label>
+                                    <textarea name="seo_meta_description" class="form-control saas-input" rows="2" style="height:auto !important;" placeholder="150-160 character SEO-optimised site description...">{{ old('seo_meta_description', $siteSettings['seo_meta_description']) }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Google Analytics Measurement ID</label>
+                                    <input type="text" name="google_analytics_id" class="form-control saas-input" value="{{ old('google_analytics_id', $siteSettings['google_analytics_id']) }}" placeholder="e.g. G-XXXXXXXXXX">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Google Search Console Verification Code</label>
+                                    <input type="text" name="google_search_console" class="form-control saas-input" value="{{ old('google_search_console', $siteSettings['google_search_console']) }}" placeholder="e.g. google-site-verification=xxxxx">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Meta (Facebook) Pixel ID</label>
+                                    <input type="text" name="facebook_pixel_id" class="form-control saas-input" value="{{ old('facebook_pixel_id', $siteSettings['facebook_pixel_id']) }}" placeholder="e.g. 123456789012345">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Google Tag Manager Container ID</label>
+                                    <input type="text" name="google_tag_manager_id" class="form-control saas-input" value="{{ old('google_tag_manager_id', $siteSettings['google_tag_manager_id']) }}" placeholder="e.g. GTM-XXXXXXX">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 9: SOCIAL MEDIA LINKS --}}
+                    <div class="tab-pane fade" id="tab-social" role="tabpanel">
+                        <div class="stockifly-card p-3 mb-3">
+                            <div class="saas-section-title mb-3 pb-2 border-bottom">
+                                <i class="fa-solid fa-share-nodes me-1"></i> Social Media &amp; Communication Channels
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-facebook text-primary me-1"></i> Facebook Page URL</label>
+                                    <input type="url" name="social_facebook" class="form-control saas-input" value="{{ old('social_facebook', $siteSettings['social_facebook']) }}" placeholder="https://facebook.com/primebooking">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-instagram text-danger me-1"></i> Instagram Profile URL</label>
+                                    <input type="url" name="social_instagram" class="form-control saas-input" value="{{ old('social_instagram', $siteSettings['social_instagram']) }}" placeholder="https://instagram.com/primebooking">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-youtube text-danger me-1"></i> YouTube Channel URL</label>
+                                    <input type="url" name="social_youtube" class="form-control saas-input" value="{{ old('social_youtube', $siteSettings['social_youtube']) }}" placeholder="https://youtube.com/@primebooking">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-whatsapp text-success me-1"></i> WhatsApp Business Number</label>
+                                    <input type="text" name="social_whatsapp" class="form-control saas-input" value="{{ old('social_whatsapp', $siteSettings['social_whatsapp']) }}" placeholder="e.g. +8801700000000">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-linkedin text-info me-1"></i> LinkedIn Page URL</label>
+                                    <input type="url" name="social_linkedin" class="form-control saas-input" value="{{ old('social_linkedin', $siteSettings['social_linkedin']) }}" placeholder="https://linkedin.com/company/primebooking">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-twitter text-info me-1"></i> X (Twitter) Profile URL</label>
+                                    <input type="url" name="social_twitter" class="form-control saas-input" value="{{ old('social_twitter', $siteSettings['social_twitter']) }}" placeholder="https://x.com/primebooking">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- TAB 10: SMS GATEWAY --}}
+                    <div class="tab-pane fade" id="tab-sms" role="tabpanel">
+                        <div class="stockifly-card p-3 mb-3">
+                            <div class="saas-section-title mb-3 pb-2 border-bottom">
+                                <i class="fa-solid fa-sms me-1"></i> SMS Gateway &amp; Booking Notification Settings
+                            </div>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="saas-label">SMS Provider</label>
+                                    <select name="sms_provider" class="form-select saas-input">
+                                        @php $smsProv = old('sms_provider', $siteSettings['sms_provider']); @endphp
+                                        <option value="sslcommerz_sms" {{ $smsProv === 'sslcommerz_sms' ? 'selected' : '' }}>SSLCommerz SMS</option>
+                                        <option value="twilio" {{ $smsProv === 'twilio' ? 'selected' : '' }}>Twilio</option>
+                                        <option value="nexmo" {{ $smsProv === 'nexmo' ? 'selected' : '' }}>Vonage (Nexmo)</option>
+                                        <option value="alpha" {{ $smsProv === 'alpha' ? 'selected' : '' }}>Alpha Net BD</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">SMS Sender Name / Masking</label>
+                                    <input type="text" name="sms_sender_id" class="form-control saas-input" value="{{ old('sms_sender_id', $siteSettings['sms_sender_id']) }}" placeholder="e.g. PrimeBooK">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">SMS API Key / Account SID</label>
+                                    <input type="text" name="sms_api_key" class="form-control saas-input" value="{{ old('sms_api_key', $siteSettings['sms_api_key']) }}" placeholder="Enter API Key or Account SID">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">SMS API Secret / Auth Token</label>
+                                    <input type="password" name="sms_api_secret" class="form-control saas-input" value="{{ old('sms_api_secret', $siteSettings['sms_api_secret']) }}" placeholder="Enter API Secret or Auth Token">
+                                </div>
+                                <div class="col-12">
+                                    <div class="saas-section-title mt-2 mb-2 pb-1 border-bottom">SMS Notification Triggers</div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="sms_on_booking" id="smsOnBooking" {{ ($siteSettings['sms_on_booking'] ?? '1') == '1' ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-bold" for="smsOnBooking" style="font-size:12.5px;">On Booking Confirmed</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="sms_on_cancelled" id="smsOnCancelled" {{ ($siteSettings['sms_on_cancelled'] ?? '1') == '1' ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-bold" for="smsOnCancelled" style="font-size:12.5px;">On Booking Cancelled</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" name="sms_on_payment" id="smsOnPayment" {{ ($siteSettings['sms_on_payment'] ?? '1') == '1' ? 'checked' : '' }}>
+                                        <label class="form-check-label fw-bold" for="smsOnPayment" style="font-size:12.5px;">On Payment Received</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

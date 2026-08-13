@@ -66,7 +66,7 @@ class SettingsController extends Controller
             'paypal_client_id'          => SiteSetting::get('paypal_client_id', ''),
             'paypal_secret'             => SiteSetting::get('paypal_secret', ''),
 
-            // SMTP Gateway
+            // SMTP Mail Server
             'mail_host'                 => SiteSetting::get('mail_host', 'smtp.mailtrap.io'),
             'mail_port'                 => SiteSetting::get('mail_port', '2525'),
             'mail_username'             => SiteSetting::get('mail_username', ''),
@@ -74,6 +74,31 @@ class SettingsController extends Controller
             'mail_encryption'           => SiteSetting::get('mail_encryption', 'tls'),
             'mail_from_name'            => SiteSetting::get('mail_from_name', 'Prime Booking'),
             'mail_from_address'         => SiteSetting::get('mail_from_address', 'noreply@primebooking.com.bd'),
+
+            // SEO & Analytics
+            'seo_meta_title'            => SiteSetting::get('seo_meta_title', 'Prime Booking — Bangladesh\'s Best Hotel & Flight Platform'),
+            'seo_meta_description'      => SiteSetting::get('seo_meta_description', 'Book hotels, tour packages and airport transfers across Bangladesh. Best prices guaranteed.'),
+            'google_analytics_id'       => SiteSetting::get('google_analytics_id', ''),
+            'google_search_console'     => SiteSetting::get('google_search_console', ''),
+            'facebook_pixel_id'         => SiteSetting::get('facebook_pixel_id', ''),
+            'google_tag_manager_id'     => SiteSetting::get('google_tag_manager_id', ''),
+
+            // Social Media Links
+            'social_facebook'           => SiteSetting::get('social_facebook', ''),
+            'social_instagram'          => SiteSetting::get('social_instagram', ''),
+            'social_youtube'            => SiteSetting::get('social_youtube', ''),
+            'social_whatsapp'           => SiteSetting::get('social_whatsapp', ''),
+            'social_linkedin'           => SiteSetting::get('social_linkedin', ''),
+            'social_twitter'            => SiteSetting::get('social_twitter', ''),
+
+            // SMS Gateway
+            'sms_provider'              => SiteSetting::get('sms_provider', 'sslcommerz_sms'),
+            'sms_sender_id'             => SiteSetting::get('sms_sender_id', 'PrimeBooK'),
+            'sms_api_key'               => SiteSetting::get('sms_api_key', ''),
+            'sms_api_secret'            => SiteSetting::get('sms_api_secret', ''),
+            'sms_on_booking'            => SiteSetting::get('sms_on_booking', '1'),
+            'sms_on_cancelled'          => SiteSetting::get('sms_on_cancelled', '1'),
+            'sms_on_payment'            => SiteSetting::get('sms_on_payment', '1'),
         ];
 
         return view('admin.settings', compact('user', 'siteSettings'));
@@ -115,7 +140,7 @@ class SettingsController extends Controller
             SiteSetting::set('site_favicon', asset('storage/' . $path));
         }
 
-        // 2. All SiteSettings
+        // 2. All SiteSettings text keys
         $keys = [
             'site_name', 'site_tagline', 'primary_color', 'support_phone', 'support_email', 'support_address',
             'platform_commission', 'tax_rate', 'min_booking_nights', 'max_booking_nights',
@@ -127,7 +152,15 @@ class SettingsController extends Controller
             'sslcommerz_store_id', 'sslcommerz_store_passwd',
             'stripe_key', 'stripe_secret', 'paypal_client_id', 'paypal_secret',
             'mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption',
-            'mail_from_name', 'mail_from_address'
+            'mail_from_name', 'mail_from_address',
+            // SEO & Analytics
+            'seo_meta_title', 'seo_meta_description',
+            'google_analytics_id', 'google_search_console', 'facebook_pixel_id', 'google_tag_manager_id',
+            // Social Media
+            'social_facebook', 'social_instagram', 'social_youtube',
+            'social_whatsapp', 'social_linkedin', 'social_twitter',
+            // SMS Gateway
+            'sms_provider', 'sms_sender_id', 'sms_api_key', 'sms_api_secret',
         ];
 
         foreach ($keys as $k) {
@@ -140,7 +173,7 @@ class SettingsController extends Controller
             SiteSetting::set('currency', $request->default_currency);
         }
 
-        // Toggles
+        // Boolean Toggles
         SiteSetting::set('maintenance_mode', $request->has('maintenance_mode') ? '1' : '0');
         SiteSetting::set('new_registrations', $request->has('new_registrations') ? '1' : '0');
         SiteSetting::set('payment_bkash_enabled', $request->has('enable_bkash') ? '1' : '0');
@@ -148,6 +181,9 @@ class SettingsController extends Controller
         SiteSetting::set('payment_card_enabled', $request->has('enable_card') ? '1' : '0');
         SiteSetting::set('payment_stripe_enabled', $request->has('enable_stripe') ? '1' : '0');
         SiteSetting::set('payment_paypal_enabled', $request->has('enable_paypal') ? '1' : '0');
+        SiteSetting::set('sms_on_booking', $request->has('sms_on_booking') ? '1' : '0');
+        SiteSetting::set('sms_on_cancelled', $request->has('sms_on_cancelled') ? '1' : '0');
+        SiteSetting::set('sms_on_payment', $request->has('sms_on_payment') ? '1' : '0');
 
         Cache::flush();
 

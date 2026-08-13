@@ -356,13 +356,14 @@ class HotelImporterService
         // Extract Total Reviews
         $reviews = $reviewsData['reviewCount'] ?? $item['totalReviews'] ?? $item['reviewCount'] ?? $item['reviewsCount'] ?? rand(25, 450);
 
-        // Extract Price
+        // Extract Price & Currency
         $price = null;
         if (! empty($item['pricingSummaries']) && is_array($item['pricingSummaries'])) {
             foreach ($item['pricingSummaries'] as $ps) {
                 $pVal = $ps['price']['perRoomPerNight']['inclusive']['display'] ?? $ps['price']['perRoomPerNight']['exclusive']['display'] ?? null;
+                $curr = $ps['currency'] ?? 'USD';
                 if (is_numeric($pVal)) {
-                    $price = (float)$pVal * 115; // Convert USD to BDT
+                    $price = $this->convertToBdt((float)$pVal, (string)$curr);
                     break;
                 }
             }
@@ -374,8 +375,9 @@ class HotelImporterService
                         if (! empty($ro['room']['pricing']) && is_array($ro['room']['pricing'])) {
                             foreach ($ro['room']['pricing'] as $pr) {
                                 $pVal = $pr['price']['perRoomPerNight']['inclusive']['display'] ?? $pr['price']['perRoomPerNight']['exclusive']['display'] ?? $pr['price']['perNight']['inclusive']['display'] ?? $pr['price']['perNight']['exclusive']['display'] ?? null;
+                                $curr = $pr['currency'] ?? 'USD';
                                 if (is_numeric($pVal)) {
-                                    $price = (float)$pVal * 115; // Convert USD to BDT
+                                    $price = $this->convertToBdt((float)$pVal, (string)$curr);
                                     break 3;
                                 }
                             }
@@ -387,7 +389,13 @@ class HotelImporterService
         if (! $price) {
             $price = $item['price'] ?? $item['pricePerNight'] ?? $item['minPrice'] ?? $item['rate'] ?? $item['amount'] ?? null;
             if (is_array($price)) {
-                $price = $price['amount'] ?? $price['min'] ?? $price['value'] ?? $price['formatted'] ?? rand(3500, 18500);
+                $pVal = $price['amount'] ?? $price['min'] ?? $price['value'] ?? null;
+                $pCurr = $price['currency'] ?? 'USD';
+                if (is_numeric($pVal)) {
+                    $price = $this->convertToBdt((float)$pVal, (string)$pCurr);
+                } else {
+                    $price = rand(3500, 18500);
+                }
             }
         }
         if (! is_numeric($price)) {
@@ -516,6 +524,33 @@ class HotelImporterService
             'rooms_left'       => $roomsLeft,
             'video_url'        => $videoUrl,
         ];
+    }
+
+    /**
+     * Dynamically convert currency amounts (USD, EUR, GBP, AED, THB, SGD, MYR, INR) to BDT.
+     *
+     * @param float $amount
+     * @param string $currencyCode
+     * @return float
+     */
+    protected function convertToBdt(float $amount, string $currencyCode = 'USD'): float
+    {
+        $code = strtoupper(trim($currencyCode));
+        $ratesToBdt = [
+            'BDT' => 1.0,
+            'USD' => 120.0,
+            'EUR' => 130.0,
+            'GBP' => 152.0,
+            'AED' => 32.6,
+            'SAR' => 32.0,
+            'THB' => 3.5,
+            'SGD' => 89.0,
+            'MYR' => 27.5,
+            'INR' => 1.44,
+        ];
+
+        $rate = $ratesToBdt[$code] ?? 120.0;
+        return round($amount * $rate, 2);
     }
 
     /**

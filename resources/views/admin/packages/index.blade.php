@@ -1,22 +1,20 @@
 @extends('layouts.admin')
 
-@php use App\Services\CurrencyService; @endphp
-
-@section('title', 'Tour Packages Control — PRIME BOOKING Admin')
+@section('title', 'Tour Packages Manager — PRIME BOOKING Admin')
 
 @section('content')
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
     <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
         <span class="sep">-</span><span>Marketing</span>
         <span class="sep">-</span><strong style="color:#333;">Tour Packages</strong>
     </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:8px;">
         <div>
-            <h1 class="page-title">Admin Tour Packages Control Center</h1>
-            <span style="font-size:12px; color:#8c8c8c;">Review, approve, and manage all platform tour packages submitted by vendors and admins</span>
+            <h1 class="page-title m-0">Tour Packages &amp; Holiday Itineraries</h1>
+            <span style="font-size:12.5px; color:#64748b;">Manage guided tours, Sundarbans cruises, and weekend getaway packages</span>
         </div>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <button class="btn-tbl-copy" onclick="copyTableToClipboard('packagesTable')"><i class="fa-solid fa-copy"></i> Copy</button>
@@ -24,6 +22,9 @@
             <button class="btn-export-csv" onclick="exportTableCSV('packagesTable', 'Tour_Packages')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="printTable('packagesTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('packagesTable')"><i class="fa-solid fa-print"></i> Print</button>
+            <a href="{{ route('admin.packages.create') }}" class="btn-add-primary" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
+                <i class="fa-solid fa-plus"></i> <span>New Tour Package</span>
+            </a>
         </div>
     </div>
 </div>
@@ -32,49 +33,49 @@
 <div class="page-content-area">
 
     @if(session('success'))
-        <div class="admin-alert success mb-3">
-            <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
+        <div class="admin-alert success mb-4" style="border-radius:4px; padding:12px 16px;">
+            <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
         </div>
     @endif
 
-    {{-- KPI Summary Row --}}
+    {{-- Stockifly KPI Summary Cards Row --}}
     <div class="row g-3 mb-4">
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
-                    <div>
-                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">TOTAL PACKAGES</p>
-                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ $totalCount }} Listed</p>
-                    </div>
-                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
-                        <i class="fa-solid fa-suitcase-rolling"></i>
-                    </div>
-                </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card" style="padding:16px 20px;">
+                <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">TOTAL TOUR PACKAGES</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ count($packages) }} Listed</p>
                 <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
-                    <div>
-                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE LIVE</p>
-                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $activeCount }} Live</p>
-                    </div>
-                    <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
-                        <i class="fa-solid fa-circle-check"></i>
-                    </div>
-                </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card" style="padding:16px 20px;">
+                <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE LIVE</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $packages->where('is_active', true)->count() }} Active</p>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card" style="padding:16px 20px;">
+                <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">FEATURED ON HOMEPAGE</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $packages->where('is_featured', true)->count() }} Featured</p>
+                <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="kpi-card" style="padding:16px 20px;">
+                <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">PROMOTIONAL BADGES</p>
+                <p class="kpi-value" style="font-size:20px; font-weight:800; color:#7367f0; margin:0;">{{ $packages->whereNotNull('badge')->count() }} Badged</p>
+                <div class="kpi-accent-bar" style="background:#7367f0;"></div>
             </div>
         </div>
     </div>
 
     {{-- SAAS DATA TABLE CARD --}}
-    <div class="data-table-card p-0">
-        <div class="saas-table-toolbar">
-            <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-suitcase-rolling me-1 text-primary"></i> Tour Packages &amp; Excursions Inventory ({{ count($packages) }} Listed)</h6>
+    <div class="data-table-card p-0" style="border-radius:4px; border:1px solid #e2e8f0; background:#ffffff;">
+        <div class="saas-table-toolbar" style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+            <h6 class="mb-0 fw-bold text-dark" style="font-size:14px;"><i class="fa-solid fa-suitcase-rolling me-2 text-primary"></i> Tour Packages Inventory ({{ count($packages) }} Listed)</h6>
             <div style="width:240px;">
-                <input type="text" class="form-control form-control-sm" placeholder="Quick search packages..." onkeyup="filterTableSearch('packagesTable', this.value)">
+                <input type="text" class="form-control form-control-sm" placeholder="Quick search packages..." onkeyup="filterTableSearch('packagesTable', this.value)" style="font-size:12.5px; border-radius:4px; height:34px; padding:0 12px;">
             </div>
         </div>
 
@@ -82,11 +83,11 @@
             <table class="table table-stockifly mb-0" id="packagesTable">
                 <thead>
                     <tr>
-                        <th style="width:220px;">Package Title</th>
-                        <th>Partner / Vendor</th>
-                        <th>Destination</th>
+                        <th style="width:50px;">#</th>
+                        <th style="width:260px;">Package Banner &amp; Title</th>
                         <th>Duration</th>
-                        <th>Price / Person</th>
+                        <th>Base Price (BDT)</th>
+                        <th>Includes Highlights</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -94,27 +95,48 @@
                 <tbody>
                     @forelse($packages as $pkg)
                     <tr>
+                        <td><strong>#{{ $pkg->id }}</strong></td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <img src="{{ $pkg->featured_image }}" alt="" style="width: 46px; height: 34px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0;">
+                            <div class="d-flex align-items-center gap-2.5">
+                                <img src="{{ $pkg->image_url ?: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=80' }}" alt="" style="width: 52px; height: 38px; object-fit: cover; border-radius: 4px; border: 1px solid #e2e8f0;">
                                 <div>
-                                    <div style="font-weight:600; font-size:13px; color:#1e293b;">{{ $pkg->title }}</div>
-                                    <small style="color:#8c8c8c;">Added: {{ $pkg->created_at->format('d M Y') }}</small>
+                                    <div style="font-weight:700; font-size:13px; color:#1e293b;">
+                                        {{ $pkg->title }}
+                                        @if($pkg->badge)
+                                        <span class="badge bg-warning text-dark ms-1" style="font-size:9.5px; padding:2px 6px; font-weight:800;">{{ $pkg->badge }}</span>
+                                        @endif
+                                    </div>
+                                    <small style="color:#64748b; font-size:11px;">Added: {{ $pkg->created_at?->format('d M Y') }}</small>
                                 </div>
                             </div>
                         </td>
                         <td>
-                            <div style="font-weight:600; font-size:13px;">{{ $pkg->vendor?->name ?? 'System Admin' }}</div>
-                            <small style="color:#8c8c8c; font-size:11px;">{{ $pkg->vendor?->email ?? 'admin@primebooking.com' }}</small>
+                            <span class="badge bg-light text-dark border" style="font-size:12px; font-weight:600; padding:4px 8px; border-radius:4px;">
+                                <i class="fa-solid fa-clock me-1 text-primary"></i> {{ $pkg->days }}
+                            </span>
                         </td>
-                        <td><span class="badge bg-info text-dark" style="font-size:11px;">{{ $pkg->destination }}</span></td>
-                        <td style="font-size:12.5px; font-weight:500;">{{ $pkg->duration_days }}D / {{ $pkg->duration_nights }}N</td>
-                        <td style="font-weight:700; color:#28c76f; font-size:13px;">{{ CurrencyService::format($pkg->price_per_person) }}</td>
+                        <td style="font-weight:700; color:#28c76f; font-size:13.5px;">
+                            ৳ {{ number_format($pkg->price) }} BDT
+                        </td>
+                        <td style="max-width:240px;">
+                            @if(is_array($pkg->includes) && count($pkg->includes) > 0)
+                            <div class="d-flex flex-wrap gap-1">
+                                @foreach(array_slice($pkg->includes, 0, 2) as $inc)
+                                <span class="badge bg-light text-secondary border" style="font-size:10.5px;">✓ {{ $inc }}</span>
+                                @endforeach
+                                @if(count($pkg->includes) > 2)
+                                <span class="badge bg-light text-primary border" style="font-size:10.5px;">+{{ count($pkg->includes) - 2 }} more</span>
+                                @endif
+                            </div>
+                            @else
+                            <span style="color:#94a3b8; font-size:11px;">Standard inclusions</span>
+                            @endif
+                        </td>
                         <td>
-                            @if($pkg->status === 'active')
+                            @if($pkg->is_active)
                             <span class="badge-status confirmed">🟢 Active</span>
                             @else
-                            <span class="badge-status pending">⏰ {{ ucfirst($pkg->status) }}</span>
+                            <span class="badge-status cancelled">⚪ Inactive</span>
                             @endif
                         </td>
                         <td style="text-align:right;">
@@ -124,17 +146,13 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
                                     <li>
-                                        <form action="{{ route('admin.packages.toggle', $pkg->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-warning">
-                                                <i class="fa-solid {{ $pkg->status === 'active' ? 'fa-toggle-off' : 'fa-toggle-on' }} me-2"></i>
-                                                {{ $pkg->status === 'active' ? 'Deactivate Package' : 'Approve & Make Live' }}
-                                            </button>
-                                        </form>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.packages.edit', $pkg) }}">
+                                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Tour Package
+                                        </a>
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
-                                        <form action="{{ route('admin.packages.destroy', $pkg->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to remove this package permanently?');">
+                                        <form action="{{ route('admin.packages.destroy', $pkg) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete this tour package permanently?');">
                                             @csrf @method('DELETE')
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
                                                 <i class="fa-solid fa-trash me-2"></i> Delete Package
@@ -154,6 +172,9 @@
                                 </div>
                                 <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Tour Packages Found</h6>
                                 <p style="font-size:12px; color:#64748b; margin-bottom:16px;">There are no tour packages or holiday itineraries registered in the system database yet.</p>
+                                <a href="{{ route('admin.packages.create') }}" class="btn-add-primary d-inline-flex align-items-center gap-1" style="font-size:12px;">
+                                    <i class="fa-solid fa-plus"></i> Create First Package
+                                </a>
                             </div>
                         </td>
                     </tr>

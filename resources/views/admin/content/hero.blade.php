@@ -5,16 +5,8 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
-        <span class="sep">-</span><span>CMS Pages</span>
-        <span class="sep">-</span><strong style="color:#333;">Hero Banner Slider</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:8px;">
-        <div>
-            <h1 class="page-title m-0">Homepage Hero Slider &amp; Banner Manager</h1>
-            <span style="font-size:12.5px; color:#64748b;">Manage homepage carousel slides, offer badges, gallery file uploads, and hero taglines</span>
-        </div>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Hero Banner Slider</h1>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
             <button class="btn-tbl-copy" onclick="copyTableToClipboard('heroSlidesTable')"><i class="fa-solid fa-copy"></i> Copy</button>
             <button class="btn-tbl-excel" onclick="exportTableExcel('heroSlidesTable', 'Hero_Slides')"><i class="fa-solid fa-file-excel"></i> Excel</button>
@@ -28,6 +20,11 @@
                 <i class="fa-solid fa-plus"></i> <span>Add New Banner Slide</span>
             </button>
         </div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
+        <span class="sep">-</span><span>CMS Pages</span>
+        <span class="sep">-</span><strong style="color:#333;">Hero Banner Slider</strong>
     </div>
 </div>
 

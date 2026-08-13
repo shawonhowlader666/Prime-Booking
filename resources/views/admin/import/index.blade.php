@@ -44,42 +44,62 @@
     </div>
     @endif
 
-    {{-- Real MySQL Live Database Metrics Bar --}}
+    {{-- Stockifly KPI Summary Cards Row --}}
     <div class="row g-3 mb-4">
-        <div class="col-md-3 col-6">
-            <div class="form-card py-2.5 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
-                <div>
-                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Total DB Inventory</span>
-                    <strong style="font-size:16px; color:#0f172a;">{{ number_format($stats['total_properties'] ?? 0) }} Properties</strong>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">TOTAL DB INVENTORY</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ number_format($stats['total_properties'] ?? 0) }} Properties</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-hotel"></i>
+                    </div>
                 </div>
-                <div class="p-2 rounded-circle" style="background:#e6f7ff; color:#1890ff;"><i class="fa-solid fa-hotel"></i></div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="form-card py-2.5 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
-                <div>
-                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Active Published</span>
-                    <strong style="font-size:16px; color:#52c41a;">{{ number_format($stats['active_published'] ?? 0) }} Live</strong>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE PUBLISHED</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ number_format($stats['active_published'] ?? 0) }} Live</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
                 </div>
-                <div class="p-2 rounded-circle" style="background:#f6ffed; color:#52c41a;"><i class="fa-solid fa-circle-check"></i></div>
+                <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="form-card py-2.5 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
-                <div>
-                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Covered Cities</span>
-                    <strong style="font-size:16px; color:#1890ff;">{{ number_format($stats['total_cities'] ?? 0) }} Regions</strong>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">COVERED CITIES</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1890ff; margin:0;">{{ number_format($stats['total_cities'] ?? 0) }} Regions</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
                 </div>
-                <div class="p-2 rounded-circle" style="background:#e6f7ff; color:#1890ff;"><i class="fa-solid fa-location-dot"></i></div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
-        <div class="col-md-3 col-6">
-            <div class="form-card py-2.5 px-3 d-flex align-items-center justify-content-between" style="border-radius:4px; background:#fff; border:1px solid #e2e8f0;">
-                <div>
-                    <span class="text-secondary d-block" style="font-size:11px; font-weight:600; text-transform:uppercase;">Room Categories</span>
-                    <strong style="font-size:16px; color:#fa8c16;">{{ number_format($stats['total_rooms'] ?? 0) }} Rooms</strong>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">ROOM CATEGORIES</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ number_format($stats['total_rooms'] ?? 0) }} Rooms</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-bed"></i>
+                    </div>
                 </div>
-                <div class="p-2 rounded-circle" style="background:#fff7e6; color:#fa8c16;"><i class="fa-solid fa-bed"></i></div>
+                <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
     </div>

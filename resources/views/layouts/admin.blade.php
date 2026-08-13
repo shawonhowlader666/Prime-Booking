@@ -246,6 +246,7 @@
             max-height: 56px;
             background-color: #002140;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
             flex-shrink: 0;
             box-sizing: border-box;
         }
@@ -341,6 +342,7 @@
         .admin-topbar {
             background-color: #002140;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 1px solid rgba(255, 255, 255, 0.12);
             padding: 0 20px;
             height: 56px;
             min-height: 56px;

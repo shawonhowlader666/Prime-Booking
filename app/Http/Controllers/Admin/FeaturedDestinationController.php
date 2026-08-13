@@ -12,13 +12,22 @@ class FeaturedDestinationController extends Controller
 {
     public function index()
     {
-        $destinations = FeaturedDestination::orderBy('sort_order')->paginate(20);
-        return view('admin.destinations.index', compact('destinations'));
-    }
+        // Seed default destinations if empty
+        if (FeaturedDestination::count() === 0) {
+            $defaults = [
+                ['city' => 'Cox\'s Bazar', 'country' => 'Bangladesh', 'image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 'description' => 'World\'s longest natural sea beach with 5-star luxury resorts.', 'is_active' => true, 'is_featured' => true, 'sort_order' => 1],
+                ['city' => 'Sajek Valley', 'country' => 'Bangladesh', 'image_url' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=800', 'description' => 'Experience serene cloud valley heights and mountain eco-resorts.', 'is_active' => true, 'is_featured' => true, 'sort_order' => 2],
+                ['city' => 'Sylhet & Sreemangal', 'country' => 'Bangladesh', 'image_url' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800', 'description' => 'Lush green tea gardens, Jaflong rivers, and luxury boutique resorts.', 'is_active' => true, 'is_featured' => true, 'sort_order' => 3],
+                ['city' => 'Sundarbans', 'country' => 'Bangladesh', 'image_url' => 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800', 'description' => 'UNESCO World Heritage mangrove forest & luxury ship cruises.', 'is_active' => true, 'is_featured' => true, 'sort_order' => 4],
+                ['city' => 'Kuakata', 'country' => 'Bangladesh', 'image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800', 'description' => 'Daughter of the Sea — famous for sunrise and sunset beach views.', 'is_active' => true, 'is_featured' => true, 'sort_order' => 5],
+            ];
+            foreach ($defaults as $d) {
+                FeaturedDestination::create($d);
+            }
+        }
 
-    public function create()
-    {
-        return view('admin.destinations.create');
+        $destinations = FeaturedDestination::orderBy('sort_order')->get();
+        return view('admin.destinations.index', compact('destinations'));
     }
 
     public function store(Request $request)
@@ -26,98 +35,90 @@ class FeaturedDestinationController extends Controller
         $validated = $request->validate([
             'city'                    => 'required|string|max:80',
             'country'                 => 'required|string|max:50',
-            'image_url'               => 'required|url|max:500',
-            'description'             => 'nullable|string|max:200',
+            'image_url'               => 'nullable|string|max:500',
+            'image_file'              => 'nullable|image|max:5120',
+            'description'             => 'nullable|string|max:250',
             'property_count_override' => 'nullable|integer|min:0',
             'min_price_override'      => 'nullable|numeric|min:0',
-            'is_active'               => 'boolean',
-            'is_featured'             => 'boolean',
-            'sort_order'              => 'integer|min:0',
+            'is_active'               => 'nullable|boolean',
+            'is_featured'             => 'nullable|boolean',
+            'sort_order'              => 'nullable|integer|min:0',
         ]);
 
-        $dest = FeaturedDestination::create($validated);
+        $imageUrl = $validated['image_url'] ?? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800';
+
+        if ($request->hasFile('image_file') && $request->file('image_file')->isValid()) {
+            $path = $request->file('image_file')->store('uploads/destinations', 'public');
+            $imageUrl = asset('storage/' . $path);
+        }
+
+        $dest = FeaturedDestination::create([
+            'city'                    => $validated['city'],
+            'country'                 => $validated['country'] ?? 'Bangladesh',
+            'image_url'               => $imageUrl,
+            'description'             => $validated['description'] ?? '',
+            'property_count_override' => $validated['property_count_override'] ?? null,
+            'min_price_override'      => $validated['min_price_override'] ?? null,
+            'is_active'               => $request->has('is_active') ? true : false,
+            'is_featured'             => $request->has('is_featured') ? true : false,
+            'sort_order'              => $validated['sort_order'] ?? (FeaturedDestination::max('sort_order') + 1),
+        ]);
 
         Cache::forget('featured_destinations');
         $this->log('created', $dest);
 
-        return redirect()->route('admin.destinations.index')
-            ->with('success', "\"{$dest->city}\" destination added successfully.");
+        return redirect()->route('destinations.index')
+            ->with('success', "\"{$dest->city}\" destination banner added successfully.");
     }
 
-    public function ajaxStore(Request $request)
+    public function update(Request $request, $id)
     {
-        $request->validate([
-            'city'    => 'required|string|max:80',
-            'country' => 'nullable|string|max:50',
-        ]);
+        $dest = FeaturedDestination::findOrFail($id);
 
-        $city = trim($request->city);
-        $country = trim($request->country ?: 'Bangladesh');
-
-        $dest = FeaturedDestination::firstOrCreate(
-            ['city' => $city],
-            [
-                'country'     => $country,
-                'image_url'   => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=600&q=80',
-                'description' => "Explore stays in {$city}, {$country}.",
-                'is_active'   => true,
-                'is_featured' => true,
-            ]
-        );
-
-        Cache::forget('featured_destinations');
-
-        return response()->json([
-            'success' => true,
-            'city'    => $dest->city,
-            'country' => $dest->country,
-            'message' => "{$dest->city} added successfully!",
-        ]);
-    }
-
-    public function edit(FeaturedDestination $destination)
-    {
-        return view('admin.destinations.edit', compact('destination'));
-    }
-
-    public function update(Request $request, FeaturedDestination $destination)
-    {
         $validated = $request->validate([
             'city'                    => 'required|string|max:80',
             'country'                 => 'required|string|max:50',
-            'image_url'               => 'required|url|max:500',
-            'description'             => 'nullable|string|max:200',
+            'image_url'               => 'nullable|string|max:500',
+            'image_file'              => 'nullable|image|max:5120',
+            'description'             => 'nullable|string|max:250',
             'property_count_override' => 'nullable|integer|min:0',
             'min_price_override'      => 'nullable|numeric|min:0',
-            'is_active'               => 'boolean',
-            'is_featured'             => 'boolean',
-            'sort_order'              => 'integer|min:0',
+            'sort_order'              => 'nullable|integer|min:0',
         ]);
 
-        $destination->update($validated);
+        $imageUrl = $validated['image_url'] ?: $dest->image_url;
 
-        Cache::forget('featured_destinations');
-        $this->log('updated', $destination);
-
-        return back()->with('success', "\"{$destination->city}\" updated.");
-    }
-
-    public function destroy(FeaturedDestination $destination)
-    {
-        $city = $destination->city;
-        $this->log('deleted', $destination);
-        $destination->delete();
-        Cache::forget('featured_destinations');
-        return back()->with('success', "\"{$city}\" destination removed.");
-    }
-
-    public function reorder(Request $request)
-    {
-        foreach ($request->ids as $index => $id) {
-            FeaturedDestination::where('id', $id)->update(['sort_order' => $index]);
+        if ($request->hasFile('image_file') && $request->file('image_file')->isValid()) {
+            $path = $request->file('image_file')->store('uploads/destinations', 'public');
+            $imageUrl = asset('storage/' . $path);
         }
+
+        $dest->update([
+            'city'                    => $validated['city'],
+            'country'                 => $validated['country'] ?? 'Bangladesh',
+            'image_url'               => $imageUrl,
+            'description'             => $validated['description'] ?? $dest->description,
+            'property_count_override' => $request->filled('property_count_override') ? $validated['property_count_override'] : null,
+            'min_price_override'      => $request->filled('min_price_override') ? $validated['min_price_override'] : null,
+            'is_active'               => $request->has('is_active'),
+            'is_featured'             => $request->has('is_featured'),
+            'sort_order'              => $validated['sort_order'] ?? $dest->sort_order,
+        ]);
+
         Cache::forget('featured_destinations');
-        return response()->json(['success' => true]);
+        $this->log('updated', $dest);
+
+        return redirect()->route('destinations.index')->with('success', "\"{$dest->city}\" destination updated.");
+    }
+
+    public function destroy($id)
+    {
+        $dest = FeaturedDestination::findOrFail($id);
+        $city = $dest->city;
+        $this->log('deleted', $dest);
+        $dest->delete();
+        Cache::forget('featured_destinations');
+        return redirect()->route('destinations.index')->with('success', "\"{$city}\" destination removed.");
     }
 
     private function log(string $action, FeaturedDestination $dest): void

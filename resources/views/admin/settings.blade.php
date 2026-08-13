@@ -4,17 +4,19 @@
 @section('content')
 
 {{-- PAGE HEADER --}}
-<div class="page-header-card mb-3">
-    <div class="page-breadcrumb mb-1">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">/</span><a href="{{ route('admin.settings.index') }}">Settings</a>
-        <span class="sep">/</span><strong id="breadcrumb-active-tab" style="color:#333;">My Profile</strong>
+<div class="page-header-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0" id="page-title-text">SaaS Settings &amp; System Control Parameters</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <button type="button" class="btn-add-primary" style="font-size:13px; height:36px; padding:0 20px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;" onclick="document.getElementById('stockiflySettingsForm').submit()">
+                <i class="fa-solid fa-check"></i> <span>Save Settings Changes</span>
+            </button>
+        </div>
     </div>
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
-        <h1 class="page-title m-0" id="page-title-text" style="font-size:18px; font-weight:700;">My Profile</h1>
-        <button class="btn btn-primary" style="height:32px; padding:0 16px; font-size:12.5px; border-radius:4px !important;" onclick="document.getElementById('stockiflySettingsForm').submit()">
-            <i class="fa-solid fa-floppy-disk me-1"></i> Save Changes
-        </button>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
+        <span class="sep">-</span><span>System Settings</span>
+        <span class="sep">-</span><strong id="breadcrumb-active-tab" style="color:#333;">My Profile &amp; Controls</strong>
     </div>
 </div>
 

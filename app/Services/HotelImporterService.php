@@ -281,6 +281,8 @@ class HotelImporterService
                isset($keys['hotelname']) ||
                isset($keys['propertyname']) ||
                isset($keys['starrating']) ||
+               isset($keys['hasnearbypublictransportation']) ||
+               isset($keys['uniqueattributes']) ||
                (isset($keys['name']) && (isset($keys['price']) || isset($keys['rating']) || isset($keys['city']) || isset($keys['address'])));
     }
 
@@ -295,6 +297,9 @@ class HotelImporterService
     {
         // Extract Name
         $name = $item['name'] ?? $item['hotelName'] ?? $item['propertyName'] ?? $item['title'] ?? $item['displayName'] ?? '';
+        if (is_array($name)) {
+            $name = $name['translation'] ?? $name['text'] ?? $name['value'] ?? (is_string(reset($name)) ? reset($name) : '');
+        }
         $name = trim((string)$name);
 
         // Extract City

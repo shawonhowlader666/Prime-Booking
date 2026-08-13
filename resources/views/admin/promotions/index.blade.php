@@ -71,45 +71,45 @@
         </div>
     @endif
 
-    {{-- KPI Summary Row --}}
+    {{-- Stockifly KPI Summary Cards Row --}}
     <div class="row g-3 mb-4">
         <div class="col-6 col-md-2">
-            <div class="kpi-card" style="padding:12px 14px;">
+            <div class="kpi-card">
                 <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10px; font-weight:700;">TOTAL CAMPAIGNS</p>
                 <p class="kpi-value" style="font-size:18px; font-weight:800; color:#1e293b; margin:0;">{{ $stats['total'] }}</p>
                 <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
         <div class="col-6 col-md-2">
-            <div class="kpi-card" style="padding:12px 14px;">
+            <div class="kpi-card">
                 <p class="kpi-label mb-1" style="color:#28c76f; font-size:10px; font-weight:700;">ACTIVE BANNERS</p>
                 <p class="kpi-value" style="font-size:18px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['active'] }}</p>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
         </div>
         <div class="col-6 col-md-2">
-            <div class="kpi-card" style="padding:12px 14px;">
-                <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10px; font-weight:700;">ACCOMMODATIONS</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#1890ff; font-size:10px; font-weight:700;">ACCOMMODATIONS</p>
                 <p class="kpi-value" style="font-size:18px; font-weight:800; color:#1890ff; margin:0;">{{ $stats['accommodation'] }}</p>
                 <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
         <div class="col-6 col-md-2">
-            <div class="kpi-card" style="padding:12px 14px;">
-                <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10px; font-weight:700;">FLIGHTS</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#7367f0; font-size:10px; font-weight:700;">FLIGHTS</p>
                 <p class="kpi-value" style="font-size:18px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['flights'] }}</p>
                 <div class="kpi-accent-bar" style="background:#7367f0;"></div>
             </div>
         </div>
         <div class="col-6 col-md-2">
-            <div class="kpi-card" style="padding:12px 14px;">
-                <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10px; font-weight:700;">ACTIVITIES</p>
+            <div class="kpi-card">
+                <p class="kpi-label mb-1" style="color:#00cfe8; font-size:10px; font-weight:700;">ACTIVITIES</p>
                 <p class="kpi-value" style="font-size:18px; font-weight:800; color:#00cfe8; margin:0;">{{ $stats['activities'] }}</p>
                 <div class="kpi-accent-bar" style="background:#00cfe8;"></div>
             </div>
         </div>
         <div class="col-6 col-md-2">
-            <div class="kpi-card" style="padding:12px 14px;">
+            <div class="kpi-card">
                 <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10px; font-weight:700;">VENDOR PROMOS</p>
                 <p class="kpi-value" style="font-size:18px; font-weight:800; color:#ff9f43; margin:0;">{{ $stats['vendor_promos'] }}</p>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>

@@ -94,4 +94,31 @@ class PropertyDetailController extends Controller
             'nights',
         ));
     }
+
+    /**
+     * Submit a guest review for a property.
+     * POST /properties/{id}/review
+     */
+    public function submitReview(Request $request, int|string $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'guest_name' => 'required|string|max:255',
+            'rating'     => 'required|integer|min:1|max:5',
+            'comment'    => 'required|string|min:5|max:1000',
+        ]);
+
+        $propertyId = is_numeric($id) ? (int)$id : 1;
+
+        Review::create([
+            'property_id' => $propertyId,
+            'user_id'     => auth()->id(),
+            'guest_name'  => $validated['guest_name'],
+            'rating'      => $validated['rating'],
+            'comment'     => $validated['comment'],
+            'status'      => 'pending',
+        ]);
+
+        return redirect()->back()->with('success', 'Thank you for your feedback! Your review has been submitted for moderation.');
+    }
 }
+

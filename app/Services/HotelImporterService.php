@@ -219,11 +219,13 @@ class HotelImporterService
             }
         }
 
-        // Keys commonly containing hotel lists
+        // Keys commonly containing hotel lists across all major OTAs (Agoda, Booking.com, Expedia, Airbnb, Trip.com, MakeMyTrip)
         $candidateKeys = [
-            'data', 'citySearch', 'hotels', 'properties', 'results', 'searchResult', 'items',
-            'hotelList', 'propertyList', 'accommodation', 'content', 'rows',
-            'hotelResults', 'stayList', 'featuredPulseProperties'
+            'data', 'citySearch', 'hotels', 'properties', 'results', 'searchResult', 'searchResults',
+            'items', 'hotelList', 'propertyList', 'accommodation', 'content', 'rows',
+            'hotelResults', 'stayList', 'featuredPulseProperties', 'b_hotels', 'propertySearchResults',
+            'propertySearch', 'hotelSearchResult', 'hotelCardList', 'sections', 'explore_tabs',
+            'listings', 'htlList', 'hotelInfo'
         ];
 
         foreach ($candidateKeys as $key) {
@@ -269,7 +271,7 @@ class HotelImporterService
             return false;
         }
 
-        $name = strtolower((string)($obj['name'] ?? $obj['hotelName'] ?? $obj['propertyName'] ?? $obj['title'] ?? ''));
+        $name = strtolower((string)($obj['name'] ?? $obj['hotelName'] ?? $obj['propertyName'] ?? $obj['title'] ?? $obj['hotel_name'] ?? $obj['b_name'] ?? ''));
         if (in_array($name, ['agoda.com', 'agoda', 'booking.com', 'expedia', 'airbnb', 'trip.com'], true)) {
             return false;
         }
@@ -282,7 +284,10 @@ class HotelImporterService
                isset($keys['informationsummary']) ||
                isset($keys['hotelname']) ||
                isset($keys['propertyname']) ||
+               isset($keys['b_name']) ||
                isset($keys['starrating']) ||
+               isset($keys['review_score']) ||
+               isset($keys['gross_price']) ||
                isset($keys['hasnearbypublictransportation']) ||
                isset($keys['uniqueattributes']) ||
                (isset($keys['name']) && (isset($keys['price']) || isset($keys['rating']) || isset($keys['city']) || isset($keys['address'])));

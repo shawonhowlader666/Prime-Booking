@@ -197,7 +197,7 @@
                                     </li>
                                     @if($u->role === 'customer')
                                     <li>
-                                        <form action="{{ route('admin.users.promote', $u->id) }}" method="POST" class="m-0">
+                                        <form action="{{ route('admin.users.promote-vendor', $u->id) }}" method="POST" class="m-0">
                                             @csrf
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-info">
                                                 <i class="fa-solid fa-user-gear me-2"></i> Promote to Vendor

@@ -29,7 +29,7 @@
         </div>
     @endif
 
-    @if($errors->any())
+    @if(isset($errors) && $errors->any())
         <div class="admin-alert error mb-3" style="padding:8px 14px; font-size:12.5px;">
             <ul class="mb-0 ps-3">
                 @foreach($errors->all() as $error)

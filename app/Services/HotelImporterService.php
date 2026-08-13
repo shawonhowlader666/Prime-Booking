@@ -221,9 +221,9 @@ class HotelImporterService
 
         // Keys commonly containing hotel lists
         $candidateKeys = [
-            'data', 'hotels', 'properties', 'results', 'searchResult', 'items',
+            'data', 'citySearch', 'hotels', 'properties', 'results', 'searchResult', 'items',
             'hotelList', 'propertyList', 'accommodation', 'content', 'rows',
-            'hotelResults', 'stayList'
+            'hotelResults', 'stayList', 'featuredPulseProperties'
         ];
 
         foreach ($candidateKeys as $key) {

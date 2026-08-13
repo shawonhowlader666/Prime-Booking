@@ -77,6 +77,14 @@ class DealController extends Controller
         return redirect()->route('admin.deals.index')->with('success', 'Deal updated successfully!');
     }
 
+    public function toggleStatus($id)
+    {
+        $deal = Deal::findOrFail($id);
+        $deal->update(['is_active' => !$deal->is_active]);
+        Cache::forget('deals_active');
+        return back()->with('success', 'Deal status updated!');
+    }
+
     public function destroy(Deal $deal)
     {
         $deal->delete();

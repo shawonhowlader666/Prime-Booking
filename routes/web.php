@@ -198,6 +198,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/packages/{id}/status', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'toggleStatus'])->name('packages.toggle');
     Route::delete('/packages/{id}', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'destroy'])->name('packages.destroy');
     Route::resource('deals', DealController::class);
+    Route::post('/deals/{id}/toggle', [DealController::class, 'toggleStatus'])->name('deals.toggle');
     Route::resource('cms', CmsContentController::class)->only(['index', 'edit', 'update']);
     Route::resource('amenities', AmenityController::class)->only(['index', 'store', 'destroy']);
 

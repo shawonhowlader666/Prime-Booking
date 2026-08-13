@@ -153,10 +153,10 @@
                         <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('bookingsTable', this)" title="Select All Rows"></th>
                         <th>Booking Ref</th>
                         <th>Guest Details</th>
-                        <th>Property Name</th>
+                        <th>Property &amp; Room</th>
                         <th>Check-In / Out</th>
                         <th>Total Amount</th>
-                        <th>Payment</th>
+                        <th>Payment Method</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -166,30 +166,41 @@
                     <tr>
                         <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                         <td>
-                            <strong style="color:var(--primary); font-size:13px;">{{ $b->booking_reference ?? 'PRM-'.str_pad($b->id,4,'0',STR_PAD_LEFT) }}</strong>
-                            <span style="font-size:11px; color:#8c8c8c; display:block;">{{ $b->created_at ? $b->created_at->format('M d, Y') : 'N/A' }}</span>
+                            <strong style="color:var(--primary); font-size:13px; font-family:monospace;">{{ $b->booking_reference ?? 'PRM-'.str_pad($b->id,4,'0',STR_PAD_LEFT) }}</strong>
+                            <span style="font-size:11px; color:#8c8c8c; display:block;">Booked: {{ $b->created_at ? $b->created_at->format('M d, Y') : 'N/A' }}</span>
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ $b->guest_name ?? optional($b->user)->name ?? 'Guest User' }}</strong>
-                            <span style="font-size:11px; color:#8c8c8c;">{{ $b->guest_phone ?? optional($b->user)->phone ?? 'N/A' }}</span>
+                            <span style="font-size:11px; color:#8c8c8c;"><i class="fa-solid fa-phone me-1"></i>{{ $b->guest_phone ?? optional($b->user)->phone ?? 'N/A' }}</span>
                         </td>
                         <td>
-                            <strong style="font-size:12.5px; color:#334155;">{{ Str::limit(optional($b->property)->name ?? $b->property_name ?? 'Property N/A', 28) }}</strong>
+                            <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit(optional($b->property)->name ?? $b->property_name ?? 'Property N/A', 28) }}</strong>
+                            <span style="font-size:11px; color:#64748b;">
+                                <i class="fa-solid fa-bed me-1 text-secondary"></i>{{ optional($b->room)->name ?? 'Standard Room' }} • {{ $b->guests ?? 1 }} Guest(s)
+                            </span>
                         </td>
-                        <td style="font-size:12px; color:#595959;">
-                            {{ $b->check_in }} → {{ $b->check_out }}
+                        <td style="font-size:12px; color:#475569;">
+                            <div><i class="fa-solid fa-calendar-days text-primary me-1"></i>{{ $b->check_in }} → {{ $b->check_out }}</div>
+                            <span class="badge bg-light text-secondary border mt-1" style="font-size:10px; font-weight:600;">
+                                <i class="fa-solid fa-moon me-1 text-warning"></i>{{ $b->nights_count }} Night(s)
+                            </span>
                         </td>
                         <td>
-                            <strong style="color:var(--primary); font-size:13px;">BDT {{ number_format($b->total_amount ?? $b->total_price ?? 0) }}</strong>
+                            <strong style="color:var(--primary); font-size:13.5px;">BDT {{ number_format($b->amount ?? 0) }}</strong>
                         </td>
                         <td>
                             <span class="badge-status {{ strtolower($b->payment_status ?? 'pending') == 'paid' ? 'confirmed' : 'pending' }}">
                                 {{ ucfirst($b->payment_status ?? 'pending') }}
                             </span>
+                            @if($b->payment_method)
+                            <span class="badge bg-light text-dark border ms-1" style="font-size:10px; font-weight:600; text-transform:uppercase;">
+                                <i class="fa-solid fa-wallet text-primary me-1"></i>{{ $b->payment_method }}
+                            </span>
+                            @endif
                         </td>
                         <td>
-                            <span class="badge-status {{ strtolower($b->booking_status ?? $b->status ?? 'confirmed') == 'confirmed' ? 'confirmed' : (strtolower($b->booking_status ?? $b->status) == 'cancelled' ? 'cancelled' : 'pending') }}">
-                                {{ ucfirst($b->booking_status ?? $b->status ?? 'Confirmed') }}
+                            <span class="badge-status {{ strtolower($b->effective_status) == 'confirmed' ? 'confirmed' : (strtolower($b->effective_status) == 'cancelled' ? 'cancelled' : 'pending') }}">
+                                {{ ucfirst($b->effective_status) }}
                             </span>
                         </td>
                         <td style="text-align:right;">

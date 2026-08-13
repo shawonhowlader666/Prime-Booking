@@ -277,10 +277,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     })->name('system.cache-clear');
 
     // Admin Destination Banners & Media Manager
-    Route::get('/destinations', [App\Http\Controllers\Admin\AdminDestinationController::class, 'index'])->name('destinations.index');
-    Route::post('/destinations', [App\Http\Controllers\Admin\AdminDestinationController::class, 'store'])->name('destinations.store');
-    Route::put('/destinations/{id}', [App\Http\Controllers\Admin\AdminDestinationController::class, 'update'])->name('destinations.update');
-    Route::delete('/destinations/{id}', [App\Http\Controllers\Admin\AdminDestinationController::class, 'destroy'])->name('destinations.destroy');
+    Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('destinations.index');
+    Route::post('/destinations', [FeaturedDestinationController::class, 'store'])->name('destinations.store');
+    Route::put('/destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('destinations.update');
+    Route::delete('/destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('destinations.destroy');
 });
 
 // Vendor Portal Routes

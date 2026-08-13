@@ -1,4 +1,4 @@
-@if($errors->any())
+@if(isset($errors) && $errors->any())
 <div class="admin-alert error mb-4" style="border-radius:4px; padding:12px 16px;">
     <ul class="mb-0 ps-3">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul>
 </div>

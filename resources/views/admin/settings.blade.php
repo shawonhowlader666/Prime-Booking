@@ -39,7 +39,7 @@
         </div>
     @endif
 
-    <form id="stockiflySettingsForm" action="{{ route('admin.settings.update') }}" method="POST">
+    <form id="stockiflySettingsForm" action="{{ route('admin.settings.update') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="row g-3">
@@ -50,8 +50,8 @@
                         <button class="nav-link active" id="tab-profile-tab" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab">
                             <i class="fa-solid fa-user-gear" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
-                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">My Profile</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Account &amp; security</small>
+                                <strong class="d-block" style="font-size:12.5px; line-height:1.2;">My Profile &amp; Avatar</strong>
+                                <small class="opacity-75" style="font-size:10.5px;">Photo, account &amp; security</small>
                             </div>
                         </button>
 
@@ -59,7 +59,7 @@
                             <i class="fa-solid fa-building-flag" style="font-size:14px; width:20px;"></i>
                             <div class="text-start ms-2">
                                 <strong class="d-block" style="font-size:12.5px; line-height:1.2;">Company &amp; Brand</strong>
-                                <small class="opacity-75" style="font-size:10.5px;">Branding &amp; theme</small>
+                                <small class="opacity-75" style="font-size:10.5px;">Logo, branding &amp; theme</small>
                             </div>
                         </button>
 
@@ -114,10 +114,15 @@
                     <div class="tab-pane fade show active" id="tab-profile" role="tabpanel">
                         <div class="stockifly-card p-3 mb-3">
                             <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
-                                <img src="https://ui-avatars.com/api/?name={{ urlencode($user->name ?? 'Admin') }}&background=1890ff&color=fff&size=80" class="rounded-circle shadow-sm" style="width:44px; height:44px;" alt="Avatar">
-                                <div>
-                                    <h6 class="fw-bold text-dark mb-0" style="font-size:13.5px;">{{ $user->name ?? 'Administrator' }}</h6>
-                                    <small class="text-muted d-block" style="font-size:11px;">Super Admin Account | ID: #{{ $user->id ?? 1 }}</small>
+                                <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; background:#f1f5f9; border:2px solid var(--primary); flex-shrink:0;">
+                                    <img src="{{ $user->avatar ?: ('https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'Admin') . '&background=7367f0&color=fff&size=80') }}" class="w-100 h-100" style="object-fit:cover;" alt="Avatar">
+                                </div>
+                                <div class="flex-grow-1">
+                                    <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">{{ $user->name ?? 'Administrator' }} (ID #{{ $user->id ?? 1 }})</h6>
+                                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                                        <input type="file" name="avatar" class="form-control form-control-sm" accept="image/*" style="font-size:11.5px; max-width:280px; border-radius:4px;">
+                                        <span style="font-size:11px; color:#64748b;">(Upload profile photo from computer or gallery)</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -146,7 +151,7 @@
                     <div class="tab-pane fade" id="tab-company" role="tabpanel">
                         <div class="stockifly-card p-3 mb-3">
                             <div class="saas-section-title mb-3 pb-2 border-bottom">
-                                <i class="fa-solid fa-building me-1"></i> Platform Identity &amp; Branding
+                                <i class="fa-solid fa-building me-1"></i> Platform Identity, Logo &amp; Branding
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -159,6 +164,20 @@
                                         <input type="color" name="primary_color" id="primaryColorInput" class="form-control saas-input p-0" value="{{ old('primary_color', $siteSettings['primary_color']) }}" style="width:34px; height:32px; border-radius:4px !important; cursor:pointer;" oninput="document.getElementById('primaryColorHex').value = this.value">
                                         <input type="text" id="primaryColorHex" class="form-control saas-input" value="{{ old('primary_color', $siteSettings['primary_color']) }}" readonly style="font-family:monospace; width:100px;">
                                     </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Upload Site Logo (PNG/SVG)</label>
+                                    <input type="file" name="site_logo_file" class="form-control form-control-sm mb-1" accept="image/*" style="font-size:11.5px; border-radius:4px;">
+                                    @if(!empty($siteSettings['site_logo']))
+                                        <div class="mt-1"><img src="{{ $siteSettings['site_logo'] }}" height="26" class="border p-1 rounded bg-white"></div>
+                                    @endif
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Upload Site Favicon (ICO/PNG)</label>
+                                    <input type="file" name="site_favicon_file" class="form-control form-control-sm mb-1" accept="image/*" style="font-size:11.5px; border-radius:4px;">
+                                    @if(!empty($siteSettings['site_favicon']))
+                                        <div class="mt-1"><img src="{{ $siteSettings['site_favicon'] }}" height="22" class="border p-1 rounded bg-white"></div>
+                                    @endif
                                 </div>
                                 <div class="col-12">
                                     <label class="saas-label">Site Tagline / Subtitle</label>

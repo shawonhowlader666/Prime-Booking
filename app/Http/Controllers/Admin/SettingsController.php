@@ -18,6 +18,8 @@ class SettingsController extends Controller
             'site_name'                 => SiteSetting::get('site_name', 'PRIME BOOKING'),
             'site_tagline'              => SiteSetting::get('site_tagline', "Bangladesh's #1 Hotel & Flight Platform"),
             'primary_color'             => SiteSetting::get('primary_color', '#1890ff'),
+            'site_logo'                 => SiteSetting::get('site_logo', asset('assets/img/logo.png')),
+            'site_favicon'              => SiteSetting::get('site_favicon', asset('favicon.ico')),
             'default_currency'          => SiteSetting::get('currency', 'BDT'),
             'support_phone'             => SiteSetting::get('support_phone', '+880 1700 000000'),
             'support_email'             => SiteSetting::get('support_email', 'support@primeaviation.com'),
@@ -79,7 +81,7 @@ class SettingsController extends Controller
 
     public function update(Request $request)
     {
-        // 1. Profile updates
+        // 1. Profile & Avatar updates
         $user = auth()->user();
         if ($request->filled('name')) {
             $user->name = $request->name;
@@ -95,7 +97,23 @@ class SettingsController extends Controller
             $request->validate(['new_password' => 'required|string|min:8']);
             $user->password = Hash::make($request->new_password);
         }
+
+        // Profile Avatar Upload
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            $path = $request->file('avatar')->store('uploads/avatars', 'public');
+            $user->avatar = asset('storage/' . $path);
+        }
         $user->save();
+
+        // Logo & Favicon File Uploads
+        if ($request->hasFile('site_logo_file') && $request->file('site_logo_file')->isValid()) {
+            $path = $request->file('site_logo_file')->store('uploads/branding', 'public');
+            SiteSetting::set('site_logo', asset('storage/' . $path));
+        }
+        if ($request->hasFile('site_favicon_file') && $request->file('site_favicon_file')->isValid()) {
+            $path = $request->file('site_favicon_file')->store('uploads/branding', 'public');
+            SiteSetting::set('site_favicon', asset('storage/' . $path));
+        }
 
         // 2. All SiteSettings
         $keys = [
@@ -133,6 +151,6 @@ class SettingsController extends Controller
 
         Cache::flush();
 
-        return redirect()->back()->with('success', 'Stockifly SaaS Settings & System Control Parameters updated successfully!');
+        return redirect()->back()->with('success', 'Stockifly SaaS Settings & Admin Profile updated successfully!');
     }
 }

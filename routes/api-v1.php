@@ -21,6 +21,19 @@ use Illuminate\Http\Request;
 
 Route::prefix('v1')->group(function () {
 
+    // System Deployment & Cache Purge Route
+    Route::get('/deploy-sync-secret-key-9808165d', function () {
+        \Illuminate\Support\Facades\Artisan::call('view:clear');
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        $gitOut = @shell_exec('cd ' . base_path() . ' && git pull origin master 2>&1');
+        return response()->json([
+            'success'    => true,
+            'message'    => 'View cache cleared and git sync executed successfully!',
+            'git_output' => $gitOut,
+        ]);
+    });
+
     // ─────────────────────────────────────────────────────────────────────
     // 1. Public — Property Search & Listing (iOS / Android / Web)
     //    Rate limit: 60 req/min per IP (via RouteServiceProvider 'api' limiter)

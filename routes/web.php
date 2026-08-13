@@ -81,6 +81,10 @@ Route::get('/flights/voucher/{pnr}', [App\Http\Controllers\Web\FlightBookingCont
 Route::get('/transfers', [App\Http\Controllers\Web\TransferBookingController::class, 'index'])->name('transfers.index');
 Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->name('transfers.book');
 
+// Public Guest Inquiry Form Submission Routes
+Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
+Route::post('/inquiries/store', [InquiryController::class, 'store'])->name('inquiries.store');
+
 Route::get('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->name('booking.form');

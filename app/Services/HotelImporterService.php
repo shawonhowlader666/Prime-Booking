@@ -36,8 +36,16 @@ class HotelImporterService
         array $customHeaders = []
     ): array {
         $headers = array_merge([
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-            'Accept'     => 'application/json, text/plain, */*',
+            'User-Agent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+            'Accept'          => 'application/json, text/plain, */*',
+            'Accept-Language' => 'en-US,en;q=0.9',
+            'Origin'          => 'https://www.agoda.com',
+            'Referer'         => 'https://www.agoda.com/',
+            'Sec-Ch-Ua'       => '"Not/A)Brand";v="8", "Chromium";v="126", "Google Chrome";v="126"',
+            'Sec-Ch-Ua-Mobile'=> '?0',
+            'Sec-Fetch-Dest'  => 'empty',
+            'Sec-Fetch-Mode'  => 'cors',
+            'Sec-Fetch-Site'  => 'same-origin',
         ], $customHeaders);
 
         if (! empty($cookie)) {
@@ -50,9 +58,18 @@ class HotelImporterService
                 : "Bearer {$authorizationToken}";
         }
 
-        $response = Http::withHeaders($headers)
-            ->withOptions(['verify' => false, 'timeout' => 20])
-            ->get($endpointUrl);
+        $http = Http::withHeaders($headers)->withOptions(['verify' => false, 'timeout' => 20]);
+
+        $response = $http->get($endpointUrl);
+
+        if (! $response->successful()) {
+            // Try POST fallback if GET is rejected by Cloudflare/Agoda endpoint
+            $response = $http->post($endpointUrl, [
+                'cityId' => 16850,
+                'pageSize' => 100,
+                'pageNumber' => 1,
+            ]);
+        }
 
         if (! $response->successful()) {
             throw new \RuntimeException("External API Error ({$response->status()}): " . Str::limit($response->body(), 300));

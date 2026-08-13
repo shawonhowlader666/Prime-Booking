@@ -38,4 +38,9 @@ class Tenant extends Model
     {
         return $this->hasMany(Property::class, 'vendor_id', 'id');
     }
+
+    public function rooms()
+    {
+        return $this->hasManyThrough(Room::class, Property::class, 'vendor_id', 'property_id', 'id', 'id');
+    }
 }

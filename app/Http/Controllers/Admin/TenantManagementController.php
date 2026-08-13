@@ -46,7 +46,7 @@ class TenantManagementController extends Controller
             ]);
         }
 
-        $tenants = Tenant::withCount('properties')->latest()->paginate(15);
+        $tenants = Tenant::withCount(['properties', 'rooms'])->latest()->paginate(15);
 
         return view('admin.tenants.index', compact('company', 'tenants'));
     }

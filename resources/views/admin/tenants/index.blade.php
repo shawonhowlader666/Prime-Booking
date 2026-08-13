@@ -93,7 +93,7 @@
                         <th>Owner &amp; Contact</th>
                         <th>SaaS Plan</th>
                         <th>Commission Rate</th>
-                        <th>Listed Hotels &amp; Resorts</th>
+                        <th>Properties &amp; Rooms Capacity</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -116,9 +116,14 @@
                         </td>
                         <td><strong style="color:#28c76f; font-size:13.5px;">{{ $tenant->commission_rate }}%</strong></td>
                         <td>
-                            <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="badge bg-primary bg-opacity-10 text-primary fw-bold text-decoration-none" style="font-size:11.5px; padding:4px 8px; border-radius:4px;">
-                                <i class="fa-solid fa-hotel me-1"></i> {{ $tenant->properties_count ?? 0 }} Hotels Listed
-                            </a>
+                            <div class="d-flex flex-column gap-1">
+                                <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="badge bg-primary bg-opacity-10 text-primary fw-bold text-decoration-none" style="font-size:11px; padding:3px 7px; border-radius:4px; text-align:left;">
+                                    <i class="fa-solid fa-hotel me-1"></i> {{ $tenant->properties_count ?? 0 }} Hotels Listed
+                                </a>
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold" style="font-size:11px; padding:3px 7px; border-radius:4px; text-align:left;">
+                                    <i class="fa-solid fa-bed me-1"></i> {{ $tenant->rooms_count ?? 0 }} Rooms Inventory
+                                </span>
+                            </div>
                         </td>
                         <td>
                             <span class="badge-status {{ $tenant->status == 'active' ? 'confirmed' : 'cancelled' }}">
@@ -200,9 +205,13 @@
                                             <span class="text-secondary" style="font-size:12px;">Agreed Commission Rate:</span>
                                             <strong class="text-success" style="font-size:14px;">{{ $tenant->commission_rate }}% Rate</strong>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
                                             <span class="text-secondary" style="font-size:12px;">Total Properties Listed:</span>
                                             <strong class="text-primary" style="font-size:13px;">{{ $tenant->properties_count ?? 0 }} Hotels / Resorts</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary" style="font-size:12px;">Total Rooms Inventory:</span>
+                                            <strong class="text-success" style="font-size:13px;">{{ $tenant->rooms_count ?? 0 }} Rooms Total</strong>
                                         </div>
                                     </div>
                                     @if($tenant->notes)

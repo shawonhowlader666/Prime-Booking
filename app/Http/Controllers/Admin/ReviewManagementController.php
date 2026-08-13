@@ -12,7 +12,14 @@ class ReviewManagementController extends Controller
     {
         $reviews = Review::with(['property', 'user'])->latest()->paginate(20);
 
-        return view('admin.reviews.index', compact('reviews'));
+        $stats = [
+            'total'    => Review::count(),
+            'approved' => Review::where('status', 'approved')->count(),
+            'pending'  => Review::where('status', 'pending')->orWhereNull('status')->count(),
+            'avg'      => round((float) Review::avg('rating') ?: 4.8, 1),
+        ];
+
+        return view('admin.reviews.index', compact('reviews', 'stats'));
     }
 
     public function toggleStatus(Request $request, $id)

@@ -21,6 +21,9 @@
             <button class="btn-export-csv" onclick="exportTableCSV('heroSlidesTable', 'Hero_Slides')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="printTable('heroSlidesTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('heroSlidesTable')"><i class="fa-solid fa-print"></i> Print</button>
+            <button type="button" class="btn btn-outline-primary btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#editHeroTaglineModal" style="height:36px; border-radius:4px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px;">
+                <i class="fa-solid fa-heading"></i> <span>Edit Main Tagline</span>
+            </button>
             <button class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addSlideModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-plus"></i> <span>Add New Banner Slide</span>
             </button>
@@ -75,37 +78,15 @@
         </div>
     </div>
 
-    {{-- MAIN HERO TEXT CARD --}}
-    <div class="card border-0 shadow-sm mb-4" style="border-radius:4px; border:1px solid #e2e8f0; background:#ffffff;">
-        <div class="card-header bg-white" style="padding:16px 20px; border-bottom:1px solid #e2e8f0;">
-            <h6 class="mb-0 fw-bold text-dark" style="font-size:14.5px;">
-                <i class="fa-solid fa-heading text-primary me-2"></i> Main Homepage Hero Heading &amp; Tagline
-            </h6>
-        </div>
-        <div class="card-body" style="padding:20px;">
-            <form action="{{ route('admin.content.hero.update') }}" method="POST">
-                @csrf
-                <div class="mb-3">
-                    <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hero Main Title / Heading <span style="color:#ff4d4f;">*</span></label>
-                    <input type="text" name="hero_title" class="form-control" value="{{ $heroTitle }}" required style="font-size:13px; height:38px; border-radius:4px;">
-                </div>
-                <div class="mb-3">
-                    <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hero Subtitle / Description</label>
-                    <textarea name="hero_subtitle" class="form-control" rows="2" style="font-size:13px; border-radius:4px;">{{ $heroSubtitle }}</textarea>
-                </div>
-                <div class="d-flex justify-content-end">
-                    <button type="submit" class="btn-add-primary" style="font-size:13px; height:36px; padding:0 20px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
-                        Save Hero Tagline <i class="fa-solid fa-check ms-1"></i>
-                    </button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     {{-- SAAS DATA TABLE CARD --}}
     <div class="data-table-card p-0" style="border-radius:4px; border:1px solid #e2e8f0; background:#ffffff;">
         <div class="saas-table-toolbar" style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-            <h6 class="mb-0 fw-bold text-dark" style="font-size:14px;"><i class="fa-solid fa-images me-2 text-primary"></i> Active Carousel Banner Slides ({{ count($slides) }} Listed)</h6>
+            <div class="d-flex align-items:center gap-2">
+                <h6 class="mb-0 fw-bold text-dark" style="font-size:14px;"><i class="fa-solid fa-images me-2 text-primary"></i> Active Carousel Banner Slides ({{ count($slides) }} Listed)</h6>
+                <button type="button" class="btn btn-sm btn-light border text-secondary fw-bold ms-2" data-bs-toggle="modal" data-bs-target="#editHeroTaglineModal" style="font-size:11.5px; border-radius:4px;">
+                    <i class="fa-solid fa-pen text-primary me-1"></i> Edit Tagline
+                </button>
+            </div>
             <div style="width:240px;">
                 <input type="text" class="form-control form-control-sm" placeholder="Quick search slides..." onkeyup="filterTableSearch('heroSlidesTable', this.value)" style="font-size:12.5px; border-radius:4px; height:34px; padding:0 12px;">
             </div>
@@ -261,6 +242,37 @@
         <x-table-footer :items="$slides" :perPage="15" />
     </div>
 
+</div>
+
+{{-- EDIT MAIN HERO TAGLINE MODAL --}}
+<div class="modal fade" id="editHeroTaglineModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <form action="{{ route('admin.content.hero.update') }}" method="POST">
+                @csrf
+                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                        <i class="fa-solid fa-heading text-primary me-2"></i> Edit Main Homepage Tagline &amp; Title
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:20px;">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hero Title / Main Heading <span style="color:#ff4d4f;">*</span></label>
+                        <input type="text" name="hero_title" class="form-control" value="{{ $heroTitle }}" required style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hero Subtitle / Description</label>
+                        <textarea name="hero_subtitle" class="form-control" rows="3" style="font-size:13px; border-radius:4px;">{{ $heroSubtitle }}</textarea>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Main Tagline <i class="fa-solid fa-check ms-1"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 
 {{-- ADD SLIDE MODAL --}}

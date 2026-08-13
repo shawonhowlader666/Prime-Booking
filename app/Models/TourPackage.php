@@ -66,6 +66,12 @@ class TourPackage extends Model
         });
     }
 
+    /** Scope ordered packages */
+    public function scopeOrdered(Builder $query): Builder
+    {
+        return $query->orderBy('sort_order', 'asc')->latest();
+    }
+
     /** Scope vendor packages */
     public function scopeForVendor(Builder $query, int $vendorId): Builder
     {

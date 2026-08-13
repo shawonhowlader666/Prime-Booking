@@ -166,6 +166,11 @@
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                    <li>
+                                        <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#viewPayoutModal{{ $p->id }}">
+                                            <i class="fa-solid fa-file-invoice text-primary me-2"></i> View Receipt &amp; Voucher
+                                        </button>
+                                    </li>
                                     @if(strtolower($p->status) == 'pending')
                                         <li>
                                             <button class="dropdown-item py-1.5 px-3 text-success" data-bs-toggle="modal" data-bs-target="#approveModal{{ $p->id }}">
@@ -192,6 +197,62 @@
                             </div>
                         </td>
                     </tr>
+
+                    {{-- VIEW PAYOUT RECEIPT MODAL --}}
+                    <div class="modal fade" id="viewPayoutModal{{ $p->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+                                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                                        <i class="fa-solid fa-file-invoice text-primary me-2"></i> Official Payout Voucher #{{ $p->id }}
+                                    </h6>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" style="padding:20px;">
+                                    <div class="p-3 bg-light rounded border mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Vendor Partner Name:</span>
+                                            <strong class="text-dark" style="font-size:13.5px;">{{ $p->vendor_name ?: 'Vendor Partner' }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Disbursed Amount:</span>
+                                            <strong class="text-success" style="font-size:16px; font-weight:800;">৳ {{ number_format($p->amount) }} BDT</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Payment Method / Gateway:</span>
+                                            <span class="badge bg-primary text-white" style="font-size:11px;">{{ $p->payment_method }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Account / Phone Number:</span>
+                                            <span class="text-dark fw-bold" style="font-size:12.5px;">{{ $p->account_details ?: 'N/A' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Bank/bKash Transaction TrxID:</span>
+                                            <span class="font-monospace text-dark fw-bold" style="font-size:13px; background:#e2e8f0; padding:2px 8px; border-radius:4px;">{{ $p->reference_number ?: 'N/A' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary" style="font-size:12px;">Settlement Status:</span>
+                                            <span class="badge-status {{ strtolower($p->status) == 'paid' ? 'confirmed' : (strtolower($p->status) == 'pending' ? 'pending' : 'cancelled') }}">
+                                                {{ ucfirst($p->status) }}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    @if($p->notes)
+                                    <div class="p-3 bg-white rounded border">
+                                        <span class="text-secondary d-block mb-1" style="font-size:11.5px; font-weight:700;">REMARKS &amp; AUDIT NOTES:</span>
+                                        <p class="mb-0 text-dark" style="font-size:12.5px;">{{ $p->notes }}</p>
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="modal-footer d-flex justify-content-between" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                                    <button type="button" class="btn btn-outline-primary btn-sm fw-bold" onclick="window.print()" style="border-radius:4px;">
+                                        <i class="fa-solid fa-print me-1"></i> Print Receipt Voucher
+                                    </button>
+                                    <button type="button" class="btn btn-secondary btn-sm fw-bold" data-bs-dismiss="modal" style="border-radius:4px;">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- APPROVE & DISBURSE MODAL --}}
                     @if(strtolower($p->status) == 'pending')

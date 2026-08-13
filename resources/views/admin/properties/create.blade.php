@@ -98,10 +98,15 @@
                             @endif
                         </select>
                     </div>
-                    <div class="col-12">
-                        <label class="form-label small fw-bold text-dark mb-1">Full Physical Address &amp; Landmark <span class="text-danger">*</span></label>
+                    <div class="col-md-7">
+                        <label class="form-label small fw-bold text-dark mb-1">Full Physical Address <span class="text-danger">*</span></label>
                         <input type="text" name="address" class="form-control rounded-2" value="{{ old('address') }}"
                             placeholder="e.g. Inani Beach, Marine Drive Road, Kolatoli, Cox's Bazar 4700, Bangladesh" required style="font-size:13px;">
+                    </div>
+                    <div class="col-md-5">
+                        <label class="form-label small fw-bold text-dark mb-1">Nearest Landmark / Distance</label>
+                        <input type="text" name="nearest_landmark" class="form-control rounded-2" value="{{ old('nearest_landmark') }}"
+                            placeholder="e.g. 2 mins walk from Kolatoli Beach Point" style="font-size:13px;">
                     </div>
                 </div>
             </div>
@@ -111,7 +116,7 @@
                 <div class="border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between">
                     <h6 class="fw-bold text-dark mb-0 d-flex align-items-center gap-2" style="font-size:15px;">
                         <span style="width:28px; height:28px; border-radius:50%; background:#f6ffed; color:#28c76f; display:inline-flex; align-items:center; justify-content:center; font-size:13px; font-weight:800;">2</span>
-                        Financial Rates &amp; Pricing Setup
+                        Financial Rates &amp; Guest Booking Options
                     </h6>
                     <span class="text-muted" style="font-size:11.5px;">Currency: BDT (৳)</span>
                 </div>
@@ -142,15 +147,28 @@
                         </select>
                     </div>
                     <div class="col-12 mt-3">
-                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between">
-                            <div class="form-check form-switch mb-0">
+                        <div class="p-3 bg-light rounded-3 border d-flex align-items-center justify-content-between flex-wrap gap-2">
+                            <div class="form-check form-switch mb-0 me-3">
                                 <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="isFeatured"
                                     {{ old('is_featured') ? 'checked' : '' }} style="cursor:pointer;">
-                                <label class="form-check-label fw-bold text-dark ms-2" for="isFeatured" style="font-size:13px; cursor:pointer;">
-                                    <i class="fa-solid fa-star text-warning me-1"></i> Mark as Featured Property
+                                <label class="form-check-label fw-bold text-dark ms-1" for="isFeatured" style="font-size:12.5px; cursor:pointer;">
+                                    <i class="fa-solid fa-star text-warning me-1"></i> Featured Property
                                 </label>
                             </div>
-                            <span class="text-muted" style="font-size:11.5px;">Displays this property on homepage hero sliders &amp; top recommendation widgets.</span>
+                            <div class="form-check form-switch mb-0 me-3">
+                                <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="freeCancel"
+                                    {{ old('free_cancellation', '1') ? 'checked' : '' }} style="cursor:pointer;">
+                                <label class="form-check-label fw-bold text-success ms-1" for="freeCancel" style="font-size:12.5px; cursor:pointer;">
+                                    <i class="fa-solid fa-circle-check me-1"></i> Free Cancellation Allowed
+                                </label>
+                            </div>
+                            <div class="form-check form-switch mb-0">
+                                <input class="form-check-input" type="checkbox" name="no_credit_card_required" value="1" id="noCC"
+                                    {{ old('no_credit_card_required', '1') ? 'checked' : '' }} style="cursor:pointer;">
+                                <label class="form-check-label fw-bold text-primary ms-1" for="noCC" style="font-size:12.5px; cursor:pointer;">
+                                    <i class="fa-solid fa-credit-card me-1"></i> Pay at Hotel / Cash on Arrival
+                                </label>
+                            </div>
                         </div>
                     </div>
                 </div>

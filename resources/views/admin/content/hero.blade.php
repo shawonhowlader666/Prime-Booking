@@ -164,7 +164,7 @@
                                         </button>
                                     </li>
                                     <li>
-                                        <form action="{{ route('content.hero.slides.toggle', $s->id) }}" method="POST" class="m-0">
+                                        <form action="{{ route('admin.content.hero.slides.toggle', $s->id) }}" method="POST" class="m-0">
                                             @csrf
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-warning">
                                                 <i class="fa-solid fa-ban me-2"></i> {{ $s->status === 'active' ? 'Deactivate Slide' : 'Activate Slide' }}
@@ -173,7 +173,7 @@
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
-                                        <form action="{{ route('content.hero.slides.destroy', $s->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this banner slide?');">
+                                        <form action="{{ route('admin.content.hero.slides.destroy', $s->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this banner slide?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
@@ -190,7 +190,7 @@
                     <div class="modal fade" id="editSlideModal{{ $s->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <form action="{{ route('content.hero.slides.update', $s->id) }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ route('admin.content.hero.slides.update', $s->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
@@ -267,7 +267,7 @@
 <div class="modal fade" id="addSlideModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-            <form action="{{ route('content.hero.slides.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.content.hero.slides.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
                     <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">

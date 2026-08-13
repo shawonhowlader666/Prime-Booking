@@ -224,10 +224,13 @@
         }
         .sb-brand {
             display: flex; align-items: center; gap: 10px;
-            padding: 14px 16px;
+            padding: 0 16px;
+            height: 56px; min-height: 56px; max-height: 56px;
             background-color: #002140;
             border-bottom: 1px solid rgba(255,255,255,0.08);
+            border-right: 1px solid rgba(255, 255, 255, 0.12);
             flex-shrink: 0;
+            box-sizing: border-box;
         }
         .sb-brand-icon {
             width: 32px; height: 32px;
@@ -263,19 +266,24 @@
             transition: margin-left 0.25s ease;
         }
 
-        /* ===== Top bar ===== */
+        /* ===== Top bar — Dark Navy Blue #002140 & Equal 56px Height ===== */
         .admin-topbar {
-            background:#fff; border-bottom:1px solid #e8e8e8;
-            padding:0 20px; height:52px; display:flex; align-items:center;
-            justify-content:space-between; position:sticky; top:0; z-index:100; flex-shrink:0;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            background-color: #002140;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            border-left: 1px solid rgba(255, 255, 255, 0.12);
+            padding: 0 20px;
+            height: 56px; min-height: 56px; max-height: 56px;
+            display: flex; align-items: center;
+            justify-content: space-between; position: sticky; top: 0; z-index: 100; flex-shrink: 0;
+            box-sizing: border-box;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
         }
         .admin-topbar-left { display:flex; align-items:center; gap:12px; }
         .admin-topbar-right { display:flex; align-items:center; gap:12px; }
         .engine-badge {
-            background: #fff7e6; color: #d46b08;
-            font-size: 11px; font-weight: 600; padding: 3px 10px;
-            border-radius: 20px !important; border: 1px solid #ffd591;
+            background: rgba(250, 140, 22, 0.12); color: #ffc069;
+            font-size: 11px; font-weight: 600; padding: 4px 12px;
+            border-radius: 20px !important; border: 1px solid rgba(250, 140, 22, 0.3);
             letter-spacing: 0.2px; display: inline-flex; align-items: center; gap: 6px;
         }
         .engine-badge .pulse-dot {
@@ -283,35 +291,53 @@
             border-radius: 50%; display: inline-block;
             box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.25);
         }
-        .topbar-user-name { font-size:13px; font-weight:600; color:#1e293b; display:block; line-height:1.2; }
-        .topbar-user-role { font-size:11px; color:#8c8c8c; display:block; margin-top:1px; }
-        .topbar-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid #e2e8f0; }
+        .topbar-user-name { font-size:13px; font-weight:600; color:#ffffff; display:block; line-height:1.2; }
+        .topbar-user-role { font-size:11px; color:rgba(255,255,255,0.55); display:block; margin-top:1px; }
+        .topbar-avatar { width:32px; height:32px; border-radius:50%; object-fit:cover; border:1.5px solid rgba(255,255,255,0.25); }
         .btn-signout {
             font-size: 12px; font-weight: 600; padding: 4px 12px; height: 30px;
-            border-radius: 4px !important; border: 1px solid #ff4d4f !important;
-            color: #ff4d4f !important; background: #ffffff !important;
+            border-radius: 4px !important; border: 1px solid rgba(239, 68, 68, 0.6) !important;
+            color: #fca5a5 !important; background: rgba(239, 68, 68, 0.12) !important;
             transition: all 0.15s ease-in-out; cursor: pointer;
             display: inline-flex; align-items: center; gap: 5px;
             outline: none !important; box-shadow: none !important; text-decoration: none; line-height: 1;
         }
         .btn-signout:hover {
-            background: #ff4d4f !important; color: #ffffff !important;
-            border-color: #ff4d4f !important; box-shadow: 0 2px 6px rgba(255, 77, 79, 0.2) !important;
+            background: #ef4444 !important; color: #ffffff !important;
+            border-color: #ef4444 !important; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
         }
         .btn-mobile-toggle {
-            background:none; border:1px solid #d9d9d9; border-radius:6px;
-            width:32px; height:32px; display:none; align-items:center;
-            justify-content:center; cursor:pointer; color:#595959; font-size:14px;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px;
+            width: 32px; height: 32px; display: none; align-items: center;
+            justify-content: center; cursor: pointer; color: #ffffff; font-size: 14px;
+        }
+        .topbar-global-search-input {
+            background: rgba(255, 255, 255, 0.08) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            color: #ffffff !important;
+            height: 34px;
+            font-size: 12.5px;
+            border-radius: 6px !important;
+            font-weight: 500;
+            transition: all 0.15s ease-in-out;
+        }
+        .topbar-global-search-input::placeholder { color: rgba(255, 255, 255, 0.5) !important; font-weight: 400; }
+        .topbar-global-search-input:focus {
+            background: rgba(255, 255, 255, 0.14) !important;
+            border-color: #fa8c16 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.25) !important;
         }
 
-        /* ===== Page Header (same as admin) ===== */
+        /* ===== Page Header (Attached Seamlessly to Topbar) ===== */
         .page-header-card {
-            background:#fff;
+            background: #ffffff;
             border: 1px solid #e8e8e8;
+            border-top: none;
             padding: 16px 24px;
-            margin: 18px 24px 18px 24px;
-            border-radius: 4px !important;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+            margin: 0 24px 20px 24px;
+            border-radius: 0 0 4px 4px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
         }
         .page-breadcrumb {
             font-size:12px; color:#8c8c8c; margin-bottom:6px;
@@ -840,10 +866,18 @@
                 <button class="btn-mobile-toggle" onclick="toggleSidebar()">
                     <i class="fa-solid fa-bars"></i>
                 </button>
-                <span class="engine-badge"><i class="fa-solid fa-hotel me-1"></i> VENDOR PARTNER PORTAL</span>
+                <span class="engine-badge d-none d-xl-inline-flex"><i class="fa-solid fa-hotel me-1"></i> VENDOR PARTNER PORTAL</span>
+                
+                <!-- Global Omni-Search Bar -->
+                <form action="{{ route('vendor.properties.index') }}" method="GET" class="d-none d-md-flex align-items-center position-relative m-0 ms-2" style="width: 300px;">
+                    <span class="position-absolute start-0 ms-2.5" style="font-size: 12px; color: rgba(255,255,255,0.5); pointer-events: none; z-index: 5;">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" name="q" class="form-control topbar-global-search-input ps-4 pe-2" placeholder="Search properties, bookings..." value="{{ request('q') }}">
+                </form>
             </div>
             <div class="admin-topbar-right">
-                <div style="display:flex;align-items:center;gap:8px;padding-right:12px;border-right:1px solid #f0f0f0;">
+                <div style="display:flex;align-items:center;gap:8px;padding-right:12px;border-right:1px solid rgba(255,255,255,0.12);">
                     <img src="https://ui-avatars.com/api/?name=Vendor+Partner&background=fa8c16&color=fff&size=64" class="topbar-avatar" alt="Vendor">
                     <div class="d-none d-sm-block">
                         <span class="topbar-user-name">Verified Hotel Partner</span>

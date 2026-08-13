@@ -169,6 +169,7 @@ class HotelImporterService
 
                     if (! empty($normalized['latitude']))  $updateData['latitude']  = $normalized['latitude'];
                     if (! empty($normalized['longitude'])) $updateData['longitude'] = $normalized['longitude'];
+                    if (! empty($normalized['video_url'])) $updateData['video_url'] = $normalized['video_url'];
 
                     $property = Property::updateOrCreate(
                         [
@@ -486,6 +487,14 @@ class HotelImporterService
         $availRooms = $item['pricing']['offers'][0]['roomOffers'][0]['room']['availableRooms'] ?? null;
         $roomsLeft = (is_numeric($availRooms) && (int)$availRooms > 0) ? (int)$availRooms : rand(3, 12);
 
+        // Extract Video URL if available
+        $videoUrl = $summary['videoUrl'] ?? $content['videoUrl'] ?? $item['videoUrl'] ?? $item['video_url'] ?? $item['video'] ?? null;
+        if (! is_string($videoUrl) || empty($videoUrl)) {
+            $videoUrl = null;
+        } elseif (str_starts_with($videoUrl, '//')) {
+            $videoUrl = 'https:' . $videoUrl;
+        }
+
         return [
             'name'             => $name,
             'city'             => $city,
@@ -505,6 +514,7 @@ class HotelImporterService
             'amenities'        => array_values(array_unique($amenities)),
             'is_featured'      => ($star >= 4),
             'rooms_left'       => $roomsLeft,
+            'video_url'        => $videoUrl,
         ];
     }
 

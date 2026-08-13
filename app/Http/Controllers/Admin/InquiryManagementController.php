@@ -12,14 +12,34 @@ class InquiryManagementController extends Controller
     {
         try {
             $query = Inquiry::latest();
-            if ($request->search) {
-                $query->where(function ($q) use ($request) {
-                    $q->where('name', 'like', '%' . $request->search . '%')
-                      ->orWhere('phone', 'like', '%' . $request->search . '%')
-                      ->orWhere('email', 'like', '%' . $request->search . '%');
+
+            if ($request->filled('service_type') && $request->service_type !== 'all') {
+                $query->where('service_type', $request->service_type);
+            }
+
+            if ($request->filled('status') && $request->status !== 'all') {
+                $query->where('status', $request->status);
+            }
+
+            if ($request->filled('search')) {
+                $search = trim($request->search);
+                $query->where(function ($q) use ($search) {
+                    $q->where('name', 'like', "%{$search}%")
+                      ->orWhere('phone', 'like', "%{$search}%")
+                      ->orWhere('email', 'like', "%{$search}%")
+                      ->orWhere('destination', 'like', "%{$search}%")
+                      ->orWhere('message', 'like', "%{$search}%");
                 });
             }
+
             $inquiries = $query->paginate(20)->withQueryString();
+
+            $stats = [
+                'total'     => Inquiry::count(),
+                'pending'   => Inquiry::where('status', 'pending')->orWhereNull('status')->count(),
+                'responded' => Inquiry::where('status', 'responded')->orWhere('status', 'resolved')->count(),
+                'emergency' => Inquiry::whereIn('service_type', ['Air Ambulance', 'Helicopter Charter', 'Medical Evacuation'])->count(),
+            ];
         } catch (\Exception $e) {
             $inquiries = collect([
                 (object)[
@@ -49,9 +69,16 @@ class InquiryManagementController extends Controller
                     'created_at'   => now()->subDays(1),
                 ],
             ]);
+
+            $stats = [
+                'total'     => 2,
+                'pending'   => 1,
+                'responded' => 1,
+                'emergency' => 2,
+            ];
         }
 
-        return view('admin.inquiries.index', compact('inquiries'));
+        return view('admin.inquiries.index', compact('inquiries', 'stats'));
     }
 
     public function destroy($id)
@@ -59,6 +86,7 @@ class InquiryManagementController extends Controller
         try {
             Inquiry::findOrFail($id)->delete();
         } catch (\Exception $e) {}
-        return redirect()->route('admin.inquiries.index')->with('success', 'Inquiry removed successfully.');
+        return redirect()->route('admin.inquiries.index')->with('success', 'Inquiry message deleted successfully.');
     }
 }
+

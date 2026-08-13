@@ -188,87 +188,89 @@
                         
                         <!-- Static Default Suggestions (Agoda Official 1:1 Layout) -->
                         <div id="agodaStaticSearchSuggestions">
-                            <div style="display: flex; gap: 28px;">
+                            <div style="display: flex; gap: 24px; flex-wrap: wrap;">
                                 
-                                 <!-- Left Column (60%): Destinations in Bangladesh Grid (100% Dynamic DB Data) -->
-                                <div style="flex: 1.4; border-right: 1px solid #f1f5f9; padding-right: 24px;">
-                                    <div style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 16px;">
-                                        Destinations in Bangladesh
+                                <!-- Left Column: Top Destinations in Bangladesh (Agoda 1:1 Parity) -->
+                                <div style="flex: 1.3; border-right: 1px solid #f1f5f9; padding-right: 20px;">
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #64748b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Popular Destinations in Bangladesh
                                     </div>
                                     @php
-                                        $popoverDestinations = \App\Models\FeaturedDestination::where('is_active', true)
-                                            ->orderBy('sort_order', 'asc')
+                                        $popoverDestinations = \App\Models\Property::select('city', \DB::raw('count(*) as count'))
+                                            ->groupBy('city')
+                                            ->orderBy('count', 'desc')
                                             ->take(6)
                                             ->get();
+
+                                        if ($popoverDestinations->isEmpty()) {
+                                            $popoverDestinations = collect([
+                                                (object)['city' => "Dhaka", 'count' => 538],
+                                                (object)['city' => "Cox's Bazar", 'count' => 118],
+                                                (object)['city' => "Sylhet", 'count' => 95],
+                                                (object)['city' => "Chittagong", 'count' => 59],
+                                                (object)['city' => "Sreemangal Upazila", 'count' => 25],
+                                                (object)['city' => "Sajek Valley & Rangamati", 'count' => 45],
+                                            ]);
+                                        }
                                     @endphp
-                                    <div class="row g-3">
-                                        @forelse($popoverDestinations as $dest)
+                                    <div class="row g-2">
+                                        @foreach($popoverDestinations as $dest)
                                             <div class="col-6">
-                                                <div class="agoda-popover-item p-1" onclick="selectDestination('{{ addslashes($dest->city . ($dest->country && $dest->country !== 'Bangladesh' ? ', '.$dest->country : ', Bangladesh')) }}')">
-                                                    @if($dest->image_url)
-                                                        <img src="{{ $dest->image_url }}" style="width: 44px; height: 44px; border-radius: 8px; object-fit: cover;" alt="{{ $dest->city }}">
-                                                    @else
-                                                        <div style="width: 44px; height: 44px; background: #e0edff; color: #2067e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
-                                                            <i class="fa-solid fa-location-dot"></i>
-                                                        </div>
-                                                    @endif
+                                                <div class="agoda-popover-item" onclick="selectDestination('{{ addslashes($dest->city . ', Bangladesh') }}')" style="padding: 10px 12px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px; transition: background 0.12s ease;">
+                                                    <i class="fa-solid fa-location-dot" style="font-size: 18px; color: #1e293b; margin-top: 2px; width: 18px; text-align: center; flex-shrink: 0;"></i>
                                                     <div>
-                                                        <span style="font-weight: 700; color: #1e293b; font-size: 13.5px; display: block; line-height: 1.2;">{{ $dest->city }}</span>
-                                                        <small style="color: #64748b; font-size: 12px;">({{ $dest->properties_count }})</small>
+                                                        <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.2;">{{ $dest->city }}</span>
+                                                        <small style="color: #64748b; font-size: 11.5px; font-weight: 400;">City &bull; {{ $dest->count }} stays</small>
                                                     </div>
                                                 </div>
                                             </div>
-                                        @empty
-                                            <div class="col-12">
-                                                <small class="text-muted">No active destinations found</small>
+                                        @endforeach
+                                    </div>
+                                </div>
+
+                                <!-- Right Column: Popular Tourist Regions -->
+                                <div style="flex: 1;">
+                                    <div style="font-size: 12.5px; font-weight: 700; color: #64748b; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">
+                                        Top Tourist Regions
+                                    </div>
+
+                                    <div class="d-flex flex-column gap-1">
+                                        <div class="agoda-popover-item" onclick="selectDestination('Sajek Valley & Rangamati, Bangladesh')" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;">
+                                            <i class="fa-solid fa-location-dot" style="font-size: 18px; color: #1e293b; margin-top: 2px; width: 18px; text-align: center; flex-shrink: 0;"></i>
+                                            <div>
+                                                <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.2;">Sajek &amp; Rangamati</span>
+                                                <small style="color: #64748b; font-size: 11.5px; font-weight: 400;">Cloud Hills &amp; Eco Resorts (45)</small>
                                             </div>
-                                        @endforelse
+                                        </div>
+
+                                        <div class="agoda-popover-item" onclick="selectDestination('Sundarbans & Mongla, Bangladesh')" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;">
+                                            <i class="fa-solid fa-location-dot" style="font-size: 18px; color: #1e293b; margin-top: 2px; width: 18px; text-align: center; flex-shrink: 0;"></i>
+                                            <div>
+                                                <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.2;">Sundarbans &amp; Mongla</span>
+                                                <small style="color: #64748b; font-size: 11.5px; font-weight: 400;">Forest Cruise &amp; Ships (38)</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="agoda-popover-item" onclick="selectDestination('Tanguar Haor & Sunamganj, Bangladesh')" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;">
+                                            <i class="fa-solid fa-location-dot" style="font-size: 18px; color: #1e293b; margin-top: 2px; width: 18px; text-align: center; flex-shrink: 0;"></i>
+                                            <div>
+                                                <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.2;">Tanguar Haor</span>
+                                                <small style="color: #64748b; font-size: 11.5px; font-weight: 400;">Houseboats &amp; Water Tours (28)</small>
+                                            </div>
+                                        </div>
+
+                                        <div class="agoda-popover-item" onclick="selectDestination('Saint Martin\'s Island, Bangladesh')" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;">
+                                            <i class="fa-solid fa-location-dot" style="font-size: 18px; color: #1e293b; margin-top: 2px; width: 18px; text-align: center; flex-shrink: 0;"></i>
+                                            <div>
+                                                <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.2;">Saint Martin's Island</span>
+                                                <small style="color: #64748b; font-size: 11.5px; font-weight: 400;">Coral Island &amp; Resorts (32)</small>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
+
                             </div>
-
-                            <!-- Right Column (40%): Popular Bangladesh Travel Regions -->
-                            <div style="flex: 1;">
-                                <div style="font-size: 13px; font-weight: 600; color: #64748b; margin-bottom: 16px;">
-                                    Popular Tourist Regions
-                                </div>
-
-                                <div class="d-flex flex-column gap-2">
-                                    <div class="agoda-popover-item p-1" onclick="selectDestination('Sajek Valley & Rangamati')">
-                                        <div>
-                                            <span style="font-weight: 700; color: #1e293b; font-size: 13.5px;">Sajek &amp; Rangamati</span>
-                                            <small style="color: #64748b; font-size: 12px;"> (45)</small>
-                                            <div style="color: #16a34a; font-size: 11px; margin-top: 1px; font-weight: 500;"><i class="fa-solid fa-cloud-sun me-1"></i> Cloud Hills &amp; Eco Resorts</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="agoda-popover-item p-1" onclick="selectDestination('Sundarban Ship Cruise')">
-                                        <div>
-                                            <span style="font-weight: 700; color: #1e293b; font-size: 13.5px;">Sundarbans &amp; Mongla</span>
-                                            <small style="color: #64748b; font-size: 12px;"> (38)</small>
-                                            <div style="color: #0284c7; font-size: 11px; margin-top: 1px; font-weight: 500;"><i class="fa-solid fa-ship me-1"></i> Forest Cruise &amp; Ships</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="agoda-popover-item p-1" onclick="selectDestination('Tanguar Haor & Sunamganj')">
-                                        <div>
-                                            <span style="font-weight: 700; color: #1e293b; font-size: 13.5px;">Tanguar Haor</span>
-                                            <small style="color: #64748b; font-size: 12px;"> (28)</small>
-                                            <div style="color: #2067e1; font-size: 11px; margin-top: 1px; font-weight: 500;"><i class="fa-solid fa-house-user me-1"></i> Houseboats &amp; Water Tours</div>
-                                        </div>
-                                    </div>
-
-                                    <div class="agoda-popover-item p-1" onclick="selectDestination('Saint Martin\'s Island')">
-                                        <div>
-                                            <span style="font-weight: 700; color: #1e293b; font-size: 13.5px;">Saint Martin's Island</span>
-                                            <small style="color: #64748b; font-size: 12px;"> (32)</small>
-                                            <div style="color: #0d9488; font-size: 11px; margin-top: 1px; font-weight: 500;"><i class="fa-solid fa-water me-1"></i> Coral Island &amp; Resorts</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
+                        </div>                            
                     </div>
 
                     <!-- Real-Time Autocomplete Container (Active when user types) -->

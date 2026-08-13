@@ -37,6 +37,11 @@ class PropertyResource extends JsonResource
             $discountPct = round((($originalPrice - $pricePerNight) / $originalPrice) * 100);
         }
 
+        $roomsData = [];
+        if ($res instanceof \Illuminate\Database\Eloquent\Model && $res->relationLoaded('rooms')) {
+            $roomsData = RoomResource::collection($res->rooms);
+        }
+
         return [
             'id'              => $id,
             'name'            => $name,
@@ -65,8 +70,8 @@ class PropertyResource extends JsonResource
             'is_featured'     => (bool) $isFeatured,
             'status'          => $status,
 
-            // Rooms (when loaded)
-            'rooms'           => RoomResource::collection($this->whenLoaded('rooms')),
+            // Rooms (safe loaded)
+            'rooms'           => $roomsData,
 
             // Computed
             'stars_display'   => str_repeat('★', max(0, (int) $starRating)),

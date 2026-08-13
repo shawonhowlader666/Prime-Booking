@@ -5,7 +5,7 @@ declare(strict_types=1);
 return [
     /*
     |--------------------------------------------------------------------------
-    | Bangladesh Geo Hierarchy Configuration
+    | Bangladesh Geo Hierarchy Configuration (English Standard)
     |--------------------------------------------------------------------------
     |
     | Maps all 8 Divisions, 64 Districts, and major Tourist Upazilas/Areas
@@ -14,177 +14,177 @@ return [
     */
     'divisions' => [
         'Chittagong' => [
-            'name' => 'Chittagong (চট্টগ্রাম)',
+            'name' => 'Chittagong Division',
             'districts' => [
                 "Cox's Bazar" => [
-                    'name' => "Cox's Bazar (কক্সবাজার)",
+                    'name' => "Cox's Bazar District",
                     'upazilas' => ["Kolatoli Beach", "Inani Beach", "Teknaf", "Saint Martin's Island", "Marine Drive", "Ramuk"],
                 ],
                 'Chittagong' => [
-                    'name' => 'Chittagong (চট্টগ্রাম শহর)',
+                    'name' => 'Chittagong City & Sadar',
                     'upazilas' => ['Panchlaish', 'GEC Circle', 'Agrabad', 'Patenga Beach', 'Halishahar'],
                 ],
                 'Rangamati' => [
-                    'name' => 'Rangamati (রাঙ্গামাটি)',
+                    'name' => 'Rangamati District',
                     'upazilas' => ['Sajek Valley', 'Ruilui Para', 'Kaptai', 'Sadar'],
                 ],
                 'Bandarban' => [
-                    'name' => 'Bandarban (বান্দরবান)',
+                    'name' => 'Bandarban District',
                     'upazilas' => ['Nilgiri', 'Thanchi', 'Chimbuk', 'Bogalake', 'Sadar'],
                 ],
                 'Khagrachhari' => [
-                    'name' => 'Khagrachhari (খাগড়াছড়ি)',
+                    'name' => 'Khagrachhari District',
                     'upazilas' => ['Alutila', 'Sajek Road', 'Sadar'],
                 ],
                 'Comilla' => [
-                    'name' => 'Comilla (কুমিল্লা)',
+                    'name' => 'Comilla District',
                     'upazilas' => ['Kotbari', 'Sadar'],
                 ],
                 'Feni' => [
-                    'name' => 'Feni (ফেনী)',
+                    'name' => 'Feni District',
                     'upazilas' => ['Sadar'],
                 ],
                 'Noakhali' => [
-                    'name' => 'Noakhali (নোয়াখালী)',
+                    'name' => 'Noakhali District',
                     'upazilas' => ['Nijhum Dwip', 'Hatiya'],
                 ],
             ],
         ],
         'Sylhet' => [
-            'name' => 'Sylhet (সিলেট)',
+            'name' => 'Sylhet Division',
             'districts' => [
                 'Sylhet' => [
-                    'name' => 'Sylhet (সিলেট শহর ও আশেপাশের)',
+                    'name' => 'Sylhet City & Area',
                     'upazilas' => ['Zindabazar', 'Upashahar', 'Khadimnagar', 'Jaflong', 'Bichnakandi', 'Ratargul', 'Sadar'],
                 ],
                 'Moulvibazar' => [
-                    'name' => 'Moulvibazar (মৌলভীবাজার & শ্রীমঙ্গল)',
+                    'name' => 'Moulvibazar & Sreemangal',
                     'upazilas' => ['Sreemangal Upazila', 'Radhanagar', 'Kamalganj', 'Lawachara', 'Sadar'],
                 ],
                 'Sunamganj' => [
-                    'name' => 'Sunamganj (সুনামগঞ্জ & টাঙ্গুয়ার হাওর)',
+                    'name' => 'Sunamganj & Tanguar Haor',
                     'upazilas' => ['Tanguar Haor', 'Tahirpur', 'Sadar'],
                 ],
                 'Habiganj' => [
-                    'name' => 'Habiganj (হবিগঞ্জ)',
+                    'name' => 'Habiganj District',
                     'upazilas' => ['Srimangal Road', 'Bahubal', 'Sadar'],
                 ],
             ],
         ],
         'Dhaka' => [
-            'name' => 'Dhaka (ঢাকা)',
+            'name' => 'Dhaka Division',
             'districts' => [
                 'Dhaka' => [
-                    'name' => 'Dhaka City (ঢাকা শহর)',
+                    'name' => 'Dhaka City Area',
                     'upazilas' => ['Uttara', 'Gulshan', 'Banani', 'Dhanmondi', 'Mirpur', 'Motijheel', 'Puran Dhaka'],
                 ],
                 'Gazipur' => [
-                    'name' => 'Gazipur (গাজীপুর রিসোর্ট এলাকা)',
+                    'name' => 'Gazipur Resort Area',
                     'upazilas' => ['Sreepur', 'Bhawal', 'Sadar'],
                 ],
                 'Narayanganj' => [
-                    'name' => 'Narayanganj (নারায়ণগঞ্জ)',
+                    'name' => 'Narayanganj District',
                     'upazilas' => ['Sonargaon', 'Sadar'],
                 ],
                 'Munshiganj' => [
-                    'name' => 'Munshiganj (মুন্সীগঞ্জ)',
+                    'name' => 'Munshiganj District',
                     'upazilas' => ['Mawa Ghat', 'Sadar'],
                 ],
                 'Faridpur' => [
-                    'name' => 'Faridpur (ফরিদপুর)',
+                    'name' => 'Faridpur District',
                     'upazilas' => ['Sadar'],
                 ],
             ],
         ],
         'Khulna' => [
-            'name' => 'Khulna (খুলনা & সুন্দরবন)',
+            'name' => 'Khulna Division',
             'districts' => [
                 'Khulna' => [
-                    'name' => 'Khulna (খুলনা শহর)',
+                    'name' => 'Khulna City',
                     'upazilas' => ['City Centre', 'Sonadanga', 'Sadar'],
                 ],
                 'Bagerhat' => [
-                    'name' => 'Bagerhat (সুন্দরবন & মংলা)',
+                    'name' => 'Bagerhat & Sundarbans',
                     'upazilas' => ['Sundarbans', 'Mongla Port', 'Shat Gombuj', 'Sadar'],
                 ],
                 'Satkhira' => [
-                    'name' => 'Satkhira (সাতক্ষীরা)',
+                    'name' => 'Satkhira District',
                     'upazilas' => ['Sundarbans Range', 'Sadar'],
                 ],
                 'Jessore' => [
-                    'name' => 'Jessore (যশোর)',
+                    'name' => 'Jessore District',
                     'upazilas' => ['Sadar', 'Airport Area'],
                 ],
             ],
         ],
         'Barisal' => [
-            'name' => 'Barisal (বরিশাল & কুয়াকাটা)',
+            'name' => 'Barisal Division',
             'districts' => [
                 'Patuakhali' => [
-                    'name' => 'Patuakhali (কুয়াকাটা সমুদ্র সৈকত)',
+                    'name' => 'Patuakhali & Kuakata',
                     'upazilas' => ['Kuakata Beach', 'Kalapara', 'Sadar'],
                 ],
                 'Barisal' => [
-                    'name' => 'Barisal (বরিশাল শহর)',
+                    'name' => 'Barisal City',
                     'upazilas' => ['Floating Market', 'Sadar'],
                 ],
                 'Bhola' => [
-                    'name' => 'Bhola (ভোলা)',
+                    'name' => 'Bhola District',
                     'upazilas' => ['Char Fashion', 'Sadar'],
                 ],
             ],
         ],
         'Rajshahi' => [
-            'name' => 'Rajshahi (রাজশাহী)',
+            'name' => 'Rajshahi Division',
             'districts' => [
                 'Rajshahi' => [
-                    'name' => 'Rajshahi (রাজশাহী শহর)',
+                    'name' => 'Rajshahi City',
                     'upazilas' => ['Shaheb Bazar', 'Padma Garden', 'Sadar'],
                 ],
                 'Bogra' => [
-                    'name' => 'Bogra (বগুড়া)',
+                    'name' => 'Bogra District',
                     'upazilas' => ['Mahasthangarh', 'Sadar'],
                 ],
                 'Pabna' => [
-                    'name' => 'Pabna (পাবনা)',
+                    'name' => 'Pabna District',
                     'upazilas' => ['Sadar'],
                 ],
                 'Naogaon' => [
-                    'name' => 'Naogaon (নওগাঁ)',
+                    'name' => 'Naogaon District',
                     'upazilas' => ['Paharpur', 'Sadar'],
                 ],
             ],
         ],
         'Rangpur' => [
-            'name' => 'Rangpur (রংপুর)',
+            'name' => 'Rangpur Division',
             'districts' => [
                 'Rangpur' => [
-                    'name' => 'Rangpur (রংপুর শহর)',
+                    'name' => 'Rangpur City',
                     'upazilas' => ['Tajhat', 'Sadar'],
                 ],
                 'Dinajpur' => [
-                    'name' => 'Dinajpur (দিনাজপুর)',
+                    'name' => 'Dinajpur District',
                     'upazilas' => ['Kantajew Temple', 'Sadar'],
                 ],
                 'Panchagarh' => [
-                    'name' => 'Panchagarh (পঞ্চগড় & তেঁতুলিয়া)',
+                    'name' => 'Panchagarh & Tetulia',
                     'upazilas' => ['Tetulia', 'Banglabandha', 'Sadar'],
                 ],
             ],
         ],
         'Mymensingh' => [
-            'name' => 'Mymensingh (ময়মনসিংহ)',
+            'name' => 'Mymensingh Division',
             'districts' => [
                 'Mymensingh' => [
-                    'name' => 'Mymensingh (ময়মনসিংহ)',
+                    'name' => 'Mymensingh City',
                     'upazilas' => ['Sadar', 'Muktagacha'],
                 ],
                 'Sherpur' => [
-                    'name' => 'Sherpur (শেরপুর & গজনি)',
+                    'name' => 'Sherpur & Gajni',
                     'upazilas' => ['Gajni', 'Sadar'],
                 ],
                 'Netrokona' => [
-                    'name' => 'Netrokona (নেত্রকোণা & বিরিশিরি)',
+                    'name' => 'Netrokona & Birishiri',
                     'upazilas' => ['Birishiri', 'Durgapur', 'Sadar'],
                 ],
             ],

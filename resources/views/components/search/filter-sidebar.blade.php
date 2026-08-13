@@ -41,7 +41,7 @@
                 </div>
             </div>
 
-            {{-- 2.1 Bangladesh Geo-Hierarchy Filter (Division ➔ District ➔ Upazila) --}}
+            {{-- 2.1 Bangladesh Geo-Hierarchy Filter — Progressive English Standard --}}
             @php
                 $geoConfig = config('bangladesh-geo.divisions', []);
                 $selectedDivision = request('division', '');
@@ -51,28 +51,28 @@
             <div class="mb-4 pb-3 border-bottom">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <label class="fw-bold text-dark m-0 d-flex align-items-center gap-1.5" style="font-size: 13px;">
-                        <i class="fa-solid fa-map-location-dot" style="color: #2067e1;"></i> Region / Division (বিভাগ ও জেলা)
+                        <i class="fa-solid fa-map-location-dot" style="color: #2067e1;"></i> Location / Region
                     </label>
                     @if($selectedDivision || $selectedDistrict || $selectedUpazila)
                         <a href="{{ route('search.index', array_merge(request()->except(['division', 'district', 'upazila', 'page']))) }}" class="text-decoration-none" style="font-size: 11px; font-weight: 600; color: #dc2626;">Reset Location</a>
                     @endif
                 </div>
 
-                <!-- Division Select -->
+                <!-- Step 1: Division Select (Always Shown First) -->
                 <div class="mb-2">
-                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="this.form.submit()">
-                        <option value="">Select Division (বিভাগ)...</option>
+                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="var f=this.form; var d=f.querySelector('[name=\'district\']'); var u=f.querySelector('[name=\'upazila\']'); if(d)d.value=''; if(u)u.value=''; f.submit();">
+                        <option value="">Select Division...</option>
                         @foreach($geoConfig as $divKey => $divInfo)
                             <option value="{{ $divKey }}" {{ $selectedDivision === $divKey ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- District Select (Populated if Division selected) -->
+                <!-- Step 2: District Select (Shown ONLY AFTER Division is Selected) -->
                 @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
                     <div class="mb-2">
-                        <select name="district" id="districtSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="this.form.submit()">
-                            <option value="">Select District (জেলা)...</option>
+                        <select name="district" id="districtSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="var f=this.form; var u=f.querySelector('[name=\'upazila\']'); if(u)u.value=''; f.submit();">
+                            <option value="">Select District...</option>
                             @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
                                 <option value="{{ $distKey }}" {{ $selectedDistrict === $distKey ? 'selected' : '' }}>{{ $distInfo['name'] }}</option>
                             @endforeach
@@ -80,11 +80,11 @@
                     </div>
                 @endif
 
-                <!-- Upazila / Area Select (Populated if District selected) -->
+                <!-- Step 3: Upazila / Area Select (Shown ONLY AFTER District is Selected) -->
                 @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
                     <div>
                         <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="this.form.submit()">
-                            <option value="">Select Upazila / Spot (উপজেলা/স্পট)...</option>
+                            <option value="">Select Upazila / Area...</option>
                             @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
                                 <option value="{{ $upazilaName }}" {{ $selectedUpazila === $upazilaName ? 'selected' : '' }}>📍 {{ $upazilaName }}</option>
                             @endforeach

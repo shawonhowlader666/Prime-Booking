@@ -47,17 +47,57 @@ class SuggestionController extends Controller
             ], '100% Bangladesh destinations retrieved.');
         }
 
-        // Live typing autocomplete search query
-        $locations = Location::where('name', 'like', "%{$query}%")
-            ->orWhere('city', 'like', "%{$query}%")
+        // Live typing autocomplete search query (Agoda Exact Parity)
+        $lowerQ = strtolower($query);
+        $knownCities = [
+            ['city' => 'Dhaka', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Cox\'s Bazar', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Sylhet', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Chittagong', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Khulna', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Sreemangal Upazila', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Sajek Valley & Rangamati', 'country' => 'Bangladesh', 'type' => 'City / Region'],
+            ['city' => 'Sundarbans & Mongla', 'country' => 'Bangladesh', 'type' => 'Region'],
+            ['city' => 'Kuakata Sunset Beach', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Bandarban Hill District', 'country' => 'Bangladesh', 'type' => 'Region'],
+            ['city' => 'Tanguar Haor & Sunamganj', 'country' => 'Bangladesh', 'type' => 'Region'],
+            ['city' => 'Saint Martin\'s Island', 'country' => 'Bangladesh', 'type' => 'Island / Region'],
+            ['city' => 'Rajshahi', 'country' => 'Bangladesh', 'type' => 'City'],
+            ['city' => 'Barisal', 'country' => 'Bangladesh', 'type' => 'City'],
+        ];
+
+        $matchedCities = [];
+        foreach ($knownCities as $kc) {
+            if ($lowerQ === 'bangladesh' || $lowerQ === 'bd' || str_contains(strtolower($kc['city']), $lowerQ)) {
+                $matchedCities[] = $kc;
+            }
+        }
+
+        // Also query distinct cities from DB properties
+        $dbCities = Property::where('city', 'like', "%{$query}%")
             ->distinct()
-            ->take(4)
-            ->get();
+            ->pluck('city');
+
+        foreach ($dbCities as $c) {
+            $already = false;
+            foreach ($matchedCities as $mc) {
+                if (strtolower($mc['city']) === strtolower($c)) {
+                    $already = true;
+                    break;
+                }
+            }
+            if (! $already) {
+                $matchedCities[] = ['city' => $c, 'country' => 'Bangladesh', 'type' => 'City'];
+            }
+        }
+
+        $locations = array_slice($matchedCities, 0, 6);
 
         $propertyQuery = Property::with('location')
             ->where(function($q) use ($query) {
                 $q->where('name', 'like', "%{$query}%")
-                  ->orWhere('address', 'like', "%{$query}%");
+                  ->orWhere('address', 'like', "%{$query}%")
+                  ->orWhere('city', 'like', "%{$query}%");
             });
 
         if ($searchType === 'houseboat') {
@@ -79,9 +119,9 @@ class SuggestionController extends Controller
         $properties = $propertyQuery->take(5)->get();
 
         return $this->successResponse([
-            'query' => $query,
-            'locations' => $locations,
+            'query'      => $query,
+            'locations'  => $locations,
             'properties' => $properties,
-        ], 'Real-time database suggestions retrieved.');
+        ], 'Real-time Agoda-style suggestions retrieved.');
     }
 }

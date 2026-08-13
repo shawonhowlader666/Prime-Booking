@@ -839,46 +839,52 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
 
-        // 1. Matching Destinations Section (Agoda Exact Order)
+        // 1. Matching Destinations Section (Agoda Exact 1:1 Parity)
         if (data.locations && data.locations.length > 0) {
-            html += '<div style="font-size: 11.5px; font-weight: 700; color: #64748b; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;">Matching Destinations</div>';
             data.locations.forEach(loc => {
                 const safeCity = (loc.city + ', Bangladesh').replace(/'/g, "\\'");
+                const locType = loc.type || 'City';
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeCity}')" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
-                        <div style="width: 36px; height: 36px; background: #e0edff; color: #2067e1; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;">
-                            <i class="fa-solid fa-city"></i>
-                        </div>
-                        <div>
-                            <span style="font-weight: 700; color: #1e293b; font-size: 13.5px;">${loc.city}, ${loc.country}</span>
-                            <small style="color: #64748b; font-size: 11px; display: block;">Popular Bangladesh Destination</small>
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeCity}')" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 2px; transition: background 0.12s ease;">
+                        <i class="fa-solid fa-location-dot" style="font-size: 18px; color: #1e293b; margin-top: 2px; width: 20px; text-align: center; flex-shrink: 0;"></i>
+                        <div style="flex: 1;">
+                            <span style="font-size: 14.5px; color: #334155; font-weight: 500; display: block; line-height: 1.3;">
+                                ${loc.city}, <strong style="font-weight: 700; color: #0f172a;">${loc.country || 'Bangladesh'}</strong>
+                            </span>
+                            <span style="color: #64748b; font-size: 12px; display: block; margin-top: 1px; font-weight: 400;">${locType}</span>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // 2. Matching Properties & Cruises Section
+        // 2. Matching Properties & Houseboats Section (Agoda Exact Parity)
         if (data.properties && data.properties.length > 0) {
-            html += '<div style="font-size: 11.5px; font-weight: 700; color: #2067e1; margin-top: 12px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;"><i class="fa-solid fa-hotel me-1"></i> Matching Properties &amp; Cruises</div>';
             data.properties.forEach(p => {
-                const img = p.primary_image || 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=80&q=80';
+                const img = p.primary_image || null;
                 const safeName = p.name.replace(/'/g, "\\'");
+                const propType = p.type ? (p.type.charAt(0).toUpperCase() + p.type.slice(1)) : 'Property';
+
+                let leftIconHtml = `<i class="fa-solid fa-bed" style="font-size: 16px; color: #1e293b; margin-top: 3px; width: 20px; text-align: center; flex-shrink: 0;"></i>`;
+                if (img) {
+                    leftIconHtml = `<img src="${img}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; flex-shrink: 0;">`;
+                }
+
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 8px 10px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 12px; margin-bottom: 4px; transition: background 0.15s ease;">
-                        <img src="${img}" style="width: 44px; height: 44px; border-radius: 6px; object-fit: cover;">
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 2px; transition: background 0.12s ease;">
+                        ${leftIconHtml}
                         <div style="flex: 1;">
-                            <span style="font-weight: 700; color: #1e293b; font-size: 13.5px; display: block; line-height: 1.2;">${p.name}</span>
-                            <small style="color: #64748b; font-size: 11px;"><i class="fa-solid fa-location-dot me-1" style="color: #2067e1;"></i> ${p.address || (p.location ? p.location.city : 'Bangladesh')}</small>
+                            <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.3;">${p.name}</span>
+                            <span style="color: #64748b; font-size: 12px; display: block; margin-top: 1px; font-weight: 400;">${p.city ? p.city + ', Bangladesh' : 'Bangladesh'} &bull; ${propType}</span>
                         </div>
-                        <span class="badge text-white fw-bold" style="font-size: 11px; background-color: #2067e1 !important; border-radius: 6px; padding: 4px 8px;">BDT ${Number(p.price_per_night).toLocaleString()}</span>
+                        ${p.price_per_night ? `<span class="badge text-white fw-bold" style="font-size: 11px; background-color: #2067e1 !important; border-radius: 6px; padding: 4px 8px; align-self: center;">৳ ${Number(p.price_per_night).toLocaleString()}</span>` : ''}
                     </div>
                 `;
             });
         }
 
         if (html === '') {
-            html = '<div style="padding: 20px; text-align: center; color: #64748b; font-size: 13px;">No matching destinations found. Try searching for "Dhaka", "Cox\'s Bazar", "Sundarban" or "Sajek".</div>';
+            html = '<div style="padding: 24px; text-align: center; color: #64748b; font-size: 13px;">No matching locations or properties found. Try searching for "Dhaka", "Cox\'s Bazar", "Sundarban" or "Sajek".</div>';
         }
 
         container.innerHTML = html;

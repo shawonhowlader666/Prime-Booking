@@ -92,6 +92,7 @@
                         <th>Page Key</th>
                         <th>Page Title</th>
                         <th>Content Group</th>
+                        <th>Frontend Live Page</th>
                         <th>Last Updated</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -109,6 +110,11 @@
                             <span class="badge bg-light text-primary border border-primary border-opacity-25" style="font-size:11px; font-weight:700; padding:4px 8px; border-radius:4px;">
                                 {{ ucfirst($page->group) }}
                             </span>
+                        </td>
+                        <td>
+                            <a href="{{ url('/pages/' . $page->key) }}" target="_blank" class="badge bg-success bg-opacity-10 text-success text-decoration-none fw-bold" style="font-size:11px; padding:4px 8px; border-radius:4px;">
+                                <i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Live Page Link
+                            </a>
                         </td>
                         <td style="font-size:12.5px; color:#64748b;">
                             {{ $page->updated_at ? $page->updated_at->format('d M Y, H:i') : 'N/A' }}
@@ -128,6 +134,11 @@
                                         <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#previewCmsModal{{ $page->id }}">
                                             <i class="fa-solid fa-eye text-info me-2"></i> Quick Preview Content
                                         </button>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3 text-success" href="{{ url('/pages/' . $page->key) }}" target="_blank">
+                                            <i class="fa-solid fa-globe me-2"></i> View Live Web Page
+                                        </a>
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>

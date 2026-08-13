@@ -93,7 +93,7 @@
                         <th>Owner &amp; Contact</th>
                         <th>SaaS Plan</th>
                         <th>Commission Rate</th>
-                        <th>Listed Hotels</th>
+                        <th>Listed Hotels &amp; Resorts</th>
                         <th>Status</th>
                         <th style="text-align:right;">Actions</th>
                     </tr>
@@ -103,7 +103,7 @@
                     <tr>
                         <td>
                             <strong style="font-size:13.5px; color:#0f172a; display:block;">{{ $tenant->name }}</strong>
-                            <span style="font-size:11px; color:#64748b;">ID #{{ $tenant->id }}</span>
+                            <span style="font-size:11px; color:#64748b;">Tenant ID #{{ $tenant->id }}</span>
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#334155; display:block;">{{ $tenant->owner_name ?: $tenant->name }}</strong>
@@ -117,7 +117,7 @@
                         <td><strong style="color:#28c76f; font-size:13.5px;">{{ $tenant->commission_rate }}%</strong></td>
                         <td>
                             <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="badge bg-primary bg-opacity-10 text-primary fw-bold text-decoration-none" style="font-size:11.5px; padding:4px 8px; border-radius:4px;">
-                                <i class="fa-solid fa-hotel me-1"></i> {{ $tenant->properties_count ?? 0 }} Properties
+                                <i class="fa-solid fa-hotel me-1"></i> {{ $tenant->properties_count ?? 0 }} Hotels Listed
                             </a>
                         </td>
                         <td>
@@ -132,14 +132,19 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
                                     <li>
+                                        <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#viewTenantModal{{ $tenant->id }}">
+                                            <i class="fa-solid fa-eye text-primary me-2"></i> View Profile &amp; Properties
+                                        </button>
+                                    </li>
+                                    <li>
                                         <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#editTenantModal{{ $tenant->id }}">
-                                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Business Tenant
+                                            <i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Business Tenant
                                         </button>
                                     </li>
                                     <li>
                                         <form action="{{ route('admin.tenants.toggle', $tenant->id) }}" method="POST" class="m-0">
                                             @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-warning">
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-info">
                                                 <i class="fa-solid fa-ban me-2"></i> {{ $tenant->status === 'active' ? 'Suspend Tenant' : 'Activate Tenant' }}
                                             </button>
                                         </form>
@@ -158,6 +163,64 @@
                             </div>
                         </td>
                     </tr>
+
+                    {{-- VIEW PROFILE MODAL --}}
+                    <div class="modal fade" id="viewTenantModal{{ $tenant->id }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+                                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                                        <i class="fa-solid fa-building text-primary me-2"></i> Tenant Profile — {{ $tenant->name }}
+                                    </h6>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body" style="padding:20px;">
+                                    <div class="p-3 bg-light rounded border mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Business / Resort Group:</span>
+                                            <strong class="text-dark" style="font-size:13.5px;">{{ $tenant->name }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Owner / Manager:</span>
+                                            <strong class="text-dark" style="font-size:13px;">{{ $tenant->owner_name ?: 'N/A' }}</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Email Address:</span>
+                                            <span class="text-dark fw-bold" style="font-size:12.5px;">{{ $tenant->email }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Phone Contact:</span>
+                                            <span class="text-dark fw-bold" style="font-size:12.5px;">{{ $tenant->phone ?: 'N/A' }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">SaaS Subscription Plan:</span>
+                                            <span class="badge bg-primary text-white" style="font-size:11px;">{{ $tenant->saas_plan }}</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <span class="text-secondary" style="font-size:12px;">Agreed Commission Rate:</span>
+                                            <strong class="text-success" style="font-size:14px;">{{ $tenant->commission_rate }}% Rate</strong>
+                                        </div>
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <span class="text-secondary" style="font-size:12px;">Total Properties Listed:</span>
+                                            <strong class="text-primary" style="font-size:13px;">{{ $tenant->properties_count ?? 0 }} Hotels / Resorts</strong>
+                                        </div>
+                                    </div>
+                                    @if($tenant->notes)
+                                    <div class="p-3 bg-white rounded border">
+                                        <span class="text-secondary d-block mb-1" style="font-size:11.5px; font-weight:700;">NOTES &amp; AGREEMENTS:</span>
+                                        <p class="mb-0 text-dark" style="font-size:12.5px;">{{ $tenant->notes }}</p>
+                                    </div>
+                                    @endif
+                                </div>
+                                <div class="modal-footer d-flex justify-content-between" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                                    <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius:4px;">
+                                        <i class="fa-solid fa-hotel me-1"></i> View Listed Hotels ({{ $tenant->properties_count ?? 0 }})
+                                    </a>
+                                    <button type="button" class="btn btn-secondary btn-sm fw-bold" data-bs-dismiss="modal" style="border-radius:4px;">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
                     {{-- Edit Modal --}}
                     <div class="modal fade" id="editTenantModal{{ $tenant->id }}" tabindex="-1" aria-hidden="true">
@@ -224,7 +287,7 @@
                     </div>
                 @empty
                     <tr>
-                        <td colspan="6" class="text-center py-5" style="background:#ffffff;">
+                        <td colspan="7" class="text-center py-5" style="background:#ffffff;">
                             <div style="max-width:340px; margin:0 auto; padding:24px 0;">
                                 <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
                                     <i class="fa-solid fa-users-gear"></i>

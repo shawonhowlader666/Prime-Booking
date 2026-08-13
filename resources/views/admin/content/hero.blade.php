@@ -46,11 +46,11 @@
                 <div class="card-body" style="padding:20px;">
                     <div class="mb-3">
                         <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hero Title / Main Heading <span style="color:#ff4d4f;">*</span></label>
-                        <input type="text" name="hero_title" class="form-control" value="Discover Bangladesh — Hotels, Resorts &amp; Luxury Cruises" required style="font-size:13px; height:38px; border-radius:4px;">
+                        <input type="text" name="hero_title" class="form-control" value="{{ $heroSettings['hero_title'] ?? 'Discover Bangladesh — Hotels, Resorts & Luxury Cruises' }}" required style="font-size:13px; height:38px; border-radius:4px;">
                     </div>
                     <div class="mb-0">
                         <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hero Subtitle / Description</label>
-                        <textarea name="hero_subtitle" class="form-control" rows="3" style="font-size:13px; border-radius:4px;">Book top-rated hotels in Cox's Bazar, Sajek, Sylhet and Sundarban luxury ship cruises at guaranteed lowest rates with instant bKash/Nagad confirmation.</textarea>
+                        <textarea name="hero_subtitle" class="form-control" rows="3" style="font-size:13px; border-radius:4px;">{{ $heroSettings['hero_subtitle'] ?? "Book top-rated hotels in Cox's Bazar, Sajek, Sylhet and Sundarban luxury ship cruises at guaranteed lowest rates with instant bKash/Nagad confirmation." }}</textarea>
                     </div>
                 </div>
             </div>

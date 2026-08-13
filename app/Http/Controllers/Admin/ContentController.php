@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers\Admin;
 
@@ -12,34 +12,39 @@ class ContentController extends Controller
     public function hero()
     {
         $heroSettings = [
-            'site_name'    => SiteSetting::get('site_name', 'PRIME BOOKING'),
-            'site_tagline' => SiteSetting::get('site_tagline', 'Bangladesh\'s #1 Hotel & Flight Platform'),
-            'hero_banner'  => SiteSetting::get('hero_banner_title', 'Find Your Next Stay or Flight'),
+            'hero_title'    => SiteSetting::get('hero_title', 'Discover Bangladesh — Hotels, Resorts & Luxury Cruises'),
+            'hero_subtitle' => SiteSetting::get('hero_subtitle', "Book top-rated hotels in Cox's Bazar, Sajek, Sylhet and Sundarban luxury ship cruises at guaranteed lowest rates with instant bKash/Nagad confirmation."),
+            'slides'        => json_decode(SiteSetting::get('hero_slides', '[]'), true),
         ];
         return view('admin.content.hero', compact('heroSettings'));
     }
 
     public function updateHero(Request $request)
     {
-        $validated = $request->validate([
-            'site_name'    => 'nullable|string|max:255',
-            'site_tagline' => 'nullable|string|max:255',
-            'hero_banner'  => 'nullable|string|max:255',
-        ]);
-
-        if (!empty($validated['site_name'])) {
-            SiteSetting::set('site_name', $validated['site_name']);
+        if ($request->filled('hero_title')) {
+            SiteSetting::set('hero_title', $request->hero_title);
         }
-        if (!empty($validated['site_tagline'])) {
-            SiteSetting::set('site_tagline', $validated['site_tagline']);
+        if ($request->filled('hero_subtitle')) {
+            SiteSetting::set('hero_subtitle', $request->hero_subtitle);
         }
-        if (!empty($validated['hero_banner'])) {
-            SiteSetting::set('hero_banner_title', $validated['hero_banner']);
+        if ($request->has('slide_image')) {
+            $slides = [];
+            $images = $request->slide_image ?? [];
+            $badges = $request->slide_badge ?? [];
+            foreach ($images as $i => $img) {
+                if (!empty($img)) {
+                    $slides[] = [
+                        'image' => $img,
+                        'badge' => $badges[$i] ?? '',
+                    ];
+                }
+            }
+            SiteSetting::set('hero_slides', json_encode($slides));
         }
 
         Cache::flush();
 
-        return back()->with('success', 'Homepage Hero Slider & Banner text updated successfully in DB!');
+        return back()->with('success', 'Homepage Hero Slider & Banner settings updated successfully in DB!');
     }
 
     public function destinations()
@@ -64,4 +69,3 @@ class ContentController extends Controller
         return back()->with('success', 'Featured Tourist Destinations updated successfully in DB!');
     }
 }
-

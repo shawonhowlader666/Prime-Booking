@@ -94,6 +94,43 @@
         </div>
     </div>
 
+    {{-- STOCKIFLY FILTER BAR --}}
+    <div class="card border border-gray-200 rounded-3 mb-4 bg-white p-3 shadow-xs" style="border-radius: 8px !important;">
+        <form method="GET" action="{{ route('admin.reviews.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-5">
+                <div class="input-group input-group-sm">
+                    <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="search" class="form-control border-start-0 ps-0" placeholder="Search by guest name, property, or review comment..." value="{{ request('search') }}" style="font-size: 13px;">
+                </div>
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm" style="font-size: 13px;">
+                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
+                    <option value="approved" {{ request('status') == 'approved' ? 'selected' : '' }}>Approved &amp; Published</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Moderation</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="rating" class="form-select form-select-sm" style="font-size: 13px;">
+                    <option value="all" {{ request('rating') == 'all' ? 'selected' : '' }}>All Rating Stars</option>
+                    <option value="5" {{ request('rating') == '5' ? 'selected' : '' }}>5 Stars ★★★★★</option>
+                    <option value="4" {{ request('rating') == '4' ? 'selected' : '' }}>4 Stars ★★★★☆</option>
+                    <option value="3" {{ request('rating') == '3' ? 'selected' : '' }}>3 Stars ★★★☆☆</option>
+                    <option value="2" {{ request('rating') == '2' ? 'selected' : '' }}>2 Stars ★★☆☆☆</option>
+                    <option value="1" {{ request('rating') == '1' ? 'selected' : '' }}>1 Star ★☆☆☆☆</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" style="background-color: #2067e1; font-size: 12.5px;">
+                    <i class="fa-solid fa-filter me-1"></i> Filter
+                </button>
+                @if(request()->hasAny(['search', 'status', 'rating']))
+                    <a href="{{ route('admin.reviews.index') }}" class="btn btn-light btn-sm text-secondary border fw-bold" title="Reset Filters" style="font-size: 12.5px;">Reset</a>
+                @endif
+            </div>
+        </form>
+    </div>
+
     {{-- SAAS DATA TABLE CARD --}}
     <div class="data-table-card p-0">
         <div class="saas-table-toolbar">
@@ -179,7 +216,7 @@
                                     <i class="fa-solid fa-star"></i>
                                 </div>
                                 <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Guest Reviews Recorded</h6>
-                                <p style="font-size:12px; color:#64748b; margin-bottom:16px;">There are no guest ratings or feedback comments stored in the database.</p>
+                                <p style="font-size:12px; color:#64748b; margin-bottom:16px;">There are no guest ratings or feedback comments matching your filter criteria.</p>
                             </div>
                         </td>
                     </tr>
@@ -193,4 +230,5 @@
 
 </div>
 @endsection
+
 

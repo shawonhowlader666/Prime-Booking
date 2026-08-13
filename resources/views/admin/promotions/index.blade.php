@@ -6,26 +6,21 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>Marketing</span>
-        <span class="sep">-</span><strong style="color:#333;">Promotions Manager</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <div>
-            <h1 class="page-title">Promotions &amp; Banner Campaigns</h1>
-            <span style="font-size:12px; color:#8c8c8c;">Control homepage banners for Accommodation, Flights, and Activities</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button class="btn-tbl-copy" onclick="copyTableToClipboard('promotionsTable')"><i class="fa-solid fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Promotions &amp; Banner Campaigns</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button class="btn-tbl-copy" onclick="copyTableToClipboard('promotionsTable')"><i class="fa-solid fa-copy"></i> Copy</button>
             <button class="btn-tbl-excel" onclick="exportTableExcel('promotionsTable', 'Promotions')"><i class="fa-solid fa-file-excel"></i> Excel</button>
             <button class="btn-export-csv" onclick="exportTableCSV('promotionsTable', 'Promotions')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="printTable('promotionsTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('promotionsTable')"><i class="fa-solid fa-print"></i> Print</button>
             <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addPromotionModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-plus"></i> <span>New Promotion</span>
-            </button>
-        </div>
+            </button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><span>Marketing</span>
+        <span class="sep">-</span><strong style="color:#333;">Promotions Manager</strong>
     </div>
 </div>
 

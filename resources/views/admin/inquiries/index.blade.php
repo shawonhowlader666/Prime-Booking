@@ -5,23 +5,18 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>Support</span>
-        <span class="sep">-</span><strong style="color:#333;">Inquiries &amp; Messages</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
-        <div>
-            <h1 class="page-title">Customer Inquiries &amp; Support Messages</h1>
-            <span style="font-size:12px; color:#8c8c8c;">Manage all incoming guest inquiries, air ambulance requests, and helicopter charters</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inquiriesTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Customer Inquiries &amp; Support Messages</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inquiriesTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
             <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('inquiriesTable', 'inquiries')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('inquiriesTable', 'inquiries')" title="Export CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('inquiriesTable', 'inquiries')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-            <button type="button" class="btn-tbl-print" onclick="printTable('inquiriesTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-        </div>
+            <button type="button" class="btn-tbl-print" onclick="printTable('inquiriesTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><span>Support</span>
+        <span class="sep">-</span><strong style="color:#333;">Inquiries &amp; Messages</strong>
     </div>
 </div>
 

@@ -5,15 +5,13 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">SaaS Subscription Plans &amp; Billing</h1>
+        
+    </div>
+    <div class="page-breadcrumb mt-2">
         <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
         <span class="sep">-</span><strong style="color:#333;">SaaS Plans &amp; Billing</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <h1 class="page-title">SaaS Subscription Plans &amp; Billing</h1>
-        <span class="badge-status active" style="font-size:12px; padding:5px 14px;">
-            <i class="fa-solid fa-crown me-1" style="color:#fa8c16;"></i> Current: Professional Plan
-        </span>
     </div>
 </div>
 

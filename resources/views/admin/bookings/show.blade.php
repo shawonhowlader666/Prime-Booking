@@ -5,21 +5,19 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><a href="{{ route('admin.bookings.index') }}">Reservations</a>
-        <span class="sep">-</span><strong style="color:#333;">Ref: {{ $booking->booking_reference ?? 'PRM-'.$booking->id }}</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <h1 class="page-title">Booking Record details #{{ $booking->booking_reference ?? $booking->id }}</h1>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <a href="{{ route('admin.bookings.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959;">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Booking Record details #{{ $booking->booking_reference ?? $booking->id }}</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><a href="{{ route('admin.bookings.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959;">
                 <i class="fa-solid fa-arrow-left"></i> Back to All Bookings
             </a>
             <button class="btn-export-pdf" onclick="window.print()">
                 <i class="fa-solid fa-print"></i> Print Voucher
-            </button>
-        </div>
+            </button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><a href="{{ route('admin.bookings.index') }}">Reservations</a>
+        <span class="sep">-</span><strong style="color:#333;">Ref: {{ $booking->booking_reference ?? 'PRM-'.$booking->id }}</strong>
     </div>
 </div>
 

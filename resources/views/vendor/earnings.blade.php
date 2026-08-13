@@ -5,19 +5,17 @@
 @php use App\Services\CurrencyService; @endphp
 
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><strong style="color:#333;">Earnings &amp; Payouts</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
-        <h1 class="page-title">Vendor Financial Statements</h1>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('vendorEarningsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Vendor Financial Statements</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('vendorEarningsTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
             <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('vendorEarningsTable', 'vendor_earnings')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('vendorEarningsTable', 'vendor_earnings')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('vendorEarningsTable', 'vendor_earnings')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-            <button type="button" class="btn-tbl-print" onclick="printTable('vendorEarningsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-        </div>
+            <button type="button" class="btn-tbl-print" onclick="printTable('vendorEarningsTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><strong style="color:#333;">Earnings &amp; Payouts</strong>
     </div>
 </div>
 

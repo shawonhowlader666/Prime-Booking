@@ -8,21 +8,19 @@
      PAGE HEADER
      ============================================= --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>Reports</span>
-        <span class="sep">-</span><strong style="color:#333;">Sales Summary</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <h1 class="page-title">Sales Summary Reports</h1>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <button class="btn-export-csv" onclick="exportTable('csv')">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Sales Summary Reports</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button class="btn-export-csv" onclick="exportTable('csv')">
                 <i class="fa-solid fa-file-csv"></i> Export CSV
             </button>
             <button class="btn-export-pdf" onclick="exportTable('pdf')">
                 <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </button>
-        </div>
+            </button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><span>Reports</span>
+        <span class="sep">-</span><strong style="color:#333;">Sales Summary</strong>
     </div>
 </div>
 

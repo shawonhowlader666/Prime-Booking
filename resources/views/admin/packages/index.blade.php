@@ -6,26 +6,21 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
-        <span class="sep">-</span><span>Marketing</span>
-        <span class="sep">-</span><strong style="color:#333;">Tour Packages</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:8px;">
-        <div>
-            <h1 class="page-title m-0">Tour Packages &amp; Holiday Itineraries</h1>
-            <span style="font-size:12.5px; color:#64748b;">Manage guided tours, Sundarbans cruises, and weekend getaway packages</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button class="btn-tbl-copy" onclick="copyTableToClipboard('packagesTable')"><i class="fa-solid fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Tour Packages &amp; Holiday Itineraries</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button class="btn-tbl-copy" onclick="copyTableToClipboard('packagesTable')"><i class="fa-solid fa-copy"></i> Copy</button>
             <button class="btn-tbl-excel" onclick="exportTableExcel('packagesTable', 'Tour_Packages')"><i class="fa-solid fa-file-excel"></i> Excel</button>
             <button class="btn-export-csv" onclick="exportTableCSV('packagesTable', 'Tour_Packages')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="printTable('packagesTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('packagesTable')"><i class="fa-solid fa-print"></i> Print</button>
             <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-plus"></i> <span>New Tour Package</span>
-            </button>
-        </div>
+            </button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
+        <span class="sep">-</span><span>Marketing</span>
+        <span class="sep">-</span><strong style="color:#333;">Tour Packages</strong>
     </div>
 </div>
 

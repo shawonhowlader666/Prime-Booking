@@ -5,26 +5,21 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
-        <span class="sep">-</span><span>Users &amp; Vendors</span>
-        <span class="sep">-</span><strong style="color:#333;">User Accounts</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:8px;">
-        <div>
-            <h1 class="page-title m-0">User Accounts &amp; Role Management</h1>
-            <span style="font-size:12.5px; color:#64748b;">Manage customer accounts, vendor access, super admin privileges, and account suspensions</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button class="btn-tbl-copy" onclick="copyTableToClipboard('usersTable')"><i class="fa-solid fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">User Accounts &amp; Role Management</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button class="btn-tbl-copy" onclick="copyTableToClipboard('usersTable')"><i class="fa-solid fa-copy"></i> Copy</button>
             <button class="btn-tbl-excel" onclick="exportTableExcel('usersTable', 'users')"><i class="fa-solid fa-file-excel"></i> Excel</button>
             <button class="btn-export-csv" onclick="exportTableCSV('usersTable', 'users')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="exportTablePDF('usersTable', 'users')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('usersTable')"><i class="fa-solid fa-print"></i> Print</button>
             <button class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addUserModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-user-plus"></i> <span>Add New User</span>
-            </button>
-        </div>
+            </button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house me-1.5"></i> Dashboard</a>
+        <span class="sep">-</span><span>Users &amp; Vendors</span>
+        <span class="sep">-</span><strong style="color:#333;">User Accounts</strong>
     </div>
 </div>
 

@@ -5,24 +5,19 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>Inventory</span>
-        <span class="sep">-</span><strong style="color:#333;">Properties &amp; Listings</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
-        <div>
-            <h1 class="page-title">Property Inventory &amp; Hotel Listings</h1>
-            <span style="font-size:12px; color:#8c8c8c;">Manage all hotels, resorts, houseboats, and eco-cottages in Prime Booking</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inventoryTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Property Inventory &amp; Hotel Listings</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inventoryTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
             <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('inventoryTable', 'properties')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
             <button type="button" class="btn-export-csv" onclick="exportTableCSV('inventoryTable', 'properties')" title="Export CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('inventoryTable', 'properties')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button type="button" class="btn-tbl-print" onclick="printTable('inventoryTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
-            <a href="{{ route('admin.properties.create') }}" class="btn-add-primary ms-1"><i class="fa-solid fa-plus me-1"></i> Add New Listing</a>
-        </div>
+            <a href="{{ route('admin.properties.create') }}" class="btn-add-primary ms-1"><i class="fa-solid fa-plus me-1"></i> Add New Listing</a></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><span>Inventory</span>
+        <span class="sep">-</span><strong style="color:#333;">Properties &amp; Listings</strong>
     </div>
 </div>
 

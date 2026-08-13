@@ -6,26 +6,21 @@
 
 {{-- PAGE HEADER --}}
 <div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>CMS &amp; Banners</span>
-        <span class="sep">-</span><strong style="color:#333;">Destination Banners</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <div>
-            <h1 class="page-title">Destination Banners &amp; Media Manager</h1>
-            <span style="font-size:12px; color:#8c8c8c;">Manage banner images/videos for popular travel destinations with real hotel property counts</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button class="btn-tbl-copy" onclick="copyTableToClipboard('destinationsTable')"><i class="fa-solid fa-copy"></i> Copy</button>
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Destination Banners &amp; Media Manager</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button class="btn-tbl-copy" onclick="copyTableToClipboard('destinationsTable')"><i class="fa-solid fa-copy"></i> Copy</button>
             <button class="btn-tbl-excel" onclick="exportTableExcel('destinationsTable', 'Destinations')"><i class="fa-solid fa-file-excel"></i> Excel</button>
             <button class="btn-export-csv" onclick="exportTableCSV('destinationsTable', 'Destinations')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="printTable('destinationsTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('destinationsTable')"><i class="fa-solid fa-print"></i> Print</button>
             <button class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#createDestinationModal">
                 <i class="fa-solid fa-plus me-1"></i> Add Destination Banner
-            </button>
-        </div>
+            </button></div>
+    </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><span>CMS &amp; Banners</span>
+        <span class="sep">-</span><strong style="color:#333;">Destination Banners</strong>
     </div>
 </div>
 

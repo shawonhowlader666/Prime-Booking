@@ -808,6 +808,11 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // DOM Element Declarations
+    const searchTypeInput = document.getElementById('agodaSearchTypeInput');
+    const formHotels = document.getElementById('agodaFormStandard');
+    const formAirport = document.getElementById('agodaFormAirport');
+
     // Agoda-Exact Live Typing Autocomplete Handler
     let searchDebounce = null;
     if (destInput) {
@@ -828,9 +833,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 fetch('/api/v1/search/suggestions?q=' + encodeURIComponent(query) + '&search_type=' + currentType)
                     .then(res => res.json())
                     .then(res => {
-                        if (res.success && res.data) {
-                            if (staticBox) staticBox.style.display = 'none';
-                            if (liveBox) liveBox.style.display = 'block';
                         const apiData = res.data || res;
                         if (staticBox) staticBox.style.display = 'none';
                         if (liveBox) liveBox.style.display = 'block';
@@ -885,19 +887,24 @@ document.addEventListener('DOMContentLoaded', function() {
         const allLocations = [...clientCities, ...serverLocs].slice(0, 8);
 
         if (allLocations.length > 0) {
+            html += `
+                <div style="padding: 6px 14px 4px; font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.8px; text-transform: uppercase; text-align: left;">
+                    POPULAR DESTINATIONS
+                </div>
+            `;
             allLocations.forEach(loc => {
                 const cityName  = loc.city || loc.title || '';
                 const country   = loc.country || 'Bangladesh';
                 const locType   = loc.type || loc.loc_type || 'City';
                 const safeTitle = (cityName + ', ' + country).replace(/'/g, "\\'");
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeTitle}')" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 14px; margin-bottom: 1px; transition: background 0.12s ease;">
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeTitle}')" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 14px; margin-bottom: 1px; text-align: left; transition: background 0.12s ease;">
                         <i class="fa-solid fa-location-dot" style="font-size: 17px; color: #334155; width: 22px; text-align: center; flex-shrink: 0;"></i>
-                        <div style="flex: 1; min-width: 0;">
-                            <span style="font-size: 14px; font-weight: 500; color: #334155; display: block; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        <div style="flex: 1; min-width: 0; text-align: left;">
+                            <span style="font-size: 14px; font-weight: 500; color: #334155; display: block; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;">
                                 ${cityName}, <strong style="font-weight: 700; color: #0f172a;">${country}</strong>
                             </span>
-                            <span style="color: #94a3b8; font-size: 11.5px; display: block; font-weight: 400;">${locType}</span>
+                            <span style="color: #94a3b8; font-size: 11.5px; display: block; font-weight: 400; text-align: left;">${locType}</span>
                         </div>
                     </div>
                 `;
@@ -908,27 +915,34 @@ document.addEventListener('DOMContentLoaded', function() {
         const properties = data.properties || [];
         if (properties.length > 0) {
             html += `
-                <div style="padding: 10px 14px 6px; font-size: 10.5px; font-weight: 700; color: #94a3b8; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 6px; border-top: 1px solid #f1f5f9;">
-                    <i class="fa-solid fa-bed me-1" style="color: #94a3b8;"></i> MATCHING PROPERTIES & CRUISES
+                <div style="padding: 10px 14px 6px; font-size: 11px; font-weight: 700; color: #64748b; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 6px; border-top: 1px solid #f1f5f9; text-align: left;">
+                    MATCHING PROPERTIES & CRUISES
                 </div>
             `;
             properties.forEach(p => {
                 const img      = p.primary_image || null;
                 const safeName = (p.name || '').replace(/'/g, "\\'");
                 const propType = p.type ? (p.type.charAt(0).toUpperCase() + p.type.slice(1)) : 'Property';
-                let leftIconHtml = `<i class="fa-solid fa-bed" style="font-size: 16px; color: #1e293b; margin-top: 3px; width: 20px; text-align: center; flex-shrink: 0;"></i>`;
+                let leftIconHtml = `<i class="fa-solid fa-building text-primary" style="font-size: 18px; margin-top: 2px; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; background: #f0f5fc; border-radius: 8px; flex-shrink: 0;"></i>`;
                 if (img) {
-                    leftIconHtml = `<img src="${img}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; flex-shrink: 0;">`;
+                    leftIconHtml = `<img src="${img}" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;">`;
                 }
 
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: flex-start; gap: 14px; margin-bottom: 2px; transition: background 0.12s ease;">
-                        ${leftIconHtml}
-                        <div style="flex: 1;">
-                            <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.3;">${p.name}</span>
-                            <span style="color: #64748b; font-size: 12px; display: block; margin-top: 1px; font-weight: 400;">${p.city ? p.city + ', Bangladesh' : 'Bangladesh'} &bull; ${propType}</span>
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 14px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 2px; text-align: left; transition: background 0.12s ease;">
+                        <div style="display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; text-align: left;">
+                            ${leftIconHtml}
+                            <div style="flex: 1; min-width: 0; text-align: left;">
+                                <span style="font-size: 14px; font-weight: 600; color: #0f172a; display: block; line-height: 1.3; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${p.name}</span>
+                                <span style="color: #64748b; font-size: 12px; display: block; margin-top: 2px; font-weight: 400; text-align: left;"><i class="fa-solid fa-location-dot" style="font-size: 10px; color: #94a3b8; margin-right: 3px;"></i> ${p.city ? p.city + ', Bangladesh' : 'Bangladesh'} &bull; ${propType}</span>
+                            </div>
                         </div>
-                        ${p.price_per_night ? `<span class="badge text-white fw-bold" style="font-size: 11px; background-color: #2067e1 !important; border-radius: 6px; padding: 4px 8px; align-self: center;">৳ ${Number(p.price_per_night).toLocaleString()}</span>` : ''}
+                        ${p.price_per_night ? `
+                            <div style="text-align: right; flex-shrink: 0;">
+                                <span style="font-size: 14px; font-weight: 700; color: #2067e1; display: block;">BDT ${Number(p.price_per_night).toLocaleString()}</span>
+                                <span style="font-size: 10px; color: #94a3b8; font-weight: 400; display: block;">/ night</span>
+                            </div>
+                        ` : ''}
                     </div>
                 `;
             });
@@ -995,11 +1009,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabLongStays = document.getElementById('tabLongStays');
     const tabAirport = document.getElementById('tabAirport');
 
-    const formHotels = document.getElementById('agodaFormHotels');
-    const formAirport = document.getElementById('agodaFormAirport');
-
     const heroTitle = document.getElementById('bdHeroTitle');
-    const searchTypeInput = document.getElementById('agodaSearchTypeInput');
 
     function setActiveTab(activeBtn, searchType, titleText, isAirport = false) {
         [tabHotels, tabHomes, tabLongStays, tabAirport].forEach(btn => {
@@ -1061,72 +1071,6 @@ document.addEventListener('DOMContentLoaded', function() {
             btnToAirport.style.color = '#2067e1';
             btnFromAirport.style.border = '1px solid #cbd5e1';
             btnFromAirport.style.color = '#64748b';
-        });
-    }
-
-    // Instant Live Search Autocomplete Listener
-    if (destinationDisplayInput) {
-        let autocompleteDebounceTimer;
-        destinationDisplayInput.addEventListener('input', function(e) {
-            const query = e.target.value.trim();
-            const staticContainer = document.getElementById('agodaStaticSearchSuggestions');
-            let hitsDiv = document.getElementById('agodaLiveSearchHits');
-
-            if (query.length < 2) {
-                if (hitsDiv) hitsDiv.style.display = 'none';
-                if (staticContainer) staticContainer.style.display = 'block';
-                return;
-            }
-
-            clearTimeout(autocompleteDebounceTimer);
-            autocompleteDebounceTimer = setTimeout(function() {
-                fetch('/api/search/autocomplete?q=' + encodeURIComponent(query))
-                    .then(res => res.json())
-                    .then(data => {
-                        let html = '';
-                        if (data.destinations && data.destinations.length > 0) {
-                            html += '<div style="font-size:11px; font-weight:700; color:#2067e1; margin-bottom:6px; text-transform:uppercase;">Destinations</div>';
-                            data.destinations.forEach(d => {
-                                html += `<div class="agoda-popover-item mb-1" onclick="selectDestination('${d.title}')">
-                                    <img src="${d.image}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
-                                    <div>
-                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">${d.title}</div>
-                                        <div style="font-size:11px; color:#64748b;">${d.subtitle}</div>
-                                    </div>
-                                </div>`;
-                            });
-                        }
-                        if (data.properties && data.properties.length > 0) {
-                            html += '<div style="font-size:11px; font-weight:700; color:#2067e1; margin-top:10px; margin-bottom:6px; text-transform:uppercase;">Hotels & Stays</div>';
-                            data.properties.forEach(p => {
-                                html += `<a href="${p.url}" class="agoda-popover-item text-decoration-none mb-1" style="display:flex;">
-                                    <img src="${p.image}" style="width:36px; height:36px; border-radius:6px; object-fit:cover;">
-                                    <div>
-                                        <div style="font-size:13px; font-weight:700; color:#1e293b;">${p.title}</div>
-                                        <div style="font-size:11px; color:#10b981; font-weight:600;">${p.subtitle}</div>
-                                    </div>
-                                </a>`;
-                            });
-                        }
-
-                        if (!html) {
-                            html = '<div class="p-3 text-center text-muted small">No direct matches found. Press SEARCH to explore all.</div>';
-                        }
-
-                        if (!hitsDiv) {
-                            hitsDiv = document.createElement('div');
-                            hitsDiv.id = 'agodaLiveSearchHits';
-                            hitsDiv.style.cssText = 'position:absolute; top:66px; left:0; width:540px; max-width:94vw; background:#fff; border-radius:12px; box-shadow:0 10px 30px rgba(0,0,0,0.25); padding:16px; z-index:99999; border:1px solid #cbd5e1;';
-                            if (destinationPopoverCard && destinationPopoverCard.parentNode) {
-                                destinationPopoverCard.parentNode.appendChild(hitsDiv);
-                            }
-                        }
-                        hitsDiv.innerHTML = html;
-                        hitsDiv.style.display = 'block';
-
-                        if (staticContainer) staticContainer.style.display = 'none';
-                    });
-            }, 200);
         });
     }
 

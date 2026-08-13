@@ -139,14 +139,23 @@ class HotelImporterService
                 $normalized['original_price']  = round($normalized['original_price'] * $priceMultiplier, 2);
 
                 DB::transaction(function () use ($normalized, $overrideStatus, &$importedCount, &$updatedCount, &$totalImages, &$logs) {
-                    $existing = Property::where('name', $normalized['name'])
-                        ->where('city', $normalized['city'])
+                    $cleanName  = trim((string)preg_replace('/\s+/', ' ', $normalized['name']));
+                    $targetSlug = Str::slug($cleanName . '-' . $normalized['city']);
+
+                    // Smart Multi-Source Deduplication (Match by Slug or Name + City)
+                    $existing = Property::where('slug', $targetSlug)
+                        ->orWhere(function ($q) use ($cleanName, $normalized) {
+                            $q->where('name', $cleanName)
+                              ->where('city', $normalized['city']);
+                        })
                         ->first();
 
                     $isNew = ! $existing;
 
                     $updateData = [
-                        'slug'                    => Str::slug($normalized['name'] . '-' . $normalized['city']),
+                        'name'                    => $cleanName,
+                        'city'                    => $normalized['city'],
+                        'slug'                    => $targetSlug,
                         'type'                    => $normalized['type'],
                         'star_rating'             => $normalized['star_rating'],
                         'rating_score'            => $normalized['rating_score'],
@@ -171,13 +180,12 @@ class HotelImporterService
                     if (! empty($normalized['longitude'])) $updateData['longitude'] = $normalized['longitude'];
                     if (! empty($normalized['video_url'])) $updateData['video_url'] = $normalized['video_url'];
 
-                    $property = Property::updateOrCreate(
-                        [
-                            'name' => $normalized['name'],
-                            'city' => $normalized['city'],
-                        ],
-                        $updateData
-                    );
+                    if ($existing) {
+                        $existing->update($updateData);
+                        $property = $existing;
+                    } else {
+                        $property = Property::create($updateData);
+                    }
 
                     // Ensure associated rooms exist
                     if ($property->rooms()->count() === 0) {

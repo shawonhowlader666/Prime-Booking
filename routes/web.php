@@ -222,6 +222,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // Website CMS Content & Banners
     Route::get('/content/hero', [ContentController::class, 'hero'])->name('content.hero');
     Route::post('/content/hero', [ContentController::class, 'updateHero'])->name('content.hero.update');
+    Route::post('/content/hero/slides', [ContentController::class, 'storeSlide'])->name('content.hero.slides.store');
+    Route::put('/content/hero/slides/{id}', [ContentController::class, 'updateSlide'])->name('content.hero.slides.update');
+    Route::post('/content/hero/slides/{id}/toggle', [ContentController::class, 'toggleSlide'])->name('content.hero.slides.toggle');
+    Route::delete('/content/hero/slides/{id}', [ContentController::class, 'destroySlide'])->name('content.hero.slides.destroy');
 
     // Guest Inquiries & Support Messages
     Route::get('/inquiries', [InquiryManagementController::class, 'index'])->name('inquiries.index');

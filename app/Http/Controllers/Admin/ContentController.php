@@ -5,40 +5,43 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\SiteSetting;
+use App\Models\HeroSlide;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Storage;
 
 class ContentController extends Controller
 {
     public function hero()
     {
-        $defaultSlides = [
-            [
-                'image' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200',
-                'badge' => 'Up to 25% Off Luxury Hotels in Cox\'s Bazar',
-            ],
-            [
-                'image' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200',
-                'badge' => 'Explore Sundarbans Mangrove — MV Zabin Ship',
-            ],
-            [
-                'image' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200',
-                'badge' => 'Experience Clouds in Sajek Valley Heights',
-            ],
-        ];
-
-        $rawSlides = SiteSetting::get('hero_slides');
-        $slides = !empty($rawSlides) ? json_decode($rawSlides, true) : $defaultSlides;
-        if (empty($slides)) {
-            $slides = $defaultSlides;
+        // Seed sample hero slides if empty
+        if (HeroSlide::count() === 0) {
+            HeroSlide::create([
+                'title'       => 'Cox\'s Bazar Sea Beach Resort',
+                'badge_text'  => 'Up to 25% Off Luxury Hotels in Cox\'s Bazar',
+                'image_path'  => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200',
+                'sort_order'  => 1,
+                'status'      => 'active',
+            ]);
+            HeroSlide::create([
+                'title'       => 'Sundarban Houseboat Cruise',
+                'badge_text'  => 'Explore Sundarbans Mangrove — MV Zabin Ship',
+                'image_path'  => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=1200',
+                'sort_order'  => 2,
+                'status'      => 'active',
+            ]);
+            HeroSlide::create([
+                'title'       => 'Sajek Valley Cloud Cottage',
+                'badge_text'  => 'Experience Clouds in Sajek Valley Heights',
+                'image_path'  => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?w=1200',
+                'sort_order'  => 3,
+                'status'      => 'active',
+            ]);
         }
 
-        $heroSettings = [
-            'hero_title'    => SiteSetting::get('hero_title', 'Discover Bangladesh — Hotels, Resorts & Luxury Cruises'),
-            'hero_subtitle' => SiteSetting::get('hero_subtitle', "Book top-rated hotels in Cox's Bazar, Sajek, Sylhet and Sundarban luxury ship cruises at guaranteed lowest rates with instant bKash/Nagad confirmation."),
-            'slides'        => $slides,
-        ];
-        return view('admin.content.hero', compact('heroSettings'));
+        $heroTitle = SiteSetting::get('hero_title', 'Discover Bangladesh — Hotels, Resorts & Luxury Cruises');
+        $heroSubtitle = SiteSetting::get('hero_subtitle', "Book top-rated hotels in Cox's Bazar, Sajek, Sylhet and Sundarban luxury ship cruises at guaranteed lowest rates with instant bKash/Nagad confirmation.");
+        $slides = HeroSlide::orderBy('sort_order')->orderBy('id')->get();
+
+        return view('admin.content.hero', compact('heroTitle', 'heroSubtitle', 'slides'));
     }
 
     public function updateHero(Request $request)
@@ -50,31 +53,88 @@ class ContentController extends Controller
             SiteSetting::set('hero_subtitle', $request->hero_subtitle);
         }
 
-        $images = $request->slide_image ?? [];
-        $badges = $request->slide_badge ?? [];
-        $files  = $request->file('slide_file') ?? [];
+        Cache::flush();
+        return back()->with('success', 'Homepage Hero main heading & subtitle updated successfully!');
+    }
 
-        $slides = [];
-        foreach ($images as $i => $img) {
-            $finalUrl = $img;
+    public function storeSlide(Request $request)
+    {
+        $validated = $request->validate([
+            'title'      => 'required|string|max:255',
+            'badge_text' => 'nullable|string|max:255',
+            'image_url'  => 'nullable|string|max:1000',
+            'slide_file' => 'nullable|image|max:5120',
+            'sort_order' => 'nullable|integer',
+        ]);
 
-            if (isset($files[$i]) && $files[$i]->isValid()) {
-                $path = $files[$i]->store('uploads/hero', 'public');
-                $finalUrl = asset('storage/' . $path);
-            }
+        $imagePath = $request->image_url ?? 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=1200';
 
-            if (!empty($finalUrl)) {
-                $slides[] = [
-                    'image' => $finalUrl,
-                    'badge' => $badges[$i] ?? '',
-                ];
-            }
+        if ($request->hasFile('slide_file') && $request->file('slide_file')->isValid()) {
+            $path = $request->file('slide_file')->store('uploads/hero', 'public');
+            $imagePath = asset('storage/' . $path);
         }
 
-        SiteSetting::set('hero_slides', json_encode($slides));
-        Cache::flush();
+        HeroSlide::create([
+            'title'      => $validated['title'],
+            'badge_text' => $validated['badge_text'] ?? '',
+            'image_path' => $imagePath,
+            'sort_order' => $validated['sort_order'] ?? (HeroSlide::max('sort_order') + 1),
+            'status'     => 'active',
+        ]);
 
-        return back()->with('success', 'Homepage Hero Slider & Banners updated successfully with image upload support!');
+        Cache::flush();
+        return back()->with('success', 'New Banner Slide created successfully!');
+    }
+
+    public function updateSlide(Request $request, $id)
+    {
+        $slide = HeroSlide::findOrFail($id);
+
+        $validated = $request->validate([
+            'title'      => 'required|string|max:255',
+            'badge_text' => 'nullable|string|max:255',
+            'image_url'  => 'nullable|string|max:1000',
+            'slide_file' => 'nullable|image|max:5120',
+            'sort_order' => 'nullable|integer',
+            'status'     => 'required|in:active,inactive',
+        ]);
+
+        $imagePath = $request->image_url ?: $slide->image_path;
+
+        if ($request->hasFile('slide_file') && $request->file('slide_file')->isValid()) {
+            $path = $request->file('slide_file')->store('uploads/hero', 'public');
+            $imagePath = asset('storage/' . $path);
+        }
+
+        $slide->update([
+            'title'      => $validated['title'],
+            'badge_text' => $validated['badge_text'] ?? '',
+            'image_path' => $imagePath,
+            'sort_order' => $validated['sort_order'] ?? $slide->sort_order,
+            'status'     => $validated['status'],
+        ]);
+
+        Cache::flush();
+        return back()->with('success', "Banner Slide #{$slide->id} updated successfully!");
+    }
+
+    public function toggleSlide($id)
+    {
+        $slide = HeroSlide::findOrFail($id);
+        $slide->status = ($slide->status === 'active') ? 'inactive' : 'active';
+        $slide->save();
+
+        Cache::flush();
+        return back()->with('success', "Slide #{$slide->id} status changed to {$slide->status}!");
+    }
+
+    public function destroySlide($id)
+    {
+        $slide = HeroSlide::findOrFail($id);
+        $slide->delete();
+
+        Cache::flush();
+        return back()->with('success', 'Banner Slide deleted successfully!');
     }
 
     public function destinations()

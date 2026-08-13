@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -13,20 +13,30 @@ class InquiryController extends Controller
             'name'         => 'required|string|max:255',
             'phone'        => 'required|string|max:50',
             'email'        => 'nullable|email|max:255',
-            'service_type' => 'required|string',
+            'service_type' => 'nullable|string',
+            'subject'      => 'nullable|string',
             'destination'  => 'nullable|string|max:255',
-            'travel_date'  => 'nullable|date',
+            'travel_date'  => 'nullable|string',
             'passengers'   => 'nullable|integer|min:1',
             'message'      => 'nullable|string',
         ]);
 
-        try {
-            Inquiry::create($validated);
-        } catch (\Exception $e) {
-            // Ignore DB error if table doesn't exist yet
-        }
+        $serviceType = $validated['service_type'] ?? $validated['subject'] ?? 'General Support';
 
-        return redirect()->back()->with('success', 'Thank you! Your inquiry has been received by PRIME BOOKING. Our team will contact you shortly at ' . $validated['phone'] . '.');
+        Inquiry::create([
+            'name'         => $validated['name'],
+            'phone'        => $validated['phone'],
+            'email'        => $validated['email'] ?? null,
+            'service_type' => $serviceType,
+            'destination'  => $validated['destination'] ?? null,
+            'travel_date'  => $validated['travel_date'] ?? null,
+            'passengers'   => $validated['passengers'] ?? 1,
+            'message'      => $validated['message'] ?? null,
+            'status'       => 'pending',
+        ]);
+
+        return redirect()->back()->with('success', 'Thank you! Your message has been received by PRIME BOOKING. Our support team will contact you shortly at ' . $validated['phone'] . '.');
     }
 }
+
 

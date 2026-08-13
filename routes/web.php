@@ -23,6 +23,7 @@ use App\Http\Controllers\Admin\PayoutController;
 use App\Http\Controllers\Admin\ReviewManagementController;
 use App\Http\Controllers\Admin\ContentController;
 use App\Http\Controllers\Admin\ActivityLogController;
+use App\Http\Controllers\Admin\AmenityController;
 use App\Http\Controllers\Admin\PromotionController;
 use App\Http\Controllers\Admin\FeaturedDestinationController;
 use App\Http\Controllers\Admin\SiteSettingsController;
@@ -226,6 +227,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/content/hero/slides/{id}', [ContentController::class, 'updateSlide'])->name('content.hero.slides.update');
     Route::post('/content/hero/slides/{id}/toggle', [ContentController::class, 'toggleSlide'])->name('content.hero.slides.toggle');
     Route::delete('/content/hero/slides/{id}', [ContentController::class, 'destroySlide'])->name('content.hero.slides.destroy');
+
+    // Amenities Catalog
+    Route::get('/amenities', [AmenityController::class, 'index'])->name('amenities.index');
+    Route::post('/amenities', [AmenityController::class, 'store'])->name('amenities.store');
+    Route::put('/amenities/{amenity}', [AmenityController::class, 'update'])->name('amenities.update');
+    Route::delete('/amenities/{amenity}', [AmenityController::class, 'destroy'])->name('amenities.destroy');
 
     // Guest Inquiries & Support Messages
     Route::get('/inquiries', [InquiryManagementController::class, 'index'])->name('inquiries.index');

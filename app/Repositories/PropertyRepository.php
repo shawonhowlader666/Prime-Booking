@@ -190,9 +190,39 @@ class PropertyRepository
         $query = Property::select(Property::LIST_COLUMNS)
             ->active();   // Always filter on status first (uses composite index prefix)
 
+        // ── Geo Location Filters (Division, District, Upazila) ─────────
+        $division = trim((string) ($params['division'] ?? ''));
+        $district = trim((string) ($params['district'] ?? ''));
+        $upazila  = trim((string) ($params['upazila']  ?? ''));
+
+        if ($upazila !== '') {
+            $query->where(function ($q) use ($upazila) {
+                $q->where('city', 'LIKE', "%{$upazila}%")
+                  ->orWhere('address', 'LIKE', "%{$upazila}%")
+                  ->orWhere('nearest_landmark', 'LIKE', "%{$upazila}%")
+                  ->orWhere('name', 'LIKE', "%{$upazila}%");
+            });
+        } elseif ($district !== '') {
+            $query->where(function ($q) use ($district) {
+                $q->where('city', 'LIKE', "%{$district}%")
+                  ->orWhere('address', 'LIKE', "%{$district}%")
+                  ->orWhere('nearest_landmark', 'LIKE', "%{$district}%");
+            });
+        } elseif ($division !== '') {
+            // Map division to key districts
+            $divDistricts = config("bangladesh-geo.divisions.{$division}.districts", []);
+            if (!empty($divDistricts)) {
+                $districtNames = array_keys($divDistricts);
+                $query->where(function ($q) use ($districtNames) {
+                    foreach ($districtNames as $dName) {
+                        $q->orWhere('city', 'LIKE', "%{$dName}%")
+                          ->orWhere('address', 'LIKE', "%{$dName}%");
+                    }
+                });
+            }
+        }
+
         // ── Destination keyword search ─────────────────────────────────
-        // Note: LIKE '%keyword%' cannot use a B-tree index. For true scale (10M+ rows),
-        // migrate to MySQL FULLTEXT index or Elasticsearch (ElasticsearchService exists).
         if ($destination !== '') {
             $query->keyword($destination);   // scopeKeyword() in Property model
         }

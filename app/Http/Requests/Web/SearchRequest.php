@@ -29,6 +29,9 @@ class SearchRequest extends FormRequest
     {
         return [
             'destination'  => ['nullable', 'string', 'max:150'],
+            'division'     => ['nullable', 'string', 'max:100'],
+            'district'     => ['nullable', 'string', 'max:100'],
+            'upazila'      => ['nullable', 'string', 'max:100'],
             'search_type'  => ['nullable', 'string', 'max:50'],
             'type'         => ['nullable', 'string', 'max:50'],
             'check_in'     => ['nullable', 'date'],
@@ -128,6 +131,9 @@ class SearchRequest extends FormRequest
     {
         return [
             'destination'  => $this->destination(),
+            'division'     => trim((string) ($this->validated()['division'] ?? '')),
+            'district'     => trim((string) ($this->validated()['district'] ?? '')),
+            'upazila'      => trim((string) ($this->validated()['upazila'] ?? '')),
             'search_type'  => $this->searchType(),
             'check_in'     => $this->checkIn(),
             'check_out'    => $this->checkOut(),

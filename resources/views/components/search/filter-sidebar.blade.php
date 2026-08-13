@@ -34,11 +34,63 @@
             <input type="hidden" name="guests" value="{{ request('guests') }}">
 
             {{-- 2. Text Search Input Box (Agoda Keyword Search) --}}
-            <div class="mb-4 pb-3 border-bottom">
+            <div class="mb-3 pb-3 border-bottom">
                 <div class="input-group">
                     <span class="input-group-text bg-white text-secondary border-end-0" style="font-size: 13px;"><i class="fa-solid fa-magnifying-glass"></i></span>
                     <input type="text" name="q" class="form-control form-control-sm border-start-0 ps-0" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13px; font-weight: 500;">
                 </div>
+            </div>
+
+            {{-- 2.1 Bangladesh Geo-Hierarchy Filter (Division ➔ District ➔ Upazila) --}}
+            @php
+                $geoConfig = config('bangladesh-geo.divisions', []);
+                $selectedDivision = request('division', '');
+                $selectedDistrict = request('district', '');
+                $selectedUpazila  = request('upazila', '');
+            @endphp
+            <div class="mb-4 pb-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="fw-bold text-dark m-0 d-flex align-items-center gap-1.5" style="font-size: 13px;">
+                        <i class="fa-solid fa-map-location-dot" style="color: #2067e1;"></i> Region / Division (বিভাগ ও জেলা)
+                    </label>
+                    @if($selectedDivision || $selectedDistrict || $selectedUpazila)
+                        <a href="{{ route('search.index', array_merge(request()->except(['division', 'district', 'upazila', 'page']))) }}" class="text-decoration-none" style="font-size: 11px; font-weight: 600; color: #dc2626;">Reset Location</a>
+                    @endif
+                </div>
+
+                <!-- Division Select -->
+                <div class="mb-2">
+                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="this.form.submit()">
+                        <option value="">Select Division (বিভাগ)...</option>
+                        @foreach($geoConfig as $divKey => $divInfo)
+                            <option value="{{ $divKey }}" {{ $selectedDivision === $divKey ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- District Select (Populated if Division selected) -->
+                @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
+                    <div class="mb-2">
+                        <select name="district" id="districtSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="this.form.submit()">
+                            <option value="">Select District (জেলা)...</option>
+                            @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
+                                <option value="{{ $distKey }}" {{ $selectedDistrict === $distKey ? 'selected' : '' }}>{{ $distInfo['name'] }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
+
+                <!-- Upazila / Area Select (Populated if District selected) -->
+                @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
+                    <div>
+                        <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; border-color: #cbd5e1; border-radius: 6px; font-weight: 500;" onchange="this.form.submit()">
+                            <option value="">Select Upazila / Spot (উপজেলা/স্পট)...</option>
+                            @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
+                                <option value="{{ $upazilaName }}" {{ $selectedUpazila === $upazilaName ? 'selected' : '' }}>📍 {{ $upazilaName }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                @endif
             </div>
 
             {{-- 3. Price Budget Range Slider --}}

@@ -56,21 +56,21 @@
                     @endif
                 </div>
 
-                <!-- Step 1: Division Select (Always Shown First) -->
+                <!-- Step 1: Region Select (Always Shown First) -->
                 <div class="mb-2">
                     <select name="division" id="divisionSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;" onchange="var f=this.form; var d=f.querySelector('[name=\'district\']'); var u=f.querySelector('[name=\'upazila\']'); if(d)d.value=''; if(u)u.value=''; f.submit();">
-                        <option value="">Select division...</option>
+                        <option value="">Select region...</option>
                         @foreach($geoConfig as $divKey => $divInfo)
                             <option value="{{ $divKey }}" {{ $selectedDivision === $divKey ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
                         @endforeach
                     </select>
                 </div>
 
-                <!-- Step 2: District Select (Shown ONLY AFTER Division is Selected) -->
+                <!-- Step 2: City / District Select (Shown ONLY AFTER Region is Selected) -->
                 @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
                     <div class="mb-2">
                         <select name="district" id="districtSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;" onchange="var f=this.form; var u=f.querySelector('[name=\'upazila\']'); if(u)u.value=''; f.submit();">
-                            <option value="">Select district...</option>
+                            <option value="">Select city / district...</option>
                             @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
                                 <option value="{{ $distKey }}" {{ $selectedDistrict === $distKey ? 'selected' : '' }}>{{ $distInfo['name'] }}</option>
                             @endforeach
@@ -78,11 +78,11 @@
                     </div>
                 @endif
 
-                <!-- Step 3: Upazila / Area Select (Shown ONLY AFTER District is Selected) -->
+                <!-- Step 3: Upazila / Area Select (Shown ONLY AFTER City / District is Selected) -->
                 @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
                     <div>
                         <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;" onchange="this.form.submit()">
-                            <option value="">Select area...</option>
+                            <option value="">Select area / spot...</option>
                             @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
                                 <option value="{{ $upazilaName }}" {{ $selectedUpazila === $upazilaName ? 'selected' : '' }}>{{ $upazilaName }}</option>
                             @endforeach

@@ -145,30 +145,37 @@ class HotelImporterService
 
                     $isNew = ! $existing;
 
+                    $updateData = [
+                        'slug'                    => Str::slug($normalized['name'] . '-' . $normalized['city']),
+                        'type'                    => $normalized['type'],
+                        'star_rating'             => $normalized['star_rating'],
+                        'rating_score'            => $normalized['rating_score'],
+                        'total_reviews'           => $normalized['total_reviews'],
+                        'address'                 => $normalized['address'],
+                        'description'             => $normalized['description'],
+                        'price_per_night'         => $normalized['price_per_night'],
+                        'original_price'          => $normalized['original_price'],
+                        'primary_image'           => $normalized['primary_image'],
+                        'images'                  => $normalized['images'],
+                        'amenities'               => $normalized['amenities'],
+                        'is_featured'             => $normalized['is_featured'],
+                        'status'                  => $overrideStatus,
+                        'rooms_left'              => rand(3, 12),
+                        'no_credit_card_required' => true,
+                        'free_cancellation'       => true,
+                        'location_score'          => (float)number_format(rand(82, 98) / 10, 1),
+                        'nearest_landmark'        => $normalized['nearest_landmark'] ?? "City Center, {$normalized['city']}",
+                    ];
+
+                    if (! empty($normalized['latitude']))  $updateData['latitude']  = $normalized['latitude'];
+                    if (! empty($normalized['longitude'])) $updateData['longitude'] = $normalized['longitude'];
+
                     $property = Property::updateOrCreate(
                         [
                             'name' => $normalized['name'],
                             'city' => $normalized['city'],
                         ],
-                        [
-                            'slug'                    => Str::slug($normalized['name'] . '-' . $normalized['city']),
-                            'type'                    => $normalized['type'],
-                            'star_rating'             => $normalized['star_rating'],
-                            'rating_score'            => $normalized['rating_score'],
-                            'total_reviews'           => $normalized['total_reviews'],
-                            'address'                 => $normalized['address'],
-                            'description'             => $normalized['description'],
-                            'price_per_night'         => $normalized['price_per_night'],
-                            'original_price'          => $normalized['original_price'],
-                            'primary_image'           => $normalized['primary_image'],
-                            'images'                  => $normalized['images'],
-                            'amenities'               => $normalized['amenities'],
-                            'is_featured'             => $normalized['is_featured'],
-                            'status'                  => $overrideStatus,
-                            'rooms_left'              => rand(3, 12),
-                            'no_credit_card_required' => true,
-                            'free_cancellation'       => true,
-                        ]
+                        $updateData
                     );
 
                     // Ensure associated rooms exist
@@ -424,9 +431,14 @@ class HotelImporterService
             $images = [$primaryImage];
         }
 
-        // Extract Geo Coordinates
+        // Extract Geo Coordinates & Landmarks
         $lat = $summary['geoInfo']['latitude'] ?? $item['latitude'] ?? null;
         $lng = $summary['geoInfo']['longitude'] ?? $item['longitude'] ?? null;
+
+        $landmarks = $content['localInformation']['landmarks']['transportation'] ?? $item['localInformation']['landmarks']['transportation'] ?? [];
+        $landmarkName = $landmarks[0]['landmarkName'] ?? $content['localInformation']['landmarks']['topLandmark']['landmarkName'] ?? null;
+        $distanceInM  = $landmarks[0]['distanceInM'] ?? null;
+        $nearestLandmark = $landmarkName ? "{$landmarkName} (" . (round((float)$distanceInM / 1000, 1)) . " km)" : "City Center, {$city}";
 
         // Extract Amenities & Room Facilities
         $amenities = [];
@@ -447,8 +459,18 @@ class HotelImporterService
                 }
             }
         }
+        $contentFacs = $content['facilities'] ?? $item['facilities'] ?? [];
+        if (! empty($contentFacs) && is_array($contentFacs)) {
+            foreach ($contentFacs as $cf) {
+                if (is_string($cf)) {
+                    $amenities[] = $cf;
+                } elseif (is_array($cf) && ! empty($cf['name'])) {
+                    $amenities[] = $cf['name'];
+                }
+            }
+        }
         if (empty($amenities)) {
-            $amenities = $item['amenities'] ?? $item['facilities'] ?? ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
+            $amenities = ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
         }
 
         // Determine Property Type
@@ -462,22 +484,23 @@ class HotelImporterService
         elseif (str_contains($lowerName, 'stay') || str_contains($lowerName, 'home')) $type = Property::TYPE_HOMESTAY;
 
         return [
-            'name'            => $name,
-            'city'            => $city,
-            'address'         => (string)$address,
-            'type'            => $type,
-            'star_rating'     => $star,
-            'rating_score'    => $score,
-            'total_reviews'   => (int)$reviews,
-            'latitude'        => $lat,
-            'longitude'       => $lng,
-            'description'     => $item['description'] ?? "Experience luxury and modern comfort at {$name} in {$city}. High-speed WiFi, premier dining, and signature hospitality.",
-            'price_per_night' => $price,
-            'original_price'  => $originalPrice,
-            'primary_image'   => $primaryImage,
-            'images'          => array_values(array_unique(array_filter($images))),
-            'amenities'       => array_values(array_unique($amenities)),
-            'is_featured'     => ($star >= 4),
+            'name'             => $name,
+            'city'             => $city,
+            'address'          => (string)$address,
+            'type'             => $type,
+            'star_rating'      => $star,
+            'rating_score'     => $score,
+            'total_reviews'    => (int)$reviews,
+            'latitude'         => $lat,
+            'longitude'        => $lng,
+            'nearest_landmark' => $nearestLandmark,
+            'description'      => $item['description'] ?? "Experience luxury and modern comfort at {$name} in {$city}. High-speed WiFi, premier dining, and signature hospitality.",
+            'price_per_night'  => $price,
+            'original_price'   => $originalPrice,
+            'primary_image'    => $primaryImage,
+            'images'           => array_values(array_unique(array_filter($images))),
+            'amenities'        => array_values(array_unique($amenities)),
+            'is_featured'      => ($star >= 4),
         ];
     }
 

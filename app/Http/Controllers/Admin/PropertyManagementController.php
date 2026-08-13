@@ -14,21 +14,38 @@ class PropertyManagementController extends Controller
     {
         $query = Property::withCount('bookings')->latest();
 
-        if ($request->city) {
+        if ($request->filled('city')) {
             $query->where('city', 'like', '%' . $request->city . '%');
         }
-        if ($request->type && $request->type !== 'all') {
+        if ($request->filled('type') && $request->type !== 'all') {
             $query->where('type', $request->type);
         }
-        if ($request->status && $request->status !== 'all') {
-            $query->where('status', $request->status);
+        if ($request->filled('status') && $request->status !== 'all') {
+            if ($request->status === 'featured') {
+                $query->where('is_featured', true);
+            } else {
+                $query->where('status', $request->status);
+            }
         }
-        if ($request->search) {
-            $query->where('name', 'like', '%' . $request->search . '%');
+        if ($request->filled('search')) {
+            $s = '%' . trim($request->search) . '%';
+            $query->where(function ($q) use ($s) {
+                $q->where('name', 'like', $s)
+                  ->orWhere('city', 'like', $s)
+                  ->orWhere('address', 'like', $s);
+            });
         }
 
         $properties = $query->paginate(15)->withQueryString();
-        return view('admin.properties.index', compact('properties'));
+
+        $stats = [
+            'total'    => Property::count(),
+            'active'   => Property::where('status', 'active')->count(),
+            'featured' => Property::where('is_featured', true)->count(),
+            'inactive' => Property::where('status', 'inactive')->count(),
+        ];
+
+        return view('admin.properties.index', compact('properties', 'stats'));
     }
 
     public function create()

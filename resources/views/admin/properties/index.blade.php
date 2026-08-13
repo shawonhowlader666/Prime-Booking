@@ -1,5 +1,5 @@
 @extends('layouts.admin')
-@section('title', 'Property Inventory | PRIME BOOKING Admin')
+@section('title', 'Property Inventory & Hotel Listings — PRIME BOOKING Admin')
 
 @section('content')
 
@@ -8,14 +8,17 @@
     <div class="page-breadcrumb">
         <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
         <span class="sep">-</span><span>Inventory</span>
-        <span class="sep">-</span><strong style="color:#333;">Properties & Listings</strong>
+        <span class="sep">-</span><strong style="color:#333;">Properties &amp; Listings</strong>
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px; margin-top:6px;">
-        <h1 class="page-title">Property Inventory &amp; Hotel Listings</h1>
+        <div>
+            <h1 class="page-title">Property Inventory &amp; Hotel Listings</h1>
+            <span style="font-size:12px; color:#8c8c8c;">Manage all hotels, resorts, houseboats, and eco-cottages in Prime Booking</span>
+        </div>
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('inventoryTable')" title="Copy Table to Clipboard"><i class="fa-regular fa-copy"></i> Copy</button>
             <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('inventoryTable', 'properties')" title="Export to Excel"><i class="fa-solid fa-file-excel"></i> XL</button>
-            <button type="button" class="btn-export-csv" onclick="exportTableCSV('inventoryTable', 'properties')" title="Export to CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('inventoryTable', 'properties')" title="Export CSV"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button type="button" class="btn-export-pdf" onclick="exportTablePDF('inventoryTable', 'properties')" title="Export PDF"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button type="button" class="btn-tbl-print" onclick="printTable('inventoryTable')" title="Print Table"><i class="fa-solid fa-print"></i> Print</button>
             <a href="{{ route('admin.properties.create') }}" class="btn-add-primary ms-1"><i class="fa-solid fa-plus me-1"></i> Add New Listing</a>
@@ -23,7 +26,7 @@
     </div>
 </div>
 
-{{-- PAGE CONTENT --}}
+{{-- PAGE CONTENT AREA --}}
 <div class="page-content-area">
 
     @if(session('success'))
@@ -32,66 +35,121 @@
         </div>
     @endif
 
-    {{-- FILTER BAR --}}
-    <div class="page-filters-bar">
-        <form method="GET" action="{{ route('admin.properties.index') }}">
-            <div class="row g-2 align-items-end">
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">City / Region</label>
-                    <select name="city" class="form-select" onchange="this.form.submit()">
-                        <option value="">All Cities</option>
-                        <option>Cox's Bazar</option>
-                        <option>Dhaka</option>
-                        <option>Sylhet</option>
-                        <option>Sajek</option>
-                        <option>Sundarban</option>
-                        <option>Kuakata</option>
-                    </select>
-                </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Property Type</label>
-                    <select name="type" class="form-select" onchange="this.form.submit()">
-                        <option value="all">All Types</option>
-                        <option value="hotel">Hotel &amp; Resort</option>
-                        <option value="houseboat">Ship &amp; Houseboat</option>
-                        <option value="homestay">Eco Cottage</option>
-                    </select>
-                </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Listing Status</label>
-                    <select name="status" class="form-select" onchange="this.form.submit()">
-                        <option value="all">All Properties</option>
-                        <option value="active">Active / Listed</option>
-                        <option value="inactive">Draft / Unlisted</option>
-                    </select>
-                </div>
-                <div class="col-12 col-sm-6 col-md-3">
-                    <label class="form-label">Search Listings</label>
-                    <div style="display:flex;">
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control" placeholder="Search by name…" style="border-radius:4px 0 0 4px !important; border-right:none;">
-                        <button class="btn-search" type="submit"><i class="fa-solid fa-magnifying-glass"></i></button>
+    {{-- KPI SUMMARY ROW --}}
+    <div class="row g-3 mb-4">
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">TOTAL PROPERTIES</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#1e293b; margin:0;">{{ $stats['total'] ?? count($properties) }} Listings</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-hotel"></i>
                     </div>
                 </div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE &amp; PUBLISHED</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['active'] ?? 0 }} Active</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#28c76f;"></div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">FEATURED LISTINGS</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['featured'] ?? 0 }} Featured</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f0eefc; color:#7367f0; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#7367f0;"></div>
+            </div>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">INACTIVE / DRAFT</p>
+                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $stats['inactive'] ?? 0 }} Inactive</p>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-eye-slash"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
+            </div>
+        </div>
+    </div>
+
+    {{-- STOCKIFLY FILTER BAR --}}
+    <div class="card border border-gray-200 rounded-3 mb-4 bg-white p-3 shadow-xs" style="border-radius: 8px !important;">
+        <form method="GET" action="{{ route('admin.properties.index') }}" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="city" class="form-select form-select-sm" style="font-size: 13px;">
+                    <option value="">All Cities / Regions</option>
+                    <option value="Cox's Bazar" {{ request('city') == "Cox's Bazar" ? 'selected' : '' }}>Cox's Bazar</option>
+                    <option value="Dhaka" {{ request('city') == 'Dhaka' ? 'selected' : '' }}>Dhaka</option>
+                    <option value="Sylhet" {{ request('city') == 'Sylhet' ? 'selected' : '' }}>Sylhet</option>
+                    <option value="Sajek" {{ request('city') == 'Sajek' ? 'selected' : '' }}>Sajek</option>
+                    <option value="Sundarban" {{ request('city') == 'Sundarban' ? 'selected' : '' }}>Sundarban</option>
+                    <option value="Kuakata" {{ request('city') == 'Kuakata' ? 'selected' : '' }}>Kuakata</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select form-select-sm" style="font-size: 13px;">
+                    <option value="all" {{ request('type') == 'all' ? 'selected' : '' }}>All Property Types</option>
+                    <option value="hotel" {{ request('type') == 'hotel' ? 'selected' : '' }}>Hotel &amp; Resort</option>
+                    <option value="houseboat" {{ request('type') == 'houseboat' ? 'selected' : '' }}>Ship &amp; Houseboat</option>
+                    <option value="homestay" {{ request('type') == 'homestay' ? 'selected' : '' }}>Eco Cottage &amp; Homestay</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm" style="font-size: 13px;">
+                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Properties</option>
+                    <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active / Listed</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Draft / Unlisted</option>
+                    <option value="featured" {{ request('status') == 'featured' ? 'selected' : '' }}>Featured Only</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search by name..." style="font-size: 13px;">
+            </div>
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" style="background-color: #2067e1; font-size: 12.5px;">
+                    <i class="fa-solid fa-filter me-1"></i> Filter
+                </button>
+                @if(request()->hasAny(['city', 'type', 'status', 'search']))
+                    <a href="{{ route('admin.properties.index') }}" class="btn btn-light btn-sm text-secondary border fw-bold" title="Reset Filters" style="font-size: 12.5px;">Reset</a>
+                @endif
             </div>
         </form>
     </div>
 
-    <div class="data-table-card">
-        <div class="data-table-card-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px;">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <h6 style="margin:0;">All Hotel, Ship &amp; Cottage Inventory Items</h6>
-                <span style="font-size:12px; color:#8c8c8c;">
-                    ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)
-                </span>
-            </div>
-            <div class="tbl-search-wrap">
-                <i class="fa-solid fa-magnifying-glass tbl-search-icon"></i>
-                <input type="text" class="tbl-search-input" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
+    {{-- SAAS DATA TABLE CARD --}}
+    <div class="data-table-card p-0">
+        <div class="saas-table-toolbar">
+            <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-hotel me-1 text-primary"></i> All Hotel, Ship &amp; Cottage Inventory Items ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)</h6>
+            <div style="width:240px;">
+                <input type="text" class="form-control form-control-sm" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
             </div>
         </div>
 
-        <div style="overflow-x:auto;">
-            <table class="table-stockifly" id="inventoryTable" style="width:100%;">
+        <div class="table-responsive">
+            <table class="table table-stockifly mb-0" id="inventoryTable">
                 <thead>
                     <tr>
                         <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('inventoryTable', this)" title="Select All Rows"></th>
@@ -102,7 +160,7 @@
                         <th>Rating</th>
                         <th>Featured</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Actions <div style="position:relative; display:inline-block; margin-left:4px;"><button type="button" class="btn-tbl-gear" onclick="toggleColVis('inventoryTable', this)" title="Column Settings"><i class="fa-solid fa-gear"></i></button><div class="col-vis-dropdown" id="colVisDropdown_inventoryTable" style="display:none;"></div></div></th>
+                        <th style="text-align:right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -114,14 +172,14 @@
                                 <img src="{{ $p->primary_image ?? 'https://placehold.co/50x38/1890ff/white?text=Hotel' }}"
                                      style="width:50px; height:38px; object-fit:cover; border-radius:5px; border:1px solid #e8e8e8;" alt="">
                                 <div>
-                                    <strong style="font-size:13px; color:#1e293b; display:block;">{{ $p->name }}</strong>
+                                    <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit($p->name, 35) }}</strong>
                                     <span style="font-size:10.5px; color:#8c8c8c;">ID: #PROP-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</span>
                                 </div>
                             </div>
                         </td>
                         <td><span class="badge-gateway">{{ strtoupper($p->type ?? 'HOTEL') }}</span></td>
-                        <td><strong style="font-size:12.5px; color:#334155;"><i class="fa-solid fa-location-dot" style="color:var(--primary);"></i> {{ $p->city ?? 'Bangladesh' }}</strong></td>
-                        <td><strong style="color:var(--primary); font-size:13px;">BDT {{ number_format($p->price_per_night ?? 0) }}</strong></td>
+                        <td><strong style="font-size:12.5px; color:#334155;"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ $p->city ?? 'Bangladesh' }}</strong></td>
+                        <td><strong style="color:#2067e1; font-size:13px;">BDT {{ number_format($p->price_per_night ?? 0) }}</strong></td>
                         <td><span style="color:#ff9f43; font-size:12px;">{{ str_repeat('★', $p->star_rating ?? 5) }}</span></td>
                         <td>
                             @if($p->is_featured ?? false)
@@ -135,7 +193,7 @@
                                 {{ ($p->status ?? 'active') == 'active' ? 'Active' : 'Inactive' }}
                             </span>
                         </td>
-                        <td style="text-align:right; white-space:nowrap;">
+                        <td style="text-align:right;">
                             <div class="dropdown action-gear-dropdown d-inline-block">
                                 <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
@@ -180,13 +238,17 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align:center; padding:40px; color:#8c8c8c;">
-                            <i class="fa-solid fa-hotel" style="font-size:32px; color:#d9d9d9; display:block; margin-bottom:10px;"></i>
-                            <strong style="display:block; font-size:14px; color:#1e293b; margin-bottom:6px;">No Properties Found</strong>
-                            <span style="font-size:12.5px;">Click "Add New Listing" above to onboard your first hotel, resort, or ship.</span><br>
-                            <a href="{{ route('admin.properties.create') }}" class="btn-add-primary" style="margin-top:12px; display:inline-flex;">
-                                <i class="fa-solid fa-plus"></i> Add First Property
-                            </a>
+                        <td colspan="9" class="text-center py-5" style="background:#ffffff;">
+                            <div style="max-width:340px; margin:0 auto; padding:24px 0;">
+                                <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                                    <i class="fa-solid fa-hotel"></i>
+                                </div>
+                                <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Properties Found</h6>
+                                <p style="font-size:12px; color:#64748b; margin-bottom:16px;">No hotels or resort listings match your search criteria.</p>
+                                <a href="{{ route('admin.properties.create') }}" class="btn btn-primary btn-sm fw-bold px-3" style="background-color: #2067e1;">
+                                    <i class="fa-solid fa-plus me-1"></i> Add First Property
+                                </a>
+                            </div>
                         </td>
                     </tr>
                 @endforelse
@@ -199,4 +261,5 @@
 
 </div>
 @endsection
+
 

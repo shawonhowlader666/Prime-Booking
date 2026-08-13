@@ -317,7 +317,9 @@
             color: #ffffff !important;
             height: 34px;
             font-size: 12.5px;
-            border-radius: 6px !important;
+            padding-left: 34px !important;
+            padding-right: 12px !important;
+            border-radius: 4px !important;
             font-weight: 500;
             transition: all 0.15s ease-in-out;
         }
@@ -327,17 +329,21 @@
             border-color: #fa8c16 !important;
             color: #ffffff !important;
             box-shadow: 0 0 0 2px rgba(250, 140, 22, 0.25) !important;
+            outline: none !important;
         }
 
-        /* ===== Page Header (Attached Seamlessly to Topbar) ===== */
+        /* ===== Page Header — Full-width attached seamlessly below navbar ===== */
         .page-header-card {
             background: #ffffff;
-            border: 1px solid #e8e8e8;
+            border-bottom: 1px solid #e8e8e8;
             border-top: none;
-            padding: 16px 24px;
-            margin: 0 24px 20px 24px;
-            border-radius: 0 0 4px 4px !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            border-left: none;
+            border-right: none;
+            padding: 14px 24px;
+            margin: 0 0 20px 0;
+            width: 100%;
+            border-radius: 0 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         }
         .page-breadcrumb {
             font-size:12px; color:#8c8c8c; margin-bottom:6px;
@@ -868,12 +874,10 @@
                 </button>
                 <span class="engine-badge d-none d-xl-inline-flex"><i class="fa-solid fa-hotel me-1"></i> VENDOR PARTNER PORTAL</span>
                 
-                <!-- Global Omni-Search Bar -->
-                <form action="{{ route('vendor.properties.index') }}" method="GET" class="d-none d-md-flex align-items-center position-relative m-0 ms-2" style="width: 300px;">
-                    <span class="position-absolute start-0 ms-2.5" style="font-size: 12px; color: rgba(255,255,255,0.5); pointer-events: none; z-index: 5;">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                    <input type="text" name="q" class="form-control topbar-global-search-input ps-4 pe-2" placeholder="Search properties, bookings..." value="{{ request('q') }}">
+                <!-- Topbar Search Bar (Sleek Compact 230px) -->
+                <form action="{{ route('vendor.properties.index') }}" method="GET" class="d-none d-md-flex align-items-center position-relative m-0 ms-2" style="width: 230px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.45); font-size: 12px; pointer-events: none; z-index: 5;"></i>
+                    <input type="text" name="q" class="form-control topbar-global-search-input" placeholder="Search..." value="{{ request('q') }}">
                 </form>
             </div>
             <div class="admin-topbar-right">

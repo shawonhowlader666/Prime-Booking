@@ -477,20 +477,22 @@
         .btn-sidebar-collapse:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.3); }
         #stockiflySidebar.sb-collapsed .btn-sidebar-collapse { margin: 0 auto; }
 
-        /* ─── Global Topbar Omni-Search ───────────────────────── */
+        /* ─── Global Topbar Search ───────────────────────── */
         .topbar-global-search-input {
             background: rgba(255, 255, 255, 0.08) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border: 1px solid rgba(255, 255, 255, 0.14) !important;
             color: #ffffff !important;
-            height: 34px;
-            font-size: 12.5px;
-            border-radius: 6px !important;
+            height: 32px;
+            font-size: 12px;
+            padding-left: 30px !important;
+            padding-right: 10px !important;
+            border-radius: 4px !important;
             font-weight: 500;
             transition: all 0.15s ease-in-out;
         }
 
         .topbar-global-search-input::placeholder {
-            color: rgba(255, 255, 255, 0.5) !important;
+            color: rgba(255, 255, 255, 0.45) !important;
             font-weight: 400;
         }
 
@@ -498,20 +500,24 @@
             background: rgba(255, 255, 255, 0.14) !important;
             border-color: #1890ff !important;
             color: #ffffff !important;
-            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.25) !important;
+            box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.2) !important;
+            outline: none !important;
         }
 
         /* ============================================================
-         * Page Header (AdminPageHeader) — Attached Seamlessly to Topbar
+         * Page Header — Full-width attached seamlessly below navbar
          * ============================================================ */
         .page-header-card {
             background: #ffffff;
-            border: 1px solid #e8e8e8;
+            border-bottom: 1px solid #e8e8e8;
             border-top: none;
-            padding: 16px 24px;
-            margin: 0 24px 20px 24px;
-            border-radius: 0 0 4px 4px !important;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
+            border-left: none;
+            border-right: none;
+            padding: 14px 24px;
+            margin: 0 0 20px 0;
+            width: 100%;
+            border-radius: 0 !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
         }
 
         .page-breadcrumb {
@@ -1692,12 +1698,10 @@
                 </button>
                 <span class="engine-badge d-none d-xl-inline-flex"><span class="pulse-dot"></span> PRIME BOOKING ENGINE v1.0</span>
                 
-                <!-- Global Omni-Search Bar (Agoda / Enterprise SaaS Standard) -->
-                <form action="{{ route('admin.properties.index') }}" method="GET" class="d-none d-md-flex align-items-center position-relative m-0 ms-2" style="width: 320px;">
-                    <span class="position-absolute start-0 ms-2.5" style="font-size: 12px; color: rgba(255,255,255,0.5); pointer-events: none; z-index: 5;">
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                    </span>
-                    <input type="text" name="q" class="form-control topbar-global-search-input ps-4 pe-2" placeholder="Global Search (Hotels, Bookings, Cities...)" value="{{ request('q') }}">
+                <!-- Topbar Search Bar (Sleek Compact 230px) -->
+                <form action="{{ route('admin.properties.index') }}" method="GET" class="d-none d-md-flex align-items-center position-relative m-0 ms-2" style="width: 230px;">
+                    <i class="fa-solid fa-magnifying-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.45); font-size: 12px; pointer-events: none; z-index: 5;"></i>
+                    <input type="text" name="q" class="form-control topbar-global-search-input" placeholder="Search..." value="{{ request('q') }}">
                 </form>
             </div>
 

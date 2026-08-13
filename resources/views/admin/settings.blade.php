@@ -329,6 +329,94 @@
                                     </div>
                                 </div>
                             </div>
+
+                            {{-- MERCHANT CREDENTIALS & API KEYS --}}
+                            <div class="saas-section-title mt-4 mb-3 pb-2 border-bottom">
+                                <i class="fa-solid fa-key me-1"></i> Payment Gateway API Credentials &amp; Merchant Keys
+                            </div>
+                            <div class="row g-3">
+                                {{-- bKash API Credentials --}}
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light h-100">
+                                        <h6 class="fw-bold mb-2.5 text-danger" style="font-size:13px;"><i class="fa-solid fa-mobile-screen-button me-1"></i> bKash Merchant Tokenized API</h6>
+                                        <div class="mb-2">
+                                            <label class="saas-label">bKash App Key</label>
+                                            <input type="text" name="bkash_app_key" class="form-control saas-input" value="{{ old('bkash_app_key', $siteSettings['bkash_app_key']) }}" placeholder="Enter bKash App Key">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="saas-label">bKash App Secret</label>
+                                            <input type="password" name="bkash_app_secret" class="form-control saas-input" value="{{ old('bkash_app_secret', $siteSettings['bkash_app_secret']) }}" placeholder="Enter bKash App Secret">
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="saas-label">Merchant Username</label>
+                                                <input type="text" name="bkash_username" class="form-control saas-input" value="{{ old('bkash_username', $siteSettings['bkash_username']) }}">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="saas-label">Merchant Password</label>
+                                                <input type="password" name="bkash_password" class="form-control saas-input" value="{{ old('bkash_password', $siteSettings['bkash_password']) }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- SSLCommerz / Card Credentials --}}
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light h-100">
+                                        <h6 class="fw-bold mb-2.5 text-primary" style="font-size:13px;"><i class="fa-solid fa-credit-card me-1"></i> SSLCommerz Merchant Credentials</h6>
+                                        <div class="mb-2">
+                                            <label class="saas-label">SSLCommerz Store ID</label>
+                                            <input type="text" name="sslcommerz_store_id" class="form-control saas-input" value="{{ old('sslcommerz_store_id', $siteSettings['sslcommerz_store_id']) }}" placeholder="e.g. primebookinglive">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="saas-label">SSLCommerz Store Password</label>
+                                            <input type="password" name="sslcommerz_store_passwd" class="form-control saas-input" value="{{ old('sslcommerz_store_passwd', $siteSettings['sslcommerz_store_passwd']) }}" placeholder="Enter Store Password">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Nagad API Credentials --}}
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light h-100">
+                                        <h6 class="fw-bold mb-2.5 text-warning" style="font-size:13px;"><i class="fa-solid fa-wallet me-1"></i> Nagad Merchant Direct Pay API</h6>
+                                        <div class="mb-2">
+                                            <label class="saas-label">Nagad Merchant ID</label>
+                                            <input type="text" name="nagad_merchant_id" class="form-control saas-input" value="{{ old('nagad_merchant_id', $siteSettings['nagad_merchant_id']) }}">
+                                        </div>
+                                        <div class="mb-2">
+                                            <label class="saas-label">Nagad Public Key</label>
+                                            <input type="text" name="nagad_public_key" class="form-control saas-input" value="{{ old('nagad_public_key', $siteSettings['nagad_public_key']) }}">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Stripe & PayPal International --}}
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded bg-light h-100">
+                                        <h6 class="fw-bold mb-2.5 text-info" style="font-size:13px;"><i class="fa-solid fa-globe me-1"></i> Stripe &amp; PayPal API Credentials</h6>
+                                        <div class="row g-2 mb-2">
+                                            <div class="col-6">
+                                                <label class="saas-label">Stripe Publishable Key</label>
+                                                <input type="text" name="stripe_key" class="form-control saas-input" value="{{ old('stripe_key', $siteSettings['stripe_key']) }}">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="saas-label">Stripe Secret Key</label>
+                                                <input type="password" name="stripe_secret" class="form-control saas-input" value="{{ old('stripe_secret', $siteSettings['stripe_secret']) }}">
+                                            </div>
+                                        </div>
+                                        <div class="row g-2">
+                                            <div class="col-6">
+                                                <label class="saas-label">PayPal Client ID</label>
+                                                <input type="text" name="paypal_client_id" class="form-control saas-input" value="{{ old('paypal_client_id', $siteSettings['paypal_client_id']) }}">
+                                            </div>
+                                            <div class="col-6">
+                                                <label class="saas-label">PayPal Secret Key</label>
+                                                <input type="password" name="paypal_secret" class="form-control saas-input" value="{{ old('paypal_secret', $siteSettings['paypal_secret']) }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 

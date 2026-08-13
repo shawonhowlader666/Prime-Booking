@@ -43,14 +43,28 @@ class SettingsController extends Controller
             'vip_platinum_discount'    => SiteSetting::get('vip_platinum_discount', '12'),
             'vip_diamond_discount'     => SiteSetting::get('vip_diamond_discount', '18'),
 
-            // Payments
+            // Payments & Gateway Toggles
             'enable_bkash'              => SiteSetting::get('payment_bkash_enabled', '1'),
             'enable_nagad'              => SiteSetting::get('payment_nagad_enabled', '1'),
             'enable_card'               => SiteSetting::get('payment_card_enabled', '1'),
             'enable_stripe'             => SiteSetting::get('payment_stripe_enabled', '0'),
             'enable_paypal'             => SiteSetting::get('payment_paypal_enabled', '0'),
 
-            // SMTP
+            // Payment Merchant API Credentials
+            'bkash_app_key'             => SiteSetting::get('bkash_app_key', ''),
+            'bkash_app_secret'          => SiteSetting::get('bkash_app_secret', ''),
+            'bkash_username'            => SiteSetting::get('bkash_username', ''),
+            'bkash_password'            => SiteSetting::get('bkash_password', ''),
+            'nagad_merchant_id'         => SiteSetting::get('nagad_merchant_id', ''),
+            'nagad_public_key'          => SiteSetting::get('nagad_public_key', ''),
+            'sslcommerz_store_id'       => SiteSetting::get('sslcommerz_store_id', ''),
+            'sslcommerz_store_passwd'   => SiteSetting::get('sslcommerz_store_passwd', ''),
+            'stripe_key'                => SiteSetting::get('stripe_key', ''),
+            'stripe_secret'             => SiteSetting::get('stripe_secret', ''),
+            'paypal_client_id'          => SiteSetting::get('paypal_client_id', ''),
+            'paypal_secret'             => SiteSetting::get('paypal_secret', ''),
+
+            // SMTP Gateway
             'mail_host'                 => SiteSetting::get('mail_host', 'smtp.mailtrap.io'),
             'mail_port'                 => SiteSetting::get('mail_port', '2525'),
             'mail_username'             => SiteSetting::get('mail_username', ''),
@@ -90,6 +104,10 @@ class SettingsController extends Controller
             'max_guests_per_booking', 'cancellation_free_hours',
             'vip_silver_threshold', 'vip_gold_threshold', 'vip_platinum_threshold', 'vip_diamond_threshold',
             'vip_silver_discount', 'vip_gold_discount', 'vip_platinum_discount', 'vip_diamond_discount',
+            'bkash_app_key', 'bkash_app_secret', 'bkash_username', 'bkash_password',
+            'nagad_merchant_id', 'nagad_public_key',
+            'sslcommerz_store_id', 'sslcommerz_store_passwd',
+            'stripe_key', 'stripe_secret', 'paypal_client_id', 'paypal_secret',
             'mail_host', 'mail_port', 'mail_username', 'mail_password', 'mail_encryption',
             'mail_from_name', 'mail_from_address'
         ];

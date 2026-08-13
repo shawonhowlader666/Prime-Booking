@@ -143,7 +143,7 @@
                                     </li>
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
-                                        <form action="{{ route('destinations.destroy', $d->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this destination banner?');">
+                                        <form action="{{ route('admin.destinations.destroy', $d->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this destination banner?');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
@@ -160,7 +160,7 @@
                     <div class="modal fade" id="editModal{{ $d->id }}" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
                             <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <form action="{{ route('destinations.update', $d->id) }}" method="POST" enctype="multipart/form-data">
+                                <form action="{{ route('admin.destinations.update', $d->id) }}" method="POST" enctype="multipart/form-data">
                                     @csrf
                                     @method('PUT')
                                     <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
@@ -246,7 +246,7 @@
 <div class="modal fade" id="createDestinationModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-            <form action="{{ route('destinations.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('admin.destinations.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
                     <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
@@ -274,6 +274,16 @@
                     <div class="mb-3">
                         <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Tagline Description</label>
                         <textarea name="description" class="form-control" rows="2" placeholder="e.g. World's longest natural sea beach with 5-star resorts" style="font-size:13px; border-radius:4px;"></textarea>
+                    </div>
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Starting Price (BDT / Night)</label>
+                            <input type="number" step="0.01" name="min_price_override" class="form-control" placeholder="e.g. 2500" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hotels Count Override</label>
+                            <input type="number" name="property_count_override" class="form-control" placeholder="Auto-calculated if blank" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
                     </div>
                     <div class="row g-2.5 mb-3">
                         <div class="col-6">

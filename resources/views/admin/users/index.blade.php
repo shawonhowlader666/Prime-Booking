@@ -195,6 +195,12 @@
                                             <i class="fa-solid fa-eye text-primary me-2"></i> View Profile &amp; History
                                         </a>
                                     </li>
+                                    <li>
+                                        <button type="button" class="dropdown-item py-1.5 px-3 text-dark"
+                                            onclick="openEditUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->email) }}', '{{ addslashes($u->phone ?? '') }}', '{{ $u->role }}', '{{ $u->status ?? 'active' }}')">
+                                            <i class="fa-solid fa-user-pen text-warning me-2"></i> Quick Edit Account
+                                        </button>
+                                    </li>
                                     @if($u->role === 'customer')
                                     <li>
                                         <form action="{{ route('admin.users.promote-vendor', $u->id) }}" method="POST" class="m-0">
@@ -298,4 +304,79 @@
         </div>
     </div>
 </div>
+
+{{-- EDIT USER MODAL --}}
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-user-pen text-warning me-2"></i> Edit Account — <span id="editUserModalName" style="color:var(--primary);"></span>
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form id="editUserForm" method="POST">
+                @csrf @method('PUT')
+                <div class="modal-body" style="padding:20px;">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Full Name <span style="color:#ff4d4f;">*</span></label>
+                        <input type="text" name="name" id="editUserName" class="form-control" required style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Email Address <span style="color:#ff4d4f;">*</span></label>
+                        <input type="email" name="email" id="editUserEmail" class="form-control" required style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Phone Number</label>
+                            <input type="text" name="phone" id="editUserPhone" class="form-control" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Role Privilege</label>
+                            <select name="role" id="editUserRole" class="form-select" style="font-size:13px; height:38px; border-radius:4px;">
+                                <option value="customer">Guest / Customer</option>
+                                <option value="vendor">Vendor Partner</option>
+                                <option value="admin">Administrator</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Status</label>
+                            <select name="status" id="editUserStatus" class="form-select" style="font-size:13px; height:38px; border-radius:4px;">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="banned">Banned / Suspended</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Reset Password (Optional)</label>
+                            <input type="password" name="password" class="form-control" placeholder="Leave blank to keep same" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Update Account <i class="fa-solid fa-check ms-1"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@endsection
+
+@section('scripts')
+<script>
+function openEditUserModal(id, name, email, phone, role, status) {
+    document.getElementById('editUserForm').action = '/admin/users/' + id;
+    document.getElementById('editUserModalName').textContent = name;
+    document.getElementById('editUserName').value  = name;
+    document.getElementById('editUserEmail').value = email;
+    document.getElementById('editUserPhone').value = phone || '';
+    document.getElementById('editUserRole').value  = role;
+    document.getElementById('editUserStatus').value= status || 'active';
+    new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+</script>
 @endsection

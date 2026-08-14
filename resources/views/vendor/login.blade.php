@@ -195,7 +195,7 @@
                         Remember me
                     </label>
                 </div>
-                <a href="{{ route('host.property') }}" style="color: #34d399; text-decoration: none; font-weight: 600;">List your Property?</a>
+                <a href="{{ route('contact') }}" style="color: #34d399; text-decoration: none; font-weight: 600;">List your Property?</a>
             </div>
 
             <!-- Submit Button -->
@@ -230,8 +230,8 @@
         const autofillVendorBtn = document.getElementById('btnVendorAutofill');
         if (autofillVendorBtn) {
             autofillVendorBtn.addEventListener('click', function() {
-                document.getElementById('vendorEmail').value = 'vendor@primebooking.com';
-                document.getElementById('vendorPassword').value = 'password123';
+                document.getElementById('vendorEmail').value = 'vendor@primebooking.com.bd';
+                document.getElementById('vendorPassword').value = 'vendor123';
             });
         }
     </script>

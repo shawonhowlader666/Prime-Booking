@@ -149,7 +149,7 @@
             </div>
         @endif
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
             <div class="alert alert-danger border-0 rounded-3 mb-3 py-2" style="font-size: 13px; background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3);">
                 <i class="fa-solid fa-circle-exclamation me-1"></i> {{ $errors->first() }}
             </div>

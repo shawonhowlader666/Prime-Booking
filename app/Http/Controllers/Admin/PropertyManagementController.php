@@ -199,6 +199,50 @@ class PropertyManagementController extends Controller
         return back()->with('success', $msg);
     }
 
+    /** Explicitly approve a vendor property and publish it live */
+    public function approve($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->update(['status' => 'active']);
+        return back()->with('success', '✅ Property "' . $property->name . '" has been approved and is now live on the website!');
+    }
+
+    /** Explicitly reject/unpublish a vendor property */
+    public function reject($id)
+    {
+        $property = Property::findOrFail($id);
+        $property->update(['status' => 'inactive']);
+        return back()->with('success', '⚠️ Property "' . $property->name . '" status set to Inactive/Rejected.');
+    }
+
+    /** Handle Bulk Actions for selected properties (Approve, Deactivate, Delete) */
+    public function bulkAction(Request $request)
+    {
+        $ids    = $request->input('ids', []);
+        $action = $request->input('bulk_action');
+
+        if (empty($ids) || !is_array($ids)) {
+            return back()->with('error', 'Please select at least one property to apply bulk action.');
+        }
+
+        if ($action === 'approve') {
+            Property::whereIn('id', $ids)->update(['status' => 'active']);
+            return back()->with('success', '✅ Selected ' . count($ids) . ' properties approved and published live!');
+        }
+
+        if ($action === 'deactivate') {
+            Property::whereIn('id', $ids)->update(['status' => 'inactive']);
+            return back()->with('success', 'Selected ' . count($ids) . ' properties deactivated.');
+        }
+
+        if ($action === 'delete') {
+            Property::whereIn('id', $ids)->delete();
+            return back()->with('success', 'Selected ' . count($ids) . ' properties deleted permanently.');
+        }
+
+        return back()->with('error', 'Invalid bulk action selected.');
+    }
+
     public function destroy($id)
     {
         $property = Property::findOrFail($id);

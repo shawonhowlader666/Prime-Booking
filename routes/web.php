@@ -133,6 +133,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/properties/{id}/edit', [PropertyManagementController::class, 'edit'])->name('properties.edit');
     Route::put('/properties/{id}', [PropertyManagementController::class, 'update'])->name('properties.update');
     Route::post('/properties/{id}/status', [PropertyManagementController::class, 'toggleStatus'])->name('properties.toggle-status');
+    Route::post('/properties/{id}/approve', [PropertyManagementController::class, 'approve'])->name('properties.approve');
+    Route::post('/properties/{id}/reject', [PropertyManagementController::class, 'reject'])->name('properties.reject');
+    Route::post('/properties/bulk-action', [PropertyManagementController::class, 'bulkAction'])->name('properties.bulk-action');
     Route::delete('/properties/{id}', [PropertyManagementController::class, 'destroy'])->name('properties.destroy');
 
     // Room Types Management (nested under property)

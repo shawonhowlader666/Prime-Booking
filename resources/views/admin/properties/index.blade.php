@@ -136,140 +136,167 @@
             </div>
         </form>
     </div>
-
     {{-- SAAS DATA TABLE CARD --}}
-    <div class="data-table-card p-0">
-        <div class="saas-table-toolbar">
-            <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-hotel me-1 text-primary"></i> All Hotel, Ship &amp; Cottage Inventory Items ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)</h6>
-            <div style="width:240px;">
-                <input type="text" class="form-control form-control-sm" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
+    <form action="{{ route('admin.properties.bulk-action') }}" method="POST" id="bulkPropertiesForm">
+        @csrf
+        <div class="data-table-card p-0">
+            <div class="saas-table-toolbar d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-2">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-hotel me-1 text-primary"></i> All Inventory Items ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)</h6>
+                    {{-- Bulk Action Dropdown --}}
+                    <div class="d-flex align-items-center gap-1 ms-3">
+                        <select name="bulk_action" class="form-select form-select-sm" style="font-size:12px; width:150px; height:32px;">
+                            <option value="">Bulk Actions...</option>
+                            <option value="approve">✅ Approve Selected</option>
+                            <option value="deactivate">⏸️ Deactivate Selected</option>
+                            <option value="delete">❌ Delete Selected</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-primary fw-bold" style="height:32px; font-size:11.5px;" onclick="return confirm('Apply bulk action to selected properties?')">Apply</button>
+                    </div>
+                </div>
+                <div style="width:240px;">
+                    <input type="text" class="form-control form-control-sm" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
+                </div>
             </div>
-        </div>
 
-        <div class="table-responsive">
-            <table class="table stockifly-data-table align-middle mb-0" id="inventoryTable">
-                <thead>
-                    <tr>
-                        <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('inventoryTable', this)" title="Select All Rows"></th>
-                        <th>Property Image &amp; Title</th>
-                        <th>Category</th>
-                        <th>City / Location</th>
-                        <th>Base Price/Night</th>
-                        <th>Rating</th>
-                        <th>Featured</th>
-                        <th>Status</th>
-                        <th style="text-align:right;">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                @forelse($properties ?? [] as $p)
-                    <tr>
-                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
-                        <td>
-                            <div style="display:flex; align-items:center; gap:10px;">
-                                <img src="{{ $p->primary_image ?? 'https://placehold.co/50x38/1890ff/white?text=Hotel' }}"
-                                     style="width:50px; height:38px; object-fit:cover; border-radius:5px; border:1px solid #e8e8e8;" alt="">
-                                <div>
-                                    <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit($p->name, 35) }}</strong>
-                                    <span style="font-size:10.5px; color:#8c8c8c;">ID: #PROP-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <div class="table-responsive">
+                <table class="table stockifly-data-table align-middle mb-0" id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('inventoryTable', this)" title="Select All Rows"></th>
+                            <th>Property Image &amp; Title</th>
+                            <th>Category</th>
+                            <th>City / Location</th>
+                            <th>Base Price/Night</th>
+                            <th>Rating</th>
+                            <th>Featured</th>
+                            <th>Status</th>
+                            <th style="text-align:right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @forelse($properties ?? [] as $p)
+                        <tr>
+                            <td style="text-align:center;"><input type="checkbox" name="ids[]" value="{{ $p->id }}" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
+                            <td>
+                                <div style="display:flex; align-items:center; gap:10px;">
+                                    <img src="{{ $p->primary_image ?? 'https://placehold.co/50x38/1890ff/white?text=Hotel' }}"
+                                         style="width:50px; height:38px; object-fit:cover; border-radius:5px; border:1px solid #e8e8e8;" alt="">
+                                    <div>
+                                        <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit($p->name, 35) }}</strong>
+                                        <span style="font-size:10.5px; color:#8c8c8c;">ID: #PROP-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                    </div>
                                 </div>
-                            </div>
-                        </td>
-                        <td><span class="badge-gateway">{{ strtoupper($p->type ?? 'HOTEL') }}</span></td>
-                        <td><strong style="font-size:12.5px; color:#334155;"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ $p->city ?? 'Bangladesh' }}</strong></td>
-                        <td><strong style="color:#2067e1; font-size:13px;">BDT {{ number_format($p->price_per_night ?? 0) }}</strong></td>
-                        <td><span style="color:#ff9f43; font-size:12px;">{{ str_repeat('★', $p->star_rating ?? 5) }}</span></td>
-                        <td>
-                            @if($p->is_featured ?? false)
-                                <span class="badge-status confirmed">Featured</span>
-                            @else
-                                <span style="font-size:11px; color:#8c8c8c;">Normal</span>
-                            @endif
-                        </td>
-                        <td>
-                            @if(($p->status ?? '') == 'active')
-                                <span class="badge-status active">Active</span>
-                            @elseif(($p->status ?? '') == 'pending')
-                                <span class="badge-status pending" style="background:#fff7e6; color:#d46b08; border:1px solid #ffd591; padding:3px 8px; border-radius:4px; font-weight:600; font-size:11.5px;">Pending Review</span>
-                            @else
-                                <span class="badge-status cancelled">Inactive</span>
-                            @endif
-                        </td>
-                        <td style="text-align:right;">
-                            @if(($p->status ?? '') == 'pending')
-                                <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" class="d-inline-block me-1">
-                                    @csrf
-                                    <button type="submit" class="btn btn-sm btn-success fw-bold text-white px-2 py-1" style="font-size:11px; border-radius:4px;" title="Approve & Publish Live">
-                                        <i class="fa-solid fa-check me-1"></i> Approve
+                            </td>
+                            <td><span class="badge-gateway">{{ strtoupper($p->type ?? 'HOTEL') }}</span></td>
+                            <td><strong style="font-size:12.5px; color:#334155;"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ $p->city ?? 'Bangladesh' }}</strong></td>
+                            <td><strong style="color:#2067e1; font-size:13px;">BDT {{ number_format($p->price_per_night ?? 0) }}</strong></td>
+                            <td><span style="color:#ff9f43; font-size:12px;">{{ str_repeat('★', $p->star_rating ?? 5) }}</span></td>
+                            <td>
+                                @if($p->is_featured ?? false)
+                                    <span class="badge-status confirmed">Featured</span>
+                                @else
+                                    <span style="font-size:11px; color:#8c8c8c;">Normal</span>
+                                @endif
+                            </td>
+                            <td>
+                                @if(($p->status ?? '') == 'active')
+                                    <span class="badge-status active">Active</span>
+                                @elseif(($p->status ?? '') == 'pending')
+                                    <span class="badge-status pending" style="background:#fff7e6; color:#d46b08; border:1px solid #ffd591; padding:3px 8px; border-radius:4px; font-weight:600; font-size:11.5px;">Pending Review</span>
+                                @else
+                                    <span class="badge-status cancelled">Inactive</span>
+                                @endif
+                            </td>
+                            <td style="text-align:right;">
+                                @if(($p->status ?? '') == 'pending')
+                                    <form action="{{ route('admin.properties.approve', $p->id) }}" method="POST" class="d-inline-block me-1">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-success fw-bold text-white px-2 py-1" style="font-size:11px; border-radius:4px;" title="Approve & Publish Live">
+                                            <i class="fa-solid fa-check me-1"></i> Approve
+                                        </button>
+                                    </form>
+                                @endif
+                                <div class="dropdown action-gear-dropdown d-inline-block">
+                                    <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                        <i class="fa-solid fa-gear"></i>
                                     </button>
-                                </form>
-                            @endif
-                            <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
-                                    <i class="fa-solid fa-gear"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.properties.edit', $p->id) }}">
-                                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Listing
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.rooms.index', $p->id) }}">
-                                            <i class="fa-solid fa-bed text-success me-2"></i> Manage Rooms
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-secondary">
-                                                <i class="fa-solid {{ ($p->status ?? 'active') == 'active' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }} me-2"></i> 
-                                                {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Approve / Activate' }}
-                                            </button>
-                                        </form>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('hotels.show', $p->id) }}" target="_blank">
-                                            <i class="fa-solid fa-arrow-up-right-from-square text-info me-2"></i> View Live Site
-                                        </a>
-                                    </li>
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    <li>
-                                        <form action="{{ route('admin.properties.destroy', $p->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this listing permanently?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
-                                                <i class="fa-solid fa-trash me-2"></i> Delete Property
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
-                            </div>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="9" class="text-center py-5" style="background:#ffffff;">
-                            <div style="max-width:340px; margin:0 auto; padding:24px 0;">
-                                <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
-                                    <i class="fa-solid fa-hotel"></i>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.properties.edit', $p->id) }}">
+                                                <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Listing
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.rooms.index', $p->id) }}">
+                                                <i class="fa-solid fa-bed text-success me-2"></i> Manage Rooms
+                                            </a>
+                                        </li>
+                                        @if(($p->status ?? '') == 'pending')
+                                            <li>
+                                                <form action="{{ route('admin.properties.approve', $p->id) }}" method="POST" class="m-0">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item py-1.5 px-3 text-success fw-bold">
+                                                        <i class="fa-solid fa-circle-check me-2"></i> Approve &amp; Publish Live
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @else
+                                            <li>
+                                                <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" class="m-0">
+                                                    @csrf
+                                                    <button type="submit" class="dropdown-item py-1.5 px-3 text-secondary">
+                                                        <i class="fa-solid {{ ($p->status ?? 'active') == 'active' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }} me-2"></i> 
+                                                        {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Approve / Activate' }}
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        @endif
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3" href="{{ route('hotels.show', $p->id) }}" target="_blank">
+                                                <i class="fa-solid fa-arrow-up-right-from-square text-info me-2"></i> View Live Site
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <form action="{{ route('admin.properties.destroy', $p->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this listing permanently?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                    <i class="fa-solid fa-trash me-2"></i> Delete Property
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
                                 </div>
-                                <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Properties Found</h6>
-                                <p style="font-size:12px; color:#64748b; margin-bottom:16px;">No hotels or resort listings match your search criteria.</p>
-                                <a href="{{ route('admin.properties.create') }}" class="btn btn-primary btn-sm fw-bold px-3" style="background-color: #2067e1;">
-                                    <i class="fa-solid fa-plus me-1"></i> Add First Property
-                                </a>
-                            </div>
-                        </td>
-                    </tr>
-                @endforelse
-                </tbody>
-            </table>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center py-5" style="background:#ffffff;">
+                                <div style="max-width:340px; margin:0 auto; padding:24px 0;">
+                                    <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
+                                        <i class="fa-solid fa-hotel"></i>
+                                    </div>
+                                    <h6 style="font-weight:700; color:#1e293b; margin-bottom:4px; font-size:14px;">No Properties Found</h6>
+                                    <p style="font-size:12px; color:#64748b; margin-bottom:16px;">No hotel, ship or cottage listings match your search criteria.</p>
+                                    <a href="{{ route('admin.properties.create') }}" class="btn btn-primary btn-sm fw-bold px-3" style="background-color: #2067e1;">
+                                        <i class="fa-solid fa-plus me-1"></i> Add First Property
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            @if(method_exists($properties, 'hasPages') && $properties->hasPages())
+                <div class="stockifly-table-footer border-top">
+                    <div>Showing {{ $properties->firstItem() }}–{{ $properties->lastItem() }} of {{ $properties->total() }} Properties</div>
+                    <div>{{ $properties->links() }}</div>
+                </div>
+            @endif
         </div>
-
-        <x-table-footer :items="$properties" :perPage="15" />
-    </div>
-
+    </form>
 </div>
 @endsection
-
-

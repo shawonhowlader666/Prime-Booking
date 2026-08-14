@@ -45,7 +45,7 @@
         <div class="row g-3">
             {{-- LEFT SIDEBAR TABS --}}
             <div class="col-lg-3">
-                <div class="stockifly-card p-2" style="position:sticky; top:80px; min-height:auto;">
+                <div class="stockifly-card p-2" style="position:sticky; top:80px; overflow-y:auto; max-height:calc(100vh - 120px);">
                     <div class="nav flex-column nav-pills saas-settings-tabs" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                         <button class="nav-link active" id="tab-profile-tab" data-bs-toggle="pill" data-bs-target="#tab-profile" type="button" role="tab">
                             <i class="fa-solid fa-user-gear" style="font-size:14px; width:20px;"></i>
@@ -139,7 +139,7 @@
                         <div class="stockifly-card p-3 mb-3">
                             <div class="d-flex align-items-center gap-3 pb-3 mb-3 border-bottom">
                                 <div style="width:58px; height:58px; border-radius:50%; overflow:hidden; background:#f1f5f9; border:2px solid var(--primary); flex-shrink:0;">
-                                    <img src="{{ $user?->avatar ?: ('https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'Admin') . '&background=7367f0&color=fff&size=80') }}" class="w-100 h-100" style="object-fit:cover;" alt="Avatar">
+                                    <img src="{{ $user?->avatar ?: ('https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'Admin') . '&background=7367f0&color=fff&size=80') }}" class="w-100 h-100" style="object-fit:cover;" alt="Avatar" onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode($user->name ?? 'Admin') }}&background=7367f0&color=fff&size=80'">
                                 </div>
                                 <div class="flex-grow-1">
                                     <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">{{ $user->name ?? 'Administrator' }} (ID #{{ $user->id ?? 1 }})</h6>

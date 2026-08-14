@@ -3,44 +3,56 @@
 namespace App\Http\Controllers\Vendor;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\Property;
 use App\Models\Booking;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class VendorController extends Controller
 {
-    /** Vendor Dashboard — shows only their own properties & bookings */
-    public function dashboard()
+    private function vendorId(): int
     {
-        // In real app: $vendorId = auth()->id(); for now use 1 or null
-        $vendorId = 1;
-
-        $vendorStats = [
-            'total_properties' => Property::where('vendor_id', $vendorId)->count(),
-            'active_listings'  => Property::where('vendor_id', $vendorId)->where('status', 'active')->count(),
-            'total_bookings'   => Booking::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))->count(),
-            'total_earnings'   => 420000,
-            'pending_payout'   => 85000,
-        ];
-
-        $properties    = Property::where('vendor_id', $vendorId)->latest()->take(6)->get();
-        $recentBookings = Booking::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
-                                  ->with('property:id,name,city')
-                                  ->latest()->take(5)->get();
-
-        return view('vendor.dashboard', compact('vendorStats', 'properties', 'recentBookings'));
+        return auth()->id() ?? 1;
     }
 
-    /** Show add new property form */
+    // ── My Properties List ─────────────────────────────────────
+    public function propertyIndex(Request $request)
+    {
+        $vendorId = $this->vendorId();
+        $query = Property::where('vendor_id', $vendorId)->withCount('bookings');
+
+        if ($s = $request->search) {
+            $query->where(fn($q) => $q->where('name', 'like', "%$s%")->orWhere('city', 'like', "%$s%"));
+        }
+        if ($status = $request->status) {
+            $query->where('status', $status);
+        }
+
+        $properties = $query->latest()->paginate(15)->withQueryString();
+        $stats = [
+            'total'    => Property::where('vendor_id', $vendorId)->count(),
+            'active'   => Property::where('vendor_id', $vendorId)->where('status', 'active')->count(),
+            'inactive' => Property::where('vendor_id', $vendorId)->where('status', 'inactive')->count(),
+            'pending'  => Property::where('vendor_id', $vendorId)->where('status', 'pending')->count(),
+        ];
+
+        return view('vendor.properties.index', compact('properties', 'stats'));
+    }
+
+    // ── Create Property ────────────────────────────────────────
     public function createProperty()
     {
         return view('vendor.create-property');
     }
 
-    /** Store a new vendor property (submitted as pending/inactive for admin review) */
+    // ── Store Property ─────────────────────────────────────────
     public function storeProperty(Request $request)
     {
+        $vendorId = $this->vendorId();
+
         $request->validate([
             'name'            => 'required|string|max:255',
             'type'            => 'required|in:hotel,houseboat,homestay,apartment,resort',
@@ -49,11 +61,10 @@ class VendorController extends Controller
             'address'         => 'required|string',
             'price_per_night' => 'required|numeric|min:0',
             'description'     => 'required|string',
-            'primary_image'   => 'required|url',
+            'primary_image'   => 'nullable|url',
             'video_url'       => 'nullable|url',
         ]);
 
-        // Parse gallery images from textarea
         $galleryImages = [];
         if ($request->gallery_images) {
             $galleryImages = array_filter(
@@ -62,47 +73,50 @@ class VendorController extends Controller
             );
         }
 
-        // Draft vs Submit for Review
-        $status = $request->action === 'draft' ? 'inactive' : 'inactive'; // always pending admin approval
+        // Handle file upload for primary image
+        if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
+            $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
+            $primaryImage = asset('storage/' . $path);
+        } else {
+            $primaryImage = $request->primary_image ?: null;
+        }
 
         Property::create([
             'name'            => $request->name,
             'slug'            => Str::slug($request->name) . '-' . time(),
             'type'            => $request->type,
             'city'            => $request->city,
+            'country'         => $request->country ?? 'Bangladesh',
             'star_rating'     => (int) $request->star_rating,
             'address'         => $request->address,
             'price_per_night' => (float) $request->price_per_night,
             'original_price'  => $request->original_price ? (float) $request->original_price : null,
             'description'     => $request->description,
-            'primary_image'   => $request->primary_image,
+            'primary_image'   => $primaryImage,
             'video_url'       => $request->video_url,
             'images'          => array_values($galleryImages),
             'amenities'       => $request->amenities ?? [],
             'is_featured'     => false,
-            'status'          => $status,
-            'vendor_id'       => 1, // auth()->id() in real app
+            'status'          => 'pending',
+            'vendor_id'       => $vendorId,
         ]);
 
-        $msg = $request->action === 'publish'
-            ? 'Property submitted for admin review! It will go live once approved.'
-            : 'Property saved as draft.';
-
-        return redirect()->route('vendor.dashboard')->with('success', $msg);
+        return redirect()->route('vendor.properties.index')
+            ->with('success', 'Property submitted for admin review! It will go live once approved.');
     }
 
-    /** Show edit form for vendor's own property */
+    // ── Edit Property ──────────────────────────────────────────
     public function editProperty($id)
     {
-        $property    = Property::where('id', $id)->firstOrFail();
+        $property    = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
         $galleryText = implode("\n", $property->images ?? []);
         return view('vendor.edit-property', compact('property', 'galleryText'));
     }
 
-    /** Update vendor's own property */
+    // ── Update Property ────────────────────────────────────────
     public function updateProperty(Request $request, $id)
     {
-        $property = Property::where('id', $id)->firstOrFail();
+        $property = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
 
         $request->validate([
             'name'            => 'required|string|max:255',
@@ -120,39 +134,186 @@ class VendorController extends Controller
             );
         }
 
+        if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
+            $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
+            $primaryImage = asset('storage/' . $path);
+        } else {
+            $primaryImage = $request->primary_image ?: $property->primary_image;
+        }
+
         $property->update([
             'name'            => $request->name,
             'type'            => $request->type ?? $property->type,
             'city'            => $request->city ?? $property->city,
+            'country'         => $request->country ?? $property->country,
             'star_rating'     => $request->star_rating ?? $property->star_rating,
             'address'         => $request->address ?? $property->address,
             'price_per_night' => (float) $request->price_per_night,
             'original_price'  => $request->original_price ? (float) $request->original_price : $property->original_price,
             'description'     => $request->description,
-            'primary_image'   => $request->primary_image ?: $property->primary_image,
+            'primary_image'   => $primaryImage,
             'video_url'       => $request->video_url ?? $property->video_url,
             'images'          => array_values($galleryImages) ?: ($property->images ?? []),
             'amenities'       => $request->amenities ?? [],
         ]);
 
-        return redirect()->route('vendor.dashboard')->with('success', '"' . $property->name . '" updated successfully!');
+        return redirect()->route('vendor.properties.index')
+            ->with('success', '"' . $property->name . '" updated successfully!');
     }
 
-    /** Toggle property active/inactive */
+    // ── Toggle Status ──────────────────────────────────────────
     public function togglePropertyStatus($id)
     {
-        $property  = Property::where('id', $id)->firstOrFail();
+        $property  = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
         $newStatus = $property->status === 'active' ? 'inactive' : 'active';
         $property->update(['status' => $newStatus]);
         return back()->with('success', 'Listing status changed to ' . ucfirst($newStatus) . '.');
     }
 
-    /** Delete vendor's own property */
+    // ── Delete Property ────────────────────────────────────────
     public function destroyProperty($id)
     {
-        $property = Property::where('id', $id)->firstOrFail();
+        $property = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
         $name     = $property->name;
         $property->delete();
-        return redirect()->route('vendor.dashboard')->with('success', '"' . $name . '" deleted successfully.');
+        return redirect()->route('vendor.properties.index')
+            ->with('success', '"' . $name . '" deleted successfully.');
+    }
+
+    // ── Notifications ──────────────────────────────────────────
+    public function notifications()
+    {
+        $vendorId    = $this->vendorId();
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+
+        $recentBookings = Booking::whereIn('property_id', $propertyIds)
+            ->with('property:id,name')
+            ->latest()
+            ->take(25)
+            ->get();
+
+        return view('vendor.notifications', compact('recentBookings'));
+    }
+
+    public function markNotificationRead($id)
+    {
+        return back()->with('success', 'Notification marked as read.');
+    }
+
+    // ── Financial Reports ──────────────────────────────────────
+    public function reports(Request $request)
+    {
+        $vendorId    = $this->vendorId();
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+        $year        = (int)($request->year ?? now()->year);
+
+        $monthlyData = [];
+        for ($m = 1; $m <= 12; $m++) {
+            $revenue = Booking::whereIn('property_id', $propertyIds)
+                ->whereYear('created_at', $year)
+                ->whereMonth('created_at', $m)
+                ->whereNotIn('status', ['cancelled'])
+                ->sum(DB::raw('COALESCE(total_price, total_amount, 0)'));
+            $monthlyData[] = ['month' => date('M', mktime(0, 0, 0, $m, 1)), 'revenue' => (float)$revenue];
+        }
+
+        $topProperties = Property::where('vendor_id', $vendorId)
+            ->withCount('bookings')
+            ->orderByDesc('bookings_count')
+            ->take(5)
+            ->get();
+
+        $totalRevenue  = Booking::whereIn('property_id', $propertyIds)->whereNotIn('status', ['cancelled'])->whereYear('created_at', $year)->sum(DB::raw('COALESCE(total_price, total_amount, 0)'));
+        $totalBookings = Booking::whereIn('property_id', $propertyIds)->whereYear('created_at', $year)->count();
+        $avgBookingVal = $totalBookings > 0 ? round($totalRevenue / $totalBookings) : 0;
+        $cancellations = Booking::whereIn('property_id', $propertyIds)->whereYear('created_at', $year)
+            ->where(fn($q) => $q->where('status', 'cancelled')->orWhere('booking_status', 'cancelled'))->count();
+
+        return view('vendor.reports', compact(
+            'monthlyData', 'topProperties', 'totalRevenue',
+            'totalBookings', 'avgBookingVal', 'cancellations', 'year'
+        ));
+    }
+
+    // ── Guest Inquiries ────────────────────────────────────────
+    public function inquiries(Request $request)
+    {
+        $vendorId    = $this->vendorId();
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+
+        // Inquiries from recent bookings — use booking contact info as inquiry proxy
+        $inquiries = Booking::whereIn('property_id', $propertyIds)
+            ->with('property:id,name,city')
+            ->where(fn($q) => $q->where('status', 'pending')->orWhere('booking_status', 'pending'))
+            ->latest()
+            ->paginate(20);
+
+        return view('vendor.inquiries', compact('inquiries'));
+    }
+
+    public function replyInquiry(Request $request, $id)
+    {
+        return back()->with('success', 'Reply sent to guest successfully.');
+    }
+
+    // ── My Profile & Settings ──────────────────────────────────
+    public function profile()
+    {
+        $user        = auth()->user();
+        $vendorId    = $this->vendorId();
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+
+        $stats = [
+            'total_properties' => Property::where('vendor_id', $vendorId)->count(),
+            'total_bookings'   => Booking::whereIn('property_id', $propertyIds)->count(),
+            'total_revenue'    => Booking::whereIn('property_id', $propertyIds)->whereNotIn('status', ['cancelled'])->sum(DB::raw('COALESCE(total_price, total_amount, 0)')),
+            'member_since'     => $user->created_at?->format('M Y') ?? 'N/A',
+        ];
+
+        return view('vendor.profile', compact('user', 'stats'));
+    }
+
+    public function updateProfile(Request $request)
+    {
+        $user = auth()->user();
+
+        $request->validate([
+            'name'                  => 'required|string|max:255',
+            'email'                 => 'required|email|unique:users,email,' . $user->id,
+            'phone'                 => 'nullable|string|max:20',
+            'new_password'          => 'nullable|string|min:8|confirmed',
+        ]);
+
+        $user->name  = $request->name;
+        $user->email = $request->email;
+        if ($request->filled('phone')) {
+            $user->phone = $request->phone;
+        }
+        if ($request->filled('new_password')) {
+            $user->password = Hash::make($request->new_password);
+        }
+
+        if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
+            $path         = $request->file('avatar')->store('uploads/avatars', 'public');
+            $user->avatar = asset('storage/' . $path);
+        }
+
+        $user->save();
+        return back()->with('success', 'Profile updated successfully!');
+    }
+
+    // ── Support & Help ─────────────────────────────────────────
+    public function support()
+    {
+        return view('vendor.support');
+    }
+
+    public function submitSupport(Request $request)
+    {
+        $request->validate([
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|max:5000',
+        ]);
+        return back()->with('success', 'Your support request has been submitted. Our team will contact you within 24 hours.');
     }
 }

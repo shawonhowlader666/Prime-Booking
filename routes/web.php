@@ -283,53 +283,83 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('destinations.destroy');
 });
 
-// Vendor Portal Routes
+// ============================================================
+// VENDOR PORTAL — Complete A-to-Z Routes
+// ============================================================
 Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin'])->group(function () {
+
+    // ── Dashboard ─────────────────────────────────────────────
     Route::get('/dashboard', [VendorDashboardController::class, 'index'])->name('dashboard');
-    Route::get('/bookings', [VendorDashboardController::class, 'bookings'])->name('bookings.index');
+
+    // ── Bookings ───────────────────────────────────────────────
+    Route::get('/bookings',            [VendorDashboardController::class, 'bookings'])->name('bookings.index');
     Route::get('/bookings/{reference}', [VendorDashboardController::class, 'bookingDetail'])->name('bookings.show');
-    Route::get('/earnings', [VendorDashboardController::class, 'earnings'])->name('earnings');
+    Route::post('/bookings/{reference}/status', [VendorDashboardController::class, 'updateBookingStatus'])->name('bookings.update-status');
 
-    // Vendor Property CRUD
-    Route::get('/properties/create', [VendorController::class, 'createProperty'])->name('properties.create');
-    Route::get('/properties/create-new', [VendorController::class, 'createProperty'])->name('property.create');
-    Route::post('/properties', [VendorController::class, 'storeProperty'])->name('properties.store');
-    Route::get('/properties/{id}/edit', [VendorController::class, 'editProperty'])->name('properties.edit');
-    Route::put('/properties/{id}', [VendorController::class, 'updateProperty'])->name('properties.update');
-    Route::post('/properties/{id}/status', [VendorController::class, 'togglePropertyStatus'])->name('properties.toggle-status');
-    Route::delete('/properties/{id}', [VendorController::class, 'destroyProperty'])->name('properties.destroy');
+    // ── Earnings ───────────────────────────────────────────────
+    Route::get('/earnings',        [VendorDashboardController::class, 'earnings'])->name('earnings');
+    Route::get('/earnings/export', [App\Http\Controllers\Vendor\PayoutRequestController::class, 'exportCsv'])->name('earnings.export');
 
-    // Vendor Promotions (own properties only, requires admin approval)
-    Route::get('/promotions', [VendorPromotionController::class, 'index'])->name('promotions.index');
-    Route::get('/promotions/create', [VendorPromotionController::class, 'create'])->name('promotions.create');
-    Route::post('/promotions', [VendorPromotionController::class, 'store'])->name('promotions.store');
-    Route::get('/promotions/{promotion}/edit', [VendorPromotionController::class, 'edit'])->name('promotions.edit');
-    Route::put('/promotions/{promotion}', [VendorPromotionController::class, 'update'])->name('promotions.update');
-    Route::delete('/promotions/{promotion}', [VendorPromotionController::class, 'destroy'])->name('promotions.destroy');
+    // ── Property CRUD ──────────────────────────────────────────
+    Route::get('/properties',             [VendorController::class, 'propertyIndex'])->name('properties.index');
+    Route::get('/properties/create',      [VendorController::class, 'createProperty'])->name('properties.create');
+    Route::get('/properties/create-new',  [VendorController::class, 'createProperty'])->name('property.create');
+    Route::post('/properties',            [VendorController::class, 'storeProperty'])->name('properties.store');
+    Route::get('/properties/{id}/edit',   [VendorController::class, 'editProperty'])->name('properties.edit');
+    Route::put('/properties/{id}',        [VendorController::class, 'updateProperty'])->name('properties.update');
+    Route::post('/properties/{id}/status',[VendorController::class, 'togglePropertyStatus'])->name('properties.toggle-status');
+    Route::delete('/properties/{id}',     [VendorController::class, 'destroyProperty'])->name('properties.destroy');
 
-    // SaaS Plans
-    Route::get('/plans', [SubscriptionController::class, 'index'])->name('plans.index');
-    Route::post('/plans/select', [SubscriptionController::class, 'selectPlan'])->name('plans.select');
+    // ── Rates & Calendar ───────────────────────────────────────
+    Route::get('/availability',                  [RoomAvailabilityController::class, 'index'])->name('availability.index');
+    Route::post('/availability/update-range',    [RoomAvailabilityController::class, 'updateRange'])->name('availability.update-range');
 
-    // Vendor Rates & Calendar Availability
-    Route::get('/availability', [RoomAvailabilityController::class, 'index'])->name('availability.index');
-    Route::post('/availability/update-range', [RoomAvailabilityController::class, 'updateRange'])->name('availability.update-range');
+    // ── Promotions ─────────────────────────────────────────────
+    Route::get('/promotions',                 [VendorPromotionController::class, 'index'])->name('promotions.index');
+    Route::get('/promotions/create',          [VendorPromotionController::class, 'create'])->name('promotions.create');
+    Route::post('/promotions',                [VendorPromotionController::class, 'store'])->name('promotions.store');
+    Route::get('/promotions/{promotion}/edit',[VendorPromotionController::class, 'edit'])->name('promotions.edit');
+    Route::put('/promotions/{promotion}',     [VendorPromotionController::class, 'update'])->name('promotions.update');
+    Route::delete('/promotions/{promotion}',  [VendorPromotionController::class, 'destroy'])->name('promotions.destroy');
 
-    // Vendor Earnings & Payout Requests
-    Route::get('/payouts', [PayoutRequestController::class, 'index'])->name('payouts.index');
-    Route::post('/payouts', [PayoutRequestController::class, 'store'])->name('payouts.store');
-    Route::get('/earnings/export', [PayoutRequestController::class, 'exportCsv'])->name('earnings.export');
+    // ── Tour Packages ──────────────────────────────────────────
+    Route::get('/packages',          [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'index'])->name('packages.index');
+    Route::get('/packages/create',   [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'create'])->name('packages.create');
+    Route::post('/packages',         [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'store'])->name('packages.store');
+    Route::delete('/packages/{id}',  [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'destroy'])->name('packages.destroy');
 
-    // Vendor Tour Packages
-    Route::get('/packages', [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'index'])->name('packages.index');
-    Route::get('/packages/create', [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'create'])->name('packages.create');
-    Route::post('/packages', [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'store'])->name('packages.store');
-    Route::delete('/packages/{id}', [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'destroy'])->name('packages.destroy');
+    // ── Guest Reviews ──────────────────────────────────────────
+    Route::get('/reviews',                     [VendorReviewController::class, 'index'])->name('reviews.index');
+    Route::post('/reviews/{reviewId}/reply',   [VendorReviewController::class, 'reply'])->name('reviews.reply');
 
-    // Vendor Guest Reviews
-    Route::get('/reviews', [VendorReviewController::class, 'index'])->name('reviews.index');
-    Route::post('/reviews/{reviewId}/reply', [VendorReviewController::class, 'reply'])->name('reviews.reply');
+    // ── Payouts ────────────────────────────────────────────────
+    Route::get('/payouts',    [App\Http\Controllers\Vendor\PayoutRequestController::class, 'index'])->name('payouts.index');
+    Route::post('/payouts',   [App\Http\Controllers\Vendor\PayoutRequestController::class, 'store'])->name('payouts.store');
+
+    // ── SaaS Plans ─────────────────────────────────────────────
+    Route::get('/plans',           [SubscriptionController::class, 'index'])->name('plans.index');
+    Route::post('/plans/select',   [SubscriptionController::class, 'selectPlan'])->name('plans.select');
+
+    // ── Notifications ──────────────────────────────────────────
+    Route::get('/notifications',   [VendorController::class, 'notifications'])->name('notifications');
+    Route::post('/notifications/{id}/read', [VendorController::class, 'markNotificationRead'])->name('notifications.read');
+
+    // ── Financial Reports ──────────────────────────────────────
+    Route::get('/reports',         [VendorController::class, 'reports'])->name('reports');
+
+    // ── Inquiries ──────────────────────────────────────────────
+    Route::get('/inquiries',       [VendorController::class, 'inquiries'])->name('inquiries');
+    Route::post('/inquiries/{id}/reply', [VendorController::class, 'replyInquiry'])->name('inquiries.reply');
+
+    // ── My Profile & Settings ──────────────────────────────────
+    Route::get('/profile',         [VendorController::class, 'profile'])->name('profile');
+    Route::post('/profile',        [VendorController::class, 'updateProfile'])->name('profile.update');
+
+    // ── Support & Help ─────────────────────────────────────────
+    Route::get('/support',         [VendorController::class, 'support'])->name('support');
+    Route::post('/support',        [VendorController::class, 'submitSupport'])->name('support.submit');
 });
+
 
 // Agoda 1:1 Booking & Checkout Flow Routes
 Route::get('/checkout', [BookingFlowController::class, 'index'])->name('checkout.index');

@@ -1740,11 +1740,13 @@
 
                 <div
                     style="display:flex; align-items:center; gap:8px; padding-right:12px; border-right:1px solid rgba(255,255,255,0.12);">
-                    <img src="https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=1890ff&color=fff&size=64"
-                        class="topbar-avatar" alt="Admin">
+                    @php $adminAvatar = auth()->user()?->avatar ?: null; @endphp
+                    <img src="{{ $adminAvatar ?: ('https://ui-avatars.com/api/?name=' . urlencode(auth()->user()->name ?? 'Admin') . '&background=1890ff&color=fff&size=64') }}"
+                        class="topbar-avatar" alt="Admin"
+                        onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name ?? 'Admin') }}&background=1890ff&color=fff&size=64'">
                     <div class="d-none d-sm-block">
-                        <span class="topbar-user-name">{{ auth()->user()->name ?? 'Shawon Ahmed' }}</span>
-                        <span class="topbar-user-role">Super Administrator</span>
+                        <span class="topbar-user-name">{{ auth()->user()->name ?? 'Administrator' }}</span>
+                        <span class="topbar-user-role">{{ auth()->user()->role === 'admin' ? 'Super Administrator' : ucfirst(auth()->user()->role ?? 'Admin') }}</span>
                     </div>
                 </div>
                 <form action="{{ route('logout') }}" method="POST" style="margin:0;">

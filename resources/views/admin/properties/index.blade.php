@@ -61,6 +61,22 @@
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
+            <a href="{{ route('admin.properties.index', ['status' => 'pending']) }}" style="text-decoration:none;">
+                <div class="kpi-card" style="border: {{ ($stats['pending'] ?? 0) > 0 ? '1.5px solid #ff9f43' : 'none' }};">
+                    <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                        <div>
+                            <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">PENDING ADMIN REVIEW</p>
+                            <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $stats['pending'] ?? 0 }} Pending</p>
+                        </div>
+                        <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                            <i class="fa-solid fa-clock-rotate-left"></i>
+                        </div>
+                    </div>
+                    <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
+                </div>
+            </a>
+        </div>
+        <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
@@ -72,20 +88,6 @@
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#7367f0;"></div>
-            </div>
-        </div>
-        <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card">
-                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
-                    <div>
-                        <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">INACTIVE / DRAFT</p>
-                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ff9f43; margin:0;">{{ $stats['inactive'] ?? 0 }} Inactive</p>
-                    </div>
-                    <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
-                        <i class="fa-solid fa-eye-slash"></i>
-                    </div>
-                </div>
-                <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
     </div>
@@ -115,8 +117,9 @@
             <div class="col-md-2">
                 <select name="status" class="form-select form-select-sm" style="font-size: 13px;">
                     <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Properties</option>
+                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Approval</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active / Listed</option>
-                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Draft / Unlisted</option>
+                    <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Draft / Inactive</option>
                     <option value="featured" {{ request('status') == 'featured' ? 'selected' : '' }}>Featured Only</option>
                 </select>
             </div>
@@ -144,7 +147,7 @@
         </div>
 
         <div class="table-responsive">
-            <table class="table table-stockifly mb-0" id="inventoryTable">
+            <table class="table stockifly-data-table align-middle mb-0" id="inventoryTable">
                 <thead>
                     <tr>
                         <th style="width:36px; text-align:center;"><input type="checkbox" class="tbl-select-checkbox tbl-master-check" onclick="toggleAllRows('inventoryTable', this)" title="Select All Rows"></th>
@@ -184,11 +187,23 @@
                             @endif
                         </td>
                         <td>
-                            <span class="badge-status {{ ($p->status ?? 'active') == 'active' ? 'active' : 'pending' }}">
-                                {{ ($p->status ?? 'active') == 'active' ? 'Active' : 'Inactive' }}
-                            </span>
+                            @if(($p->status ?? '') == 'active')
+                                <span class="badge-status active">Active</span>
+                            @elseif(($p->status ?? '') == 'pending')
+                                <span class="badge-status pending" style="background:#fff7e6; color:#d46b08; border:1px solid #ffd591; padding:3px 8px; border-radius:4px; font-weight:600; font-size:11.5px;">Pending Review</span>
+                            @else
+                                <span class="badge-status cancelled">Inactive</span>
+                            @endif
                         </td>
                         <td style="text-align:right;">
+                            @if(($p->status ?? '') == 'pending')
+                                <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" class="d-inline-block me-1">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-success fw-bold text-white px-2 py-1" style="font-size:11px; border-radius:4px;" title="Approve & Publish Live">
+                                        <i class="fa-solid fa-check me-1"></i> Approve
+                                    </button>
+                                </form>
+                            @endif
                             <div class="dropdown action-gear-dropdown d-inline-block">
                                 <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
@@ -209,7 +224,7 @@
                                             @csrf
                                             <button type="submit" class="dropdown-item py-1.5 px-3 text-secondary">
                                                 <i class="fa-solid {{ ($p->status ?? 'active') == 'active' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }} me-2"></i> 
-                                                {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Activate' }}
+                                                {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Approve / Activate' }}
                                             </button>
                                         </form>
                                     </li>

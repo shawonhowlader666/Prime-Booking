@@ -68,12 +68,12 @@ class VendorTourPackageController extends Controller
         $package->featured_image   = $validated['featured_image'];
         $package->inclusions       = $inclusionsList;
         $package->highlights       = $highlightsList;
-        $package->status           = 'active';
+        $package->status           = 'pending';
         $package->max_seats        = $validated['max_seats'];
         $package->available_seats  = $validated['max_seats'];
         $package->save();
 
-        return redirect()->route('vendor.packages.index')->with('success', 'Tour Package created and live successfully!');
+        return redirect()->route('vendor.packages.index')->with('success', 'Tour Package submitted for admin approval! It will go live once approved.');
     }
 
     /**

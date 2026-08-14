@@ -41,6 +41,7 @@ class PropertyManagementController extends Controller
         $stats = [
             'total'    => Property::count(),
             'active'   => Property::where('status', 'active')->count(),
+            'pending'  => Property::where('status', 'pending')->count(),
             'featured' => Property::where('is_featured', true)->count(),
             'inactive' => Property::where('status', 'inactive')->count(),
         ];
@@ -189,9 +190,13 @@ class PropertyManagementController extends Controller
     public function toggleStatus(Request $request, $id)
     {
         $property  = Property::findOrFail($id);
+        $oldStatus = $property->status;
         $newStatus = $property->status === 'active' ? 'inactive' : 'active';
         $property->update(['status' => $newStatus]);
-        return back()->with('success', 'Property status changed to ' . ucfirst($newStatus) . '.');
+        $msg = $oldStatus === 'pending'
+            ? 'Property "' . $property->name . '" approved and published live!'
+            : 'Property status changed to ' . ucfirst($newStatus) . '.';
+        return back()->with('success', $msg);
     }
 
     public function destroy($id)

@@ -1,4 +1,4 @@
-﻿@extends('layouts.vendor')
+@extends('layouts.vendor')
 @section('title', 'Notifications | Vendor Portal')
 @section('content')
 <div class="page-header-card">
@@ -14,18 +14,18 @@
     <div class="stockifly-card">
         <div class="p-3 border-bottom d-flex align-items-center justify-content-between">
             <span class="fw-bold" style="font-size:13px;">Recent Activity Alerts</span>
-            <span class="badge-gateway">{{ ->count() }} items</span>
+            <span class="badge-gateway">{{ $notifications->count() }} items</span>
         </div>
-        @forelse( as )
+        @forelse($notifications as $notif)
         <div class="d-flex align-items-start gap-3 p-3 border-bottom" style="transition:background 0.15s;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''">
             <div style="width:38px;height:38px;border-radius:50%;background:rgba(40,199,111,0.1);color:#28c76f;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <i class="fa-solid fa-calendar-check" style="font-size:14px;"></i>
             </div>
             <div class="flex-grow-1">
-                <div class="fw-bold" style="font-size:12.5px;">New Booking — {{ ->property->name ?? 'Property' }}</div>
-                <div style="font-size:12px;color:#64748b;">Ref: <strong>{{ ->booking_reference }}</strong> · {{ ->guest_name ?? 'Guest' }} · {{ ->check_in ?? '' }} → {{ ->check_out ?? '' }}</div>
+                <div class="fw-bold" style="font-size:12.5px;">New Booking — {{ $notif->property->name ?? 'Property' }}</div>
+                <div style="font-size:12px;color:#64748b;">Ref: <strong>{{ $notif->booking_reference }}</strong> · {{ $notif->guest_name ?? 'Guest' }} · {{ $notif->check_in ?? '' }} → {{ $notif->check_out ?? '' }}</div>
             </div>
-            <div style="font-size:11px;color:#94a3b8;white-space:nowrap;">{{ ->created_at?->diffForHumans() }}</div>
+            <div style="font-size:11px;color:#94a3b8;white-space:nowrap;">{{ $notif->created_at?->diffForHumans() }}</div>
         </div>
         @empty
         <div class="text-center py-5" style="color:#94a3b8;font-size:13px;">

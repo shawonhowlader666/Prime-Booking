@@ -1,4 +1,4 @@
-﻿@extends('layouts.vendor')
+@extends('layouts.vendor')
 @section('title', 'Guest Inquiries | Vendor Portal')
 @section('content')
 <div class="page-header-card">
@@ -16,17 +16,17 @@
                     <tr><th>#</th><th>Guest</th><th>Property</th><th>Check-In</th><th>Check-Out</th><th>Amount</th><th>Status</th><th style="text-align:right;">Actions</th></tr>
                 </thead>
                 <tbody>
-                @forelse( as )
+                @forelse($inquiries as $inquiry)
                 <tr>
-                    <td style="font-size:12px;color:#64748b;">{{ ->iteration }}</td>
-                    <td><div class="fw-bold" style="font-size:12.5px;">{{ ->guest_name ?? 'Guest' }}</div><div style="font-size:11px;color:#64748b;">{{ ->guest_email ?? '' }}</div></td>
-                    <td style="font-size:12.5px;">{{ ->property->name ?? '—' }}</td>
-                    <td style="font-size:12px;">{{ ->check_in ?? '—' }}</td>
-                    <td style="font-size:12px;">{{ ->check_out ?? '—' }}</td>
-                    <td style="font-size:12.5px;font-weight:600;">৳{{ number_format(->total_amount ?? ->total_price ?? 0) }}</td>
+                    <td style="font-size:12px;color:#64748b;">{{ $loop->iteration }}</td>
+                    <td><div class="fw-bold" style="font-size:12.5px;">{{ $inquiry->guest_name ?? 'Guest' }}</div><div style="font-size:11px;color:#64748b;">{{ $inquiry->guest_email ?? '' }}</div></td>
+                    <td style="font-size:12.5px;">{{ $inquiry->property->name ?? '—' }}</td>
+                    <td style="font-size:12px;">{{ $inquiry->check_in ?? '—' }}</td>
+                    <td style="font-size:12px;">{{ $inquiry->check_out ?? '—' }}</td>
+                    <td style="font-size:12.5px;font-weight:600;">৳{{ number_format($inquiry->total_amount ?? $inquiry->total_price ?? 0) }}</td>
                     <td><span class="badge-status pending">Pending</span></td>
                     <td style="text-align:right;">
-                        <form action="{{ route('vendor.inquiries.reply', ->id) }}" method="POST" class="d-inline">
+                        <form action="{{ route('vendor.inquiries.reply', $inquiry->id) }}" method="POST" class="d-inline">
                             @csrf
                             <input type="hidden" name="reply" value="Thank you for your inquiry. We will confirm your booking shortly.">
                             <button type="submit" class="btn-table-action primary" style="font-size:11.5px;"><i class="fa-solid fa-reply me-1"></i>Reply</button>
@@ -39,8 +39,8 @@
                 </tbody>
             </table>
         </div>
-        @if(method_exists(, 'hasPages') && ->hasPages())
-            <div class="stockifly-table-footer">{{ ->links() }}</div>
+        @if(method_exists($inquiries, 'hasPages') && $inquiries->hasPages())
+            <div class="stockifly-table-footer">{{ $inquiries->links() }}</div>
         @endif
     </div>
 </div>

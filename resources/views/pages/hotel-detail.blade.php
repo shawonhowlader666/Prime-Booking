@@ -1,4 +1,4 @@
-﻿@extends('layouts.main', ['activePage' => 'hotels'])
+@extends('layouts.main', ['activePage' => 'hotels'])
 
 @php
     use App\Services\CurrencyService;
@@ -206,7 +206,7 @@
                 <div class="d-none d-md-flex align-items-center gap-3 py-2">
                     <div class="text-end">
                         <small class="text-secondary d-inline" style="font-size: 11.5px;">from </small>
-                        <strong style="color: #d93025; font-size: 22px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{{ \App\Services\CurrencyService::format($property->price_per_night) }}</strong>
+                        <strong style="color: #d93025; font-size: 22px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{{ CurrencyService::format($property->price_per_night) }}</strong>
                     </div>
                     <a href="#rooms" class="btn text-white fw-bold rounded-pill px-4 py-2" style="background-color: #2067e1; font-size: 13.5px; letter-spacing: 0.3px;">
                         VIEW THIS DEAL

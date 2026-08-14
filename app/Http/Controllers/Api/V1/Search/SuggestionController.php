@@ -68,7 +68,7 @@ class SuggestionController extends Controller
 
         $matchedCities = [];
         foreach ($knownCities as $kc) {
-            if ($lowerQ === 'bangladesh' || $lowerQ === 'bd' || str_contains(strtolower($kc['city']), $lowerQ)) {
+            if ($lowerQ === 'bangladesh' || $lowerQ === 'bd' || str_contains(strtolower($kc['city']), $lowerQ) || str_contains(strtolower($kc['country']), $lowerQ)) {
                 $matchedCities[] = $kc;
             }
         }

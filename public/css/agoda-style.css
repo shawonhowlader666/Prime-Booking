@@ -21,11 +21,21 @@
 
 html, body, input, button, select, textarea,
 h1, h2, h3, h4, h5, h6, p, span, a, li, label, td, th, div {
-    font-family: 'Barlow', -apple-system, "Segoe UI", Roboto, sans-serif !important;
-    font-weight: 500 !important;
+    font-family: 'Barlow', -apple-system, "Segoe UI", Roboto, sans-serif;
+    font-weight: 500;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+}
+
+/* FontAwesome Icon Exception: Preserve Font Awesome Font Family */
+i, i::before, i::after,
+.fa, .fas, .far, .fal, .fab,
+.fa-solid, .fa-regular, .fa-light, .fa-brands,
+[class*="fa-"], [class*="fa-"]::before, [class*="fa-"]::after {
+    font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
+    font-weight: 900 !important;
+    font-style: normal !important;
 }
 
 body {

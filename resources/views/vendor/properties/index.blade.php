@@ -1,4 +1,4 @@
-﻿@extends('layouts.vendor')
+@extends('layouts.vendor')
 @section('title', 'My Properties | Vendor Portal')
 @section('content')
 @php use App\Services\CurrencyService; @endphp
@@ -24,16 +24,16 @@
     {{-- KPI Cards --}}
     <div class="row g-3 mb-3">
         <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(24,144,255,0.1);color:#1890ff;"><i class="fa-solid fa-hotel"></i></div><div class="kpi-content"><div class="kpi-value">{{ ['total'] }}</div><div class="kpi-label">Total Listings</div></div><div class="kpi-accent-bar" style="background:#1890ff;"></div></div>
+            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(24,144,255,0.1);color:#1890ff;"><i class="fa-solid fa-hotel"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['total'] ?? count($properties ?? []) }}</div><div class="kpi-label">Total Listings</div></div><div class="kpi-accent-bar" style="background:#1890ff;"></div></div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(40,199,111,0.1);color:#28c76f;"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-content"><div class="kpi-value">{{ ['active'] }}</div><div class="kpi-label">Active Live</div></div><div class="kpi-accent-bar" style="background:#28c76f;"></div></div>
+            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(40,199,111,0.1);color:#28c76f;"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['active'] ?? 0 }}</div><div class="kpi-label">Active Live</div></div><div class="kpi-accent-bar" style="background:#28c76f;"></div></div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,159,67,0.1);color:#ff9f43;"><i class="fa-solid fa-clock"></i></div><div class="kpi-content"><div class="kpi-value">{{ ['pending'] }}</div><div class="kpi-label">Pending Review</div></div><div class="kpi-accent-bar" style="background:#ff9f43;"></div></div>
+            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,159,67,0.1);color:#ff9f43;"><i class="fa-solid fa-clock"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['pending'] ?? 0 }}</div><div class="kpi-label">Pending Review</div></div><div class="kpi-accent-bar" style="background:#ff9f43;"></div></div>
         </div>
         <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(234,84,85,0.1);color:#ea5455;"><i class="fa-solid fa-eye-slash"></i></div><div class="kpi-content"><div class="kpi-value">{{ ['inactive'] }}</div><div class="kpi-label">Inactive</div></div><div class="kpi-accent-bar" style="background:#ea5455;"></div></div>
+            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(234,84,85,0.1);color:#ea5455;"><i class="fa-solid fa-eye-slash"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['inactive'] ?? 0 }}</div><div class="kpi-label">Inactive</div></div><div class="kpi-accent-bar" style="background:#ea5455;"></div></div>
         </div>
     </div>
 
@@ -73,26 +73,26 @@
                     </tr>
                 </thead>
                 <tbody>
-                @forelse( as )
+                @forelse($properties as $property)
                     <tr>
-                        <td style="font-size:12px;color:#64748b;">{{ ->iteration }}</td>
+                        <td style="font-size:12px;color:#64748b;">{{ $loop->iteration }}</td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
-                                <img src="{{ ->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=40&fit=crop' }}" width="50" height="35" style="object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=40&fit=crop'">
+                                <img src="{{ $property->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=40&fit=crop' }}" width="50" height="35" style="object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=40&fit=crop'">
                                 <div>
-                                    <div class="fw-bold" style="font-size:12.5px;">{{ ->name }}</div>
-                                    <div style="font-size:11px;color:#64748b;">{{ str_repeat('★', ->star_rating ?? 0) }}</div>
+                                    <div class="fw-bold" style="font-size:12.5px;">{{ $property->name }}</div>
+                                    <div style="font-size:11px;color:#64748b;">{{ str_repeat('★', $property->star_rating ?? 0) }}</div>
                                 </div>
                             </div>
                         </td>
-                        <td style="font-size:12.5px;">{{ ->city }}</td>
-                        <td><span class="badge-gateway">{{ ucfirst(->type) }}</span></td>
-                        <td style="font-size:12.5px;font-weight:600;">৳{{ number_format(->price_per_night) }}</td>
-                        <td style="font-size:12.5px;text-align:center;">{{ ->bookings_count }}</td>
+                        <td style="font-size:12.5px;">{{ $property->city }}</td>
+                        <td><span class="badge-gateway">{{ ucfirst($property->type) }}</span></td>
+                        <td style="font-size:12.5px;font-weight:600;">৳{{ number_format($property->price_per_night) }}</td>
+                        <td style="font-size:12.5px;text-align:center;">{{ $property->bookings_count ?? 0 }}</td>
                         <td>
-                            @if(->status === 'active')
+                            @if(($property->status ?? 'active') === 'active')
                                 <span class="badge-status active">Active</span>
-                            @elseif(->status === 'pending')
+                            @elseif(($property->status ?? '') === 'pending')
                                 <span class="badge-status pending">Pending Review</span>
                             @else
                                 <span class="badge-status cancelled">Inactive</span>
@@ -102,13 +102,13 @@
                             <div class="action-gear-dropdown">
                                 <button class="action-gear-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                                 <div class="dropdown-menu dropdown-menu-end py-1">
-                                    <a href="{{ route('vendor.properties.edit', ->id) }}" class="dropdown-item"><i class="fa-solid fa-pen me-2 text-primary"></i>Edit Property</a>
-                                    <form action="{{ route('vendor.properties.toggle-status', ->id) }}" method="POST" class="d-inline">
+                                    <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-pen me-2 text-primary"></i>Edit Property</a>
+                                    <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
                                         @csrf
                                         <button type="submit" class="dropdown-item"><i class="fa-solid fa-toggle-on me-2 text-warning"></i>Toggle Status</button>
                                     </form>
                                     <div class="dropdown-divider my-1"></div>
-                                    <form action="{{ route('vendor.properties.destroy', ->id) }}" method="POST" onsubmit="return confirm('Delete this property permanently?')">
+                                    <form action="{{ route('vendor.properties.destroy', $property->id) }}" method="POST" onsubmit="return confirm('Delete this property permanently?')">
                                         @csrf @method('DELETE')
                                         <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-trash me-2"></i>Delete</button>
                                     </form>
@@ -124,8 +124,8 @@
                 </tbody>
             </table>
         </div>
-        @if(->hasPages())
-            <div class="stockifly-table-footer"><div>Showing {{ ->firstItem() }}–{{ ->lastItem() }} of {{ ->total() }}</div><div>{{ ->links() }}</div></div>
+        @if(method_exists($properties, 'hasPages') && $properties->hasPages())
+            <div class="stockifly-table-footer"><div>Showing {{ $properties->firstItem() }}–{{ $properties->lastItem() }} of {{ $properties->total() }}</div><div>{{ $properties->links() }}</div></div>
         @endif
     </div>
 </div>

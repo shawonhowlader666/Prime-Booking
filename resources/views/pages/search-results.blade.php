@@ -7,7 +7,7 @@
 
 {{-- 2. Agoda Compact Subheader Search Bar --}}
 <div style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155;">
-    <div style="max-width: 1320px; margin: 0 auto; padding: 0 12px;">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 0 16px;">
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
             <div class="col-md-3">
@@ -40,7 +40,7 @@
 
 {{-- 3. Agoda Coupon Deals Strip Banner (Image 2 Parity) --}}
 <div style="background: #fff0f3; border-bottom: 1px solid #fecdd3; padding: 10px 0;">
-    <div class="d-flex align-items-center justify-content-between" style="max-width: 1320px; margin: 0 auto; padding: 0 12px; font-size: 13px;">
+    <div class="d-flex align-items-center justify-content-between" style="max-width: 1140px; margin: 0 auto; padding: 0 16px; font-size: 13px;">
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-danger rounded-pill px-2 py-1"><i class="fa-solid fa-tag"></i></span>
             <strong class="text-dark">Looking for instant coupons?</strong>
@@ -51,7 +51,7 @@
 </div>
 
 {{-- 4. Main Search Results Layout --}}
-<div style="max-width: 1320px; margin: 0 auto; padding: 24px 12px;">
+<div style="max-width: 1140px; margin: 0 auto; padding: 24px 16px;">
     <div class="row g-4">
         
         {{-- Left Filter Sidebar --}}

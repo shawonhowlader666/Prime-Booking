@@ -1,6 +1,6 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
 <header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0 shadow-sm" style="min-height: 60px; z-index: 1050; border-color: #e5e7eb !important;">
-    <div class="container-fluid px-3 px-md-4" style="min-height: 60px; max-width: 1440px; margin: 0 auto;">
+    <div class="container-fluid px-3" style="min-height: 60px; max-width: 1140px; margin: 0 auto;">
 
         {{-- 100% Identical Prime Booking SVG Logo --}}
         <a class="navbar-brand d-flex align-items-center me-2 me-xl-4 flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none;">

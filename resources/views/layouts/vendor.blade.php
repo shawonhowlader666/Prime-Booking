@@ -937,6 +937,17 @@
 
         <!-- Page Content -->
         <main style="flex:1;">
+            @php $announcement = \App\Models\SiteSetting::get('announcement_text', null); @endphp
+            @if($announcement)
+                <div class="px-3 pt-3 mb-0">
+                    <div class="alert alert-info border-0 shadow-xs mb-0 d-flex align-items-center justify-content-between" style="background: linear-gradient(135deg, #e6f7ff 0%, #bae7ff 100%); color: #0050b3; border-left: 4px solid #1890ff !important; font-size: 12.5px; border-radius: 4px;">
+                        <div>
+                            <i class="fa-solid fa-bullhorn me-2 text-primary"></i> <strong>PLATFORM ANNOUNCEMENT:</strong> {{ $announcement }}
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="font-size: 10px;"></button>
+                    </div>
+                </div>
+            @endif
             @yield('content')
         </main>
     </div>

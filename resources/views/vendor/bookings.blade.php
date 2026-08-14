@@ -121,6 +121,11 @@
                                             <i class="fa-solid fa-eye text-primary me-2"></i> View Reservation Details
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('checkout.confirmation', $b->booking_reference) }}" target="_blank">
+                                            <i class="fa-solid fa-print text-success me-2"></i> Print Guest Voucher / Invoice
+                                        </a>
+                                    </li>
                                 </ul>
                             </div>
                         </td>

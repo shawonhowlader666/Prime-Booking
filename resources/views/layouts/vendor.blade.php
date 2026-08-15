@@ -86,21 +86,17 @@
         }
 
         /* ============================================================
-         * Action Gear Hover & Dropdown Styles for Admin & Vendor Tables
+         * Action 3-Dot Dropdown Styles for Admin & Vendor Tables
          * ============================================================ */
-        .action-gear-dropdown {
+        .action-gear-dropdown, .action-3dot-dropdown {
             position: relative;
         }
-        .action-gear-dropdown:hover .dropdown-menu {
-            display: block;
-            margin-top: 0;
-        }
-        .action-gear-btn {
+        .action-gear-btn, .action-3dot-btn {
             transition: all 0.15s ease;
         }
-        .action-gear-dropdown:hover .action-gear-btn {
-            background: var(--primary) !important;
-            color: #ffffff !important;
+        .action-gear-btn:hover, .action-3dot-btn:hover {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
         }
         .dropdown-item {
             font-size: 12.5px;
@@ -765,23 +761,21 @@
         #sbBackdrop { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:1030; }
 
         /* ============================================================
-         * Action Gear Hover Dropdown System (Stockifly Style)
+         * Action 3-Dot & Gear Dropdown System (Stockifly Style)
          * ============================================================ */
-        .action-gear-dropdown { position: relative; display: inline-block; }
-        .action-gear-btn {
-            width: 32px; height: 32px; padding: 0; border-radius: 4px !important;
+        .action-gear-dropdown, .action-3dot-dropdown { position: relative; display: inline-block; }
+        .action-gear-btn, .action-3dot-btn {
+            width: 32px; height: 32px; padding: 0; border-radius: 6px !important;
             background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1 !important;
             display: inline-flex; align-items: center; justify-content: center;
             transition: all 0.15s ease;
         }
-        .action-gear-btn:hover,
-        .action-gear-dropdown:hover .action-gear-btn {
-            background: var(--primary) !important; color: #ffffff !important;
-            border-color: var(--primary) !important; box-shadow: 0 2px 8px rgba(32,103,225,0.25);
+        .action-gear-btn:hover, .action-3dot-btn:hover {
+            background: #e2e8f0 !important; color: #0f172a !important;
+            border-color: #94a3b8 !important;
         }
-        .action-gear-dropdown:hover .dropdown-menu { display: block !important; margin-top: 0; }
-        .action-gear-dropdown .dropdown-menu {
-            min-width: 180px; padding: 4px 0; border-radius: 4px !important; border: 1px solid #e2e8f0;
+        .action-gear-dropdown .dropdown-menu, .action-3dot-dropdown .dropdown-menu {
+            min-width: 190px; padding: 4px 0; border-radius: 6px !important; border: 1px solid #e2e8f0;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
             background: #ffffff; z-index: 2000 !important; right: 0 !important; left: auto !important;
         }

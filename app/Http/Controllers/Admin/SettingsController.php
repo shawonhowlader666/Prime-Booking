@@ -91,14 +91,18 @@ class SettingsController extends Controller
             'social_linkedin'           => SiteSetting::get('social_linkedin', ''),
             'social_twitter'            => SiteSetting::get('social_twitter', ''),
 
-            // SMS Gateway
-            'sms_provider'              => SiteSetting::get('sms_provider', 'sslcommerz_sms'),
-            'sms_sender_id'             => SiteSetting::get('sms_sender_id', 'PrimeBooK'),
-            'sms_api_key'               => SiteSetting::get('sms_api_key', ''),
-            'sms_api_secret'            => SiteSetting::get('sms_api_secret', ''),
-            'sms_on_booking'            => SiteSetting::get('sms_on_booking', '1'),
-            'sms_on_cancelled'          => SiteSetting::get('sms_on_cancelled', '1'),
-            'sms_on_payment'            => SiteSetting::get('sms_on_payment', '1'),
+            // SMS Gateway & Dynamic Templates
+            'sms_provider'                  => SiteSetting::get('sms_provider', 'bulksmsbd'),
+            'sms_api_url'                   => SiteSetting::get('sms_api_url', 'http://bulksmsbd.net/api/smsapi'),
+            'sms_sender_id'                 => SiteSetting::get('sms_sender_id', 'PrimeBooking'),
+            'sms_api_key'                   => SiteSetting::get('sms_api_key', ''),
+            'sms_api_secret'                => SiteSetting::get('sms_api_secret', ''),
+            'sms_on_booking'                => SiteSetting::get('sms_on_booking', '1'),
+            'sms_on_cancelled'              => SiteSetting::get('sms_on_cancelled', '1'),
+            'sms_on_payment'                => SiteSetting::get('sms_on_payment', '1'),
+            'sms_template_guest_confirmed'  => SiteSetting::get('sms_template_guest_confirmed', "Dear {guest_name}, your booking at {property_name} is CONFIRMED! Ref: {booking_ref}. Check-in: {check_in}. Total: {total_price}. Thank you for choosing PRIME BOOKING!"),
+            'sms_template_vendor_alert'     => SiteSetting::get('sms_template_vendor_alert', "PRIME BOOKING Alert: New Reservation #{booking_ref} received for {room_name}. Guest: {guest_name} ({guest_phone}). Check-in: {check_in}."),
+            'sms_template_payment_paid'     => SiteSetting::get('sms_template_payment_paid', "Dear {guest_name}, payment received for Booking #{booking_ref}. Status: PAID. Thank you!"),
         ];
 
         return view('admin.settings', compact('user', 'siteSettings'));
@@ -159,8 +163,9 @@ class SettingsController extends Controller
             // Social Media
             'social_facebook', 'social_instagram', 'social_youtube',
             'social_whatsapp', 'social_linkedin', 'social_twitter',
-            // SMS Gateway
-            'sms_provider', 'sms_sender_id', 'sms_api_key', 'sms_api_secret',
+            // SMS Gateway & Templates
+            'sms_provider', 'sms_api_url', 'sms_sender_id', 'sms_api_key', 'sms_api_secret',
+            'sms_template_guest_confirmed', 'sms_template_vendor_alert', 'sms_template_payment_paid',
         ];
 
         foreach ($keys as $k) {
@@ -187,6 +192,22 @@ class SettingsController extends Controller
 
         Cache::flush();
 
-        return redirect()->back()->with('success', 'Stockifly SaaS Settings & Admin Profile updated successfully!');
+        return redirect()->back()->with('success', 'Settings & SMS Gateway Configuration updated successfully!');
+    }
+
+    /** Send live test SMS from Admin settings */
+    public function sendTestSms(Request $request, \App\Services\NotificationService $notificationService)
+    {
+        $request->validate([
+            'test_phone' => 'required|string|min:11',
+            'test_msg'   => 'required|string|max:160',
+        ]);
+
+        $sent = $notificationService->sendSms($request->test_phone, $request->test_msg);
+
+        if ($sent) {
+            return response()->json(['success' => true, 'message' => "Test SMS dispatched to {$request->test_phone} successfully."]);
+        }
+        return response()->json(['success' => false, 'message' => "Could not send SMS. Please check API Key and Gateway URL in settings."], 422);
     }
 }

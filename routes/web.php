@@ -252,6 +252,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // SaaS Tenants & Partner Management
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::post('/settings/send-test-sms', [SettingsController::class, 'sendTestSms'])->name('settings.test-sms');
     Route::get('/tenants', [TenantManagementController::class, 'index'])->name('tenants.index');
     Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
     Route::put('/tenants/{id}', [TenantManagementController::class, 'update'])->name('tenants.update');

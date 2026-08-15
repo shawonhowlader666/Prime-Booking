@@ -605,39 +605,45 @@
                     {{-- TAB 10: SMS GATEWAY --}}
                     <div class="tab-pane fade" id="tab-sms" role="tabpanel">
                         <div class="stockifly-card p-3 mb-3">
-                            <div class="saas-section-title mb-3 pb-2 border-bottom">
-                                <i class="fa-solid fa-sms me-1"></i> SMS Gateway &amp; Booking Notification Settings
+                            <div class="saas-section-title mb-3 pb-2 border-bottom d-flex align-items-center justify-content-between">
+                                <span><i class="fa-solid fa-sms me-1 text-primary"></i> SMS Gateway &amp; Booking Notification Settings</span>
+                                <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:11px;">Dynamic Engine Active</span>
                             </div>
                             <div class="row g-3">
                                 <div class="col-md-6">
-                                    <label class="saas-label">SMS Provider</label>
+                                    <label class="saas-label">SMS Provider / Gateway</label>
                                     <select name="sms_provider" class="form-select saas-input">
-                                        @php $smsProv = old('sms_provider', $siteSettings['sms_provider']); @endphp
-                                        <option value="sslcommerz_sms" {{ $smsProv === 'sslcommerz_sms' ? 'selected' : '' }}>SSLCommerz SMS</option>
-                                        <option value="twilio" {{ $smsProv === 'twilio' ? 'selected' : '' }}>Twilio</option>
-                                        <option value="nexmo" {{ $smsProv === 'nexmo' ? 'selected' : '' }}>Vonage (Nexmo)</option>
-                                        <option value="alpha" {{ $smsProv === 'alpha' ? 'selected' : '' }}>Alpha Net BD</option>
+                                        @php $smsProv = old('sms_provider', $siteSettings['sms_provider'] ?? 'bulksmsbd'); @endphp
+                                        <option value="bulksmsbd" {{ $smsProv === 'bulksmsbd' ? 'selected' : '' }}>BulkSMSBD.net (Recommended BD)</option>
+                                        <option value="greenweb" {{ $smsProv === 'greenweb' ? 'selected' : '' }}>Greenweb BD</option>
+                                        <option value="alphanet" {{ $smsProv === 'alphanet' ? 'selected' : '' }}>Alpha Net BD</option>
+                                        <option value="sslcommerz_sms" {{ $smsProv === 'sslcommerz_sms' ? 'selected' : '' }}>SSLCommerz SMS Gateway</option>
+                                        <option value="twilio" {{ $smsProv === 'twilio' ? 'selected' : '' }}>Twilio International</option>
+                                        <option value="custom_http" {{ $smsProv === 'custom_http' ? 'selected' : '' }}>Custom HTTP REST Gateway</option>
                                     </select>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="saas-label">SMS Sender Name / Masking</label>
-                                    <input type="text" name="sms_sender_id" class="form-control saas-input" value="{{ old('sms_sender_id', $siteSettings['sms_sender_id']) }}" placeholder="e.g. PrimeBooK">
+                                    <label class="saas-label">SMS Gateway API Endpoint URL</label>
+                                    <input type="text" name="sms_api_url" class="form-control saas-input" value="{{ old('sms_api_url', $siteSettings['sms_api_url'] ?? 'http://bulksmsbd.net/api/smsapi') }}" placeholder="e.g. http://bulksmsbd.net/api/smsapi">
+                                    <small class="text-muted" style="font-size:10.5px;">API endpoint URL where HTTP requests are dispatched.</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="saas-label">SMS API Key / Account SID</label>
-                                    <input type="text" name="sms_api_key" class="form-control saas-input" value="{{ old('sms_api_key', $siteSettings['sms_api_key']) }}" placeholder="Enter API Key or Account SID">
+                                    <label class="saas-label">SMS Sender ID / Masking</label>
+                                    <input type="text" name="sms_sender_id" class="form-control saas-input" value="{{ old('sms_sender_id', $siteSettings['sms_sender_id'] ?? 'PrimeBooking') }}" placeholder="e.g. PrimeBooking / 8809612...">
+                                    <small class="text-muted" style="font-size:10.5px;">Approved Masking Name or Non-masking sender number.</small>
                                 </div>
                                 <div class="col-md-6">
-                                    <label class="saas-label">SMS API Secret / Auth Token</label>
-                                    <input type="password" name="sms_api_secret" class="form-control saas-input" value="{{ old('sms_api_secret', $siteSettings['sms_api_secret']) }}" placeholder="Enter API Secret or Auth Token">
+                                    <label class="saas-label">SMS API Key / Token</label>
+                                    <input type="text" name="sms_api_key" class="form-control saas-input" value="{{ old('sms_api_key', $siteSettings['sms_api_key'] ?? '') }}" placeholder="Enter Gateway API Key / Token">
                                 </div>
+                                
                                 <div class="col-12">
-                                    <div class="saas-section-title mt-2 mb-2 pb-1 border-bottom">SMS Notification Triggers</div>
+                                    <div class="saas-section-title mt-3 mb-2 pb-1 border-bottom"><i class="fa-solid fa-bell me-1"></i> SMS Notification Triggers</div>
                                 </div>
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="sms_on_booking" id="smsOnBooking" {{ ($siteSettings['sms_on_booking'] ?? '1') == '1' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="smsOnBooking" style="font-size:12.5px;">On Booking Confirmed</label>
+                                        <label class="form-check-label fw-bold" for="smsOnBooking" style="font-size:12.5px;">On Booking Confirmed (Guest &amp; Vendor)</label>
                                     </div>
                                 </div>
                                 <div class="col-md-4">
@@ -649,9 +655,55 @@
                                 <div class="col-md-4">
                                     <div class="form-check">
                                         <input class="form-check-input" type="checkbox" name="sms_on_payment" id="smsOnPayment" {{ ($siteSettings['sms_on_payment'] ?? '1') == '1' ? 'checked' : '' }}>
-                                        <label class="form-check-label fw-bold" for="smsOnPayment" style="font-size:12.5px;">On Payment Received</label>
+                                        <label class="form-check-label fw-bold" for="smsOnPayment" style="font-size:12.5px;">On Payment Received / Verified</label>
                                     </div>
                                 </div>
+
+                                {{-- Dynamic SMS Templates --}}
+                                <div class="col-12">
+                                    <div class="saas-section-title mt-3 mb-2 pb-1 border-bottom d-flex align-items-center justify-content-between">
+                                        <span><i class="fa-solid fa-file-lines me-1"></i> Dynamic SMS Templates &amp; Shortcodes</span>
+                                        <span class="text-muted" style="font-size:11px;">Shortcodes: <code class="text-primary">{guest_name}</code>, <code class="text-primary">{property_name}</code>, <code class="text-primary">{room_name}</code>, <code class="text-primary">{booking_ref}</code>, <code class="text-primary">{check_in}</code>, <code class="text-primary">{total_price}</code></span>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Guest Booking Confirmation SMS Template</label>
+                                    <textarea name="sms_template_guest_confirmed" rows="3" class="form-control saas-input" style="font-size:12px;">{{ old('sms_template_guest_confirmed', $siteSettings['sms_template_guest_confirmed'] ?? "Dear {guest_name}, your booking at {property_name} is CONFIRMED! Ref: {booking_ref}. Check-in: {check_in}. Total: {total_price}. Thank you for choosing PRIME BOOKING!") }}</textarea>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label">Vendor New Reservation Alert SMS Template</label>
+                                    <textarea name="sms_template_vendor_alert" rows="3" class="form-control saas-input" style="font-size:12px;">{{ old('sms_template_vendor_alert', $siteSettings['sms_template_vendor_alert'] ?? "PRIME BOOKING Alert: New Reservation #{booking_ref} received for {room_name}. Guest: {guest_name} ({guest_phone}). Check-in: {check_in}.") }}</textarea>
+                                </div>
+                                <div class="col-12">
+                                    <label class="saas-label">Payment Received / Paid SMS Template</label>
+                                    <textarea name="sms_template_payment_paid" rows="2" class="form-control saas-input" style="font-size:12px;">{{ old('sms_template_payment_paid', $siteSettings['sms_template_payment_paid'] ?? "Dear {guest_name}, payment received for Booking #{booking_ref}. Status: PAID. Thank you!") }}</textarea>
+                                </div>
+
+                                {{-- Live Test SMS Sender --}}
+                                <div class="col-12">
+                                    <div class="p-3 rounded-3 mt-2" style="background:#f8fafc; border:1px dashed #cbd5e1;">
+                                        <div class="fw-bold mb-2 text-dark d-flex align-items-center gap-2" style="font-size:12.5px;">
+                                            <i class="fa-solid fa-paper-plane text-primary"></i> Live Test SMS Dispatcher
+                                        </div>
+                                        <div class="row g-2 align-items-end">
+                                            <div class="col-md-4">
+                                                <label class="saas-label">Test Mobile Number</label>
+                                                <input type="text" id="test_sms_phone" class="form-control form-control-sm" placeholder="01XXXXXXXXX" value="01770887733">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="saas-label">Test Message</label>
+                                                <input type="text" id="test_sms_msg" class="form-control form-control-sm" value="PRIME BOOKING: This is a test SMS from your live gateway!">
+                                            </div>
+                                            <div class="col-md-2">
+                                                <button type="button" id="btnSendTestSms" class="btn btn-primary btn-sm w-100 fw-bold" style="height:31px;">
+                                                    <i class="fa-solid fa-paper-plane me-1"></i> Send Test
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <div id="testSmsResult" class="mt-2" style="font-size:11.5px; display:none;"></div>
+                                    </div>
+                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -772,6 +824,54 @@ document.addEventListener("DOMContentLoaded", function() {
             updateSettingsHeader(e.target);
         });
     });
+
+    // Live Test SMS Dispatcher
+    const btnSendTestSms = document.getElementById('btnSendTestSms');
+    const testSmsResult = document.getElementById('testSmsResult');
+    if (btnSendTestSms) {
+        btnSendTestSms.addEventListener('click', function() {
+            const phone = document.getElementById('test_sms_phone').value.trim();
+            const msg = document.getElementById('test_sms_msg').value.trim();
+            if (!phone || !msg) {
+                alert('Please enter a valid phone number and message.');
+                return;
+            }
+
+            btnSendTestSms.disabled = true;
+            btnSendTestSms.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Sending...';
+            testSmsResult.style.display = 'none';
+
+            fetch('{{ route("admin.settings.test-sms") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({ test_phone: phone, test_msg: msg })
+            })
+            .then(res => res.json())
+            .then(data => {
+                btnSendTestSms.disabled = false;
+                btnSendTestSms.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Send Test';
+                testSmsResult.style.display = 'block';
+                if (data.success) {
+                    testSmsResult.style.color = '#16a34a';
+                    testSmsResult.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ' + data.message;
+                } else {
+                    testSmsResult.style.color = '#dc2626';
+                    testSmsResult.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> ' + (data.message || 'Failed to dispatch test SMS.');
+                }
+            })
+            .catch(err => {
+                btnSendTestSms.disabled = false;
+                btnSendTestSms.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Send Test';
+                testSmsResult.style.display = 'block';
+                testSmsResult.style.color = '#dc2626';
+                testSmsResult.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> Error sending test SMS.';
+            });
+        });
+    }
 });
 </script>
 

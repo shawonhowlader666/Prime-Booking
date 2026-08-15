@@ -66,7 +66,7 @@
                 </span>
             </div>
             <div style="width:260px; max-width:100%;">
-                <input type="text" id="adminRoomSearchInput" class="form-control form-control-sm" placeholder="🔍 Search room name, bed..." onkeyup="filterAdminRoomsSearch(this.value)" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                <input type="text" id="adminRoomSearchInput" class="form-control form-control-sm" placeholder="Search room name, bed..." onkeyup="filterAdminRoomsSearch(this.value)" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
             </div>
         </div>
 
@@ -88,9 +88,16 @@
                     <tr class="admin-room-row" data-name="{{ strtolower($room->name) }}" data-bed="{{ strtolower($room->bed_type ?? '') }}">
                         <td style="padding-left: 20px !important;">
                             <div class="d-flex align-items-center gap-2.5">
-                                <div style="width:36px; height:36px; border-radius:6px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
-                                    <i class="fa-solid fa-bed"></i>
-                                </div>
+                                @php
+                                    $adminRoomThumb = (!empty($room->images) && is_array($room->images)) ? $room->images[0] : null;
+                                @endphp
+                                @if($adminRoomThumb)
+                                    <img src="{{ $adminRoomThumb }}" width="48" height="38" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
+                                @else
+                                    <div style="width:48px; height:38px; border-radius:4px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
+                                        <i class="fa-solid fa-bed"></i>
+                                    </div>
+                                @endif
                                 <div>
                                     <strong style="font-size:13.5px; color:#1e293b; display:block;">{{ $room->name }}</strong>
                                     <span style="font-size:11px; color:#64748b;">

@@ -26,7 +26,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.rooms.update', [$property->id, $room->id]) }}" method="POST">
+        <form action="{{ route('admin.rooms.update', [$property->id, $room->id]) }}" method="POST" enctype="multipart/form-data">
             @csrf @method('PUT')
 
             <div class="form-card mb-3">
@@ -43,6 +43,17 @@
                                 <option value="{{ $bt }}" {{ old('bed_type', $room->bed_type) == $bt ? 'selected' : '' }}>{{ $bt }}</option>
                             @endforeach
                         </select>
+                    </div>
+                    @php
+                        $adminRoomImg = (!empty($room->images) && is_array($room->images)) ? $room->images[0] : '';
+                    @endphp
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-solid fa-image text-primary me-1"></i> Room Cover Photo (Direct URL)</label>
+                        <input type="url" name="image_url" class="form-control" value="{{ old('image_url', $adminRoomImg) }}" placeholder="https://images.unsplash.com/photo-...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-secondary me-1"></i> Or Upload New Photo</label>
+                        <input type="file" name="image_file" accept="image/*" class="form-control">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Room Size (m²)</label>

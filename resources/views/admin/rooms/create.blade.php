@@ -27,7 +27,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.rooms.store', $property->id) }}" method="POST">
+        <form action="{{ route('admin.rooms.store', $property->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="form-card mb-3">
@@ -47,6 +47,14 @@
                             <option value="1 Super King + Sofa Bed">1 Super King + Sofa Bed</option>
                             <option value="Bunk Beds">Bunk Beds</option>
                         </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-solid fa-image text-primary me-1"></i> Room Cover Photo (Direct URL)</label>
+                        <input type="url" name="image_url" class="form-control" value="{{ old('image_url') }}" placeholder="https://images.unsplash.com/photo-...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-secondary me-1"></i> Or Upload Room Photo</label>
+                        <input type="file" name="image_file" accept="image/*" class="form-control">
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Room Size (m²)</label>

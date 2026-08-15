@@ -76,11 +76,21 @@ class VendorRoomController extends Controller
 
         $bathroomFeatures = (array) ($request->bathroom_features ?? []);
 
+        $roomImages = [];
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = 'room_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/rooms'), $filename);
+            $roomImages = ['/uploads/rooms/' . $filename];
+        } elseif ($request->filled('image_url')) {
+            $roomImages = array_values(array_filter(array_map('trim', explode("\n", $request->image_url))));
+        }
+
         Room::create([
             'property_id'        => $property->id,
             'name'               => $request->name,
             'bed_type'           => $request->bed_type,
-            'view_type'          => $request->view_type ?? 'City View',
+            'view_type'          => $request->view_type ?? 'City Skyline View',
             'bathroom_count'     => (int) ($request->bathroom_count ?? 1),
             'bathroom_features'  => array_values($bathroomFeatures),
             'smoking_policy'     => $request->smoking_policy ?? 'Non-Smoking',
@@ -95,11 +105,12 @@ class VendorRoomController extends Controller
             'breakfast_included' => $request->boolean('breakfast_included'),
             'free_cancellation'  => $request->boolean('free_cancellation'),
             'facilities'         => array_values($facilities),
+            'images'             => $roomImages,
         ]);
 
         return redirect()
             ->route('vendor.rooms.index', $property->id)
-            ->with('success', '✅ New room category added successfully!');
+            ->with('success', 'New room category added successfully!');
     }
 
     /** Update room type */
@@ -128,6 +139,16 @@ class VendorRoomController extends Controller
 
         $bathroomFeatures = (array) ($request->bathroom_features ?? ($room->bathroom_features ?? []));
 
+        $roomImages = is_array($room->images) ? $room->images : [];
+        if ($request->hasFile('image_file')) {
+            $file = $request->file('image_file');
+            $filename = 'room_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+            $file->move(public_path('uploads/rooms'), $filename);
+            $roomImages = ['/uploads/rooms/' . $filename];
+        } elseif ($request->filled('image_url')) {
+            $roomImages = array_values(array_filter(array_map('trim', explode("\n", $request->image_url))));
+        }
+
         $room->update([
             'name'               => $request->name,
             'bed_type'           => $request->bed_type ?? $room->bed_type,
@@ -145,21 +166,8 @@ class VendorRoomController extends Controller
             'total_rooms'        => (int) ($request->total_rooms ?? $room->total_rooms),
             'breakfast_included' => $request->has('breakfast_included') ? $request->boolean('breakfast_included') : $room->breakfast_included,
             'free_cancellation'  => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $room->free_cancellation,
-            'facilities'         => array_values($facilities),
-        ]);
-
-        $room->update([
-            'name'               => $request->name,
-            'bed_type'           => $request->bed_type ?? $room->bed_type,
-            'price_per_night'    => (float) $request->price_per_night,
-            'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : $room->room_size_sqm,
-            'max_adults'         => (int) $request->max_adults,
-            'max_children'       => (int) ($request->max_children ?? $room->max_children),
-            'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? 1),
-            'total_rooms'        => (int) ($request->total_rooms ?? $room->total_rooms),
-            'breakfast_included' => $request->boolean('breakfast_included'),
-            'free_cancellation'  => $request->boolean('free_cancellation'),
-            'facilities'          => array_values($facilities) ?: ($room->facilities ?? []),
+            'facilities'         => array_values($facilities) ?: ($room->facilities ?? []),
+            'images'             => $roomImages,
         ]);
 
         return redirect()

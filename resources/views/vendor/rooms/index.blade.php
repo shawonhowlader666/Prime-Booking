@@ -87,9 +87,16 @@
                     <tr class="room-row-item" data-name="{{ strtolower($r->name) }}" data-bed="{{ strtolower($r->bed_type ?? '') }}">
                         <td style="padding-left: 20px !important;">
                             <div class="d-flex align-items-center gap-3">
-                                <div style="width:38px; height:38px; border-radius:6px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
-                                    <i class="fa-solid fa-bed"></i>
-                                </div>
+                                @php
+                                    $roomThumb = (!empty($r->images) && is_array($r->images)) ? $r->images[0] : null;
+                                @endphp
+                                @if($roomThumb)
+                                    <img src="{{ $roomThumb }}" width="48" height="38" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
+                                @else
+                                    <div style="width:48px; height:38px; border-radius:4px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
+                                        <i class="fa-solid fa-bed"></i>
+                                    </div>
+                                @endif
                                 <div>
                                     <strong style="font-size:13.5px; color:#1e293b; display:block;">{{ $r->name }}</strong>
                                     <span style="font-size:11px; color:#64748b;">
@@ -176,32 +183,6 @@
 
 </div>
 
-{{-- ➕ ADD ROOM CATEGORY MODAL --}}
-<div class="modal fade" id="addRoomModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-            <form action="{{ route('vendor.rooms.store', $property->id) }}" method="POST">
-                @csrf
-                <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
-                    <div>
-                        <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px;">
-                            <i class="fa-solid fa-plus-circle text-primary me-2"></i> Add New Room Category
-                        </h6>
-                        <span class="text-muted" style="font-size:11.5px; font-weight:500;">
-                            Configure inventory specifications &amp; pricing for <strong class="text-dark">{{ Str::limit($property->name, 35) }}</strong>
-                        </span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-4">
-                    <div class="row g-3">
-                        <div class="col-12 col-md-8">
-                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Room Name / Category Title <span class="text-danger">*</span>
-                            </label>
-                            <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Deluxe Sea View Suite" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                        </div>
-
 @php
     $allBathroomFeatures = [
         ['name' => 'Private Bathroom', 'icon' => 'fa-solid fa-shower text-primary'],
@@ -230,6 +211,32 @@
     ];
 @endphp
 
+{{-- ➕ ADD ROOM CATEGORY MODAL --}}
+<div class="modal fade" id="addRoomModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <form action="{{ route('vendor.rooms.store', $property->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
+                    <div>
+                        <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px;">
+                            <i class="fa-solid fa-plus-circle text-primary me-2"></i> Add New Room Category
+                        </h6>
+                        <span class="text-muted" style="font-size:11.5px; font-weight:500;">
+                            Configure inventory specifications &amp; pricing for <strong class="text-dark">{{ Str::limit($property->name, 35) }}</strong>
+                        </span>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+                        <div class="col-12 col-md-8">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Room Name / Category Title <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Deluxe Sea View Suite" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 <i class="fa-solid fa-bed text-primary me-1.5"></i> Bed Configuration <span class="text-danger">*</span>
@@ -242,6 +249,20 @@
                                 <option value="Executive Suite">Super King Bed + Jacuzzi Suite</option>
                                 <option value="Bunk Bed">Bunk Beds (Family Room)</option>
                             </select>
+                        </div>
+
+                        {{-- Room Photo Attachment --}}
+                        <div class="col-12 col-md-6">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                <i class="fa-solid fa-image text-primary me-1.5"></i> Room Cover Photo (Direct URL)
+                            </label>
+                            <input type="url" name="image_url" class="form-control form-control-sm" placeholder="https://images.unsplash.com/photo-..." style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                <i class="fa-solid fa-cloud-arrow-up text-secondary me-1.5"></i> Or Upload Room Photo
+                            </label>
+                            <input type="file" name="image_file" accept="image/*" class="form-control form-control-sm" style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
@@ -389,7 +410,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Additional Amenities &amp; Notes (1 per line)
                             </label>
@@ -413,7 +434,7 @@
 <div class="modal fade" id="editRoomModal{{ $r->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-            <form action="{{ route('vendor.rooms.update', [$property->id, $r->id]) }}" method="POST">
+            <form action="{{ route('vendor.rooms.update', [$property->id, $r->id]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
                 <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
@@ -452,6 +473,23 @@
                                     <option value="{{ $btVal }}" {{ ($r->bed_type == $btVal) ? 'selected' : '' }}>{{ $btLbl }}</option>
                                 @endforeach
                             </select>
+                        </div>
+
+                        {{-- Room Photo Attachment --}}
+                        @php
+                            $currentImg = (!empty($r->images) && is_array($r->images)) ? $r->images[0] : '';
+                        @endphp
+                        <div class="col-12 col-md-6">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                <i class="fa-solid fa-image text-primary me-1.5"></i> Room Cover Photo (Direct URL)
+                            </label>
+                            <input type="url" name="image_url" class="form-control form-control-sm" value="{{ $currentImg }}" placeholder="https://images.unsplash.com/photo-..." style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                <i class="fa-solid fa-cloud-arrow-up text-secondary me-1.5"></i> Or Upload New Photo
+                            </label>
+                            <input type="file" name="image_file" accept="image/*" class="form-control form-control-sm" style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
@@ -605,7 +643,7 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
+                        <div class="col-12">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Additional Custom Amenities (1 per line)
                             </label>

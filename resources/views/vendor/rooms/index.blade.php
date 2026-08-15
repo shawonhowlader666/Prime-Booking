@@ -348,10 +348,15 @@
         <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
             <form action="{{ route('vendor.rooms.store', $property->id) }}" method="POST">
                 @csrf
-                <div class="modal-header border-bottom py-3 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
-                    <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center">
-                        <i class="fa-solid fa-plus-circle text-primary me-2"></i> Add New Room Category: {{ $property->name }}
-                    </h6>
+                <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
+                    <div>
+                        <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px;">
+                            <i class="fa-solid fa-plus-circle text-primary me-2"></i> Add New Room Category
+                        </h6>
+                        <span class="text-muted" style="font-size:11.5px; font-weight:500;">
+                            Configure inventory specifications &amp; pricing for <strong class="text-dark">{{ Str::limit($property->name, 35) }}</strong>
+                        </span>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">
@@ -470,10 +475,15 @@
             <form action="{{ route('vendor.rooms.update', [$property->id, $r->id]) }}" method="POST">
                 @csrf
                 @method('PUT')
-                <div class="modal-header border-bottom py-3 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
-                    <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center">
-                        <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Room: {{ $r->name }}
-                    </h6>
+                <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
+                    <div>
+                        <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px;">
+                            <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Room Category
+                        </h6>
+                        <span class="text-muted" style="font-size:11.5px; font-weight:500;">
+                            Update details &amp; base pricing for <strong class="text-dark">{{ Str::limit($r->name, 35) }}</strong>
+                        </span>
+                    </div>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body p-4">

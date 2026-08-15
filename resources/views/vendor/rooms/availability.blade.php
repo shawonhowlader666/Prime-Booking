@@ -388,18 +388,20 @@
 
                 {{-- VIEW 2: DETAILED DATA TABLE VIEW (Searchable & Printable) --}}
                 <div id="calendarTableView" style="display: none; max-height: 560px; overflow-y: auto;">
-                    <div class="p-2.5 bg-light border-bottom d-flex align-items-center justify-content-between">
-                        <span class="text-secondary fw-bold" style="font-size:12px;">Detailed Date-by-Date Table Breakdown</span>
-                        <input type="text" class="form-control form-control-sm" placeholder="Filter by date..." onkeyup="filterTableSearch('calendarTable', this.value)" style="width:180px; height:30px; font-size:12px;">
+                    <div class="p-3 px-3.5 bg-light border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#fafafa !important; border-color:#e8e8e8 !important;">
+                        <span class="text-secondary fw-bold" style="font-size:12px; text-transform:uppercase; letter-spacing:0.3px;">
+                            <i class="fa-solid fa-list-check text-primary me-1"></i> Detailed Date-by-Date Breakdown
+                        </span>
+                        <input type="text" class="form-control form-control-sm" placeholder="Filter by date..." onkeyup="filterTableSearch('calendarTable', this.value)" style="width:180px; height:32px; font-size:12px; border:1px solid #d9d9d9; border-radius:4px; padding:4px 10px;">
                     </div>
-                    <table class="table stockifly-data-table align-middle mb-0" id="calendarTable">
-                        <thead class="sticky-top bg-white" style="z-index: 10;">
+                    <table class="table table-stockifly align-middle mb-0" id="calendarTable">
+                        <thead class="sticky-top" style="z-index: 10;">
                             <tr>
-                                <th>Date &amp; Day</th>
+                                <th style="padding-left: 20px !important;">Date &amp; Day</th>
                                 <th>Base Rate</th>
                                 <th>Effective Rate</th>
                                 <th>Status</th>
-                                <th style="text-align:right;">Quick Action</th>
+                                <th style="text-align:right; padding-right: 20px !important;">Quick Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -413,31 +415,31 @@
                                 $effectivePrice = $record && $record->price ? (float)$record->price : (float)$selectedRoom->price_per_night;
                             @endphp
                             <tr class="avail-row" data-status="{{ $isBlocked ? 'blocked' : 'available' }}" data-custom="{{ $hasCustomPrice ? '1' : '0' }}" style="background-color: {{ $isBlocked ? '#fff5f5' : ($hasCustomPrice ? '#f0f7ff' : 'transparent') }};">
-                                <td>
+                                <td style="padding-left: 20px !important;">
                                     <strong style="font-size:13px; color:#1e293b; display:block;">{{ $currentDateObj->format('D, M d, Y') }}</strong>
                                     <span style="font-size:10.5px; color:#64748b;">{{ $currentDateObj->isToday() ? 'Today' : ($currentDateObj->isWeekend() ? 'Weekend' : 'Weekday') }}</span>
                                 </td>
-                                <td><span style="font-size:12.5px; color:#64748b;">BDT ৳{{ number_format($selectedRoom->price_per_night) }}</span></td>
+                                <td><span style="font-size:12.5px; color:#64748b; font-weight:600;">৳{{ number_format($selectedRoom->price_per_night) }}</span></td>
                                 <td>
                                     @if($hasCustomPrice)
-                                        <strong style="color:#7367f0; font-size:13px;">BDT ৳{{ number_format($effectivePrice) }}</strong>
-                                        <span class="badge bg-purple text-white ms-1" style="font-size:10px; background:#7367f0;">Seasonal</span>
+                                        <strong style="color:#7367f0; font-size:13px;">৳{{ number_format($effectivePrice) }}</strong>
+                                        <span class="badge text-white ms-1" style="font-size:10px; background:#7367f0; border-radius:3px;">Seasonal</span>
                                     @else
-                                        <span style="font-size:12.5px; color:#1e293b; font-weight:600;">BDT ৳{{ number_format($effectivePrice) }}</span>
+                                        <span style="font-size:12.5px; color:#1e293b; font-weight:600;">৳{{ number_format($effectivePrice) }}</span>
                                     @endif
                                 </td>
                                 <td>
                                     @if($isBlocked)
-                                        <span class="badge-status cancelled" style="background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; font-weight:700;">
+                                        <span class="badge-status cancelled" style="background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; font-weight:700; padding:3px 8px; border-radius:4px; font-size:11px;">
                                             <i class="fa-solid fa-ban me-1"></i> Sold Out / Blocked
                                         </span>
                                     @else
-                                        <span class="badge-status active">
+                                        <span class="badge-status active" style="background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; font-weight:700; padding:3px 8px; border-radius:4px; font-size:11px;">
                                             <i class="fa-solid fa-circle-check me-1"></i> Available
                                         </span>
                                     @endif
                                 </td>
-                                <td style="text-align:right;">
+                                <td style="text-align:right; padding-right: 20px !important;">
                                     <form action="{{ route('vendor.availability.update-range') }}" method="POST" class="d-inline-block">
                                         @csrf
                                         <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
@@ -445,12 +447,12 @@
                                         <input type="hidden" name="end_date" value="{{ $dateStr }}">
                                         @if($isBlocked)
                                             <input type="hidden" name="is_blocked" value="0">
-                                            <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-2.5 py-1" style="font-size:11.5px; border-radius:4px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-success fw-bold px-2.5 py-1" style="font-size:11px; border-radius:4px; height:28px;">
                                                 <i class="fa-solid fa-unlock me-1"></i> Unblock
                                             </button>
                                         @else
                                             <input type="hidden" name="is_blocked" value="1">
-                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-2.5 py-1" style="font-size:11.5px; border-radius:4px;">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger fw-bold px-2.5 py-1" style="font-size:11px; border-radius:4px; height:28px;">
                                                 <i class="fa-solid fa-ban me-1"></i> Block
                                             </button>
                                         @endif

@@ -16,6 +16,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'status',
         'phone', 'avatar', 'country', 'city', 'dob', 'gender',
         'passport_number', 'passport_expiry',
+        'google_id', 'currency_preference', 'prime_miles', 'remember_token',
         'email_verified_at',
         'last_login_at', 'last_login_ip',
         'total_bookings', 'total_spent',

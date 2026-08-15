@@ -10,6 +10,8 @@ class Coupon extends Model
     use HasFactory;
 
     protected $fillable = [
+        'vendor_id',
+        'property_id',
         'code',
         'type', // fixed or percentage
         'amount',

@@ -13,15 +13,25 @@ class Destination extends Model
         'name',
         'slug',
         'tagline',
+        'description',
+        'country',
         'image_url',
+        'image',
         'video_url',
         'sort_order',
+        'is_featured',
         'is_active',
     ];
 
+    public function setImageAttribute($value): void
+    {
+        $this->attributes['image_url'] = $value;
+    }
+
     protected $casts = [
-        'is_active'  => 'boolean',
-        'sort_order' => 'integer',
+        'is_active'   => 'boolean',
+        'is_featured' => 'boolean',
+        'sort_order'  => 'integer',
     ];
 
     /**

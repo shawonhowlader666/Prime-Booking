@@ -815,17 +815,38 @@
 
             {{-- PROPERTY MANAGEMENT --}}
             <div class="sb-section-header">Property Management</div>
-            @php $isPropActive = request()->routeIs('vendor.properties.*', 'vendor.property.*', 'vendor.availability.*'); @endphp
+            @php 
+                $isPropActive = request()->routeIs('vendor.properties.*', 'vendor.property.*', 'vendor.availability.*', 'vendor.rooms.*'); 
+                $vendorPropsCount = \App\Models\Property::where('vendor_id', auth()->id() ?? 1)->count();
+                $firstVendorProp = \App\Models\Property::where('vendor_id', auth()->id() ?? 1)->first();
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isPropActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorProps" aria-expanded="{{ $isPropActive ? 'true' : 'false' }}">
-                    <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Properties</span></div>
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> 
+                        <span>Property Management</span>
+                    </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
                 <div class="collapse {{ $isPropActive ? 'show' : '' }}" id="menuVendorProps">
                     <div class="sb-sub-menu">
-                        <a href="{{ route('vendor.properties.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.index') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> My Properties</a>
-                        <a href="{{ route('vendor.properties.create') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.create','vendor.property.create') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Add New Property</a>
-                        <a href="{{ route('vendor.availability.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rates & Calendar</a>
+                        <a href="{{ route('vendor.properties.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-list me-1" style="font-size:11px;"></i> Property List
+                            @if($vendorPropsCount > 0)
+                                <span style="margin-left:auto; background:rgba(24,144,255,0.25); color:#91caff; font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px;">{{ $vendorPropsCount }}</span>
+                            @endif
+                        </a>
+                        <a href="{{ route('vendor.properties.create') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.create','vendor.property.create') ? 'active' : '' }}">
+                            <i class="fa-solid fa-plus me-1" style="font-size:11px;"></i> Add Property
+                        </a>
+                        @if($firstVendorProp)
+                        <a href="{{ route('vendor.rooms.index', $firstVendorProp->id) }}" class="sb-sub-item {{ request()->routeIs('vendor.rooms.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-bed me-1" style="font-size:11px;"></i> Room Categories
+                        </a>
+                        @endif
+                        <a href="{{ route('vendor.availability.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-calendar-days me-1" style="font-size:11px;"></i> Rates &amp; Availability
+                        </a>
                     </div>
                 </div>
             </div>

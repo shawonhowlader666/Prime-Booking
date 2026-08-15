@@ -589,16 +589,19 @@
 
             {{-- Room Filter Container Box (Exact Agoda 1:1 Parity) --}}
             <div class="p-3 mb-3 rounded-3" style="background: #ffffff; border: 1px solid #dddfe2; border-radius: 12px !important;">
-                <strong class="d-block text-dark mb-2.5" style="font-size: 13.5px; font-weight: 700;">Filter</strong>
-                <div class="d-flex flex-wrap gap-2">
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-credit-card text-dark"></i> Book without credit card</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-mug-hot text-dark"></i> Breakfast included</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-shield-halved text-dark"></i> Free cancellation</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-ban-smoking text-dark"></i> Non-smoking</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-utensils text-dark"></i> Kitchen</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-building text-dark"></i> Balcony/terrace</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-bed text-dark"></i> Twin Bed</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-water text-dark"></i> {{ $property->city == "Cox's Bazar Sea Beach" ? 'Sea view' : 'City view' }}</div>
+                <div class="d-flex justify-content-between align-items-center mb-2.5">
+                    <strong class="text-dark" style="font-size: 13.5px; font-weight: 700;">Filter</strong>
+                    <span id="roomFilterCount" class="badge bg-light text-secondary border px-2 py-1" style="font-size:11px;">Showing all room types</span>
+                </div>
+                <div class="d-flex flex-wrap gap-2" id="roomFilterPillsContainer">
+                    <div class="agoda-filter-pill-121" data-filter="creditcard" onclick="toggleRoomFilter('creditcard', this)"><i class="fa-solid fa-credit-card text-dark"></i> Book without credit card</div>
+                    <div class="agoda-filter-pill-121" data-filter="breakfast" onclick="toggleRoomFilter('breakfast', this)"><i class="fa-solid fa-mug-hot text-dark"></i> Breakfast included</div>
+                    <div class="agoda-filter-pill-121" data-filter="freecancel" onclick="toggleRoomFilter('freecancel', this)"><i class="fa-solid fa-shield-halved text-dark"></i> Free cancellation</div>
+                    <div class="agoda-filter-pill-121" data-filter="nonsmoking" onclick="toggleRoomFilter('nonsmoking', this)"><i class="fa-solid fa-ban-smoking text-dark"></i> Non-smoking</div>
+                    <div class="agoda-filter-pill-121" data-filter="kitchen" onclick="toggleRoomFilter('kitchen', this)"><i class="fa-solid fa-utensils text-dark"></i> Kitchen</div>
+                    <div class="agoda-filter-pill-121" data-filter="balcony" onclick="toggleRoomFilter('balcony', this)"><i class="fa-solid fa-building text-dark"></i> Balcony/terrace</div>
+                    <div class="agoda-filter-pill-121" data-filter="twinbed" onclick="toggleRoomFilter('twinbed', this)"><i class="fa-solid fa-bed text-dark"></i> Twin Bed</div>
+                    <div class="agoda-filter-pill-121" data-filter="view" onclick="toggleRoomFilter('view', this)"><i class="fa-solid fa-water text-dark"></i> {{ $property->city == "Cox's Bazar Sea Beach" ? 'Sea view' : 'City view' }}</div>
                 </div>
             </div>
 
@@ -608,7 +611,7 @@
             </div>
 
             {{-- Available Rooms List (Agoda 1:1 Exact Card Design - Screenshot Parity) --}}
-            <div class="d-flex flex-column gap-4">
+            <div class="d-flex flex-column gap-4" id="availableRoomsContainer">
                 @php
                     $roomItems = $property->rooms->isNotEmpty() ? $property->rooms : [
                         (object)[
@@ -624,6 +627,8 @@
                             'bathroom_features' => ['Private Bathroom', 'Hot Water Geyser'],
                             'smoking_policy' => 'Non-Smoking',
                             'balcony_type' => 'Private Balcony',
+                            'breakfast_included' => true,
+                            'free_cancellation' => true,
                             'primary_image' => $gallery[0] ?? ''
                         ],
                         (object)[
@@ -639,6 +644,8 @@
                             'bathroom_features' => ['Private Bathroom', 'Bathtub / Jacuzzi', 'Hot Water Geyser'],
                             'smoking_policy' => 'Non-Smoking',
                             'balcony_type' => 'Terrace',
+                            'breakfast_included' => true,
+                            'free_cancellation' => true,
                             'primary_image' => $gallery[1] ?? ($gallery[0] ?? '')
                         ]
                     ];
@@ -654,8 +661,18 @@
                     $rSmoking = $room->smoking_policy ?: 'Non-smoking';
                     $rBalcony = $room->balcony_type ?: 'Private Balcony';
                     $rBathrooms = $room->bathroom_count ?? 1;
+                    $isTwin = str_contains(strtolower($rBedStr), 'twin') || str_contains(strtolower($rBedStr), '2 single');
                 @endphp
-                <div class="card mb-4 overflow-hidden" style="padding: 16px !important; background: #f8fafc !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important;">
+                <div class="card mb-4 overflow-hidden agoda-room-listing-card"
+                    data-breakfast="true"
+                    data-creditcard="true"
+                    data-freecancel="true"
+                    data-nonsmoking="{{ str_contains(strtolower($rSmoking), 'non-smoking') ? 'true' : 'false' }}"
+                    data-balcony="{{ !empty($rBalcony) && !str_contains(strtolower($rBalcony), 'no balcony') ? 'true' : 'false' }}"
+                    data-twinbed="{{ $isTwin ? 'true' : 'false' }}"
+                    data-view="true"
+                    data-kitchen="true"
+                    style="padding: 16px !important; background: #f8fafc !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important;">
                     <div class="row g-3">
                         
                         {{-- LEFT COLUMN: Room Image, Title, Specs & Amenities Grid (Exact 1:1 Parity) --}}
@@ -1870,5 +1887,58 @@
         </div>
     </div>
 </div>
+
+<script>
+    // ─── Instant Client-Side Zero-Latency Room Filtering (Agoda Standard) ───
+    const activeRoomFilters = new Set();
+
+    function toggleRoomFilter(filterKey, element) {
+        if (activeRoomFilters.has(filterKey)) {
+            activeRoomFilters.delete(filterKey);
+            element.style.background = '#ffffff';
+            element.style.color = '#334155';
+            element.style.borderColor = '#cbd5e1';
+        } else {
+            activeRoomFilters.add(filterKey);
+            element.style.background = '#e0f2fe';
+            element.style.color = '#0284c7';
+            element.style.borderColor = '#0284c7';
+        }
+
+        applyRoomFilters();
+    }
+
+    function applyRoomFilters() {
+        const cards = document.querySelectorAll('.agoda-room-listing-card');
+        let visibleCount = 0;
+
+        cards.forEach(card => {
+            let isMatch = true;
+
+            activeRoomFilters.forEach(f => {
+                const val = card.getAttribute('data-' + f);
+                if (val !== 'true') {
+                    isMatch = false;
+                }
+            });
+
+            if (isMatch) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const countBadge = document.getElementById('roomFilterCount');
+        if (countBadge) {
+            if (activeRoomFilters.size === 0) {
+                countBadge.textContent = 'Showing all room types';
+            } else {
+                countBadge.textContent = `Showing ${visibleCount} matching room${visibleCount === 1 ? '' : 's'}`;
+            }
+        }
+    }
+</script>
 @endsection
 

@@ -51,4 +51,14 @@ class Room extends Model
     {
         return $this->belongsTo(Property::class);
     }
+
+    /**
+     * Formatted Size in Square Meters & Feet
+     */
+    public function getFormattedSizeAttribute(): string
+    {
+        $sqm = $this->room_size_sqm ?: 46;
+        $sqft = round($sqm * 10.764);
+        return "{$sqm} m²/{$sqft} ft²";
+    }
 }

@@ -11,7 +11,10 @@
 
     $gallery = collect();
     if (!empty($property->primary_image)) $gallery->push($property->primary_image);
-    if (is_array($property->images)) $gallery = $gallery->merge($property->images);
+    $propGallery = is_array($property->gallery_images) ? $property->gallery_images : (is_array($property->images) ? $property->images : []);
+    if (!empty($propGallery)) {
+        $gallery = $gallery->merge($propGallery);
+    }
     $fallbacks = [
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
         'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80',

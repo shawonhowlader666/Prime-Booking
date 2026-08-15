@@ -207,19 +207,42 @@ class PropertyManagementController extends Controller
 
         $property = Property::findOrFail($id);
 
-        $galleryImages = [];
+        $existingGallery = is_array($property->gallery_images) ? $property->gallery_images : (is_array($property->images) ? $property->images : []);
+        $newGallery = [];
+
+        // Support multiple gallery file uploads
+        if ($request->hasFile('gallery_image_files')) {
+            foreach ($request->file('gallery_image_files') as $file) {
+                if ($file && $file->isValid()) {
+                    $path = $file->store('uploads/properties/gallery', 'public');
+                    $newGallery[] = asset('storage/' . $path);
+                }
+            }
+        }
+
         if ($request->gallery_images) {
-            $galleryImages = array_filter(
+            $urls = array_filter(
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
+            $newGallery = array_merge($newGallery, $urls);
         }
+
+        $finalGallery = !empty($newGallery) ? array_values(array_unique(array_merge($existingGallery, $newGallery))) : $existingGallery;
 
         if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
             $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
             $primaryImage = asset('storage/' . $path);
         } else {
             $primaryImage = $request->primary_image ?: $property->primary_image;
+        }
+
+        // Handle video file upload or URL
+        if ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
+            $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
+            $videoUrl = asset('storage/' . $videoPath);
+        } else {
+            $videoUrl = $request->video_url ?: $property->video_url;
         }
 
         $property->update([
@@ -233,7 +256,7 @@ class PropertyManagementController extends Controller
             'commission_rate' => $request->commission_rate !== null ? (float) $request->commission_rate : $property->commission_rate,
             'description'     => $request->description,
             'primary_image'   => $primaryImage,
-            'video_url'       => $request->video_url ?: $property->video_url,
+            'video_url'       => $videoUrl,
             'latitude'        => $request->latitude ? (float)$request->latitude : $property->latitude,
             'longitude'       => $request->longitude ? (float)$request->longitude : $property->longitude,
             'map_embed_url'   => $request->map_embed_url ?: $property->map_embed_url,
@@ -251,7 +274,8 @@ class PropertyManagementController extends Controller
             'pets_policy'     => $request->pets_policy ?? $property->pets_policy,
             'free_cancellation'      => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $property->free_cancellation,
             'no_credit_card_required'=> $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : $property->no_credit_card_required,
-            'images'          => array_values($galleryImages) ?: ($property->images ?? []),
+            'gallery_images'  => $finalGallery,
+            'images'          => $finalGallery,
             'amenities'       => $request->amenities ?? [],
             'is_featured'     => $request->boolean('is_featured'),
             'status'          => $request->status ?? $property->status,

@@ -37,7 +37,7 @@
             </div>
         @endif
 
-        <form action="{{ route('vendor.properties.update', $property->id) }}" method="POST">
+        <form action="{{ route('vendor.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -192,34 +192,55 @@
                 </div>
             </div>
 
-            {{-- Images --}}
+            {{-- Photos, Gallery & Video Media --}}
             <div class="form-card mb-3">
                 <div class="form-section-title">
-                    <i class="fa-solid fa-images me-1"></i> Images
+                    <i class="fa-solid fa-images me-1"></i> Photos, Gallery &amp; Video Tour (Stored in Database)
                 </div>
                 <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">Primary Image URL</label>
-                        @if($property->primary_image)
-                            <div style="margin-bottom:8px; display:flex; align-items:center; gap:10px;">
-                                <img src="{{ $property->primary_image }}" style="height:60px; border-radius:6px; border:1px solid #e8e8e8; object-fit:cover;">
-                                <span style="font-size:11px; color:#8c8c8c;">Current primary image</span>
-                            </div>
-                        @endif
+                    <div class="col-md-6">
+                        <label class="form-label">Cover Photo (Device Upload)</label>
+                        <input type="file" name="primary_image_file" class="form-control" accept="image/*">
+                        <small class="text-muted" style="font-size:11px;">Upload new JPG/PNG from your computer or phone.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">OR Primary Image Direct URL</label>
                         <input type="url" name="primary_image" class="form-control"
                             value="{{ old('primary_image', $property->primary_image) }}"
-                            placeholder="https://...">
+                            placeholder="https://images.unsplash.com/...">
                     </div>
+                    @if($property->primary_image)
                     <div class="col-12">
-                        <label class="form-label"><i class="fa-solid fa-video text-danger me-1"></i> Hotel Video Tour URL (YouTube / Embed / MP4)</label>
+                        <div style="padding:8px 12px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:6px; display:flex; align-items:center; gap:12px;">
+                            <img src="{{ $property->primary_image }}" style="height:60px; width:80px; border-radius:6px; border:1px solid #cbd5e1; object-fit:cover;">
+                            <div>
+                                <strong style="font-size:12px; color:#1e293b;">Current Database Cover Photo</strong>
+                                <div style="font-size:11px; color:#64748b; word-break:break-all;">{{ $property->primary_image }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    <div class="col-md-6">
+                        <label class="form-label">Add Gallery Photos (Multiple Files)</label>
+                        <input type="file" name="gallery_image_files[]" class="form-control" multiple accept="image/*">
+                        <small class="text-muted" style="font-size:11px;">Select multiple room, lobby, pool photos to upload.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Gallery URLs (one URL per line)</label>
+                        <textarea name="gallery_images" class="form-control" rows="2" placeholder="https://... (one per line)">{{ old('gallery_images', $galleryText) }}</textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-solid fa-file-video text-danger me-1"></i> Upload Video Tour (MP4 / WebM)</label>
+                        <input type="file" name="video_file" class="form-control" accept="video/*">
+                        <small class="text-muted" style="font-size:11px;">Max 50MB MP4 hotel walkthrough video.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-brands fa-youtube text-danger me-1"></i> OR Video Tour URL (YouTube / Embed / MP4)</label>
                         <input type="url" name="video_url" class="form-control"
                             value="{{ old('video_url', $property->video_url) }}"
-                            placeholder="https://www.youtube.com/embed/...">
-                        <small style="font-size:11px; color:#8c8c8c;">Attach a video tour link to showcase your property to prospective guests.</small>
-                    </div>
-                    <div class="col-12">
-                        <label class="form-label">Gallery Images (one URL per line)</label>
-                        <textarea name="gallery_images" class="form-control" rows="3">{{ old('gallery_images', $galleryText) }}</textarea>
+                            placeholder="https://www.youtube.com/watch?v=...">
                     </div>
                 </div>
             </div>

@@ -75,15 +75,22 @@ class VendorRoomController extends Controller
         }
 
         $bathroomFeatures = (array) ($request->bathroom_features ?? []);
-
         $roomImages = [];
-        if ($request->hasFile('image_file')) {
-            $file = $request->file('image_file');
-            $filename = 'room_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/rooms'), $filename);
-            $roomImages = ['/uploads/rooms/' . $filename];
-        } elseif ($request->filled('image_url')) {
-            $roomImages = array_values(array_filter(array_map('trim', explode("\n", $request->image_url))));
+        if ($request->hasFile('image_files')) {
+            foreach ($request->file('image_files') as $f) {
+                if ($f && $f->isValid()) {
+                    $path = $f->store('uploads/rooms', 'public');
+                    $roomImages[] = asset('storage/' . $path);
+                }
+            }
+        }
+        if ($request->hasFile('image_file') && $request->file('image_file')->isValid()) {
+            $path = $request->file('image_file')->store('uploads/rooms', 'public');
+            $roomImages[] = asset('storage/' . $path);
+        }
+        if ($request->filled('image_url')) {
+            $urls = array_values(array_filter(array_map('trim', explode("\n", $request->image_url)), fn($u) => !empty($u)));
+            $roomImages = array_unique(array_merge($roomImages, $urls));
         }
 
         Room::create([
@@ -106,12 +113,23 @@ class VendorRoomController extends Controller
             'breakfast_included' => $request->boolean('breakfast_included'),
             'free_cancellation'  => $request->boolean('free_cancellation'),
             'facilities'         => array_values($facilities),
-            'images'             => $roomImages,
+            'images'             => array_values($roomImages),
         ]);
 
         return redirect()
             ->route('vendor.rooms.index', $property->id)
-            ->with('success', 'New room category added successfully!');
+            ->with('success', 'Room category added successfully!');
+    }
+
+    public function edit($propertyId, $roomId)
+    {
+        $property = Property::where('id', $propertyId)
+            ->where('vendor_id', $this->vendorId())
+            ->firstOrFail();
+
+        $room = Room::where('property_id', $property->id)->findOrFail($roomId);
+
+        return view('vendor.rooms.edit', compact('property', 'room'));
     }
 
     /** Update room type */
@@ -125,12 +143,18 @@ class VendorRoomController extends Controller
 
         $request->validate([
             'name'            => 'required|string|max:255',
+            'bed_type'        => 'required|string|max:255',
             'price_per_night' => 'required|numeric|min:0',
             'max_adults'      => 'required|integer|min:1',
+            'max_children'    => 'nullable|integer|min:0',
+            'total_rooms'     => 'nullable|integer|min:1',
+            'room_size_sqm'   => 'nullable|integer|min:1',
+            'image_file'      => 'nullable|image|max:10240',
+            'image_url'       => 'nullable|string',
         ]);
 
-        $facilities = (array) ($request->amenities ?? []);
-        if ($request->facilities_text) {
+        $facilities = (array) ($request->facilities ?? []);
+        if ($request->filled('facilities_text')) {
             $customFac = array_filter(
                 array_map('trim', explode("\n", $request->facilities_text)),
                 fn($line) => !empty($line)
@@ -141,13 +165,21 @@ class VendorRoomController extends Controller
         $bathroomFeatures = (array) ($request->bathroom_features ?? ($room->bathroom_features ?? []));
 
         $roomImages = is_array($room->images) ? $room->images : [];
-        if ($request->hasFile('image_file')) {
-            $file = $request->file('image_file');
-            $filename = 'room_' . time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
-            $file->move(public_path('uploads/rooms'), $filename);
-            $roomImages = ['/uploads/rooms/' . $filename];
-        } elseif ($request->filled('image_url')) {
-            $roomImages = array_values(array_filter(array_map('trim', explode("\n", $request->image_url))));
+        if ($request->hasFile('image_files')) {
+            foreach ($request->file('image_files') as $f) {
+                if ($f && $f->isValid()) {
+                    $path = $f->store('uploads/rooms', 'public');
+                    $roomImages[] = asset('storage/' . $path);
+                }
+            }
+        }
+        if ($request->hasFile('image_file') && $request->file('image_file')->isValid()) {
+            $path = $request->file('image_file')->store('uploads/rooms', 'public');
+            $roomImages[] = asset('storage/' . $path);
+        }
+        if ($request->filled('image_url')) {
+            $urls = array_values(array_filter(array_map('trim', explode("\n", $request->image_url)), fn($u) => !empty($u)));
+            $roomImages = array_unique(array_merge($roomImages, $urls));
         }
 
         $room->update([

@@ -226,13 +226,28 @@ class VendorController extends Controller
             'video_url'       => 'nullable|url',
         ]);
 
-        $galleryImages = [];
+        $existingGallery = is_array($property->gallery_images) ? $property->gallery_images : (is_array($property->images) ? $property->images : []);
+        $newGallery = [];
+
+        // Support multiple gallery file uploads
+        if ($request->hasFile('gallery_image_files')) {
+            foreach ($request->file('gallery_image_files') as $file) {
+                if ($file && $file->isValid()) {
+                    $path = $file->store('uploads/properties/gallery', 'public');
+                    $newGallery[] = asset('storage/' . $path);
+                }
+            }
+        }
+
         if ($request->gallery_images) {
-            $galleryImages = array_filter(
+            $urls = array_filter(
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
+            $newGallery = array_merge($newGallery, $urls);
         }
+
+        $finalGallery = !empty($newGallery) ? array_values(array_unique(array_merge($existingGallery, $newGallery))) : $existingGallery;
 
         if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
             $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
@@ -278,7 +293,8 @@ class VendorController extends Controller
             'pets_policy'              => $request->pets_policy ?? $property->pets_policy,
             'primary_image'            => $primaryImage,
             'video_url'                => $videoUrl,
-            'images'                   => array_values($galleryImages) ?: ($property->images ?? []),
+            'gallery_images'           => $finalGallery,
+            'images'                   => $finalGallery,
             'amenities'                => $request->amenities ?? [],
             'free_cancellation'        => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $property->free_cancellation,
             'no_credit_card_required'  => $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : $property->no_credit_card_required,

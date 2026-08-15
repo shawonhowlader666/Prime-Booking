@@ -58,11 +58,11 @@
     .agoda-card-border { background: #ffffff; border: 1px solid #dddfe2 !important; border-radius: 8px !important; box-shadow: none !important; }
     .agoda-card-border:hover { border-color: #cbd5e1 !important; }
 
-    /* Hero Collage Grid Image Zoom */
-    .hero-main-img-box { position: relative; height: 360px; overflow: hidden; border-radius: 8px 0 0 8px; cursor: pointer; }
-    .hero-thumb-img-box { position: relative; height: 176px; overflow: hidden; cursor: pointer; }
-    .hero-main-img-box img, .hero-thumb-img-box img { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-    .hero-main-img-box:hover img, .hero-thumb-img-box:hover img { transform: scale(1.035); }
+    /* Hero Collage Grid Image Zoom & Hover Highlights */
+    .hero-main-img-box { position: relative; height: 360px; overflow: hidden; border-radius: 8px 0 0 8px; cursor: pointer; background: #0f172a; }
+    .hero-thumb-img-box { position: relative; height: 176px; overflow: hidden; cursor: pointer; background: #0f172a; }
+    .hero-main-img-box img, .hero-thumb-img-box img { transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), filter 0.3s ease; }
+    .hero-main-img-box:hover img, .hero-thumb-img-box:hover img { transform: scale(1.045); filter: brightness(1.06); }
     
     /* Sub-score Pills & Filter Buttons */
     .subscore-pill { background: #e6f4ea; color: #137333; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; }
@@ -175,12 +175,12 @@
             </div>
         </div>
 
-        {{-- 3. Hero Photo Collage 5-Grid (Screenshot 1 Parity) --}}
-        <div class="mb-4 position-relative" style="border-radius: 12px; overflow: hidden;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+        {{-- 3. Hero Photo Collage 5-Grid (Screenshot 1 Parity with Video Priority & Hover Effects) --}}
+        <div class="mb-4 position-relative" style="border-radius: 12px; overflow: hidden;">
             <div class="row g-2">
                 {{-- Main Feature Image or Embedded Video Tour (Left 60%) --}}
                 <div class="col-lg-7">
-                    <div class="hero-main-img-box position-relative" style="background:#000000;">
+                    <div class="hero-main-img-box position-relative" style="background:#000000;" data-bs-toggle="modal" data-bs-target="#galleryModal">
                         @if(!empty($property->video_url))
                             @php
                                 $videoUrl = $property->video_url;
@@ -208,17 +208,17 @@
                             <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
                         @endif
 
-                        {{-- Floating Camera / Media Pill Button --}}
-                        <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;">
-                            <button class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-2" style="font-size: 12px; background: rgba(255,255,255,0.95);">
-                                <i class="fa-solid fa-camera text-primary"></i> See all {{ $gallery->count() }} photos @if(!empty($property->video_url)) • <i class="fa-solid fa-circle-play text-danger"></i> Video Tour @endif
+                        {{-- Floating Camera Pill Button (Bottom Right - Agoda Screenshot Parity) --}}
+                        <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 10;">
+                            <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-1.5" style="font-size: 12.5px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                                <i class="fa-solid fa-camera text-primary"></i> See all photos @if(!empty($property->video_url)) • <i class="fa-solid fa-circle-play text-danger"></i> Video Tour @endif
                             </button>
                         </div>
                     </div>
                 </div>
 
                 {{-- 4 Grid Photos (Right 2x2 Grid) --}}
-                <div class="col-lg-5 d-none d-lg-block">
+                <div class="col-lg-5 d-none d-lg-block" data-bs-toggle="modal" data-bs-target="#galleryModal">
                     <div class="row g-2">
                         <div class="col-6">
                             <div class="hero-thumb-img-box" style="border-top-right-radius: 0;">
@@ -244,7 +244,7 @@
                 </div>
             </div>
 
-            {{-- Wishlist Favorite Icon --}}
+            {{-- Wishlist Favorite Icon (Top Right) --}}
             <div class="position-absolute top-0 end-0 m-3" style="z-index: 15;">
                 <form action="{{ route('wishlist.toggle') }}" method="POST" class="m-0">
                     @csrf
@@ -296,29 +296,31 @@
             {{-- Left Column: Title Card & Guest Highlights --}}
             <div class="col-lg-8">
                 
-                {{-- Left Card 1: Badges, Title & Address --}}
+                {{-- Left Card 1: Badges, Title & Address (Screenshot Exact Parity) --}}
                 <div class="card agoda-card-border p-4 mb-4">
-                    {{-- Badges & Stars --}}
+                    {{-- Badges & Stars (Exact Agoda Parity) --}}
                     <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
-                        <span class="badge text-white fw-bold px-2.5 py-1" style="background-color: #0b2545; font-size: 11px; border-radius: 4px;">
-                            {{ $property->is_featured ? '⭐ Featured Property' : 'Top Verified Deal' }}
+                        <span class="badge text-white fw-bold px-2.5 py-1" style="background-color: #d93025; font-size: 11.5px; border-radius: 4px;">
+                            Best seller
                         </span>
-                        <span class="badge bg-white fw-bold px-2.5 py-1" style="color: #16a34a; border: 1px solid #16a34a; font-size: 11px; border-radius: 4px; text-transform: capitalize;">
-                            <i class="fa-solid fa-hotel me-1"></i> {{ ucfirst($property->type ?: 'Hotel & Resort') }}
-                        </span>
-                        <span class="text-warning" style="font-size: 13px; letter-spacing: 1px;">
-                            @for($i = 0; $i < ($property->star_rating ?? 5); $i++)★@endfor
+                        <span class="badge bg-white text-dark fw-bold px-2.5 py-1 d-inline-flex align-items-center gap-1.5 border" style="font-size: 11px; border-radius: 4px; border-color: #cbd5e1 !important;">
+                            <span style="font-weight: 900; background: linear-gradient(135deg, #2563eb, #db2777, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">a</span>
+                            <span style="letter-spacing: 0.5px; color: #3b82f6; font-weight: 700;">Agoda</span> PREFERRED
                         </span>
                     </div>
 
-                    {{-- Title --}}
-                    <h2 class="fw-bold text-dark mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; line-height: 1.25;">
-                        {{ $property->name }}
-                    </h2>
+                    {{-- Title & Address --}}
+                    <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">
+                        <h2 class="fw-bold text-dark mb-0" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 24px; line-height: 1.25;">
+                            {{ $property->name }}
+                        </h2>
+                        <span class="text-warning fs-6" style="letter-spacing: 1px;">
+                            @for($i = 0; $i < ($property->star_rating ?? 3); $i++)★@endfor
+                        </span>
+                    </div>
+
                     <p class="text-secondary small mb-0" style="font-size: 13px;">
-                        <i class="fa-solid fa-location-dot text-danger me-1"></i>
-                        {{ $property->address ?: ($property->city . ', Bangladesh') }}
-                        @if(!empty($property->nearest_landmark)) • <span class="text-dark fw-semibold"><i class="fa-solid fa-map-pin text-primary me-0.5"></i> {{ $property->nearest_landmark }}</span> @endif - 
+                        {{ $property->address ?: ($property->city . ', Bangladesh, 1230') }}- 
                         <a href="#location" class="fw-bold text-decoration-none" style="color: #2067e1;">SEE MAP</a>
                     </p>
                 </div>

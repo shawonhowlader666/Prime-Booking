@@ -5,12 +5,12 @@
 
 @section('content')
 
-{{-- PAGE HEADER & EXPORT TOOLBAR --}}
-<div class="page-header-card mb-3">
+{{-- PAGE HEADER & EXPORT TOOLBAR (Exact Stockifly Admin Attached Header) --}}
+<div class="page-header-card">
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div>
             <h1 class="page-title m-0">Rates &amp; Availability Calendar</h1>
-            <div class="page-breadcrumb mt-1">
+            <div class="page-breadcrumb mt-1.5">
                 <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
                 <span class="sep">-</span><span>Inventory</span>
                 <span class="sep">-</span><strong style="color:#333;">Rates &amp; Calendar</strong>
@@ -18,7 +18,7 @@
         </div>
         
         {{-- FULLY FUNCTIONAL EXPORT TOOLBAR --}}
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+        <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
             <button type="button" class="btn-tbl-copy" onclick="copyRatesToClipboard()" title="Copy Calendar to Clipboard">
                 <i class="fa-regular fa-copy me-1"></i> Copy
             </button>
@@ -55,7 +55,7 @@
     @if($selectedRoom)
 
     {{-- KPI SUMMARY ROW (Interactive Filter Triggers) --}}
-    <div class="row g-3 mb-4">
+    <div class="row g-3 mb-3.5">
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card" onclick="filterAvailabilityStatus('all', document.querySelector('[data-filter=all]'))" style="cursor:pointer;" title="Click to view all days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">

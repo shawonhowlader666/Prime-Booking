@@ -45,10 +45,13 @@
     .agoda-detail-search-bar { background: linear-gradient(180deg, #1d2b45 0%, #152238 100%); padding: 12px 0; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 1100; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
     .agoda-sticky-nav-bar { position: sticky; top: 68px; z-index: 1050; width: 100%; background: #ffffff !important; border-top: 1px solid #e2e8f0 !important; border-bottom: 1px solid #dddfe2 !important; border-left: none !important; border-right: none !important; border-radius: 0 !important; box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06); }
     
+    .agoda-nav-scroll-container { overflow-x: auto; white-space: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+    .agoda-nav-scroll-container::-webkit-scrollbar { display: none; }
+
     .agoda-nav-item { font-size: 13.5px; font-weight: 600; color: #475569; padding: 15px 18px; border-bottom: 3px solid transparent; text-decoration: none; display: inline-block; white-space: nowrap; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
     .agoda-nav-item:hover, .agoda-nav-item.active { color: #2067e1; border-bottom-color: #2067e1; font-weight: 700; }
     
-    .agoda-filter-pill-121 { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 6px 14px; font-size: 12.5px; font-weight: 500; color: #1e293b; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s ease; }
+    .agoda-filter-pill-121 { background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 6px 14px; font-size: 12.5px; font-weight: 500; color: #1e293b; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; transition: all 0.2s ease; user-select: none; }
     .agoda-filter-pill-121:hover { border-color: #2067e1; color: #2067e1; }
     
     /* Card Aesthetics & Agoda Exact Borders */
@@ -67,15 +70,49 @@
     .agoda-filter-pill:hover { border-color: #2067e1; color: #2067e1; background: #f0f7ff; }
 
     .room-space-card { background: #ffffff; border: 1px solid #dddfe2; border-radius: 8px; padding: 14px; flex: 1; min-width: 140px; }
+
+    /* 📐 Standard Symmetric Page Container (Equal left and right padding) */
+    .agoda-page-container {
+        max-width: 1240px;
+        margin-left: auto;
+        margin-right: auto;
+        padding-left: 24px;
+        padding-right: 24px;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* 📱 Responsive Mobile & Tablet Adjustments (Zero Broken Layouts) */
+    @media (max-width: 991.98px) {
+        .hero-main-img-box { height: 260px; border-radius: 8px 8px 0 0; }
+        .hero-thumb-img-box { height: 130px; }
+        .agoda-sticky-nav-bar { top: 0 !important; }
+        .agoda-room-offer-grid > .border-end { border-right: none !important; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; }
+        .agoda-room-offer-grid > .text-end { text-align: left !important; }
+    }
+
+    @media (max-width: 768px) {
+        .agoda-page-container {
+            padding-left: 16px;
+            padding-right: 16px;
+        }
+    }
+
+    @media (max-width: 575.98px) {
+        .hero-main-img-box { height: 220px; border-radius: 8px; }
+        .agoda-detail-search-bar { padding: 8px 0; }
+        #agodaDetailStickyBottomBar .d-flex { flex-direction: column; align-items: flex-start !important; gap: 8px !important; }
+        #agodaDetailStickyBottomBar .d-flex:last-child { width: 100%; justify-content: space-between; }
+    }
 </style>
 
 <div class="detail-page-wrapper">
 
-    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact Parity) --}}
+    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact Parity - 100% Responsive) --}}
     <div class="agoda-detail-search-bar">
-        <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
+        <div class="agoda-page-container">
             <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center">
-                <div class="col-md-3.5" style="width: 32%;">
+                <div class="col-12 col-lg-4">
                     <div class="input-group">
                         <span class="input-group-text bg-white border-0 text-secondary" style="height: 44px; border-radius: 8px 0 0 8px;"><i class="fa-solid fa-magnifying-glass" style="color: #475569;"></i></span>
                         <input type="text" name="destination" class="form-control border-0 rounded-end-3 fw-bold text-dark" value="{{ $property->name }}" placeholder="Enter a destination or property" style="height: 44px; font-size: 14px;">
@@ -83,7 +120,7 @@
                 </div>
 
                 {{-- Combined Check-in & Check-out Single White Box (Agoda 1:1 Parity) --}}
-                <div class="col-md-4" style="width: 36%;">
+                <div class="col-12 col-md-6 col-lg-4">
                     <div class="bg-white rounded-3 d-flex align-items-center overflow-hidden" style="height: 44px; cursor: pointer;">
                         <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="border-right: 1px solid #cbd5e1;">
                             <i class="fa-regular fa-calendar text-secondary fs-5"></i>
@@ -102,7 +139,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-2.5" style="width: 20%;">
+                <div class="col-12 col-md-6 col-lg-2.5">
                     <div class="bg-white rounded-3 px-3 py-1.5 d-flex align-items-center justify-content-between" style="height: 44px; cursor: pointer;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-users text-secondary fs-5"></i>
@@ -114,7 +151,7 @@
                         <i class="fa-solid fa-chevron-down text-muted small"></i>
                     </div>
                 </div>
-                <div class="col-md-2" style="width: 12%;">
+                <div class="col-12 col-lg-1.5">
                     <button type="submit" class="btn text-white w-100 fw-bold rounded-pill shadow-sm" style="background-color: #2067e1; height: 44px; font-size: 14px; letter-spacing: 0.3px;">
                         Update
                     </button>
@@ -123,7 +160,7 @@
         </div>
     </div>
 
-    <div style="max-width: 1240px; margin: 20px auto 0 auto; padding: 0 16px;">
+    <div class="agoda-page-container pt-3">
 
         {{-- 2. Breadcrumb Strip (Screenshot 1 Parity) --}}
         <div class="d-flex justify-content-between align-items-center mb-3" style="font-size: 12.5px;">
@@ -222,7 +259,7 @@
 
     {{-- 4. Sticky Section Anchor Navigation Bar (Exact Agoda White Box - Full Width 1:1 Parity) --}}
     <div class="agoda-sticky-nav-bar mb-4 bg-white">
-        <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
+        <div class="agoda-page-container">
             <div class="d-flex align-items-center justify-content-between">
                 <div class="d-flex align-items-center gap-1 overflow-x-auto">
                     <a href="#overview" class="agoda-nav-item active">Overview</a>
@@ -252,7 +289,7 @@
         </div>
     </div>
 
-    <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
+    <div class="agoda-page-container">
         {{-- 5. Main Overview Section Grid (Exact User Screenshot Parity) --}}
         <div id="overview" class="row g-4 mb-4">
             
@@ -1927,8 +1964,8 @@
 </div>
 
 {{-- 16. Bottom Fixed Sticky Offer Bar (Screenshot Parity) --}}
-<div id="agodaDetailStickyBottomBar" class="position-fixed bottom-0 start-0 w-100 bg-white border-top shadow-lg py-2.5 px-4" style="z-index: 1050; border-color: #cbd5e1 !important;">
-    <div class="d-flex align-items-center justify-content-between" style="max-width: 1280px; margin: 0 auto;">
+<div id="agodaDetailStickyBottomBar" class="position-fixed bottom-0 start-0 w-100 bg-white border-top shadow-lg py-2.5" style="z-index: 1050; border-color: #cbd5e1 !important;">
+    <div class="agoda-page-container d-flex align-items-center justify-content-between">
         <div class="d-flex align-items-center gap-2">
             <i class="fa-solid fa-bell text-warning fs-5"></i>
             <span class="fw-bold text-dark" style="font-size: 13.5px;">Don't miss out on this amazing property!</span>

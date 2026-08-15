@@ -335,6 +335,10 @@
                     <span>Add-ons</span>
                     <span id="addons_total">৳ 0</span>
                 </div>
+                <div class="summary-row text-success" id="discount_row" style="display:none;">
+                    <span><i class="fa-solid fa-tag me-1"></i> Promo (<span id="coupon_badge_text"></span>)</span>
+                    <span id="discount_amount_text">- ৳ 0</span>
+                </div>
                 <div class="summary-row">
                     <span>Taxes & Fees (7.5%)</span>
                     <span id="tax_display">{{ CurrencyService::format($taxAmount) }}</span>
@@ -342,6 +346,18 @@
                 <div class="summary-row total">
                     <span>Total</span>
                     <span id="grand_total" class="text-primary">{{ CurrencyService::format($totalPrice) }}</span>
+                </div>
+
+                {{-- ── Promo Code Box ── --}}
+                <div class="mt-3 p-2.5 rounded-3" style="background:#f8fafc; border:1px dashed #cbd5e1;">
+                    <label class="form-label mb-1 fw-bold text-dark" style="font-size:11.5px; text-transform:uppercase;">
+                        <i class="fa-solid fa-gift text-primary me-1"></i> Have a Promo Code?
+                    </label>
+                    <div class="input-group input-group-sm">
+                        <input type="text" id="coupon_input" name="coupon_code" class="form-control" placeholder="e.g. PRIME10, EID2026" style="text-transform:uppercase; font-size:12px; font-weight:700;">
+                        <button type="button" id="apply_coupon_btn" class="btn btn-primary fw-bold px-3" style="font-size:12px;">Apply</button>
+                    </div>
+                    <div id="coupon_feedback" class="mt-1" style="font-size:11.5px; display:none;"></div>
                 </div>
 
                 <div class="mt-3 p-2 rounded-3 text-success d-flex align-items-center gap-2" style="background:#f0fdf4; border:1px solid #bbf7d0; font-size:12px;">
@@ -386,13 +402,23 @@
         });
     });
 
-    // ── Addon price calculator ───────────────────────────────────────────
-    const subtotal    = {{ $subtotal }};
-    const taxRate     = 0.075;
-    const addonsRow   = document.getElementById('addons_row');
-    const addonsTotal = document.getElementById('addons_total');
-    const taxDisplay  = document.getElementById('tax_display');
-    const grandTotal  = document.getElementById('grand_total');
+    // ── Addon & Discount price calculator ────────────────────────────────
+    const subtotal          = {{ $subtotal }};
+    const taxRate           = 0.075;
+    const propertyId        = {{ $property->id }};
+    let appliedDiscount     = 0;
+    let appliedCouponCode   = '';
+
+    const addonsRow         = document.getElementById('addons_row');
+    const addonsTotal       = document.getElementById('addons_total');
+    const discountRow       = document.getElementById('discount_row');
+    const couponBadgeText   = document.getElementById('coupon_badge_text');
+    const discountAmountText= document.getElementById('discount_amount_text');
+    const taxDisplay        = document.getElementById('tax_display');
+    const grandTotal        = document.getElementById('grand_total');
+    const couponInput       = document.getElementById('coupon_input');
+    const applyCouponBtn    = document.getElementById('apply_coupon_btn');
+    const couponFeedback    = document.getElementById('coupon_feedback');
 
     function formatBDT(n) {
         return '৳ ' + Math.round(n).toLocaleString('en-BD');
@@ -404,8 +430,9 @@
             addons += parseFloat(cb.dataset.price) || 0;
         });
 
-        const tax   = Math.round((subtotal + addons) * taxRate);
-        const total = subtotal + addons + tax;
+        const netBase = Math.max(0, subtotal - appliedDiscount + addons);
+        const tax     = Math.round(netBase * taxRate);
+        const total   = netBase + tax;
 
         if (addons > 0) {
             addonsRow.style.display = 'flex';
@@ -413,8 +440,74 @@
         } else {
             addonsRow.style.display = 'none';
         }
+
+        if (appliedDiscount > 0) {
+            discountRow.style.display = 'flex';
+            couponBadgeText.textContent = appliedCouponCode;
+            discountAmountText.textContent = '- ' + formatBDT(appliedDiscount);
+        } else {
+            discountRow.style.display = 'none';
+        }
+
         taxDisplay.textContent  = formatBDT(tax);
         grandTotal.textContent  = formatBDT(total);
+    }
+
+    if (applyCouponBtn) {
+        applyCouponBtn.addEventListener('click', function() {
+            const code = couponInput.value.trim();
+            if (!code) {
+                couponFeedback.style.display = 'block';
+                couponFeedback.style.color = '#dc2626';
+                couponFeedback.textContent = 'Please enter a coupon code.';
+                return;
+            }
+
+            applyCouponBtn.disabled = true;
+            applyCouponBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+            fetch('{{ route("coupon.validate") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    code: code,
+                    subtotal: subtotal,
+                    property_id: propertyId
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                applyCouponBtn.disabled = false;
+                applyCouponBtn.textContent = 'Apply';
+                couponFeedback.style.display = 'block';
+
+                if (data.valid) {
+                    appliedDiscount = parseFloat(data.discount) || 0;
+                    appliedCouponCode = data.code;
+                    couponFeedback.style.color = '#16a34a';
+                    couponFeedback.innerHTML = '<i class="fa-solid fa-circle-check me-1"></i> ' + data.message;
+                    couponInput.readOnly = true;
+                    applyCouponBtn.style.display = 'none';
+                } else {
+                    appliedDiscount = 0;
+                    appliedCouponCode = '';
+                    couponFeedback.style.color = '#dc2626';
+                    couponFeedback.innerHTML = '<i class="fa-solid fa-circle-xmark me-1"></i> ' + (data.message || 'Invalid coupon.');
+                }
+                recalculate();
+            })
+            .catch(err => {
+                applyCouponBtn.disabled = false;
+                applyCouponBtn.textContent = 'Apply';
+                couponFeedback.style.display = 'block';
+                couponFeedback.style.color = '#dc2626';
+                couponFeedback.textContent = 'Could not validate coupon. Please try again.';
+            });
+        });
     }
 
     document.querySelectorAll('.addon-check').forEach(function(cb) {

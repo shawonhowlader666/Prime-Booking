@@ -20,6 +20,7 @@ class Booking extends Model
         'currency', 'payment_status', 'payment_method',
         'status', 'booking_status', // both supported
         'special_requests',
+        'coupon_code', 'discount_amount', 'commission_rate', 'commission_amount', 'vendor_payout_amount',
     ];
 
     protected $casts = [

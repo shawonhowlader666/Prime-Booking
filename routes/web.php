@@ -93,8 +93,8 @@ Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->na
 Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->name('booking.store');
 Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.confirmation');
 Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.voucher');
-Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher.download');
 Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('booking.history');
+Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->name('coupon.validate');
 
 // Payment Gateway Routes (bKash & SSLCommerz Sandbox/Live)
 Route::get('/payment/bkash/sandbox/{reference}', [PaymentCallbackController::class, 'bkashSandboxRedirect'])->name('payment.bkash.sandbox-redirect');

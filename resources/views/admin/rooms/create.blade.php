@@ -49,11 +49,11 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Room Cover Photo (Direct URL)</label>
+                        <label class="form-label"><i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Cover Photo URL</label>
                         <input type="url" name="image_url" class="form-control" value="{{ old('image_url') }}" placeholder="https://images.unsplash.com/photo-...">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Or Upload Room Photo</label>
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Upload Photo</label>
                         <input type="file" name="image_file" accept="image/*" class="form-control">
                     </div>
                     <div class="col-md-3">
@@ -62,17 +62,17 @@
                             value="{{ old('room_size_sqm') }}" placeholder="42">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Max Adults <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label">Adults <span style="color:#ff4d4f;">*</span></label>
                         <input type="number" name="max_adults" class="form-control"
                             value="{{ old('max_adults', 2) }}" min="1" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Max Children</label>
+                        <label class="form-label">Children</label>
                         <input type="number" name="max_children" class="form-control"
                             value="{{ old('max_children', 1) }}" min="0">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Total Rooms Available</label>
+                        <label class="form-label">Total Units</label>
                         <input type="number" name="total_rooms" class="form-control"
                             value="{{ old('total_rooms', 10) }}" min="1">
                     </div>
@@ -88,7 +88,7 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-shower" style="color:#64748b; margin-right:6px;"></i> Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-shower" style="color:#64748b; margin-right:6px;"></i> Bathrooms <span style="color:#ff4d4f;">*</span></label>
                         <select name="bathroom_count" class="form-select" required>
                             <option value="1" selected>1 Attached Bathroom</option>
                             <option value="2">2 Attached Bathrooms</option>
@@ -98,17 +98,28 @@
                     <div class="col-md-4">
                         <label class="form-label"><i class="fa-solid fa-ban-smoking" style="color:#64748b; margin-right:6px;"></i> Smoking Policy <span style="color:#ff4d4f;">*</span></label>
                         <select name="smoking_policy" class="form-select" required>
-                            <option value="Non-Smoking" selected>100% Non-Smoking Room</option>
-                            <option value="Smoking Allowed">Smoking Permitted</option>
+                            <option value="Non-Smoking" selected>100% Non-Smoking</option>
+                            <option value="Smoking Allowed">Smoking Allowed</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-tree-city" style="color:#64748b; margin-right:6px;"></i> Balcony / Terrace</label>
+                        <label class="form-label"><i class="fa-solid fa-tree-city" style="color:#64748b; margin-right:6px;"></i> Balcony</label>
                         <select name="balcony_type" class="form-select">
                             <option value="Private Balcony" selected>Private Balcony</option>
-                            <option value="Terrace">Large Open Terrace</option>
+                            <option value="Terrace">Large Terrace</option>
                             <option value="French Balcony">French Balcony</option>
                             <option value="No Balcony">No Balcony</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fa-solid fa-layer-group" style="color:#64748b; margin-right:6px;"></i> Room Category <span style="color:#ff4d4f;">*</span></label>
+                        <select name="room_type" class="form-select" required>
+                            <option value="deluxe" selected>Deluxe Room</option>
+                            <option value="super_deluxe">Super Deluxe Room</option>
+                            <option value="standard">Standard Room</option>
+                            <option value="suite">Executive Suite</option>
+                            <option value="presidential_suite">Presidential Suite</option>
+                            <option value="villa">Private Villa / Cottage</option>
                         </select>
                     </div>
                     <div class="col-12">

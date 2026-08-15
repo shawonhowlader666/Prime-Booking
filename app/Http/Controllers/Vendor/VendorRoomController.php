@@ -89,6 +89,7 @@ class VendorRoomController extends Controller
         Room::create([
             'property_id'        => $property->id,
             'name'               => $request->name,
+            'room_type'          => $request->room_type ?? 'deluxe',
             'bed_type'           => $request->bed_type,
             'view_type'          => $request->view_type ?? 'City Skyline View',
             'bathroom_count'     => (int) ($request->bathroom_count ?? 1),
@@ -151,6 +152,7 @@ class VendorRoomController extends Controller
 
         $room->update([
             'name'               => $request->name,
+            'room_type'          => $request->room_type ?? ($room->room_type ?? 'deluxe'),
             'bed_type'           => $request->bed_type ?? $room->bed_type,
             'view_type'          => $request->view_type ?? $room->view_type,
             'bathroom_count'     => (int) ($request->bathroom_count ?? $room->bathroom_count),

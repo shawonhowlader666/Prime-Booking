@@ -48,11 +48,11 @@
                         $adminRoomImg = (!empty($room->images) && is_array($room->images)) ? $room->images[0] : '';
                     @endphp
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-image text-primary me-1"></i> Room Cover Photo (Direct URL)</label>
+                        <label class="form-label"><i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Cover Photo URL</label>
                         <input type="url" name="image_url" class="form-control" value="{{ old('image_url', $adminRoomImg) }}" placeholder="https://images.unsplash.com/photo-...">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-secondary me-1"></i> Or Upload New Photo</label>
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Upload New Photo</label>
                         <input type="file" name="image_file" accept="image/*" class="form-control">
                     </div>
                     <div class="col-md-3">
@@ -60,15 +60,15 @@
                         <input type="number" name="room_size_sqm" class="form-control" value="{{ old('room_size_sqm', $room->room_size_sqm) }}">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Max Adults <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label">Adults <span style="color:#ff4d4f;">*</span></label>
                         <input type="number" name="max_adults" class="form-control" value="{{ old('max_adults', $room->max_adults) }}" min="1" required>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Max Children</label>
+                        <label class="form-label">Children</label>
                         <input type="number" name="max_children" class="form-control" value="{{ old('max_children', $room->max_children) }}" min="0">
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Total Rooms</label>
+                        <label class="form-label">Total Units</label>
                         <input type="number" name="total_rooms" class="form-control" value="{{ old('total_rooms', $room->total_rooms) }}" min="1">
                     </div>
                     <div class="col-md-4">
@@ -89,7 +89,7 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-shower" style="color:#64748b; margin-right:6px;"></i> Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-shower" style="color:#64748b; margin-right:6px;"></i> Bathrooms <span style="color:#ff4d4f;">*</span></label>
                         <select name="bathroom_count" class="form-select" required>
                             <option value="1" {{ old('bathroom_count', $room->bathroom_count) == 1 ? 'selected' : '' }}>1 Attached Bathroom</option>
                             <option value="2" {{ old('bathroom_count', $room->bathroom_count) == 2 ? 'selected' : '' }}>2 Attached Bathrooms</option>
@@ -99,17 +99,28 @@
                     <div class="col-md-4">
                         <label class="form-label"><i class="fa-solid fa-ban-smoking" style="color:#64748b; margin-right:6px;"></i> Smoking Policy <span style="color:#ff4d4f;">*</span></label>
                         <select name="smoking_policy" class="form-select" required>
-                            <option value="Non-Smoking" {{ old('smoking_policy', $room->smoking_policy) == 'Non-Smoking' ? 'selected' : '' }}>100% Non-Smoking Room</option>
-                            <option value="Smoking Allowed" {{ old('smoking_policy', $room->smoking_policy) == 'Smoking Allowed' ? 'selected' : '' }}>Smoking Permitted</option>
+                            <option value="Non-Smoking" {{ old('smoking_policy', $room->smoking_policy) == 'Non-Smoking' ? 'selected' : '' }}>100% Non-Smoking</option>
+                            <option value="Smoking Allowed" {{ old('smoking_policy', $room->smoking_policy) == 'Smoking Allowed' ? 'selected' : '' }}>Smoking Allowed</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-tree-city" style="color:#64748b; margin-right:6px;"></i> Balcony / Terrace</label>
+                        <label class="form-label"><i class="fa-solid fa-tree-city" style="color:#64748b; margin-right:6px;"></i> Balcony</label>
                         <select name="balcony_type" class="form-select">
                             <option value="Private Balcony" {{ old('balcony_type', $room->balcony_type) == 'Private Balcony' ? 'selected' : '' }}>Private Balcony</option>
-                            <option value="Terrace" {{ old('balcony_type', $room->balcony_type) == 'Terrace' ? 'selected' : '' }}>Large Open Terrace</option>
+                            <option value="Terrace" {{ old('balcony_type', $room->balcony_type) == 'Terrace' ? 'selected' : '' }}>Large Terrace</option>
                             <option value="French Balcony" {{ old('balcony_type', $room->balcony_type) == 'French Balcony' ? 'selected' : '' }}>French Balcony</option>
                             <option value="No Balcony" {{ old('balcony_type', $room->balcony_type) == 'No Balcony' ? 'selected' : '' }}>No Balcony</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fa-solid fa-layer-group" style="color:#64748b; margin-right:6px;"></i> Room Category <span style="color:#ff4d4f;">*</span></label>
+                        <select name="room_type" class="form-select" required>
+                            <option value="deluxe" {{ old('room_type', $room->room_type) == 'deluxe' ? 'selected' : '' }}>Deluxe Room</option>
+                            <option value="super_deluxe" {{ old('room_type', $room->room_type) == 'super_deluxe' ? 'selected' : '' }}>Super Deluxe Room</option>
+                            <option value="standard" {{ old('room_type', $room->room_type) == 'standard' ? 'selected' : '' }}>Standard Room</option>
+                            <option value="suite" {{ old('room_type', $room->room_type) == 'suite' ? 'selected' : '' }}>Executive Suite</option>
+                            <option value="presidential_suite" {{ old('room_type', $room->room_type) == 'presidential_suite' ? 'selected' : '' }}>Presidential Suite</option>
+                            <option value="villa" {{ old('room_type', $room->room_type) == 'villa' ? 'selected' : '' }}>Private Villa / Cottage</option>
                         </select>
                     </div>
                     <div class="col-12">

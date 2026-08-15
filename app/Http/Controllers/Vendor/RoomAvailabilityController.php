@@ -15,7 +15,8 @@ class RoomAvailabilityController extends Controller
 {
     public function index(Request $request)
     {
-        $vendorId = auth()->id() ?? 1;
+        $vendorId = auth()->id();
+        abort_unless($vendorId, 403, 'Unauthorized vendor access.');
 
         // Fetch vendor properties with minimal column selection for high performance
         $properties = Property::where('vendor_id', $vendorId)
@@ -47,7 +48,7 @@ class RoomAvailabilityController extends Controller
         ];
 
         if ($selectedRoom) {
-            $cacheKey = "vendor:availability:{$selectedRoom->id}:" . $startDate->format('Ymd') . ":{$daysCount}";
+            $cacheKey = "vendor:{$vendorId}:room:{$selectedRoom->id}:" . $startDate->format('Ymd') . ":{$daysCount}";
 
             $availabilities = Cache::remember($cacheKey, 300, function () use ($selectedRoom, $startDate, $endDate) {
                 return RoomAvailability::where('room_id', $selectedRoom->id)
@@ -90,7 +91,8 @@ class RoomAvailabilityController extends Controller
 
     public function updateRange(Request $request)
     {
-        $vendorId = auth()->id() ?? 1;
+        $vendorId = auth()->id();
+        abort_unless($vendorId, 403, 'Unauthorized vendor access.');
 
         $validated = $request->validate([
             'room_id'    => 'required|exists:rooms,id',
@@ -134,10 +136,10 @@ class RoomAvailabilityController extends Controller
         // Invalidate Redis/application caches for this room across all date scopes
         for ($d = 0; $d <= 30; $d++) {
             $dayKey = Carbon::now()->subDays($d)->format('Ymd');
-            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:14");
-            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:30");
-            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:60");
-            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:90");
+            Cache::forget("vendor:{$vendorId}:room:{$room->id}:{$dayKey}:14");
+            Cache::forget("vendor:{$vendorId}:room:{$room->id}:{$dayKey}:30");
+            Cache::forget("vendor:{$vendorId}:room:{$room->id}:{$dayKey}:60");
+            Cache::forget("vendor:{$vendorId}:room:{$room->id}:{$dayKey}:90");
         }
 
         if ($request->wantsJson() || $request->ajax()) {

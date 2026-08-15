@@ -24,6 +24,30 @@
     $address           = $isObj ? ($item->address ?? $cityStr) : ($item['address'] ?? $cityStr);
     if (empty($address)) $address = $cityStr ?: 'Bangladesh';
 
+    $revCount          = $isObj ? ($item->total_reviews ?? $item->reviews_count ?? 0) : ($item['total_reviews'] ?? $item['reviews_count'] ?? 0);
+    $reviewsCount      = number_format((int)$revCount);
+
+    $ratingLabel       = match(true) {
+        $scoreNum >= 9.0 => 'Superb',
+        $scoreNum >= 8.0 => 'Very good',
+        $scoreNum >= 7.0 => 'Good',
+        $scoreNum >= 6.0 => 'Pleasant',
+        default          => 'Rated',
+    };
+
+    $image             = $isObj ? ($item->primary_image ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80') : ($item['primary_image'] ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
+    $imagesList        = is_array($isObj ? ($item->images ?? null) : ($item['images'] ?? null)) ? ($isObj ? $item->images : $item['images']) : [];
+    
+    $defaultGallery    = [
+        $image,
+        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
+    ];
+    $gallery           = (!empty($imagesList) && count($imagesList) > 1) ? $imagesList : $defaultGallery;
+    $totalImgs         = count($gallery);
+
     $targetLat         = request('lat') ? (float)request('lat') : null;
     $targetLng         = request('lng') ? (float)request('lng') : null;
     $calcDist          = null;

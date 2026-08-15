@@ -264,20 +264,18 @@
                 };
 
                 $getTypeCount = function($typeStr) use ($resultsList) {
-                    $c = collect($resultsList)->filter(function($p) use ($typeStr) {
+                    return collect($resultsList)->filter(function($p) use ($typeStr) {
                         $t = strtolower(is_object($p) ? ($p->type ?? '') : ($p['type'] ?? ''));
                         return str_contains($t, strtolower($typeStr));
                     })->count();
-                    return $c > 0 ? $c : rand(1, count($resultsList) ?: 4);
                 };
 
                 $getAmenityCount = function($amenityKey) use ($resultsList) {
-                    $c = collect($resultsList)->filter(function($p) use ($amenityKey) {
+                    return collect($resultsList)->filter(function($p) use ($amenityKey) {
                         $ams = is_object($p) ? ($p->amenities ?? []) : ($p['amenities'] ?? []);
                         if (is_string($ams)) $ams = json_decode($ams, true) ?? [];
                         return in_array($amenityKey, (array)$ams);
                     })->count();
-                    return $c > 0 ? $c : count($resultsList);
                 };
 
                 $gRatings = (array) request('guest_rating', []);

@@ -175,9 +175,15 @@
                 <div id="agodaDestinationRowWrapper" style="margin-top: 14px; margin-bottom: 22px; position: relative; z-index: 10000;">
                     <div class="agoda-input-btn active-border" id="agodaDestinationBoxTrigger">
                         <i class="fa-solid fa-magnifying-glass" style="font-size: 1.3rem; color: #2067e1;"></i>
-                        <div style="width: 100%; display: flex; align-items: center; justify-content: space-between;">
+                        <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
                             <input type="text" id="agodaDestinationInput" name="destination" style="width: 100%; border: none; outline: none; background: transparent; font-size: 15px; font-weight: 500; color: #1e293b;" placeholder="{{ __('Enter a destination or property') }}" value="{{ request('destination', '') }}" autocomplete="off">
-                            <i class="fa-solid fa-circle-xmark text-secondary ms-2" id="agodaClearDestinationBtn" style="cursor: pointer; font-size: 1.1rem; display: {{ request('destination') ? 'inline-block' : 'none' }};" title="Clear destination"></i>
+                            <input type="hidden" name="lat" id="homeGpsLatInput" value="{{ request('lat') }}">
+                            <input type="hidden" name="lng" id="homeGpsLngInput" value="{{ request('lng') }}">
+                            <i class="fa-solid fa-circle-xmark text-secondary" id="agodaClearDestinationBtn" style="cursor: pointer; font-size: 1.1rem; display: {{ request('destination') ? 'inline-block' : 'none' }};" title="Clear destination"></i>
+                            <button type="button" class="btn btn-link p-0 text-primary d-flex align-items-center gap-1.5" title="Search near my current GPS location" onclick="useHomeCurrentLocation(event)" style="text-decoration: none; font-size: 13px; font-weight: 700; white-space: nowrap; flex-shrink: 0;">
+                                <i class="fa-solid fa-location-crosshairs text-primary" id="homeGpsIcon" style="font-size: 16px;"></i>
+                                <span class="d-none d-sm-inline" style="font-size: 12px; color: #2067e1;">Near me</span>
+                            </button>
                         </div>
                     </div>
 
@@ -868,9 +874,46 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // ============================================================
-    // CLIENT-SIDE Bangladesh Cities — always works, no server needed
-    // ============================================================
+    window.selectDestination = function(val) {
+        const destInput = document.getElementById('agodaDestinationInput');
+        if (destInput) {
+            destInput.value = val;
+        }
+        const card = document.getElementById('agodaDestinationPopoverCard');
+        if (card) card.style.display = 'none';
+        const clearBtn = document.getElementById('agodaClearDestinationBtn');
+        if (clearBtn) clearBtn.style.display = 'inline-block';
+        const overlay = document.getElementById('agodaSearchBackdropOverlay');
+        if (overlay) overlay.style.display = 'none';
+    };
+
+    window.useHomeCurrentLocation = function(e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+        }
+        const destInput = document.getElementById('agodaDestinationInput');
+        const icon = document.getElementById('homeGpsIcon');
+        const origPlaceholder = destInput.placeholder;
+        destInput.placeholder = "Detecting your GPS location...";
+        if (icon) icon.className = "fa-solid fa-spinner fa-spin text-primary";
+
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            document.getElementById('homeGpsLatInput').value = pos.coords.latitude;
+            document.getElementById('homeGpsLngInput').value = pos.coords.longitude;
+            destInput.value = "Near My Location";
+            if (icon) icon.className = "fa-solid fa-location-crosshairs text-primary";
+            const popover = document.getElementById('agodaDestinationPopoverCard');
+            if (popover) popover.style.display = 'none';
+            document.getElementById('agodaFormStandard').submit();
+        }, function(err) {
+            destInput.placeholder = origPlaceholder;
+            if (icon) icon.className = "fa-solid fa-location-crosshairs text-primary";
+            alert("Could not access your location. Please ensure location permissions are enabled in your browser.");
+        }, { timeout: 10000 });
+    };
+
     // ============================================================
     // CLIENT-SIDE Destinations Database — Agoda 1:1 Parity
     // ============================================================

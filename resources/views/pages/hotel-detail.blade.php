@@ -377,7 +377,7 @@
                     {{-- Sub-header Specs Row --}}
                     <div class="mb-3">
                         <div class="fw-bold text-dark mb-1" style="font-size: 13.5px;">
-                            {{ $property->property_type ? ucfirst($property->property_type) : 'Hotel / Resort' }} 
+                            {{ $property->type ? ucfirst($property->type) : 'Hotel / Resort' }} 
                             <span class="text-secondary fw-normal" style="font-size: 12.5px;">(Room size: {{ $maxSizeSqm }} m²/{{ $maxSizeSqft }} ft²)</span>
                         </div>
                         <div class="d-flex align-items-center gap-2 text-dark fw-bold" style="font-size: 12.5px;">
@@ -1604,6 +1604,24 @@
                             </div>
                         </div>
                         @endif
+
+                        {{-- Proximity Breakdown (Walking & Driving Estimation) --}}
+                        <div class="mt-3 pt-3 border-top">
+                            <strong class="d-block text-dark mb-2" style="font-size: 12.5px;"><i class="fa-solid fa-person-walking me-1 text-primary"></i> Proximity &amp; Travel Highlights:</strong>
+                            <div class="d-flex flex-column gap-1.5">
+                                @foreach($property->proximity_breakdown as $prox)
+                                <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-white border" style="font-size: 11.5px;">
+                                    <div class="d-flex align-items-center gap-2">
+                                        <i class="{{ $prox['icon'] }}"></i>
+                                        <span class="text-dark fw-semibold">{{ $prox['name'] }}</span>
+                                    </div>
+                                    <span class="badge bg-light text-dark border fw-bold" style="font-size: 10.5px;">
+                                        {{ $prox['distance'] }} ({{ $prox['time_est'] }})
+                                    </span>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
                     </div>
 
                     @if(!empty($property->contact_phone) || !empty($property->contact_email))

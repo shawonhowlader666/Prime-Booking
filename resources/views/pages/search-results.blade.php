@@ -5,38 +5,141 @@
 @section('content')
 @include('components.search.loading-skeleton-modal')
 
-{{-- 2. Agoda Compact Subheader Search Bar --}}
+{{-- 2. Agoda Compact Subheader Search Bar (Screenshot 1:1 Exact Parity) --}}
+@php
+    $checkinCarbon = \Carbon\Carbon::parse($checkIn ?: now());
+    $checkoutCarbon = \Carbon\Carbon::parse($checkOut ?: now()->addDays(7));
+    $guestCount = intval($guests ?: 2);
+    $roomsCount = intval(request('rooms', 1));
+@endphp
 <div style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155;">
-    <div style="max-width: 1140px; margin: 0 auto; padding: 0 16px;">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
-            <div class="col-md-3">
-                <div class="input-group">
-                    <span class="input-group-text bg-white border-0 text-secondary"><i class="fa-solid fa-magnifying-glass" style="color: #2067e1;"></i></span>
-                    <input type="text" name="destination" class="form-control border-0 rounded-end-3" value="{{ $destination }}" placeholder="Enter destination or property" style="height: 42px; font-weight: 600; font-size: 14px;">
+
+            {{-- 1. Destination Input Box --}}
+            <div class="col-12 col-lg-3.5 col-xl-3">
+                <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs" style="height: 48px;">
+                    <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
+                    <input type="text" name="destination" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
                 </div>
             </div>
-            <div class="col-md-2">
-                <input type="date" name="check_in" class="form-control rounded-3" value="{{ $checkIn }}" style="height: 42px; font-weight: 500; font-size: 14px;">
+
+            {{-- 2. Check-in Date Box (Agoda 2-line Card) --}}
+            <div class="col-6 col-md-3 col-lg-2.5 col-xl-2.5">
+                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkInNativeInput').showPicker();">
+                    <i class="fa-regular fa-calendar text-secondary fs-5"></i>
+                    <div style="line-height: 1.15;">
+                        <strong class="d-block text-dark" id="checkInDisplayDate" style="font-size: 13px;">{{ $checkinCarbon->format('j M Y') }}</strong>
+                        <small class="text-secondary" id="checkInDisplayDay" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
+                    </div>
+                    <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
+                </div>
             </div>
-            <div class="col-md-2">
-                <input type="date" name="check_out" class="form-control rounded-3" value="{{ $checkOut }}" style="height: 42px; font-weight: 500; font-size: 14px;">
+
+            {{-- 3. Check-out Date Box (Agoda 2-line Card) --}}
+            <div class="col-6 col-md-3 col-lg-2.5 col-xl-2.5">
+                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
+                    <i class="fa-regular fa-calendar text-secondary fs-5"></i>
+                    <div style="line-height: 1.15;">
+                        <strong class="d-block text-dark" id="checkOutDisplayDate" style="font-size: 13px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
+                        <small class="text-secondary" id="checkOutDisplayDay" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
+                    </div>
+                    <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
+                </div>
             </div>
-            <div class="col-md-3">
-                <select name="guests" class="form-select rounded-3" style="height: 42px; font-weight: 500; font-size: 14px;">
-                    <option value="1" {{ $guests == 1 ? 'selected' : '' }}>1 Adult, 0 Children (1 room)</option>
-                    <option value="2" {{ $guests == 2 ? 'selected' : '' }}>2 Adults, 0 Children (1 room)</option>
-                    <option value="4" {{ $guests == 4 ? 'selected' : '' }}>3 Adults, 1 Child (2 rooms)</option>
-                </select>
+
+            {{-- 4. Guests & Rooms Box (Agoda 2-line Card with Dropdown) --}}
+            <div class="col-12 col-md-4 col-lg-2.5 col-xl-2.5 position-relative">
+                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-users text-secondary fs-5"></i>
+                        <div style="line-height: 1.15;">
+                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 13px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
+                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 11px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Guests Counter Popover Menu --}}
+                <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1050;">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <div>
+                            <strong class="d-block text-dark" style="font-size: 13px;">Adults</strong>
+                            <small class="text-muted" style="font-size: 11px;">Ages 18 or above</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', -1);">-</button>
+                            <input type="hidden" name="guests" id="guestsHiddenInput" value="{{ $guestCount }}">
+                            <span class="fw-bold px-1" id="guestsValText">{{ $guestCount }}</span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', 1);">+</button>
+                        </div>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
+                        <div>
+                            <strong class="d-block text-dark" style="font-size: 13px;">Rooms</strong>
+                            <small class="text-muted" style="font-size: 11px;">Total units needed</small>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', -1);">-</button>
+                            <input type="hidden" name="rooms" id="roomsHiddenInput" value="{{ $roomsCount }}">
+                            <span class="fw-bold px-1" id="roomsValText">{{ $roomsCount }}</span>
+                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', 1);">+</button>
+                        </div>
+                    </div>
+                    <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
+                        Done
+                    </button>
+                </div>
             </div>
-            <div class="col-md-2">
-                <button type="submit" class="btn text-white w-100 fw-bold rounded-3 shadow-xs" style="background-color: #2067e1; height: 42px; font-size: 14px; letter-spacing: 0.5px;">
+
+            {{-- 5. Search Blue Button --}}
+            <div class="col-12 col-md-2 col-lg-1.5 col-xl-1.5">
+                <button type="submit" class="btn text-white w-100 fw-bold rounded-3 shadow-sm" style="background-color: #2067e1; height: 48px; font-size: 14px; letter-spacing: 0.5px;">
                     SEARCH
                 </button>
             </div>
         </form>
     </div>
 </div>
+
+<script>
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    function updateSearchDateDisplay(type, dateStr) {
+        if (!dateStr) return;
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return;
+
+        const formattedDate = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+        const formattedDay = dayNames[d.getDay()];
+
+        if (type === 'checkIn') {
+            document.getElementById('checkInDisplayDate').textContent = formattedDate;
+            document.getElementById('checkInDisplayDay').textContent = formattedDay;
+        } else {
+            document.getElementById('checkOutDisplayDate').textContent = formattedDate;
+            document.getElementById('checkOutDisplayDay').textContent = formattedDay;
+        }
+    }
+
+    function adjustGuestCounter(field, delta) {
+        if (field === 'guests') {
+            const inp = document.getElementById('guestsHiddenInput');
+            let val = Math.max(1, Math.min(30, (parseInt(inp.value) || 2) + delta));
+            inp.value = val;
+            document.getElementById('guestsValText').textContent = val;
+            document.getElementById('guestCountDisplay').textContent = `${val} adult${val > 1 ? 's' : ''}`;
+        } else if (field === 'rooms') {
+            const inp = document.getElementById('roomsHiddenInput');
+            let val = Math.max(1, Math.min(10, (parseInt(inp.value) || 1) + delta));
+            inp.value = val;
+            document.getElementById('roomsValText').textContent = val;
+            document.getElementById('roomCountDisplay').textContent = `${val} room${val > 1 ? 's' : ''}`;
+        }
+    }
+</script>
 
 {{-- 3. Agoda Coupon Deals Strip Banner (Image 2 Parity) --}}
 <div style="background: #fff0f3; border-bottom: 1px solid #fecdd3; padding: 10px 0;">

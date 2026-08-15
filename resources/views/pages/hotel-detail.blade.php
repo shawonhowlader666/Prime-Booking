@@ -1498,26 +1498,25 @@
                 </div>
             </div>
 
-            {{-- Show reviews that mention chips --}}
+            {{-- Show reviews that mention chips (Interactive Client Filter) --}}
             <div class="mb-4">
                 <small class="text-muted d-block fw-bold mb-2" style="font-size: 12px;">Show reviews that mention</small>
                 <div class="d-flex flex-wrap gap-2">
-                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold" style="font-size: 11.5px; background: #2067e1;">All Reviews</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Service (7)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Atmosphere (6)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Airport access (4)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Cleanliness (4)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Location (4)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Breakfast (2)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Value for money (2)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">+ 6 more</button>
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold mention-filter-btn" onclick="filterReviewsByMention('all', this)" style="font-size: 11.5px; background: #2067e1;">All Reviews</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('service', this)" style="font-size: 11.5px;">Service (7)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('atmosphere', this)" style="font-size: 11.5px;">Atmosphere (6)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('airport', this)" style="font-size: 11.5px;">Airport access (4)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('clean', this)" style="font-size: 11.5px;">Cleanliness (4)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('location', this)" style="font-size: 11.5px;">Location (4)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('breakfast', this)" style="font-size: 11.5px;">Breakfast (2)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('value', this)" style="font-size: 11.5px;">Value for money (2)</button>
                 </div>
             </div>
 
             {{-- Verified Guest Reviews List (Agoda 1:1 Parity) --}}
-            <div class="d-flex flex-column gap-3 border-top pt-4">
+            <div class="d-flex flex-column gap-3 border-top pt-4" id="verifiedReviewsContainer">
                 {{-- Review 1 --}}
-                <div class="row g-3 p-3 rounded-3 bg-light border">
+                <div class="row g-3 p-3 rounded-3 bg-light border verified-review-card">
                     <div class="col-md-4 border-end pe-md-3">
                         <strong class="text-primary d-block fw-bold" style="font-size: 17px;">10.0 Exceptional</strong>
                         <div class="text-dark fw-bold mt-1" style="font-size: 13px;">🇯🇵 Ibuki from Japan</div>
@@ -1538,7 +1537,7 @@
                 </div>
 
                 {{-- Review 2 --}}
-                <div class="row g-3 p-3 rounded-3 bg-light border">
+                <div class="row g-3 p-3 rounded-3 bg-light border verified-review-card">
                     <div class="col-md-4 border-end pe-md-3">
                         <strong class="text-primary d-block fw-bold" style="font-size: 17px;">10.0 Exceptional</strong>
                         <div class="text-dark fw-bold mt-1" style="font-size: 13px;">🇧🇩 Tajul from Bangladesh</div>
@@ -1549,7 +1548,7 @@
                     <div class="col-md-8">
                         <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">"Best Place To Stay."</h6>
                         <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.6;">
-                            It was reasonably priced to stay. The environment was very good, quiet, and the staff members were extraordinarily friendly and cooperative.
+                            It was reasonably priced to stay. The environment was very good, quiet, and the staff members were extraordinarily friendly and cooperative with service and airport access.
                         </p>
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small" style="font-size: 11px;">
                             <span>Reviewed recently</span>
@@ -2014,6 +2013,61 @@
     </div>
 </div>
 
+{{-- Interactive Real-Time Location & Google Maps Modal (Agoda Parity) --}}
+<div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4 bg-light d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark mb-0" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ $property->name }} — Location &amp; Map
+                    </h5>
+                    <small class="text-muted" style="font-size: 12px;">{{ $property->address ?: ($property->city . ', Bangladesh') }}</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    @php
+                        $lat = $property->latitude ?: '23.8759';
+                        $lng = $property->longitude ?: '90.3795';
+                        $googleDirUrl = "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}";
+                    @endphp
+                    <a href="{{ $googleDirUrl }}" target="_blank" class="btn btn-primary btn-sm fw-bold px-3 py-1.5 rounded-pill" style="background:#2067e1; font-size:12px;">
+                        <i class="fa-solid fa-diamond-turn-right me-1"></i> Get Directions
+                    </a>
+                    <button type="button" class="btn-close ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0 position-relative" style="height: 550px; background: #e2e8f0;">
+                @if(!empty($property->map_embed_url))
+                    <iframe src="{{ $property->map_embed_url }}" class="w-100 h-100 border-0" allowfullscreen loading="lazy"></iframe>
+                @else
+                    <iframe src="https://maps.google.com/maps?q={{ $lat }},{{ $lng }}&hl=en&z=15&output=embed" class="w-100 h-100 border-0" allowfullscreen loading="lazy"></iframe>
+                @endif
+
+                {{-- Floating Property Mini Card (Agoda Style) --}}
+                <div class="position-absolute top-0 start-0 m-3 bg-white p-3 rounded-3 shadow-lg border" style="max-width: 320px; z-index: 10; border-color: #cbd5e1 !important;">
+                    <div class="d-flex gap-2.5">
+                        <img src="{{ $gallery[0] ?? '' }}" class="rounded-2" style="width: 70px; height: 60px; object-fit: cover;" alt="{{ $property->name }}">
+                        <div>
+                            <strong class="d-block text-dark fw-bold" style="font-size: 13px; line-height: 1.2;">{{ Str::limit($property->name, 26) }}</strong>
+                            <div class="text-warning small mb-1" style="font-size: 11px;">
+                                @for($i = 0; $i < ($property->star_rating ?? 4); $i++)★@endfor
+                            </div>
+                            <span class="badge bg-success" style="font-size: 10px;">{{ $score }} Excellent</span>
+                        </div>
+                    </div>
+                    <div class="mt-2.5 pt-2 border-top text-secondary small" style="font-size: 11.5px;">
+                        <i class="fa-solid fa-person-walking text-primary me-1"></i> <strong>{{ $property->nearest_landmark ?: 'Near central transit point' }}</strong>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top py-2.5 px-4 bg-light d-flex align-items-center justify-content-between">
+                <small class="text-muted" style="font-size: 12px;">GPS Coordinates: <code>{{ $lat }}, {{ $lng }}</code></small>
+                <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
     // ─── Instant Client-Side Zero-Latency Room Filtering (Agoda Standard) ───
     const activeRoomFilters = new Set();
@@ -2065,6 +2119,56 @@
             }
         }
     }
+
+    // ─── Review Mention Filter Chips ───
+    function filterReviewsByMention(keyword, element) {
+        document.querySelectorAll('.mention-filter-btn').forEach(btn => {
+            btn.classList.remove('btn-primary');
+            btn.classList.add('btn-light', 'text-dark', 'border');
+            btn.style.background = '';
+        });
+
+        element.classList.remove('btn-light', 'text-dark', 'border');
+        element.classList.add('btn-primary');
+        element.style.background = '#2067e1';
+
+        const reviewCards = document.querySelectorAll('.verified-review-card');
+        reviewCards.forEach(rc => {
+            if (!keyword || keyword === 'all') {
+                rc.style.display = 'flex';
+            } else {
+                const text = rc.innerText.toLowerCase();
+                if (text.includes(keyword.toLowerCase())) {
+                    rc.style.display = 'flex';
+                } else {
+                    rc.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    // ─── Smooth Scroll Spy for Sticky Sub-Nav Bar ───
+    document.addEventListener('DOMContentLoaded', function () {
+        const navLinks = document.querySelectorAll('.agoda-nav-item');
+        const sections = document.querySelectorAll('div[id]');
+
+        window.addEventListener('scroll', function () {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 120;
+                if (window.pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+    });
 </script>
 @endsection
 

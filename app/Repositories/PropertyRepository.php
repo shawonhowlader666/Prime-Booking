@@ -261,10 +261,42 @@ class PropertyRepository
         }
 
         // ── Amenity filters ─────────────────────────────────────────────
-        // Note: JSON contains queries cannot use B-tree indexes.
-        // For high-volume amenity filtering, normalize amenities to a pivot table.
         foreach ($amenities as $amenity) {
             $query->hasAmenity($amenity);
+        }
+
+        // ── Payment options filters ─────────────────────────────────────
+        if (!empty($params['pay_later'])) {
+            $query->where('no_credit_card_required', 1);
+        }
+        if (!empty($params['free_cancel'])) {
+            $query->where('free_cancellation', 1);
+        }
+
+        // ── Bed preference & Room features filters ──────────────────────
+        $bedTypes = (array)($params['bed_type'] ?? []);
+        $roomFeatures = (array)($params['room_feature'] ?? []);
+
+        if (!empty($bedTypes) || !empty($roomFeatures)) {
+            $query->whereHas('rooms', function ($rq) use ($bedTypes, $roomFeatures) {
+                if (!empty($bedTypes)) {
+                    $rq->where(function ($bq) use ($bedTypes) {
+                        foreach ($bedTypes as $bt) {
+                            $bq->orWhere('bed_type', 'LIKE', "%{$bt}%");
+                        }
+                    });
+                }
+                if (!empty($roomFeatures)) {
+                    $rq->where(function ($fq) use ($roomFeatures) {
+                        if (in_array('sea_view', $roomFeatures)) {
+                            $fq->orWhere('view_type', 'LIKE', '%sea%')->orWhere('view_type', 'LIKE', '%ocean%');
+                        }
+                        if (in_array('balcony', $roomFeatures)) {
+                            $fq->orWhere('balcony_type', 'LIKE', '%balcony%')->orWhere('balcony_type', 'LIKE', '%terrace%');
+                        }
+                    });
+                }
+            });
         }
 
         // ── Sorting (uses composite indexes) ────────────────────────────

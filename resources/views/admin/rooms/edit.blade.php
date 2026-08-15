@@ -112,9 +112,9 @@
                             <option value="No Balcony" {{ old('balcony_type', $room->balcony_type) == 'No Balcony' ? 'selected' : '' }}>No Balcony</option>
                         </select>
                     </div>
-                    <div class="col-md-8">
+                    <div class="col-12">
                         <label class="form-label">Bathroom Features &amp; Toiletries</label>
-                        <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                        <div class="p-3 rounded border" style="background:#f8fafc; display:grid; grid-template-columns:repeat(auto-fill, minmax(175px, 1fr)); gap:10px;">
                             @php $currentBFeats = is_array($room->bathroom_features) ? $room->bathroom_features : ['Private Bathroom', 'Hot Water Geyser']; @endphp
                             @foreach([
                                 ['Private Bathroom', 'fa-solid fa-shower'],
@@ -124,10 +124,10 @@
                                 ['Free Luxury Toiletries', 'fa-solid fa-pump-soap'],
                                 ['Bathrobe & Slippers', 'fa-solid fa-vest'],
                             ] as $bFeat)
-                                <label class="form-check-label d-inline-flex align-items-center rounded border bg-white shadow-xs" style="padding:6px 12px; font-size:12px; font-weight:600; color:#334155; cursor:pointer; gap:8px;">
+                                <label class="form-check-label d-flex align-items-center rounded border bg-white shadow-xs px-3 py-2 m-0" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; gap:10px;">
                                     <input class="form-check-input m-0 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat[0] }}" {{ in_array($bFeat[0], $currentBFeats) ? 'checked' : '' }} style="cursor:pointer; width:15px; height:15px;">
-                                    <i class="{{ $bFeat[1] }}" style="color:#64748b; font-size:13px;"></i>
-                                    <span>{{ $bFeat[0] }}</span>
+                                    <i class="{{ $bFeat[1] }}" style="color:#64748b; font-size:13px; width:16px; text-align:center; flex-shrink:0;"></i>
+                                    <span class="text-truncate">{{ $bFeat[0] }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -175,7 +175,7 @@
 
             <div class="form-card mb-3">
                 <div class="form-section-title"><i class="fa-solid fa-sparkles me-1"></i> Popular In-Room Amenities</div>
-                <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                <div class="p-3 rounded border" style="background:#f8fafc; display:grid; grid-template-columns:repeat(auto-fill, minmax(175px, 1fr)); gap:10px;">
                     @php $currentFacs = is_array($room->facilities) ? $room->facilities : []; @endphp
                     @foreach([
                         ['Air Conditioning', 'fa-solid fa-snowflake'],
@@ -189,10 +189,10 @@
                         ['Work Desk', 'fa-solid fa-laptop'],
                         ['Safety Locker', 'fa-solid fa-vault'],
                     ] as $amenity)
-                        <label class="form-check-label d-inline-flex align-items-center rounded border bg-white shadow-xs" style="padding:6px 12px; font-size:12px; font-weight:600; color:#334155; cursor:pointer; gap:8px;">
+                        <label class="form-check-label d-flex align-items-center rounded border bg-white shadow-xs px-3 py-2 m-0" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; gap:10px;">
                             <input class="form-check-input m-0 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity[0] }}" {{ in_array($amenity[0], $currentFacs) ? 'checked' : '' }} style="cursor:pointer; width:15px; height:15px;">
-                            <i class="{{ $amenity[1] }}" style="color:#64748b; font-size:13px;"></i>
-                            <span>{{ $amenity[0] }}</span>
+                            <i class="{{ $amenity[1] }}" style="color:#64748b; font-size:13px; width:16px; text-align:center; flex-shrink:0;"></i>
+                            <span class="text-truncate">{{ $amenity[0] }}</span>
                         </label>
                     @endforeach
                 </div>

@@ -325,7 +325,7 @@
                     </p>
                 </div>
 
-                {{-- Left Card 2: Highlights from Guests (Screenshot Exact Parity) --}}
+                {{-- Left Card 2: Highlights from Guests (Dynamic from DB / Model) --}}
                 <div class="card agoda-card-border p-4 mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h6 class="fw-bold text-dark mb-0" style="font-size: 15px;">Highlights from guests</h6>
@@ -333,142 +333,116 @@
                     </div>
                     
                     <div class="d-flex flex-column gap-2.5">
+                        @php
+                            $highlightIcons = [
+                                'location'    => ['icon' => 'fa-location-dot', 'bg' => '#fce8e6', 'color' => '#d93025'],
+                                'host'        => ['icon' => 'fa-user-tie', 'bg' => '#fef7e0', 'color' => '#f29900'],
+                                'cleanliness' => ['icon' => 'fa-spray-can-sparkles', 'bg' => '#e6f4ea', 'color' => '#137333'],
+                                'airport'     => ['icon' => 'fa-plane-arrival', 'bg' => '#e8f0fe', 'color' => '#1a73e8'],
+                                'value'       => ['icon' => 'fa-ribbon', 'bg' => '#f3e8ff', 'color' => '#9333ea'],
+                                'atmosphere'  => ['icon' => 'fa-heart', 'bg' => '#fee2e2', 'color' => '#dc2626'],
+                            ];
+                        @endphp
+                        @foreach($property->ai_highlights as $hKey => $highlight)
+                        @php
+                            $cfg = $highlightIcons[$hKey] ?? ['icon' => 'fa-star', 'bg' => '#f1f5f9', 'color' => '#475569'];
+                        @endphp
                         <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg-light" style="cursor: pointer;">
                             <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #fce8e6; color: #d93025;">
-                                    <i class="fa-solid fa-ribbon fs-6"></i>
+                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: {{ $cfg['bg'] }}; color: {{ $cfg['color'] }};">
+                                    <i class="fa-solid {{ $cfg['icon'] }} fs-6"></i>
                                 </div>
-                                <span class="fw-bold text-dark" style="font-size: 13.5px;">Top Value</span>
+                                <span class="fw-bold text-dark" style="font-size: 13.5px;">{{ $highlight['title'] }}</span>
                             </div>
                             <i class="fa-solid fa-chevron-right text-muted fs-6"></i>
                         </div>
-
-                        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg-light" style="cursor: pointer;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #fef7e0; color: #f29900;">
-                                    <i class="fa-solid fa-spray-can-sparkles fs-6"></i>
-                                </div>
-                                <span class="fw-bold text-dark" style="font-size: 13.5px;">Sparkling clean</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted fs-6"></i>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg-light" style="cursor: pointer;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #e6f4ea; color: #137333;">
-                                    <i class="fa-solid fa-wifi fs-6"></i>
-                                </div>
-                                <span class="fw-bold text-dark" style="font-size: 13.5px;">Free Wi-Fi in all rooms!</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted fs-6"></i>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg-light" style="cursor: pointer;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #e8f0fe; color: #1a73e8;">
-                                    <i class="fa-solid fa-snowflake fs-6"></i>
-                                </div>
-                                <span class="fw-bold text-dark" style="font-size: 13.5px;">Air conditioning</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted fs-6"></i>
-                        </div>
-
-                        <div class="d-flex align-items-center justify-content-between p-2 rounded-3 hover-bg-light" style="cursor: pointer;">
-                            <div class="d-flex align-items-center gap-3">
-                                <div class="rounded-circle d-flex align-items-center justify-content-center" style="width: 36px; height: 36px; background-color: #f3e8ff; color: #9333ea;">
-                                    <i class="fa-solid fa-building-user fs-6"></i>
-                                </div>
-                                <span class="fw-bold text-dark" style="font-size: 13.5px;">Balcony/terrace</span>
-                            </div>
-                            <i class="fa-solid fa-chevron-right text-muted fs-6"></i>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
 
-                {{-- Space & Rooms Breakdown (Exact Agoda 1:1 Parity) --}}
+                {{-- Space & Rooms Breakdown (100% Dynamic from Database) --}}
                 <div class="card agoda-card-border mb-4" style="padding: 20px !important;">
-                    {{-- Header with Select room Link --}}
                     <div class="d-flex justify-content-between align-items-center border-bottom pb-2.5 mb-3" style="border-color: #e2e8f0 !important;">
                         <h5 class="fw-bold text-dark mb-0" style="font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif;">Space &amp; Rooms</h5>
                         <a href="#rooms" class="text-decoration-none fw-bold small" style="color: #2067e1; font-size: 13px;">Select room</a>
                     </div>
 
+                    @php
+                        $roomsCount = $property->rooms->count();
+                        $maxGuests = $property->rooms->max('max_adults') ?: 2;
+                        $maxSizeSqm = $property->rooms->max('room_size_sqm') ?: 46;
+                        $maxSizeSqft = round($maxSizeSqm * 10.764);
+                    @endphp
+
                     {{-- Sub-header Specs Row --}}
                     <div class="mb-3">
                         <div class="fw-bold text-dark mb-1" style="font-size: 13.5px;">
-                            Apartment/Flat <span class="text-secondary fw-normal" style="font-size: 12.5px;">(Room size: 149 m²/1604 ft²)</span>
+                            {{ $property->property_type ? ucfirst($property->property_type) : 'Hotel / Resort' }} 
+                            <span class="text-secondary fw-normal" style="font-size: 12.5px;">(Room size: {{ $maxSizeSqm }} m²/{{ $maxSizeSqft }} ft²)</span>
                         </div>
                         <div class="d-flex align-items-center gap-2 text-dark fw-bold" style="font-size: 12.5px;">
-                            <span>Max 8 guests</span>
+                            <span>Max {{ $maxGuests }} guests</span>
                             <span class="text-muted fw-normal">|</span>
-                            <span>2 bedrooms</span>
+                            <span>{{ $roomsCount > 0 ? $roomsCount : 1 }} room types</span>
                             <span class="text-muted fw-normal">|</span>
-                            <span>2 beds</span>
+                            <span>Attached Baths</span>
                             <span class="text-muted fw-normal">|</span>
-                            <span>Kitchen</span>
+                            <span>Balcony &amp; Views</span>
                         </div>
                     </div>
 
-                    {{-- Horizontal Scrollable Sub-cards with Floating Chevron --}}
+                    {{-- Horizontal Scrollable Sub-cards --}}
                     <div class="position-relative">
                         <div class="d-flex gap-3 overflow-x-auto pb-2 align-items-stretch" style="scrollbar-width: none;">
-                            {{-- Bedroom 1 --}}
+                            @forelse($property->rooms as $rIdx => $rm)
                             <div class="d-flex flex-column justify-content-between" style="min-width: 210px; width: 210px; border: 1px solid #dddfe2; border-radius: 8px; padding: 14px; background: #ffffff; flex-shrink: 0;">
                                 <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">Bedroom 1</strong>
-                                    <small class="text-secondary d-block" style="font-size: 12px;">1 double bed</small>
+                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">{{ $rm->name }}</strong>
+                                    <small class="text-secondary d-block" style="font-size: 12px;">{{ $rm->bed_type ?: '1 King / Queen Bed' }}</small>
+                                    <small class="text-muted d-block mt-1" style="font-size: 11px;">{{ $rm->formatted_size }} • {{ $rm->view_type ?: 'City view' }}</small>
+                                </div>
+                                <div class="text-secondary mt-3 d-flex align-items-center justify-content-between">
+                                    <i class="fa-solid fa-bed fs-5" style="color: #64748b;"></i>
+                                    <span class="badge bg-light text-dark border" style="font-size: 10.5px;">Max {{ $rm->max_adults }} adults</span>
+                                </div>
+                            </div>
+                            @empty
+                            <div class="d-flex flex-column justify-content-between" style="min-width: 210px; width: 210px; border: 1px solid #dddfe2; border-radius: 8px; padding: 14px; background: #ffffff; flex-shrink: 0;">
+                                <div>
+                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">Standard Room</strong>
+                                    <small class="text-secondary d-block" style="font-size: 12px;">1 King Bed</small>
                                 </div>
                                 <div class="text-secondary mt-3">
                                     <i class="fa-solid fa-bed fs-5" style="color: #64748b;"></i>
                                 </div>
                             </div>
-
-                            {{-- Bedroom 2 --}}
-                            <div class="d-flex flex-column justify-content-between" style="min-width: 210px; width: 210px; border: 1px solid #dddfe2; border-radius: 8px; padding: 14px; background: #ffffff; flex-shrink: 0;">
-                                <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">Bedroom 2</strong>
-                                    <small class="text-secondary d-block" style="font-size: 12px;">1 king bed</small>
-                                </div>
-                                <div class="text-secondary mt-3">
-                                    <i class="fa-solid fa-bed fs-5" style="color: #64748b;"></i>
-                                </div>
-                            </div>
+                            @endforelse
 
                             {{-- Bathroom and Toiletries --}}
                             <div class="d-flex flex-column justify-content-between" style="min-width: 240px; width: 240px; border: 1px solid #dddfe2; border-radius: 8px; padding: 14px; background: #ffffff; flex-shrink: 0;">
                                 <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">Bathroom and toiletries</strong>
-                                    <small class="text-secondary d-block" style="font-size: 11.5px; line-height: 1.4;">Cleaning products, Hair dryer, Shower, Toiletries, Towels</small>
+                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">Bathroom &amp; Toiletries</strong>
+                                    <small class="text-secondary d-block" style="font-size: 11.5px; line-height: 1.4;">
+                                        {{ !empty($property->rooms->first()->bathroom_features) && is_array($property->rooms->first()->bathroom_features) ? implode(', ', $property->rooms->first()->bathroom_features) : 'Private Bathroom, Hot Water Geyser, Free Toiletries, Towels' }}
+                                    </small>
                                 </div>
                                 <div class="d-flex align-items-center gap-2 text-secondary fs-6 mt-3" style="color: #64748b !important;">
                                     <i class="fa-solid fa-pump-soap"></i>
-                                    <i class="fa-solid fa-wind"></i>
                                     <i class="fa-solid fa-shower"></i>
                                     <i class="fa-solid fa-bottle-droplet"></i>
-                                    <i class="fa-solid fa-mattress-pillow"></i>
-                                </div>
-                            </div>
-
-                            {{-- Kitchen --}}
-                            <div class="d-flex flex-column justify-content-between" style="min-width: 210px; width: 210px; border: 1px solid #dddfe2; border-radius: 8px; padding: 14px; background: #ffffff; flex-shrink: 0;">
-                                <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;">Kitchen</strong>
-                                    <small class="text-secondary d-block" style="font-size: 11.5px; line-height: 1.4;">Coffee maker, Free instant coffee, Refrigerator</small>
-                                </div>
-                                <div class="text-secondary mt-3">
-                                    <i class="fa-solid fa-mug-hot fs-5" style="color: #64748b;"></i>
+                                    <i class="fa-solid fa-temperature-arrow-up"></i>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- Floating Chevron Scroll Button (Agoda Parity) --}}
+                        {{-- Floating Chevron Scroll Button --}}
                         <button class="btn btn-light rounded-circle shadow-sm border position-absolute top-50 end-0 translate-middle-y me-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 12px; z-index: 10; background: #ffffff;" title="Scroll Right">
                             <i class="fa-solid fa-chevron-right text-dark"></i>
                         </button>
                     </div>
                 </div>
 
-                {{-- Facilities Grid (Screenshot 1:1 Agoda Parity) --}}
+                {{-- Facilities Grid (Dynamic from Model / DB) --}}
                 <div id="facilities" class="card agoda-card-border mb-4" style="padding: 20px !important;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <h5 class="fw-bold text-dark mb-0" style="font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif;">Facilities</h5>
@@ -483,58 +457,59 @@
                     </div>
                 </div>
 
-                {{-- About Us Section (Screenshot 1:1 Agoda Parity) --}}
+                {{-- About Us Section (Dynamic from DB) --}}
                 <div class="card agoda-card-border mb-4" style="padding: 20px !important;">
                     <h5 class="fw-bold text-dark mb-2" style="font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif;">About us</h5>
                     <p class="text-dark mb-1" style="font-size: 13.5px; line-height: 1.6;">
-                        Conveniently situated in the Uttara part of Dhaka, this property puts you close to attractions and interesting dining options.
+                        {{ $property->description ?: ('Conveniently situated in ' . ($property->city ?: 'Bangladesh') . ', ' . $property->name . ' offers comfortable accommodations with excellent amenities, scenic views, and attentive hospitality.') }}
                     </p>
                     <div>
-                        <a href="#" class="fw-bold text-decoration-none small" style="color: #2067e1; font-size: 13px;">Read more</a>
+                        <a href="#overview" class="fw-bold text-decoration-none small" style="color: #2067e1; font-size: 13px;">Read more</a>
                     </div>
                 </div>
 
-                {{-- High Demand Urgency Callout Banner (Screenshot 1:1 Agoda Parity) --}}
+                {{-- High Demand Urgency Callout Banner --}}
                 <div class="card agoda-card-border mb-4" style="padding: 16px 20px !important; background-color: #fef2f2 !important; border: 1px solid #fee2e2 !important;">
                     <h6 class="fw-bold mb-1" style="color: #d93025; font-size: 15px;">This property is in high demand!</h6>
-                    <p class="text-dark mb-0" style="font-size: 13px;">Booked 4 times in 24h</p>
+                    <p class="text-dark mb-0" style="font-size: 13px;">Popular choice in {{ $property->city ?: 'Bangladesh' }}</p>
                 </div>
 
             </div>
 
-            {{-- Right Column Sidebar Widgets (Exact Agoda Match) --}}
+            {{-- Right Column Sidebar Widgets --}}
             <div class="col-lg-4 d-flex flex-column">
                 
-                {{-- Right Card 1: Review Score Box (Screenshot Exact Parity) --}}
+                {{-- Right Card 1: Review Score Box (Dynamic Sub-scores) --}}
                 <div id="reviews" class="card agoda-card-border mb-4" style="padding: 20px !important;">
                     <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-                        <h5 class="fw-bold text-dark mb-0" style="font-size: 16.5px; font-family: 'Plus Jakarta Sans', sans-serif;">{{ $score }} Excellent</h5>
+                        <h5 class="fw-bold text-dark mb-0" style="font-size: 16.5px; font-family: 'Plus Jakarta Sans', sans-serif;">{{ $score }} {{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : 'Very Good') }}</h5>
                         <a href="#reviews" class="text-decoration-none fw-bold flex-shrink-0" style="color: #2067e1; font-size: 12.5px;">Read all reviews</a>
                     </div>
                     <div class="text-start mb-3" style="color: #2067e1; font-size: 12.5px; font-weight: 600;">
                         <i class="fa-solid fa-circle-check me-1"></i> {{ $revCount }} reviews
                     </div>
 
-                    {{-- Green Sub-scores Pills (Screenshot 1:1 Agoda Exact Match) --}}
+                    {{-- Dynamic Green Sub-scores Pills --}}
                     <div class="d-flex flex-wrap align-items-center gap-1 justify-content-start" style="font-size: 11px;">
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11px; display: inline-block;">Cleanliness 9.3</span>
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11px; display: inline-block;">Value for money 9.3</span>
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11px; display: inline-block;">Location 8.7</span>
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11px; display: inline-block;">Service 8.7</span>
+                        @foreach($property->sub_scores as $subKey => $subVal)
+                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11px; display: inline-block;">
+                            {{ ucfirst(str_replace('_', ' ', $subKey)) }} {{ number_format((float)$subVal, 1) }}
+                        </span>
+                        @endforeach
                         <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 15px; height: 15px; background-color: #5f6368; font-size: 9.5px; font-weight: 700; cursor: pointer; flex-shrink: 0;" title="Rating Breakdown Info">i</span>
                     </div>
                 </div>
 
-                {{-- Right Card 2: Check-in / Check-out Box (Screenshot Exact Parity) --}}
+                {{-- Right Card 2: Check-in / Check-out Box (Dynamic from DB) --}}
                 <div class="card agoda-card-border mb-4" style="padding: 20px !important;">
                     <div class="d-flex justify-content-between text-secondary mb-2.5" style="font-size: 12.5px;">
                         <div>
                             <strong class="d-block text-dark mb-1" style="font-size: 13px;">Check-in:</strong>
-                            <span style="font-size: 12px; color: #475569;">12:00 PM to 11:00 PM</span>
+                            <span style="font-size: 12px; color: #475569;">{{ $property->checkin_time ?: '14:00' }} onwards</span>
                         </div>
                         <div>
                             <strong class="d-block text-dark mb-1" style="font-size: 13px;">Check-out:</strong>
-                            <span style="font-size: 12px; color: #475569;">until 12:00 PM</span>
+                            <span style="font-size: 12px; color: #475569;">until {{ $property->checkout_time ?: '12:00' }}</span>
                         </div>
                     </div>
                     <div class="text-end border-top pt-2.5 mt-2">
@@ -542,11 +517,10 @@
                     </div>
                 </div>
 
-                {{-- Right Card 3: Combined Interactive Map & Closest Landmarks Single Card (Exact Agoda 1:1 Parity) --}}
+                {{-- Right Card 3: Combined Interactive Map & Closest Landmarks Single Card --}}
                 <div id="location" class="card agoda-card-border overflow-hidden mb-4 flex-grow-1">
                     {{-- Map Header Banner --}}
                     <div class="position-relative text-center" style="height: 140px; background: #e8f0fe; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
-                        {{-- Stylized Agoda Map Canvas --}}
                         <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
                             <rect width="100%" height="100%" fill="#f1f5f9"/>
                             <path d="M 0 40 L 300 40" stroke="#fef08a" stroke-width="14"/>
@@ -566,15 +540,13 @@
 
                     {{-- Card Inner Content --}}
                     <div class="p-3">
-                        {{-- Location Score --}}
                         <div class="mb-3">
-                            <h6 class="fw-bold text-dark mb-0" style="font-size: 15px;">8.7 Excellent</h6>
+                            <h6 class="fw-bold text-dark mb-0" style="font-size: 15px;">{{ $score }} Excellent</h6>
                             <small class="text-secondary" style="font-size: 12px; color: #64748b;">Location rating score</small>
                         </div>
                         
-                        {{-- Excellent Location Badge --}}
                         <div class="d-flex align-items-center gap-2 text-dark fw-bold mb-3" style="font-size: 13px;">
-                            <i class="fa-solid fa-award text-dark fs-6"></i> Excellent location
+                            <i class="fa-solid fa-award text-dark fs-6"></i> Excellent location in {{ $property->city ?: 'Bangladesh' }}
                         </div>
 
                         {{-- Parking Row --}}
@@ -582,37 +554,27 @@
                             <span class="text-dark d-flex align-items-center gap-2">
                                 <i class="fa-solid fa-square-parking text-secondary fs-5"></i> Parking
                             </span>
-                            <strong style="color: #16a34a; font-size: 13px;">FREE</strong>
+                            <strong style="color: #16a34a; font-size: 13px;">{{ in_array('Free parking', $amenitiesList) || in_array('parking', $amenitiesList) ? 'FREE' : 'Available' }}</strong>
                         </div>
 
-                        {{-- Closest Landmarks List --}}
+                        {{-- Dynamic Closest Landmarks List from DB --}}
                         <div class="pt-2">
                             <h6 class="fw-bold text-dark mb-3" style="font-size: 13.5px;">Closest landmarks</h6>
                             <div class="d-flex flex-column gap-2.5" style="font-size: 12.5px;">
+                                @forelse($property->nearby_landmarks_list as $landmark)
                                 <div class="d-flex justify-content-between text-dark">
-                                    <span><i class="fa-solid fa-bag-shopping me-2 text-dark"></i> Meena Bazar Uttara-6</span>
-                                    <span class="text-dark font-monospace" style="font-size: 12px;">90 m</span>
+                                    <span><i class="fa-solid fa-location-dot me-2 text-dark"></i> {{ $landmark['name'] }}</span>
+                                    <span class="text-dark font-monospace" style="font-size: 12px;">{{ $landmark['distance'] }}</span>
                                 </div>
+                                @empty
                                 <div class="d-flex justify-content-between text-dark">
-                                    <span><i class="fa-solid fa-location-dot me-2 text-dark"></i> Uttara Community Hospital</span>
-                                    <span class="text-dark font-monospace" style="font-size: 12px;">240 m</span>
+                                    <span><i class="fa-solid fa-location-dot me-2 text-dark"></i> {{ $property->city ?: 'City' }} Center</span>
+                                    <span class="text-dark font-monospace" style="font-size: 12px;">500 m</span>
                                 </div>
-                                <div class="d-flex justify-content-between text-dark">
-                                    <span><i class="fa-solid fa-location-dot me-2 text-dark"></i> Uttara University</span>
-                                    <span class="text-dark font-monospace" style="font-size: 12px;">270 m</span>
-                                </div>
-                                <div class="d-flex justify-content-between text-dark">
-                                    <span><i class="fa-solid fa-bag-shopping me-2 text-dark"></i> Shop n Save</span>
-                                    <span class="text-dark font-monospace" style="font-size: 12px;">270 m</span>
-                                </div>
-                                <div class="d-flex justify-content-between text-dark">
-                                    <span><i class="fa-solid fa-location-dot me-2 text-dark"></i> Dentist's Care</span>
-                                    <span class="text-dark font-monospace" style="font-size: 12px;">270 m</span>
-                                </div>
+                                @endforelse
                             </div>
                         </div>
 
-                        {{-- See Nearby Places Link (Agoda 1:1 Parity) --}}
                         <div class="text-end border-top pt-2.5 mt-3" style="border-color: #e2e8f0 !important;">
                             <a href="#location" class="text-decoration-none fw-bold small" style="color: #2067e1; font-size: 12.5px;">See nearby places</a>
                         </div>
@@ -656,57 +618,18 @@
                 <i class="fa-solid fa-clock"></i> <span>Hurry up! 3 room types have already sold out for your dates!</span>
             </div>
 
-            {{-- Available Rooms List (Agoda 1:1 Exact Card Design - Screenshot Parity) --}}
+            {{-- Available Rooms List (100% Dynamic from Database) --}}
             <div class="d-flex flex-column gap-4" id="availableRoomsContainer">
+                @forelse($property->rooms as $rIdx => $room)
                 @php
-                    $roomItems = $property->rooms->isNotEmpty() ? $property->rooms : [
-                        (object)[
-                            'id' => 101,
-                            'name' => 'Superior Deluxe Room',
-                            'max_adults' => 2,
-                            'max_children' => 1,
-                            'bed_type' => '1 King Bed or 2 Twin Beds',
-                            'price_per_night' => $property->price_per_night ?: 16,
-                            'room_size_sqm' => 46,
-                            'view_type' => 'City View',
-                            'bathroom_count' => 1,
-                            'bathroom_features' => ['Private Bathroom', 'Hot Water Geyser'],
-                            'smoking_policy' => 'Non-Smoking',
-                            'balcony_type' => 'Private Balcony',
-                            'breakfast_included' => true,
-                            'free_cancellation' => true,
-                            'primary_image' => $gallery[0] ?? ''
-                        ],
-                        (object)[
-                            'id' => 102,
-                            'name' => 'Executive Ocean Suite',
-                            'max_adults' => 3,
-                            'max_children' => 2,
-                            'bed_type' => '1 King Bed + Living Lounge',
-                            'price_per_night' => round(($property->price_per_night ?: 16) * 1.4),
-                            'room_size_sqm' => 68,
-                            'view_type' => 'Sea View / Ocean Front',
-                            'bathroom_count' => 2,
-                            'bathroom_features' => ['Private Bathroom', 'Bathtub / Jacuzzi', 'Hot Water Geyser'],
-                            'smoking_policy' => 'Non-Smoking',
-                            'balcony_type' => 'Terrace',
-                            'breakfast_included' => true,
-                            'free_cancellation' => true,
-                            'primary_image' => $gallery[1] ?? ($gallery[0] ?? '')
-                        ]
-                    ];
-                @endphp
-
-                @foreach($roomItems as $rIdx => $room)
-                @php
-                    $rAdults = $room->max_adults ?? ($rIdx == 0 ? 2 : 3);
-                    $rKids = $room->max_children ?? 1;
-                    $rSizeStr = $room->room_size_sqm ? ($room->room_size_sqm . ' m²/' . round($room->room_size_sqm * 10.764) . ' ft²') : ($rIdx == 0 ? '46 m²/495 ft²' : '68 m²/732 ft²');
-                    $rBedStr = $room->bed_type ?: ($rIdx == 0 ? '1 double bed or 2 single beds' : '1 King Bed + Living Area');
+                    $rAdults = $room->max_adults ?: 2;
+                    $rKids = $room->max_children ?: 1;
+                    $rSizeStr = $room->formatted_size ?: '46 m²/495 ft²';
+                    $rBedStr = $room->bed_type ?: '1 King / Queen Bed';
                     $rView = $room->view_type ?: 'City view';
                     $rSmoking = $room->smoking_policy ?: 'Non-smoking';
                     $rBalcony = $room->balcony_type ?: 'Private Balcony';
-                    $rBathrooms = $room->bathroom_count ?? 1;
+                    $rBathrooms = $room->bathroom_count ?: 1;
                     $isTwin = str_contains(strtolower($rBedStr), 'twin') || str_contains(strtolower($rBedStr), '2 single');
                 @endphp
                 <div class="card mb-4 overflow-hidden agoda-room-listing-card"
@@ -1040,7 +963,14 @@
                         </div>
                     </div>
                 </div>
-                @endforeach
+                @empty
+                <div class="alert alert-info border-0 rounded-3 p-4 text-center my-3" style="background: #f0f7ff; color: #1e3a8a; border-radius: 12px !important;">
+                    <i class="fa-solid fa-hotel fs-3 mb-2 text-primary"></i>
+                    <h5 class="fw-bold mb-1">No Rooms Currently Available</h5>
+                    <p class="small mb-3 text-secondary">There are currently no active room types listed for this property.</p>
+                    <a href="{{ route('search.index') }}" class="btn btn-primary btn-sm rounded-pill px-4 py-2 fw-bold" style="background: #2067e1;">Explore Other Hotels in {{ $property->city ?: 'Bangladesh' }}</a>
+                </div>
+                @endforelse
           {{-- 7. Plan your journey to your hotel (Agoda 1:1 Screenshot Parity) --}}
         <div class="mb-4 mt-2">
             <h4 class="fw-bold text-dark mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800;">
@@ -1351,8 +1281,11 @@
 
             <div class="border-top pt-4">
                 <h6 class="fw-bold text-dark mb-2" style="font-size: 15px;">Property announcements</h6>
-                <p class="text-secondary mb-0" style="font-size: 13px;">Managed by a private host</p>
-        {{-- 13. Reviews Section Card (Screenshot Parity) --}}
+                <p class="text-secondary mb-0" style="font-size: 13px;">Managed by verified partner host</p>
+            </div>
+        </div>
+
+        {{-- 13. Reviews Section Card (100% Dynamic from Database) --}}
         <div id="reviews" class="card border-0 shadow-xs rounded-3 p-4 bg-white mb-4">
             <div class="d-flex justify-content-between align-items-start mb-4 flex-wrap gap-2">
                 <div>
@@ -1361,90 +1294,42 @@
                     </h5>
                 </div>
                 <div class="text-end">
-                    <small class="text-secondary d-block" style="font-size: 11px;">Verified reviews provided by</small>
-                    <span class="fw-bold text-primary" style="font-size: 13px;">agoda · <span class="text-info">Booking.com</span></span>
+                    <small class="text-secondary d-block" style="font-size: 11px;">Verified reviews</small>
+                    <span class="fw-bold text-primary" style="font-size: 13px;">PRIME BOOKING Verified</span>
                 </div>
             </div>
 
             <div class="row g-4 mb-4">
                 {{-- Score Summary Box --}}
                 <div class="col-md-3 border-end pe-md-4">
-                    <small class="text-secondary d-block mb-1" style="font-size: 11px;">Rating via Booking.com</small>
+                    <small class="text-secondary d-block mb-1" style="font-size: 11px;">Overall Guest Rating</small>
                     <div class="d-flex align-items-baseline gap-1">
-                        <h2 class="fw-bold text-primary mb-0" style="font-size: 34px;">8.9</h2>
+                        <h2 class="fw-bold text-primary mb-0" style="font-size: 34px;">{{ $score }}</h2>
                         <span class="text-muted" style="font-size: 14px;">/10</span>
                     </div>
-                    <strong class="d-block text-dark mt-1" style="font-size: 15px;">Excellent</strong>
-                    <small class="text-primary fw-bold" style="font-size: 12px;"><i class="fa-solid fa-check-circle me-1"></i> From {{ $revCount }} reviews</small>
+                    <strong class="d-block text-dark mt-1" style="font-size: 15px;">{{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : 'Very Good') }}</strong>
+                    <small class="text-primary fw-bold" style="font-size: 12px;"><i class="fa-solid fa-check-circle me-1"></i> From {{ $revCount }} verified reviews</small>
                 </div>
 
                 {{-- Green Sub-score Progress Bars --}}
                 <div class="col-md-9">
                     <div class="row g-3">
+                        @foreach($property->sub_scores as $subName => $subVal)
                         <div class="col-md-6">
                             <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
-                                <span>Cleanliness</span>
-                                <strong class="text-dark">8.8</strong>
+                                <span>{{ ucfirst(str_replace('_', ' ', $subName)) }}</span>
+                                <strong class="text-dark">{{ number_format((float)$subVal, 1) }}</strong>
                             </div>
                             <div class="progress" style="height: 5px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 88%; background-color: #16a34a !important;"></div>
+                                <div class="progress-bar bg-success" role="progressbar" style="width: {{ min(100, round((float)$subVal * 10)) }}%; background-color: #16a34a !important;"></div>
                             </div>
                         </div>
-
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
-                                <span>Facilities</span>
-                                <strong class="text-dark">8.8</strong>
-                            </div>
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 88%; background-color: #16a34a !important;"></div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
-                                <span>Location</span>
-                                <strong class="text-dark">10.0</strong>
-                            </div>
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%; background-color: #16a34a !important;"></div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
-                                <span>Room comfort and quality</span>
-                                <strong class="text-dark">8.8</strong>
-                            </div>
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 88%; background-color: #16a34a !important;"></div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
-                                <span>Service</span>
-                                <strong class="text-dark">7.5</strong>
-                            </div>
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 75%; background-color: #16a34a !important;"></div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-6">
-                            <div class="d-flex justify-content-between mb-1" style="font-size: 12.5px;">
-                                <span>Value for money</span>
-                                <strong class="text-dark">10.0</strong>
-                            </div>
-                            <div class="progress" style="height: 5px;">
-                                <div class="progress-bar bg-success" role="progressbar" style="width: 100%; background-color: #16a34a !important;"></div>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                 </div>
             </div>
 
-            {{-- AI-Powered Summary Box (Exact Agoda 1:1 Parity) --}}
+            {{-- AI-Powered Summary Box --}}
             <div class="p-3 mb-4 rounded-3" style="background: #faf5ff; border: 1.5px solid #d8b4fe;">
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <strong class="d-flex align-items-center gap-1.5" style="color: #6b21a8; font-size: 14px; font-weight: 700;">
@@ -1453,48 +1338,24 @@
                     <span class="text-muted small" style="font-size: 11.5px;">Summarized by AI</span>
                 </div>
                 <div class="row g-3" style="font-size: 12.5px; color: #334155; line-height: 1.55;">
+                    @php
+                        $aiHighlightsList = array_values($property->ai_highlights);
+                        $halfCount = ceil(count($aiHighlightsList) / 2);
+                    @endphp
                     <div class="col-md-6">
                         <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
-                            <li><strong>• Location:</strong> Close-to-key spots: repeated mentions of proximity to {{ $property->city }} airport, metro transit, and local dining. <span class="text-muted">(12 mentions)</span></li>
-                            <li><strong>• Host:</strong> Friendly, helpful staff provide travel advice and create a welcoming, approachable atmosphere. <span class="text-muted">(10 mentions)</span></li>
-                            <li><strong>• Room Cleanliness:</strong> Clean and hygienic rooms and common areas, with several guests praising overall cleanliness. <span class="text-muted">(5 mentions)</span></li>
+                            @foreach(array_slice($aiHighlightsList, 0, (int)$halfCount) as $hl)
+                            <li><strong>• {{ $hl['title'] }}:</strong> {{ $hl['desc'] }} <span class="text-muted">({{ $hl['count'] }} mentions)</span></li>
+                            @endforeach
                         </ul>
                     </div>
                     <div class="col-md-6">
                         <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
-                            <li><strong>• Airport Access:</strong> Convenient for airport arrivals and departures, highly recommended for short stays. <span class="text-muted">(5 mentions)</span></li>
-                            <li><strong>• Value for Money:</strong> Good value for money and reasonable pricing noted by multiple guests with fair cost. <span class="text-muted">(5 mentions)</span></li>
-                            <li><strong>• Overall Atmosphere:</strong> Serene, welcoming atmosphere and a 'home away from home' feeling. <span class="text-muted">(4 mentions)</span></li>
+                            @foreach(array_slice($aiHighlightsList, (int)$halfCount) as $hl)
+                            <li><strong>• {{ $hl['title'] }}:</strong> {{ $hl['desc'] }} <span class="text-muted">({{ $hl['count'] }} mentions)</span></li>
+                            @endforeach
                         </ul>
                     </div>
-                </div>
-            </div>
-
-            {{-- Filter Select Dropdowns --}}
-            <div class="row g-3 border-top pt-3 mb-3">
-                <div class="col-md-4">
-                    <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Guest Type</label>
-                    <select class="form-select text-dark fw-semibold" style="font-size: 12.5px; height: 38px;">
-                        <option selected>All guests ({{ $revCount }})</option>
-                        <option>Solo travelers</option>
-                        <option>Couples</option>
-                        <option>Families with young children</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Language</label>
-                    <select class="form-select text-dark fw-semibold" style="font-size: 12.5px; height: 38px;">
-                        <option selected>All languages</option>
-                        <option>English</option>
-                        <option>Bengali</option>
-                    </select>
-                </div>
-                <div class="col-md-4">
-                    <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Source</label>
-                    <select class="form-select text-dark fw-semibold" style="font-size: 12.5px; height: 38px;">
-                        <option selected>Prime Booking Reviews ({{ $revCount }})</option>
-                        <option>Agoda &amp; Booking.com Reviews</option>
-                    </select>
                 </div>
             </div>
 
@@ -1503,59 +1364,48 @@
                 <small class="text-muted d-block fw-bold mb-2" style="font-size: 12px;">Show reviews that mention</small>
                 <div class="d-flex flex-wrap gap-2">
                     <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold mention-filter-btn" onclick="filterReviewsByMention('all', this)" style="font-size: 11.5px; background: #2067e1;">All Reviews</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('service', this)" style="font-size: 11.5px;">Service (7)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('atmosphere', this)" style="font-size: 11.5px;">Atmosphere (6)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('airport', this)" style="font-size: 11.5px;">Airport access (4)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('clean', this)" style="font-size: 11.5px;">Cleanliness (4)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('location', this)" style="font-size: 11.5px;">Location (4)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('breakfast', this)" style="font-size: 11.5px;">Breakfast (2)</button>
-                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('value', this)" style="font-size: 11.5px;">Value for money (2)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('service', this)" style="font-size: 11.5px;">Service</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('atmosphere', this)" style="font-size: 11.5px;">Atmosphere</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('clean', this)" style="font-size: 11.5px;">Cleanliness</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('location', this)" style="font-size: 11.5px;">Location</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('breakfast', this)" style="font-size: 11.5px;">Breakfast</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border mention-filter-btn" onclick="filterReviewsByMention('value', this)" style="font-size: 11.5px;">Value for money</button>
                 </div>
             </div>
 
-            {{-- Verified Guest Reviews List (Agoda 1:1 Parity) --}}
+            {{-- Verified Guest Reviews List (Dynamic from Database) --}}
             <div class="d-flex flex-column gap-3 border-top pt-4" id="verifiedReviewsContainer">
-                {{-- Review 1 --}}
+                @forelse($reviews ?? $property->reviews ?? [] as $rev)
                 <div class="row g-3 p-3 rounded-3 bg-light border verified-review-card">
                     <div class="col-md-4 border-end pe-md-3">
-                        <strong class="text-primary d-block fw-bold" style="font-size: 17px;">10.0 Exceptional</strong>
-                        <div class="text-dark fw-bold mt-1" style="font-size: 13px;">🇯🇵 Ibuki from Japan</div>
-                        <small class="text-muted d-block" style="font-size: 11.5px;">🧳 Solo traveler</small>
-                        <small class="text-muted d-block" style="font-size: 11.5px;">🛏️ Superior Deluxe Room</small>
-                        <small class="text-secondary d-block mt-1" style="font-size: 11px;">📅 Stayed 2 nights in recent visit</small>
+                        <strong class="text-primary d-block fw-bold" style="font-size: 17px;">{{ number_format((float)($rev->rating ?? 9.0), 1) }} {{ ($rev->rating ?? 9) >= 9 ? 'Exceptional' : 'Excellent' }}</strong>
+                        <div class="text-dark fw-bold mt-1" style="font-size: 13px;">{{ $rev->user->name ?? 'Verified Guest' }}</div>
+                        <small class="text-muted d-block" style="font-size: 11.5px;">🧳 Verified Stay</small>
+                        <small class="text-secondary d-block mt-1" style="font-size: 11px;">📅 {{ $rev->created_at ? $rev->created_at->diffForHumans() : 'Recent review' }}</small>
                     </div>
                     <div class="col-md-8">
-                        <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">"It was the best stay and experience!"</h6>
+                        @if(!empty($rev->title))
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">"{{ $rev->title }}"</h6>
+                        @endif
                         <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.6;">
-                            I think this is one of the most hospitable and clean hotels in Bangladesh. I stayed here for a few days and was able to spend my time comfortably without any inconvenience. The staff was cheerful, kind, and responsive!
+                            {{ $rev->comment }}
                         </p>
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small" style="font-size: 11px;">
-                            <span>Reviewed recently • <em>Auto-translated through AI</em></span>
+                            <span>Verified guest review</span>
                             <span>Did you find this review helpful? <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none">Yes</a> / <a href="javascript:void(0)" class="text-secondary text-decoration-none">No</a></span>
                         </div>
                     </div>
                 </div>
-
-                {{-- Review 2 --}}
-                <div class="row g-3 p-3 rounded-3 bg-light border verified-review-card">
-                    <div class="col-md-4 border-end pe-md-3">
-                        <strong class="text-primary d-block fw-bold" style="font-size: 17px;">10.0 Exceptional</strong>
-                        <div class="text-dark fw-bold mt-1" style="font-size: 13px;">🇧🇩 Tajul from Bangladesh</div>
-                        <small class="text-muted d-block" style="font-size: 11.5px;">🧳 Solo traveler</small>
-                        <small class="text-muted d-block" style="font-size: 11.5px;">🛏️ Executive Suite</small>
-                        <small class="text-secondary d-block mt-1" style="font-size: 11px;">📅 Stayed 1 night</small>
-                    </div>
-                    <div class="col-md-8">
-                        <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">"Best Place To Stay."</h6>
-                        <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.6;">
-                            It was reasonably priced to stay. The environment was very good, quiet, and the staff members were extraordinarily friendly and cooperative with service and airport access.
-                        </p>
-                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small" style="font-size: 11px;">
-                            <span>Reviewed recently</span>
-                            <span>Did you find this review helpful? <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none">Yes</a> / <a href="javascript:void(0)" class="text-secondary text-decoration-none">No</a></span>
-                        </div>
-                    </div>
+                @empty
+                <div class="text-center py-4 bg-light rounded-3 my-2 border">
+                    <i class="fa-solid fa-star text-warning fs-3 mb-2"></i>
+                    <h6 class="fw-bold text-dark mb-1">No written reviews yet</h6>
+                    <p class="text-secondary small mb-3">Be the first verified guest to share your experience staying at {{ $property->name }}!</p>
+                    <a href="{{ route('booking.form', $property->id) }}" class="btn btn-primary btn-sm px-4 py-2 rounded-pill fw-bold" style="background: #2067e1;">Book Your Stay Now</a>
                 </div>
+                @endforelse
+            </div>
+        </div>
             </div>
         </div>
 

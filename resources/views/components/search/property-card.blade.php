@@ -118,13 +118,15 @@
                 </button>
             </form>
 
-            {{-- Video Tour Button (Always Interactive) --}}
+            {{-- Video Tour Button (Dynamic when available in DB) --}}
+            @if(!empty($videoUrl))
             <div class="position-absolute top-0 end-0 m-2" style="z-index: 12;">
                 <button type="button" class="btn btn-dark btn-sm rounded-pill px-2.5 py-1 shadow-sm d-flex align-items-center gap-1.5" style="font-size: 10px; background: rgba(15, 23, 42, 0.88); border: 1px solid rgba(255,255,255,0.35); backdrop-filter: blur(4px);" data-bs-toggle="modal" data-bs-target="#propertyVideoModal_{{ $id }}">
                     <i class="fa-solid fa-play text-danger" style="font-size: 9px;"></i>
                     <span class="fw-bold text-white" style="font-size: 9.5px; letter-spacing: 0.3px;">VIDEO TOUR</span>
                 </button>
             </div>
+            @endif
 
             {{-- Dynamic Image Counter Pill Badge (Updates on Carousel Slide) --}}
             <div class="position-absolute bottom-0 start-0 m-2" style="z-index: 12;">
@@ -240,7 +242,8 @@
     </div>
 </div>
 
-{{-- Interactive Hotel Video Tour Modal --}}
+{{-- Interactive Hotel Video Tour Modal (Rendered only when video exists in DB) --}}
+@if(!empty($videoUrl))
 <div class="modal fade" id="propertyVideoModal_{{ $id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden bg-dark">
@@ -250,12 +253,13 @@
             </div>
             <div class="modal-body p-0 text-center">
                 <div class="ratio ratio-16x9">
-                    <iframe src="{{ $finalVideoUrl }}" title="Hotel Video Tour" allowfullscreen class="w-100 h-100 border-0"></iframe>
+                    <iframe src="{{ $videoUrl }}" title="Hotel Video Tour" allowfullscreen class="w-100 h-100 border-0"></iframe>
                 </div>
             </div>
         </div>
     </div>
 </div>
+@endif
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {

@@ -1750,7 +1750,41 @@
             @endif
         </div>
 
-        {{-- 16. Trending Cities Section (Screenshot Parity) --}}
+        {{-- 16. Discover new places Section (Screenshot Parity) --}}
+        <div class="mb-4 position-relative">
+            <h5 class="fw-bold text-dark mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">Discover new places</h5>
+            <div class="position-relative">
+                <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: none;">
+                    @php
+                        $places = [
+                            ['name' => 'United States', 'img' => 'https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Malaysia', 'img' => 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'India', 'img' => 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Philippines', 'img' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Indonesia', 'img' => 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Singapore', 'img' => 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'China', 'img' => 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => "Cox's Bazar", 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Sylhet', 'img' => 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=400&q=80'],
+                        ];
+                    @endphp
+                    @foreach($places as $pl)
+                    <a href="{{ route('search.index') }}?destination={{ urlencode($pl['name']) }}" class="card border-0 shadow-xs rounded-3 overflow-hidden text-decoration-none text-white flex-shrink-0" style="width: 175px; height: 130px; position: relative;">
+                        <img src="{{ $pl['img'] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $pl['name'] }}">
+                        <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);">
+                            <strong class="d-block text-white mb-0" style="font-size: 13.5px; font-weight: 700;">{{ $pl['name'] }}</strong>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+                <button class="btn btn-light rounded-circle shadow-md position-absolute top-50 end-0 translate-middle-y me-1 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; z-index: 10; border: 1px solid #cbd5e1; background: #fff;" onclick="this.previousElementSibling.scrollBy({left: 200, behavior: 'smooth'});">
+                    <i class="fa-solid fa-chevron-right text-dark fs-6"></i>
+                </button>
+            </div>
+        </div>
+
+        {{-- 17. Trending Cities Section (Screenshot Parity) --}}
         <div class="mb-4 position-relative">
             <h5 class="fw-bold text-dark mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">Trending Cities</h5>
             

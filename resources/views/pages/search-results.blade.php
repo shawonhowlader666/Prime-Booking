@@ -215,6 +215,31 @@
                 </div>
             </div>
 
+            {{-- 3.5 Smart Destination Weather & Seasonal Guidance Card --}}
+            @if(!empty($destination))
+            @php
+                $cityInsight = \App\Services\Search\CityInsightService::getInsights($destination);
+            @endphp
+            <div class="mb-3 px-3 py-2.5 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2 shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <i class="{{ $cityInsight['icon'] }} fs-4"></i>
+                    <div>
+                        <div class="d-flex align-items-center gap-2">
+                            <strong class="text-dark" style="font-size: 13.5px;">{{ $destination }}</strong>
+                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2 py-0.5" style="font-size: 11px;">{{ $cityInsight['season_badge'] }}</span>
+                            <span class="fw-bold text-secondary" style="font-size: 12px;">{{ $cityInsight['temp'] }} · {{ $cityInsight['condition'] }}</span>
+                        </div>
+                        <small class="text-secondary d-block" style="font-size: 12px; line-height: 1.3;">{{ $cityInsight['tip'] }}</small>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge bg-white text-dark border px-2.5 py-1.5 shadow-xs fw-semibold" style="font-size: 11px;">
+                        <i class="fa-solid fa-bolt text-warning me-1"></i> Best Rates Guaranteed
+                    </span>
+                </div>
+            </div>
+            @endif
+
             {{--
                 ════════════════════════════════════════════════
                 POPULAR AREAS PILLS — 100% DATABASE-DRIVEN
@@ -344,15 +369,23 @@
 <div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered" style="max-width: 92vw;">
         <div class="modal-content rounded-4 border-0 shadow-lg overflow-hidden">
-            <div class="modal-header bg-dark text-white border-0 py-3 px-4">
+            <div class="modal-header bg-dark text-white border-0 py-3 px-4 d-flex justify-content-between align-items-center flex-wrap gap-2">
                 <div class="d-flex align-items-center gap-2">
                     <i class="fa-solid fa-map-location-dot text-info fs-4"></i>
                     <div>
                         <h5 class="modal-title fw-bold mb-0" style="font-size: 16px;">Interactive Property Map — {{ $destination ?: 'Bangladesh' }}</h5>
-                        <small class="text-white-50" style="font-size: 11px;">Showing {{ count($searchResults['merged_results']) }} verified stays with live rates</small>
+                        <small class="text-white-50" id="mapSubTitleText" style="font-size: 11px;">Showing {{ count($searchResults['merged_results']) }} verified stays with live rates</small>
                     </div>
                 </div>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div class="d-flex align-items-center gap-3">
+                    <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                        <input class="form-check-input" type="checkbox" id="searchAsMoveMapToggle" checked style="cursor: pointer;">
+                        <label class="form-check-label text-white small fw-bold" for="searchAsMoveMapToggle" style="font-size: 11.5px; cursor: pointer;">
+                            <i class="fa-solid fa-arrows-up-down-left-right me-1 text-info"></i> Search as I move map
+                        </label>
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
             </div>
             <div class="modal-body p-0 position-relative" style="height: 78vh; min-height: 520px;">
                 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
@@ -362,10 +395,6 @@
 
                 @php
                     // ─── MAP CENTER: 100% from real property GPS in results ──────────
-                    // Priority: 1) Real lat/lng from first property in results
-                    //           2) Average lat/lng from all properties
-                    //           3) Bangladesh geographic center (fallback only)
-                    // Zero hardcoded city coordinates.
                     $defaultLat = 23.6850; // Bangladesh centre
                     $defaultLng = 90.3563;
 
@@ -399,7 +428,6 @@
                         $centerLat = $gpsProps->avg('lat');
                         $centerLng = $gpsProps->avg('lng');
                     } else {
-                        // No GPS in DB yet — use generic Bangladesh center, NOT hardcoded city
                         $centerLat = $defaultLat;
                         $centerLng = $defaultLng;
                     }
@@ -421,6 +449,7 @@
                         var mapModal = document.getElementById('interactiveMapModal');
                         var mapInitialized = false;
                         var map;
+                        var markers = [];
 
                         mapModal.addEventListener('shown.bs.modal', function () {
                             if (!mapInitialized) {
@@ -450,9 +479,34 @@
                                         '</div>' +
                                     '</div>';
 
-                                    L.marker([item.lat, item.lng], {icon: customIcon})
+                                    var m = L.marker([item.lat, item.lng], {icon: customIcon})
                                         .addTo(map)
                                         .bindPopup(popupContent);
+
+                                    markers.push({marker: m, lat: item.lat, lng: item.lng});
+                                });
+
+                                // ─── Spatial Bounding Box Filter Event ("Search as I move the map") ───
+                                map.on('moveend', function() {
+                                    var toggle = document.getElementById('searchAsMoveMapToggle');
+                                    if (!toggle || !toggle.checked) return;
+
+                                    var bounds = map.getBounds();
+                                    var visibleCount = 0;
+
+                                    markers.forEach(function(item) {
+                                        if (bounds.contains([item.lat, item.lng])) {
+                                            item.marker.setOpacity(1.0);
+                                            visibleCount++;
+                                        } else {
+                                            item.marker.setOpacity(0.25);
+                                        }
+                                    });
+
+                                    var subText = document.getElementById('mapSubTitleText');
+                                    if (subText) {
+                                        subText.textContent = `Showing ${visibleCount} stays in visible map viewport`;
+                                    }
                                 });
 
                                 mapInitialized = true;

@@ -55,9 +55,9 @@
     @if($selectedRoom)
 
     {{-- KPI SUMMARY ROW (Interactive Filter Triggers) --}}
-    <div class="row g-3 mb-3.5">
+    <div class="row g-3" style="margin-bottom: 24px !important;">
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card" onclick="filterAvailabilityStatus('all', document.querySelector('[data-filter=all]'))" style="cursor:pointer;" title="Click to view all days">
+            <div class="kpi-card" onclick="filterAvailabilityStatus('all', document.querySelector('[data-filter=all]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to view all days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">SELECTED ROOM &amp; BASE RATE</p>
@@ -73,7 +73,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card" onclick="filterAvailabilityStatus('available', document.querySelector('[data-filter=available]'))" style="cursor:pointer;" title="Click to filter Available days">
+            <div class="kpi-card" onclick="filterAvailabilityStatus('available', document.querySelector('[data-filter=available]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Available days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">AVAILABLE BOOKABLE DAYS</p>
@@ -89,7 +89,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card" onclick="filterAvailabilityStatus('blocked', document.querySelector('[data-filter=blocked]'))" style="cursor:pointer;" title="Click to filter Sold Out/Blocked days">
+            <div class="kpi-card" onclick="filterAvailabilityStatus('blocked', document.querySelector('[data-filter=blocked]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Sold Out/Blocked days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">SOLD OUT / BLOCKED</p>
@@ -105,7 +105,7 @@
         </div>
 
         <div class="col-12 col-sm-6 col-xl-3">
-            <div class="kpi-card" onclick="filterAvailabilityStatus('custom', document.querySelector('[data-filter=custom]'))" style="cursor:pointer;" title="Click to filter Seasonal Priced days">
+            <div class="kpi-card" onclick="filterAvailabilityStatus('custom', document.querySelector('[data-filter=custom]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Seasonal Priced days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">SEASONAL PRICED DAYS</p>
@@ -122,7 +122,7 @@
     </div>
 
     {{-- 🏢 SMART PROPERTY & ROOM CATEGORY SELECTION CARD (Stockifly Enterprise UI) --}}
-    <div class="data-table-card mb-3.5" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+    <div class="data-table-card" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 24px !important;">
         <div class="data-table-card-header" style="padding: 14px 24px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius: 6px 6px 0 0;">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
                 <div>

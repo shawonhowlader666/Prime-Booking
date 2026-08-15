@@ -109,7 +109,8 @@ class Property extends Model
 
     /** Columns safe to select in list queries (avoids SELECT * on wide table). */
     public const LIST_COLUMNS = [
-        'id', 'name', 'slug', 'type', 'city', 'address',
+        'id', 'name', 'slug', 'type', 'city', 'address', 'nearest_landmark',
+        'latitude', 'longitude',
         'star_rating', 'rating_score', 'total_reviews',
         'price_per_night', 'original_price',
         'primary_image', 'amenities', 'is_featured', 'status',
@@ -323,6 +324,56 @@ class Property extends Model
     public function scopeForVendor(Builder $query, int $vendorId): Builder
     {
         return $query->where('vendor_id', $vendorId);
+    }
+
+    /**
+     * Spatial scope for searching properties near a GPS coordinate (Haversine formula).
+     */
+    public function scopeNearCoordinate(Builder $query, float $lat, float $lng, float $radiusKm = 25.0): Builder
+    {
+        $haversine = "(6371 * acos(cos(radians(?)) * cos(radians(latitude)) * cos(radians(longitude) - radians(?)) + sin(radians(?)) * sin(radians(latitude))))";
+
+        return $query->whereNotNull('latitude')
+            ->whereNotNull('longitude')
+            ->whereRaw("{$haversine} <= ?", [$lat, $lng, $lat, $radiusKm])
+            ->orderByRaw("{$haversine}", [$lat, $lng, $lat]);
+    }
+
+    /**
+     * Calculate Haversine distance in kilometers between this property and a coordinate.
+     */
+    public function getDistanceTo(?float $targetLat, ?float $targetLng): ?float
+    {
+        if (!$targetLat || !$targetLng || !$this->latitude || !$this->longitude) {
+            return null;
+        }
+
+        $earthRadiusKm = 6371;
+        $dLat = deg2rad($targetLat - (float)$this->latitude);
+        $dLng = deg2rad($targetLng - (float)$this->longitude);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+             cos(deg2rad((float)$this->latitude)) * cos(deg2rad($targetLat)) *
+             sin($dLng / 2) * sin($dLng / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+        return round($earthRadiusKm * $c, 2);
+    }
+
+    /**
+     * Format distance human-readably (e.g. "350 m" or "2.4 km").
+     */
+    public function getFormattedDistanceTo(?float $targetLat, ?float $targetLng): ?string
+    {
+        $dist = $this->getDistanceTo($targetLat, $targetLng);
+        if ($dist === null) {
+            return null;
+        }
+
+        if ($dist < 1.0) {
+            return round($dist * 1000) . ' m';
+        }
+        return number_format($dist, 1) . ' km';
     }
 
     /**

@@ -222,9 +222,26 @@ class PropertyRepository
             }
         }
 
-        // ── Destination keyword search ─────────────────────────────────
-        if ($destination !== '') {
-            $query->keyword($destination);   // scopeKeyword() in Property model
+        // ── Destination & GPS Near Coordinate search ───────────────────
+        $lat      = isset($params['lat']) && is_numeric($params['lat']) ? (float) $params['lat'] : null;
+        $lng      = isset($params['lng']) && is_numeric($params['lng']) ? (float) $params['lng'] : null;
+        $radiusKm = (float) ($params['radius_km'] ?? 30.0);
+
+        if ($lat !== null && $lng !== null) {
+            $query->nearCoordinate($lat, $lng, $radiusKm);
+        } elseif ($destination !== '') {
+            $normalizer = new \App\Services\Search\LocationNormalizerService();
+            $resolved   = $normalizer->resolve($destination);
+            $canonical  = $resolved['canonical'] ?: $destination;
+
+            $query->where(function (Builder $q) use ($destination, $canonical) {
+                $q->keyword($destination);
+                if ($canonical !== $destination) {
+                    $q->orWhere(function (Builder $q2) use ($canonical) {
+                        $q2->keyword($canonical);
+                    });
+                }
+            });
         }
 
         // ── Property type filter ───────────────────────────────────────

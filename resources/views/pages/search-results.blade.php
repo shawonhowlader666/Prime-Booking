@@ -17,11 +17,16 @@
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
-            {{-- 1. Destination Input Box --}}
+            {{-- 1. Destination Input Box with Near Me GPS Button --}}
             <div class="col-12 col-lg-3.5 col-xl-3">
-                <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs" style="height: 48px;">
+                <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
                     <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
-                    <input type="text" name="destination" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
+                    <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
+                    <input type="hidden" name="lat" id="gpsLatInput" value="{{ request('lat') }}">
+                    <input type="hidden" name="lng" id="gpsLngInput" value="{{ request('lng') }}">
+                    <button type="button" class="btn btn-link p-0 text-primary ms-1" title="Search Near My Current GPS Location" onclick="useCurrentLocation()" style="font-size: 15px; text-decoration: none;">
+                        <i class="fa-solid fa-location-crosshairs" id="gpsCrosshairIcon"></i>
+                    </button>
                 </div>
             </div>
 
@@ -138,6 +143,30 @@
             document.getElementById('roomsValText').textContent = val;
             document.getElementById('roomCountDisplay').textContent = `${val} room${val > 1 ? 's' : ''}`;
         }
+    }
+
+    function useCurrentLocation() {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser.");
+            return;
+        }
+        const destInput = document.getElementById('mainDestInput');
+        const icon = document.getElementById('gpsCrosshairIcon');
+        const origPlaceholder = destInput.placeholder;
+        destInput.placeholder = "Detecting your GPS location...";
+        if (icon) icon.className = "fa-solid fa-spinner fa-spin";
+
+        navigator.geolocation.getCurrentPosition(function(pos) {
+            document.getElementById('gpsLatInput').value = pos.coords.latitude;
+            document.getElementById('gpsLngInput').value = pos.coords.longitude;
+            destInput.value = "Near My Location";
+            if (icon) icon.className = "fa-solid fa-location-crosshairs";
+            document.getElementById('searchHeaderForm').submit();
+        }, function(err) {
+            destInput.placeholder = origPlaceholder;
+            if (icon) icon.className = "fa-solid fa-location-crosshairs";
+            alert("Could not access your location. Please ensure location permissions are enabled.");
+        }, { timeout: 10000 });
     }
 </script>
 

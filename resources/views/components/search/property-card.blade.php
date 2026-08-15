@@ -20,33 +20,19 @@
     $roomsLeft         = intval($isObj ? ($item->rooms_left ?? 5) : ($item['rooms_left'] ?? 5));
     $noCreditCard      = boolval($isObj ? ($item->no_credit_card_required ?? true) : ($item['no_credit_card_required'] ?? true));
     $freeCancellation  = boolval($isObj ? ($item->free_cancellation ?? true) : ($item['free_cancellation'] ?? true));
-    $nearestLandmark   = $isObj ? ($item->nearest_landmark ?? '1.8 km from Dhaka Airport Railway Station') : ($item['nearest_landmark'] ?? '1.8 km from Dhaka Airport Railway Station');
+    $cityStr           = $isObj ? ($item->city ?? '') : ($item['city'] ?? '');
+    $address           = $isObj ? ($item->address ?? $cityStr) : ($item['address'] ?? $cityStr);
+    if (empty($address)) $address = $cityStr ?: 'Bangladesh';
 
-    $revCount          = $isObj ? ($item->total_reviews ?? $item->reviews_count ?? 450) : ($item['total_reviews'] ?? $item['reviews_count'] ?? 450);
-    $reviewsCount      = number_format((int)$revCount);
+    $targetLat         = request('lat') ? (float)request('lat') : null;
+    $targetLng         = request('lng') ? (float)request('lng') : null;
+    $calcDist          = null;
+    if ($isObj && method_exists($item, 'getFormattedDistanceTo') && $targetLat && $targetLng) {
+        $calcDist      = $item->getFormattedDistanceTo($targetLat, $targetLng);
+    }
 
-    $ratingLabel       = match(true) {
-        $scoreNum >= 9.0 => 'Superb',
-        $scoreNum >= 8.0 => 'Very good',
-        $scoreNum >= 7.0 => 'Good',
-        $scoreNum >= 6.0 => 'Pleasant',
-        default          => 'Rated',
-    };
-
-    $image             = $isObj ? ($item->primary_image ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80') : ($item['primary_image'] ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
-    $imagesList        = is_array($isObj ? ($item->images ?? null) : ($item['images'] ?? null)) ? ($isObj ? $item->images : $item['images']) : [];
-    
-    $defaultGallery    = [
-        $image,
-        'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
-    ];
-    $gallery           = (!empty($imagesList) && count($imagesList) > 1) ? $imagesList : $defaultGallery;
-    $totalImgs         = count($gallery);
-
-    $address           = $isObj ? ($item->address ?? $item->city ?? 'Mirpur, Dhaka') : ($item['address'] ?? $item['city'] ?? 'Mirpur, Dhaka');
+    $rawLandmark       = $isObj ? ($item->nearest_landmark ?? null) : ($item['nearest_landmark'] ?? null);
+    $nearestLandmark   = $calcDist ? "{$calcDist} from your searched location" : ($rawLandmark ?: (!empty($cityStr) ? "Convenient location in {$cityStr}" : ''));
     $type              = $isObj ? ($item->type ?? 'Hotel') : ($item['type'] ?? 'Hotel');
     $stars             = intval($isObj ? ($item->star_rating ?? 4) : ($item['star_rating'] ?? 4));
     $videoUrl          = $isObj ? ($item->video_url ?? null) : ($item['video_url'] ?? null);

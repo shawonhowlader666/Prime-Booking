@@ -234,6 +234,17 @@
                             <span class="input-group-text fw-bold bg-light">৳ BDT</span>
                             <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base rate: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px;">
                         </div>
+                        <div class="d-flex align-items-center gap-1.5 flex-wrap mt-1.5">
+                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
+                            </button>
+                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                <i class="fa-solid fa-rotate-left me-0.5"></i> Base (৳{{ number_format($selectedRoom->price_per_night) }})
+                            </button>
+                        </div>
                         <small class="text-muted d-block mt-1" style="font-size:11px;">Leave empty to keep standard base price (৳{{ number_format($selectedRoom->price_per_night) }}).</small>
                     </div>
 
@@ -870,6 +881,22 @@ function filterAvailabilityStatus(status) {
         return;
     }
     applyTickFilters();
+}
+
+/**
+ * Apply Price Percentage Preset (+15% Weekend, +25% Peak Season, Base Rate)
+ */
+function applyPricePreset(multiplier) {
+    const baseRate = {{ (float)($selectedRoom->price_per_night ?? 0) }};
+    const priceInput = document.getElementById('formCustomPrice');
+    if (!priceInput) return;
+
+    if (multiplier === 1.0) {
+        priceInput.value = '';
+    } else {
+        const calculated = Math.round(baseRate * multiplier);
+        priceInput.value = calculated;
+    }
 }
 
 /**

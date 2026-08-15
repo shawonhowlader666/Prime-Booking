@@ -109,27 +109,36 @@ class RoomAvailabilityController extends Controller
         $isBlocked = $request->has('is_blocked');
         $price     = $request->filled('price') ? (float)$validated['price'] : null;
 
-        // DB Transaction for batch updates
-        DB::transaction(function () use ($room, $start, $end, $price, $isBlocked) {
-            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-                RoomAvailability::updateOrCreate(
-                    [
-                        'room_id' => $room->id,
-                        'date'    => $date->format('Y-m-d'),
-                    ],
-                    [
-                        'price'      => $price,
-                        'is_blocked' => $isBlocked,
-                    ]
-                );
-            }
-        });
+        // Atomic Bulk Upsert: 1 single high-performance SQL query regardless of range length
+        $records = [];
+        $now = now();
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            $records[] = [
+                'room_id'       => $room->id,
+                'date'          => $date->format('Y-m-d'),
+                'price'         => $price,
+                'is_blocked'    => $isBlocked,
+                'created_at'    => $now,
+                'updated_at'    => $now,
+            ];
+        }
 
-        // Flush Redis cache for this room
-        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":30");
-        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":14");
-        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":60");
-        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":90");
+        if (!empty($records)) {
+            RoomAvailability::upsert(
+                $records,
+                ['room_id', 'date'],
+                ['price', 'is_blocked', 'updated_at']
+            );
+        }
+
+        // Invalidate Redis/application caches for this room across all date scopes
+        for ($d = 0; $d <= 30; $d++) {
+            $dayKey = Carbon::now()->subDays($d)->format('Ymd');
+            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:14");
+            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:30");
+            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:60");
+            Cache::forget("vendor:availability:{$room->id}:{$dayKey}:90");
+        }
 
         return back()->with('success', '✅ Room rates & availability updated successfully for selected date range!');
     }

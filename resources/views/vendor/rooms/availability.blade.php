@@ -143,10 +143,10 @@
 
         <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="row g-3 align-items-end">
             <div class="col-12 col-md-6 col-lg-5">
-                <label class="form-label fw-bold text-dark mb-1.5" style="font-size:12.5px; color:#0f172a;">
+                <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                     <i class="fa-solid fa-bed text-primary me-1"></i> Choose Hotel &amp; Room Category <span style="color:#ff4d4f;">*</span>
                 </label>
-                <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13.5px; font-weight:700; color:#0f172a; height:42px; border:1px solid #d9d9d9; border-radius:6px; background-color:#f8fafc;">
+                <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff;">
                     @foreach($properties as $p)
                         <optgroup label="🏢 {{ $p->name }} — {{ $p->city }} ({{ $p->star_rating }}★)">
                             @foreach($p->rooms as $r)
@@ -160,10 +160,10 @@
             </div>
 
             <div class="col-12 col-md-3 col-lg-3">
-                <label class="form-label fw-bold text-dark mb-1.5" style="font-size:12.5px; color:#0f172a;">
+                <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                     <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
                 </label>
-                <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#0f172a; height:42px; border:1px solid #d9d9d9; border-radius:6px;">
+                <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px;">
                     <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>📅 Next 14 Days (2 Weeks)</option>
                     <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>📅 Next 30 Days (1 Month)</option>
                     <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>📅 Next 60 Days (2 Months)</option>
@@ -172,21 +172,21 @@
             </div>
 
             <div class="col-12 col-md-3 col-lg-4 d-flex align-items-end gap-2">
-                <button type="submit" class="btn btn-primary fw-bold w-100" style="background-color: #2067e1; font-size: 13px; height:42px; border-radius:6px; border:none;">
+                <button type="submit" class="btn-add-primary w-100 justify-content-center" style="height:38px; font-size:13px; border-radius:4px; font-weight:600;">
                     <i class="fa-solid fa-rotate me-1.5"></i> Load Room Calendar
                 </button>
             </div>
         </form>
 
         {{-- 🎯 LIVE ACTIVE SELECTION STATUS BANNER --}}
-        <div class="mt-3.5 p-3 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff; border-radius:6px;">
-            <div class="d-flex align-items-center gap-2.5">
-                <div style="width:30px; height:30px; border-radius:50%; background:#2067e1; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;">
+        <div class="mt-3 p-2.5 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff; border-radius:4px;">
+            <div class="d-flex align-items-center gap-2">
+                <div style="width:26px; height:26px; border-radius:50%; background:#1890ff; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
                     <i class="fa-solid fa-check"></i>
                 </div>
                 <div style="font-size:12.5px; color:#1e293b;">
                     <span class="text-secondary">Currently Managing:</span> 
-                    <strong class="text-primary" style="font-size:13.5px;">{{ $selectedRoom->name }}</strong>
+                    <strong class="text-primary" style="font-size:13px;">{{ $selectedRoom->name }}</strong>
                     <span class="text-muted mx-1.5">•</span>
                     <span>Base Rate: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }} / night</strong></span>
                     <span class="text-muted mx-1.5">•</span>
@@ -194,7 +194,7 @@
                 </div>
             </div>
             <div>
-                <span class="badge bg-primary text-white px-3 py-1.5" style="font-size:11.5px; border-radius:4px; font-weight:600;">
+                <span class="badge bg-primary text-white px-2.5 py-1" style="font-size:11px; border-radius:3px; font-weight:600;">
                     <i class="fa-solid fa-circle-check me-1"></i> Active Inventory
                 </span>
             </div>

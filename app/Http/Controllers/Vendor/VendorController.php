@@ -121,6 +121,14 @@ class VendorController extends Controller
             $primaryImage = $request->primary_image ?: null;
         }
 
+        // Handle video file upload or URL
+        if ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
+            $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
+            $videoUrl = asset('storage/' . $videoPath);
+        } else {
+            $videoUrl = $request->video_url ?: null;
+        }
+
         $property = Property::create([
             'name'                     => $request->name,
             'slug'                     => Str::slug($request->name) . '-' . time(),
@@ -133,7 +141,7 @@ class VendorController extends Controller
             'original_price'           => $request->original_price ? (float) $request->original_price : null,
             'description'              => $request->description,
             'primary_image'            => $primaryImage,
-            'video_url'                => $request->video_url,
+            'video_url'                => $videoUrl,
             'images'                   => array_values($galleryImages),
             'amenities'                => $request->amenities ?? [],
             'free_cancellation'        => $request->boolean('free_cancellation', true),
@@ -209,6 +217,14 @@ class VendorController extends Controller
             $primaryImage = asset('storage/' . $path);
         } else {
             $primaryImage = $request->primary_image ?: $property->primary_image;
+        }
+
+        // Handle video file upload or URL
+        if ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
+            $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
+            $videoUrl = asset('storage/' . $videoPath);
+        } else {
+            $videoUrl = $request->video_url ?? $property->video_url;
         }
 
         $wasRejected = $property->status === 'rejected';

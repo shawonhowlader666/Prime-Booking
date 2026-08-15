@@ -414,24 +414,35 @@
 
                     {{-- SECTION 4 --}}
                     <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-camera text-purple me-1.5" style="color:#7367f0;"></i> 4. Photos &amp; Media
+                        <i class="fa-solid fa-camera text-purple me-1.5" style="color:#7367f0;"></i> 4. Photos, Unlimited Gallery &amp; Video Tour
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Upload Thumbnail (Device)</label>
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Main Thumbnail (Device Upload)</label>
                             <input type="file" name="primary_image_file" class="form-control form-control-sm" accept="image/*" style="font-size:12px;">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR Thumbnail Image URL</label>
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR Main Thumbnail URL</label>
                             <input type="url" name="primary_image" class="form-control form-control-sm" placeholder="https://images.unsplash.com/..." style="font-size:12px;">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Upload Gallery Photos (Device)</label>
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Upload Unlimited Gallery Photos (Multiple Files)</label>
                             <input type="file" name="gallery_image_files[]" class="form-control form-control-sm" multiple accept="image/*" style="font-size:12px;">
+                            <small class="text-muted d-block mt-0.5" style="font-size:10.5px;">Select multiple pictures at once from your device</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">YouTube Video Tour URL</label>
-                            <input type="url" name="video_url" class="form-control form-control-sm" placeholder="https://www.youtube.com/..." style="font-size:12px;">
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR Gallery Image URLs (One URL per line)</label>
+                            <textarea name="gallery_images" class="form-control form-control-sm" rows="2" placeholder="https://...&#10;https://..." style="font-size:11.5px;"></textarea>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Upload Video Tour (MP4 / WebM / MOV)</label>
+                            <input type="file" name="video_file" class="form-control form-control-sm" accept="video/*" style="font-size:12px;">
+                            <small class="text-muted d-block mt-0.5" style="font-size:10.5px;">Direct video upload from phone/computer</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR YouTube / Video URL</label>
+                            <input type="url" name="video_url" class="form-control form-control-sm" placeholder="https://www.youtube.com/watch?v=..." style="font-size:12px;">
+                            <small class="text-muted d-block mt-0.5" style="font-size:10.5px;">Shown prominently in the main hotel hero box</small>
                         </div>
                     </div>
 

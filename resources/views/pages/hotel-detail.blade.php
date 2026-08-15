@@ -134,14 +134,40 @@
         {{-- 3. Hero Photo Collage 5-Grid (Screenshot 1 Parity) --}}
         <div class="mb-4 position-relative" style="border-radius: 12px; overflow: hidden;" data-bs-toggle="modal" data-bs-target="#galleryModal">
             <div class="row g-2">
-                {{-- Main Feature Image (Left) --}}
+                {{-- Main Feature Image or Embedded Video Tour (Left 60%) --}}
                 <div class="col-lg-7">
-                    <div class="hero-main-img-box">
-                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
-                        {{-- Floating Camera Pill Button --}}
+                    <div class="hero-main-img-box position-relative" style="background:#000000;">
+                        @if(!empty($property->video_url))
+                            @php
+                                $videoUrl = $property->video_url;
+                                $isYoutube = false;
+                                $youtubeId = '';
+                                if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $videoUrl, $match)) {
+                                    $isYoutube = true;
+                                    $youtubeId = $match[1];
+                                }
+                            @endphp
+                            @if($isYoutube)
+                                <iframe src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=0&rel=0&modestbranding=1" 
+                                        class="w-100 h-100" 
+                                        style="border:0; min-height:360px;" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        allowfullscreen>
+                                </iframe>
+                            @else
+                                <video controls class="w-100 h-100" style="object-fit:cover; min-height:360px;" poster="{{ $gallery[0] }}">
+                                    <source src="{{ $videoUrl }}" type="video/mp4">
+                                    Your browser does not support HTML5 video.
+                                </video>
+                            @endif
+                        @else
+                            <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
+                        @endif
+
+                        {{-- Floating Camera / Media Pill Button --}}
                         <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;">
                             <button class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-2" style="font-size: 12px; background: rgba(255,255,255,0.95);">
-                                <i class="fa-solid fa-camera text-primary"></i> See all photos
+                                <i class="fa-solid fa-camera text-primary"></i> See all {{ $gallery->count() }} photos @if(!empty($property->video_url)) • <i class="fa-solid fa-circle-play text-danger"></i> Video Tour @endif
                             </button>
                         </div>
                     </div>

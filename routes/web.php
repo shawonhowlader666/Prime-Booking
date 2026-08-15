@@ -180,18 +180,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // ── Featured Destinations ─────────────────────────────────────────────
     Route::get('/featured-destinations', [FeaturedDestinationController::class, 'index'])->name('featured-destinations.index');
-    Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('admin.destinations.index');
+    Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('admin.destinations.index')->name('destinations.index');
     Route::get('/featured-destinations/create', [FeaturedDestinationController::class, 'create'])->name('featured-destinations.create');
-    Route::get('/destinations/create', [FeaturedDestinationController::class, 'create'])->name('admin.destinations.create');
+    Route::get('/destinations/create', [FeaturedDestinationController::class, 'create'])->name('admin.destinations.create')->name('destinations.create');
     Route::post('/featured-destinations', [FeaturedDestinationController::class, 'store'])->name('featured-destinations.store');
-    Route::post('/destinations', [FeaturedDestinationController::class, 'store'])->name('admin.destinations.store');
+    Route::post('/destinations', [FeaturedDestinationController::class, 'store'])->name('admin.destinations.store')->name('destinations.store');
     Route::get('/featured-destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('featured-destinations.edit');
-    Route::get('/destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('admin.destinations.edit');
+    Route::get('/destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('admin.destinations.edit')->name('destinations.edit');
     Route::put('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('featured-destinations.update');
-    Route::put('/destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('admin.destinations.update');
+    Route::put('/destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('admin.destinations.update')->name('destinations.update');
     Route::post('/featured-destinations/reorder', [FeaturedDestinationController::class, 'reorder'])->name('featured-destinations.reorder');
     Route::post('/featured-destinations/ajax-add', [FeaturedDestinationController::class, 'ajaxStore'])->name('featured-destinations.ajax-add');
-    Route::delete('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('featured-destinations.destroy');
+    Route::delete('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('featured-destinations.destroy')->name('destinations.destroy');
 
     // ── Platform / Site Settings ──────────────────────────────────────────
     Route::get('/site-settings', [SiteSettingsController::class, 'index'])->name('site-settings.index');
@@ -207,10 +207,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/packages/{package}', [App\Http\Controllers\Admin\TourPackageController::class, 'update'])->name('packages.update');
     Route::post('/packages/{id}/status', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'toggleStatus'])->name('packages.toggle');
     Route::delete('/packages/{id}', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'destroy'])->name('packages.destroy');
-    Route::resource('deals', DealController::class);
-    Route::post('/deals/{id}/toggle', [DealController::class, 'toggleStatus'])->name('deals.toggle');
-    Route::resource('cms', CmsContentController::class);
-    Route::resource('amenities', AmenityController::class)->only(['index', 'store', 'destroy']);
+    Route::resource('deals', DealController::class)->names('admin.deals');
+    Route::post('/deals/{id}/toggle', [DealController::class, 'toggleStatus'])->name('admin.deals.toggle')->name('deals.toggle');
+    Route::resource('cms', CmsContentController::class)->names('admin.cms');
+    Route::resource('amenities', AmenityController::class)->only(['index', 'store', 'destroy'])->names('admin.amenities');
 
     // Marketing & Promo Coupons
     Route::get('/coupons', [CouponController::class, 'index'])->name('coupons.index');

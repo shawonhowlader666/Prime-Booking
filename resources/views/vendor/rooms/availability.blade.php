@@ -55,14 +55,14 @@
     @if($selectedRoom)
 
     {{-- KPI SUMMARY ROW (Interactive Filter Triggers) --}}
-    <div class="row g-3" style="margin-bottom: 24px !important;">
-        <div class="col-12 col-sm-6 col-xl-3">
+    <div class="row g-2.5 g-sm-3" style="margin-bottom: 20px !important;">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" onclick="filterAvailabilityStatus('all', document.querySelector('[data-filter=all]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to view all days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">SELECTED ROOM</p>
-                        <p class="kpi-value" style="font-size:16px; font-weight:800; color:#1e293b; margin:0;">{{ Str::limit($selectedRoom->name, 22) }}</p>
-                        <span style="font-size:12px; color:#2067e1; font-weight:700;">৳ {{ number_format($selectedRoom->price_per_night) }} / night</span>
+                        <p class="kpi-value" style="font-size:15px; font-weight:800; color:#1e293b; margin:0;">{{ Str::limit($selectedRoom->name, 18) }}</p>
+                        <span style="font-size:11.5px; color:#2067e1; font-weight:700;">৳ {{ number_format($selectedRoom->price_per_night) }} / night</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-bed"></i>
@@ -72,13 +72,13 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" onclick="filterAvailabilityStatus('available', document.querySelector('[data-filter=available]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Available days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">AVAILABLE DAYS</p>
-                        <p class="kpi-value" id="kpiAvailableCount" style="font-size:19px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['available_days'] }} / {{ $daysCount }} Days</p>
-                        <span style="font-size:11.5px; color:#52c41a; font-weight:600;">Bookable Inventory</span>
+                        <p class="kpi-value" id="kpiAvailableCount" style="font-size:16px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['available_days'] }} / {{ $daysCount }} Days</p>
+                        <span style="font-size:11px; color:#52c41a; font-weight:600;">Bookable</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-circle-check"></i>
@@ -88,13 +88,13 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" onclick="filterAvailabilityStatus('blocked', document.querySelector('[data-filter=blocked]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Sold Out/Blocked days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">BLOCKED DAYS</p>
-                        <p class="kpi-value" id="kpiBlockedCount" style="font-size:19px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['sold_out_days'] }} Days</p>
-                        <span style="font-size:11.5px; color:#ff4d4f; font-weight:600;">Sold Out / Locked</span>
+                        <p class="kpi-value" id="kpiBlockedCount" style="font-size:16px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['sold_out_days'] }} Days</p>
+                        <span style="font-size:11px; color:#ff4d4f; font-weight:600;">Sold Out</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#fff5f5; color:#ea5455; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-ban"></i>
@@ -104,13 +104,13 @@
             </div>
         </div>
 
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" onclick="filterAvailabilityStatus('custom', document.querySelector('[data-filter=custom]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Seasonal Priced days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">SEASONAL RATES</p>
-                        <p class="kpi-value" id="kpiSeasonalCount" style="font-size:19px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['custom_price_days'] }} Days</p>
-                        <span id="kpiSeasonalAvg" style="font-size:11.5px; color:#64748b;">Avg: ৳ {{ number_format($stats['avg_price']) }}/night</span>
+                        <p class="kpi-value" id="kpiSeasonalCount" style="font-size:16px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['custom_price_days'] }} Days</p>
+                        <span id="kpiSeasonalAvg" style="font-size:11px; color:#64748b;">Avg: ৳{{ number_format($stats['avg_price']) }}</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f0eefc; color:#7367f0; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-tags"></i>

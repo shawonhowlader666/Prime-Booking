@@ -55,15 +55,15 @@
         </div>
     @endif
 
-    {{-- TOP 4 KPI SUMMARY CARDS --}}
-    <div class="row g-3" style="margin-bottom: 20px !important;">
+    {{-- TOP 4 KPI SUMMARY CARDS (2x2 on Mobile, 4 in Row on Desktop) --}}
+    <div class="row g-2.5 g-sm-3" style="margin-bottom: 20px !important;">
         {{-- Card 1: Property Info --}}
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">PROPERTY INFO</p>
-                        <p class="kpi-value" style="font-size:16px; font-weight:800; color:#1e293b; margin:0;">{{ Str::limit($property->name, 20) }}</p>
+                        <p class="kpi-value" style="font-size:15px; font-weight:800; color:#1e293b; margin:0;">{{ Str::limit($property->name, 18) }}</p>
                         <span style="font-size:11.5px; color:#64748b;">📍 {{ $property->city ?? 'Location' }} • {{ $property->star_rating }}★</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
@@ -75,13 +75,13 @@
         </div>
 
         {{-- Card 2: Total Categories --}}
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ROOM TYPES</p>
-                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['total_categories'] }} Categories</p>
-                        <span style="font-size:11.5px; color:#52c41a; font-weight:600;">Active Inventory</span>
+                        <p class="kpi-value" style="font-size:16px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['total_categories'] }} Types</p>
+                        <span style="font-size:11px; color:#52c41a; font-weight:600;">Active</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-layer-group"></i>
@@ -92,13 +92,13 @@
         </div>
 
         {{-- Card 3: Total Units --}}
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">TOTAL CAPACITY</p>
-                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['total_units'] }} Total Units</p>
-                        <span style="font-size:11.5px; color:#7367f0; font-weight:600;">Available for Booking</span>
+                        <p class="kpi-value" style="font-size:16px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['total_units'] }} Units</p>
+                        <span style="font-size:11px; color:#7367f0; font-weight:600;">Available</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f0eefc; color:#7367f0; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-door-open"></i>
@@ -109,13 +109,13 @@
         </div>
 
         {{-- Card 4: Base Rates --}}
-        <div class="col-12 col-sm-6 col-xl-3">
+        <div class="col-6 col-sm-6 col-xl-3">
             <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">BASE RATES</p>
-                        <p class="kpi-value" style="font-size:18px; font-weight:800; color:#ff9f43; margin:0;">৳ {{ number_format($stats['avg_price']) }}</p>
-                        <span style="font-size:11.5px; color:#64748b;">Range: ৳{{ number_format($stats['min_price']) }} – ৳{{ number_format($stats['max_price']) }}</span>
+                        <p class="kpi-value" style="font-size:16px; font-weight:800; color:#ff9f43; margin:0;">৳ {{ number_format($stats['avg_price']) }}</p>
+                        <span style="font-size:11px; color:#64748b;">৳{{ number_format($stats['min_price']) }}–৳{{ number_format($stats['max_price']) }}</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-tag"></i>

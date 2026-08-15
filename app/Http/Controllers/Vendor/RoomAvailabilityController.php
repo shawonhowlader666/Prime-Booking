@@ -53,6 +53,7 @@ class RoomAvailabilityController extends Controller
             $availabilities = Cache::remember($cacheKey, 300, function () use ($selectedRoom, $startDate, $endDate) {
                 return RoomAvailability::where('room_id', $selectedRoom->id)
                     ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->select(['room_id', 'date', 'price', 'is_blocked'])
                     ->get()
                     ->keyBy(fn($item) => is_string($item->date) ? $item->date : $item->date->format('Y-m-d'));
             });

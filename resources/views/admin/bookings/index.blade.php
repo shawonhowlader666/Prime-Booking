@@ -166,7 +166,19 @@
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ $b->guest_name ?? optional($b->user)->name ?? 'Guest User' }}</strong>
-                            <span style="font-size:11px; color:#8c8c8c;"><i class="fa-solid fa-phone me-1"></i>{{ $b->guest_phone ?? optional($b->user)->phone ?? 'N/A' }}</span>
+                            <div style="font-size:11.5px; color:#475569; display:flex; align-items:center; gap:6px; margin-top:2px;">
+                                <a href="tel:{{ $b->guest_phone ?? optional($b->user)->phone }}" class="text-dark fw-semibold" style="text-decoration:none;" title="Call Guest">
+                                    <i class="fa-solid fa-phone text-secondary" style="font-size:10px;"></i> {{ $b->guest_phone ?? optional($b->user)->phone ?? 'N/A' }}
+                                </a>
+                                @if($b->guest_phone ?? optional($b->user)->phone)
+                                    <a href="https://wa.me/88{{ preg_replace('/[^0-9]/', '', $b->guest_phone ?? optional($b->user)->phone) }}" target="_blank" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:10px; padding:2px 5px; text-decoration:none;" title="WhatsApp Chat">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </a>
+                                @endif
+                            </div>
+                            @if($b->guest_email ?? optional($b->user)->email)
+                                <div style="font-size:11px; color:#94a3b8; margin-top:1px;">{{ $b->guest_email ?? optional($b->user)->email }}</div>
+                            @endif
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit(optional($b->property)->name ?? $b->property_name ?? 'Property N/A', 28) }}</strong>

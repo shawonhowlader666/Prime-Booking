@@ -307,6 +307,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::get('/bookings',            [VendorDashboardController::class, 'bookings'])->name('bookings.index');
     Route::get('/bookings/{reference}', [VendorDashboardController::class, 'bookingDetail'])->name('bookings.show');
     Route::post('/bookings/{reference}/status', [VendorDashboardController::class, 'updateBookingStatus'])->name('bookings.update-status');
+    Route::post('/bookings/{id}/payment',       [VendorDashboardController::class, 'updatePaymentStatus'])->name('bookings.update-payment');
 
     // ── Earnings ───────────────────────────────────────────────
     Route::get('/earnings',        [VendorDashboardController::class, 'earnings'])->name('earnings');

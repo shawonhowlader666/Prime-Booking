@@ -58,9 +58,11 @@ class BookingFlowController extends Controller
             'spa_package'      => ['name' => '60-Min Wellness Spa Voucher', 'price' => 2000],
         ];
 
+        $user = auth()->user();
+
         return view('pages.booking-form', compact(
             'property', 'selectedRoom', 'checkIn', 'checkOut',
-            'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons'
+            'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user'
         ));
     }
 
@@ -81,7 +83,7 @@ class BookingFlowController extends Controller
             'check_in'         => 'required|date|after:today',
             'check_out'        => 'required|date|after:check_in',
             'guests'           => 'required|integer|min:1|max:20',
-            'payment_method'   => 'required|string|in:bkash,nagad,rocket,card,cash',
+            'payment_method'   => 'required|string|in:bkash,nagad,rocket,card,sslcommerz,cash,pay_at_hotel,bank_transfer',
             'special_requests' => 'nullable|string|max:500',
             'addons'           => 'nullable|array',
         ]);
@@ -121,7 +123,10 @@ class BookingFlowController extends Controller
 
         $reference = 'PRM-' . date('Y') . '-' . strtoupper(Str::random(6));
 
-        $booking = DB::transaction(function () use ($request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice, $selectedAddons) {
+        $isPayAtHotel = in_array($request->payment_method, ['cash', 'pay_at_hotel', 'bank_transfer']);
+        $paymentStatus = $isPayAtHotel ? 'unpaid' : 'pending';
+
+        $booking = DB::transaction(function () use ($request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice, $selectedAddons, $paymentStatus) {
             $b = Booking::create([
                 'booking_reference'  => $reference,
                 'property_id'        => $property->id,
@@ -140,7 +145,7 @@ class BookingFlowController extends Controller
                 'total_price'        => $totalPrice,
                 'total_amount'       => $totalPrice,
                 'payment_method'     => $request->payment_method,
-                'payment_status'     => 'pending',
+                'payment_status'     => $paymentStatus,
                 'status'             => 'confirmed',
                 'booking_status'     => 'confirmed',
                 'special_requests'   => $request->special_requests,
@@ -163,7 +168,7 @@ class BookingFlowController extends Controller
             'bkash', 'nagad', 'rocket' => redirect()->route('payment.bkash.sandbox-redirect', $booking->booking_reference),
             'card', 'sslcommerz'       => redirect()->route('payment.ssl.sandbox-redirect', $booking->booking_reference),
             default                    => redirect()->route('booking.confirmation', $booking->booking_reference)
-                ->with('success', 'Booking confirmed! Reference: ' . $booking->booking_reference),
+                ->with('success', 'Booking reserved successfully! Reference: ' . $booking->booking_reference),
         };
     }
 

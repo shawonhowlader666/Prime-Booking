@@ -145,6 +145,25 @@ class VendorDashboardController extends Controller
         return back()->with('success', "Booking #{$reference} status updated to {$validated['status']}.");
     }
 
+    public function updatePaymentStatus(Request $request, $id)
+    {
+        $vendorId = auth()->id() ?? 1;
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+        $booking = Booking::where('id', $id)
+            ->whereIn('property_id', $propertyIds)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'payment_status' => 'required|string|in:paid,unpaid,pending,refunded',
+        ]);
+
+        $booking->update([
+            'payment_status' => $validated['payment_status'],
+        ]);
+
+        return back()->with('success', "Booking #{$booking->booking_reference} payment marked as " . strtoupper($validated['payment_status']) . ".");
+    }
+
     // ─── Earnings Report ──────────────────────────────────────────────────
 
     public function earnings()

@@ -91,7 +91,17 @@
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ $b->guest_name }}</strong>
-                            <span style="font-size:11px; color:#64748b;">{{ $b->guest_email }}</span>
+                            <div style="font-size:11.5px; color:#475569; display:flex; align-items:center; gap:6px; margin-top:2px;">
+                                <a href="tel:{{ $b->guest_phone }}" class="text-dark fw-semibold" style="text-decoration:none;" title="Call Guest">
+                                    <i class="fa-solid fa-phone text-secondary" style="font-size:10px;"></i> {{ $b->guest_phone ?? 'N/A' }}
+                                </a>
+                                @if($b->guest_phone)
+                                    <a href="https://wa.me/88{{ preg_replace('/[^0-9]/', '', $b->guest_phone) }}" target="_blank" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:10px; padding:2px 5px; text-decoration:none;" title="WhatsApp Chat">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </a>
+                                @endif
+                            </div>
+                            <div style="font-size:11px; color:#94a3b8; margin-top:1px;">{{ $b->guest_email }}</div>
                         </td>
                         <td>
                             <span style="font-size:12.5px; font-weight:600;">{{ $b->property?->name ?? 'Property' }}</span>
@@ -103,7 +113,18 @@
                             <strong style="color:var(--primary); font-size:14px;">{{ CurrencyService::format($b->amount) }}</strong>
                         </td>
                         <td>
-                            <span class="badge-gateway">{{ ucfirst($b->payment_method ?? 'bKash') }}</span>
+                            <div class="d-flex flex-column gap-1">
+                                <span class="badge-gateway text-capitalize" style="width:fit-content;">{{ str_replace('_', ' ', $b->payment_method ?? 'bKash') }}</span>
+                                @if(strtolower($b->payment_status ?? '') === 'paid')
+                                    <span class="badge bg-success bg-opacity-10 text-success fw-bold border border-success border-opacity-25" style="font-size:10px; padding:2px 6px; border-radius:4px; width:fit-content;">
+                                        <i class="fa-solid fa-circle-check me-1"></i> PAID
+                                    </span>
+                                @else
+                                    <span class="badge bg-warning bg-opacity-15 text-dark fw-bold border border-warning border-opacity-25" style="font-size:10px; padding:2px 6px; border-radius:4px; width:fit-content;">
+                                        <i class="fa-solid fa-clock me-1 text-warning"></i> UNPAID
+                                    </span>
+                                @endif
+                            </div>
                         </td>
                         <td>
                             <span class="badge-status {{ strtolower($b->effective_status) == 'confirmed' ? 'confirmed' : 'pending' }}">
@@ -121,6 +142,17 @@
                                             <i class="fa-solid fa-eye text-primary me-2"></i> View Reservation Details
                                         </a>
                                     </li>
+                                    @if(strtolower($b->payment_status ?? '') !== 'paid')
+                                    <li>
+                                        <form action="{{ route('vendor.bookings.update-payment', $b->id) }}" method="POST" class="m-0">
+                                            @csrf
+                                            <input type="hidden" name="payment_status" value="paid">
+                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-success">
+                                                <i class="fa-solid fa-credit-card me-2"></i> Mark Payment Paid
+                                            </button>
+                                        </form>
+                                    </li>
+                                    @endif
                                     <li>
                                         <a class="dropdown-item py-1.5 px-3" href="{{ route('checkout.confirmation', $b->booking_reference) }}" target="_blank">
                                             <i class="fa-solid fa-print text-success me-2"></i> Print Guest Voucher / Invoice

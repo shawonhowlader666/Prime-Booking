@@ -1587,6 +1587,45 @@
                 </div>
             </div>
 
+            {{-- Agoda Parity: Some Helpful Facts --}}
+            <div class="mt-4 pt-3 border-top">
+                <h6 class="fw-bold text-dark mb-3" style="font-size: 15px;">Some helpful facts</h6>
+                <div class="row g-3">
+                    <div class="col-md-4 col-sm-6">
+                        <div class="d-flex align-items-start gap-2.5">
+                            <i class="fa-solid fa-clock text-primary fs-5 mt-0.5"></i>
+                            <div>
+                                <small class="text-muted d-block fw-bold" style="font-size: 11.5px; text-transform: uppercase;">Check-in / Check-out</small>
+                                <span class="text-dark d-block fw-semibold" style="font-size: 13px;">Check-in from: {{ $property->checkin_time ?: '14:00' }}</span>
+                                <span class="text-secondary d-block" style="font-size: 12px;">Check-out until: {{ $property->checkout_time ?: '12:00' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="d-flex align-items-start gap-2.5">
+                            <i class="fa-solid fa-car-side text-success fs-5 mt-0.5"></i>
+                            <div>
+                                <small class="text-muted d-block fw-bold" style="font-size: 11.5px; text-transform: uppercase;">Getting around</small>
+                                <span class="text-dark d-block fw-semibold" style="font-size: 13px;">Distance from center: {{ $property->nearest_landmark ?: '0.5 km' }}</span>
+                                <span class="text-secondary d-block" style="font-size: 12px;">Airport travel time: ~20 mins</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 col-sm-6">
+                        <div class="d-flex align-items-start gap-2.5">
+                            <i class="fa-solid fa-building text-info fs-5 mt-0.5"></i>
+                            <div>
+                                <small class="text-muted d-block fw-bold" style="font-size: 11.5px; text-transform: uppercase;">The property</small>
+                                <span class="text-dark d-block fw-semibold" style="font-size: 13px;">Total Rooms: {{ $property->total_rooms_count ?: ($property->rooms->count() ?: 10) }} • Floors: {{ $property->total_floors ?: 8 }}</span>
+                                <span class="text-secondary d-block" style="font-size: 12px;">
+                                    {{ $property->pets_policy ?: 'Pets Not Allowed' }} • {{ is_array($property->languages_spoken) ? implode(', ', $property->languages_spoken) : 'English, Bengali' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             @if(!empty($property->house_rules))
             <div class="mt-3 p-3 bg-light rounded-3 border">
                 <strong class="d-block text-dark mb-1" style="font-size: 13px;"><i class="fa-solid fa-list-check me-1 text-primary"></i> Special House Rules:</strong>

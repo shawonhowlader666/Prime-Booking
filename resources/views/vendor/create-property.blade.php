@@ -52,12 +52,12 @@
                     </h5>
                 </div>
                 <div class="row g-3 mb-4">
-                    <div class="col-md-8">
+                    <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Property Full Name <span style="color:#ff4d4f;">*</span></label>
                         <input type="text" name="name" class="form-control form-control-sm" value="{{ old('name') }}"
                             placeholder="e.g. Royal Ocean Resort &amp; Spa" required style="font-size:13px; height:38px;">
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Property Category <span style="color:#ff4d4f;">*</span></label>
                         <select name="type" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
                             <option value="hotel" {{ old('type') == 'hotel' ? 'selected' : '' }}>Hotel &amp; Resort</option>
@@ -89,10 +89,15 @@
                             <option value="2" {{ old('star_rating') == '2' ? 'selected' : '' }}>★★ — 2 Star Budget</option>
                         </select>
                     </div>
-                    <div class="col-12">
+                    <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Full Property Physical Address <span style="color:#ff4d4f;">*</span></label>
                         <input type="text" name="address" class="form-control form-control-sm" value="{{ old('address') }}"
-                            placeholder="e.g. Plot 14, Main Marine Drive, Kalatoli, Cox's Bazar 4700" required style="font-size:13px; height:38px;">
+                            placeholder="e.g. Plot 14, Main Marine Drive, Kalatoli, Cox's Bazar" required style="font-size:13px; height:38px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Nearest Landmark / Area Highlight</label>
+                        <input type="text" name="nearest_landmark" class="form-control form-control-sm" value="{{ old('nearest_landmark') }}"
+                            placeholder="e.g. Kolatoli Beach Point (150m)" style="font-size:13px; height:38px;">
                     </div>
                 </div>
 

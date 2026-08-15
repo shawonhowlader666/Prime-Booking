@@ -311,11 +311,11 @@
                         <strong class="text-dark" style="font-size:13.5px;">Basic Information</strong>
                     </div>
                     <div class="row g-3 mb-3">
-                        <div class="col-md-8">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Property Name <span class="text-danger">*</span></label>
                             <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Ocean Paradise Resort &amp; Spa" required style="font-size:12.5px; height:36px;">
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Category <span class="text-danger">*</span></label>
                             <select name="type" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
                                 <option value="hotel">Hotel &amp; Resort</option>
@@ -347,11 +347,11 @@
                                 <option value="2">★★ — 2 Star Budget</option>
                             </select>
                         </div>
-                        <div class="col-md-7">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Street Address <span class="text-danger">*</span></label>
                             <input type="text" name="address" class="form-control form-control-sm" placeholder="e.g. Marine Drive Road, Kolatoli" required style="font-size:12.5px; height:36px;">
                         </div>
-                        <div class="col-md-5">
+                        <div class="col-md-6">
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Nearest Landmark</label>
                             <input type="text" name="nearest_landmark" class="form-control form-control-sm" placeholder="e.g. Near Kolatoli Beach Point" style="font-size:12.5px; height:36px;">
                         </div>

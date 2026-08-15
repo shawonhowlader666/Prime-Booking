@@ -108,52 +108,89 @@
 
 <div class="detail-page-wrapper">
 
-    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact Parity - 100% Responsive) --}}
-    <div class="agoda-detail-search-bar">
+    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact 1:1 Parity - Single Clean Row) --}}
+    <div class="agoda-detail-search-bar shadow-sm" style="background: #132968; padding: 12px 0; position: sticky; top: 0; z-index: 1030;">
         <div class="agoda-page-container">
             <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center">
-                <div class="col-12 col-lg-4">
-                    <div class="input-group">
-                        <span class="input-group-text bg-white border-0 text-secondary" style="height: 44px; border-radius: 8px 0 0 8px;"><i class="fa-solid fa-magnifying-glass" style="color: #475569;"></i></span>
-                        <input type="text" name="destination" class="form-control border-0 rounded-end-3 fw-bold text-dark" value="{{ $property->name }}" placeholder="Enter a destination or property" style="height: 44px; font-size: 14px;">
+                {{-- 1. Destination Input --}}
+                <div class="col-12 col-lg-3">
+                    <div class="input-group bg-white rounded-3 overflow-hidden shadow-xs" style="height: 46px;">
+                        <span class="input-group-text bg-white border-0 text-secondary ps-3 pe-2"><i class="fa-solid fa-magnifying-glass" style="color: #475569;"></i></span>
+                        <input type="text" name="destination" class="form-control border-0 fw-semibold text-dark ps-1" value="{{ $property->name }}" placeholder="Enter a destination or property" style="font-size: 13.5px; height: 46px;">
                     </div>
                 </div>
 
-                {{-- Combined Check-in & Check-out Single White Box (Agoda 1:1 Parity) --}}
+                {{-- 2. Combined Check-in & Check-out Single White Box --}}
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="bg-white rounded-3 d-flex align-items-center overflow-hidden" style="height: 44px; cursor: pointer;">
-                        <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="border-right: 1px solid #cbd5e1;">
+                    <div class="bg-white rounded-3 d-flex align-items-center overflow-hidden shadow-xs position-relative" style="height: 46px;">
+                        <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="border-right: 1px solid #cbd5e1; cursor: pointer;" onclick="document.getElementById('checkInDetailInput').showPicker ? document.getElementById('checkInDetailInput').showPicker() : document.getElementById('checkInDetailInput').focus();">
                             <i class="fa-regular fa-calendar text-secondary fs-5"></i>
-                            <div style="line-height: 1.1;">
-                                <strong class="d-block text-dark" style="font-size: 12.5px;">{{ $checkinCarbon->format('d M Y') }}</strong>
-                                <small class="text-muted" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
+                            <div style="line-height: 1.15;">
+                                <strong class="d-block text-dark" id="detailCheckInText" style="font-size: 12.5px;">{{ $checkinCarbon->format('j M Y') }}</strong>
+                                <small class="text-secondary" id="detailCheckInDay" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
                             </div>
                         </div>
-                        <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2">
+                        <input type="date" name="check_in" id="checkInDetailInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateDetailDateDisplay('checkIn', this.value);">
+
+                        <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="cursor: pointer;" onclick="document.getElementById('checkOutDetailInput').showPicker ? document.getElementById('checkOutDetailInput').showPicker() : document.getElementById('checkOutDetailInput').focus();">
                             <i class="fa-regular fa-calendar text-secondary fs-5"></i>
-                            <div style="line-height: 1.1;">
-                                <strong class="d-block text-dark" style="font-size: 12.5px;">{{ $checkoutCarbon->format('d M Y') }}</strong>
-                                <small class="text-muted" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
+                            <div style="line-height: 1.15;">
+                                <strong class="d-block text-dark" id="detailCheckOutText" style="font-size: 12.5px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
+                                <small class="text-secondary" id="detailCheckOutDay" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
                             </div>
                         </div>
+                        <input type="date" name="check_out" id="checkOutDetailInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; right: 0; width: 1px; height: 1px;" onchange="updateDetailDateDisplay('checkOut', this.value);">
                     </div>
                 </div>
 
-                <div class="col-12 col-md-6 col-lg-2.5">
-                    <div class="bg-white rounded-3 px-3 py-1.5 d-flex align-items-center justify-content-between" style="height: 44px; cursor: pointer;">
+                {{-- 3. Guests & Rooms Dropdown Box --}}
+                <div class="col-12 col-md-6 col-lg-3 position-relative">
+                    <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 46px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-users text-secondary fs-5"></i>
-                            <div style="line-height: 1.1;">
-                                <strong class="d-block text-dark" style="font-size: 12px;">{{ $guestStr }}</strong>
-                                <small class="text-muted" style="font-size: 11px;">{{ $roomsCountStr }}</small>
+                            <div style="line-height: 1.15;">
+                                <strong class="d-block text-dark" id="detailGuestCountText" style="font-size: 12.5px;">{{ $guestStr }}</strong>
+                                <small class="text-secondary" id="detailRoomCountText" style="font-size: 11px;">{{ $roomsCountStr }}</small>
                             </div>
                         </div>
-                        <i class="fa-solid fa-chevron-down text-muted small"></i>
+                    </div>
+
+                    {{-- Guests Popover Counter --}}
+                    <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1060;">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <strong class="d-block text-dark" style="font-size: 13px;">Adults</strong>
+                                <small class="text-muted" style="font-size: 11px;">Ages 18 or above</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustDetailCounter('adults', -1);">-</button>
+                                <input type="hidden" name="adults" id="detailAdultsInput" value="{{ $adultsCount ?? 2 }}">
+                                <span class="fw-bold px-1" id="detailAdultsValText">{{ $adultsCount ?? 2 }}</span>
+                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustDetailCounter('adults', 1);">+</button>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
+                            <div>
+                                <strong class="d-block text-dark" style="font-size: 13px;">Rooms</strong>
+                                <small class="text-muted" style="font-size: 11px;">Total units needed</small>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustDetailCounter('rooms', -1);">-</button>
+                                <input type="hidden" name="rooms" id="detailRoomsInput" value="{{ $roomsCountVal ?? 1 }}">
+                                <span class="fw-bold px-1" id="detailRoomsValText">{{ $roomsCountVal ?? 1 }}</span>
+                                <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustDetailCounter('rooms', 1);">+</button>
+                            </div>
+                        </div>
+                        <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
+                            Done
+                        </button>
                     </div>
                 </div>
-                <div class="col-12 col-lg-1.5">
-                    <button type="submit" class="btn text-white w-100 fw-bold rounded-pill shadow-sm" style="background-color: #2067e1; height: 44px; font-size: 14px; letter-spacing: 0.3px;">
-                        Update
+
+                {{-- 4. SEARCH Button --}}
+                <div class="col-12 col-lg-2">
+                    <button type="submit" class="btn text-white w-100 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="background-color: #2067e1; height: 46px; font-size: 14px; letter-spacing: 0.5px;">
+                        SEARCH
                     </button>
                 </div>
             </form>
@@ -175,43 +212,23 @@
             </div>
         </div>
 
-        {{-- 3. Hero Photo Collage 5-Grid (Screenshot 1 Parity with Video Priority & Hover Effects) --}}
+        {{-- 3. Hero Photo Collage 5-Grid (Agoda Screenshot 1 Parity with Clean Modal Controls) --}}
         <div class="mb-4 position-relative" style="border-radius: 12px; overflow: hidden;">
             <div class="row g-2">
-                {{-- Main Feature Image or Embedded Video Tour (Left 60%) --}}
+                {{-- Main Feature Image (Left 60%) --}}
                 <div class="col-lg-7">
-                    <div class="hero-main-img-box position-relative" style="background:#000000;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                        @if(!empty($property->video_url))
-                            @php
-                                $videoUrl = $property->video_url;
-                                $isYoutube = false;
-                                $youtubeId = '';
-                                if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $videoUrl, $match)) {
-                                    $isYoutube = true;
-                                    $youtubeId = $match[1];
-                                }
-                            @endphp
-                            @if($isYoutube)
-                                <iframe src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=0&rel=0&modestbranding=1" 
-                                        class="w-100 h-100" 
-                                        style="border:0; min-height:360px;" 
-                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                        allowfullscreen>
-                                </iframe>
-                            @else
-                                <video controls class="w-100 h-100" style="object-fit:cover; min-height:360px;" poster="{{ $gallery[0] }}">
-                                    <source src="{{ $videoUrl }}" type="video/mp4">
-                                    Your browser does not support HTML5 video.
-                                </video>
-                            @endif
-                        @else
-                            <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
-                        @endif
+                    <div class="hero-main-img-box position-relative" style="background:#0f172a;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
 
-                        {{-- Floating Camera Pill Button (Bottom Right - Agoda Screenshot Parity) --}}
-                        <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 10;">
+                        {{-- Action Buttons on Bottom of Main Photo --}}
+                        <div class="position-absolute bottom-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;" onclick="event.stopPropagation();">
+                            @if(!empty($property->video_url))
+                            <button type="button" class="btn btn-danger btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-1.5" style="font-size: 12.5px;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
+                                <i class="fa-solid fa-circle-play"></i> Video Tour
+                            </button>
+                            @endif
                             <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-1.5" style="font-size: 12.5px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                                <i class="fa-solid fa-camera text-primary"></i> See all photos @if(!empty($property->video_url)) • <i class="fa-solid fa-circle-play text-danger"></i> Video Tour @endif
+                                <i class="fa-solid fa-camera text-primary"></i> See all photos
                             </button>
                         </div>
                     </div>
@@ -222,22 +239,22 @@
                     <div class="row g-2">
                         <div class="col-6">
                             <div class="hero-thumb-img-box" style="border-top-right-radius: 0;">
-                                <img src="{{ $gallery[1] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 2">
+                                <img src="{{ $gallery[1] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 2">
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="hero-thumb-img-box" style="border-top-right-radius: 12px;">
-                                <img src="{{ $gallery[2] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 3">
+                                <img src="{{ $gallery[2] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 3">
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="hero-thumb-img-box" style="border-bottom-right-radius: 0;">
-                                <img src="{{ $gallery[3] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 4">
+                                <img src="{{ $gallery[3] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 4">
                             </div>
                         </div>
                         <div class="col-6">
                             <div class="hero-thumb-img-box" style="border-bottom-right-radius: 12px;">
-                                <img src="{{ $gallery[4] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 5">
+                                <img src="{{ $gallery[4] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 5">
                             </div>
                         </div>
                     </div>
@@ -258,10 +275,10 @@
     </div>
 
     {{-- 4. Sticky Section Anchor Navigation Bar (Exact Agoda White Box - Full Width 1:1 Parity) --}}
-    <div class="agoda-sticky-nav-bar mb-4 bg-white">
+    <div class="agoda-sticky-nav-bar mb-4 bg-white border-bottom shadow-xs" style="position: sticky; top: 70px; z-index: 1025;">
         <div class="agoda-page-container">
             <div class="d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-1 overflow-x-auto">
+                <div class="d-flex align-items-center gap-1 overflow-x-auto" style="scrollbar-width: none;">
                     <a href="#overview" class="agoda-nav-item active">Overview</a>
                     <a href="#rooms" class="agoda-nav-item">Rooms</a>
                     <a href="#recommendations" class="agoda-nav-item">Trip recommendations</a>
@@ -269,9 +286,6 @@
                     <a href="#reviews" class="agoda-nav-item">Reviews</a>
                     <a href="#location" class="agoda-nav-item">Location</a>
                     <a href="#policies" class="agoda-nav-item">Policies</a>
-                    <button class="btn btn-light rounded-circle shadow-xs border p-0 ms-2 d-inline-flex align-items-center justify-content-center" style="width: 26px; height: 26px; font-size: 11px;" title="Scroll Tabs">
-                        <i class="fa-solid fa-chevron-right text-dark"></i>
-                    </button>
                 </div>
                 <div class="d-none d-md-flex align-items-center gap-3 py-2">
                     <div class="text-end">
@@ -286,7 +300,6 @@
                     </a>
                 </div>
             </div>
-        </div>
     </div>
 
     <div class="agoda-page-container">
@@ -1936,7 +1949,86 @@
     </div>
 </div>
 
+{{-- Dedicated High-Definition Video Tour Modal (Agoda & Booking.com Parity) --}}
+@if(!empty($property->video_url))
+@php
+    $videoUrl = $property->video_url;
+    $isYoutube = false;
+    $youtubeId = '';
+    if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $videoUrl, $match)) {
+        $isYoutube = true;
+        $youtubeId = $match[1];
+    }
+@endphp
+<div class="modal fade" id="videoTourModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg bg-black text-white overflow-hidden">
+            <div class="modal-header border-0 py-3 px-4 bg-dark d-flex align-items-center justify-content-between">
+                <h5 class="modal-title fw-bold text-white mb-0" style="font-size: 16px;">
+                    <i class="fa-solid fa-circle-play text-danger me-2"></i> {{ $property->name }} — Official Video Tour
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="const iframe = this.closest('.modal-content').querySelector('iframe'); if(iframe) iframe.src = iframe.src;"></button>
+            </div>
+            <div class="modal-body p-0 text-center" style="background:#000; min-height: 500px;">
+                @if($isYoutube)
+                <div class="ratio ratio-16x9">
+                    <iframe src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=1&rel=0&modestbranding=1" 
+                            style="border:0;" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+                @else
+                <video controls autoplay class="w-100 h-100" style="max-height: 75vh; object-fit: contain;">
+                    <source src="{{ $videoUrl }}" type="video/mp4">
+                    Your browser does not support HTML5 video.
+                </video>
+                @endif
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
 <script>
+    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    function updateDetailDateDisplay(type, dateStr) {
+        if (!dateStr) return;
+        const d = new Date(dateStr);
+        if (isNaN(d.getTime())) return;
+
+        const formattedDate = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
+        const dayOfWeek = dayNames[d.getDay()];
+
+        if (type === 'checkIn') {
+            document.getElementById('detailCheckInText').textContent = formattedDate;
+            document.getElementById('detailCheckInDay').textContent = dayOfWeek;
+        } else {
+            document.getElementById('detailCheckOutText').textContent = formattedDate;
+            document.getElementById('detailCheckOutDay').textContent = dayOfWeek;
+        }
+    }
+
+    function adjustDetailCounter(type, delta) {
+        if (type === 'adults') {
+            let input = document.getElementById('detailAdultsInput');
+            let val = parseInt(input.value) || 2;
+            val = Math.max(1, Math.min(20, val + delta));
+            input.value = val;
+            document.getElementById('detailAdultsValText').textContent = val;
+            document.getElementById('detailGuestCountText').textContent = `${val} adult${val > 1 ? 's' : ''}`;
+        } else if (type === 'rooms') {
+            let input = document.getElementById('detailRoomsInput');
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(10, val + delta));
+            input.value = val;
+            document.getElementById('detailRoomsValText').textContent = val;
+            document.getElementById('detailRoomCountText').textContent = `${val} room${val > 1 ? 's' : ''}`;
+        }
+    }
+
     // ─── Instant Client-Side Zero-Latency Room Filtering (Agoda Standard) ───
     const activeRoomFilters = new Set();
 
@@ -2023,7 +2115,7 @@
         window.addEventListener('scroll', function () {
             let current = '';
             sections.forEach(section => {
-                const sectionTop = section.offsetTop - 120;
+                const sectionTop = section.offsetTop - 140;
                 if (window.pageYOffset >= sectionTop) {
                     current = section.getAttribute('id');
                 }

@@ -21,6 +21,55 @@
     ];
     while ($gallery->count() < 5) { $gallery->push($fallbacks[$gallery->count() % count($fallbacks)]); }
     
+    // Dynamic Agoda Photo Categorization Collection
+    $galleryCategorized = [
+        'all' => [],
+        'rooms' => [],
+        'property_views' => [],
+        'facilities' => [],
+        'other' => []
+    ];
+
+    if ($property->rooms && $property->rooms->count() > 0) {
+        foreach ($property->rooms as $r) {
+            if (is_array($r->images)) {
+                foreach ($r->images as $rImg) {
+                    $item = ['url' => $rImg, 'title' => $r->name . ' - Room Interior', 'category' => 'Rooms', 'cat_key' => 'rooms'];
+                    $galleryCategorized['rooms'][] = $item;
+                    $galleryCategorized['all'][] = $item;
+                }
+            }
+        }
+    }
+
+    foreach ($gallery as $idx => $gUrl) {
+        if ($idx % 2 === 0) {
+            $item = ['url' => $gUrl, 'title' => $property->name . ' - Property View', 'category' => 'Property views', 'cat_key' => 'property_views'];
+            $galleryCategorized['property_views'][] = $item;
+        } else {
+            $item = ['url' => $gUrl, 'title' => $property->name . ' - Facilities & Dining', 'category' => 'Facilities', 'cat_key' => 'facilities'];
+            $galleryCategorized['facilities'][] = $item;
+        }
+        $galleryCategorized['all'][] = $item;
+    }
+
+    if (empty($galleryCategorized['rooms'])) {
+        $rFallbacks = [
+            ['url' => 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80', 'title' => 'Deluxe Bedroom', 'category' => 'Rooms', 'cat_key' => 'rooms'],
+            ['url' => 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80', 'title' => 'Executive Suite', 'category' => 'Rooms', 'cat_key' => 'rooms']
+        ];
+        $galleryCategorized['rooms'] = $rFallbacks;
+        $galleryCategorized['all'] = array_merge($galleryCategorized['all'], $rFallbacks);
+    }
+
+    if (empty($galleryCategorized['other'])) {
+        $oFallbacks = [
+            ['url' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80', 'title' => 'Lobby & Reception Area', 'category' => 'Other', 'cat_key' => 'other']
+        ];
+        $galleryCategorized['other'] = $oFallbacks;
+        $galleryCategorized['all'] = array_merge($galleryCategorized['all'], $oFallbacks);
+    }
+
     $amenitiesList = is_array($property->amenities) && count($property->amenities) > 0
         ? $property->amenities
         : ['Free Wi-Fi', 'Free parking', 'Pets allowed', 'Air conditioning in public area', 'English', 'Internet services'];
@@ -103,7 +152,19 @@
         .agoda-detail-search-bar { padding: 8px 0; }
         #agodaDetailStickyBottomBar .d-flex { flex-direction: column; align-items: flex-start !important; gap: 8px !important; }
         #agodaDetailStickyBottomBar .d-flex:last-child { width: 100%; justify-content: space-between; }
+        .agoda-modal-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #e2e8f0; }
     }
+
+    /* Agoda Modal Tab & Filmstrip Styling (1:1 Parity) */
+    .agoda-modal-cat-tab { background: transparent; border: none; font-size: 13.5px; font-weight: 600; color: #64748b; padding: 10px 14px; border-bottom: 2.5px solid transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
+    .agoda-modal-cat-tab:hover, .agoda-modal-cat-tab.active { color: #2067e1; border-bottom-color: #2067e1; font-weight: 700; }
+    .agoda-grid-photo-card { transition: transform 0.2s ease; }
+    .agoda-grid-photo-card:hover .agoda-grid-img { transform: scale(1.045); filter: brightness(1.05); }
+    .agoda-grid-photo-card:hover .agoda-grid-overlay { opacity: 1 !important; }
+    .agoda-grid-img { transition: transform 0.3s ease, filter 0.3s ease; }
+    .agoda-filmstrip-thumb.active { border-color: #3b82f6 !important; opacity: 1; transform: scale(1.05); }
+    .agoda-filmstrip-thumb:not(.active) { opacity: 0.55; }
+    .agoda-filmstrip-thumb:hover { opacity: 1; }
 </style>
 
 <div class="detail-page-wrapper">
@@ -1865,30 +1926,156 @@
     </div>
 </div>
 
-{{-- Full Screen Photo Gallery Modal --}}
+{{-- Agoda 1:1 Dual-Mode Full-Screen Photo Gallery Modal (Grid & Slideshow Views) --}}
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-xl modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg bg-dark text-white">
-            <div class="modal-header border-0 py-3 px-4 bg-black">
-                <h5 class="modal-title fw-bold mb-0" style="font-size: 16px;">{{ $property->name }} — Photo Gallery</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body p-4 text-center">
-                <div id="galleryModalCarousel" class="carousel slide" data-bs-ride="carousel">
-                    <div class="carousel-inner">
-                        @foreach($gallery as $gIdx => $gImg)
-                        <div class="carousel-item @if($gIdx === 0) active @endif">
-                            <img src="{{ $gImg }}" class="img-fluid rounded-3" style="max-height: 75vh; object-fit: contain;" alt="Gallery Photo {{ $gIdx+1 }}">
-                        </div>
-                        @endforeach
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content border-0 rounded-0 bg-white d-flex flex-column" style="height: 100vh;">
+            
+            {{-- 1. Top Header Bar with Mode Switch, Category Tabs, and Close Button --}}
+            <div class="modal-header border-bottom py-2.5 px-4 bg-white d-flex align-items-center justify-content-between flex-shrink-0" style="min-height: 56px; z-index: 1055;">
+                <div class="d-flex align-items-center gap-3">
+                    {{-- Mode Toggle Button: [Slideshow] in Grid Mode, [Gallery] in Slideshow Mode --}}
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-1.5 d-flex align-items-center gap-1.5 shadow-xs" id="agodaGalleryModeToggleBtn" onclick="toggleAgodaGalleryMode();" style="font-size: 12.5px; border-color: #cbd5e1; color: #2067e1;">
+                        <i class="fa-solid fa-play" id="agodaGalleryModeIcon"></i>
+                        <span id="agodaGalleryModeText">Slideshow</span>
+                    </button>
+
+                    {{-- Category Navigation Tabs --}}
+                    <div class="d-flex align-items-center gap-1 overflow-x-auto" style="scrollbar-width: none;">
+                        <button type="button" class="agoda-modal-cat-tab active" data-cat="all" onclick="filterAgodaGallery('all', this);">
+                            All ({{ count($galleryCategorized['all']) }})
+                        </button>
+                        <button type="button" class="agoda-modal-cat-tab" data-cat="rooms" onclick="filterAgodaGallery('rooms', this);">
+                            Rooms ({{ count($galleryCategorized['rooms']) }})
+                        </button>
+                        <button type="button" class="agoda-modal-cat-tab" data-cat="property_views" onclick="filterAgodaGallery('property_views', this);">
+                            Property views ({{ count($galleryCategorized['property_views']) }})
+                        </button>
+                        <button type="button" class="agoda-modal-cat-tab" data-cat="facilities" onclick="filterAgodaGallery('facilities', this);">
+                            Facilities ({{ count($galleryCategorized['facilities']) }})
+                        </button>
+                        <button type="button" class="agoda-modal-cat-tab" data-cat="other" onclick="filterAgodaGallery('other', this);">
+                            Other ({{ count($galleryCategorized['other']) }})
+                        </button>
                     </div>
-                    <button class="carousel-control-prev" type="button" data-bs-target="#galleryModalCarousel" data-bs-slide="prev">
-                        <span class="carousel-control-prev-icon"></span>
-                    </button>
-                    <button class="carousel-control-next" type="button" data-bs-target="#galleryModalCarousel" data-bs-slide="next">
-                        <span class="carousel-control-next-icon"></span>
-                    </button>
                 </div>
+
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            {{-- 2. Modal Body: 75% Left Main Stage + 25% Right Sidebar --}}
+            <div class="modal-body p-0 d-flex flex-grow-1 overflow-hidden">
+                
+                {{-- Left Stage Viewport --}}
+                <div class="flex-grow-1 d-flex flex-column position-relative overflow-hidden" style="background: #f1f5f9;" id="agodaGalleryLeftStage">
+                    
+                    {{-- VIEW A: Grid View (Default: 3-column scrollable thumbnail grid) --}}
+                    <div id="agodaGalleryGridView" class="p-3 overflow-y-auto w-100 h-100">
+                        <div class="row g-2.5" id="agodaGalleryGridItemsContainer">
+                            @foreach($galleryCategorized['all'] as $gIdx => $gItem)
+                            <div class="col-6 col-md-4 agoda-grid-photo-card" data-category="{{ $gItem['cat_key'] }}" onclick="openAgodaSlideshow({{ $gIdx }});">
+                                <div class="rounded-3 overflow-hidden shadow-xs bg-dark position-relative ratio ratio-4x3" style="cursor: pointer;">
+                                    <img src="{{ $gItem['url'] }}" class="w-100 h-100 object-fit-cover agoda-grid-img" alt="{{ $gItem['title'] }}" loading="lazy">
+                                    <div class="position-absolute bottom-0 start-0 w-100 p-2 text-white small opacity-0 agoda-grid-overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); transition: opacity 0.2s;">
+                                        <span class="badge bg-dark bg-opacity-75" style="font-size: 10px;">{{ $gItem['category'] }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    {{-- VIEW B: Slideshow View (Large Centered Stage + Filmstrip) --}}
+                    <div id="agodaGallerySlideshowView" class="w-100 h-100 d-none flex-column position-relative" style="background: #0f172a;">
+                        
+                        {{-- Centered Large Photo Stage --}}
+                        <div class="flex-grow-1 d-flex align-items-center justify-content-center position-relative p-3 overflow-hidden">
+                            <img id="agodaSlideshowActiveImg" src="{{ $galleryCategorized['all'][0]['url'] ?? '' }}" class="img-fluid rounded-2 shadow-lg" style="max-height: 68vh; max-width: 90%; object-fit: contain; transition: all 0.25s ease;" alt="Slideshow Active">
+
+                            {{-- Left Prev Arrow Button --}}
+                            <button type="button" class="btn btn-light rounded-circle shadow-lg position-absolute top-50 start-0 translate-middle-y ms-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; z-index: 10; border: 1px solid #cbd5e1;" onclick="prevAgodaSlide();">
+                                <i class="fa-solid fa-chevron-left text-dark fs-5"></i>
+                            </button>
+
+                            {{-- Right Next Arrow Button --}}
+                            <button type="button" class="btn btn-light rounded-circle shadow-lg position-absolute top-50 end-0 translate-middle-y me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; z-index: 10; border: 1px solid #cbd5e1;" onclick="nextAgodaSlide();">
+                                <i class="fa-solid fa-chevron-right text-dark fs-5"></i>
+                            </button>
+
+                            {{-- Bottom Left Category Tag --}}
+                            <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;">
+                                <span class="badge bg-black bg-opacity-75 text-white px-3 py-1.5 rounded-pill shadow-xs fw-semibold" id="agodaSlideshowCategoryBadge" style="font-size: 12px;">
+                                    Facilities
+                                </span>
+                            </div>
+                        </div>
+
+                        {{-- Bottom Thumbnail Filmstrip Carousel --}}
+                        <div class="py-2 px-3 bg-black bg-opacity-90 border-top border-secondary border-opacity-25 flex-shrink-0 d-flex align-items-center gap-2 overflow-x-auto position-relative" id="agodaFilmstripContainer" style="scrollbar-width: thin;">
+                            @foreach($galleryCategorized['all'] as $fIdx => $fItem)
+                            <div class="agoda-filmstrip-thumb flex-shrink-0 @if($fIdx === 0) active @endif" data-index="{{ $fIdx }}" data-category="{{ $fItem['cat_key'] }}" onclick="openAgodaSlideshow({{ $fIdx }});" style="width: 76px; height: 52px; cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid transparent; transition: all 0.2s;">
+                                <img src="{{ $fItem['url'] }}" class="w-100 h-100 object-fit-cover" alt="Thumb {{ $fIdx }}">
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Right Sidebar Panel (Agoda Parity: Things you'll love + Price + Booking CTA) --}}
+                <div class="agoda-modal-sidebar bg-white border-start p-4 d-flex flex-column justify-content-between flex-shrink-0 overflow-y-auto" style="width: 320px; z-index: 1050;">
+                    <div>
+                        <h6 class="fw-bold text-dark mb-3" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                            Things you'll love
+                        </h6>
+                        <div class="d-flex flex-column gap-2.5 mb-4" style="font-size: 13px; color: #334155;">
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="fa-solid fa-wifi text-secondary" style="width: 16px;"></i>
+                                <span>Free Wi-Fi in all rooms!</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="fa-solid fa-hot-tub-person text-secondary" style="width: 16px;"></i>
+                                <span>Swimming pool &amp; Hot tub</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="fa-solid fa-snowflake text-secondary" style="width: 16px;"></i>
+                                <span>Air conditioning</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="fa-solid fa-door-open text-secondary" style="width: 16px;"></i>
+                                <span>Balcony/terrace</span>
+                            </div>
+                            <div class="d-flex align-items-center gap-2.5">
+                                <i class="fa-solid fa-utensils text-secondary" style="width: 16px;"></i>
+                                <span>Breakfast &amp; Restaurant</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Bottom Pricing & CTA Area --}}
+                    <div class="pt-3 border-top">
+                        @if(!empty($property->original_price) && $property->original_price > $property->price_per_night)
+                        @php
+                            $discountPct = round((($property->original_price - $property->price_per_night) / $property->original_price) * 100);
+                        @endphp
+                        <span class="badge bg-danger fw-bold px-2 py-1 mb-1.5" style="font-size: 11px;">
+                            {{ $discountPct }}% OFF TODAY
+                        </span>
+                        @endif
+                        <div class="d-flex align-items-baseline justify-content-between mb-3">
+                            <span class="text-secondary small" style="font-size: 12px;">Starts from</span>
+                            <div class="text-end">
+                                <strong style="color: #d93025; font-size: 20px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                    {{ CurrencyService::format($property->price_per_night) }}
+                                </strong>
+                                <small class="text-muted d-block" style="font-size: 11px;">per night</small>
+                            </div>
+                        </div>
+                        <a href="#rooms" class="btn btn-primary w-100 fw-bold rounded-pill py-2.5 shadow-sm d-flex align-items-center justify-content-center" style="background-color: #2067e1; font-size: 14px;" data-bs-dismiss="modal">
+                            See available rooms
+                        </a>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -2128,6 +2315,123 @@
                 }
             });
         });
+    });
+
+    // ─── Agoda 1:1 Dual-Mode Gallery Manager ───
+    const agodaGalleryItems = @json($galleryCategorized['all']);
+    let agodaGalleryCurrentIdx = 0;
+    let agodaGalleryMode = 'grid'; // 'grid' or 'slideshow'
+    let agodaGalleryActiveCat = 'all';
+
+    function toggleAgodaGalleryMode() {
+        if (agodaGalleryMode === 'grid') {
+            setAgodaGalleryMode('slideshow');
+        } else {
+            setAgodaGalleryMode('grid');
+        }
+    }
+
+    function setAgodaGalleryMode(mode) {
+        agodaGalleryMode = mode;
+        const gridView = document.getElementById('agodaGalleryGridView');
+        const slideView = document.getElementById('agodaGallerySlideshowView');
+        const modeText = document.getElementById('agodaGalleryModeText');
+        const modeIcon = document.getElementById('agodaGalleryModeIcon');
+
+        if (mode === 'slideshow') {
+            if (gridView) gridView.classList.add('d-none');
+            if (slideView) {
+                slideView.classList.remove('d-none');
+                slideView.classList.add('d-flex');
+            }
+            if (modeText) modeText.textContent = 'Gallery';
+            if (modeIcon) modeIcon.className = 'fa-solid fa-table-cells';
+            renderAgodaSlideshow(agodaGalleryCurrentIdx);
+        } else {
+            if (slideView) {
+                slideView.classList.remove('d-flex');
+                slideView.classList.add('d-none');
+            }
+            if (gridView) gridView.classList.remove('d-none');
+            if (modeText) modeText.textContent = 'Slideshow';
+            if (modeIcon) modeIcon.className = 'fa-solid fa-play';
+        }
+    }
+
+    function openAgodaSlideshow(index) {
+        agodaGalleryCurrentIdx = index;
+        setAgodaGalleryMode('slideshow');
+        renderAgodaSlideshow(index);
+    }
+
+    function renderAgodaSlideshow(index) {
+        if (!agodaGalleryItems || agodaGalleryItems.length === 0) return;
+        if (index < 0) index = agodaGalleryItems.length - 1;
+        if (index >= agodaGalleryItems.length) index = 0;
+
+        agodaGalleryCurrentIdx = index;
+        const item = agodaGalleryItems[index];
+
+        const activeImg = document.getElementById('agodaSlideshowActiveImg');
+        const badge = document.getElementById('agodaSlideshowCategoryBadge');
+        if (activeImg) activeImg.src = item.url;
+        if (badge) badge.textContent = item.category || 'Photo';
+
+        // Update active filmstrip thumbnail
+        document.querySelectorAll('.agoda-filmstrip-thumb').forEach(thumb => {
+            const tIdx = parseInt(thumb.getAttribute('data-index'));
+            if (tIdx === index) {
+                thumb.classList.add('active');
+                thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+            } else {
+                thumb.classList.remove('active');
+            }
+        });
+    }
+
+    function prevAgodaSlide() {
+        renderAgodaSlideshow(agodaGalleryCurrentIdx - 1);
+    }
+
+    function nextAgodaSlide() {
+        renderAgodaSlideshow(agodaGalleryCurrentIdx + 1);
+    }
+
+    function filterAgodaGallery(catKey, tabElement) {
+        agodaGalleryActiveCat = catKey;
+        document.querySelectorAll('.agoda-modal-cat-tab').forEach(t => t.classList.remove('active'));
+        if (tabElement) tabElement.classList.add('active');
+
+        // Filter Grid View items
+        document.querySelectorAll('.agoda-grid-photo-card').forEach(card => {
+            const c = card.getAttribute('data-category');
+            if (catKey === 'all' || c === catKey) {
+                card.classList.remove('d-none');
+            } else {
+                card.classList.add('d-none');
+            }
+        });
+
+        // Filter Filmstrip items
+        document.querySelectorAll('.agoda-filmstrip-thumb').forEach(thumb => {
+            const c = thumb.getAttribute('data-category');
+            if (catKey === 'all' || c === catKey) {
+                thumb.classList.remove('d-none');
+            } else {
+                thumb.classList.add('d-none');
+            }
+        });
+    }
+
+    // Keyboard Arrow Keys Navigation for Agoda Slideshow
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('galleryModal');
+        if (!modal || !modal.classList.contains('show')) return;
+
+        if (agodaGalleryMode === 'slideshow') {
+            if (e.key === 'ArrowLeft') prevAgodaSlide();
+            if (e.key === 'ArrowRight') nextAgodaSlide();
+        }
     });
 </script>
 @endsection

@@ -106,7 +106,7 @@ class RoomAvailabilityController extends Controller
 
         $start     = Carbon::parse($validated['start_date']);
         $end       = Carbon::parse($validated['end_date']);
-        $isBlocked = $request->has('is_blocked');
+        $isBlocked = $request->boolean('is_blocked');
         $price     = $request->filled('price') ? (float)$validated['price'] : null;
 
         // Atomic Bulk Upsert: 1 single high-performance SQL query regardless of range length

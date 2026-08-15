@@ -469,47 +469,68 @@
 
     </div>
 
-    {{-- BATCH UPDATE MODAL --}}
+    {{-- BATCH UPDATE MODAL (Stockifly Enterprise Modal) --}}
     <div class="modal fade text-start" id="batchUpdateModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 25px rgba(0,0,0,0.15);">
-                <form action="{{ route('vendor.availability.update-range') }}" method="POST">
+            <div class="modal-content" style="border-radius:6px; border:none; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+                <form action="{{ route('vendor.availability.update-range') }}" method="POST" id="batchUpdateModalForm">
                     @csrf
                     <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
-                    <div class="modal-header border-bottom py-2.5 px-3 bg-light">
-                        <h6 class="modal-title fw-bold text-primary m-0"><i class="fa-solid fa-sliders me-1.5"></i> Bulk Range Update Rates &amp; Availability</h6>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <div class="modal-header py-3 px-3.5" style="background:#002140; color:#fff; border-radius:6px 6px 0 0;">
+                        <h6 class="modal-title fw-bold text-white m-0 d-flex align-items-center" style="font-size:14px; letter-spacing:0.3px;">
+                            <i class="fa-solid fa-sliders me-2 text-info"></i> Bulk Range Update Rates &amp; Availability
+                        </h6>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                    <div class="modal-body p-3">
-                        <p class="mb-2 text-dark" style="font-size:12.5px;">Update seasonal calendar rates for <strong>{{ $selectedRoom->name }}</strong>:</p>
-
-                        <div class="row g-2 mb-2.5">
-                            <div class="col-6">
-                                <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Start Date <span class="text-danger">*</span></label>
-                                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required min="{{ date('Y-m-d') }}">
-                            </div>
-                            <div class="col-6">
-                                <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">End Date <span class="text-danger">*</span></label>
-                                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+14 days')) }}" required min="{{ date('Y-m-d') }}">
+                    <div class="modal-body p-4">
+                        <div class="p-2.5 mb-3 rounded d-flex align-items-center gap-2" style="background:#f0f7ff; border:1px solid #bae0ff;">
+                            <i class="fa-solid fa-bed text-primary"></i>
+                            <div style="font-size:12px; color:#1e293b;">
+                                Updating: <strong class="text-primary">{{ $selectedRoom->name }}</strong> (Base: ৳{{ number_format($selectedRoom->price_per_night) }}/night)
                             </div>
                         </div>
 
-                        <div class="mb-2.5">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Custom Nightly Price (BDT ৳)</label>
-                            <input type="number" name="price" class="form-control form-control-sm" placeholder="Standard Base: {{ (int)$selectedRoom->price_per_night }}" step="0.01">
+                        <div class="row g-3 mb-3">
+                            <div class="col-6">
+                                <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.3px;">Start Date <span class="text-danger">*</span></label>
+                                <input type="date" name="start_date" id="modalStartDate" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px;">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.3px;">End Date <span class="text-danger">*</span></label>
+                                <input type="date" name="end_date" id="modalEndDate" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+14 days')) }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px;">
+                            </div>
                         </div>
 
-                        <div class="form-check form-switch p-2 bg-light rounded border m-0 d-flex align-items-center">
-                            <input class="form-check-input ms-0 me-2" type="checkbox" name="is_blocked" value="1" id="modalBlockCheck" style="cursor:pointer;">
+                        <div class="mb-3">
+                            <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.3px;">Custom Nightly Price (BDT ৳)</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px;">৳ BDT</span>
+                                <input type="number" name="price" id="modalPriceInput" class="form-control" placeholder="Base rate: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
+                            </div>
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="document.getElementById('modalPriceInput').value = Math.round({{ (float)$selectedRoom->price_per_night }} * 1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                    <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="document.getElementById('modalPriceInput').value = Math.round({{ (float)$selectedRoom->price_per_night }} * 1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                    <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="document.getElementById('modalPriceInput').value = ''" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                    <i class="fa-solid fa-rotate-left me-0.5"></i> Base
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="form-check form-switch p-2.5 bg-light rounded border m-0 d-flex align-items-center" style="border-color:#e8e8e8 !important; border-radius:4px;">
+                            <input class="form-check-input ms-0 me-2.5" type="checkbox" name="is_blocked" value="1" id="modalBlockCheck" style="cursor:pointer; width:36px; height:18px;">
                             <label class="form-check-label fw-bold text-danger mb-0" for="modalBlockCheck" style="font-size:12px; cursor:pointer;">
-                                Mark Range as Sold Out / Blocked
+                                <i class="fa-solid fa-ban me-1"></i> Mark entire date range as Sold Out / Blocked
                             </label>
                         </div>
                     </div>
-                    <div class="modal-footer border-top py-2 px-3 bg-light">
-                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold px-3" style="background-color:#2067e1; border:none;">
-                            <i class="fa-solid fa-check me-1"></i> Save Calendar Changes
+                    <div class="modal-footer py-2.5 px-4 bg-light border-top" style="border-color:#e8e8e8 !important;">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal" style="border-radius:4px; height:36px;">Cancel</button>
+                        <button type="submit" class="btn btn-primary btn-sm fw-bold px-3" style="background-color:#1890ff; border:none; border-radius:4px; height:36px; box-shadow:0 2px 6px rgba(24,144,255,0.25);">
+                            <i class="fa-solid fa-check me-1.5"></i> Apply Calendar Changes
                         </button>
                     </div>
                 </form>
@@ -1016,10 +1037,14 @@ function filterTableSearch(tableId, query) {
         const text = rows[i].innerText.toLowerCase();
         rows[i].style.display = text.includes(filter) ? '' : 'none';
     }
+}
+
 /**
- * Seamless Async AJAX Form Submit (Instant Rates & Calendar Update without page reload)
+ * ⚡ Full Suite of 100% Dynamic AJAX Form Handlers (Zero Page Reload)
  */
 document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. Quick Rate Left Form AJAX Handler
     const rateForm = document.getElementById('quickRateForm');
     if (rateForm) {
         rateForm.addEventListener('submit', function(e) {
@@ -1046,44 +1071,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 setTimeout(() => { submitBtn.innerHTML = originalBtnHtml; }, 1800);
 
                 if (data.status === 'success' && data.records) {
-                    const basePrice = data.base_price;
-                    data.records.forEach(rec => {
-                        const cardCol = document.querySelector(`.avail-card-col[data-date="${rec.date}"]`);
-                        if (cardCol) {
-                            const isBlocked = rec.is_blocked;
-                            const customPrice = rec.price;
-                            const hasCustom = customPrice !== null && parseFloat(customPrice) !== parseFloat(basePrice);
-                            const effPrice = customPrice !== null ? parseFloat(customPrice) : basePrice;
-
-                            cardCol.setAttribute('data-status', isBlocked ? 'blocked' : 'available');
-                            cardCol.setAttribute('data-custom', hasCustom ? '1' : '0');
-
-                            const dayCard = cardCol.querySelector('.calendar-day-card');
-                            if (dayCard) {
-                                dayCard.className = `calendar-day-card ${isBlocked ? 'is-blocked' : (hasCustom ? 'is-custom' : 'is-available')}`;
-                                const dayName = dayCard.querySelector('.cal-day-name') ? dayCard.querySelector('.cal-day-name').innerHTML : '';
-                                if (isBlocked) {
-                                    dayCard.innerHTML = `
-                                        <div class="cal-day-name">${dayName}</div>
-                                        <div class="cal-status-badge text-danger fw-bold"><i class="fa-solid fa-ban me-0.5"></i> SOLD OUT</div>
-                                        <div class="cal-rate-sub text-muted">Blocked</div>
-                                        <div class="cal-click-hint"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
-                                    `;
-                                } else {
-                                    dayCard.innerHTML = `
-                                        <div class="cal-day-name">${dayName}</div>
-                                        <div class="cal-rate-val ${hasCustom ? 'text-purple' : 'text-primary'}">৳ ${Number(effPrice).toLocaleString()}</div>
-                                        ${hasCustom ? '<span class="cal-custom-tag">Seasonal</span>' : '<span class="cal-std-tag">Standard</span>'}
-                                        <div class="cal-click-hint"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
-                                    `;
-                                }
-                            }
-                        }
-                    });
-
-                    // Recalculate filter badge counts dynamically
-                    recountFilters();
-                    showLiveToast('⚡ Rates & availability updated instantly without reload!');
+                    updateCalendarDOM(data.records, data.base_price);
+                    showLiveToast('⚡ Rates & availability updated instantly!');
                 }
             })
             .catch(err => {
@@ -1093,8 +1082,165 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // 2. Batch Update Modal Form AJAX Handler
+    const modalForm = document.getElementById('batchUpdateModalForm');
+    if (modalForm) {
+        modalForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = modalForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1.5"></i> APPLYING...';
+
+            const formData = new FormData(modalForm);
+
+            fetch(modalForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+
+                // Close Bootstrap modal
+                const modalEl = document.getElementById('batchUpdateModal');
+                if (modalEl && typeof bootstrap !== 'undefined') {
+                    const bsModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    bsModal.hide();
+                }
+
+                if (data.status === 'success' && data.records) {
+                    updateCalendarDOM(data.records, data.base_price);
+                    showLiveToast('🎉 Bulk calendar rates applied successfully!');
+                }
+            })
+            .catch(err => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                modalForm.submit();
+            });
+        });
+    }
+
+    // 3. Table Inline Block/Unblock AJAX Handler
+    document.addEventListener('submit', function(e) {
+        const targetForm = e.target;
+        if (targetForm && targetForm.closest('#calendarTableView')) {
+            e.preventDefault();
+            const btn = targetForm.querySelector('button');
+            if (btn) btn.disabled = true;
+
+            const formData = new FormData(targetForm);
+
+            fetch(targetForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (btn) btn.disabled = false;
+                if (data.status === 'success' && data.records) {
+                    updateCalendarDOM(data.records, data.base_price);
+                    showLiveToast('⚡ Date status toggled instantly!');
+                }
+            })
+            .catch(() => {
+                targetForm.submit();
+            });
+        }
+    });
 });
 
+/**
+ * Update Calendar Grid and Table DOM dynamically
+ */
+function updateCalendarDOM(records, basePrice) {
+    records.forEach(rec => {
+        const isBlocked   = rec.is_blocked;
+        const customPrice = rec.price;
+        const hasCustom   = customPrice !== null && parseFloat(customPrice) !== parseFloat(basePrice);
+        const effPrice    = customPrice !== null ? parseFloat(customPrice) : basePrice;
+
+        // 1. Update Grid Card
+        const cardCol = document.querySelector(`.avail-card-col[data-date="${rec.date}"]`);
+        if (cardCol) {
+            cardCol.setAttribute('data-status', isBlocked ? 'blocked' : 'available');
+            cardCol.setAttribute('data-custom', hasCustom ? '1' : '0');
+
+            const dayCard = cardCol.querySelector('.calendar-day-card');
+            if (dayCard) {
+                dayCard.className = `calendar-day-card ${isBlocked ? 'is-blocked' : (hasCustom ? 'is-custom' : 'is-available')}`;
+                const dayName = dayCard.querySelector('.cal-day-name') ? dayCard.querySelector('.cal-day-name').innerHTML : '';
+                if (isBlocked) {
+                    dayCard.innerHTML = `
+                        <div class="cal-day-name">${dayName}</div>
+                        <div class="cal-status-badge text-danger fw-bold"><i class="fa-solid fa-ban me-0.5"></i> SOLD OUT</div>
+                        <div class="cal-rate-sub text-muted">Blocked</div>
+                        <div class="cal-click-hint"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
+                    `;
+                } else {
+                    dayCard.innerHTML = `
+                        <div class="cal-day-name">${dayName}</div>
+                        <div class="cal-rate-val ${hasCustom ? 'text-purple' : 'text-primary'}">৳ ${Number(effPrice).toLocaleString()}</div>
+                        ${hasCustom ? '<span class="cal-custom-tag">Seasonal</span>' : '<span class="cal-std-tag">Standard</span>'}
+                        <div class="cal-click-hint"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
+                    `;
+                }
+            }
+        }
+
+        // 2. Update Table Row
+        const tableRow = document.querySelector(`.avail-row[data-date="${rec.date}"]`);
+        if (tableRow) {
+            tableRow.setAttribute('data-status', isBlocked ? 'blocked' : 'available');
+            tableRow.setAttribute('data-custom', hasCustom ? '1' : '0');
+            tableRow.style.backgroundColor = isBlocked ? '#fff5f5' : (hasCustom ? '#f0f7ff' : 'transparent');
+
+            const cols = tableRow.querySelectorAll('td');
+            if (cols.length >= 5) {
+                // Effective Rate Col
+                cols[2].innerHTML = hasCustom 
+                    ? `<strong style="color:#7367f0; font-size:13px;">৳${Number(effPrice).toLocaleString()}</strong><span class="badge text-white ms-1" style="font-size:10px; background:#7367f0; border-radius:3px;">Seasonal</span>`
+                    : `<span style="font-size:12.5px; color:#1e293b; font-weight:600;">৳${Number(effPrice).toLocaleString()}</span>`;
+
+                // Status Col
+                cols[3].innerHTML = isBlocked 
+                    ? `<span class="badge-status cancelled" style="background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; font-weight:700; padding:3px 8px; border-radius:4px; font-size:11px;"><i class="fa-solid fa-ban me-1"></i> Sold Out / Blocked</span>`
+                    : `<span class="badge-status active" style="background:#f6ffed; color:#52c41a; border:1px solid #b7eb8f; font-weight:700; padding:3px 8px; border-radius:4px; font-size:11px;"><i class="fa-solid fa-circle-check me-1"></i> Available</span>`;
+
+                // Action Form Col
+                cols[4].innerHTML = `
+                    <form action="{{ route('vendor.availability.update-range') }}" method="POST" class="d-inline-block">
+                        @csrf
+                        <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
+                        <input type="hidden" name="start_date" value="${rec.date}">
+                        <input type="hidden" name="end_date" value="${rec.date}">
+                        <input type="hidden" name="is_blocked" value="${isBlocked ? '0' : '1'}">
+                        <button type="submit" class="btn btn-sm ${isBlocked ? 'btn-outline-success' : 'btn-outline-danger'} fw-bold px-2.5 py-1" style="font-size:11px; border-radius:4px; height:28px;">
+                            <i class="fa-solid ${isBlocked ? 'fa-unlock' : 'fa-ban'} me-1"></i> ${isBlocked ? 'Unblock' : 'Block'}
+                        </button>
+                    </form>
+                `;
+            }
+        }
+    });
+
+    recountFilters();
+}
+
+/**
+ * Dynamic Filter Counts and KPI Recalculation
+ */
 function recountFilters() {
     let availCount = 0, blockCount = 0, custCount = 0;
     document.querySelectorAll('.avail-card-col').forEach(c => {
@@ -1115,6 +1261,9 @@ function recountFilters() {
     if (lblCust)  lblCust.innerText  = custCount;
 }
 
+/**
+ * Toast Notification Popup
+ */
 function showLiveToast(message) {
     let toast = document.getElementById('liveInstantToast');
     if (!toast) {

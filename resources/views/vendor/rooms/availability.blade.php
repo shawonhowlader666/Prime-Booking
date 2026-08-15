@@ -121,18 +121,18 @@
         </div>
     </div>
 
-    {{-- 🏢 1-LINE SLEEK SELECTION & VIEW TOOLBAR (Exact Stockifly SaaS Standard) --}}
-    <div class="data-table-card" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 24px !important; padding: 12px 20px;">
-        <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="d-flex align-items-center justify-content-between flex-wrap gap-3 w-100 m-0">
+    {{-- 🏢 1-LINE SLEEK SELECTION & VIEW TOOLBAR (Compact Stockifly Standard) --}}
+    <div class="data-table-card" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 20px !important; padding: 8px 16px;">
+        <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="d-flex align-items-center justify-content-between flex-wrap gap-2.5 w-100 m-0">
             
-            {{-- Filter Controls in 1 Line --}}
+            {{-- Filter Controls in 1 Compact Line --}}
             <div class="d-flex align-items-center gap-3 flex-grow-1 flex-wrap">
                 {{-- Room Selector --}}
-                <div class="d-flex align-items-center gap-2" style="min-width: 280px; flex: 1;">
-                    <label class="text-secondary fw-bold text-nowrap m-0 d-flex align-items-center" style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.4px;">
-                        <i class="fa-solid fa-bed text-primary me-1.5"></i> Room:
+                <div class="d-flex align-items-center gap-2" style="min-width: 260px; flex: 1;">
+                    <label class="text-secondary fw-bold text-nowrap m-0 d-flex align-items-center" style="font-size:11px; text-transform:uppercase; letter-spacing:0.3px;">
+                        <i class="fa-solid fa-bed text-primary me-1"></i> Room:
                     </label>
-                    <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:36px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff;">
+                    <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 12.5px; font-weight:600; color:#1e293b; height:32px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff; padding:2px 8px;">
                         @foreach($properties as $p)
                             <optgroup label="🏢 {{ $p->name }} ({{ $p->star_rating }}★)">
                                 @foreach($p->rooms as $r)
@@ -146,11 +146,11 @@
                 </div>
 
                 {{-- Timeline Selector --}}
-                <div class="d-flex align-items-center gap-2" style="min-width: 170px;">
-                    <label class="text-secondary fw-bold text-nowrap m-0 d-flex align-items-center" style="font-size:11.5px; text-transform:uppercase; letter-spacing:0.4px;">
-                        <i class="fa-solid fa-calendar-week text-primary me-1.5"></i> Timeline:
+                <div class="d-flex align-items-center gap-2" style="min-width: 150px;">
+                    <label class="text-secondary fw-bold text-nowrap m-0 d-flex align-items-center" style="font-size:11px; text-transform:uppercase; letter-spacing:0.3px;">
+                        <i class="fa-solid fa-calendar-week text-primary me-1"></i> Timeline:
                     </label>
-                    <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:36px; border:1px solid #d9d9d9; border-radius:4px;">
+                    <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 12.5px; font-weight:600; color:#1e293b; height:32px; border:1px solid #d9d9d9; border-radius:4px; padding:2px 8px;">
                         <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>14 Days</option>
                         <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>30 Days</option>
                         <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>60 Days</option>
@@ -160,11 +160,11 @@
             </div>
 
             {{-- Right: View Switcher (Grid / Table) --}}
-            <div class="btn-group btn-group-sm" role="group" style="height:34px;">
-                <button type="button" class="btn btn-outline-secondary active fw-bold px-3" id="btnViewGrid" onclick="toggleCalendarView('grid')" style="font-size:12px;">
+            <div class="btn-group btn-group-sm" role="group" style="height:30px;">
+                <button type="button" class="btn btn-outline-secondary active fw-bold px-2.5" id="btnViewGrid" onclick="toggleCalendarView('grid')" style="font-size:11.5px;">
                     <i class="fa-solid fa-table-cells-large me-1"></i> Grid
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-bold px-3" id="btnViewTable" onclick="toggleCalendarView('table')" style="font-size:12px;">
+                <button type="button" class="btn btn-outline-secondary fw-bold px-2.5" id="btnViewTable" onclick="toggleCalendarView('table')" style="font-size:11.5px;">
                     <i class="fa-solid fa-list me-1"></i> Table
                 </button>
             </div>
@@ -177,62 +177,62 @@
         {{-- Left Panel: Update Rates & Dates Form --}}
         <div class="col-12 col-lg-4">
             <div class="data-table-card" style="border-radius:6px !important; background:#ffffff; border:1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-                <div class="data-table-card-header" style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius:6px 6px 0 0;">
-                    <h6 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
+                <div class="data-table-card-header" style="padding: 12px 18px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius:6px 6px 0 0;">
+                    <h6 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:13px; text-transform:uppercase; letter-spacing:0.4px;">
                         <i class="fa-solid fa-sliders text-primary me-2"></i> Set Rate &amp; Status
                     </h6>
                 </div>
 
-                <div style="padding: 20px 22px;">
+                <div style="padding: 16px 18px;">
                     <form action="{{ route('vendor.availability.update-range') }}" method="POST" id="quickRateForm">
                         @csrf
                         <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
 
-                        <div class="mb-3.5">
-                            <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                        <div class="mb-3">
+                            <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                                 Start Date <span style="color:#ff4d4f;">*</span>
                             </label>
-                            <input type="date" name="start_date" id="formStartDate" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px; padding:6px 12px;">
-                        </div>
-
-                        <div class="mb-3.5">
-                            <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
-                                End Date <span style="color:#ff4d4f;">*</span>
-                            </label>
-                            <input type="date" name="end_date" id="formEndDate" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px; padding:6px 12px;">
+                            <input type="date" name="start_date" id="formStartDate" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required min="{{ date('Y-m-d') }}" style="font-size:12.5px; height:34px; border:1px solid #d9d9d9; border-radius:4px; padding:4px 10px;">
                         </div>
 
                         <div class="mb-3">
-                            <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                            <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                                End Date <span style="color:#ff4d4f;">*</span>
+                            </label>
+                            <input type="date" name="end_date" id="formEndDate" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required min="{{ date('Y-m-d') }}" style="font-size:12.5px; height:34px; border:1px solid #d9d9d9; border-radius:4px; padding:4px 10px;">
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                                 Nightly Rate (BDT ৳)
                             </label>
                             <div class="input-group input-group-sm mb-2">
-                                <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px; font-size:12px; color:#595959;">৳ BDT</span>
-                                <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
+                                <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px; font-size:11.5px; color:#595959;">৳ BDT</span>
+                                <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:12.5px; height:34px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
                             </div>
                             <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                <button type="button" class="btn btn-outline-secondary py-1 px-2.5" onclick="applyPricePreset(1.15)" style="font-size:11px; border-radius:4px; font-weight:600;">
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
                                     <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary py-1 px-2.5" onclick="applyPricePreset(1.25)" style="font-size:11px; border-radius:4px; font-weight:600;">
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
                                     <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary py-1 px-2.5" onclick="applyPricePreset(1.0)" style="font-size:11px; border-radius:4px; font-weight:600;">
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
                                     <i class="fa-solid fa-rotate-left me-0.5"></i> Base
                                 </button>
                             </div>
                         </div>
 
-                        <div class="mb-4 p-2.5 rounded" style="background:#fafafa; border:1px solid #e8e8e8; border-radius:4px;">
+                        <div class="mb-3.5 p-2.5 rounded" style="background:#fafafa; border:1px solid #e8e8e8; border-radius:4px;">
                             <div class="form-check form-switch m-0 d-flex align-items-center">
-                                <input class="form-check-input" type="checkbox" name="is_blocked" value="1" id="blockRoomCheck" style="cursor:pointer; width:38px; height:20px;">
+                                <input class="form-check-input" type="checkbox" name="is_blocked" value="1" id="blockRoomCheck" style="cursor:pointer; width:36px; height:18px;">
                                 <label class="form-check-label fw-bold text-danger ms-2.5 mb-0" for="blockRoomCheck" style="font-size:12px; cursor:pointer;">
                                     <i class="fa-solid fa-ban me-1"></i> Block / Sold Out
                                 </label>
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #1890ff; font-size:13px; border-radius:4px; border:none; letter-spacing:0.4px; height:40px; box-shadow: 0 2px 6px rgba(24,144,255,0.25);">
+                        <button type="submit" class="btn-add-primary w-100 justify-content-center" style="height:36px; font-size:12.5px; border-radius:4px; font-weight:600;">
                             <i class="fa-solid fa-floppy-disk me-1.5"></i> SAVE CHANGES
                         </button>
                     </form>

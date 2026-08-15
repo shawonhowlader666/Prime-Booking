@@ -1192,7 +1192,7 @@ function updateCalendarDOM(records, basePrice) {
                 cols[4].innerHTML = `
                     <form action="{{ route('vendor.availability.update-range') }}" method="POST" class="d-inline-block">
                         @csrf
-                        <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
+                        <input type="hidden" name="room_id" value="{{ $selectedRoom?->id ?? '' }}">
                         <input type="hidden" name="start_date" value="${rec.date}">
                         <input type="hidden" name="end_date" value="${rec.date}">
                         <input type="hidden" name="is_blocked" value="${isBlocked ? '0' : '1'}">

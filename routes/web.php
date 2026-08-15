@@ -180,10 +180,15 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
 
     // ── Featured Destinations ─────────────────────────────────────────────
     Route::get('/featured-destinations', [FeaturedDestinationController::class, 'index'])->name('featured-destinations.index');
+    Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('admin.destinations.index');
     Route::get('/featured-destinations/create', [FeaturedDestinationController::class, 'create'])->name('featured-destinations.create');
+    Route::get('/destinations/create', [FeaturedDestinationController::class, 'create'])->name('admin.destinations.create');
     Route::post('/featured-destinations', [FeaturedDestinationController::class, 'store'])->name('featured-destinations.store');
+    Route::post('/destinations', [FeaturedDestinationController::class, 'store'])->name('admin.destinations.store');
     Route::get('/featured-destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('featured-destinations.edit');
+    Route::get('/destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('admin.destinations.edit');
     Route::put('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('featured-destinations.update');
+    Route::put('/destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('admin.destinations.update');
     Route::post('/featured-destinations/reorder', [FeaturedDestinationController::class, 'reorder'])->name('featured-destinations.reorder');
     Route::post('/featured-destinations/ajax-add', [FeaturedDestinationController::class, 'ajaxStore'])->name('featured-destinations.ajax-add');
     Route::delete('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('featured-destinations.destroy');

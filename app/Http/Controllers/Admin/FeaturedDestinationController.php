@@ -113,7 +113,8 @@ class FeaturedDestinationController extends Controller
 
     public function create()
     {
-        return view('admin.destinations.create');
+        $destination = null;
+        return view('admin.destinations.create', compact('destination'));
     }
 
     public function edit($id)

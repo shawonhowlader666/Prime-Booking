@@ -35,6 +35,19 @@ class AppServiceProvider extends ServiceProvider
         // ── Register Model Observers ────────────────────────────────────
         Property::observe(PropertyObserver::class);
 
+        // ── Configure Rate Limiters ─────────────────────────────────────
+        \Illuminate\Support\Facades\RateLimiter::for('api', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+        });
+
+        \Illuminate\Support\Facades\RateLimiter::for('auth', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(20)->by($request->ip());
+        });
+
+        \Illuminate\Support\Facades\RateLimiter::for('search', function (\Illuminate\Http\Request $request) {
+            return \Illuminate\Cache\RateLimiting\Limit::perMinute(120)->by($request->ip());
+        });
+
         // ── Strict Mode in Development (catch N+1, lazy loading, etc.) ─
         if ($this->app->environment('local', 'testing')) {
             Model::preventLazyLoading();          // Throw on N+1

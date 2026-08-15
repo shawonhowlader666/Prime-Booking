@@ -131,28 +131,38 @@
         box-sizing: border-box;
     }
 
-    /* 📱 Responsive Mobile & Tablet Adjustments (Zero Broken Layouts) */
+    /* 📱 100% Comprehensive Responsive Mobile, Tablet & Desktop Adjustments */
     @media (max-width: 991.98px) {
-        .hero-main-img-box { height: 260px; border-radius: 8px 8px 0 0; }
+        .hero-main-img-box { height: 260px; border-radius: 12px; }
         .hero-thumb-img-box { height: 130px; }
         .agoda-sticky-nav-bar { top: 0 !important; }
         .agoda-room-offer-grid > .border-end { border-right: none !important; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; }
         .agoda-room-offer-grid > .text-end { text-align: left !important; }
+        
+        /* Modal Responsive Layout (Stack stage and sidebar vertically on tablets/mobiles) */
+        #galleryModal .modal-body { flex-direction: column !important; overflow-y: auto !important; }
+        #agodaGalleryLeftStage { min-height: 60vh !important; flex-grow: 1 !important; }
+        .agoda-modal-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #e2e8f0 !important; padding: 16px !important; }
+        #agodaSlideshowActiveImg { max-height: 48vh !important; max-width: 96% !important; }
     }
 
     @media (max-width: 768px) {
         .agoda-page-container {
-            padding-left: 16px;
-            padding-right: 16px;
+            padding-left: 14px;
+            padding-right: 14px;
         }
+        .hero-main-img-box { height: 230px; }
+        .agoda-detail-search-bar { padding: 8px 0; }
+        .agoda-nav-item { padding: 12px 14px; font-size: 12.5px; }
+        .agoda-modal-cat-tab { padding: 8px 10px; font-size: 12px; }
     }
 
     @media (max-width: 575.98px) {
-        .hero-main-img-box { height: 220px; border-radius: 8px; }
-        .agoda-detail-search-bar { padding: 8px 0; }
+        .hero-main-img-box { height: 210px; border-radius: 10px; }
         #agodaDetailStickyBottomBar .d-flex { flex-direction: column; align-items: flex-start !important; gap: 8px !important; }
         #agodaDetailStickyBottomBar .d-flex:last-child { width: 100%; justify-content: space-between; }
-        .agoda-modal-sidebar { width: 100% !important; border-left: none !important; border-top: 1px solid #e2e8f0; }
+        .agoda-filmstrip-thumb { width: 60px !important; height: 42px !important; }
+        #agodaSlideshowActiveImg { max-height: 40vh !important; }
     }
 
     /* Agoda Modal Tab & Filmstrip Styling (1:1 Parity) */

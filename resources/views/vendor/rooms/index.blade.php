@@ -33,12 +33,12 @@
                 </button>
             </div>
 
-            <a href="{{ route('vendor.availability.index') }}" class="btn btn-outline-primary btn-sm fw-bold px-3 d-inline-flex align-items-center" style="height:32px; font-size:12px; border-radius:4px;">
-                <i class="fa-solid fa-calendar-days me-1.5"></i> Rates Calendar
+            <a href="{{ route('vendor.availability.index') }}" class="btn btn-outline-primary btn-sm fw-bold px-3 d-inline-flex align-items-center gap-2" style="height:34px; font-size:12px; border-radius:4px;">
+                <i class="fa-solid fa-calendar-days"></i> Rates Calendar
             </a>
 
-            <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addRoomModal" style="height:32px; font-size:12px; padding:0 14px; border-radius:4px; display:inline-flex; align-items:center;">
-                <i class="fa-solid fa-plus me-1.5"></i> Add Room Type
+            <button type="button" class="btn-add-primary d-inline-flex align-items-center gap-2" data-bs-toggle="modal" data-bs-target="#addRoomModal" style="height:34px; font-size:12px; padding:0 16px; border-radius:4px;">
+                <i class="fa-solid fa-plus"></i> Add Room Type
             </button>
         </div>
     </div>
@@ -48,7 +48,7 @@
 
     @if(session('success'))
         <div class="admin-alert success mb-3" style="border-radius:6px;">
-            <i class="fa-solid fa-circle-check me-1.5"></i> {{ session('success') }}
+            <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
         </div>
     @endif
 
@@ -57,10 +57,10 @@
         {{-- Card Header with Property Context, Title, and Search --}}
         <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2.5" style="background:#fafafa;">
             <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span class="badge bg-white text-dark border px-2.5 py-1.5" style="font-size:12px; font-weight:600;">
-                    <i class="fa-solid fa-hotel text-primary me-1"></i> {{ $property->name }}
+                <span class="badge bg-white text-dark border px-3 py-1.5 d-inline-flex align-items-center gap-1.5" style="font-size:12px; font-weight:600;">
+                    <i class="fa-solid fa-hotel text-primary"></i> {{ $property->name }}
                 </span>
-                <span class="badge bg-primary-light text-primary fw-bold px-2 py-1" style="font-size:11px; background:#e6f7ff; border:1px solid #91d5ff; border-radius:4px;">
+                <span class="badge bg-primary-light text-primary fw-bold px-2.5 py-1" style="font-size:11px; background:#e6f7ff; border:1px solid #91d5ff; border-radius:4px;">
                     {{ $rooms->count() }} Room Categories
                 </span>
             </div>
@@ -86,8 +86,8 @@
                 @forelse($rooms as $r)
                     <tr class="room-row-item" data-name="{{ strtolower($r->name) }}" data-bed="{{ strtolower($r->bed_type ?? '') }}">
                         <td style="padding-left: 20px !important;">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <div style="width:36px; height:36px; border-radius:6px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
+                            <div class="d-flex align-items-center gap-3">
+                                <div style="width:38px; height:38px; border-radius:6px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
                                     <i class="fa-solid fa-bed"></i>
                                 </div>
                                 <div>
@@ -99,12 +99,12 @@
                             </div>
                         </td>
                         <td>
-                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                <span class="badge bg-light text-dark border" style="font-size:11.5px; font-weight:600;">
-                                    <i class="fa-solid fa-bed text-primary me-1"></i> {{ $r->bed_type ?: 'Standard Bed' }}
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <span class="badge bg-light text-dark border px-2.5 py-1 d-inline-flex align-items-center gap-1.5" style="font-size:11.5px; font-weight:600;">
+                                    <i class="fa-solid fa-bed text-primary"></i> {{ $r->bed_type ?: 'Standard Bed' }}
                                 </span>
-                                <span class="badge bg-light text-secondary border" style="font-size:11px;">
-                                    <i class="fa-solid fa-user me-1"></i> {{ $r->max_adults }} Adults @if($r->max_children) + {{ $r->max_children }} Child @endif
+                                <span class="badge bg-light text-secondary border px-2.5 py-1 d-inline-flex align-items-center gap-1.5" style="font-size:11px;">
+                                    <i class="fa-solid fa-user"></i> {{ $r->max_adults }} Adults @if($r->max_children) + {{ $r->max_children }} Child @endif
                                 </span>
                             </div>
                         </td>
@@ -113,37 +113,37 @@
                             <small class="text-muted d-block" style="font-size:10.5px;">per night</small>
                         </td>
                         <td>
-                            <span class="badge bg-success-light text-success fw-bold px-2 py-1" style="font-size:11px; background:#f6ffed; border:1px solid #b7eb8f; border-radius:4px;">
-                                <i class="fa-solid fa-door-open me-1"></i> {{ $r->total_rooms ?? 10 }} Units Available
+                            <span class="badge bg-success-light text-success fw-bold px-2.5 py-1 d-inline-flex align-items-center gap-1.5" style="font-size:11.5px; background:#f6ffed; border:1px solid #b7eb8f; border-radius:4px;">
+                                <i class="fa-solid fa-door-open"></i> {{ $r->total_rooms ?? 10 }} Units Available
                             </span>
                         </td>
                         <td>
-                            <div class="d-flex align-items-center gap-1 flex-wrap">
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
                                 @if($r->breakfast_included)
-                                    <span class="badge bg-success text-white" style="font-size:10.5px; border-radius:3px;">
-                                        <i class="fa-solid fa-utensils me-0.5"></i> Breakfast
+                                    <span class="badge bg-success text-white px-2.5 py-1 d-inline-flex align-items-center gap-1.5" style="font-size:11px; border-radius:4px; font-weight:600;">
+                                        <i class="fa-solid fa-utensils"></i> Breakfast
                                     </span>
                                 @endif
                                 @if($r->free_cancellation)
-                                    <span class="badge bg-info text-white" style="font-size:10.5px; border-radius:3px;">
-                                        <i class="fa-solid fa-rotate-left me-0.5"></i> Free Cancel
+                                    <span class="badge bg-info text-white px-2.5 py-1 d-inline-flex align-items-center gap-1.5" style="font-size:11px; border-radius:4px; font-weight:600;">
+                                        <i class="fa-solid fa-rotate-left"></i> Free Cancel
                                     </span>
                                 @endif
                                 @if(!$r->breakfast_included && !$r->free_cancellation)
-                                    <span class="text-muted" style="font-size:11px;">Room Only</span>
+                                    <span class="text-muted small" style="font-size:11.5px;">Room Only</span>
                                 @endif
                             </div>
                         </td>
                         <td style="text-align:right; padding-right: 20px !important;">
-                            <div class="d-inline-flex gap-1.5 align-items-center">
+                            <div class="d-inline-flex gap-2 align-items-center">
                                 {{-- Quick Calendar Rate Shortcut --}}
-                                <a href="{{ route('vendor.availability.index', ['room_id' => $r->id]) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1" title="Manage Calendar Rates" style="font-size:11.5px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
-                                    <i class="fa-solid fa-calendar-days me-1"></i> Rates
+                                <a href="{{ route('vendor.availability.index', ['room_id' => $r->id]) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1 d-inline-flex align-items-center gap-1.5" title="Manage Calendar Rates" style="font-size:11.5px; height:28px; border-radius:4px;">
+                                    <i class="fa-solid fa-calendar-days"></i> Rates
                                 </a>
 
                                 {{-- Edit Modal Button --}}
-                                <button type="button" class="btn btn-sm btn-light border px-2.5 py-1" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $r->id }}" title="Edit Room Details" style="font-size:11.5px; height:28px; border-radius:4px;">
-                                    <i class="fa-solid fa-pen text-primary me-1"></i> Edit
+                                <button type="button" class="btn btn-sm btn-light border px-2.5 py-1 d-inline-flex align-items-center gap-1.5" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $r->id }}" title="Edit Room Details" style="font-size:11.5px; height:28px; border-radius:4px;">
+                                    <i class="fa-solid fa-pen text-primary"></i> Edit
                                 </button>
 
                                 {{-- Delete Form --}}
@@ -302,11 +302,11 @@
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Bathroom Features &amp; Toiletries
                             </label>
-                            <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
+                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
                                 @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
-                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11px; font-weight:600; color:#334155; cursor:pointer;">
-                                        <input class="form-check-input m-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" checked style="cursor:pointer;">
-                                        {{ $bFeat }}
+                                    <label class="d-inline-flex align-items-center px-2.5 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" checked style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <span>{{ $bFeat }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -316,41 +316,41 @@
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Popular In-Room Amenities (Select All Applicable)
                             </label>
-                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
                                 @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker', 'Electric Kettle', 'Ironing Facilities', 'Soundproofing'] as $amenity)
-                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                                        <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" style="cursor:pointer;">
-                                        {{ $amenity }}
+                                    <label class="d-inline-flex align-items-center px-3 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <span>{{ $amenity }}</span>
                                     </label>
                                 @endforeach
                             </div>
                         </div>
 
                         <div class="col-12 col-md-4">
-                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="extra_bed_allowed" value="1" id="addExtraBedCheck" style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="addExtraBedCheck" style="font-size:12px; cursor:pointer;">
+                            <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input me-2" type="checkbox" name="extra_bed_allowed" value="1" id="addExtraBedCheck" style="cursor:pointer; width:34px; height:18px; margin:0;">
+                                    <label class="form-check-label fw-bold text-dark mb-0" for="addExtraBedCheck" style="font-size:12.5px; cursor:pointer;">
                                         Extra Bed / Rollaway Allowed
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
-                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="breakfast_included" value="1" id="addBreakfastCheck" style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="addBreakfastCheck" style="font-size:12px; cursor:pointer;">
+                            <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input me-2" type="checkbox" name="breakfast_included" value="1" id="addBreakfastCheck" style="cursor:pointer; width:34px; height:18px; margin:0;">
+                                    <label class="form-check-label fw-bold text-dark mb-0" for="addBreakfastCheck" style="font-size:12.5px; cursor:pointer;">
                                         Free Breakfast Included
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
-                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="addCancelCheck" checked style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="addCancelCheck" style="font-size:12px; cursor:pointer;">
+                            <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input me-2" type="checkbox" name="free_cancellation" value="1" id="addCancelCheck" checked style="cursor:pointer; width:34px; height:18px; margin:0;">
+                                    <label class="form-check-label fw-bold text-dark mb-0" for="addCancelCheck" style="font-size:12.5px; cursor:pointer;">
                                         Free Cancellation Allowed
                                     </label>
                                 </div>
@@ -498,12 +498,12 @@
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Bathroom Features &amp; Toiletries
                             </label>
-                            <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
+                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
                                 @php $currentBFeats = is_array($r->bathroom_features) ? $r->bathroom_features : ['Private Bathroom', 'Hot Water Geyser']; @endphp
                                 @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
-                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11px; font-weight:600; color:#334155; cursor:pointer;">
-                                        <input class="form-check-input m-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" {{ in_array($bFeat, $currentBFeats) ? 'checked' : '' }} style="cursor:pointer;">
-                                        {{ $bFeat }}
+                                    <label class="d-inline-flex align-items-center px-2.5 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" {{ in_array($bFeat, $currentBFeats) ? 'checked' : '' }} style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <span>{{ $bFeat }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -513,42 +513,42 @@
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Popular In-Room Amenities
                             </label>
-                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
                                 @php $currentFacs = is_array($r->facilities) ? $r->facilities : []; @endphp
                                 @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker', 'Electric Kettle', 'Ironing Facilities', 'Soundproofing'] as $amenity)
-                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                                        <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" {{ in_array($amenity, $currentFacs) ? 'checked' : '' }} style="cursor:pointer;">
-                                        {{ $amenity }}
+                                    <label class="d-inline-flex align-items-center px-3 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" {{ in_array($amenity, $currentFacs) ? 'checked' : '' }} style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <span>{{ $amenity }}</span>
                                     </label>
                                 @endforeach
                             </div>
                         </div>
 
                         <div class="col-12 col-md-4">
-                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="extra_bed_allowed" value="1" id="editExtraBedCheck{{ $r->id }}" {{ $r->extra_bed_allowed ? 'checked' : '' }} style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="editExtraBedCheck{{ $r->id }}" style="font-size:12px; cursor:pointer;">
+                            <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input me-2" type="checkbox" name="extra_bed_allowed" value="1" id="editExtraBedCheck{{ $r->id }}" {{ $r->extra_bed_allowed ? 'checked' : '' }} style="cursor:pointer; width:34px; height:18px; margin:0;">
+                                    <label class="form-check-label fw-bold text-dark mb-0" for="editExtraBedCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
                                         Extra Bed / Rollaway Allowed
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
-                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="breakfast_included" value="1" id="editBreakfastCheck{{ $r->id }}" {{ $r->breakfast_included ? 'checked' : '' }} style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="editBreakfastCheck{{ $r->id }}" style="font-size:12px; cursor:pointer;">
+                            <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input me-2" type="checkbox" name="breakfast_included" value="1" id="editBreakfastCheck{{ $r->id }}" {{ $r->breakfast_included ? 'checked' : '' }} style="cursor:pointer; width:34px; height:18px; margin:0;">
+                                    <label class="form-check-label fw-bold text-dark mb-0" for="editBreakfastCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
                                         Free Breakfast Included
                                     </label>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
-                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
-                                <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="editCancelCheck{{ $r->id }}" {{ $r->free_cancellation ? 'checked' : '' }} style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="editCancelCheck{{ $r->id }}" style="font-size:12px; cursor:pointer;">
+                            <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input class="form-check-input me-2" type="checkbox" name="free_cancellation" value="1" id="editCancelCheck{{ $r->id }}" {{ $r->free_cancellation ? 'checked' : '' }} style="cursor:pointer; width:34px; height:18px; margin:0;">
+                                    <label class="form-check-label fw-bold text-dark mb-0" for="editCancelCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
                                         Free Cancellation Allowed
                                     </label>
                                 </div>

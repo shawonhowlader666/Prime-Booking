@@ -243,7 +243,8 @@
 
             {{-- 4. Guest Rating (Agoda 9+, 8+, 7+) --}}
             @php
-                $resultsList = $searchResults['merged_results'] ?? [];
+                $filterCounts = $filterCounts ?? [];
+                $resultsList = $resultsList ?? ($searchResults['merged_results'] ?? []);
                 $getScoreCount = function($minScore) use ($filterCounts, $resultsList) {
                     $cnt = $filterCounts['score_' . (int)$minScore] ?? 0;
                     if ($cnt > 0) return $cnt;

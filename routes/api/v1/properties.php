@@ -12,12 +12,12 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/properties',          [ApiPropertyController::class, 'index']);
-Route::get('/properties/{id}',     [ApiPropertyController::class, 'show']);
+Route::get('/properties',          [ApiPropertyController::class, 'index'])->name('api.v1.properties');
+Route::get('/properties/{id}',     [ApiPropertyController::class, 'show'])->name('api.v1.properties.show');
 
 Route::middleware('throttle:search')->group(function () {
-    Route::get('/search',          [ApiSearchController::class, 'search']);
-    Route::get('/suggestions',     [SuggestionController::class, 'index']);
+    Route::get('/search',          [ApiSearchController::class, 'search'])->name('api.v1.search');
+    Route::get('/suggestions',     [SuggestionController::class, 'index'])->name('api.v1.suggestions');
 });
 
 Route::get('/search/suggestions',  [SuggestionController::class, 'suggestions']);

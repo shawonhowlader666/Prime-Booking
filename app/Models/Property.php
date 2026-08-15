@@ -398,8 +398,27 @@ class Property extends Model
         return [
             ['name' => "{$city} City Center", 'distance' => '220 m'],
             ['name' => "Central Pharmacy & Market", 'distance' => '290 m'],
-            ['name' => "Public Park & Walkway", 'distance' => '330 m'],
-            ['name' => "Main Transit Hub", 'distance' => '350 m'],
+            ['name' => "{$city} Metro & Airport Transit", 'distance' => '15 mins'],
         ];
+    }
+
+    /**
+     * Curated Full Gallery Images with High-Res Fallbacks
+     * @return list<string>
+     */
+    public function getGalleryImagesAttribute(): array
+    {
+        $primary = $this->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+        $imgs = is_array($this->images) ? $this->images : (json_decode($this->images ?? '[]', true) ?: []);
+        if (empty($imgs)) {
+            return [
+                $primary,
+                'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
+                'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
+            ];
+        }
+        return $imgs;
     }
 }

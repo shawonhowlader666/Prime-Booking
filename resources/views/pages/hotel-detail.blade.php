@@ -799,7 +799,7 @@
                                             {{-- Sub-col 1: Benefits List --}}
                                             <div class="col-md-5 border-end pe-3">
                                                 <div class="fw-bold text-dark mb-1 d-flex align-items-center" style="font-size: 13px;">
-                                                    <i class="fa-solid fa-user text-dark me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">{{ $rCap }} adults &amp; 1 child (0-17 years)</span> 
+                                                    <i class="fa-solid fa-user text-dark me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">{{ $rAdults }} adults &amp; 1 child (0-17 years)</span> 
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #334155; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
@@ -858,7 +858,7 @@
                                         <div class="row g-2 align-items-center">
                                             <div class="col-md-5 border-end pe-3">
                                                 <div class="fw-bold text-dark mb-1 d-flex align-items-center" style="font-size: 13px;">
-                                                    <i class="fa-solid fa-user text-dark me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">{{ max(1, $rCap - 2) }} adults</span> 
+                                                    <i class="fa-solid fa-user text-dark me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">{{ max(1, $rAdults - 2) }} adults</span> 
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #334155; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">

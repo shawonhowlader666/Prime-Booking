@@ -318,6 +318,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::post('/properties/{propertyId}/rooms',                     [App\Http\Controllers\Vendor\VendorRoomController::class, 'store'])->name('rooms.store');
     Route::put('/properties/{propertyId}/rooms/{roomId}',             [App\Http\Controllers\Vendor\VendorRoomController::class, 'update'])->name('rooms.update');
     Route::delete('/properties/{propertyId}/rooms/{roomId}',          [App\Http\Controllers\Vendor\VendorRoomController::class, 'destroy'])->name('rooms.destroy');
+    Route::get('/properties/{propertyId}/rooms/{roomId}/availability', [RoomAvailabilityController::class, 'index'])->name('rooms.availability');
 
     // ── Rates & Calendar ───────────────────────────────────────
     Route::get('/availability',                  [RoomAvailabilityController::class, 'index'])->name('availability.index');
@@ -467,25 +468,23 @@ Route::get('/lang/{locale}', function ($locale) {
 // ─────────────────────────────────────────────────────────────────────────────
 // RESTful Standard JSON API Endpoints (Mobile App & Third-Party Integration)
 // ─────────────────────────────────────────────────────────────────────────────
-Route::prefix('api/v1')->group(function () {
-    Route::get('/properties', function (\Illuminate\Http\Request $request) {
-        $query = \App\Models\Property::with('rooms')->active();
-        if ($request->filled('city')) {
-            $query->where('city', 'like', '%' . $request->city . '%');
-        }
-        if ($request->filled('min_price')) {
-            $query->where('price_per_night', '>=', $request->min_price);
-        }
-        if ($request->filled('max_price')) {
-            $query->where('price_per_night', '<=', $request->max_price);
-        }
-        $properties = $query->paginate($request->get('per_page', 20));
-        return \App\Http\Resources\PropertyResource::collection($properties);
-    });
+Route::get('/api/v1/properties', function (\Illuminate\Http\Request $request) {
+    $query = \App\Models\Property::with('rooms')->active();
+    if ($request->filled('city')) {
+        $query->where('city', 'like', '%' . $request->city . '%');
+    }
+    if ($request->filled('min_price')) {
+        $query->where('price_per_night', '>=', $request->min_price);
+    }
+    if ($request->filled('max_price')) {
+        $query->where('price_per_night', '<=', $request->max_price);
+    }
+    $properties = $query->paginate($request->get('per_page', 20));
+    return \App\Http\Resources\PropertyResource::collection($properties);
+})->name('api.v1.properties');
 
-    Route::get('/properties/{id}', function ($id) {
-        $property = \App\Models\Property::with('rooms')->findOrFail($id);
-        return new \App\Http\Resources\PropertyResource($property);
-    });
-});
+Route::get('/api/v1/properties/{id}', function ($id) {
+    $property = \App\Models\Property::with('rooms')->findOrFail($id);
+    return new \App\Http\Resources\PropertyResource($property);
+})->name('api.v1.properties.show');
 

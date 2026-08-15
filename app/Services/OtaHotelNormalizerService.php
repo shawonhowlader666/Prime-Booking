@@ -103,7 +103,6 @@ class OtaHotelNormalizerService
                 'max_children'       => (int)($r['max_children'] ?? 1),
                 'price_per_night'    => (float)($r['price_per_night'] ?? $price),
                 'total_rooms'        => (int)($r['total_rooms'] ?? 10),
-                'available_rooms'    => (int)($r['available_rooms'] ?? 10),
                 'room_size_sqm'      => (int)($r['room_size_sqm'] ?? 46),
                 'view_type'          => $r['view_type'] ?? 'City View',
                 'bathroom_count'     => (int)($r['bathroom_count'] ?? 1),

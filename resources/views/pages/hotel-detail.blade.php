@@ -2,6 +2,13 @@
 
 @php
     use App\Services\CurrencyService;
+    use Carbon\Carbon;
+
+    $checkinCarbon = request('checkin') ? Carbon::parse(request('checkin')) : Carbon::tomorrow();
+    $checkoutCarbon = request('checkout') ? Carbon::parse(request('checkout')) : Carbon::tomorrow()->addDay();
+    $guestStr = request('guests') ?: '3 adults, 1 child';
+    $roomsCountStr = request('rooms') ?: '2 rooms';
+
     $gallery = collect();
     if (!empty($property->primary_image)) $gallery->push($property->primary_image);
     if (is_array($property->images)) $gallery = $gallery->merge($property->images);
@@ -21,7 +28,7 @@
     $scoreNum = (float)($property->rating_score ?? 8.7);
     $score = number_format($scoreNum, 1);
     $revCount = number_format($property->total_reviews ?: 6);
-    $nights = $nights ?? 1;
+    $nights = $checkinCarbon->diffInDays($checkoutCarbon) ?: 1;
 @endphp
 
 @section('title', e($property->name) . ' — Book Hotels in ' . ($property->city ?: 'Bangladesh') . ' | PRIME BOOKING')
@@ -81,15 +88,15 @@
                         <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="border-right: 1px solid #cbd5e1;">
                             <i class="fa-regular fa-calendar text-secondary fs-5"></i>
                             <div style="line-height: 1.1;">
-                                <strong class="d-block text-dark" style="font-size: 12.5px;">14 Aug 2026</strong>
-                                <small class="text-muted" style="font-size: 11px;">Friday</small>
+                                <strong class="d-block text-dark" style="font-size: 12.5px;">{{ $checkinCarbon->format('d M Y') }}</strong>
+                                <small class="text-muted" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
                             </div>
                         </div>
                         <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2">
                             <i class="fa-regular fa-calendar text-secondary fs-5"></i>
                             <div style="line-height: 1.1;">
-                                <strong class="d-block text-dark" style="font-size: 12.5px;">15 Aug 2026</strong>
-                                <small class="text-muted" style="font-size: 11px;">Saturday</small>
+                                <strong class="d-block text-dark" style="font-size: 12.5px;">{{ $checkoutCarbon->format('d M Y') }}</strong>
+                                <small class="text-muted" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
                             </div>
                         </div>
                     </div>
@@ -100,8 +107,8 @@
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-users text-secondary fs-5"></i>
                             <div style="line-height: 1.1;">
-                                <strong class="d-block text-dark" style="font-size: 12px;">3 adults,1 child</strong>
-                                <small class="text-muted" style="font-size: 11px;">2 rooms</small>
+                                <strong class="d-block text-dark" style="font-size: 12px;">{{ $guestStr }}</strong>
+                                <small class="text-muted" style="font-size: 11px;">{{ $roomsCountStr }}</small>
                             </div>
                         </div>
                         <i class="fa-solid fa-chevron-down text-muted small"></i>
@@ -688,7 +695,9 @@
                                     </button>
                                 </div>
                                 
-                                <a href="#rooms" class="text-decoration-none fw-bold d-block mb-2" style="color: #2067e1; font-size: 13px;">Room photos and details</a>
+                                <a href="javascript:void(0)" class="text-decoration-none fw-bold d-block mb-2" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #2067e1; font-size: 13px;">
+                                    <i class="fa-solid fa-expand me-1"></i> Room photos and details
+                                </a>
 
                                 <h4 class="fw-bold text-dark mb-1" style="font-size: 20px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;">{{ $room->name }}</h4>
                                 
@@ -912,6 +921,84 @@
                             </div>
                         </div>
 
+                    </div>
+                </div>
+
+                {{-- Room Details & Photo Gallery Lightbox Modal (Agoda Standard) --}}
+                <div class="modal fade" id="roomDetailModal_{{ $room->id ?? $rIdx }}" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+                        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
+                            <div class="modal-header border-bottom py-3 px-4 bg-light">
+                                <div>
+                                    <h5 class="modal-title fw-bold text-dark mb-0" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif;">{{ $room->name }}</h5>
+                                    <small class="text-muted" style="font-size: 12px;">{{ $rSizeStr }} • Max {{ $rAdults }} Adults • {{ $rBedStr }}</small>
+                                </div>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                {{-- Room High-Res Image Carousel --}}
+                                <div class="rounded-3 overflow-hidden mb-4 position-relative" style="height: 280px; background: #000;">
+                                    <img src="{{ $room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '') }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $room->name }}">
+                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-3 px-3 py-1" style="font-size: 12px; border-radius: 20px;">
+                                        <i class="fa-solid fa-camera me-1"></i> Verified High-Res Room Photo
+                                    </span>
+                                </div>
+
+                                <div class="row g-4">
+                                    {{-- Left: Key Room Specs --}}
+                                    <div class="col-md-6 border-end pe-md-4">
+                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-bed text-primary me-2"></i> Room Layout &amp; Bedding</h6>
+                                        <ul class="list-unstyled d-flex flex-column gap-2 text-secondary mb-4" style="font-size: 13px;">
+                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-ruler-combined text-muted" style="width: 16px;"></i> <span>Room Area: <strong>{{ $rSizeStr }}</strong></span></li>
+                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-bed text-muted" style="width: 16px;"></i> <span>Bed Config: <strong>{{ $rBedStr }}</strong></span></li>
+                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-mountain-sun text-muted" style="width: 16px;"></i> <span>View: <strong>{{ $rView }}</strong></span></li>
+                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-building text-muted" style="width: 16px;"></i> <span>Outdoor: <strong>{{ $rBalcony }}</strong></span></li>
+                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-ban-smoking text-danger" style="width: 16px;"></i> <span>Smoking: <strong>{{ $rSmoking }}</strong></span></li>
+                                        </ul>
+
+                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-shield-halved text-success me-2"></i> Policies &amp; Inclusions</h6>
+                                        <ul class="list-unstyled d-flex flex-column gap-2 text-secondary" style="font-size: 13px;">
+                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold"><i class="fa-solid fa-circle-check"></i> Free Breakfast Included</li>
+                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold"><i class="fa-solid fa-circle-check"></i> Free Cancellation Available</li>
+                                            <li class="d-flex align-items-center gap-2 text-primary fw-semibold"><i class="fa-solid fa-circle-check"></i> Pay at Hotel Accepted</li>
+                                        </ul>
+                                    </div>
+
+                                    {{-- Right: Bathroom Features & Amenities --}}
+                                    <div class="col-md-6 ps-md-4">
+                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-bath text-info me-2"></i> Bathroom &amp; Toiletries</h6>
+                                        <div class="row g-2 text-secondary mb-4" style="font-size: 12.5px;">
+                                            <div class="col-6"><i class="fa-solid fa-shower text-muted me-1.5"></i> {{ $rBathrooms }} Private Bath</div>
+                                            <div class="col-6"><i class="fa-solid fa-temperature-arrow-up text-muted me-1.5"></i> Hot Water Geyser</div>
+                                            <div class="col-6"><i class="fa-solid fa-bath text-muted me-1.5"></i> Bathtub / Shower</div>
+                                            <div class="col-6"><i class="fa-solid fa-wind text-muted me-1.5"></i> Hairdryer</div>
+                                            <div class="col-6"><i class="fa-solid fa-pump-soap text-muted me-1.5"></i> Free Toiletries</div>
+                                            <div class="col-6"><i class="fa-solid fa-shirt text-muted me-1.5"></i> Towels &amp; Slippers</div>
+                                        </div>
+
+                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-tv text-secondary me-2"></i> Media &amp; Technology</h6>
+                                        <div class="row g-2 text-secondary" style="font-size: 12.5px;">
+                                            <div class="col-6"><i class="fa-solid fa-wifi text-muted me-1.5"></i> Free High-Speed WiFi</div>
+                                            <div class="col-6"><i class="fa-solid fa-tv text-muted me-1.5"></i> Smart Flat TV</div>
+                                            <div class="col-6"><i class="fa-solid fa-snowflake text-muted me-1.5"></i> Air conditioning</div>
+                                            <div class="col-6"><i class="fa-solid fa-box text-muted me-1.5"></i> Mini Refrigerator</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="modal-footer border-top py-3 px-4 bg-light d-flex align-items-center justify-content-between">
+                                <div>
+                                    <span class="text-secondary small d-block" style="font-size: 11px;">Starting from</span>
+                                    <strong class="text-danger fw-bold" style="font-size: 20px;">USD {{ $room->price_per_night }} <small class="text-secondary fw-normal" style="font-size: 12px;">/ night</small></strong>
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="button" class="btn btn-light fw-bold px-3 py-2 border" data-bs-dismiss="modal" style="font-size: 13px;">Close</button>
+                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}" class="btn btn-primary fw-bold px-4 py-2" style="background: #2067e1; font-size: 13px; border-radius: 6px;">
+                                        Book this Room
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 @endforeach

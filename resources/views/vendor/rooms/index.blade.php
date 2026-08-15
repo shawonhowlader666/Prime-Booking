@@ -232,98 +232,98 @@
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Bed Type <span class="text-danger">*</span>
+                                <i class="fa-solid fa-bed text-primary me-1.5"></i> Bed Configuration <span class="text-danger">*</span>
                             </label>
                             <select name="bed_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="King Bed">🛏️ 1 King Size Bed</option>
-                                <option value="Queen Bed">🛏️ 1 Queen Size Bed</option>
-                                <option value="Twin Beds">🛏️🛏️ 2 Twin / Single Beds</option>
-                                <option value="Triple Bed">🛏️🛏️🛏️ 3 Single Beds (Triple)</option>
-                                <option value="Executive Suite">👑 Super King Bed + Jacuzzi</option>
-                                <option value="Bunk Bed">🛌 Bunk Beds (Family Room)</option>
+                                <option value="King Bed">1 King Bed (Extra Large)</option>
+                                <option value="Queen Bed">1 Queen Bed</option>
+                                <option value="Twin Beds">2 Twin / Single Beds</option>
+                                <option value="Triple Bed">3 Single Beds (Triple Room)</option>
+                                <option value="Executive Suite">Super King Bed + Jacuzzi Suite</option>
+                                <option value="Bunk Bed">Bunk Beds (Family Room)</option>
                             </select>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Base Price / Night (৳ BDT) <span class="text-danger">*</span>
+                                <i class="fa-solid fa-bangladeshi-taka-sign text-success me-1.5"></i> Base Price / Night (BDT) <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="price_per_night" class="form-control form-control-sm" placeholder="e.g. 8500" required step="0.01" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Room Size (m²)
+                                <i class="fa-solid fa-ruler-combined text-secondary me-1.5"></i> Room Size (m²)
                             </label>
                             <input type="number" name="room_size_sqm" class="form-control form-control-sm" placeholder="e.g. 35" min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Total Room Units <span class="text-danger">*</span>
+                                <i class="fa-solid fa-door-open text-primary me-1.5"></i> Total Room Units <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="total_rooms" class="form-control form-control-sm" value="10" required min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-2">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Max Adults <span class="text-danger">*</span>
+                                <i class="fa-solid fa-user text-secondary me-1.5"></i> Max Adults <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="max_adults" class="form-control form-control-sm" value="2" required min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-2">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Max Children
+                                <i class="fa-solid fa-child text-secondary me-1.5"></i> Max Children
                             </label>
                             <input type="number" name="max_children" class="form-control form-control-sm" value="1" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Room View <span class="text-danger">*</span>
+                                <i class="fa-solid fa-mountain-sun text-info me-1.5"></i> Room View <span class="text-danger">*</span>
                             </label>
                             <select name="view_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="Sea View / Ocean Front">🌊 Direct Ocean / Sea View</option>
-                                <option value="Beachfront View">🏖️ Beachfront &amp; Wave View</option>
-                                <option value="City Skyline View">🏙️ City Skyline View</option>
-                                <option value="Mountain / Hill View">⛰️ Scenic Mountain / Hill View</option>
-                                <option value="Garden & Pool View">🌴 Lush Garden &amp; Pool View</option>
-                                <option value="Lake / River View">⛵ Lake / River View</option>
-                                <option value="Sunset View">🌅 Sunset Panoramic View</option>
-                                <option value="Courtyard View">🌿 Quiet Inner Courtyard View</option>
+                                <option value="Sea View / Ocean Front">Direct Ocean / Sea View</option>
+                                <option value="Beachfront View">Beachfront &amp; Wave View</option>
+                                <option value="City Skyline View">City Skyline View</option>
+                                <option value="Mountain / Hill View">Scenic Mountain / Hill View</option>
+                                <option value="Garden & Pool View">Lush Garden &amp; Pool View</option>
+                                <option value="Lake / River View">Lake / River View</option>
+                                <option value="Sunset View">Sunset Panoramic View</option>
+                                <option value="Courtyard View">Quiet Inner Courtyard View</option>
                             </select>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Attached Bathrooms <span class="text-danger">*</span>
+                                <i class="fa-solid fa-shower text-primary me-1.5"></i> Attached Bathrooms <span class="text-danger">*</span>
                             </label>
                             <select name="bathroom_count" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="1">🚿 1 Attached Bathroom</option>
-                                <option value="2">🚿🚿 2 Bathrooms</option>
-                                <option value="3">🚿🚿🚿 3 Bathrooms</option>
+                                <option value="1">1 Attached Bathroom</option>
+                                <option value="2">2 Attached Bathrooms</option>
+                                <option value="3">3 Attached Bathrooms</option>
                             </select>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Smoking Policy <span class="text-danger">*</span>
+                                <i class="fa-solid fa-ban-smoking text-danger me-1.5"></i> Smoking Policy <span class="text-danger">*</span>
                             </label>
                             <select name="smoking_policy" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="Non-Smoking">🚭 100% Non-Smoking</option>
-                                <option value="Smoking Allowed">🚬 Smoking Allowed</option>
+                                <option value="Non-Smoking">100% Non-Smoking Room</option>
+                                <option value="Smoking Allowed">Smoking Permitted</option>
                             </select>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Balcony / Terrace
+                                <i class="fa-solid fa-tree-city text-success me-1.5"></i> Balcony / Terrace
                             </label>
                             <select name="balcony_type" class="form-select form-select-sm" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="Private Balcony">🏞️ Private Balcony</option>
-                                <option value="Terrace">🌅 Large Terrace</option>
-                                <option value="French Balcony">🪟 French Balcony</option>
+                                <option value="Private Balcony">Private Balcony</option>
+                                <option value="Terrace">Large Open Terrace</option>
+                                <option value="French Balcony">French Balcony</option>
                                 <option value="No Balcony">No Balcony</option>
                             </select>
                         </div>
@@ -438,16 +438,16 @@
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Bed Type <span class="text-danger">*</span>
+                                <i class="fa-solid fa-bed text-primary me-1.5"></i> Bed Configuration <span class="text-danger">*</span>
                             </label>
                             <select name="bed_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                                 @foreach([
-                                    'King Bed' => '🛏️ 1 King Size Bed',
-                                    'Queen Bed' => '🛏️ 1 Queen Size Bed',
-                                    'Twin Beds' => '🛏️🛏️ 2 Twin / Single Beds',
-                                    'Triple Bed' => '🛏️🛏️🛏️ 3 Single Beds (Triple)',
-                                    'Executive Suite' => '👑 Super King Bed + Jacuzzi',
-                                    'Bunk Bed' => '🛌 Bunk Beds (Family Room)'
+                                    'King Bed' => '1 King Bed (Extra Large)',
+                                    'Queen Bed' => '1 Queen Bed',
+                                    'Twin Beds' => '2 Twin / Single Beds',
+                                    'Triple Bed' => '3 Single Beds (Triple Room)',
+                                    'Executive Suite' => 'Super King Bed + Jacuzzi Suite',
+                                    'Bunk Bed' => 'Bunk Beds (Family Room)'
                                 ] as $btVal => $btLbl)
                                     <option value="{{ $btVal }}" {{ ($r->bed_type == $btVal) ? 'selected' : '' }}>{{ $btLbl }}</option>
                                 @endforeach
@@ -456,53 +456,53 @@
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Base Price / Night (৳ BDT) <span class="text-danger">*</span>
+                                <i class="fa-solid fa-bangladeshi-taka-sign text-success me-1.5"></i> Base Price / Night (BDT) <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="price_per_night" class="form-control form-control-sm" value="{{ (float)$r->price_per_night }}" required step="0.01" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Room Size (m²)
+                                <i class="fa-solid fa-ruler-combined text-secondary me-1.5"></i> Room Size (m²)
                             </label>
                             <input type="number" name="room_size_sqm" class="form-control form-control-sm" value="{{ $r->room_size_sqm }}" placeholder="e.g. 35" min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Total Room Units <span class="text-danger">*</span>
+                                <i class="fa-solid fa-door-open text-primary me-1.5"></i> Total Room Units <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="total_rooms" class="form-control form-control-sm" value="{{ $r->total_rooms ?? 10 }}" required min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-2">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Max Adults <span class="text-danger">*</span>
+                                <i class="fa-solid fa-user text-secondary me-1.5"></i> Max Adults <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="max_adults" class="form-control form-control-sm" value="{{ $r->max_adults ?? 2 }}" required min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-2">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Max Children
+                                <i class="fa-solid fa-child text-secondary me-1.5"></i> Max Children
                             </label>
                             <input type="number" name="max_children" class="form-control form-control-sm" value="{{ $r->max_children ?? 1 }}" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Room View <span class="text-danger">*</span>
+                                <i class="fa-solid fa-mountain-sun text-info me-1.5"></i> Room View <span class="text-danger">*</span>
                             </label>
                             <select name="view_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                                 @foreach([
-                                    'Sea View / Ocean Front' => '🌊 Direct Ocean / Sea View',
-                                    'Beachfront View' => '🏖️ Beachfront & Wave View',
-                                    'City Skyline View' => '🏙️ City Skyline View',
-                                    'Mountain / Hill View' => '⛰️ Scenic Mountain / Hill View',
-                                    'Garden & Pool View' => '🌴 Lush Garden & Pool View',
-                                    'Lake / River View' => '⛵ Lake / River View',
-                                    'Sunset View' => '🌅 Sunset Panoramic View',
-                                    'Courtyard View' => '🌿 Quiet Inner Courtyard View'
+                                    'Sea View / Ocean Front' => 'Direct Ocean / Sea View',
+                                    'Beachfront View' => 'Beachfront & Wave View',
+                                    'City Skyline View' => 'City Skyline View',
+                                    'Mountain / Hill View' => 'Scenic Mountain / Hill View',
+                                    'Garden & Pool View' => 'Lush Garden & Pool View',
+                                    'Lake / River View' => 'Lake / River View',
+                                    'Sunset View' => 'Sunset Panoramic View',
+                                    'Courtyard View' => 'Quiet Inner Courtyard View'
                                 ] as $vVal => $vLbl)
                                     <option value="{{ $vVal }}" {{ ($r->view_type == $vVal) ? 'selected' : '' }}>{{ $vLbl }}</option>
                                 @endforeach
@@ -511,33 +511,33 @@
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Attached Bathrooms <span class="text-danger">*</span>
+                                <i class="fa-solid fa-shower text-primary me-1.5"></i> Attached Bathrooms <span class="text-danger">*</span>
                             </label>
                             <select name="bathroom_count" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="1" {{ ($r->bathroom_count == 1) ? 'selected' : '' }}>🚿 1 Attached Bathroom</option>
-                                <option value="2" {{ ($r->bathroom_count == 2) ? 'selected' : '' }}>🚿🚿 2 Bathrooms</option>
-                                <option value="3" {{ ($r->bathroom_count == 3) ? 'selected' : '' }}>🚿🚿🚿 3 Bathrooms</option>
+                                <option value="1" {{ ($r->bathroom_count == 1) ? 'selected' : '' }}>1 Attached Bathroom</option>
+                                <option value="2" {{ ($r->bathroom_count == 2) ? 'selected' : '' }}>2 Attached Bathrooms</option>
+                                <option value="3" {{ ($r->bathroom_count == 3) ? 'selected' : '' }}>3 Attached Bathrooms</option>
                             </select>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Smoking Policy <span class="text-danger">*</span>
+                                <i class="fa-solid fa-ban-smoking text-danger me-1.5"></i> Smoking Policy <span class="text-danger">*</span>
                             </label>
                             <select name="smoking_policy" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="Non-Smoking" {{ ($r->smoking_policy == 'Non-Smoking') ? 'selected' : '' }}>🚭 100% Non-Smoking</option>
-                                <option value="Smoking Allowed" {{ ($r->smoking_policy == 'Smoking Allowed') ? 'selected' : '' }}>🚬 Smoking Allowed</option>
+                                <option value="Non-Smoking" {{ ($r->smoking_policy == 'Non-Smoking') ? 'selected' : '' }}>100% Non-Smoking Room</option>
+                                <option value="Smoking Allowed" {{ ($r->smoking_policy == 'Smoking Allowed') ? 'selected' : '' }}>Smoking Permitted</option>
                             </select>
                         </div>
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Balcony / Terrace
+                                <i class="fa-solid fa-tree-city text-success me-1.5"></i> Balcony / Terrace
                             </label>
                             <select name="balcony_type" class="form-select form-select-sm" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="Private Balcony" {{ ($r->balcony_type == 'Private Balcony') ? 'selected' : '' }}>🏞️ Private Balcony</option>
-                                <option value="Terrace" {{ ($r->balcony_type == 'Terrace') ? 'selected' : '' }}>🌅 Large Terrace</option>
-                                <option value="French Balcony" {{ ($r->balcony_type == 'French Balcony') ? 'selected' : '' }}>🪟 French Balcony</option>
+                                <option value="Private Balcony" {{ ($r->balcony_type == 'Private Balcony') ? 'selected' : '' }}>Private Balcony</option>
+                                <option value="Terrace" {{ ($r->balcony_type == 'Terrace') ? 'selected' : '' }}>Large Open Terrace</option>
+                                <option value="French Balcony" {{ ($r->balcony_type == 'French Balcony') ? 'selected' : '' }}>French Balcony</option>
                                 <option value="No Balcony" {{ ($r->balcony_type == 'No Balcony') ? 'selected' : '' }}>No Balcony</option>
                             </select>
                         </div>

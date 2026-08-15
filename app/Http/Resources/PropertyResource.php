@@ -30,6 +30,7 @@ class PropertyResource extends JsonResource
             'price_per_night'         => (float)$this->price_per_night,
             'original_price'          => (float)$this->original_price,
             'primary_image'           => $this->primary_image,
+            'video_url'               => $this->video_url,
             'images'                  => (array)($this->images ?? []),
             'amenities'               => (array)($this->amenities ?? []),
             'is_featured'             => (bool)$this->is_featured,

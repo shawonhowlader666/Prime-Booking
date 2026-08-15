@@ -52,6 +52,19 @@ class Room extends Model
         return $this->belongsTo(Property::class);
     }
 
+    public function availabilities()
+    {
+        return $this->hasMany(RoomAvailability::class);
+    }
+
+    /**
+     * Scope for active rooms only
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('status', 'active');
+    }
+
     /**
      * Formatted Size in Square Meters & Feet
      */

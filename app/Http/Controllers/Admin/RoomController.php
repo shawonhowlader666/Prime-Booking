@@ -60,13 +60,14 @@ class RoomController extends Controller
             'total_rooms'     => 'nullable|integer|min:1',
         ]);
 
-        // Parse facilities from textarea
-        $facilities = [];
+        // Parse facilities from checkboxes and textarea
+        $facilities = (array) ($request->amenities ?? []);
         if ($request->facilities_text) {
-            $facilities = array_filter(
+            $customFac = array_filter(
                 array_map('trim', explode("\n", $request->facilities_text)),
                 fn($line) => !empty($line)
             );
+            $facilities = array_unique(array_merge($facilities, $customFac));
         }
 
         Room::create([
@@ -109,12 +110,13 @@ class RoomController extends Controller
             'max_adults'      => 'required|integer|min:1',
         ]);
 
-        $facilities = [];
+        $facilities = (array) ($request->amenities ?? []);
         if ($request->facilities_text) {
-            $facilities = array_filter(
+            $customFac = array_filter(
                 array_map('trim', explode("\n", $request->facilities_text)),
                 fn($line) => !empty($line)
             );
+            $facilities = array_unique(array_merge($facilities, $customFac));
         }
 
         $room->update([

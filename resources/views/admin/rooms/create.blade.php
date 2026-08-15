@@ -102,8 +102,20 @@
             </div>
 
             <div class="form-card mb-3">
-                <div class="form-section-title"><i class="fa-solid fa-list-ul me-1"></i> Room Facilities (one per line)</div>
-                <textarea name="facilities_text" class="form-control" rows="5"
+                <div class="form-section-title"><i class="fa-solid fa-sparkles me-1"></i> Popular In-Room Amenities</div>
+                <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                    @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'] as $amenity)
+                        <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
+                            <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" style="cursor:pointer;">
+                            {{ $amenity }}
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+
+            <div class="form-card mb-3">
+                <div class="form-section-title"><i class="fa-solid fa-list-ul me-1"></i> Additional Custom Facilities (one per line)</div>
+                <textarea name="facilities_text" class="form-control" rows="4"
                     placeholder="Private Sea View Balcony&#10;Flat-screen Satellite TV&#10;Mini Bar & Refrigerator&#10;Coffee / Tea Maker&#10;In-room Safe&#10;Luxury Bathrobe & Slippers">{{ old('facilities_text') }}</textarea>
                 <p style="font-size:11px; color:#8c8c8c; margin:6px 0 0;">Enter each facility on a new line — these show as bullet points on the hotel detail page.</p>
             </div>

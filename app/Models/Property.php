@@ -80,6 +80,7 @@ class Property extends Model
         'nearest_landmark', 'free_cancellation',
         'latitude', 'longitude', 'map_embed_url', 'postal_code',
         'checkin_time', 'checkout_time', 'contact_phone', 'contact_email', 'house_rules',
+        'total_floors', 'total_rooms_count', 'year_built', 'languages_spoken', 'pets_policy',
         'rejection_reason', 'approved_at', 'rejected_at',
     ];
 
@@ -87,12 +88,16 @@ class Property extends Model
     protected $casts = [
         'images'                  => 'array',
         'amenities'               => 'array',
+        'languages_spoken'        => 'array',
         'is_featured'             => 'boolean',
         'price_per_night'         => 'decimal:2',
         'original_price'          => 'decimal:2',
         'rating_score'            => 'decimal:1',
         'commission_rate'         => 'decimal:2',
         'total_reviews'           => 'integer',
+        'total_floors'            => 'integer',
+        'total_rooms_count'       => 'integer',
+        'year_built'              => 'integer',
         'star_rating'             => 'integer',
         'rooms_left'              => 'integer',
         'no_credit_card_required' => 'boolean',

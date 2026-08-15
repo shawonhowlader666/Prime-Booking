@@ -140,6 +140,11 @@ class PropertyManagementController extends Controller
             'contact_phone'          => $request->contact_phone ?: null,
             'contact_email'          => $request->contact_email ?: null,
             'house_rules'            => $request->house_rules ?: null,
+            'total_floors'           => $request->total_floors ? (int)$request->total_floors : null,
+            'total_rooms_count'      => $request->total_rooms_count ? (int)$request->total_rooms_count : null,
+            'year_built'             => $request->year_built ? (int)$request->year_built : null,
+            'languages_spoken'       => (array)($request->languages_spoken ?? ['English', 'Bengali']),
+            'pets_policy'            => $request->pets_policy ?? 'Pets Not Allowed',
             'images'                 => array_values($galleryImages),
             'amenities'              => $request->amenities ?? [],
             'is_featured'            => $request->boolean('is_featured'),
@@ -159,6 +164,10 @@ class PropertyManagementController extends Controller
                             'price_per_night'=> $price,
                             'total_rooms'    => $qty,
                             'max_guests'     => $request->room_beds[$i] ?? 2,
+                            'view_type'      => 'City View',
+                            'bathroom_count' => 1,
+                            'smoking_policy' => 'Non-Smoking',
+                            'balcony_type'   => 'Private Balcony',
                         ]);
                     } catch (\Exception $e) {}
                 }
@@ -193,16 +202,23 @@ class PropertyManagementController extends Controller
             'video_url'       => 'nullable|url',
         ]);
 
+        $property = Property::findOrFail($id);
+
         $galleryImages = [];
         if ($request->gallery_images) {
             $galleryImages = array_filter(
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
-            $galleryImages = array_values($galleryImages);
         }
 
-        $property = Property::findOrFail($id);
+        if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
+            $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
+            $primaryImage = asset('storage/' . $path);
+        } else {
+            $primaryImage = $request->primary_image ?: $property->primary_image;
+        }
+
         $property->update([
             'name'            => $request->name,
             'type'            => $request->type,
@@ -211,9 +227,9 @@ class PropertyManagementController extends Controller
             'address'         => $request->address,
             'price_per_night' => (float) $request->price_per_night,
             'original_price'  => $request->original_price ? (float) $request->original_price : null,
-            'commission_rate' => $request->commission_rate ? (float) $request->commission_rate : ($property->commission_rate ?? 15.00),
+            'commission_rate' => $request->commission_rate !== null ? (float) $request->commission_rate : $property->commission_rate,
             'description'     => $request->description,
-            'primary_image'   => $request->primary_image ?: $property->primary_image,
+            'primary_image'   => $primaryImage,
             'video_url'       => $request->video_url ?: $property->video_url,
             'latitude'        => $request->latitude ? (float)$request->latitude : $property->latitude,
             'longitude'       => $request->longitude ? (float)$request->longitude : $property->longitude,
@@ -225,6 +241,11 @@ class PropertyManagementController extends Controller
             'contact_phone'   => $request->contact_phone ?: $property->contact_phone,
             'contact_email'   => $request->contact_email ?: $property->contact_email,
             'house_rules'     => $request->house_rules ?: $property->house_rules,
+            'total_floors'    => $request->total_floors ? (int)$request->total_floors : $property->total_floors,
+            'total_rooms_count'=> $request->total_rooms_count ? (int)$request->total_rooms_count : $property->total_rooms_count,
+            'year_built'      => $request->year_built ? (int)$request->year_built : $property->year_built,
+            'languages_spoken'=> $request->has('languages_spoken') ? (array)$request->languages_spoken : $property->languages_spoken,
+            'pets_policy'     => $request->pets_policy ?? $property->pets_policy,
             'free_cancellation'      => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $property->free_cancellation,
             'no_credit_card_required'=> $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : $property->no_credit_card_required,
             'images'          => array_values($galleryImages) ?: ($property->images ?? []),

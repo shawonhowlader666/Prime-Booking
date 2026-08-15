@@ -251,12 +251,73 @@
                             <input type="number" name="max_children" class="form-control form-control-sm" value="1" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Room View <span class="text-danger">*</span>
+                            </label>
+                            <select name="view_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="Sea View / Ocean Front">🌊 Sea View / Ocean Front</option>
+                                <option value="City Skyline View">🏙️ City Skyline View</option>
+                                <option value="Mountain / Hill View">⛰️ Mountain / Hill View</option>
+                                <option value="Garden & Pool View">🌴 Garden &amp; Pool View</option>
+                                <option value="Lake / River View">⛵ Lake / River View</option>
+                                <option value="Courtyard View">🌿 Inner Courtyard View</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Attached Bathrooms <span class="text-danger">*</span>
+                            </label>
+                            <select name="bathroom_count" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="1">🚿 1 Attached Bathroom</option>
+                                <option value="2">🚿🚿 2 Bathrooms</option>
+                                <option value="3">🚿🚿🚿 3 Bathrooms</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Smoking Policy <span class="text-danger">*</span>
+                            </label>
+                            <select name="smoking_policy" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="Non-Smoking">🚭 100% Non-Smoking</option>
+                                <option value="Smoking Allowed">🚬 Smoking Allowed</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Balcony / Terrace
+                            </label>
+                            <select name="balcony_type" class="form-select form-select-sm" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="Private Balcony">🏞️ Private Balcony</option>
+                                <option value="Terrace">🌅 Large Terrace</option>
+                                <option value="French Balcony">🪟 French Balcony</option>
+                                <option value="No Balcony">No Balcony</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-8">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Bathroom Features &amp; Toiletries
+                            </label>
+                            <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
+                                @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
+                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11px; font-weight:600; color:#334155; cursor:pointer;">
+                                        <input class="form-check-input m-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" checked style="cursor:pointer;">
+                                        {{ $bFeat }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Popular In-Room Amenities (Select All Applicable)
                             </label>
                             <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
-                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'] as $amenity)
+                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker', 'Electric Kettle', 'Ironing Facilities', 'Soundproofing'] as $amenity)
                                     <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
                                         <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" style="cursor:pointer;">
                                         {{ $amenity }}
@@ -265,17 +326,31 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <div class="p-3 rounded border" style="background:#fafafa;">
-                                <div class="form-check form-switch mb-2">
+                        <div class="col-12 col-md-4">
+                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="extra_bed_allowed" value="1" id="addExtraBedCheck" style="cursor:pointer;">
+                                    <label class="form-check-label fw-bold text-dark" for="addExtraBedCheck" style="font-size:12px; cursor:pointer;">
+                                        Extra Bed / Rollaway Allowed
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0">
                                     <input class="form-check-input" type="checkbox" name="breakfast_included" value="1" id="addBreakfastCheck" style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="addBreakfastCheck" style="font-size:12.5px; cursor:pointer;">
+                                    <label class="form-check-label fw-bold text-dark" for="addBreakfastCheck" style="font-size:12px; cursor:pointer;">
                                         Free Breakfast Included
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0">
                                     <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="addCancelCheck" checked style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="addCancelCheck" style="font-size:12.5px; cursor:pointer;">
+                                    <label class="form-check-label fw-bold text-dark" for="addCancelCheck" style="font-size:12px; cursor:pointer;">
                                         Free Cancellation Allowed
                                     </label>
                                 </div>
@@ -375,13 +450,72 @@
                             <input type="number" name="max_children" class="form-control form-control-sm" value="{{ $r->max_children ?? 1 }}" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Room View <span class="text-danger">*</span>
+                            </label>
+                            <select name="view_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                @foreach(['Sea View / Ocean Front' => '🌊 Sea View / Ocean Front', 'City Skyline View' => '🏙️ City Skyline View', 'Mountain / Hill View' => '⛰️ Mountain / Hill View', 'Garden & Pool View' => '🌴 Garden & Pool View', 'Lake / River View' => '⛵ Lake / River View', 'Courtyard View' => '🌿 Inner Courtyard View'] as $vVal => $vLbl)
+                                    <option value="{{ $vVal }}" {{ ($r->view_type == $vVal) ? 'selected' : '' }}>{{ $vLbl }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Attached Bathrooms <span class="text-danger">*</span>
+                            </label>
+                            <select name="bathroom_count" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="1" {{ ($r->bathroom_count == 1) ? 'selected' : '' }}>🚿 1 Attached Bathroom</option>
+                                <option value="2" {{ ($r->bathroom_count == 2) ? 'selected' : '' }}>🚿🚿 2 Bathrooms</option>
+                                <option value="3" {{ ($r->bathroom_count == 3) ? 'selected' : '' }}>🚿🚿🚿 3 Bathrooms</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Smoking Policy <span class="text-danger">*</span>
+                            </label>
+                            <select name="smoking_policy" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="Non-Smoking" {{ ($r->smoking_policy == 'Non-Smoking') ? 'selected' : '' }}>🚭 100% Non-Smoking</option>
+                                <option value="Smoking Allowed" {{ ($r->smoking_policy == 'Smoking Allowed') ? 'selected' : '' }}>🚬 Smoking Allowed</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Balcony / Terrace
+                            </label>
+                            <select name="balcony_type" class="form-select form-select-sm" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                                <option value="Private Balcony" {{ ($r->balcony_type == 'Private Balcony') ? 'selected' : '' }}>🏞️ Private Balcony</option>
+                                <option value="Terrace" {{ ($r->balcony_type == 'Terrace') ? 'selected' : '' }}>🌅 Large Terrace</option>
+                                <option value="French Balcony" {{ ($r->balcony_type == 'French Balcony') ? 'selected' : '' }}>🪟 French Balcony</option>
+                                <option value="No Balcony" {{ ($r->balcony_type == 'No Balcony') ? 'selected' : '' }}>No Balcony</option>
+                            </select>
+                        </div>
+
+                        <div class="col-12 col-md-8">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Bathroom Features &amp; Toiletries
+                            </label>
+                            <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
+                                @php $currentBFeats = is_array($r->bathroom_features) ? $r->bathroom_features : ['Private Bathroom', 'Hot Water Geyser']; @endphp
+                                @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
+                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11px; font-weight:600; color:#334155; cursor:pointer;">
+                                        <input class="form-check-input m-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" {{ in_array($bFeat, $currentBFeats) ? 'checked' : '' }} style="cursor:pointer;">
+                                        {{ $bFeat }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+
                         <div class="col-12">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Popular In-Room Amenities
                             </label>
                             <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
                                 @php $currentFacs = is_array($r->facilities) ? $r->facilities : []; @endphp
-                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'] as $amenity)
+                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker', 'Electric Kettle', 'Ironing Facilities', 'Soundproofing'] as $amenity)
                                     <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
                                         <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" {{ in_array($amenity, $currentFacs) ? 'checked' : '' }} style="cursor:pointer;">
                                         {{ $amenity }}
@@ -390,17 +524,31 @@
                             </div>
                         </div>
 
-                        <div class="col-12 col-md-6">
-                            <div class="p-3 rounded border" style="background:#fafafa;">
-                                <div class="form-check form-switch mb-2">
+                        <div class="col-12 col-md-4">
+                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="extra_bed_allowed" value="1" id="editExtraBedCheck{{ $r->id }}" {{ $r->extra_bed_allowed ? 'checked' : '' }} style="cursor:pointer;">
+                                    <label class="form-check-label fw-bold text-dark" for="editExtraBedCheck{{ $r->id }}" style="font-size:12px; cursor:pointer;">
+                                        Extra Bed / Rollaway Allowed
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
+                                <div class="form-check form-switch m-0">
                                     <input class="form-check-input" type="checkbox" name="breakfast_included" value="1" id="editBreakfastCheck{{ $r->id }}" {{ $r->breakfast_included ? 'checked' : '' }} style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="editBreakfastCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
+                                    <label class="form-check-label fw-bold text-dark" for="editBreakfastCheck{{ $r->id }}" style="font-size:12px; cursor:pointer;">
                                         Free Breakfast Included
                                     </label>
                                 </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4">
+                            <div class="p-2.5 rounded border h-100" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0">
                                     <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="editCancelCheck{{ $r->id }}" {{ $r->free_cancellation ? 'checked' : '' }} style="cursor:pointer;">
-                                    <label class="form-check-label fw-bold text-dark" for="editCancelCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
+                                    <label class="form-check-label fw-bold text-dark" for="editCancelCheck{{ $r->id }}" style="font-size:12px; cursor:pointer;">
                                         Free Cancellation Allowed
                                     </label>
                                 </div>

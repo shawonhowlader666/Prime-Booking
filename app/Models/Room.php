@@ -29,14 +29,22 @@ class Room extends Model
         'free_cancellation',
         'facilities',
         'images',
+        'view_type',
+        'bathroom_count',
+        'bathroom_features',
+        'smoking_policy',
+        'balcony_type',
+        'extra_bed_allowed',
         'status',
     ];
 
     protected $casts = [
         'facilities' => 'array',
         'images' => 'array',
+        'bathroom_features' => 'array',
         'breakfast_included' => 'boolean',
         'free_cancellation' => 'boolean',
+        'extra_bed_allowed' => 'boolean',
     ];
 
     public function property()

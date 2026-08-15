@@ -588,17 +588,23 @@
             </div>
 
             {{-- Room Filter Container Box (Exact Agoda 1:1 Parity) --}}
-            <div class="p-3 mb-4 rounded-3" style="background: #ffffff; border: 1px solid #dddfe2; border-radius: 12px !important;">
+            <div class="p-3 mb-3 rounded-3" style="background: #ffffff; border: 1px solid #dddfe2; border-radius: 12px !important;">
                 <strong class="d-block text-dark mb-2.5" style="font-size: 13.5px; font-weight: 700;">Filter</strong>
                 <div class="d-flex flex-wrap gap-2">
                     <div class="agoda-filter-pill-121"><i class="fa-solid fa-credit-card text-dark"></i> Book without credit card</div>
+                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-mug-hot text-dark"></i> Breakfast included</div>
                     <div class="agoda-filter-pill-121"><i class="fa-solid fa-shield-halved text-dark"></i> Free cancellation</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-money-bill-1 text-dark"></i> Pay at the hotel</div>
+                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-ban-smoking text-dark"></i> Non-smoking</div>
                     <div class="agoda-filter-pill-121"><i class="fa-solid fa-utensils text-dark"></i> Kitchen</div>
                     <div class="agoda-filter-pill-121"><i class="fa-solid fa-building text-dark"></i> Balcony/terrace</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-door-closed text-dark"></i> Interconnecting rooms</div>
-                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-bed text-dark"></i> King bed</div>
+                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-bed text-dark"></i> Twin Bed</div>
+                    <div class="agoda-filter-pill-121"><i class="fa-solid fa-water text-dark"></i> {{ $property->city == "Cox's Bazar Sea Beach" ? 'Sea view' : 'City view' }}</div>
                 </div>
+            </div>
+
+            {{-- Red Urgency Callout (Agoda 1:1 Parity) --}}
+            <div class="p-2.5 px-3 mb-3 text-white rounded d-flex align-items-center gap-2 shadow-xs" style="background:#d93025; font-size:12.5px; font-weight:700; border-radius:6px;">
+                <i class="fa-solid fa-clock"></i> <span>Hurry up! 3 room types have already sold out for your dates!</span>
             </div>
 
             {{-- Available Rooms List (Agoda 1:1 Exact Card Design - Screenshot Parity) --}}
@@ -607,20 +613,32 @@
                     $roomItems = $property->rooms->isNotEmpty() ? $property->rooms : [
                         (object)[
                             'id' => 101,
-                            'name' => 'Superior Sea View Room',
-                            'capacity' => 5,
+                            'name' => 'Superior Deluxe Room',
+                            'max_adults' => 2,
+                            'max_children' => 1,
                             'bed_type' => '1 King Bed or 2 Twin Beds',
                             'price_per_night' => $property->price_per_night ?: 16,
-                            'size' => '149 m²/1604 ft²',
+                            'room_size_sqm' => 46,
+                            'view_type' => 'City View',
+                            'bathroom_count' => 1,
+                            'bathroom_features' => ['Private Bathroom', 'Hot Water Geyser'],
+                            'smoking_policy' => 'Non-Smoking',
+                            'balcony_type' => 'Private Balcony',
                             'primary_image' => $gallery[0] ?? ''
                         ],
                         (object)[
                             'id' => 102,
                             'name' => 'Executive Ocean Suite',
-                            'capacity' => 3,
+                            'max_adults' => 3,
+                            'max_children' => 2,
                             'bed_type' => '1 King Bed + Living Lounge',
                             'price_per_night' => round(($property->price_per_night ?: 16) * 1.4),
-                            'size' => '185 m²/1991 ft²',
+                            'room_size_sqm' => 68,
+                            'view_type' => 'Sea View / Ocean Front',
+                            'bathroom_count' => 2,
+                            'bathroom_features' => ['Private Bathroom', 'Bathtub / Jacuzzi', 'Hot Water Geyser'],
+                            'smoking_policy' => 'Non-Smoking',
+                            'balcony_type' => 'Terrace',
                             'primary_image' => $gallery[1] ?? ($gallery[0] ?? '')
                         ]
                     ];
@@ -628,9 +646,14 @@
 
                 @foreach($roomItems as $rIdx => $room)
                 @php
-                    $rCap = isset($room->capacity) && $room->capacity != 5 ? $room->capacity : ($rIdx == 0 ? 5 : 3);
-                    $rSize = isset($room->size) && $room->size != '149 m²/1604 ft²' ? $room->size : ($rIdx == 0 ? '149 m²/1604 ft²' : '85 m²/914 ft²');
-                    $rBed = isset($room->bed_type) && $room->bed_type != '1 double bed / 1 king bed' ? $room->bed_type : ($rIdx == 0 ? '1 King Bed or 2 Twin Beds' : '1 King Bed + Living Lounge');
+                    $rAdults = $room->max_adults ?? ($rIdx == 0 ? 2 : 3);
+                    $rKids = $room->max_children ?? 1;
+                    $rSizeStr = $room->room_size_sqm ? ($room->room_size_sqm . ' m²/' . round($room->room_size_sqm * 10.764) . ' ft²') : ($rIdx == 0 ? '46 m²/495 ft²' : '68 m²/732 ft²');
+                    $rBedStr = $room->bed_type ?: ($rIdx == 0 ? '1 double bed or 2 single beds' : '1 King Bed + Living Area');
+                    $rView = $room->view_type ?: 'City view';
+                    $rSmoking = $room->smoking_policy ?: 'Non-smoking';
+                    $rBalcony = $room->balcony_type ?: 'Private Balcony';
+                    $rBathrooms = $room->bathroom_count ?? 1;
                 @endphp
                 <div class="card mb-4 overflow-hidden" style="padding: 16px !important; background: #f8fafc !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important;">
                     <div class="row g-3">
@@ -641,8 +664,8 @@
                                 {{-- Image Carousel Box --}}
                                 <div class="position-relative mb-2 rounded-3 overflow-hidden" style="height: 175px;">
                                     <img src="{{ $room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '') }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $room->name }}">
-                                    <span class="badge fw-bold position-absolute top-0 start-0 m-2 px-2.5 py-1" style="background: #fde8e8; color: #991b1b; font-size: 11px; border-radius: 4px;">Our last room!</span>
-                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-2 px-2 py-0.5" style="font-size: 10.5px; border-radius: 4px;">1/18</span>
+                                    <span class="badge fw-bold position-absolute top-0 start-0 m-2 px-2.5 py-1" style="background: #fde8e8; color: #991b1b; font-size: 11px; border-radius: 4px;">Our last 2!</span>
+                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-2 px-2 py-0.5" style="font-size: 10.5px; border-radius: 4px;">1/1</span>
                                     <button class="btn btn-light rounded-circle shadow-sm border p-0 position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 12px; z-index: 5; background: #fff;" title="Next Photo">
                                         <i class="fa-solid fa-chevron-right text-dark"></i>
                                     </button>
@@ -650,37 +673,39 @@
                                 
                                 <a href="#rooms" class="text-decoration-none fw-bold d-block mb-2" style="color: #2067e1; font-size: 13px;">Room photos and details</a>
 
-                                <h4 class="fw-bold text-dark mb-1" style="font-size: 22px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;">{{ $room->name }}</h4>
+                                <h4 class="fw-bold text-dark mb-1" style="font-size: 20px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;">{{ $room->name }}</h4>
                                 
-                                <div class="mb-2.5" style="font-size: 12.5px; line-height: 1.5; color: #0f172a;">
-                                    <strong style="font-weight: 800;">{{ $rSize }}</strong> 
+                                <div class="mb-2" style="font-size: 12.5px; line-height: 1.5; color: #0f172a;">
+                                    <strong style="font-weight: 800;">{{ $rSizeStr }}</strong> 
                                     <span class="text-muted mx-1">|</span> 
-                                    <strong style="font-weight: 800;">Max {{ $rCap }} adults</strong> 
+                                    <strong style="font-weight: 800;">Max {{ $rAdults }} adults</strong> 
                                     <span class="text-muted mx-1">|</span> 
-                                    <strong style="font-weight: 800;">{{ $rBed }}</strong>
+                                    <strong style="font-weight: 800;">{{ $rBedStr }}</strong>
                                 </div>
 
-                                <div class="mb-3">
-                                    <span class="badge text-white fw-bold px-2.5 py-1" style="background-color: #8b5cf6; font-size: 11.5px; border-radius: 4px;">Your kid stays FREE!</span>
+                                <div class="mb-2.5 d-flex align-items-center gap-1.5 flex-wrap">
+                                    <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">
+                                        <i class="fa-solid fa-ban-smoking text-danger me-1"></i> {{ $rSmoking }}
+                                    </span>
+                                    <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">
+                                        <i class="fa-solid fa-mountain-sun text-primary me-1"></i> {{ $rView }}
+                                    </span>
+                                    <span class="badge bg-light text-dark border px-2 py-1" style="font-size: 11px; font-weight: 600;">
+                                        <i class="fa-solid fa-shower text-info me-1"></i> {{ $rBathrooms }} Attached Bath
+                                    </span>
                                 </div>
 
                                 {{-- 2-Column Amenities List (Agoda 1:1 Icon Parity) --}}
                                 <div class="row g-2 text-dark mb-3" style="font-size: 11.5px; color: #334155 !important;">
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-building me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Outdoor view</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-bed me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>2 bedrooms</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-circle-check me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Electric kettle</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-pump-soap me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Toiletries</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-tv me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Satellite/cable...</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-wind me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Air purifier</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-volume-xmark me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Soundproofing</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-circle-check me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Sleep comfort...</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-utensils me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Full kitchen</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-circle-check me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Wine glasses</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-circle-check me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Dining table</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-bottle-water me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Free bottled water</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-wind me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Air conditioning</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-wifi me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Free Wi-Fi</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-building me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>{{ $rBalcony }}</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-tv me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Smart Flat TV</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-pump-soap me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Free Toiletries</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-bottle-water me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Bottled water</span></div>
                                     <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-box me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Refrigerator</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-door-open me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Interconnecting...</span></div>
-                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-utensils me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Separate dining...</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-door-open me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Interconnecting</span></div>
+                                    <div class="col-6 d-flex align-items-center text-nowrap"><i class="fa-solid fa-utensils me-2 text-secondary" style="font-size: 11.5px; width: 14px; text-align: center;"></i> <span>Dining area</span></div>
                                     <div class="col-6 d-flex align-items-center text-nowrap"><a href="#rooms" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 12px;">+ 5 more</a></div>
                                 </div>
 

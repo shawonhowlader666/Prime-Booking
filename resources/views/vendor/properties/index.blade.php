@@ -392,6 +392,37 @@
                                 <input type="email" name="contact_email" class="form-control" placeholder="info@hotel.com" style="font-size:12px; height:36px;">
                             </div>
                         </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Building Floors</label>
+                            <input type="number" name="total_floors" class="form-control form-control-sm" placeholder="e.g. 12 Floors" min="1" style="font-size:12px; height:36px;">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Total Hotel Rooms</label>
+                            <input type="number" name="total_rooms_count" class="form-control form-control-sm" placeholder="e.g. 150 Rooms" min="1" style="font-size:12px; height:36px;">
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Year Built / Renovated</label>
+                            <input type="number" name="year_built" class="form-control form-control-sm" placeholder="e.g. 2023" min="1950" max="2030" style="font-size:12px; height:36px;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Languages Spoken</label>
+                            <div class="d-flex flex-wrap gap-1.5 p-1.5 rounded border bg-light">
+                                @foreach(['English', 'Bengali', 'Hindi', 'Arabic', 'Chinese'] as $lang)
+                                    <label class="form-check-label d-inline-flex align-items-center gap-1 px-1.5 py-0.5 rounded border bg-white" style="font-size:11px; font-weight:600; color:#334155; cursor:pointer;">
+                                        <input class="form-check-input m-0" type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, ['English', 'Bengali']) ? 'checked' : '' }} style="cursor:pointer;">
+                                        {{ $lang }}
+                                    </label>
+                                @endforeach
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Pets Policy</label>
+                            <select name="pets_policy" class="form-select form-select-sm" style="font-size:12px; height:36px;">
+                                <option value="Pets Not Allowed" selected>🚫 Pets Not Allowed</option>
+                                <option value="Pets Allowed">🐾 Pets Allowed (Free / Fee)</option>
+                                <option value="Pets Allowed on Request">💬 Pets Allowed on Request</option>
+                            </select>
+                        </div>
                     </div>
 
                     {{-- SECTION 2: PRICING & POLICIES --}}

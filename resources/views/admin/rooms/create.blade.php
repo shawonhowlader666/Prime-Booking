@@ -68,6 +68,52 @@
                         <input type="number" name="total_rooms" class="form-control"
                             value="{{ old('total_rooms', 10) }}" min="1">
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Room View <span style="color:#ff4d4f;">*</span></label>
+                        <select name="view_type" class="form-select" required>
+                            <option value="Sea View / Ocean Front">🌊 Sea View / Ocean Front</option>
+                            <option value="City Skyline View" selected>🏙️ City Skyline View</option>
+                            <option value="Mountain / Hill View">⛰️ Mountain / Hill View</option>
+                            <option value="Garden & Pool View">🌴 Garden &amp; Pool View</option>
+                            <option value="Lake / River View">⛵ Lake / River View</option>
+                            <option value="Courtyard View">🌿 Inner Courtyard View</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
+                        <select name="bathroom_count" class="form-select" required>
+                            <option value="1" selected>🚿 1 Attached Bathroom</option>
+                            <option value="2">🚿🚿 2 Bathrooms</option>
+                            <option value="3">🚿🚿🚿 3 Bathrooms</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Smoking Policy <span style="color:#ff4d4f;">*</span></label>
+                        <select name="smoking_policy" class="form-select" required>
+                            <option value="Non-Smoking" selected>🚭 100% Non-Smoking</option>
+                            <option value="Smoking Allowed">🚬 Smoking Allowed</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Balcony / Terrace</label>
+                        <select name="balcony_type" class="form-select">
+                            <option value="Private Balcony" selected>🏞️ Private Balcony</option>
+                            <option value="Terrace">🌅 Large Terrace</option>
+                            <option value="French Balcony">🪟 French Balcony</option>
+                            <option value="No Balcony">No Balcony</option>
+                        </select>
+                    </div>
+                    <div class="col-md-8">
+                        <label class="form-label">Bathroom Features &amp; Toiletries</label>
+                        <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
+                            @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
+                                <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
+                                    <input class="form-check-input m-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" checked style="cursor:pointer;">
+                                    {{ $bFeat }}
+                                </label>
+                            @endforeach
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -80,6 +126,14 @@
                             <span class="input-group-text">৳</span>
                             <input type="number" name="price_per_night" class="form-control" style="border-radius:0 6px 6px 0;"
                                 value="{{ old('price_per_night') }}" placeholder="12500" required>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Extra Bed</label>
+                        <div class="form-check form-switch mt-2">
+                            <input class="form-check-input" type="checkbox" name="extra_bed_allowed" value="1"
+                                id="extraBedCheck" {{ old('extra_bed_allowed') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="extraBedCheck" style="font-size:13px;">Extra Bed Allowed</label>
                         </div>
                     </div>
                     <div class="col-md-3">

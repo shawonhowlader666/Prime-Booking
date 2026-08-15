@@ -113,7 +113,9 @@ class Property extends Model
         'latitude', 'longitude',
         'star_rating', 'rating_score', 'total_reviews',
         'price_per_night', 'original_price',
-        'primary_image', 'amenities', 'is_featured', 'status',
+        'primary_image', 'images', 'video_url',
+        'rooms_left', 'location_score', 'free_cancellation', 'no_credit_card_required',
+        'amenities', 'is_featured', 'status',
     ];
 
     // ─── MODEL EVENTS ────────────────────────────────────────────────────
@@ -289,15 +291,19 @@ class Property extends Model
     public function scopeKeyword(Builder $query, string $keyword): Builder
     {
         $kw = trim($keyword);
-        return $query->where(function (Builder $q) use ($kw): void {
-            $q->where('name',              'like', "%{$kw}%")
-              ->orWhere('city',             'like', "%{$kw}%")
-              ->orWhere('address',          'like', "%{$kw}%")
-              ->orWhere('nearest_landmark', 'like', "%{$kw}%")
-              ->orWhereHas('location', function (Builder $lq) use ($kw): void {
-                  $lq->where('name',     'like', "%{$kw}%")
-                     ->orWhere('city',   'like', "%{$kw}%")
-                     ->orWhere('country','like', "%{$kw}%");
+        if ($kw === '') {
+            return $query;
+        }
+        $escaped = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $kw);
+        return $query->where(function (Builder $q) use ($escaped): void {
+            $q->where('name',              'like', "%{$escaped}%")
+              ->orWhere('city',             'like', "%{$escaped}%")
+              ->orWhere('address',          'like', "%{$escaped}%")
+              ->orWhere('nearest_landmark', 'like', "%{$escaped}%")
+              ->orWhereHas('location', function (Builder $lq) use ($escaped): void {
+                  $lq->where('name',     'like', "%{$escaped}%")
+                     ->orWhere('city',   'like', "%{$escaped}%")
+                     ->orWhere('country','like', "%{$escaped}%");
               });
         });
     }

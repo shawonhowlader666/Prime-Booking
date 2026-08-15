@@ -61,6 +61,8 @@ class SearchController extends Controller
             'starRating'      => $params['star_rating'],
             'sortBy'          => $params['sort_by'],
             'amenities'       => $params['amenities'],
+            'lat'             => $params['lat'] ?? null,
+            'lng'             => $params['lng'] ?? null,
             // Filter sidebar data
             'availableCities' => $availableCities,
             'priceRange'      => $priceRange,

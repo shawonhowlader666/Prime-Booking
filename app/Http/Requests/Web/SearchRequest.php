@@ -56,6 +56,9 @@ class SearchRequest extends FormRequest
             'room_feature' => ['nullable', 'array'],
             'room_feature.*'=> ['string', 'max:50'],
             'sort_by'      => ['nullable', 'string', 'in:featured,price_low,price_high,rating,newest'],
+            'lat'          => ['nullable', 'numeric', 'between:-90,90'],
+            'lng'          => ['nullable', 'numeric', 'between:-180,180'],
+            'radius_km'    => ['nullable', 'numeric', 'min:1', 'max:200'],
             'page'         => ['nullable', 'integer', 'min:1', 'max:9999'],
             'per_page'     => ['nullable', 'integer', 'min:1', 'max:50'],  // cap at 50 — never let user request 10,000 rows
         ];
@@ -159,6 +162,9 @@ class SearchRequest extends FormRequest
             'bed_type'     => (array) ($this->validated()['bed_type'] ?? []),
             'room_feature' => (array) ($this->validated()['room_feature'] ?? []),
             'sort_by'      => $this->sortBy(),
+            'lat'          => isset($this->validated()['lat']) && is_numeric($this->validated()['lat']) ? (float)$this->validated()['lat'] : null,
+            'lng'          => isset($this->validated()['lng']) && is_numeric($this->validated()['lng']) ? (float)$this->validated()['lng'] : null,
+            'radius_km'    => isset($this->validated()['radius_km']) && is_numeric($this->validated()['radius_km']) ? (float)$this->validated()['radius_km'] : 30.0,
             'page'         => $this->page(),
             'per_page'     => $this->perPage(),
         ];

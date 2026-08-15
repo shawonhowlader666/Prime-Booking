@@ -120,6 +120,34 @@ class PropertyController extends Controller
             'rejection_reason' => null,
         ]);
 
+        // Auto-create initial bookable room for newly created property
+        try {
+            \App\Models\Room::create([
+                'property_id'     => $property->id,
+                'name'            => 'Standard Deluxe Room',
+                'bed_type'        => '1 King Bed or 2 Twin Beds',
+                'price_per_night' => (float) $property->price_per_night,
+                'total_rooms'     => 10,
+                'max_adults'      => 2,
+                'max_children'    => 1,
+                'max_guests'      => 3,
+            ]);
+        } catch (\Exception $e) {}
+
+        // Dispatch notification to System Admins
+        try {
+            $admins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->get();
+            foreach ($admins as $admin) {
+                \App\Models\Message::create([
+                    'sender_id'   => auth()->id() ?? 1,
+                    'receiver_id' => $admin->id,
+                    'property_id' => $property->id,
+                    'subject'     => '🏢 New API Property Submitted for Review',
+                    'message'     => "Vendor partner submitted listing '{$property->name}' ({$property->city}) via API for moderation.",
+                ]);
+            }
+        } catch (\Exception $e) {}
+
         return $this->created(
             new PropertyResource($property),
             'Property submitted for admin review. It will go live once approved.'

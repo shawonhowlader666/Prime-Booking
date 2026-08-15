@@ -7,9 +7,38 @@
 {{-- ============================================================ --}}
 {{-- HERO SECTION — slides from DB destinations (or static bg)   --}}
 {{-- ============================================================ --}}
-<section id="bdHeroSliderSection" style="position:relative;height:380px;margin-bottom:135px;border-radius:0 0 0 32px;box-shadow:0 10px 30px rgba(0,0,0,0.15);padding-top:42px;">
+<style>
+    #bdHeroSliderSection {
+        position: relative;
+        height: 380px;
+        margin-bottom: 135px;
+        border-radius: 0 0 0 32px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        padding-top: 42px;
+    }
+    @media (max-width: 768px) {
+        #bdHeroSliderSection {
+            height: auto !important;
+            min-height: 430px !important;
+            margin-bottom: 100px !important;
+            padding-top: 24px !important;
+            border-radius: 0 0 0 20px !important;
+        }
+        #bdHeroTitle {
+            font-size: 19px !important;
+            line-height: 1.3 !important;
+            padding: 0 8px !important;
+        }
+        .hero-search-wrapper {
+            margin-top: 12px !important;
+            margin-bottom: -80px !important;
+        }
+    }
+</style>
 
-    <div style="position:absolute;inset:0;border-radius:0 0 0 32px;overflow:hidden;z-index:0;">
+<section id="bdHeroSliderSection">
+
+    <div style="position:absolute;inset:0;border-radius:inherit;overflow:hidden;z-index:0;">
         {{-- Dynamic hero slides from DB destinations or fallback to static images --}}
         @php
             $destList = collect($destinations ?? []);
@@ -53,7 +82,7 @@
         <p style="font-size:14px;font-weight:500;color:#f1f5f9;text-shadow:0 1px 6px rgba(0,0,0,0.7);margin-bottom:26px;">
             {{ number_format($stats['total'] ?? 0) }}+ properties &bull; {{ $siteSettings['site_tagline'] ?? 'Best Price Guarantee' }}
         </p>
-        <div style="margin-top:20px; margin-bottom:-110px;">
+        <div class="hero-search-wrapper" style="margin-top:20px; margin-bottom:-110px;">
             @include('components.search.search-bar')
         </div>
     </div>

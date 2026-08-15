@@ -18,7 +18,7 @@
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
             {{-- 1. Destination Input Box with Near Me GPS Button --}}
-            <div class="col-12 col-lg-3.5 col-xl-3">
+            <div class="col-12 col-lg-3">
                 <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
                     <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
                     <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
@@ -31,7 +31,7 @@
             </div>
 
             {{-- 2. Check-in Date Box (Agoda 2-line Card) --}}
-            <div class="col-6 col-md-3 col-lg-2.5 col-xl-2.5">
+            <div class="col-6 col-md-3 col-lg-2">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkInNativeInput').showPicker();">
                     <i class="fa-regular fa-calendar text-secondary fs-5"></i>
                     <div style="line-height: 1.15;">
@@ -43,7 +43,7 @@
             </div>
 
             {{-- 3. Check-out Date Box (Agoda 2-line Card) --}}
-            <div class="col-6 col-md-3 col-lg-2.5 col-xl-2.5">
+            <div class="col-6 col-md-3 col-lg-2">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
                     <i class="fa-regular fa-calendar text-secondary fs-5"></i>
                     <div style="line-height: 1.15;">
@@ -55,7 +55,7 @@
             </div>
 
             {{-- 4. Guests & Rooms Box (Agoda 2-line Card with Dropdown) --}}
-            <div class="col-12 col-md-4 col-lg-2.5 col-xl-2.5 position-relative">
+            <div class="col-12 col-md-4 col-lg-3 position-relative">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-users text-secondary fs-5"></i>
@@ -99,7 +99,7 @@
             </div>
 
             {{-- 5. Search Blue Button --}}
-            <div class="col-12 col-md-2 col-lg-1.5 col-xl-1.5">
+            <div class="col-12 col-md-2 col-lg-2">
                 <button type="submit" class="btn text-white w-100 fw-bold rounded-3 shadow-sm" style="background-color: #2067e1; height: 48px; font-size: 14px; letter-spacing: 0.5px;">
                     SEARCH
                 </button>

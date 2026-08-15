@@ -1,20 +1,23 @@
 <!-- Agoda.com 100% Exact Matching Search Engine Widget with Lowered Floating Capsule Tab Pod -->
 <style>
-    /* Slim Compact Agoda Tab Buttons (Screenshot 1 Parity) */
+    /* Slim Compact Agoda Tab Buttons */
     .agoda-tab-btn {
         background: transparent;
         border: none;
         outline: none;
-        padding: 6px 14px;
+        padding: 7px 14px;
         font-weight: 600;
         font-size: 13px;
         color: #475569;
         cursor: pointer;
-        display: flex;
+        display: inline-flex;
         align-items: center;
         gap: 6px;
         transition: all 0.2s ease;
         border-bottom: 2px solid transparent;
+        white-space: nowrap;
+        flex-shrink: 0;
+        text-decoration: none;
     }
     .agoda-tab-btn.active {
         color: #2067e1;
@@ -24,17 +27,57 @@
     .agoda-tab-btn:hover:not(.active) {
         color: #1e293b;
         background-color: #f8fafc;
-        border-radius: 12px;
+        border-radius: 10px;
     }
 
-    /* Input Buttons with Increased Inside Top Padding (Height: 60px) */
+    /* Floating Capsule Tab Container */
+    .agoda-tabs-wrapper {
+        position: relative;
+        top: 14px;
+        margin-left: 20px;
+        margin-bottom: -14px;
+        z-index: 5;
+        display: inline-flex;
+        max-width: 100%;
+    }
+    .agoda-tabs-container {
+        background-color: #ffffff;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 8px;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+        border: 1px solid #cbd5e1;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+    }
+    .agoda-tabs-container::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Main Search Card */
+    .agoda-search-card {
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 24px 36px 44px 36px;
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+        border: 1px solid #cbd5e1;
+        position: relative;
+        z-index: 1;
+        text-align: left !important;
+    }
+
+    /* Input Buttons (Height: 58px) */
     .agoda-input-btn {
         width: 100%;
         background-color: #ffffff;
         border: 1px solid #cbd5e1;
         border-radius: 10px;
-        height: 60px;
-        padding: 10px 18px 8px 18px;
+        height: 58px;
+        padding: 8px 16px;
         display: flex;
         align-items: center;
         gap: 12px;
@@ -107,7 +150,7 @@
         color: #94a3b8;
     }
 
-    /* Slim Agoda Blue SEARCH Button (Height: 44px) */
+    /* Agoda Blue SEARCH Button */
     .agoda-search-submit-btn {
         position: absolute;
         bottom: -22px;
@@ -133,6 +176,55 @@
         box-shadow: 0 8px 22px rgba(32, 103, 225, 0.55);
         transform: translateX(-50%) translateY(-2px);
     }
+
+    /* Mobile Responsive Optimizations (< 768px) */
+    @media (max-width: 768px) {
+        .agoda-tabs-wrapper {
+            margin-left: 0 !important;
+            top: 8px !important;
+            margin-bottom: -8px !important;
+            width: 100% !important;
+            display: flex !important;
+            justify-content: flex-start !important;
+            padding: 0 4px !important;
+        }
+        .agoda-tabs-container {
+            width: 100% !important;
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            overflow-x: auto !important;
+            border-radius: 12px !important;
+            padding: 4px 6px !important;
+            gap: 4px !important;
+        }
+        .agoda-tab-btn {
+            padding: 6px 10px !important;
+            font-size: 12px !important;
+            white-space: nowrap !important;
+            flex-shrink: 0 !important;
+        }
+        .agoda-search-card {
+            padding: 16px 12px 38px 12px !important;
+            border-radius: 14px !important;
+        }
+        .agoda-input-btn {
+            height: 52px !important;
+            padding: 8px 12px !important;
+            gap: 8px !important;
+        }
+        .agoda-search-submit-btn {
+            width: calc(100% - 24px) !important;
+            max-width: 100% !important;
+            font-size: 14px !important;
+            height: 44px !important;
+            bottom: -22px !important;
+        }
+        #agodaDestinationPopoverCard, #agodaCalendarPopoverCard, #agodaGuestsPopoverCard {
+            left: 0 !important;
+            width: 100% !important;
+            max-width: calc(100vw - 20px) !important;
+        }
+    }
 </style>
 
 <!-- Fixed Dark Backdrop Blur Overlay (Agoda Official Focus Blur) -->
@@ -140,26 +232,26 @@
 
 <div id="agodaSearchBarWrapper" style="max-width: 1140px; margin: 0 auto 38px auto; position: relative; z-index: 10; text-align: left !important;">
 
-    <!-- Top White Floating Capsule Tab Pod Container (Customized for Bangladesh Travel Parity) -->
-    <div style="position: relative; top: 16px; margin-left: 24px; margin-bottom: -16px; z-index: 5; display: inline-flex;">
-        <div style="background-color: #ffffff; border-radius: 14px; display: inline-flex; align-items: center; gap: 2px; padding: 4px 10px; box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1); border: 1px solid #cbd5e1;">
+    <!-- Top White Floating Capsule Tab Pod Container -->
+    <div class="agoda-tabs-wrapper">
+        <div class="agoda-tabs-container">
             <button type="button" class="agoda-tab-btn active" id="tabHotels">
-                <i class="fa-solid fa-building" style="font-size: 12px;"></i> {{ __('Hotels & Resorts') }}
+                <i class="fa-solid fa-building text-primary" style="font-size: 13px;"></i> {{ __('Hotels & Resorts') }}
             </button>
             <button type="button" class="agoda-tab-btn" id="tabHomes">
-                <i class="fa-solid fa-ship" style="font-size: 12px; color: #0284c7;"></i> {{ __('Sundarbans Ship & Tanguar Haor Houseboat') }}
+                <i class="fa-solid fa-ship" style="font-size: 13px; color: #0284c7;"></i> {{ __('Sundarbans Ship & Tanguar Haor') }}
             </button>
             <button type="button" class="agoda-tab-btn" id="tabLongStays">
-                <i class="fa-solid fa-house-user" style="font-size: 12px; color: #16a34a;"></i> {{ __('Home Stay / Long stays') }}
+                <i class="fa-solid fa-house-user" style="font-size: 13px; color: #16a34a;"></i> {{ __('Home Stay / Stays') }}
             </button>
             <button type="button" class="agoda-tab-btn" id="tabAirport">
-                <i class="fa-solid fa-car" style="font-size: 12px;"></i> {{ __('Airport transfer') }}
+                <i class="fa-solid fa-car text-warning" style="font-size: 13px;"></i> {{ __('Airport Transfer') }}
             </button>
         </div>
     </div>
 
-    <!-- Main Search Card Body (Agoda 100% 1:1 Exact Match) -->
-    <div style="background-color: #ffffff; border-radius: 16px; padding: 24px 40px 44px 40px; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12); border: 1px solid #cbd5e1; position: relative; z-index: 1; text-align: left !important;">
+    <!-- Main Search Card Body -->
+    <div class="agoda-search-card">
         
         <!-- Form 1: Standard Hotel / Homes / Long Stays Search Form -->
         <form action="{{ route('search.index') }}" method="GET" id="agodaFormStandard" onsubmit="showAgodaSearchLoading();">

@@ -80,7 +80,9 @@
     <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
     <!-- Agoda Custom 100% Design System -->
     <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}?v={{ time() }}">
@@ -92,24 +94,14 @@
             --agoda-red: #ff567d;
             --agoda-font: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        /* Barlow Medium & Crisp Global Font Reset */
-        html, body, input, button, select, textarea,
-        h1, h2, h3, h4, h5, h6, p, span, a, li, div, label, td, th {
+        /* Barlow Medium & Crisp Global Typography */
+        body, input, button, select, textarea,
+        h1, h2, h3, h4, h5, h6, p, a, li, label, td, th {
             font-family: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             font-weight: 500;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
-        }
-
-        /* FontAwesome Icon Exception: Preserve Font Awesome Font Family */
-        i, i::before, i::after,
-        .fa, .fas, .far, .fal, .fab,
-        .fa-solid, .fa-regular, .fa-light, .fa-brands,
-        [class*="fa-"], [class*="fa-"]::before, [class*="fa-"]::after {
-            font-family: "Font Awesome 6 Free", "Font Awesome 6 Brands", "FontAwesome" !important;
-            font-weight: 900 !important;
-            font-style: normal !important;
         }
         .fw-bold, .fw-bolder, strong, b, h1, h2, h3, h4, h5, h6, .hero-title, .search-btn {
             font-weight: 600 !important;

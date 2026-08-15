@@ -35,6 +35,7 @@ class DashboardController extends Controller
         $coveredCitiesCount  = Property::whereNotNull('city')->where('city', '!=', '')->distinct('city')->count('city');
         $totalRoomsCount     = \App\Models\Room::count();
         $totalVendorsCount   = User::where('role', 'vendor')->count();
+        $totalUsers          = User::count();
         $pendingProperties   = Property::where('status', 'pending')->count();
 
         $stats = [

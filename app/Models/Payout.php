@@ -11,6 +11,7 @@ class Payout extends Model
 
     protected $fillable = [
         'vendor_id',
+        'vendor_name',
         'amount',
         'payment_method',
         'account_details',

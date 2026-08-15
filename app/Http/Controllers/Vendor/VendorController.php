@@ -323,13 +323,14 @@ class VendorController extends Controller
         $vendorId    = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
-        $recentBookings = Booking::whereIn('property_id', $propertyIds)
+        $notifications = Booking::whereIn('property_id', $propertyIds)
             ->with('property:id,name')
             ->latest()
             ->take(25)
             ->get();
+        $recentBookings = $notifications;
 
-        return view('vendor.notifications', compact('recentBookings'));
+        return view('vendor.notifications', compact('notifications', 'recentBookings'));
     }
 
     public function markNotificationRead($id)

@@ -1,4 +1,4 @@
-﻿@extends('layouts.vendor')
+@extends('layouts.vendor')
 @section('title', 'Support & Help | Vendor Portal')
 @section('content')
 <div class="page-header-card">
@@ -40,11 +40,19 @@
         </div>
         <div class="col-lg-5">
             <div class="stockifly-card p-3 mb-3">
-                <div class="fw-bold mb-3 pb-2 border-bottom" style="font-size:13px;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;"><i class="fa-solid fa-circle-info me-1"></i> Quick Help</div>
-                @foreach([['How do I add a new property?','Go to Properties → Add New Property. Fill in all details and submit for admin review. Typically approved within 24 hours.'],['Why is my payout pending?','Payouts are processed every Monday. Minimum payout threshold is ৳5,000. Check your bank details in your profile.'],['How to update room rates?','Navigate to Rates & Calendar. Select your property and update rates per date range.'],['My property is not showing on the website?','Ensure your property status is Active. If pending, it needs admin approval first.']] as [, ])
+                <div class="fw-bold mb-3 pb-2 border-bottom" style="font-size:13px;color:var(--primary);text-transform:uppercase;letter-spacing:.5px;"><i class="fa-solid fa-circle-info me-1"></i> Quick Help &amp; FAQs</div>
+                @php
+                    $faqs = [
+                        ['How do I add a new property?', 'Go to Properties → Add New Property. Fill in all details and submit for admin review. Typically approved within 24 hours.'],
+                        ['Why is my payout pending?', 'Payouts are processed every Monday. Minimum payout threshold is ৳5,000. Check your bank details in your profile.'],
+                        ['How to update room rates?', 'Navigate to Rates & Calendar. Select your property and update rates per date range.'],
+                        ['My property is not showing on the website?', 'Ensure your property status is Active. If pending, it needs admin approval first.']
+                    ];
+                @endphp
+                @foreach($faqs as $faq)
                 <div class="mb-3 pb-3 border-bottom">
-                    <div class="fw-bold" style="font-size:12.5px;color:#1e293b;">Q: {{  }}</div>
-                    <div style="font-size:12px;color:#64748b;margin-top:4px;">{{  }}</div>
+                    <div class="fw-bold" style="font-size:12.5px;color:#1e293b;">Q: {{ $faq[0] }}</div>
+                    <div style="font-size:12px;color:#64748b;margin-top:4px;">{{ $faq[1] }}</div>
                 </div>
                 @endforeach
             </div>

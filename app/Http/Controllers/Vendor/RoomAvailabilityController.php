@@ -20,7 +20,7 @@ class RoomAvailabilityController extends Controller
         // Fetch vendor properties with minimal column selection for high performance
         $properties = Property::where('vendor_id', $vendorId)
             ->select(['id', 'vendor_id', 'name', 'city', 'type'])
-            ->with(['rooms:id,property_id,name,price_per_night,total_rooms,available_rooms'])
+            ->with(['rooms:id,property_id,name,price_per_night,total_rooms'])
             ->get();
 
         $selectedRoomId = $request->query('room_id');

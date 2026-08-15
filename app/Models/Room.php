@@ -24,6 +24,7 @@ class Room extends Model
         'bed_type',
         'price_per_night',
         'total_rooms',
+        'available_rooms',
         'breakfast_included',
         'free_cancellation',
         'facilities',

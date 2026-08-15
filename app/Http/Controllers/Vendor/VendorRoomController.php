@@ -61,7 +61,6 @@ class VendorRoomController extends Controller
             'max_children'       => (int) ($request->max_children ?? 1),
             'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? 1),
             'total_rooms'        => (int) ($request->total_rooms ?? 10),
-            'available_rooms'    => (int) ($request->total_rooms ?? 10),
             'breakfast_included' => $request->boolean('breakfast_included'),
             'free_cancellation'  => $request->boolean('free_cancellation'),
             'facilities'          => array_values($facilities),

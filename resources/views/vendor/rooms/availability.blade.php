@@ -171,28 +171,6 @@
                     </select>
                 </div>
             </form>
-
-            {{-- 🎯 LIVE ACTIVE SELECTION STATUS BANNER --}}
-            <div class="mt-3 p-2.5 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff; border-radius:4px;">
-                <div class="d-flex align-items-center gap-2">
-                    <div style="width:24px; height:24px; border-radius:50%; background:#1890ff; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0;">
-                        <i class="fa-solid fa-check"></i>
-                    </div>
-                    <div style="font-size:12.5px; color:#1e293b;">
-                        <span class="text-secondary">Managing:</span> 
-                        <strong class="text-primary">{{ $selectedRoom->name }}</strong>
-                        <span class="text-muted mx-1.5">•</span>
-                        <span>Base: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }}/night</strong></span>
-                        <span class="text-muted mx-1.5">•</span>
-                        <span>{{ $selectedRoom->property->name ?? 'Hotel' }}</span>
-                    </div>
-                </div>
-                <div>
-                    <span class="badge bg-primary text-white px-2.5 py-1" style="font-size:11px; border-radius:3px; font-weight:600;">
-                        <i class="fa-solid fa-circle-check me-1"></i> Active
-                    </span>
-                </div>
-            </div>
         </div>
     </div>
 

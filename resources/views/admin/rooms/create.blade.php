@@ -49,11 +49,11 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-image text-primary me-1"></i> Room Cover Photo (Direct URL)</label>
+                        <label class="form-label"><i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Room Cover Photo (Direct URL)</label>
                         <input type="url" name="image_url" class="form-control" value="{{ old('image_url') }}" placeholder="https://images.unsplash.com/photo-...">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-secondary me-1"></i> Or Upload Room Photo</label>
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Or Upload Room Photo</label>
                         <input type="file" name="image_file" accept="image/*" class="form-control">
                     </div>
                     <div class="col-md-3">
@@ -77,7 +77,7 @@
                             value="{{ old('total_rooms', 10) }}" min="1">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-mountain-sun text-info me-1"></i> Room View <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-mountain-sun" style="color:#64748b; margin-right:6px;"></i> Room View <span style="color:#ff4d4f;">*</span></label>
                         <select name="view_type" class="form-select" required>
                             <option value="Sea View / Ocean Front">Direct Ocean / Sea View</option>
                             <option value="City Skyline View" selected>City Skyline View</option>
@@ -88,7 +88,7 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-shower text-primary me-1"></i> Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-shower" style="color:#64748b; margin-right:6px;"></i> Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
                         <select name="bathroom_count" class="form-select" required>
                             <option value="1" selected>1 Attached Bathroom</option>
                             <option value="2">2 Attached Bathrooms</option>
@@ -96,14 +96,14 @@
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-ban-smoking text-danger me-1"></i> Smoking Policy <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-ban-smoking" style="color:#64748b; margin-right:6px;"></i> Smoking Policy <span style="color:#ff4d4f;">*</span></label>
                         <select name="smoking_policy" class="form-select" required>
                             <option value="Non-Smoking" selected>100% Non-Smoking Room</option>
                             <option value="Smoking Allowed">Smoking Permitted</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label"><i class="fa-solid fa-tree-city text-success me-1"></i> Balcony / Terrace</label>
+                        <label class="form-label"><i class="fa-solid fa-tree-city" style="color:#64748b; margin-right:6px;"></i> Balcony / Terrace</label>
                         <select name="balcony_type" class="form-select">
                             <option value="Private Balcony" selected>Private Balcony</option>
                             <option value="Terrace">Large Open Terrace</option>
@@ -113,18 +113,18 @@
                     </div>
                     <div class="col-md-8">
                         <label class="form-label">Bathroom Features &amp; Toiletries</label>
-                        <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
+                        <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
                             @foreach([
-                                ['Private Bathroom', 'fa-solid fa-shower text-primary'],
-                                ['Hot Water Geyser', 'fa-solid fa-fire text-danger'],
-                                ['Bathtub / Jacuzzi', 'fa-solid fa-bath text-info'],
-                                ['Hairdryer', 'fa-solid fa-wind text-secondary'],
-                                ['Free Luxury Toiletries', 'fa-solid fa-pump-soap text-success'],
-                                ['Bathrobe & Slippers', 'fa-solid fa-vest text-warning'],
+                                ['Private Bathroom', 'fa-solid fa-shower'],
+                                ['Hot Water Geyser', 'fa-solid fa-fire'],
+                                ['Bathtub / Jacuzzi', 'fa-solid fa-bath'],
+                                ['Hairdryer', 'fa-solid fa-wind'],
+                                ['Free Luxury Toiletries', 'fa-solid fa-pump-soap'],
+                                ['Bathrobe & Slippers', 'fa-solid fa-vest'],
                             ] as $bFeat)
-                                <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer;">
-                                    <input class="form-check-input m-0 me-1" type="checkbox" name="bathroom_features[]" value="{{ $bFeat[0] }}" checked style="cursor:pointer;">
-                                    <i class="{{ $bFeat[1] }}"></i>
+                                <label class="form-check-label d-inline-flex align-items-center rounded border bg-white shadow-xs" style="padding:6px 12px; font-size:12px; font-weight:600; color:#334155; cursor:pointer; gap:8px;">
+                                    <input class="form-check-input m-0 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat[0] }}" checked style="cursor:pointer; width:15px; height:15px;">
+                                    <i class="{{ $bFeat[1] }}" style="color:#64748b; font-size:13px;"></i>
                                     <span>{{ $bFeat[0] }}</span>
                                 </label>
                             @endforeach
@@ -175,20 +175,20 @@
                 <div class="form-section-title"><i class="fa-solid fa-sparkles me-1"></i> Popular In-Room Amenities</div>
                 <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
                     @foreach([
-                        ['Air Conditioning', 'fa-solid fa-snowflake text-info'],
-                        ['Free Wi-Fi', 'fa-solid fa-wifi text-primary'],
-                        ['Smart Flat TV', 'fa-solid fa-tv text-dark'],
-                        ['Sea / City View', 'fa-solid fa-mountain-sun text-success'],
-                        ['Private Balcony', 'fa-solid fa-tree-city text-success'],
-                        ['Hot Water / Geyser', 'fa-solid fa-fire text-danger'],
-                        ['Tea & Coffee Maker', 'fa-solid fa-mug-hot text-warning'],
-                        ['Mini Fridge', 'fa-solid fa-box text-primary'],
-                        ['Work Desk', 'fa-solid fa-laptop text-secondary'],
-                        ['Safety Locker', 'fa-solid fa-vault text-warning'],
+                        ['Air Conditioning', 'fa-solid fa-snowflake'],
+                        ['Free Wi-Fi', 'fa-solid fa-wifi'],
+                        ['Smart Flat TV', 'fa-solid fa-tv'],
+                        ['Sea / City View', 'fa-solid fa-mountain-sun'],
+                        ['Private Balcony', 'fa-solid fa-tree-city'],
+                        ['Hot Water / Geyser', 'fa-solid fa-fire'],
+                        ['Tea & Coffee Maker', 'fa-solid fa-mug-hot'],
+                        ['Mini Fridge', 'fa-solid fa-box'],
+                        ['Work Desk', 'fa-solid fa-laptop'],
+                        ['Safety Locker', 'fa-solid fa-vault'],
                     ] as $amenity)
-                        <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer;">
-                            <input class="form-check-input m-0 me-1" type="checkbox" name="amenities[]" value="{{ $amenity[0] }}" style="cursor:pointer;">
-                            <i class="{{ $amenity[1] }}"></i>
+                        <label class="form-check-label d-inline-flex align-items-center rounded border bg-white shadow-xs" style="padding:6px 12px; font-size:12px; font-weight:600; color:#334155; cursor:pointer; gap:8px;">
+                            <input class="form-check-input m-0 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity[0] }}" style="cursor:pointer; width:15px; height:15px;">
+                            <i class="{{ $amenity[1] }}" style="color:#64748b; font-size:13px;"></i>
                             <span>{{ $amenity[0] }}</span>
                         </label>
                     @endforeach

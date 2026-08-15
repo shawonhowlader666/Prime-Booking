@@ -54,14 +54,18 @@
 
     {{-- MAIN CLEAN DATA CARD --}}
     <div class="data-table-card p-0 mb-4" style="border-radius:6px; background:#ffffff; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-        {{-- Card Header with Title and Search --}}
+        {{-- Card Header with Property Context, Title, and Search --}}
         <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2.5" style="background:#fafafa;">
-            <div class="d-flex align-items-center gap-2">
-                <h6 class="m-0 fw-bold text-dark" style="font-size:14px;">All Room Categories</h6>
-                <span class="badge bg-primary text-white" style="font-size:11px; border-radius:4px;">{{ $rooms->count() }} Categories</span>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <span class="badge bg-white text-dark border px-2.5 py-1.5" style="font-size:12px; font-weight:600;">
+                    <i class="fa-solid fa-hotel text-primary me-1"></i> {{ $property->name }}
+                </span>
+                <span class="badge bg-primary-light text-primary fw-bold px-2 py-1" style="font-size:11px; background:#e6f7ff; border:1px solid #91d5ff; border-radius:4px;">
+                    {{ $rooms->count() }} Room Categories
+                </span>
             </div>
             <div style="width:260px; max-width:100%;">
-                <input type="text" id="roomSearchInput" class="form-control form-control-sm" placeholder="Search rooms, beds..." onkeyup="filterRoomsSearch(this.value)" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                <input type="text" id="roomSearchInput" class="form-control form-control-sm" placeholder="🔍 Quick search room name, bed..." onkeyup="filterRoomsSearch(this.value)" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
             </div>
         </div>
 
@@ -71,9 +75,9 @@
                 <thead>
                     <tr>
                         <th style="padding-left: 20px !important;">Room Category</th>
-                        <th>Bed &amp; Guests</th>
+                        <th>Bed &amp; Occupancy</th>
                         <th>Base Rate / Night</th>
-                        <th>Total Units</th>
+                        <th>Inventory Units</th>
                         <th>Inclusions</th>
                         <th style="text-align:right; padding-right: 20px !important;">Actions</th>
                     </tr>
@@ -82,38 +86,46 @@
                 @forelse($rooms as $r)
                     <tr class="room-row-item" data-name="{{ strtolower($r->name) }}" data-bed="{{ strtolower($r->bed_type ?? '') }}">
                         <td style="padding-left: 20px !important;">
-                            <strong style="font-size:13.5px; color:#1e293b; display:block;">{{ $r->name }}</strong>
-                            <span style="font-size:11px; color:#64748b;">
-                                ID #{{ $r->id }} • {{ $r->room_size_sqm ? $r->room_size_sqm . ' m² • ' : '' }}{{ !empty($r->facilities) ? count($r->facilities) . ' amenities' : 'Standard' }}
-                            </span>
+                            <div class="d-flex align-items-center gap-2.5">
+                                <div style="width:36px; height:36px; border-radius:6px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
+                                    <i class="fa-solid fa-bed"></i>
+                                </div>
+                                <div>
+                                    <strong style="font-size:13.5px; color:#1e293b; display:block;">{{ $r->name }}</strong>
+                                    <span style="font-size:11px; color:#64748b;">
+                                        ID #{{ $r->id }} • {{ $r->room_size_sqm ? $r->room_size_sqm . ' m² • ' : '' }}{{ !empty($r->facilities) ? count($r->facilities) . ' amenities' : 'Standard setup' }}
+                                    </span>
+                                </div>
+                            </div>
                         </td>
                         <td>
-                            <div class="d-flex align-items-center gap-1.5">
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
                                 <span class="badge bg-light text-dark border" style="font-size:11.5px; font-weight:600;">
                                     <i class="fa-solid fa-bed text-primary me-1"></i> {{ $r->bed_type ?: 'Standard Bed' }}
                                 </span>
                                 <span class="badge bg-light text-secondary border" style="font-size:11px;">
-                                    <i class="fa-solid fa-user me-1"></i> {{ $r->max_adults }}A @if($r->max_children) + {{ $r->max_children }}C @endif
+                                    <i class="fa-solid fa-user me-1"></i> {{ $r->max_adults }} Adults @if($r->max_children) + {{ $r->max_children }} Child @endif
                                 </span>
                             </div>
                         </td>
                         <td>
-                            <strong style="color:#2067e1; font-size:14px;">৳ {{ number_format($r->price_per_night) }}</strong>
+                            <strong style="color:#2067e1; font-size:14.5px;">৳ {{ number_format($r->price_per_night) }}</strong>
+                            <small class="text-muted d-block" style="font-size:10.5px;">per night</small>
                         </td>
                         <td>
                             <span class="badge bg-success-light text-success fw-bold px-2 py-1" style="font-size:11px; background:#f6ffed; border:1px solid #b7eb8f; border-radius:4px;">
-                                <i class="fa-solid fa-door-open me-1"></i> {{ $r->total_rooms ?? 10 }} Units
+                                <i class="fa-solid fa-door-open me-1"></i> {{ $r->total_rooms ?? 10 }} Units Available
                             </span>
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-1 flex-wrap">
                                 @if($r->breakfast_included)
-                                    <span class="badge bg-success text-white" style="font-size:10px; border-radius:3px;">
+                                    <span class="badge bg-success text-white" style="font-size:10.5px; border-radius:3px;">
                                         <i class="fa-solid fa-utensils me-0.5"></i> Breakfast
                                     </span>
                                 @endif
                                 @if($r->free_cancellation)
-                                    <span class="badge bg-info text-white" style="font-size:10px; border-radius:3px;">
+                                    <span class="badge bg-info text-white" style="font-size:10.5px; border-radius:3px;">
                                         <i class="fa-solid fa-rotate-left me-0.5"></i> Free Cancel
                                     </span>
                                 @endif
@@ -125,20 +137,20 @@
                         <td style="text-align:right; padding-right: 20px !important;">
                             <div class="d-inline-flex gap-1.5 align-items-center">
                                 {{-- Quick Calendar Rate Shortcut --}}
-                                <a href="{{ route('vendor.availability.index', ['room_id' => $r->id]) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1" title="Manage Calendar Rates" style="font-size:11px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
+                                <a href="{{ route('vendor.availability.index', ['room_id' => $r->id]) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1" title="Manage Calendar Rates" style="font-size:11.5px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
                                     <i class="fa-solid fa-calendar-days me-1"></i> Rates
                                 </a>
 
                                 {{-- Edit Modal Button --}}
-                                <button type="button" class="btn btn-sm btn-light border px-2 py-1" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $r->id }}" title="Edit Room" style="font-size:11px; height:28px; border-radius:4px;">
-                                    <i class="fa-solid fa-pen text-primary"></i>
+                                <button type="button" class="btn btn-sm btn-light border px-2.5 py-1" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $r->id }}" title="Edit Room Details" style="font-size:11.5px; height:28px; border-radius:4px;">
+                                    <i class="fa-solid fa-pen text-primary me-1"></i> Edit
                                 </button>
 
                                 {{-- Delete Form --}}
                                 <form action="{{ route('vendor.rooms.destroy', [$property->id, $r->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete room category: {{ $r->name }}?');" class="d-inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-light border text-danger px-2 py-1" title="Delete Room" style="font-size:11px; height:28px; border-radius:4px;">
+                                    <button type="submit" class="btn btn-sm btn-light border text-danger px-2 py-1" title="Delete Room" style="font-size:11.5px; height:28px; border-radius:4px;">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>

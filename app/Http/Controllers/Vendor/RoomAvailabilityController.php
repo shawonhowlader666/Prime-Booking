@@ -140,6 +140,16 @@ class RoomAvailabilityController extends Controller
             Cache::forget("vendor:availability:{$room->id}:{$dayKey}:90");
         }
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'status'     => 'success',
+                'message'    => 'Rates & availability updated instantly!',
+                'records'    => $records,
+                'room_id'    => $room->id,
+                'base_price' => (float)$room->price_per_night,
+            ]);
+        }
+
         return back()->with('success', '✅ Room rates & availability updated successfully for selected date range!');
     }
 }

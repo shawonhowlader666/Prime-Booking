@@ -145,7 +145,7 @@
 
         <div style="padding: 20px 24px;">
             <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="row g-3 align-items-end">
-                <div class="col-12 col-md-6 col-lg-5">
+                <div class="col-12 col-md-7">
                     <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                         <i class="fa-solid fa-bed text-primary me-1"></i> Choose Hotel &amp; Room Category <span style="color:#ff4d4f;">*</span>
                     </label>
@@ -162,7 +162,7 @@
                     </select>
                 </div>
 
-                <div class="col-12 col-md-3 col-lg-3">
+                <div class="col-12 col-md-5">
                     <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                         <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
                     </label>
@@ -172,12 +172,6 @@
                         <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>📅 Next 60 Days (2 Months)</option>
                         <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>📅 Next 90 Days (3 Months)</option>
                     </select>
-                </div>
-
-                <div class="col-12 col-md-3 col-lg-4 d-flex align-items-end gap-2">
-                    <button type="submit" class="btn-add-primary w-100 justify-content-center" style="height:38px; font-size:13px; border-radius:4px; font-weight:600;">
-                        <i class="fa-solid fa-rotate me-1.5"></i> Load Room Calendar
-                    </button>
                 </div>
             </form>
 
@@ -1020,6 +1014,120 @@ function filterTableSearch(tableId, query) {
         const text = rows[i].innerText.toLowerCase();
         rows[i].style.display = text.includes(filter) ? '' : 'none';
     }
+/**
+ * Seamless Async AJAX Form Submit (Instant Rates & Calendar Update without page reload)
+ */
+document.addEventListener('DOMContentLoaded', function() {
+    const rateForm = document.getElementById('quickRateForm');
+    if (rateForm) {
+        rateForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const submitBtn = rateForm.querySelector('button[type="submit"]');
+            const originalBtnHtml = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1.5"></i> SAVING...';
+
+            const formData = new FormData(rateForm);
+
+            fetch(rateForm.action, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<i class="fa-solid fa-check me-1.5"></i> SAVED INSTANTLY!';
+                setTimeout(() => { submitBtn.innerHTML = originalBtnHtml; }, 1800);
+
+                if (data.status === 'success' && data.records) {
+                    const basePrice = data.base_price;
+                    data.records.forEach(rec => {
+                        const cardCol = document.querySelector(`.avail-card-col[data-date="${rec.date}"]`);
+                        if (cardCol) {
+                            const isBlocked = rec.is_blocked;
+                            const customPrice = rec.price;
+                            const hasCustom = customPrice !== null && parseFloat(customPrice) !== parseFloat(basePrice);
+                            const effPrice = customPrice !== null ? parseFloat(customPrice) : basePrice;
+
+                            cardCol.setAttribute('data-status', isBlocked ? 'blocked' : 'available');
+                            cardCol.setAttribute('data-custom', hasCustom ? '1' : '0');
+
+                            const dayCard = cardCol.querySelector('.calendar-day-card');
+                            if (dayCard) {
+                                dayCard.className = `calendar-day-card ${isBlocked ? 'is-blocked' : (hasCustom ? 'is-custom' : 'is-available')}`;
+                                const dayName = dayCard.querySelector('.cal-day-name') ? dayCard.querySelector('.cal-day-name').innerHTML : '';
+                                if (isBlocked) {
+                                    dayCard.innerHTML = `
+                                        <div class="cal-day-name">${dayName}</div>
+                                        <div class="cal-status-badge text-danger fw-bold"><i class="fa-solid fa-ban me-0.5"></i> SOLD OUT</div>
+                                        <div class="cal-rate-sub text-muted">Blocked</div>
+                                        <div class="cal-click-hint"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
+                                    `;
+                                } else {
+                                    dayCard.innerHTML = `
+                                        <div class="cal-day-name">${dayName}</div>
+                                        <div class="cal-rate-val ${hasCustom ? 'text-purple' : 'text-primary'}">৳ ${Number(effPrice).toLocaleString()}</div>
+                                        ${hasCustom ? '<span class="cal-custom-tag">Seasonal</span>' : '<span class="cal-std-tag">Standard</span>'}
+                                        <div class="cal-click-hint"><i class="fa-solid fa-pen-to-square"></i> Edit</div>
+                                    `;
+                                }
+                            }
+                        }
+                    });
+
+                    // Recalculate filter badge counts dynamically
+                    recountFilters();
+                    showLiveToast('⚡ Rates & availability updated instantly without reload!');
+                }
+            })
+            .catch(err => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnHtml;
+                rateForm.submit();
+            });
+        });
+    }
+});
+
+function recountFilters() {
+    let availCount = 0, blockCount = 0, custCount = 0;
+    document.querySelectorAll('.avail-card-col').forEach(c => {
+        const isB = c.getAttribute('data-status') === 'blocked';
+        const isC = c.getAttribute('data-custom') === '1';
+        if (isB) blockCount++;
+        else {
+            availCount++;
+            if (isC) custCount++;
+        }
+    });
+
+    const lblAvail = document.querySelector('#lblChkAvailable .badge-pill-count');
+    const lblBlock = document.querySelector('#lblChkBlocked .badge-pill-count');
+    const lblCust  = document.querySelector('#lblChkCustom .badge-pill-count');
+    if (lblAvail) lblAvail.innerText = availCount;
+    if (lblBlock) lblBlock.innerText = blockCount;
+    if (lblCust)  lblCust.innerText  = custCount;
+}
+
+function showLiveToast(message) {
+    let toast = document.getElementById('liveInstantToast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'liveInstantToast';
+        toast.style.cssText = 'position:fixed; bottom:24px; right:24px; z-index:99999; background:#002140; color:#fff; padding:12px 20px; border-radius:6px; font-size:13px; font-weight:600; box-shadow:0 4px 16px rgba(0,0,0,0.25); display:flex; align-items:center; gap:8px; transition:all 0.3s ease;';
+        document.body.appendChild(toast);
+    }
+    toast.innerHTML = `<i class="fa-solid fa-circle-check" style="color:#52c41a; font-size:16px;"></i> ${message}`;
+    toast.style.opacity = '1';
+    toast.style.transform = 'translateY(0)';
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+    }, 3500);
 }
 </script>
 @endsection

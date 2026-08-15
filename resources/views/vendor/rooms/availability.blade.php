@@ -228,28 +228,36 @@
                         <small class="text-muted d-block" style="font-size:11.5px;">Selected Room: <strong>{{ $selectedRoom->name }}</strong></small>
                     </div>
 
-                    {{-- 100% FUNCTIONAL INTERACTIVE LEGEND / STATUS FILTER PILLS --}}
+                    {{-- 100% FUNCTIONAL INTERACTIVE TICK CHECKBOX FILTERS (Matching Screenshot) --}}
                     <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <button type="button" class="btn-legend-pill active" data-filter="all" onclick="filterAvailabilityStatus('all', this)" title="Show all dates">
-                            <span class="dot-legend" style="background:#64748b;"></span> All Days <span class="badge-pill-count">{{ $daysCount }}</span>
-                        </button>
+                        <span class="text-secondary fw-bold me-1" style="font-size:11.5px;">Filter:</span>
 
-                        <button type="button" class="btn-legend-pill" data-filter="available" onclick="filterAvailabilityStatus('available', this)" title="Filter only available dates">
-                            <span class="box-legend" style="background:#e6f4ff; border:1px solid #91caff;"></span> 
-                            <span class="text-legend" style="color:#0958d9;">Available</span> 
+                        {{-- Available Tick Filter --}}
+                        <label class="filter-tick-badge is-available checked" id="lblChkAvailable" title="Toggle Available Dates" style="cursor:pointer;">
+                            <input type="checkbox" id="chkAvailable" checked onchange="applyTickFilters()" style="display:none;">
+                            <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
+                            <span class="tick-label" style="color:#0958d9;">Available</span>
                             <span class="badge-pill-count">{{ $stats['available_days'] }}</span>
-                        </button>
+                        </label>
 
-                        <button type="button" class="btn-legend-pill" data-filter="blocked" onclick="filterAvailabilityStatus('blocked', this)" title="Filter only sold out/blocked dates">
-                            <span class="box-legend" style="background:#fff1f0; border:1px solid #ffa39e;"></span> 
-                            <span class="text-legend" style="color:#cf1322;">Sold Out/Blocked</span> 
+                        {{-- Sold Out / Blocked Tick Filter --}}
+                        <label class="filter-tick-badge is-blocked checked" id="lblChkBlocked" title="Toggle Sold Out Dates" style="cursor:pointer;">
+                            <input type="checkbox" id="chkBlocked" checked onchange="applyTickFilters()" style="display:none;">
+                            <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
+                            <span class="tick-label" style="color:#cf1322;">Sold Out/Blocked</span>
                             <span class="badge-pill-count">{{ $stats['sold_out_days'] }}</span>
-                        </button>
+                        </label>
 
-                        <button type="button" class="btn-legend-pill" data-filter="custom" onclick="filterAvailabilityStatus('custom', this)" title="Filter custom seasonal rates">
-                            <span class="box-legend" style="background:#f9f0ff; border:1px solid #d3adf7;"></span> 
-                            <span class="text-legend" style="color:#531dab;">Seasonal Rate</span> 
+                        {{-- Seasonal Price Filter --}}
+                        <label class="filter-tick-badge is-custom checked" id="lblChkCustom" title="Toggle Seasonal Rates" style="cursor:pointer;">
+                            <input type="checkbox" id="chkCustom" checked onchange="applyTickFilters()" style="display:none;">
+                            <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
+                            <span class="tick-label" style="color:#531dab;">Seasonal Rate</span>
                             <span class="badge-pill-count">{{ $stats['custom_price_days'] }}</span>
+                        </label>
+
+                        <button type="button" class="btn btn-link btn-sm text-secondary p-0 ms-1 fw-bold" onclick="resetAllTickFilters()" style="font-size:11.5px; text-decoration:none;">
+                            <i class="fa-solid fa-rotate-left"></i> Reset
                         </button>
                     </div>
                 </div>
@@ -573,56 +581,97 @@
     color: #ffffff;
 }
 
-/* INTERACTIVE FILTER PILLS */
-.btn-legend-pill {
+/* 🏷️ INTERACTIVE TICK CHECKBOX FILTER BADGES (Matching User Screenshot) */
+.filter-tick-badge {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 4px 10px;
+    gap: 7px;
+    padding: 5px 12px;
     border-radius: 6px;
-    border: 1px solid #e2e8f0;
-    background: #ffffff;
     font-size: 12px;
     font-weight: 600;
-    color: #475569;
-    cursor: pointer;
+    user-select: none;
+    transition: all 0.18s ease;
+    border: 1px solid #e2e8f0;
+    background: #ffffff;
+}
+.filter-tick-badge:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+.filter-tick-badge .tick-box {
+    width: 15px;
+    height: 15px;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
     transition: all 0.18s ease;
 }
-.btn-legend-pill:hover {
-    background: #f8fafc;
-    border-color: #cbd5e1;
-    transform: translateY(-1px);
-}
-.btn-legend-pill.active {
-    border-color: #2067e1;
+
+/* Checked States */
+.filter-tick-badge.is-available.checked {
+    border-color: #91caff;
     background: #f0f7ff;
-    box-shadow: 0 0 0 2px rgba(32, 103, 225, 0.15);
 }
-.box-legend {
-    width: 14px;
-    height: 14px;
-    border-radius: 3px;
-    display: inline-block;
-    flex-shrink: 0;
-}
-.dot-legend {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-    flex-shrink: 0;
-}
-.badge-pill-count {
-    background: #f1f5f9;
-    color: #475569;
-    padding: 1px 6px;
-    border-radius: 10px;
-    font-size: 11px;
-    font-weight: 700;
-}
-.btn-legend-pill.active .badge-pill-count {
-    background: #2067e1;
+.filter-tick-badge.is-available.checked .tick-box {
+    background: #1890ff;
     color: #ffffff;
+}
+.filter-tick-badge.is-available:not(.checked) {
+    opacity: 0.55;
+    background: #fafafa;
+    border-color: #e2e8f0;
+}
+.filter-tick-badge.is-available:not(.checked) .tick-box {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+}
+.filter-tick-badge.is-available:not(.checked) .tick-icon {
+    display: none;
+}
+
+.filter-tick-badge.is-blocked.checked {
+    border-color: #ffa39e;
+    background: #fff1f0;
+}
+.filter-tick-badge.is-blocked.checked .tick-box {
+    background: #ff4d4f;
+    color: #ffffff;
+}
+.filter-tick-badge.is-blocked:not(.checked) {
+    opacity: 0.55;
+    background: #fafafa;
+    border-color: #e2e8f0;
+}
+.filter-tick-badge.is-blocked:not(.checked) .tick-box {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+}
+.filter-tick-badge.is-blocked:not(.checked) .tick-icon {
+    display: none;
+}
+
+.filter-tick-badge.is-custom.checked {
+    border-color: #d3adf7;
+    background: #f9f0ff;
+}
+.filter-tick-badge.is-custom.checked .tick-box {
+    background: #7367f0;
+    color: #ffffff;
+}
+.filter-tick-badge.is-custom:not(.checked) {
+    opacity: 0.55;
+    background: #fafafa;
+    border-color: #e2e8f0;
+}
+.filter-tick-badge.is-custom:not(.checked) .tick-box {
+    border: 1px solid #cbd5e1;
+    background: #ffffff;
+}
+.filter-tick-badge.is-custom:not(.checked) .tick-icon {
+    display: none;
 }
 
 /* 📱 ADVANCED MOBILE RESPONSIVENESS & BREAKPOINTS */
@@ -692,58 +741,97 @@
 
 <script>
 /**
- * Interactive Status Filter for Both Grid Cards and Table Rows
- * @param {string} status 'all' | 'available' | 'blocked' | 'custom'
- * @param {HTMLElement} btnElement
+ * Interactive Multi-Select Tick Filter for Checkboxes
  */
-function filterAvailabilityStatus(status, btnElement) {
-    document.querySelectorAll('.btn-legend-pill').forEach(b => b.classList.remove('active'));
-    if (btnElement) {
-        btnElement.classList.add('active');
-    } else {
-        const targetBtn = document.querySelector(`[data-filter="${status}"]`);
-        if (targetBtn) targetBtn.classList.add('active');
+function applyTickFilters() {
+    const chkAvail  = document.getElementById('chkAvailable');
+    const chkBlock  = document.getElementById('chkBlocked');
+    const chkCust   = document.getElementById('chkCustom');
+
+    const showAvailable = chkAvail ? chkAvail.checked : true;
+    const showBlocked   = chkBlock ? chkBlock.checked : true;
+    const showCustom    = chkCust  ? chkCust.checked  : true;
+
+    // Toggle checked visual state on badges
+    if (document.getElementById('lblChkAvailable')) {
+        document.getElementById('lblChkAvailable').classList.toggle('checked', showAvailable);
+    }
+    if (document.getElementById('lblChkBlocked')) {
+        document.getElementById('lblChkBlocked').classList.toggle('checked', showBlocked);
+    }
+    if (document.getElementById('lblChkCustom')) {
+        document.getElementById('lblChkCustom').classList.toggle('checked', showCustom);
     }
 
+    let activeCount = 0;
+
     // Filter Grid Cards
-    const cards = document.querySelectorAll('.avail-card-col');
-    cards.forEach(card => {
-        const cardStatus = card.getAttribute('data-status');
-        const isCustom   = card.getAttribute('data-custom') === '1';
+    document.querySelectorAll('.avail-card-col').forEach(card => {
+        const isBlocked = card.getAttribute('data-status') === 'blocked';
+        const isCustom  = card.getAttribute('data-custom') === '1';
 
         let show = false;
-        if (status === 'all') {
+        if (isBlocked && showBlocked) {
             show = true;
-        } else if (status === 'available' && cardStatus === 'available') {
-            show = true;
-        } else if (status === 'blocked' && cardStatus === 'blocked') {
-            show = true;
-        } else if (status === 'custom' && isCustom) {
-            show = true;
+        } else if (!isBlocked && showAvailable) {
+            if (!isCustom || showCustom) {
+                show = true;
+            }
         }
 
         card.style.display = show ? '' : 'none';
+        if (show) activeCount++;
     });
 
     // Filter Table Rows
-    const rows = document.querySelectorAll('.avail-row');
-    rows.forEach(row => {
-        const rowStatus = row.getAttribute('data-status');
+    document.querySelectorAll('.avail-row').forEach(row => {
+        const isBlocked = row.getAttribute('data-status') === 'blocked';
         const isCustom  = row.getAttribute('data-custom') === '1';
 
         let show = false;
-        if (status === 'all') {
+        if (isBlocked && showBlocked) {
             show = true;
-        } else if (status === 'available' && rowStatus === 'available') {
-            show = true;
-        } else if (status === 'blocked' && rowStatus === 'blocked') {
-            show = true;
-        } else if (status === 'custom' && isCustom) {
-            show = true;
+        } else if (!isBlocked && showAvailable) {
+            if (!isCustom || showCustom) {
+                show = true;
+            }
         }
 
         row.style.display = show ? '' : 'none';
     });
+}
+
+/**
+ * Reset All Tick Filters to Checked
+ */
+function resetAllTickFilters() {
+    if (document.getElementById('chkAvailable')) document.getElementById('chkAvailable').checked = true;
+    if (document.getElementById('chkBlocked'))   document.getElementById('chkBlocked').checked   = true;
+    if (document.getElementById('chkCustom'))    document.getElementById('chkCustom').checked    = true;
+    applyTickFilters();
+}
+
+/**
+ * Legacy Filter function for KPI Cards
+ */
+function filterAvailabilityStatus(status) {
+    if (status === 'available') {
+        if (document.getElementById('chkAvailable')) document.getElementById('chkAvailable').checked = true;
+        if (document.getElementById('chkBlocked'))   document.getElementById('chkBlocked').checked   = false;
+        if (document.getElementById('chkCustom'))    document.getElementById('chkCustom').checked    = true;
+    } else if (status === 'blocked') {
+        if (document.getElementById('chkAvailable')) document.getElementById('chkAvailable').checked = false;
+        if (document.getElementById('chkBlocked'))   document.getElementById('chkBlocked').checked   = true;
+        if (document.getElementById('chkCustom'))    document.getElementById('chkCustom').checked    = false;
+    } else if (status === 'custom') {
+        if (document.getElementById('chkAvailable')) document.getElementById('chkAvailable').checked = true;
+        if (document.getElementById('chkBlocked'))   document.getElementById('chkBlocked').checked   = false;
+        if (document.getElementById('chkCustom'))    document.getElementById('chkCustom').checked    = true;
+    } else {
+        resetAllTickFilters();
+        return;
+    }
+    applyTickFilters();
 }
 
 /**

@@ -1560,22 +1560,22 @@
             {{-- 2. Properties & Inventory --}}
             @php $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}" data-label="Properties">
+                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}" data-label="Properties &amp; APIs">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Properties</span>
+                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Properties &amp; APIs</span>
                     </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
                 <div class="collapse {{ $isPropertiesActive ? 'show' : '' }}" id="menuProperties">
                     <div class="sb-sub-menu">
                         <a href="{{ route('admin.properties.index') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property Inventory
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Hotels (Vendor + API)
                         </a>
                         <a href="{{ route('admin.import-hotels.index') }}" class="sb-sub-item {{ request()->routeIs('admin.import-hotels.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> OTA Data Importer
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> OTA API Feeds &amp; Importer
                         </a>
                         <a href="{{ route('admin.properties.create') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.create') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Add New Listing
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> + Add New Hotel Listing
                         </a>
                     </div>
                 </div>

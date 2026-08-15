@@ -184,7 +184,18 @@
                                          style="width:50px; height:38px; object-fit:cover; border-radius:5px; border:1px solid #e8e8e8;" alt="">
                                     <div>
                                         <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit($p->name, 35) }}</strong>
-                                        <span style="font-size:10.5px; color:#8c8c8c;">ID: #PROP-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                        <div class="d-flex align-items-center gap-1 mt-0.5">
+                                            <span style="font-size:10px; color:#8c8c8c;">#PROP-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</span>
+                                            @if(!empty($p->vendor_id) && $p->vendor)
+                                                <span class="badge bg-light text-dark border" style="font-size:9.5px; padding:1px 5px;" title="Registered Direct Vendor">
+                                                    <i class="fa-solid fa-user-tie text-primary me-0.5"></i> {{ Str::limit($p->vendor->name, 14) }}
+                                                </span>
+                                            @else
+                                                <span class="badge bg-light text-secondary border" style="font-size:9.5px; padding:1px 5px;" title="Imported via OTA API Feed or Admin Direct">
+                                                    <i class="fa-solid fa-cloud text-info me-0.5"></i> API Feed / System
+                                                </span>
+                                            @endif
+                                        </div>
                                     </div>
                                 </div>
                             </td>

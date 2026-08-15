@@ -287,17 +287,17 @@
 </div>
 
 {{-- ====================================================================== --}}
-{{-- INTEGRATED ADD PROPERTY FORM MODAL (Industry Best Practice)             --}}
+{{-- INTEGRATED ADD PROPERTY FORM MODAL (Clean Professional Design)        --}}
 {{-- ====================================================================== --}}
 <div class="modal fade" id="addPropertyModal" tabindex="-1" aria-labelledby="addPropertyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 30px rgba(0,0,0,0.15);">
+        <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 30px rgba(0,0,0,0.12);">
             <div class="modal-header" style="background:#fafafa; border-bottom:1px solid #f0f0f0; padding:16px 24px;">
                 <div>
-                    <h5 class="modal-title fw-bold text-dark m-0" id="addPropertyModalLabel" style="font-size:16px;">
-                        <i class="fa-solid fa-hotel text-primary me-2"></i> List New Property / Hotel / Ship
+                    <h5 class="modal-title fw-bold text-dark m-0" id="addPropertyModalLabel" style="font-size:15.5px;">
+                        <i class="fa-solid fa-hotel text-primary me-2"></i> Add New Property Listing
                     </h5>
-                    <small class="text-muted" style="font-size:11.5px;">Add property details. Listing will be reviewed by admin before publishing.</small>
+                    <small class="text-muted" style="font-size:11.5px;">Enter your property details below to add to your inventory.</small>
                 </div>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -305,34 +305,29 @@
                 @csrf
                 <div class="modal-body p-4" style="font-size:13px;">
 
-                    {{-- Notice Banner --}}
-                    <div class="p-2.5 mb-3 rounded border" style="background:#f0f7ff; border-color:#bae0ff !important; font-size:11.5px;">
-                        <i class="fa-solid fa-circle-info text-primary me-1"></i>
-                        New listings start as <strong>Pending Admin Review</strong>. Default contract commission (15%) applies.
-                    </div>
-
-                    {{-- SECTION 1 --}}
-                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3" style="font-size:13.5px;">
-                        <i class="fa-solid fa-pen-to-square text-primary me-1.5"></i> 1. Property Details &amp; Destination
+                    {{-- SECTION 1: BASIC INFORMATION --}}
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3">
+                        <span class="badge bg-primary-light text-primary fw-bold" style="background:#e6f7ff; font-size:11px; padding:4px 8px; border-radius:4px;">1</span>
+                        <strong class="text-dark" style="font-size:13.5px;">Basic Information</strong>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-8">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Property Full Name <span class="text-danger">*</span></label>
-                            <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Royal Tulip Sea Pearl Beach Resort" required style="font-size:12.5px;">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Property Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Ocean Paradise Resort &amp; Spa" required style="font-size:12.5px; height:36px;">
                         </div>
                         <div class="col-md-4">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Property Category <span class="text-danger">*</span></label>
-                            <select name="type" class="form-select form-select-sm" required style="font-size:12.5px;">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Category <span class="text-danger">*</span></label>
+                            <select name="type" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
                                 <option value="hotel">Hotel &amp; Resort</option>
-                                <option value="resort">Beach Resort &amp; Spa</option>
-                                <option value="houseboat">Ship &amp; Houseboat</option>
-                                <option value="homestay">Eco Cottage &amp; Homestay</option>
+                                <option value="resort">Beach Resort</option>
+                                <option value="houseboat">Ship / Houseboat</option>
+                                <option value="homestay">Eco Homestay</option>
                                 <option value="apartment">Serviced Apartment</option>
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">City / Location <span class="text-danger">*</span></label>
-                            <select name="city" class="form-select form-select-sm" required style="font-size:12.5px;">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Destination City <span class="text-danger">*</span></label>
+                            <select name="city" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
                                 <option value="Cox's Bazar Sea Beach">Cox's Bazar Sea Beach</option>
                                 <option value="Dhaka City">Dhaka City</option>
                                 <option value="Sylhet & Sreemangal">Sylhet &amp; Sreemangal</option>
@@ -344,8 +339,8 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Star Rating <span class="text-danger">*</span></label>
-                            <select name="star_rating" class="form-select form-select-sm" required style="font-size:12.5px;">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Star Rating <span class="text-danger">*</span></label>
+                            <select name="star_rating" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
                                 <option value="5">★★★★★ — 5 Star Luxury</option>
                                 <option value="4">★★★★ — 4 Star Premium</option>
                                 <option value="3">★★★ — 3 Star Standard</option>
@@ -353,118 +348,103 @@
                             </select>
                         </div>
                         <div class="col-md-7">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Street Address <span class="text-danger">*</span></label>
-                            <input type="text" name="address" class="form-control form-control-sm" placeholder="e.g. Marine Drive, Kalatoli, Cox's Bazar" required style="font-size:12.5px;">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Street Address <span class="text-danger">*</span></label>
+                            <input type="text" name="address" class="form-control form-control-sm" placeholder="e.g. Marine Drive Road, Kolatoli" required style="font-size:12.5px; height:36px;">
                         </div>
                         <div class="col-md-5">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Nearest Landmark / Area</label>
-                            <input type="text" name="nearest_landmark" class="form-control form-control-sm" placeholder="e.g. Kolatoli Beach Point (150m)" style="font-size:12.5px;">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Nearest Landmark</label>
+                            <input type="text" name="nearest_landmark" class="form-control form-control-sm" placeholder="e.g. Near Kolatoli Beach Point" style="font-size:12.5px; height:36px;">
                         </div>
                     </div>
 
-                    {{-- SECTION 2 --}}
-                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-bangladeshi-taka-sign text-success me-1.5"></i> 2. Pricing &amp; MRP Rate
+                    {{-- SECTION 2: PRICING & POLICIES --}}
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3 mt-4">
+                        <span class="badge bg-success-light text-success fw-bold" style="background:#f6ffed; font-size:11px; padding:4px 8px; border-radius:4px;">2</span>
+                        <strong class="text-dark" style="font-size:13.5px;">Pricing &amp; Booking Policies</strong>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Base Nightly Price (BDT ৳) <span class="text-danger">*</span></label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Base Price / Night (BDT ৳) <span class="text-danger">*</span></label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text fw-bold bg-light">৳ BDT</span>
-                                <input type="number" name="price_per_night" class="form-control" placeholder="e.g. 9500" required style="font-size:12.5px;">
+                                <input type="number" name="price_per_night" class="form-control" placeholder="e.g. 8500" required style="font-size:12.5px; height:36px;">
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Regular MRP Price (BDT ৳) — Optional</label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Regular MRP Price (BDT ৳)</label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text fw-bold bg-light">৳ BDT</span>
-                                <input type="number" name="original_price" class="form-control" placeholder="e.g. 13000 (Shows discount)" style="font-size:12.5px;">
+                                <input type="number" name="original_price" class="form-control" placeholder="e.g. 11000 (Optional discount MRP)" style="font-size:12.5px; height:36px;">
                             </div>
                         </div>
-                    </div>
-
-                    {{-- SECTION 3 --}}
-                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-shield-halved text-info me-1.5"></i> 3. Booking &amp; Cancellation Policies
-                    </div>
-                    <div class="row g-3 mb-3">
                         <div class="col-md-6">
                             <div class="p-2.5 border rounded d-flex align-items-center justify-content-between bg-light">
                                 <div>
-                                    <strong class="d-block text-dark" style="font-size:12px;">Free Cancellation Available</strong>
-                                    <small class="text-muted" style="font-size:10.5px;">Guests can cancel free before arrival date</small>
+                                    <strong class="d-block text-dark" style="font-size:12px;">Free Cancellation</strong>
+                                    <small class="text-muted" style="font-size:10.5px;">Allows guest free cancellation before check-in</small>
                                 </div>
                                 <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="freeCancelSwitch" checked style="cursor:pointer; width:36px; height:20px;">
+                                    <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" checked style="cursor:pointer; width:34px; height:18px;">
                                 </div>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="p-2.5 border rounded d-flex align-items-center justify-content-between bg-light">
                                 <div>
-                                    <strong class="d-block text-dark" style="font-size:12px;">Pay at Hotel / No Card Required</strong>
-                                    <small class="text-muted" style="font-size:10.5px;">Allow guests to pay upon check-in</small>
+                                    <strong class="d-block text-dark" style="font-size:12px;">Pay at Hotel</strong>
+                                    <small class="text-muted" style="font-size:10.5px;">Allows guest payment upon arrival</small>
                                 </div>
                                 <div class="form-check form-switch m-0">
-                                    <input class="form-check-input" type="checkbox" name="no_credit_card_required" value="1" id="payAtHotelSwitch" style="cursor:pointer; width:36px; height:20px;">
+                                    <input class="form-check-input" type="checkbox" name="no_credit_card_required" value="1" style="cursor:pointer; width:34px; height:18px;">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    {{-- SECTION 4 --}}
-                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-camera text-purple me-1.5" style="color:#7367f0;"></i> 4. Photos, Unlimited Gallery &amp; Video Tour
+                    {{-- SECTION 3: MEDIA & GALLERY --}}
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3 mt-4">
+                        <span class="badge bg-purple-light text-primary fw-bold" style="background:#f0f5ff; font-size:11px; padding:4px 8px; border-radius:4px;">3</span>
+                        <strong class="text-dark" style="font-size:13.5px;">Photos, Gallery &amp; Video Tour</strong>
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Main Thumbnail (Device Upload)</label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Cover Photo (Device Upload)</label>
                             <input type="file" name="primary_image_file" class="form-control form-control-sm" accept="image/*" style="font-size:12px;">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR Main Thumbnail URL</label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">OR Cover Photo URL</label>
                             <input type="url" name="primary_image" class="form-control form-control-sm" placeholder="https://images.unsplash.com/..." style="font-size:12px;">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Upload Unlimited Gallery Photos (Multiple Files)</label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Gallery Photos (Multiple Files)</label>
                             <input type="file" name="gallery_image_files[]" class="form-control form-control-sm" multiple accept="image/*" style="font-size:12px;">
-                            <small class="text-muted d-block mt-0.5" style="font-size:10.5px;">Select multiple pictures at once from your device</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR Gallery Image URLs (One URL per line)</label>
-                            <textarea name="gallery_images" class="form-control form-control-sm" rows="2" placeholder="https://...&#10;https://..." style="font-size:11.5px;"></textarea>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">OR Gallery URLs (One per line)</label>
+                            <textarea name="gallery_images" class="form-control form-control-sm" rows="1" placeholder="https://... (One per line)" style="font-size:11.5px;"></textarea>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Upload Video Tour (MP4 / WebM / MOV)</label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Upload Video Tour (MP4 / WebM)</label>
                             <input type="file" name="video_file" class="form-control form-control-sm" accept="video/*" style="font-size:12px;">
-                            <small class="text-muted d-block mt-0.5" style="font-size:10.5px;">Direct video upload from phone/computer</small>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">OR YouTube / Video URL</label>
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">OR YouTube Video Tour URL</label>
                             <input type="url" name="video_url" class="form-control form-control-sm" placeholder="https://www.youtube.com/watch?v=..." style="font-size:12px;">
-                            <small class="text-muted d-block mt-0.5" style="font-size:10.5px;">Shown prominently in the main hotel hero box</small>
                         </div>
                     </div>
 
-                    {{-- SECTION 5 --}}
-                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-align-left text-primary me-1.5"></i> 5. Overview &amp; Description
+                    {{-- SECTION 4: AMENITIES & DESCRIPTION --}}
+                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3 mt-4">
+                        <span class="badge bg-warning-light text-warning fw-bold" style="background:#fffbe6; color:#d48806 !important; font-size:11px; padding:4px 8px; border-radius:4px;">4</span>
+                        <strong class="text-dark" style="font-size:13.5px;">Amenities &amp; Description</strong>
                     </div>
-                    <div class="mb-3">
-                        <textarea name="description" class="form-control form-control-sm" rows="3" placeholder="Describe property amenities, location highlights, breakfast policies..." required style="font-size:12.5px;"></textarea>
-                    </div>
-
-                    {{-- SECTION 6 --}}
-                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-list-check text-info me-1.5"></i> 6. Amenities &amp; Services (Select All That Apply)
-                    </div>
-                    <div class="row g-2">
+                    <div class="row g-2 mb-3">
                         @foreach([
                             ['wifi','fa-wifi','Free Wi-Fi'],
                             ['pool','fa-person-swimming','Swimming Pool'],
                             ['parking','fa-car','Free Parking'],
                             ['ac','fa-snowflake','Air Conditioning'],
-                            ['restaurant','fa-utensils','Multi Restaurant'],
+                            ['restaurant','fa-utensils','Restaurant'],
                             ['breakfast','fa-mug-hot','Free Breakfast'],
                             ['gym','fa-dumbbell','Gym / Fitness'],
                             ['beachfront','fa-water','Beachfront View'],
@@ -481,12 +461,16 @@
                         </div>
                         @endforeach
                     </div>
+                    <div>
+                        <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Property Description <span class="text-danger">*</span></label>
+                        <textarea name="description" class="form-control form-control-sm" rows="3" placeholder="Briefly describe property highlights, location benefits, and dining features..." required style="font-size:12.5px;"></textarea>
+                    </div>
 
                 </div>
                 <div class="modal-footer bg-light" style="border-top:1px solid #f0f0f0; padding:12px 24px;">
-                    <button type="button" class="btn btn-secondary btn-sm px-3" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold" style="background-color:#2067e1; border:none;">
-                        <i class="fa-solid fa-paper-plane me-1"></i> Submit Property Listing
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-3" data-bs-dismiss="modal" style="font-size:12.5px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold" style="background-color:#2067e1; border:none; font-size:12.5px; border-radius:4px;">
+                        <i class="fa-solid fa-plus me-1"></i> Save &amp; Submit Property
                     </button>
                 </div>
             </form>

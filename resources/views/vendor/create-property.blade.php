@@ -36,20 +36,7 @@
             </div>
         @endif
 
-        {{-- ENTERPRISE MODERATION & COMMISSION NOTICE BANNER --}}
-        <div class="p-3 mb-3 rounded border" style="background:#f0f7ff; border-color:#bae0ff !important;">
-            <div class="d-flex align-items-start gap-2.5">
-                <div style="width:34px; height:34px; border-radius:50%; background:#2067e1; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px;">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <div>
-                    <h6 class="fw-bold text-dark mb-1" style="font-size:13px;">Vendor Listing Moderation &amp; Commission Notice</h6>
-                    <p class="mb-0 text-secondary" style="font-size:12px; line-height:1.5;">
-                        Submitted listings are saved with status <strong>"Pending Admin Review"</strong>. Once approved by our team, your hotel goes live instantly. Standard platform contract commission rate (default 15.00%) applies per room booking. Real-time notifications will alert your inbox upon status approval.
-                    </p>
-                </div>
-            </div>
-        </div>
+
 
         <form action="{{ route('vendor.properties.store') }}" method="POST" enctype="multipart/form-data">
             @csrf

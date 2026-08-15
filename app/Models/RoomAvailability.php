@@ -16,8 +16,10 @@ class RoomAvailability extends Model
         'price_override',
         'available_qty',
         'available_count',
+        'available_rooms',
         'is_blocked',
         'is_closed',
+        'is_available',
     ];
 
     protected $casts = [
@@ -52,6 +54,16 @@ class RoomAvailability extends Model
         return $this->attributes['available_qty'] ?? null;
     }
 
+    public function setAvailableRoomsAttribute($value): void
+    {
+        $this->attributes['available_qty'] = $value;
+    }
+
+    public function getAvailableRoomsAttribute()
+    {
+        return $this->attributes['available_qty'] ?? null;
+    }
+
     public function setIsClosedAttribute($value): void
     {
         $this->attributes['is_blocked'] = (bool)$value;
@@ -60,5 +72,15 @@ class RoomAvailability extends Model
     public function getIsClosedAttribute(): bool
     {
         return (bool)($this->attributes['is_blocked'] ?? false);
+    }
+
+    public function setIsAvailableAttribute($value): void
+    {
+        $this->attributes['is_blocked'] = !(bool)$value;
+    }
+
+    public function getIsAvailableAttribute(): bool
+    {
+        return !(bool)($this->attributes['is_blocked'] ?? false);
     }
 }

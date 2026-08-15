@@ -217,18 +217,23 @@
                         <td style="text-align:right; padding-right: 20px !important;">
                             <div class="d-inline-flex gap-1.5 align-items-center">
                                 {{-- Direct Room Inventory Shortcut --}}
-                                <a href="{{ route('vendor.rooms.index', $property->id) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1" title="Manage Room Categories" style="font-size:11.5px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
-                                    <i class="fa-solid fa-bed me-1"></i> Rooms
+                                <a href="{{ route('vendor.rooms.index', $property->id) }}" class="btn btn-sm btn-outline-primary" title="Manage Rooms" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                    <i class="fa-solid fa-bed"></i>
                                 </a>
 
                                 {{-- Direct Rate Calendar Shortcut --}}
-                                <a href="{{ route('vendor.availability.index') }}" class="btn btn-sm btn-light border fw-semibold px-2.5 py-1 text-dark" title="Rates & Availability Calendar" style="font-size:11.5px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
-                                    <i class="fa-solid fa-calendar-days text-success me-1"></i> Rates
+                                <a href="{{ route('vendor.availability.index') }}" class="btn btn-sm btn-light border text-success" title="Rates & Availability Calendar" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                    <i class="fa-solid fa-calendar-days"></i>
+                                </a>
+
+                                {{-- Edit Shortcut --}}
+                                <a href="{{ route('vendor.properties.edit', $property->id) }}" class="btn btn-sm btn-light border text-primary" title="Edit Property" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                    <i class="fa-solid fa-pen"></i>
                                 </a>
 
                                 {{-- Actions Dropdown --}}
                                 <div class="action-gear-dropdown">
-                                    <button class="btn btn-sm btn-light border px-2 py-1" style="height:28px; border-radius:4px;" title="More Actions">
+                                    <button class="btn btn-sm btn-light border text-secondary" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="More Actions">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end py-1 shadow-sm border" style="font-size:12.5px; min-width:180px;">

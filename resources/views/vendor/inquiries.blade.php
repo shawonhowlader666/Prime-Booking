@@ -26,10 +26,12 @@
                     <td style="font-size:12.5px;font-weight:600;">৳{{ number_format($inquiry->total_amount ?? $inquiry->total_price ?? 0) }}</td>
                     <td><span class="badge-status pending">Pending</span></td>
                     <td style="text-align:right;">
-                        <form action="{{ route('vendor.inquiries.reply', $inquiry->id) }}" method="POST" class="d-inline">
+                        <form action="{{ route('vendor.inquiries.reply', $inquiry->id) }}" method="POST" class="d-inline m-0">
                             @csrf
                             <input type="hidden" name="reply" value="Thank you for your inquiry. We will confirm your booking shortly.">
-                            <button type="submit" class="btn-table-action primary" style="font-size:11.5px;"><i class="fa-solid fa-reply me-1"></i>Reply</button>
+                            <button type="submit" class="btn btn-sm btn-outline-primary" title="Quick Reply" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                <i class="fa-solid fa-reply"></i>
+                            </button>
                         </form>
                     </td>
                 </tr>

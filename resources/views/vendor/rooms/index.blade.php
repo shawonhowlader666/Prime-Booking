@@ -142,22 +142,22 @@
                             </div>
                         </td>
                         <td style="text-align:right; padding-right: 20px !important;">
-                            <div class="d-inline-flex gap-2 align-items-center">
+                            <div class="d-inline-flex gap-1.5 align-items-center">
                                 {{-- Quick Calendar Rate Shortcut --}}
-                                <a href="{{ route('vendor.availability.index', ['room_id' => $r->id]) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1 d-inline-flex align-items-center" title="Manage Calendar Rates" style="font-size:11.5px; height:28px; border-radius:4px;">
-                                    <i class="fa-solid fa-calendar-days" style="margin-right:5px;"></i> Rates
+                                <a href="{{ route('vendor.availability.index', ['room_id' => $r->id]) }}" class="btn btn-sm btn-outline-primary" title="Rates Calendar" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                    <i class="fa-solid fa-calendar-days"></i>
                                 </a>
 
                                 {{-- Edit Modal Button --}}
-                                <button type="button" class="btn btn-sm btn-light border px-2.5 py-1 d-inline-flex align-items-center" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $r->id }}" title="Edit Room Details" style="font-size:11.5px; height:28px; border-radius:4px;">
-                                    <i class="fa-solid fa-pen text-primary" style="margin-right:5px;"></i> Edit
+                                <button type="button" class="btn btn-sm btn-light border text-primary" data-bs-toggle="modal" data-bs-target="#editRoomModal{{ $r->id }}" title="Edit Room Details" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                    <i class="fa-solid fa-pen"></i>
                                 </button>
 
                                 {{-- Delete Form --}}
-                                <form action="{{ route('vendor.rooms.destroy', [$property->id, $r->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete room category: {{ $r->name }}?');" class="d-inline">
+                                <form action="{{ route('vendor.rooms.destroy', [$property->id, $r->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete room category: {{ $r->name }}?');" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-light border text-danger px-2 py-1" title="Delete Room" style="font-size:11.5px; height:28px; border-radius:4px;">
+                                    <button type="submit" class="btn btn-sm btn-light border text-danger" title="Delete Room" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>

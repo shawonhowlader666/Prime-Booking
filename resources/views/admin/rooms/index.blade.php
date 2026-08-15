@@ -144,13 +144,13 @@
                         </td>
                         <td style="text-align:right; padding-right: 20px !important;">
                             <div class="d-inline-flex gap-1.5 align-items-center">
-                                <a href="{{ route('admin.rooms.edit', [$property->id, $room->id]) }}" class="btn btn-sm btn-light border px-2.5 py-1" title="Edit Room Type" style="font-size:11.5px; height:28px; border-radius:4px;">
-                                    <i class="fa-solid fa-pen text-primary me-1"></i> Edit
+                                <a href="{{ route('admin.rooms.edit', [$property->id, $room->id]) }}" class="btn btn-sm btn-light border text-primary" title="Edit Room Details" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
+                                    <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" onsubmit="return confirm('Delete room type &quot;{{ $room->name }}&quot;?');" class="d-inline">
+                                <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" onsubmit="return confirm('Delete room type &quot;{{ $room->name }}&quot;?');" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="btn btn-sm btn-light border text-danger px-2 py-1" title="Delete Room" style="font-size:11.5px; height:28px; border-radius:4px;">
+                                    <button type="submit" class="btn btn-sm btn-light border text-danger" title="Delete Room" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
                                         <i class="fa-solid fa-trash"></i>
                                     </button>
                                 </form>

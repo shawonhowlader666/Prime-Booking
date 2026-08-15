@@ -223,14 +223,14 @@
                             </td>
                             <td style="text-align:right;">
                                 @if(($p->status ?? '') == 'pending')
-                                    <form action="{{ route('admin.properties.approve', $p->id) }}" method="POST" class="d-inline-block me-1">
+                                    <form action="{{ route('admin.properties.approve', $p->id) }}" method="POST" class="d-inline-block me-1 m-0">
                                         @csrf
-                                        <button type="submit" class="btn btn-sm btn-success fw-bold text-white px-2 py-1" style="font-size:11px; border-radius:4px;" title="Approve & Publish Live">
-                                            <i class="fa-solid fa-check me-1"></i> Approve
+                                        <button type="submit" class="btn btn-sm btn-success text-white" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="Approve & Publish Live">
+                                            <i class="fa-solid fa-check"></i>
                                         </button>
                                     </form>
-                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold px-2 py-1 me-1" style="font-size:11px; border-radius:4px;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $p->id }}" title="Reject with Feedback">
-                                        <i class="fa-solid fa-xmark me-1"></i> Reject
+                                    <button type="button" class="btn btn-sm btn-outline-danger me-1" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $p->id }}" title="Reject with Feedback">
+                                        <i class="fa-solid fa-xmark"></i>
                                     </button>
 
                                     {{-- REJECT MODAL --}}

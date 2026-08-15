@@ -80,6 +80,35 @@
                         <label class="form-label">Full Address</label>
                         <input type="text" name="address" class="form-control" value="{{ old('address', $property->address) }}">
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nearest Landmark / Distance</label>
+                        <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark', $property->nearest_landmark) }}" placeholder="e.g. 2 mins walk from Beach Point">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Real-Time GPS Coordinates (Lat, Long)</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="latitude" class="form-control" value="{{ old('latitude', $property->latitude) }}" placeholder="Lat: 21.4272">
+                            <input type="text" name="longitude" class="form-control" value="{{ old('longitude', $property->longitude) }}" placeholder="Long: 91.9702">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Google Maps Embed / Location Link</label>
+                        <input type="url" name="map_embed_url" class="form-control" value="{{ old('map_embed_url', $property->map_embed_url) }}" placeholder="https://maps.google.com/...">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Check-in / Check-out Hours</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="checkin_time" class="form-control" value="{{ old('checkin_time', $property->checkin_time ?? '14:00') }}" placeholder="Checkin: 14:00">
+                            <input type="text" name="checkout_time" class="form-control" value="{{ old('checkout_time', $property->checkout_time ?? '12:00') }}" placeholder="Checkout: 12:00">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Hotel Contact Phone &amp; Email</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="contact_phone" class="form-control" value="{{ old('contact_phone', $property->contact_phone) }}" placeholder="+8801700000000">
+                            <input type="email" name="contact_email" class="form-control" value="{{ old('contact_email', $property->contact_email) }}" placeholder="info@hotel.com">
+                        </div>
+                    </div>
                 </div>
             </div>
 

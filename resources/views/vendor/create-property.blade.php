@@ -99,6 +99,32 @@
                         <input type="text" name="nearest_landmark" class="form-control form-control-sm" value="{{ old('nearest_landmark') }}"
                             placeholder="e.g. Kolatoli Beach Point (150m)" style="font-size:13px; height:38px;">
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Real-Time GPS Coordinates (Lat, Long)</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="latitude" class="form-control form-control-sm" value="{{ old('latitude') }}" placeholder="Lat: 21.4272" style="font-size:13px; height:38px;">
+                            <input type="text" name="longitude" class="form-control form-control-sm" value="{{ old('longitude') }}" placeholder="Long: 91.9702" style="font-size:13px; height:38px;">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Google Maps Embed / Location Link</label>
+                        <input type="url" name="map_embed_url" class="form-control form-control-sm" value="{{ old('map_embed_url') }}"
+                            placeholder="https://maps.google.com/..." style="font-size:13px; height:38px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Check-in / Check-out Hours</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="checkin_time" class="form-control form-control-sm" value="{{ old('checkin_time', '14:00') }}" placeholder="Checkin: 14:00" style="font-size:13px; height:38px;">
+                            <input type="text" name="checkout_time" class="form-control form-control-sm" value="{{ old('checkout_time', '12:00') }}" placeholder="Checkout: 12:00" style="font-size:13px; height:38px;">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Hotel Contact Phone &amp; Email</label>
+                        <div style="display:flex; gap:8px;">
+                            <input type="text" name="contact_phone" class="form-control form-control-sm" value="{{ old('contact_phone') }}" placeholder="+8801700000000" style="font-size:13px; height:38px;">
+                            <input type="email" name="contact_email" class="form-control form-control-sm" value="{{ old('contact_email') }}" placeholder="info@hotel.com" style="font-size:13px; height:38px;">
+                        </div>
+                    </div>
                 </div>
 
                 {{-- SECTION 2: PRICING --}}

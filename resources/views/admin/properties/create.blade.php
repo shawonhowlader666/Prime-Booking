@@ -95,10 +95,36 @@
                     <input type="text" name="address" class="form-control" value="{{ old('address') }}"
                         placeholder="e.g. Inani Beach, Marine Drive Road, Kolatoli, Cox's Bazar 4700" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Nearest Landmark / Distance</label>
                     <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark') }}"
                         placeholder="e.g. 2 mins walk from Kolatoli Beach Point" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Real-Time GPS Coordinates (Lat, Long)</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" name="latitude" class="form-control" value="{{ old('latitude') }}" placeholder="Lat: 21.4272" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        <input type="text" name="longitude" class="form-control" value="{{ old('longitude') }}" placeholder="Long: 91.9702" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Google Maps Embed / Location Link</label>
+                    <input type="url" name="map_embed_url" class="form-control" value="{{ old('map_embed_url') }}"
+                        placeholder="https://maps.google.com/..." style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Check-in / Check-out Hours</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" name="checkin_time" class="form-control" value="{{ old('checkin_time', '14:00') }}" placeholder="Checkin: 14:00" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        <input type="text" name="checkout_time" class="form-control" value="{{ old('checkout_time', '12:00') }}" placeholder="Checkout: 12:00" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Hotel Contact Phone &amp; Email</label>
+                    <div style="display:flex; gap:8px;">
+                        <input type="text" name="contact_phone" class="form-control" value="{{ old('contact_phone') }}" placeholder="+8801700000000" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        <input type="email" name="contact_email" class="form-control" value="{{ old('contact_email') }}" placeholder="info@hotel.com" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                    </div>
                 </div>
             </div>
 

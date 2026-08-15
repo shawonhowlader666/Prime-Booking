@@ -38,17 +38,17 @@
 
                 @php
                     $tiers = [
-                        ['key'=>'vip_silver_threshold',   'label'=>'🥈 Silver', 'color'=>'#94a3b8'],
-                        ['key'=>'vip_gold_threshold',     'label'=>'🥇 Gold',   'color'=>'#f5c518'],
-                        ['key'=>'vip_platinum_threshold', 'label'=>'💎 Platinum','color'=>'#a78bfa'],
-                        ['key'=>'vip_diamond_threshold',  'label'=>'💠 Diamond', 'color'=>'#38bdf8'],
+                        ['key'=>'vip_silver_threshold',   'label'=>'Silver Tier',   'icon'=>'fa-solid fa-medal text-secondary'],
+                        ['key'=>'vip_gold_threshold',     'label'=>'Gold Tier',     'icon'=>'fa-solid fa-crown text-warning'],
+                        ['key'=>'vip_platinum_threshold', 'label'=>'Platinum Tier', 'icon'=>'fa-solid fa-gem text-info'],
+                        ['key'=>'vip_diamond_threshold',  'label'=>'Diamond Tier',  'icon'=>'fa-solid fa-diamond text-primary'],
                     ];
                     $discounts = [
-                        ['key'=>'vip_bronze_discount',   'label'=>'🥉 Bronze Discount %'],
-                        ['key'=>'vip_silver_discount',   'label'=>'🥈 Silver Discount %'],
-                        ['key'=>'vip_gold_discount',     'label'=>'🥇 Gold Discount %'],
-                        ['key'=>'vip_platinum_discount', 'label'=>'💎 Platinum Discount %'],
-                        ['key'=>'vip_diamond_discount',  'label'=>'💠 Diamond Discount %'],
+                        ['key'=>'vip_bronze_discount',   'label'=>'Bronze Discount %',   'icon'=>'fa-solid fa-tag text-warning'],
+                        ['key'=>'vip_silver_discount',   'label'=>'Silver Discount %',   'icon'=>'fa-solid fa-tag text-secondary'],
+                        ['key'=>'vip_gold_discount',     'label'=>'Gold Discount %',     'icon'=>'fa-solid fa-tag text-warning'],
+                        ['key'=>'vip_platinum_discount', 'label'=>'Platinum Discount %', 'icon'=>'fa-solid fa-tag text-info'],
+                        ['key'=>'vip_diamond_discount',  'label'=>'Diamond Discount %',  'icon'=>'fa-solid fa-tag text-primary'],
                     ];
                 @endphp
 
@@ -58,7 +58,7 @@
                     @foreach($tiers as $tier)
                     @php $setting = $groups['vip']->firstWhere('key', $tier['key']); @endphp
                     <tr>
-                        <td style="font-weight:600;">{{ $tier['label'] }}</td>
+                        <td style="font-weight:600;"><i class="{{ $tier['icon'] }} me-1.5"></i> {{ $tier['label'] }}</td>
                         <td>
                             <input type="number" name="settings[{{ $tier['key'] }}]"
                                 class="form-control form-control-sm" style="width:80px;"
@@ -69,18 +69,21 @@
                     </tbody>
                 </table>
 
-                <div style="font-size:11px;font-weight:700;margin-bottom:6px;color:#555;">Member Discounts</div>
+                <div style="font-weight:600;font-size:12px;margin-bottom:8px;">VIP Tier Discounts</div>
                 <table class="table table-sm mb-0">
                     <thead><tr><th>Tier</th><th>Discount %</th></tr></thead>
                     <tbody>
                     @foreach($discounts as $d)
-                    @php $s = $groups['vip']->firstWhere('key', $d['key']); @endphp
+                    @php $setting = $groups['vip']->firstWhere('key', $d['key']); @endphp
                     <tr>
-                        <td>{{ $d['label'] }}</td>
+                        <td style="font-weight:600;"><i class="{{ $d['icon'] }} me-1.5"></i> {{ $d['label'] }}</td>
                         <td>
-                            <input type="number" name="settings[{{ $d['key'] }}]"
-                                class="form-control form-control-sm" style="width:80px;"
-                                value="{{ $s?->value ?? '0' }}" min="0" max="100" step="0.5">
+                            <div class="input-group input-group-sm" style="width:100px;">
+                                <input type="number" name="settings[{{ $d['key'] }}]"
+                                    class="form-control" value="{{ $setting?->value ?? '' }}"
+                                    min="0" max="50" step="0.5">
+                                <span class="input-group-text">%</span>
+                            </div>
                         </td>
                     </tr>
                     @endforeach
@@ -130,11 +133,11 @@
                 </div>
                 @php
                     $payments = [
-                        ['key'=>'payment_bkash_enabled', 'label'=>'📱 bKash'],
-                        ['key'=>'payment_nagad_enabled', 'label'=>'📱 Nagad'],
-                        ['key'=>'payment_card_enabled',  'label'=>'💳 Card / Bank'],
-                        ['key'=>'payment_stripe_enabled','label'=>'💳 Stripe'],
-                        ['key'=>'payment_paypal_enabled','label'=>'🅿️ PayPal'],
+                        ['key'=>'payment_bkash_enabled', 'label'=>'bKash Direct Gateway', 'icon'=>'fa-solid fa-mobile-screen text-danger'],
+                        ['key'=>'payment_nagad_enabled', 'label'=>'Nagad Direct Gateway', 'icon'=>'fa-solid fa-mobile-screen text-warning'],
+                        ['key'=>'payment_card_enabled',  'label'=>'SSLCommerz / Bank Card', 'icon'=>'fa-solid fa-credit-card text-primary'],
+                        ['key'=>'payment_stripe_enabled','label'=>'Stripe Global Card', 'icon'=>'fa-brands fa-stripe text-info'],
+                        ['key'=>'payment_paypal_enabled','label'=>'PayPal International', 'icon'=>'fa-brands fa-paypal text-primary'],
                     ];
                 @endphp
                 @foreach($payments as $p)
@@ -143,8 +146,8 @@
                     <input class="form-check-input" type="checkbox" name="settings[{{ $p['key'] }}]"
                         value="1" id="{{ $p['key'] }}"
                         {{ (bool)($s?->value ?? false) ? 'checked' : '' }}>
-                    <label class="form-check-label" for="{{ $p['key'] }}" style="font-size:13px;">
-                        {{ $p['label'] }}
+                    <label class="form-check-label d-inline-flex align-items-center gap-1.5" for="{{ $p['key'] }}" style="font-size:12.5px; font-weight:600; cursor:pointer;">
+                        <i class="{{ $p['icon'] }}"></i> {{ $p['label'] }}
                     </label>
                 </div>
                 @endforeach

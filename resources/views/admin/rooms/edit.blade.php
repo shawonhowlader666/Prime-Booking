@@ -61,34 +61,43 @@
                         <input type="number" name="total_rooms" class="form-control" value="{{ old('total_rooms', $room->total_rooms) }}" min="1">
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Room View <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-mountain-sun text-info me-1"></i> Room View <span style="color:#ff4d4f;">*</span></label>
                         <select name="view_type" class="form-select" required>
-                            @foreach(['Sea View / Ocean Front' => '🌊 Sea View / Ocean Front', 'City Skyline View' => '🏙️ City Skyline View', 'Mountain / Hill View' => '⛰️ Mountain / Hill View', 'Garden & Pool View' => '🌴 Garden & Pool View', 'Lake / River View' => '⛵ Lake / River View', 'Courtyard View' => '🌿 Inner Courtyard View'] as $vVal => $vLbl)
+                            @foreach([
+                                'Sea View / Ocean Front' => 'Direct Ocean / Sea View',
+                                'Beachfront View' => 'Beachfront & Wave View',
+                                'City Skyline View' => 'City Skyline View',
+                                'Mountain / Hill View' => 'Scenic Mountain / Hill View',
+                                'Garden & Pool View' => 'Lush Garden & Pool View',
+                                'Lake / River View' => 'Lake / River View',
+                                'Sunset View' => 'Sunset Panoramic View',
+                                'Courtyard View' => 'Quiet Inner Courtyard View'
+                            ] as $vVal => $vLbl)
                                 <option value="{{ $vVal }}" {{ old('view_type', $room->view_type) == $vVal ? 'selected' : '' }}>{{ $vLbl }}</option>
                             @endforeach
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-shower text-primary me-1"></i> Attached Bathrooms <span style="color:#ff4d4f;">*</span></label>
                         <select name="bathroom_count" class="form-select" required>
-                            <option value="1" {{ old('bathroom_count', $room->bathroom_count) == 1 ? 'selected' : '' }}>🚿 1 Attached Bathroom</option>
-                            <option value="2" {{ old('bathroom_count', $room->bathroom_count) == 2 ? 'selected' : '' }}>🚿🚿 2 Bathrooms</option>
-                            <option value="3" {{ old('bathroom_count', $room->bathroom_count) == 3 ? 'selected' : '' }}>🚿🚿🚿 3 Bathrooms</option>
+                            <option value="1" {{ old('bathroom_count', $room->bathroom_count) == 1 ? 'selected' : '' }}>1 Attached Bathroom</option>
+                            <option value="2" {{ old('bathroom_count', $room->bathroom_count) == 2 ? 'selected' : '' }}>2 Attached Bathrooms</option>
+                            <option value="3" {{ old('bathroom_count', $room->bathroom_count) == 3 ? 'selected' : '' }}>3 Attached Bathrooms</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Smoking Policy <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label"><i class="fa-solid fa-ban-smoking text-danger me-1"></i> Smoking Policy <span style="color:#ff4d4f;">*</span></label>
                         <select name="smoking_policy" class="form-select" required>
-                            <option value="Non-Smoking" {{ old('smoking_policy', $room->smoking_policy) == 'Non-Smoking' ? 'selected' : '' }}>🚭 100% Non-Smoking</option>
-                            <option value="Smoking Allowed" {{ old('smoking_policy', $room->smoking_policy) == 'Smoking Allowed' ? 'selected' : '' }}>🚬 Smoking Allowed</option>
+                            <option value="Non-Smoking" {{ old('smoking_policy', $room->smoking_policy) == 'Non-Smoking' ? 'selected' : '' }}>100% Non-Smoking Room</option>
+                            <option value="Smoking Allowed" {{ old('smoking_policy', $room->smoking_policy) == 'Smoking Allowed' ? 'selected' : '' }}>Smoking Permitted</option>
                         </select>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Balcony / Terrace</label>
+                        <label class="form-label"><i class="fa-solid fa-tree-city text-success me-1"></i> Balcony / Terrace</label>
                         <select name="balcony_type" class="form-select">
-                            <option value="Private Balcony" {{ old('balcony_type', $room->balcony_type) == 'Private Balcony' ? 'selected' : '' }}>🏞️ Private Balcony</option>
-                            <option value="Terrace" {{ old('balcony_type', $room->balcony_type) == 'Terrace' ? 'selected' : '' }}>🌅 Large Terrace</option>
-                            <option value="French Balcony" {{ old('balcony_type', $room->balcony_type) == 'French Balcony' ? 'selected' : '' }}>🪟 French Balcony</option>
+                            <option value="Private Balcony" {{ old('balcony_type', $room->balcony_type) == 'Private Balcony' ? 'selected' : '' }}>Private Balcony</option>
+                            <option value="Terrace" {{ old('balcony_type', $room->balcony_type) == 'Terrace' ? 'selected' : '' }}>Large Open Terrace</option>
+                            <option value="French Balcony" {{ old('balcony_type', $room->balcony_type) == 'French Balcony' ? 'selected' : '' }}>French Balcony</option>
                             <option value="No Balcony" {{ old('balcony_type', $room->balcony_type) == 'No Balcony' ? 'selected' : '' }}>No Balcony</option>
                         </select>
                     </div>
@@ -96,10 +105,18 @@
                         <label class="form-label">Bathroom Features &amp; Toiletries</label>
                         <div class="d-flex flex-wrap gap-2 p-2 rounded border" style="background:#f8fafc;">
                             @php $currentBFeats = is_array($room->bathroom_features) ? $room->bathroom_features : ['Private Bathroom', 'Hot Water Geyser']; @endphp
-                            @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
-                                <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                                    <input class="form-check-input m-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" {{ in_array($bFeat, $currentBFeats) ? 'checked' : '' }} style="cursor:pointer;">
-                                    {{ $bFeat }}
+                            @foreach([
+                                ['Private Bathroom', 'fa-solid fa-shower text-primary'],
+                                ['Hot Water Geyser', 'fa-solid fa-fire text-danger'],
+                                ['Bathtub / Jacuzzi', 'fa-solid fa-bath text-info'],
+                                ['Hairdryer', 'fa-solid fa-wind text-secondary'],
+                                ['Free Luxury Toiletries', 'fa-solid fa-pump-soap text-success'],
+                                ['Bathrobe & Slippers', 'fa-solid fa-vest text-warning'],
+                            ] as $bFeat)
+                                <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer;">
+                                    <input class="form-check-input m-0 me-1" type="checkbox" name="bathroom_features[]" value="{{ $bFeat[0] }}" {{ in_array($bFeat[0], $currentBFeats) ? 'checked' : '' }} style="cursor:pointer;">
+                                    <i class="{{ $bFeat[1] }}"></i>
+                                    <span>{{ $bFeat[0] }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -149,10 +166,22 @@
                 <div class="form-section-title"><i class="fa-solid fa-sparkles me-1"></i> Popular In-Room Amenities</div>
                 <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
                     @php $currentFacs = is_array($room->facilities) ? $room->facilities : []; @endphp
-                    @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'] as $amenity)
-                        <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                            <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" {{ in_array($amenity, $currentFacs) ? 'checked' : '' }} style="cursor:pointer;">
-                            {{ $amenity }}
+                    @foreach([
+                        ['Air Conditioning', 'fa-solid fa-snowflake text-info'],
+                        ['Free Wi-Fi', 'fa-solid fa-wifi text-primary'],
+                        ['Smart Flat TV', 'fa-solid fa-tv text-dark'],
+                        ['Sea / City View', 'fa-solid fa-mountain-sun text-success'],
+                        ['Private Balcony', 'fa-solid fa-tree-city text-success'],
+                        ['Hot Water / Geyser', 'fa-solid fa-fire text-danger'],
+                        ['Tea & Coffee Maker', 'fa-solid fa-mug-hot text-warning'],
+                        ['Mini Fridge', 'fa-solid fa-box text-primary'],
+                        ['Work Desk', 'fa-solid fa-laptop text-secondary'],
+                        ['Safety Locker', 'fa-solid fa-vault text-warning'],
+                    ] as $amenity)
+                        <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-3 py-1.5 rounded border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer;">
+                            <input class="form-check-input m-0 me-1" type="checkbox" name="amenities[]" value="{{ $amenity[0] }}" {{ in_array($amenity[0], $currentFacs) ? 'checked' : '' }} style="cursor:pointer;">
+                            <i class="{{ $amenity[1] }}"></i>
+                            <span>{{ $amenity[0] }}</span>
                         </label>
                     @endforeach
                 </div>

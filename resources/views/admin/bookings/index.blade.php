@@ -45,19 +45,19 @@
                     <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Booking Status</label>
                     <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
-                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>🟢 Confirmed</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏰ Pending</option>
-                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>✅ Completed</option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>❌ Cancelled</option>
+                        <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
+                        <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
                     </select>
                 </div>
                 <div class="col-6 col-md-2">
                     <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Payment Status</label>
                     <select name="payment_status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('payment_status') == 'all' ? 'selected' : '' }}>All Payments</option>
-                        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>💳 Paid / Verified</option>
-                        <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>⏳ Unpaid / Pending</option>
-                        <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>↩️ Refunded</option>
+                        <option value="paid" {{ request('payment_status') == 'paid' ? 'selected' : '' }}>Paid / Verified</option>
+                        <option value="pending" {{ request('payment_status') == 'pending' ? 'selected' : '' }}>Unpaid / Pending</option>
+                        <option value="refunded" {{ request('payment_status') == 'refunded' ? 'selected' : '' }}>Refunded</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-3">

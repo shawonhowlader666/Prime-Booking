@@ -37,18 +37,18 @@
                     <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Service Category</label>
                     <select name="service_type" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('service_type') == 'all' ? 'selected' : '' }}>All Services</option>
-                        <option value="Helicopter Charter" {{ request('service_type') == 'Helicopter Charter' ? 'selected' : '' }}>🚁 Helicopter Charter</option>
-                        <option value="Air Ambulance" {{ request('service_type') == 'Air Ambulance' ? 'selected' : '' }}>🚑 Air Ambulance</option>
-                        <option value="Hotel Booking" {{ request('service_type') == 'Hotel Booking' ? 'selected' : '' }}>🏨 Hotel Booking</option>
-                        <option value="General Inquiry" {{ request('service_type') == 'General Inquiry' ? 'selected' : '' }}>💬 General Support</option>
+                        <option value="Helicopter Charter" {{ request('service_type') == 'Helicopter Charter' ? 'selected' : '' }}>Helicopter Charter</option>
+                        <option value="Air Ambulance" {{ request('service_type') == 'Air Ambulance' ? 'selected' : '' }}>Air Ambulance</option>
+                        <option value="Hotel Booking" {{ request('service_type') == 'Hotel Booking' ? 'selected' : '' }}>Hotel Booking</option>
+                        <option value="General Inquiry" {{ request('service_type') == 'General Inquiry' ? 'selected' : '' }}>General Support</option>
                     </select>
                 </div>
                 <div class="col-6 col-md-3">
                     <label class="form-label" style="font-size:11px; font-weight:600; color:#64748b; margin-bottom:3px; text-transform:uppercase;">Status Filter</label>
                     <select name="status" class="form-select form-select-sm" style="height:32px; font-size:12px;" onchange="this.form.submit()">
                         <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
-                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>⏰ Pending Response</option>
-                        <option value="responded" {{ request('status') == 'responded' ? 'selected' : '' }}>✅ Responded / Contacted</option>
+                        <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Response</option>
+                        <option value="responded" {{ request('status') == 'responded' ? 'selected' : '' }}>Responded / Contacted</option>
                     </select>
                 </div>
                 <div class="col-12 col-md-5">

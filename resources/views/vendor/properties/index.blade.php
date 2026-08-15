@@ -137,7 +137,7 @@
 
                 {{-- Sleek Compact Search Box --}}
                 <div style="width:220px; max-width:100%;">
-                    <input type="text" id="propertySearchInput" class="form-control form-control-sm" placeholder="🔍 Search name, city..." onkeyup="autoFilterProperties()" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                    <input type="text" id="propertySearchInput" class="form-control form-control-sm" placeholder="Search name, city..." onkeyup="autoFilterProperties()" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
                 </div>
             </div>
         </div>
@@ -168,8 +168,8 @@
                                 <div>
                                     <strong style="font-size:13px; color:#1e293b; display:block;">{{ $property->name }}</strong>
                                     <div class="d-flex align-items-center gap-1.5 mt-0.5">
-                                        <span class="text-warning" style="font-size:11px;">
-                                            @for($i=0; $i<($property->star_rating ?? 5); $i++)★@endfor
+                                        <span class="text-warning d-inline-flex align-items-center gap-0.5" style="font-size:10px;">
+                                            @for($i=0; $i<($property->star_rating ?? 5); $i++)<i class="fa-solid fa-star"></i>@endfor
                                         </span>
                                         <span class="badge bg-light text-dark border" style="font-size:10px;">
                                             <i class="fa-solid fa-bed text-primary me-0.5"></i> {{ $property->rooms_count ?? 0 }} Room Types
@@ -351,10 +351,10 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Star Rating <span class="text-danger">*</span></label>
                             <select name="star_rating" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
-                                <option value="5">★★★★★ — 5 Star Luxury</option>
-                                <option value="4">★★★★ — 4 Star Premium</option>
-                                <option value="3">★★★ — 3 Star Standard</option>
-                                <option value="2">★★ — 2 Star Budget</option>
+                                <option value="5">5 Stars — Luxury Property</option>
+                                <option value="4">4 Stars — Premium Property</option>
+                                <option value="3">3 Stars — Standard Property</option>
+                                <option value="2">2 Stars — Economy Property</option>
                             </select>
                         </div>
                         <div class="col-md-6">
@@ -418,9 +418,9 @@
                         <div class="col-md-6">
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Pets Policy</label>
                             <select name="pets_policy" class="form-select form-select-sm" style="font-size:12px; height:36px;">
-                                <option value="Pets Not Allowed" selected>🚫 Pets Not Allowed</option>
-                                <option value="Pets Allowed">🐾 Pets Allowed (Free / Fee)</option>
-                                <option value="Pets Allowed on Request">💬 Pets Allowed on Request</option>
+                                <option value="Pets Not Allowed" selected>Pets Not Allowed</option>
+                                <option value="Pets Allowed">Pets Allowed (Free / Fee)</option>
+                                <option value="Pets Allowed on Request">Pets Allowed on Request</option>
                             </select>
                         </div>
                     </div>
@@ -571,7 +571,7 @@ function promptAddCustomCategory(selectId) {
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
         opt.value = custom.trim();
-        opt.textContent = "✨ " + custom.trim();
+        opt.textContent = custom.trim();
         opt.selected = true;
         select.appendChild(opt);
     }
@@ -583,7 +583,7 @@ function promptAddCustomCity(selectId) {
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
         opt.value = custom.trim();
-        opt.textContent = "📍 " + custom.trim();
+        opt.textContent = custom.trim();
         opt.selected = true;
         select.appendChild(opt);
     }

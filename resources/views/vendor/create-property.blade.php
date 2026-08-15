@@ -100,10 +100,10 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Star Rating <span style="color:#ff4d4f;">*</span></label>
                         <select name="star_rating" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
-                            <option value="5" {{ old('star_rating') == '5' ? 'selected' : '' }}>★★★★★ — 5 Star Luxury</option>
-                            <option value="4" {{ old('star_rating') == '4' ? 'selected' : '' }}>★★★★ — 4 Star Premium</option>
-                            <option value="3" {{ old('star_rating') == '3' ? 'selected' : '' }}>★★★ — 3 Star Standard</option>
-                            <option value="2" {{ old('star_rating') == '2' ? 'selected' : '' }}>★★ — 2 Star Budget</option>
+                            <option value="5" {{ old('star_rating') == '5' ? 'selected' : '' }}>5 Stars — Luxury Property</option>
+                            <option value="4" {{ old('star_rating') == '4' ? 'selected' : '' }}>4 Stars — Premium Property</option>
+                            <option value="3" {{ old('star_rating') == '3' ? 'selected' : '' }}>3 Stars — Standard Property</option>
+                            <option value="2" {{ old('star_rating') == '2' ? 'selected' : '' }}>2 Stars — Economy Property</option>
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -168,9 +168,9 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Pets Policy</label>
                         <select name="pets_policy" class="form-select form-select-sm" style="font-size:13px; height:38px;">
-                            <option value="Pets Not Allowed" selected>🚫 Pets Not Allowed</option>
-                            <option value="Pets Allowed">🐾 Pets Allowed (Free / Fee)</option>
-                            <option value="Pets Allowed on Request">💬 Pets Allowed on Request</option>
+                            <option value="Pets Not Allowed" selected>Pets Not Allowed</option>
+                            <option value="Pets Allowed">Pets Allowed (Free / Fee)</option>
+                            <option value="Pets Allowed on Request">Pets Allowed on Request</option>
                         </select>
                     </div>
                 </div>
@@ -345,7 +345,7 @@ function promptVendorCreateCategory() {
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
         opt.value = custom.trim();
-        opt.textContent = "✨ " + custom.trim();
+        opt.textContent = custom.trim();
         opt.selected = true;
         select.appendChild(opt);
     }
@@ -357,7 +357,7 @@ function promptVendorCreateCity() {
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
         opt.value = custom.trim();
-        opt.textContent = "📍 " + custom.trim();
+        opt.textContent = custom.trim();
         opt.selected = true;
         select.appendChild(opt);
     }

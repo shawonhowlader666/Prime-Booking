@@ -132,7 +132,7 @@
                 </label>
                 <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:36px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff;">
                     @foreach($properties as $p)
-                        <optgroup label="🏢 {{ $p->name }} ({{ $p->star_rating }}★)">
+                        <optgroup label="{{ $p->name }} ({{ $p->star_rating }} Star)">
                             @foreach($p->rooms as $r)
                                 <option value="{{ $r->id }}" {{ $selectedRoom->id === $r->id ? 'selected' : '' }}>
                                     {{ $r->name }} — ৳{{ number_format($r->price_per_night) }}/night
@@ -149,10 +149,10 @@
                     <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
                 </label>
                 <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:36px; border:1px solid #d9d9d9; border-radius:4px;">
-                    <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>📅 Next 14 Days (2 Weeks)</option>
-                    <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>📅 Next 30 Days (1 Month)</option>
-                    <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>📅 Next 60 Days (2 Months)</option>
-                    <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>📅 Next 90 Days (3 Months)</option>
+                    <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>Next 14 Days (2 Weeks)</option>
+                    <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>Next 30 Days (1 Month)</option>
+                    <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>Next 60 Days (2 Months)</option>
+                    <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>Next 90 Days (3 Months)</option>
                 </select>
             </div>
 

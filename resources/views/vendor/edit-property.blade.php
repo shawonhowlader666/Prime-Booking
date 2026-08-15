@@ -63,7 +63,7 @@
                                 <option value="{{ $v }}" {{ old('type', $property->type) == $v ? 'selected' : '' }}>{{ $l }}</option>
                             @endforeach
                             @if(!in_array($property->type, ['hotel', 'houseboat', 'homestay', 'apartment', 'resort']))
-                                <option value="{{ $property->type }}" selected>✨ {{ ucfirst($property->type) }}</option>
+                                <option value="{{ $property->type }}" selected>{{ ucfirst($property->type) }}</option>
                             @endif
                         </select>
                     </div>
@@ -86,17 +86,17 @@
                                 @endforeach
                             @endif
                             @if(!empty($property->city) && (!isset($locations) || !$locations->contains('name', $property->city)))
-                                <option value="{{ $property->city }}" selected>📍 {{ $property->city }}</option>
+                                <option value="{{ $property->city }}" selected>{{ $property->city }}</option>
                             @endif
                         </select>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Star Rating</label>
                         <select name="star_rating" class="form-select">
-                            <option value="5" {{ old('star_rating', $property->star_rating) == 5 ? 'selected' : '' }}>★★★★★ 5 Star Luxury</option>
-                            <option value="4" {{ old('star_rating', $property->star_rating) == 4 ? 'selected' : '' }}>★★★★ 4 Star Premium</option>
-                            <option value="3" {{ old('star_rating', $property->star_rating) == 3 ? 'selected' : '' }}>★★★ 3 Star Standard</option>
-                            <option value="2" {{ old('star_rating', $property->star_rating) == 2 ? 'selected' : '' }}>★★ 2 Star Budget</option>
+                            <option value="5" {{ old('star_rating', $property->star_rating) == 5 ? 'selected' : '' }}>5 Stars — Luxury Property</option>
+                            <option value="4" {{ old('star_rating', $property->star_rating) == 4 ? 'selected' : '' }}>4 Stars — Premium Property</option>
+                            <option value="3" {{ old('star_rating', $property->star_rating) == 3 ? 'selected' : '' }}>3 Stars — Standard Property</option>
+                            <option value="2" {{ old('star_rating', $property->star_rating) == 2 ? 'selected' : '' }}>2 Stars — Economy Property</option>
                         </select>
                     </div>
                     <div class="col-12">
@@ -159,9 +159,9 @@
                     <div class="col-md-6">
                         <label class="form-label">Pets Policy</label>
                         <select name="pets_policy" class="form-select">
-                            <option value="Pets Not Allowed" {{ old('pets_policy', $property->pets_policy) == 'Pets Not Allowed' ? 'selected' : '' }}>🚫 Pets Not Allowed</option>
-                            <option value="Pets Allowed" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed' ? 'selected' : '' }}>🐾 Pets Allowed (Free / Fee)</option>
-                            <option value="Pets Allowed on Request" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed on Request' ? 'selected' : '' }}>💬 Pets Allowed on Request</option>
+                            <option value="Pets Not Allowed" {{ old('pets_policy', $property->pets_policy) == 'Pets Not Allowed' ? 'selected' : '' }}>Pets Not Allowed</option>
+                            <option value="Pets Allowed" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed' ? 'selected' : '' }}>Pets Allowed (Free / Fee)</option>
+                            <option value="Pets Allowed on Request" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed on Request' ? 'selected' : '' }}>Pets Allowed on Request</option>
                         </select>
                     </div>
                 </div>
@@ -348,7 +348,7 @@ function promptVendorEditCategory() {
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
         opt.value = custom.trim();
-        opt.textContent = "✨ " + custom.trim();
+        opt.textContent = custom.trim();
         opt.selected = true;
         select.appendChild(opt);
     }
@@ -360,7 +360,7 @@ function promptVendorEditCity() {
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
         opt.value = custom.trim();
-        opt.textContent = "📍 " + custom.trim();
+        opt.textContent = custom.trim();
         opt.selected = true;
         select.appendChild(opt);
     }

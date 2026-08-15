@@ -116,6 +116,7 @@
                                 <div class="dropdown-menu dropdown-menu-end py-1">
                                     <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-pen me-2 text-primary"></i>Edit Property</a>
                                     <a href="{{ route('vendor.rooms.index', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-bed me-2 text-info"></i>Manage Rooms</a>
+                                    <a href="{{ route('vendor.availability.index') }}" class="dropdown-item"><i class="fa-solid fa-calendar-days me-2 text-success"></i>Calendar Rates</a>
                                     @if(($property->status ?? '') !== 'pending')
                                         <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
                                              @csrf

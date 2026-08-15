@@ -21,12 +21,23 @@ class VendorDashboardController extends Controller
         // Cache vendor stats for 5 min (keyed by vendor id)
         $stats = Cache::remember("vendor:stats:{$vendorId}", 300, function () use ($vendorId) {
 
-            $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+            $properties  = Property::where('vendor_id', $vendorId)->get();
+            $propertyIds = $properties->pluck('id');
 
-            $totalRevenue = Booking::whereIn('property_id', $propertyIds)
+            $bookings = Booking::whereIn('property_id', $propertyIds)
                 ->whereNotIn('status', ['cancelled'])
                 ->whereNotIn('booking_status', ['cancelled'])
-                ->sum(DB::raw('COALESCE(total_price, total_amount, 0)'));
+                ->with('property:id,commission_rate')
+                ->get();
+
+            $totalRevenue    = 0;
+            $totalCommission = 0;
+            foreach ($bookings as $b) {
+                $gross = (float)($b->total_price ?? $b->total_amount ?? 0);
+                $rate  = (float)($b->property->commission_rate ?? 15.00);
+                $totalRevenue    += $gross;
+                $totalCommission += ($gross * ($rate / 100));
+            }
 
             $thisMonth = Booking::whereIn('property_id', $propertyIds)
                 ->whereNotIn('status', ['cancelled'])
@@ -34,17 +45,20 @@ class VendorDashboardController extends Controller
                 ->whereYear('created_at', now()->year)
                 ->sum(DB::raw('COALESCE(total_price, total_amount, 0)'));
 
+            $netEarnings       = $totalRevenue - $totalCommission;
+            $avgCommissionRate = $totalRevenue > 0 ? round(($totalCommission / $totalRevenue) * 100, 1) : 15.0;
+
             return [
-                'total_properties' => Property::where('vendor_id', $vendorId)->count(),
-                'active_listings'  => Property::where('vendor_id', $vendorId)->where('status', 'active')->count(),
-                'pending_listings' => Property::where('vendor_id', $vendorId)->where('status', 'inactive')->count(),
-                'total_bookings'   => Booking::whereIn('property_id', $propertyIds)->count(),
-                'pending_bookings' => Booking::whereIn('property_id', $propertyIds)
-                    ->where(fn($q) => $q->where('status','pending')->orWhere('booking_status','pending'))->count(),
+                'total_properties' => $properties->count(),
+                'active_listings'  => $properties->where('status', 'active')->count(),
+                'pending_listings' => $properties->where('status', 'pending')->count(),
+                'total_bookings'   => $bookings->count(),
+                'pending_bookings' => $bookings->filter(fn($b) => ($b->status ?? $b->booking_status ?? '') === 'pending')->count(),
                 'total_revenue'    => $totalRevenue,
                 'monthly_revenue'  => $thisMonth,
-                'commission_rate'  => 12, // platform takes 12%
-                'net_earnings'     => round($totalRevenue * 0.88),
+                'commission_rate'  => $avgCommissionRate,
+                'admin_commission' => round($totalCommission),
+                'net_earnings'     => round($netEarnings),
             ];
         });
 

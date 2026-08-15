@@ -94,6 +94,10 @@
                                 <span class="badge-status active">Active</span>
                             @elseif(($property->status ?? '') === 'pending')
                                 <span class="badge-status pending">Pending Review</span>
+                            @elseif(($property->status ?? '') === 'rejected')
+                                <span class="badge-status cancelled" style="background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; cursor:pointer;" title="Feedback: {{ $property->rejection_reason ?? 'Requires update' }}">
+                                    <i class="fa-solid fa-circle-exclamation me-1"></i> Rejected
+                                </span>
                             @else
                                 <span class="badge-status cancelled">Inactive</span>
                             @endif
@@ -103,10 +107,15 @@
                                 <button class="action-gear-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
                                 <div class="dropdown-menu dropdown-menu-end py-1">
                                     <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-pen me-2 text-primary"></i>Edit Property</a>
-                                    <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
-                                        @csrf
-                                        <button type="submit" class="dropdown-item"><i class="fa-solid fa-toggle-on me-2 text-warning"></i>Toggle Status</button>
-                                    </form>
+                                    <a href="{{ route('vendor.rooms.index', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-bed me-2 text-info"></i>Manage Rooms</a>
+                                    @if(($property->status ?? '') !== 'pending')
+                                        <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
+                                            @csrf
+                                            <button type="submit" class="dropdown-item"><i class="fa-solid fa-toggle-on me-2 text-warning"></i>Toggle Status ({{ $property->status === 'active' ? 'Deactivate' : 'Activate' }})</button>
+                                        </form>
+                                    @else
+                                        <span class="dropdown-item text-muted disabled" style="font-size:12px;"><i class="fa-solid fa-clock me-2 text-warning"></i>Awaiting Admin Review</span>
+                                    @endif
                                     <div class="dropdown-divider my-1"></div>
                                     <form action="{{ route('vendor.properties.destroy', $property->id) }}" method="POST" onsubmit="return confirm('Delete this property permanently?')">
                                         @csrf @method('DELETE')

@@ -81,7 +81,7 @@ class VendorController extends Controller
             $primaryImage = $request->primary_image ?: null;
         }
 
-        Property::create([
+        $property = Property::create([
             'name'            => $request->name,
             'slug'            => Str::slug($request->name) . '-' . time(),
             'type'            => $request->type,
@@ -100,6 +100,35 @@ class VendorController extends Controller
             'status'          => 'pending',
             'vendor_id'       => $vendorId,
         ]);
+
+        // Auto-create default room type for newly created property
+        try {
+            \App\Models\Room::create([
+                'property_id'     => $property->id,
+                'name'            => 'Standard Deluxe Room',
+                'bed_type'        => '1 King Bed or 2 Twin Beds',
+                'price_per_night' => (float) $request->price_per_night,
+                'total_rooms'     => 10,
+                'available_rooms' => 10,
+                'max_adults'      => 2,
+                'max_children'    => 1,
+                'max_guests'      => 3,
+            ]);
+        } catch (\Exception $e) {}
+
+        // Dispatch notification to System Admins
+        try {
+            $admins = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->get();
+            foreach ($admins as $admin) {
+                \App\Models\Message::create([
+                    'sender_id'   => $vendorId,
+                    'receiver_id' => $admin->id,
+                    'property_id' => $property->id,
+                    'subject'     => '🏢 New Property Submitted for Review',
+                    'message'     => "Vendor partner submitted listing '{$property->name}' ({$property->city}) for admin review & approval.",
+                ]);
+            }
+        } catch (\Exception $e) {}
 
         return redirect()->route('vendor.properties.index')
             ->with('success', 'Property submitted for admin review! It will go live once approved.');
@@ -141,6 +170,8 @@ class VendorController extends Controller
             $primaryImage = $request->primary_image ?: $property->primary_image;
         }
 
+        $wasRejected = $property->status === 'rejected';
+
         $property->update([
             'name'            => $request->name,
             'type'            => $request->type ?? $property->type,
@@ -155,16 +186,26 @@ class VendorController extends Controller
             'video_url'       => $request->video_url ?? $property->video_url,
             'images'          => array_values($galleryImages) ?: ($property->images ?? []),
             'amenities'       => $request->amenities ?? [],
+            'status'          => $wasRejected ? 'pending' : $property->status,
+            'rejection_reason' => $wasRejected ? null : $property->rejection_reason,
         ]);
 
-        return redirect()->route('vendor.properties.index')
-            ->with('success', '"' . $property->name . '" updated successfully!');
+        $msg = $wasRejected
+            ? '"' . $property->name . '" updated and resubmitted for admin review!'
+            : '"' . $property->name . '" updated successfully!';
+
+        return redirect()->route('vendor.properties.index')->with('success', $msg);
     }
 
     // ── Toggle Status ──────────────────────────────────────────
     public function togglePropertyStatus($id)
     {
-        $property  = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
+        $property = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
+
+        if (in_array($property->status, ['pending', 'rejected'])) {
+            return back()->with('error', 'This property is currently ' . ucfirst($property->status) . ' and cannot be activated until reviewed and approved by admin.');
+        }
+
         $newStatus = $property->status === 'active' ? 'inactive' : 'active';
         $property->update(['status' => $newStatus]);
         return back()->with('success', 'Listing status changed to ' . ucfirst($newStatus) . '.');

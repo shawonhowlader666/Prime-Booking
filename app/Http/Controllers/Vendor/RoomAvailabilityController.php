@@ -8,45 +8,90 @@ use App\Models\Property;
 use App\Models\Room;
 use App\Models\RoomAvailability;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 class RoomAvailabilityController extends Controller
 {
     public function index(Request $request)
     {
-        $vendorId = auth()->id();
-        $properties = Property::where('vendor_id', $vendorId)->with('rooms')->get();
+        $vendorId = auth()->id() ?? 1;
+
+        // Fetch vendor properties with minimal column selection for high performance
+        $properties = Property::where('vendor_id', $vendorId)
+            ->select(['id', 'vendor_id', 'name', 'city', 'type'])
+            ->with(['rooms:id,property_id,name,price_per_night,total_rooms,available_rooms'])
+            ->get();
 
         $selectedRoomId = $request->query('room_id');
+        $daysCount      = max(7, min(90, (int)($request->query('days', 30))));
         $selectedRoom   = null;
         $availabilities = collect();
         $startDate      = Carbon::now()->startOfDay();
-        $endDate        = Carbon::now()->addDays(30)->endOfDay();
+        $endDate        = Carbon::now()->addDays($daysCount - 1)->endOfDay();
 
         if ($selectedRoomId) {
             $selectedRoom = Room::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
                 ->where('id', $selectedRoomId)
                 ->first();
-
-            if ($selectedRoom) {
-                $availabilities = RoomAvailability::where('room_id', $selectedRoom->id)
-                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                    ->get()
-                    ->keyBy(fn($item) => $item->date->format('Y-m-d'));
-            }
         } elseif ($properties->isNotEmpty() && $properties->first()->rooms->isNotEmpty()) {
             $selectedRoom = $properties->first()->rooms->first();
-            $availabilities = RoomAvailability::where('room_id', $selectedRoom->id)
-                ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
-                ->get()
-                ->keyBy(fn($item) => $item->date->format('Y-m-d'));
         }
 
-        return view('vendor.rooms.availability', compact('properties', 'selectedRoom', 'availabilities', 'startDate', 'endDate'));
+        $stats = [
+            'total_days'        => $daysCount,
+            'available_days'    => 0,
+            'sold_out_days'     => 0,
+            'custom_price_days' => 0,
+            'avg_price'         => 0,
+        ];
+
+        if ($selectedRoom) {
+            $cacheKey = "vendor:availability:{$selectedRoom->id}:" . $startDate->format('Ymd') . ":{$daysCount}";
+
+            $availabilities = Cache::remember($cacheKey, 300, function () use ($selectedRoom, $startDate, $endDate) {
+                return RoomAvailability::where('room_id', $selectedRoom->id)
+                    ->whereBetween('date', [$startDate->format('Y-m-d'), $endDate->format('Y-m-d')])
+                    ->get()
+                    ->keyBy(fn($item) => is_string($item->date) ? $item->date : $item->date->format('Y-m-d'));
+            });
+
+            // Calculate KPI stats
+            $soldOut = 0;
+            $custom  = 0;
+            $totalPriceSum = 0;
+
+            for ($d = 0; $d < $daysCount; $d++) {
+                $dtStr  = $startDate->copy()->addDays($d)->format('Y-m-d');
+                $record = $availabilities->get($dtStr);
+
+                if ($record && $record->is_blocked) {
+                    $soldOut++;
+                }
+                if ($record && $record->price && (float)$record->price !== (float)$selectedRoom->price_per_night) {
+                    $custom++;
+                    $totalPriceSum += (float)$record->price;
+                } else {
+                    $totalPriceSum += (float)$selectedRoom->price_per_night;
+                }
+            }
+
+            $stats['sold_out_days']     = $soldOut;
+            $stats['available_days']    = $daysCount - $soldOut;
+            $stats['custom_price_days'] = $custom;
+            $stats['avg_price']         = $daysCount > 0 ? round($totalPriceSum / $daysCount) : (float)$selectedRoom->price_per_night;
+        }
+
+        return view('vendor.rooms.availability', compact(
+            'properties', 'selectedRoom', 'availabilities',
+            'startDate', 'endDate', 'daysCount', 'stats'
+        ));
     }
 
     public function updateRange(Request $request)
     {
-        $vendorId = auth()->id();
+        $vendorId = auth()->id() ?? 1;
+
         $validated = $request->validate([
             'room_id'    => 'required|exists:rooms,id',
             'start_date' => 'required|date',
@@ -59,23 +104,33 @@ class RoomAvailabilityController extends Controller
             ->where('id', $validated['room_id'])
             ->firstOrFail();
 
-        $start = Carbon::parse($validated['start_date']);
-        $end   = Carbon::parse($validated['end_date']);
+        $start     = Carbon::parse($validated['start_date']);
+        $end       = Carbon::parse($validated['end_date']);
         $isBlocked = $request->has('is_blocked');
+        $price     = $request->filled('price') ? (float)$validated['price'] : null;
 
-        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
-            RoomAvailability::updateOrCreate(
-                [
-                    'room_id' => $room->id,
-                    'date'    => $date->format('Y-m-d'),
-                ],
-                [
-                    'price'      => $validated['price'] ?: null,
-                    'is_blocked' => $isBlocked,
-                ]
-            );
-        }
+        // DB Transaction for batch updates
+        DB::transaction(function () use ($room, $start, $end, $price, $isBlocked) {
+            for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+                RoomAvailability::updateOrCreate(
+                    [
+                        'room_id' => $room->id,
+                        'date'    => $date->format('Y-m-d'),
+                    ],
+                    [
+                        'price'      => $price,
+                        'is_blocked' => $isBlocked,
+                    ]
+                );
+            }
+        });
 
-        return back()->with('success', 'Room availability and pricing updated successfully for selected date range!');
+        // Flush Redis cache for this room
+        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":30");
+        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":14");
+        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":60");
+        Cache::forget("vendor:availability:{$room->id}:" . Carbon::now()->startOfDay()->format('Ymd') . ":90");
+
+        return back()->with('success', '✅ Room rates & availability updated successfully for selected date range!');
     }
 }

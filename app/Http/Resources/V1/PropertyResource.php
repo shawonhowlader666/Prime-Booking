@@ -69,6 +69,7 @@ class PropertyResource extends JsonResource
             'amenities'       => is_array($amenities) ? array_values($amenities) : [],
             'is_featured'     => (bool) $isFeatured,
             'status'          => $status,
+            'rejection_reason'=> is_array($res) ? ($res['rejection_reason'] ?? null) : ($res->rejection_reason ?? null),
 
             // Rooms (safe loaded)
             'rooms'           => $roomsData,

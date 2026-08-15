@@ -51,9 +51,11 @@ class Property extends Model
     use HasFactory;
 
     // ─── ACTIVE STATUSES ─────────────────────────────────────────────────
+    // ─── ACTIVE STATUSES ─────────────────────────────────────────────────
     public const STATUS_ACTIVE    = 'active';
     public const STATUS_PUBLISHED = 'published';
     public const STATUS_PENDING   = 'pending';
+    public const STATUS_REJECTED  = 'rejected';
     public const STATUS_INACTIVE  = 'inactive';
 
     /** Statuses that are considered "live" and visible to guests. */
@@ -76,6 +78,7 @@ class Property extends Model
         'images', 'amenities', 'is_featured', 'status',
         'rooms_left', 'no_credit_card_required', 'location_score',
         'nearest_landmark', 'free_cancellation',
+        'rejection_reason', 'approved_at', 'rejected_at',
     ];
 
     /** @var array<string, string> */
@@ -93,6 +96,8 @@ class Property extends Model
         'no_credit_card_required' => 'boolean',
         'location_score'          => 'decimal:1',
         'free_cancellation'       => 'boolean',
+        'approved_at'             => 'datetime',
+        'rejected_at'             => 'datetime',
     ];
 
     /** Columns safe to select in list queries (avoids SELECT * on wide table). */

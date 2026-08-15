@@ -204,6 +204,8 @@
                                     <span class="badge-status active">Active</span>
                                 @elseif(($p->status ?? '') == 'pending')
                                     <span class="badge-status pending" style="background:#fff7e6; color:#d46b08; border:1px solid #ffd591; padding:3px 8px; border-radius:4px; font-weight:600; font-size:11.5px;">Pending Review</span>
+                                @elseif(($p->status ?? '') == 'rejected')
+                                    <span class="badge-status rejected" style="background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; padding:3px 8px; border-radius:4px; font-weight:600; font-size:11.5px;" title="{{ $p->rejection_reason ?? 'Rejected' }}">Rejected</span>
                                 @else
                                     <span class="badge-status cancelled">Inactive</span>
                                 @endif
@@ -216,6 +218,32 @@
                                             <i class="fa-solid fa-check me-1"></i> Approve
                                         </button>
                                     </form>
+                                    <button type="button" class="btn btn-sm btn-outline-danger fw-bold px-2 py-1 me-1" style="font-size:11px; border-radius:4px;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $p->id }}" title="Reject with Feedback">
+                                        <i class="fa-solid fa-xmark me-1"></i> Reject
+                                    </button>
+
+                                    {{-- REJECT MODAL --}}
+                                    <div class="modal fade text-start" id="rejectModal{{ $p->id }}" tabindex="-1" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-content" style="border-radius:8px;">
+                                                <form action="{{ route('admin.properties.reject', $p->id) }}" method="POST">
+                                                    @csrf
+                                                    <div class="modal-header border-bottom py-2.5 px-3">
+                                                        <h6 class="modal-title fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Reject Property Listing</h6>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body p-3">
+                                                        <p class="mb-2 text-dark" style="font-size:13px;">Please provide rejection feedback for <strong>{{ $p->name }}</strong>:</p>
+                                                        <textarea name="rejection_reason" class="form-control form-control-sm" rows="3" placeholder="e.g. Trade license missing or image quality insufficient..." required style="font-size:12.5px;"></textarea>
+                                                    </div>
+                                                    <div class="modal-footer border-top py-2 px-3">
+                                                        <button type="button" class="btn btn-light btn-sm text-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="submit" class="btn btn-danger btn-sm fw-bold"><i class="fa-solid fa-paper-plane me-1"></i> Submit Rejection</button>
+                                                    </div>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
                                 @endif
                                 <div class="dropdown action-gear-dropdown d-inline-block">
                                     <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">

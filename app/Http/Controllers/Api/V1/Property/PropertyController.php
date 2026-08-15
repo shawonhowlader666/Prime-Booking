@@ -114,9 +114,10 @@ class PropertyController extends Controller
 
         $property = Property::create([
             ...$validated,
-            'vendor_id'   => auth()->id(),
-            'is_featured' => false,
-            'status'      => 'inactive', // pending admin approval
+            'vendor_id'        => auth()->id(),
+            'is_featured'      => false,
+            'status'           => Property::STATUS_PENDING,
+            'rejection_reason' => null,
         ]);
 
         return $this->created(
@@ -147,11 +148,22 @@ class PropertyController extends Controller
             'amenities'       => 'nullable|array',
         ]);
 
+        $wasRejected = $property->status === Property::STATUS_REJECTED;
+
+        if ($wasRejected) {
+            $validated['status']           = Property::STATUS_PENDING;
+            $validated['rejection_reason'] = null;
+        }
+
         $property->update($validated);
+
+        $msg = $wasRejected
+            ? 'Property updated and resubmitted for admin review.'
+            : 'Property updated successfully.';
 
         return $this->success(
             new PropertyResource($property->fresh()),
-            'Property updated successfully.'
+            $msg
         );
     }
 

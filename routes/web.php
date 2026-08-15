@@ -313,6 +313,12 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::post('/properties/{id}/status',[VendorController::class, 'togglePropertyStatus'])->name('properties.toggle-status');
     Route::delete('/properties/{id}',     [VendorController::class, 'destroyProperty'])->name('properties.destroy');
 
+    // ── Vendor Room CRUD ───────────────────────────────────────
+    Route::get('/properties/{propertyId}/rooms',                      [App\Http\Controllers\Vendor\VendorRoomController::class, 'index'])->name('rooms.index');
+    Route::post('/properties/{propertyId}/rooms',                     [App\Http\Controllers\Vendor\VendorRoomController::class, 'store'])->name('rooms.store');
+    Route::put('/properties/{propertyId}/rooms/{roomId}',             [App\Http\Controllers\Vendor\VendorRoomController::class, 'update'])->name('rooms.update');
+    Route::delete('/properties/{propertyId}/rooms/{roomId}',          [App\Http\Controllers\Vendor\VendorRoomController::class, 'destroy'])->name('rooms.destroy');
+
     // ── Rates & Calendar ───────────────────────────────────────
     Route::get('/availability',                  [RoomAvailabilityController::class, 'index'])->name('availability.index');
     Route::post('/availability/update-range',    [RoomAvailabilityController::class, 'updateRange'])->name('availability.update-range');

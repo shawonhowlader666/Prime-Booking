@@ -81,7 +81,7 @@ class Property extends Model
         'latitude', 'longitude', 'map_embed_url', 'postal_code',
         'checkin_time', 'checkout_time', 'contact_phone', 'contact_email', 'house_rules',
         'total_floors', 'total_rooms_count', 'year_built', 'languages_spoken', 'pets_policy',
-        'rejection_reason', 'approved_at', 'rejected_at',
+        'rejection_reason', 'approved_at', 'rejected_at', 'cancellation_policy',
     ];
 
     /** @var array<string, string> */

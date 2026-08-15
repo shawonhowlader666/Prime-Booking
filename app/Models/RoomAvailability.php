@@ -11,6 +11,8 @@ class RoomAvailability extends Model
 
     protected $fillable = [
         'room_id',
+        'property_id',
+        'vendor_id',
         'date',
         'price',
         'price_override',
@@ -20,6 +22,7 @@ class RoomAvailability extends Model
         'is_blocked',
         'is_closed',
         'is_available',
+        'status',
     ];
 
     protected $casts = [

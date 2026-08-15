@@ -624,6 +624,70 @@
     background: #2067e1;
     color: #ffffff;
 }
+
+/* 📱 ADVANCED MOBILE RESPONSIVENESS & BREAKPOINTS */
+@media (min-width: 1200px) {
+    .avail-card-col {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+}
+@media (min-width: 768px) and (max-width: 1199px) {
+    .avail-card-col {
+        flex: 0 0 25%;
+        max-width: 25%;
+    }
+}
+@media (min-width: 480px) and (max-width: 767px) {
+    .avail-card-col {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}
+@media (max-width: 479px) {
+    .avail-card-col {
+        flex: 0 0 50%;
+        max-width: 50%;
+    }
+    .calendar-day-card {
+        padding: 8px 6px;
+        min-height: 95px;
+    }
+    .cal-day-name {
+        font-size: 11px;
+    }
+    .cal-rate-val {
+        font-size: 12px;
+    }
+    .btn-legend-pill {
+        padding: 3px 8px;
+        font-size: 11px;
+    }
+}
+
+/* 🖨️ PRINT & PDF STYLING */
+@media print {
+    .page-header-card, .btn-tbl-copy, .btn-tbl-excel, .btn-export-csv, .btn-export-pdf, .btn-tbl-print,
+    .navbar-vendor, .vendor-sidebar, .card.border, #quickRateForm, .cal-card-action, .btn-legend-pill {
+        display: none !important;
+    }
+    .page-content-area {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+    .col-lg-4 {
+        display: none !important;
+    }
+    .col-lg-8 {
+        width: 100% !important;
+        max-width: 100% !important;
+        flex: 0 0 100% !important;
+    }
+    #calendarGridView {
+        max-height: none !important;
+        overflow: visible !important;
+    }
+}
 </style>
 
 <script>

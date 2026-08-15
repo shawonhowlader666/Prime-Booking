@@ -29,6 +29,7 @@ class Room extends Model
         'free_cancellation',
         'facilities',
         'images',
+        'status',
     ];
 
     protected $casts = [

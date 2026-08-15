@@ -322,8 +322,11 @@
                 </div>
             </div>
 
-            {{-- Wishlist Favorite Icon (Top Right) --}}
-            <div class="position-absolute top-0 end-0 m-3" style="z-index: 15;">
+            {{-- Action Icons (Wishlist & Share) Top Right --}}
+            <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 15;">
+                <button type="button" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Share Property" onclick="sharePropertyLink();">
+                    <i class="fa-solid fa-share-nodes text-dark fs-6"></i>
+                </button>
                 <form action="{{ route('wishlist.toggle') }}" method="POST" class="m-0">
                     @csrf
                     <input type="hidden" name="property_id" value="{{ $property->id }}">
@@ -2433,6 +2436,46 @@
             if (e.key === 'ArrowRight') nextAgodaSlide();
         }
     });
+
+    // Mobile Touch Swipe Gesture Support
+    let touchStartX = 0;
+    let touchEndX = 0;
+    const slideshowContainer = document.getElementById('agodaGallerySlideshowView');
+    if (slideshowContainer) {
+        slideshowContainer.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        slideshowContainer.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipeGesture();
+        }, { passive: true });
+    }
+
+    function handleSwipeGesture() {
+        const threshold = 45;
+        if (touchEndX < touchStartX - threshold) {
+            nextAgodaSlide(); // Swiped Left -> Next Image
+        }
+        if (touchEndX > touchStartX + threshold) {
+            prevAgodaSlide(); // Swiped Right -> Prev Image
+        }
+    }
+
+    // Share Property Link Helper
+    function sharePropertyLink() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ addslashes($property->name) }}',
+                text: 'Check out this hotel on Prime Booking!',
+                url: window.location.href
+            }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Property link copied to clipboard!');
+            });
+        }
+    }
 </script>
 @endsection
 

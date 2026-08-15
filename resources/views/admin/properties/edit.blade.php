@@ -77,11 +77,18 @@
                                 + Add City
                             </button>
                         </div>
-                        <select name="city" id="adminEditPropCitySelect" class="form-select" required>
-                            @foreach(["Cox's Bazar Sea Beach", "Dhaka City", "Sylhet & Sreemangal", "Sajek Valley & Rangamati", "Sundarbans & Mongla", "Kuakata Sunset Beach", "Chittagong City", "Bandarban Hill District"] as $c)
-                                <option value="{{ $c }}" {{ old('city', $property->city) == $c ? 'selected' : '' }}>{{ $c }}</option>
-                            @endforeach
-                            @if(!empty($property->city) && !in_array($property->city, ["Cox's Bazar Sea Beach", "Dhaka City", "Sylhet & Sreemangal", "Sajek Valley & Rangamati", "Sundarbans & Mongla", "Kuakata Sunset Beach", "Chittagong City", "Bandarban Hill District"]))
+                        <select name="city" id="adminEditPropCitySelect" class="form-select" required onchange="onAdminCityChanged(this)">
+                            @if(isset($locations) && $locations->count())
+                                @foreach($locations as $loc)
+                                    <option value="{{ $loc->name }}" 
+                                            data-lat="{{ $loc->latitude }}" 
+                                            data-lng="{{ $loc->longitude }}"
+                                            {{ old('city', $property->city) == $loc->name ? 'selected' : '' }}>
+                                        {{ $loc->name }} @if($loc->country && $loc->country != 'Bangladesh') ({{ $loc->country }}) @endif
+                                    </option>
+                                @endforeach
+                            @endif
+                            @if(!empty($property->city) && (!isset($locations) || !$locations->contains('name', $property->city)))
                                 <option value="{{ $property->city }}" selected>📍 {{ $property->city }}</option>
                             @endif
                         </select>
@@ -349,6 +356,21 @@
 
 @section('scripts')
 <script>
+function onAdminCityChanged(select) {
+    const selected = select.options[select.selectedIndex];
+    if (!selected) return;
+    const lat = selected.getAttribute('data-lat');
+    const lng = selected.getAttribute('data-lng');
+    const latInput = document.querySelector('input[name="latitude"]');
+    const lngInput = document.querySelector('input[name="longitude"]');
+    if (lat && latInput && (!latInput.value || latInput.value === '')) {
+        latInput.value = parseFloat(lat).toFixed(4);
+    }
+    if (lng && lngInput && (!lngInput.value || lngInput.value === '')) {
+        lngInput.value = parseFloat(lng).toFixed(4);
+    }
+}
+
 function promptAdminEditCategory() {
     const select = document.getElementById('adminEditPropTypeSelect');
     const custom = prompt("Enter new Property Category (e.g. Glamping Tent, Floating Cottage, Luxury Villa, Heritage Palace):");

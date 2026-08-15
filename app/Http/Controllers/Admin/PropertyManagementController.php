@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\User;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 
@@ -67,8 +68,9 @@ class PropertyManagementController extends Controller
 
     public function create()
     {
-        $vendors = User::where('role', 'vendor')->orderBy('name')->get();
-        return view('admin.properties.create', compact('vendors'));
+        $vendors   = User::where('role', 'vendor')->orderBy('name')->get();
+        $locations = Location::orderBy('is_popular', 'desc')->orderBy('name')->get();
+        return view('admin.properties.create', compact('vendors', 'locations'));
     }
 
     public function store(Request $request)
@@ -180,11 +182,12 @@ class PropertyManagementController extends Controller
 
     public function edit($id)
     {
-        $property = Property::findOrFail($id);
-        $vendors  = User::where('role', 'vendor')->orderBy('name')->get();
+        $property    = Property::findOrFail($id);
+        $vendors     = User::where('role', 'vendor')->orderBy('name')->get();
+        $locations   = Location::orderBy('is_popular', 'desc')->orderBy('name')->get();
         // Convert gallery images array back to one-per-line for textarea
         $galleryText = implode("\n", $property->images ?? []);
-        return view('admin.properties.edit', compact('property', 'vendors', 'galleryText'));
+        return view('admin.properties.edit', compact('property', 'vendors', 'galleryText', 'locations'));
     }
 
     public function update(Request $request, $id)

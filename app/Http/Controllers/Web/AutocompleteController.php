@@ -3,100 +3,121 @@
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
+use App\Models\Location;
 use App\Models\Property;
-use App\Models\FeaturedDestination;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
+/**
+ * AutocompleteController — 100% Database-Driven
+ *
+ * ZERO hardcoded city arrays.
+ * All city/district suggestions come from:
+ *  1. `locations` table (admin-managed, hierarchy-aware)
+ *  2. `properties.city` + `properties.address` (vendor-entered data)
+ *
+ * Cache strategy: 5 min per query term (low overhead, always fresh enough)
+ */
 class AutocompleteController extends Controller
 {
-    public function search(Request $request)
+    public function search(Request $request): JsonResponse
     {
-        $q = trim((string) $request->input('q', ''));
-        $lowerQ = strtolower($q);
+        $q      = trim((string) $request->input('q', ''));
+        $limit  = min((int) $request->input('limit', 10), 20);
 
-        $knownCities = [
-            ['city' => 'Dhaka', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Cox\'s Bazar', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Sylhet', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Chittagong', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Khulna', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Sreemangal Upazila', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Sajek Valley & Rangamati', 'country' => 'Bangladesh', 'type' => 'City / Region'],
-            ['city' => 'Sundarbans & Mongla', 'country' => 'Bangladesh', 'type' => 'Region'],
-            ['city' => 'Kuakata Sunset Beach', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Bandarban Hill District', 'country' => 'Bangladesh', 'type' => 'Region'],
-            ['city' => 'Tanguar Haor & Sunamganj', 'country' => 'Bangladesh', 'type' => 'Region'],
-            ['city' => 'Saint Martin\'s Island', 'country' => 'Bangladesh', 'type' => 'Island / Region'],
-            ['city' => 'Rajshahi', 'country' => 'Bangladesh', 'type' => 'City'],
-            ['city' => 'Barisal', 'country' => 'Bangladesh', 'type' => 'City'],
-        ];
-
-        $matchedCities = [];
-        if (! empty($lowerQ)) {
-            foreach ($knownCities as $kc) {
-                if ($lowerQ === 'bangladesh' || $lowerQ === 'bd' || str_contains(strtolower($kc['city']), $lowerQ)) {
-                    $matchedCities[] = [
-                        'type'     => 'city',
-                        'city'     => $kc['city'],
-                        'country'  => $kc['country'],
-                        'loc_type' => $kc['type'],
-                        'title'    => $kc['city'] . ', ' . $kc['country'],
-                        'subtitle' => $kc['type'],
-                    ];
-                }
-            }
+        if (strlen($q) < 1) {
+            return response()->json(['success' => true, 'destinations' => [], 'properties' => [], 'data' => ['locations' => [], 'properties' => []]]);
         }
 
-        // Distinct cities from DB properties
-        $dbCities = Property::where('city', 'like', "%{$q}%")
-            ->distinct()
-            ->pluck('city');
+        $cacheKey = 'autocomplete:' . md5(strtolower($q) . ':' . $limit);
 
-        foreach ($dbCities as $c) {
-            $already = false;
-            foreach ($matchedCities as $mc) {
-                if (strtolower($mc['city']) === strtolower($c)) {
-                    $already = true;
-                    break;
+        [$destinations, $properties] = Cache::remember($cacheKey, 300, function () use ($q, $limit): array {
+
+            // ─── 1. LOCATION TABLE (admin-managed: districts, upazilas, landmarks) ──
+            $locationRows = Location::where(function ($lq) use ($q) {
+                    $lq->where('name',    'LIKE', "%{$q}%")
+                       ->orWhere('city',  'LIKE', "%{$q}%");
+                })
+                ->orderByDesc('is_popular')
+                ->orderByDesc('id')
+                ->limit(6)
+                ->get();
+
+            $destinations = $locationRows->map(fn ($loc) => [
+                'type'     => 'city',
+                'city'     => $loc->name,
+                'country'  => $loc->country ?? 'Bangladesh',
+                'loc_type' => ucfirst($loc->city ?? 'Location'),
+                'title'    => $loc->name . ($loc->city && $loc->city !== $loc->name ? ', ' . $loc->city : '') . ', ' . ($loc->country ?? 'Bangladesh'),
+                'subtitle' => ($loc->is_popular ? 'Popular · ' : '') . ($loc->city ?? 'Bangladesh'),
+                'lat'      => $loc->latitude,
+                'lng'      => $loc->longitude,
+            ])->toArray();
+
+            // ─── 2. DISTINCT CITIES FROM LIVE PROPERTIES (vendor-entered) ──────────
+            if (count($destinations) < 6) {
+                $dbCities = Property::active()
+                    ->where(function ($pq) use ($q) {
+                        $pq->where('city',    'LIKE', "%{$q}%")
+                           ->orWhere('address','LIKE', "%{$q}%");
+                    })
+                    ->distinct()
+                    ->limit(6)
+                    ->pluck('city')
+                    ->filter()
+                    ->toArray();
+
+                $existingNames = array_map('strtolower', array_column($destinations, 'city'));
+
+                foreach ($dbCities as $c) {
+                    if (!in_array(strtolower($c), $existingNames, true)) {
+                        $destinations[] = [
+                            'type'     => 'city',
+                            'city'     => $c,
+                            'country'  => 'Bangladesh',
+                            'loc_type' => 'City / Area',
+                            'title'    => $c . ', Bangladesh',
+                            'subtitle' => 'City / Area',
+                            'lat'      => null,
+                            'lng'      => null,
+                        ];
+                        $existingNames[] = strtolower($c);
+                    }
                 }
             }
-            if (! $already) {
-                $matchedCities[] = [
-                    'type'     => 'city',
-                    'city'     => $c,
-                    'country'  => 'Bangladesh',
-                    'loc_type' => 'City',
-                    'title'    => $c . ', Bangladesh',
-                    'subtitle' => 'City',
-                ];
-            }
-        }
 
-        $destinations = array_slice($matchedCities, 0, 6);
+            $destinations = array_slice($destinations, 0, 6);
 
-        $properties = Property::active()
-            ->where(function($query) use ($q) {
-                $query->where('name', 'like', "%{$q}%")
-                      ->orWhere('city', 'like', "%{$q}%")
-                      ->orWhere('address', 'like', "%{$q}%");
-            })
-            ->take(5)
-            ->get()
-            ->map(function($p) {
-                return [
+            // ─── 3. PROPERTY SEARCH (hotel names, addresses, landmarks) ───────────
+            $properties = Property::active()
+                ->where(function ($pq) use ($q) {
+                    $pq->where('name',             'LIKE', "%{$q}%")
+                       ->orWhere('city',            'LIKE', "%{$q}%")
+                       ->orWhere('address',         'LIKE', "%{$q}%")
+                       ->orWhere('nearest_landmark','LIKE', "%{$q}%");
+                })
+                ->select(['id', 'name', 'slug', 'city', 'address', 'price_per_night', 'primary_image', 'rating_score'])
+                ->limit(5)
+                ->get()
+                ->map(fn ($p) => [
                     'type'            => 'property',
                     'id'              => $p->id,
                     'name'            => $p->name,
                     'city'            => $p->city,
                     'address'         => $p->address,
-                    'price_per_night' => (float)$p->price_per_night,
-                    'primary_image'   => $p->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=100',
+                    'price_per_night' => (float) $p->price_per_night,
+                    'primary_image'   => $p->primary_image ?: '',
+                    'rating_score'    => (float) $p->rating_score,
                     'title'           => $p->name,
-                    'subtitle'        => $p->city . ' · ' . \App\Services\CurrencyService::format($p->price_per_night) . '/night',
-                    'image'           => $p->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=100',
+                    'subtitle'        => ($p->city ? $p->city . ' · ' : '') . \App\Services\CurrencyService::format($p->price_per_night) . '/night',
+                    'image'           => $p->primary_image ?: '',
                     'url'             => route('hotels.show', $p->id),
-                ];
-            });
+                ])
+                ->toArray();
+
+            return [$destinations, $properties];
+        });
 
         return response()->json([
             'success'      => true,
@@ -105,7 +126,8 @@ class AutocompleteController extends Controller
             'data'         => [
                 'locations'  => $destinations,
                 'properties' => $properties,
-            ]
+            ],
         ]);
     }
 }
+

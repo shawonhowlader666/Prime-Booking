@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Booking;
+use App\Models\Location;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -72,7 +73,8 @@ class VendorController extends Controller
     // ── Create Property ────────────────────────────────────────
     public function createProperty()
     {
-        return view('vendor.create-property');
+        $locations = Location::orderBy('is_popular', 'desc')->orderBy('name')->get();
+        return view('vendor.create-property', compact('locations'));
     }
 
     // ── Store Property ─────────────────────────────────────────
@@ -207,7 +209,8 @@ class VendorController extends Controller
     {
         $property    = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
         $galleryText = implode("\n", $property->images ?? []);
-        return view('vendor.edit-property', compact('property', 'galleryText'));
+        $locations   = Location::orderBy('is_popular', 'desc')->orderBy('name')->get();
+        return view('vendor.edit-property', compact('property', 'galleryText', 'locations'));
     }
 
     // ── Update Property ────────────────────────────────────────

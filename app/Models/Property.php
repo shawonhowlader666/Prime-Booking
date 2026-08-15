@@ -284,14 +284,20 @@ class Property extends Model
         return $query->whereIn('star_rating', array_map('intval', $stars));
     }
 
-    /** Full keyword search across name, city, address. */
+    /** Full keyword search across name, city, address, landmarks and location relationship. */
     public function scopeKeyword(Builder $query, string $keyword): Builder
     {
         $kw = trim($keyword);
         return $query->where(function (Builder $q) use ($kw): void {
-            $q->where('name',    'like', "%{$kw}%")
-              ->orWhere('city',    'like', "%{$kw}%")
-              ->orWhere('address', 'like', "%{$kw}%");
+            $q->where('name',              'like', "%{$kw}%")
+              ->orWhere('city',             'like', "%{$kw}%")
+              ->orWhere('address',          'like', "%{$kw}%")
+              ->orWhere('nearest_landmark', 'like', "%{$kw}%")
+              ->orWhereHas('location', function (Builder $lq) use ($kw): void {
+                  $lq->where('name',     'like', "%{$kw}%")
+                     ->orWhere('city',   'like', "%{$kw}%")
+                     ->orWhere('country','like', "%{$kw}%");
+              });
         });
     }
 
@@ -341,7 +347,7 @@ class Property extends Model
      */
     public function getAiHighlightsAttribute(): array
     {
-        $city = $this->city ?: 'Dhaka';
+        $city = $this->city ?: ($this->location?->name ?? 'Local');
         return [
             'location'    => [
                 'title' => 'Location',
@@ -394,11 +400,11 @@ class Property extends Model
             if (!empty($list)) return $list;
         }
 
-        $city = $this->city ?: 'Dhaka';
+        $city = $this->city ?: ($this->location?->name ?? 'City');
         return [
             ['name' => "{$city} City Center", 'distance' => '220 m'],
-            ['name' => "Central Pharmacy & Market", 'distance' => '290 m'],
-            ['name' => "{$city} Metro & Airport Transit", 'distance' => '15 mins'],
+            ['name' => "Central Market & Transit Point", 'distance' => '290 m'],
+            ['name' => "{$city} Local Transport Terminal", 'distance' => '15 mins'],
         ];
     }
 

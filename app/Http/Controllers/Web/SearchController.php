@@ -6,7 +6,9 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\SearchRequest;
+use App\Models\Property;
 use App\Services\Search\SearchService;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
 /**
@@ -38,6 +40,12 @@ class SearchController extends Controller
         $priceRange      = $this->searchService->getPriceRange();
         $filterCounts    = $this->searchService->getFilterCounts($params['destination']);
 
+        // ─── Dynamic Popular Neighborhoods for the searched destination ────
+        // Queries distinct address parts / nearest_landmark values from real
+        // properties in the DB that match the destination.
+        // Zero hardcoded strings — 100% database-driven.
+        $popularAreas = $this->getPopularAreasForDestination($params['destination']);
+
         return view('pages.search-results', [
             // Search results data
             'searchResults'   => $searchResults,
@@ -57,6 +65,74 @@ class SearchController extends Controller
             'availableCities' => $availableCities,
             'priceRange'      => $priceRange,
             'filterCounts'    => $filterCounts,
+            // Dynamic neighborhood pills — from DB, not hardcoded
+            'popularAreas'    => $popularAreas,
         ]);
+    }
+
+    /**
+     * Get distinct popular neighborhoods/landmarks for a destination
+     * by querying real property data from the database.
+     *
+     * Strategy:
+     *  1. Find distinct nearest_landmark values for properties in this city
+     *  2. Also extract unique sub-areas from city field (e.g. "Kolatoli, Cox's Bazar" → "Kolatoli")
+     *  3. Cache 10 min per destination to avoid repeated queries
+     *
+     * @return list<string>  Up to 6 area names, all from real DB data
+     */
+    private function getPopularAreasForDestination(string $destination): array
+    {
+        if (empty(trim($destination))) {
+            return [];
+        }
+
+        $cacheKey = 'popular_areas:' . md5(strtolower(trim($destination)));
+
+        return Cache::remember($cacheKey, 600, function () use ($destination): array {
+            $areas = [];
+
+            // 1. Distinct nearest_landmark values (most precise neighborhood labels)
+            $landmarks = Property::active()
+                ->where(function ($q) use ($destination) {
+                    $q->where('city',    'LIKE', "%{$destination}%")
+                      ->orWhere('address', 'LIKE', "%{$destination}%");
+                })
+                ->whereNotNull('nearest_landmark')
+                ->where('nearest_landmark', '!=', '')
+                ->distinct()
+                ->limit(8)
+                ->pluck('nearest_landmark')
+                ->toArray();
+
+            foreach ($landmarks as $lm) {
+                // Strip distance annotations like "(150m)" or "1.2 km"
+                $clean = trim(preg_replace('/\(.*?\)|\d+\.?\d*\s*(km|m)\b/i', '', $lm));
+                if (strlen($clean) > 2 && !in_array($clean, $areas)) {
+                    $areas[] = $clean;
+                }
+            }
+
+            // 2. Distinct city sub-field (properties often store "Kolatoli, Cox's Bazar")
+            if (count($areas) < 5) {
+                $cities = Property::active()
+                    ->where('city', 'LIKE', "%{$destination}%")
+                    ->whereNotNull('city')
+                    ->distinct()
+                    ->limit(6)
+                    ->pluck('city')
+                    ->toArray();
+
+                foreach ($cities as $c) {
+                    // If city contains a comma, take the first part as the sub-area
+                    $sub = str_contains($c, ',') ? trim(explode(',', $c)[0]) : trim($c);
+                    if ($sub !== '' && !in_array($sub, $areas) && stripos($sub, $destination) === false) {
+                        $areas[] = $sub;
+                    }
+                }
+            }
+
+            return array_slice(array_unique($areas), 0, 6);
+        });
     }
 }

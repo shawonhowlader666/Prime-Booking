@@ -79,15 +79,22 @@
                                 + Add New City/Area
                             </button>
                         </div>
-                        <select name="city" id="vendorCreatePropCitySelect" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
-                            <option value="Cox's Bazar Sea Beach" {{ old('city') == "Cox's Bazar Sea Beach" ? 'selected' : '' }}>Cox's Bazar Sea Beach</option>
-                            <option value="Dhaka City" {{ old('city') == 'Dhaka City' ? 'selected' : '' }}>Dhaka City</option>
-                            <option value="Sylhet & Sreemangal" {{ old('city') == 'Sylhet & Sreemangal' ? 'selected' : '' }}>Sylhet &amp; Sreemangal</option>
-                            <option value="Sajek Valley & Rangamati" {{ old('city') == 'Sajek Valley & Rangamati' ? 'selected' : '' }}>Sajek Valley &amp; Rangamati</option>
-                            <option value="Sundarbans & Mongla" {{ old('city') == 'Sundarbans & Mongla' ? 'selected' : '' }}>Sundarbans &amp; Mongla</option>
-                            <option value="Kuakata Sunset Beach" {{ old('city') == 'Kuakata Sunset Beach' ? 'selected' : '' }}>Kuakata Sunset Beach</option>
-                            <option value="Chittagong City" {{ old('city') == 'Chittagong City' ? 'selected' : '' }}>Chittagong City</option>
-                            <option value="Bandarban Hill District" {{ old('city') == 'Bandarban Hill District' ? 'selected' : '' }}>Bandarban Hill District</option>
+                        <select name="city" id="vendorCreatePropCitySelect" class="form-select form-select-sm" required style="font-size:13px; height:38px;" onchange="onVendorCityChanged(this)">
+                            <option value="">-- Select City / Destination --</option>
+                            @if(isset($locations) && $locations->count())
+                                @foreach($locations as $loc)
+                                    <option value="{{ $loc->name }}" 
+                                            data-lat="{{ $loc->latitude }}" 
+                                            data-lng="{{ $loc->longitude }}"
+                                            {{ old('city') == $loc->name ? 'selected' : '' }}>
+                                        {{ $loc->name }} @if($loc->country && $loc->country != 'Bangladesh') ({{ $loc->country }}) @endif
+                                    </option>
+                                @endforeach
+                            @else
+                                <option value="Cox's Bazar Sea Beach">Cox's Bazar Sea Beach</option>
+                                <option value="Dhaka City">Dhaka City</option>
+                                <option value="Sundarbans & Mongla">Sundarbans & Mongla</option>
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -317,6 +324,21 @@
 
 @section('scripts')
 <script>
+function onVendorCityChanged(select) {
+    const selected = select.options[select.selectedIndex];
+    if (!selected) return;
+    const lat = selected.getAttribute('data-lat');
+    const lng = selected.getAttribute('data-lng');
+    const latInput = document.querySelector('input[name="latitude"]');
+    const lngInput = document.querySelector('input[name="longitude"]');
+    if (lat && latInput && (!latInput.value || latInput.value === '')) {
+        latInput.value = parseFloat(lat).toFixed(4);
+    }
+    if (lng && lngInput && (!lngInput.value || lngInput.value === '')) {
+        lngInput.value = parseFloat(lng).toFixed(4);
+    }
+}
+
 function promptVendorCreateCategory() {
     const select = document.getElementById('vendorCreatePropTypeSelect');
     const custom = prompt("Enter new Property Category (e.g. Glamping Tent, Floating Resort, Luxury Villa, Heritage Palace):");

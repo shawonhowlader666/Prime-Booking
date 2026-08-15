@@ -186,26 +186,27 @@
                 </div>
             </div>
 
-            {{-- Popular Neighborhood Quick Filter Pills (Dynamic by Destination) --}}
-            @php
-                $destLowerStr = strtolower($destination ?: '');
-                $dynamicHoods = match(true) {
-                    str_contains($destLowerStr, 'cox') => ['Kolatoli Beach', 'Inani Beach', 'Laboni Point', 'Marine Drive', 'Sugandha Beach'],
-                    str_contains($destLowerStr, 'sylhet') => ['Zindabazar', 'Shahjalal Dargah', 'Jaflong', 'Sreemangal', 'Amberkhana'],
-                    str_contains($destLowerStr, 'kuakata') => ['Zero Point', 'Beach Road', 'Gangamati', 'Jhubaura', 'Eco Park'],
-                    str_contains($destLowerStr, 'sajek') => ['Ruilui Para', 'Konglak Hill', 'Helipad', 'Eco Valley'],
-                    str_contains($destLowerStr, 'chittagong') || str_contains($destLowerStr, 'chatogram') => ['GEC Circle', 'Agrabad', 'Patenga Beach', 'Foy\'s Lake'],
-                    default => ['Gulshan', 'Banani', 'Uttara', 'Mirpur', 'Near Airport'],
-                };
-            @endphp
+            {{--
+                ════════════════════════════════════════════════
+                POPULAR AREAS PILLS — 100% DATABASE-DRIVEN
+                Source: SearchController::getPopularAreasForDestination()
+                Queries: nearest_landmark + city fields from real properties
+                Cache: 10 min per destination key
+                Zero hardcoded city/area names.
+                ════════════════════════════════════════════════
+            --}}
+            @if(!empty($popularAreas))
             <div class="d-flex align-items-center gap-2 mb-4 flex-wrap" style="padding: 4px 0;">
                 <span class="small text-muted fw-bold me-1" style="font-size: 12.5px;">Popular areas in {{ $destination ?: 'city' }}:</span>
-                @foreach($dynamicHoods as $hood)
-                    <a href="{{ route('search.index', array_merge(request()->query(), ['q' => $hood])) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold style-hood-pill @if(request('q') == $hood) active bg-primary text-white border-primary @endif" style="font-size: 12px; border-color: #cbd5e1; color: #475569; padding: 5px 14px;">
+                @foreach($popularAreas as $hood)
+                    <a href="{{ route('search.index', array_merge(request()->query(), ['destination' => $destination, 'q' => $hood])) }}"
+                       class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold @if(request('q') == $hood) active bg-primary text-white border-primary @endif"
+                       style="font-size: 12px; border-color: #cbd5e1; color: #475569; padding: 5px 14px;">
                         {{ $hood }}
                     </a>
                 @endforeach
             </div>
+            @endif
 
             {{-- Applied Active Filter Removable Tags Strip --}}
             @php
@@ -331,40 +332,58 @@
                 <div id="agodaMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
 
                 @php
-                    $destLower = strtolower($destination ?: '');
-                    $centerLat = 21.4272;
-                    $centerLng = 91.9702;
-                    if (str_contains($destLower, 'dhaka')) { $centerLat = 23.8103; $centerLng = 90.4125; }
-                    elseif (str_contains($destLower, 'sylhet')) { $centerLat = 24.8949; $centerLng = 91.8687; }
-                    elseif (str_contains($destLower, 'kuakata')) { $centerLat = 21.8166; $centerLng = 90.1198; }
-                    elseif (str_contains($destLower, 'chittagong')) { $centerLat = 22.3569; $centerLng = 91.7832; }
+                    // ─── MAP CENTER: 100% from real property GPS in results ──────────
+                    // Priority: 1) Real lat/lng from first property in results
+                    //           2) Average lat/lng from all properties
+                    //           3) Bangladesh geographic center (fallback only)
+                    // Zero hardcoded city coordinates.
+                    $defaultLat = 23.6850; // Bangladesh centre
+                    $defaultLng = 90.3563;
 
-                    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($centerLat, $centerLng) {
+                    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng) {
                         $isObj    = is_object($p);
                         $name     = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
                         $slug     = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
-                        $priceVal = $isObj ? ($p->price_per_night ?? $p->price ?? 12500) : ($p['price_per_night'] ?? $p['price'] ?? 12500);
-                        $city     = $isObj ? ($p->city ?? $p->address ?? 'Destination') : ($p['city'] ?? $p['address'] ?? 'Destination');
+                        $priceVal = $isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0);
+                        $city     = $isObj ? ($p->city ?? $p->address ?? '') : ($p['city'] ?? $p['address'] ?? '');
                         $image    = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
-                        if (!$image) $image = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300&q=80';
-                        $score    = $isObj ? ($p->rating_score ?? 9.2) : ($p['rating_score'] ?? 9.2);
-
-                        // Offset coordinates slightly per property pin if lat/lng are generic
-                        $latOffset = ($idx - 2) * 0.008;
-                        $lngOffset = ($idx % 2 == 0 ? 1 : -1) * 0.006;
-                        $lat = (float) ($isObj ? ($p->latitude ?? ($centerLat + $latOffset)) : ($p['latitude'] ?? ($centerLat + $latOffset)));
-                        $lng = (float) ($isObj ? ($p->longitude ?? ($centerLng + $lngOffset)) : ($p['longitude'] ?? ($centerLng + $lngOffset)));
+                        $score    = $isObj ? ($p->rating_score ?? 0) : ($p['rating_score'] ?? 0);
+                        $lat      = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
+                        $lng      = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
 
                         return [
                             'name'     => $name,
-                            'price'    => \App\Services\CurrencyService::format($priceVal),
+                            'price'    => $priceVal > 0 ? \App\Services\CurrencyService::format($priceVal) : 'N/A',
                             'city'     => $city,
-                            'image'    => $image,
+                            'image'    => $image ?: '',
                             'score'    => $score,
                             'url'      => route('property.show', $slug),
                             'lat'      => $lat,
                             'lng'      => $lng,
+                            'has_gps'  => ($lat !== 0.0 && $lng !== 0.0),
                         ];
+                    });
+
+                    // Compute map center from real GPS of properties that have coordinates
+                    $gpsProps = $mapProperties->where('has_gps', true);
+                    if ($gpsProps->count() > 0) {
+                        $centerLat = $gpsProps->avg('lat');
+                        $centerLng = $gpsProps->avg('lng');
+                    } else {
+                        // No GPS in DB yet — use generic Bangladesh center, NOT hardcoded city
+                        $centerLat = $defaultLat;
+                        $centerLng = $defaultLng;
+                    }
+
+                    // For properties missing GPS, scatter them around the center
+                    $mapProperties = $mapProperties->map(function($p, $idx) use ($centerLat, $centerLng) {
+                        if (!$p['has_gps']) {
+                            $latOffset = ($idx - 2) * 0.007;
+                            $lngOffset = ($idx % 2 === 0 ? 1 : -1) * 0.005;
+                            $p['lat'] = round($centerLat + $latOffset, 6);
+                            $p['lng'] = round($centerLng + $lngOffset, 6);
+                        }
+                        return $p;
                     });
                 @endphp
 

@@ -528,7 +528,7 @@
         .data-table-card,
         .stockifly-card {
             background:#fff; border:1px solid #e8e8e8; border-radius:4px !important;
-            box-shadow:0 4px 20px rgba(0,0,0,0.05); min-height:220px;
+            box-shadow:0 4px 20px rgba(0,0,0,0.05); min-height:auto;
         }
         .data-table-card-header {
             padding:12px 16px; border-bottom:1px solid #f0f0f0;

@@ -72,9 +72,9 @@ class Property extends Model
     /** @var list<string> */
     protected $fillable = [
         'vendor_id', 'location_id', 'name', 'slug', 'type',
-        'city', 'star_rating', 'rating_score', 'total_reviews',
+        'city', 'star_rating', 'rating_score', 'rating', 'total_reviews',
         'address', 'description', 'price_per_night', 'original_price',
-        'primary_image', 'video_url', 'commission_rate',
+        'primary_image', 'featured_image', 'image', 'video_url', 'commission_rate',
         'images', 'amenities', 'is_featured', 'status',
         'rooms_left', 'no_credit_card_required', 'location_score',
         'nearest_landmark', 'free_cancellation',
@@ -134,6 +134,14 @@ class Property extends Model
             if ($property->isDirty('name') && ! $property->isDirty('slug')) {
                 $property->slug = static::generateUniqueSlug($property->name);
             }
+        });
+
+        static::saved(function (): void {
+            \Illuminate\Support\Facades\Cache::flush();
+        });
+
+        static::deleted(function (): void {
+            \Illuminate\Support\Facades\Cache::flush();
         });
     }
 
@@ -239,6 +247,21 @@ class Property extends Model
     {
         return $this->original_price !== null
             && (float) $this->original_price > (float) $this->price_per_night;
+    }
+
+    public function setFeaturedImageAttribute($value): void
+    {
+        $this->attributes['primary_image'] = $value;
+    }
+
+    public function setImageAttribute($value): void
+    {
+        $this->attributes['primary_image'] = $value;
+    }
+
+    public function setRatingAttribute($value): void
+    {
+        $this->attributes['rating_score'] = $value;
     }
 
     // ─── QUERY SCOPES ─────────────────────────────────────────────────────

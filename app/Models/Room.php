@@ -17,6 +17,8 @@ class Room extends Model
     protected $fillable = [
         'property_id',
         'name',
+        'room_type',
+        'capacity',
         'max_guests',
         'max_adults',
         'max_children',
@@ -28,8 +30,10 @@ class Room extends Model
         'breakfast_included',
         'free_cancellation',
         'facilities',
+        'amenities',
         'images',
         'view_type',
+        'has_ocean_view',
         'bathroom_count',
         'bathroom_features',
         'smoking_policy',
@@ -37,6 +41,36 @@ class Room extends Model
         'extra_bed_allowed',
         'status',
     ];
+
+    public function setCapacityAttribute($value): void
+    {
+        $this->attributes['max_guests'] = (int)$value;
+        $this->attributes['max_adults'] = (int)$value;
+    }
+
+    public function setRoomTypeAttribute($value): void
+    {
+        if (empty($this->attributes['name'])) {
+            $this->attributes['name'] = $value;
+        }
+    }
+
+    public function setAvailableRoomsAttribute($value): void
+    {
+        $this->attributes['total_rooms'] = (int)$value;
+    }
+
+    public function setAmenitiesAttribute($value): void
+    {
+        $this->attributes['facilities'] = is_array($value) ? json_encode($value) : $value;
+    }
+
+    public function setHasOceanViewAttribute($value): void
+    {
+        if ($value) {
+            $this->attributes['view_type'] = 'ocean_view';
+        }
+    }
 
     protected $casts = [
         'facilities' => 'array',

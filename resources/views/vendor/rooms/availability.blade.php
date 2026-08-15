@@ -77,7 +77,7 @@
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">AVAILABLE DAYS</p>
-                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['available_days'] }} / {{ $daysCount }} Days</p>
+                        <p class="kpi-value" id="kpiAvailableCount" style="font-size:19px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['available_days'] }} / {{ $daysCount }} Days</p>
                         <span style="font-size:11.5px; color:#52c41a; font-weight:600;">Bookable Inventory</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
@@ -93,7 +93,7 @@
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">BLOCKED DAYS</p>
-                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['sold_out_days'] }} Days</p>
+                        <p class="kpi-value" id="kpiBlockedCount" style="font-size:19px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['sold_out_days'] }} Days</p>
                         <span style="font-size:11.5px; color:#ff4d4f; font-weight:600;">Sold Out / Locked</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#fff5f5; color:#ea5455; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
@@ -109,8 +109,8 @@
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
                         <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">SEASONAL RATES</p>
-                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['custom_price_days'] }} Days</p>
-                        <span style="font-size:11.5px; color:#64748b;">Avg: ৳ {{ number_format($stats['avg_price']) }}/night</span>
+                        <p class="kpi-value" id="kpiSeasonalCount" style="font-size:19px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['custom_price_days'] }} Days</p>
+                        <span id="kpiSeasonalAvg" style="font-size:11.5px; color:#64748b;">Avg: ৳ {{ number_format($stats['avg_price']) }}/night</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f0eefc; color:#7367f0; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-tags"></i>
@@ -1209,26 +1209,52 @@ function updateCalendarDOM(records, basePrice) {
 }
 
 /**
- * Dynamic Filter Counts and KPI Recalculation
+ * Dynamic Filter Counts and Real-Time KPI Recalculation
  */
 function recountFilters() {
     let availCount = 0, blockCount = 0, custCount = 0;
-    document.querySelectorAll('.avail-card-col').forEach(c => {
+    let totalPrice = 0;
+    const cards = document.querySelectorAll('.avail-card-col');
+    const totalDays = cards.length;
+    const basePrice = {{ (float)($selectedRoom->price_per_night ?? 0) }};
+
+    cards.forEach(c => {
         const isB = c.getAttribute('data-status') === 'blocked';
         const isC = c.getAttribute('data-custom') === '1';
-        if (isB) blockCount++;
-        else {
+        const dayCard = c.querySelector('.calendar-day-card');
+        const priceVal = dayCard && dayCard.querySelector('.cal-rate-val') 
+            ? parseFloat(dayCard.querySelector('.cal-rate-val').innerText.replace(/[^\d.]/g, '')) 
+            : basePrice;
+
+        if (isB) {
+            blockCount++;
+        } else {
             availCount++;
             if (isC) custCount++;
+            totalPrice += (isNaN(priceVal) || priceVal <= 0) ? basePrice : priceVal;
         }
     });
 
+    const avgPrice = totalDays > 0 ? Math.round(totalPrice / totalDays) : basePrice;
+
+    // 1. Update interactive Tick Filter Badges
     const lblAvail = document.querySelector('#lblChkAvailable .badge-pill-count');
     const lblBlock = document.querySelector('#lblChkBlocked .badge-pill-count');
     const lblCust  = document.querySelector('#lblChkCustom .badge-pill-count');
     if (lblAvail) lblAvail.innerText = availCount;
     if (lblBlock) lblBlock.innerText = blockCount;
     if (lblCust)  lblCust.innerText  = custCount;
+
+    // 2. Update Top 4 Real-Time KPI Cards
+    const kpiAvail = document.getElementById('kpiAvailableCount');
+    const kpiBlock = document.getElementById('kpiBlockedCount');
+    const kpiCust  = document.getElementById('kpiSeasonalCount');
+    const kpiAvg   = document.getElementById('kpiSeasonalAvg');
+
+    if (kpiAvail) kpiAvail.innerText = `${availCount} / ${totalDays} Days`;
+    if (kpiBlock) kpiBlock.innerText = `${blockCount} Days`;
+    if (kpiCust)  kpiCust.innerText  = `${custCount} Days`;
+    if (kpiAvg)   kpiAvg.innerText   = `Avg: ৳ ${avgPrice.toLocaleString()}/night`;
 }
 
 /**

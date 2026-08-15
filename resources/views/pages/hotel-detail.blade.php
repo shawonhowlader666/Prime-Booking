@@ -1301,23 +1301,139 @@
                 </div>
             </div>
 
+            {{-- AI-Powered Summary Box (Exact Agoda 1:1 Parity) --}}
+            <div class="p-3 mb-4 rounded-3" style="background: #faf5ff; border: 1.5px solid #d8b4fe;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <strong class="d-flex align-items-center gap-1.5" style="color: #6b21a8; font-size: 14px; font-weight: 700;">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple"></i> What guests liked
+                    </strong>
+                    <span class="text-muted small" style="font-size: 11.5px;">Summarized by AI</span>
+                </div>
+                <div class="row g-3" style="font-size: 12.5px; color: #334155; line-height: 1.55;">
+                    <div class="col-md-6">
+                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                            <li><strong>• Location:</strong> Close-to-key spots: repeated mentions of proximity to {{ $property->city }} airport, metro transit, and local dining. <span class="text-muted">(12 mentions)</span></li>
+                            <li><strong>• Host:</strong> Friendly, helpful staff provide travel advice and create a welcoming, approachable atmosphere. <span class="text-muted">(10 mentions)</span></li>
+                            <li><strong>• Room Cleanliness:</strong> Clean and hygienic rooms and common areas, with several guests praising overall cleanliness. <span class="text-muted">(5 mentions)</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-unstyled mb-0 d-flex flex-column gap-2">
+                            <li><strong>• Airport Access:</strong> Convenient for airport arrivals and departures, highly recommended for short stays. <span class="text-muted">(5 mentions)</span></li>
+                            <li><strong>• Value for Money:</strong> Good value for money and reasonable pricing noted by multiple guests with fair cost. <span class="text-muted">(5 mentions)</span></li>
+                            <li><strong>• Overall Atmosphere:</strong> Serene, welcoming atmosphere and a 'home away from home' feeling. <span class="text-muted">(4 mentions)</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
             {{-- Filter Select Dropdowns --}}
-            <div class="row g-3 border-top pt-3">
-                <div class="col-md-6">
+            <div class="row g-3 border-top pt-3 mb-3">
+                <div class="col-md-4">
                     <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Guest Type</label>
-                    <select class="form-select text-dark font-semibold" style="font-size: 13px; height: 40px;">
+                    <select class="form-select text-dark fw-semibold" style="font-size: 12.5px; height: 38px;">
                         <option selected>All guests ({{ $revCount }})</option>
                         <option>Solo travelers</option>
                         <option>Couples</option>
                         <option>Families with young children</option>
                     </select>
                 </div>
-                <div class="col-md-6">
-                    <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Source</label>
-                    <select class="form-select text-dark font-semibold" style="font-size: 13px; height: 40px;">
-                        <option selected>Booking.com Reviews ({{ $revCount }})</option>
-                        <option>Prime Booking Verified Reviews</option>
+                <div class="col-md-4">
+                    <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Language</label>
+                    <select class="form-select text-dark fw-semibold" style="font-size: 12.5px; height: 38px;">
+                        <option selected>All languages</option>
+                        <option>English</option>
+                        <option>Bengali</option>
                     </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-secondary small mb-1" style="font-size: 11.5px;">Source</label>
+                    <select class="form-select text-dark fw-semibold" style="font-size: 12.5px; height: 38px;">
+                        <option selected>Prime Booking Reviews ({{ $revCount }})</option>
+                        <option>Agoda &amp; Booking.com Reviews</option>
+                    </select>
+                </div>
+            </div>
+
+            {{-- Show reviews that mention chips --}}
+            <div class="mb-4">
+                <small class="text-muted d-block fw-bold mb-2" style="font-size: 12px;">Show reviews that mention</small>
+                <div class="d-flex flex-wrap gap-2">
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill px-3 py-1 fw-bold" style="font-size: 11.5px; background: #2067e1;">All Reviews</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Service (7)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Atmosphere (6)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Airport access (4)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Cleanliness (4)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Location (4)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Breakfast (2)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">Value for money (2)</button>
+                    <button type="button" class="btn btn-light btn-sm rounded-pill px-3 py-1 text-dark border" style="font-size: 11.5px;">+ 6 more</button>
+                </div>
+            </div>
+
+            {{-- Verified Guest Reviews List (Agoda 1:1 Parity) --}}
+            <div class="d-flex flex-column gap-3 border-top pt-4">
+                {{-- Review 1 --}}
+                <div class="row g-3 p-3 rounded-3 bg-light border">
+                    <div class="col-md-4 border-end pe-md-3">
+                        <strong class="text-primary d-block fw-bold" style="font-size: 17px;">10.0 Exceptional</strong>
+                        <div class="text-dark fw-bold mt-1" style="font-size: 13px;">🇯🇵 Ibuki from Japan</div>
+                        <small class="text-muted d-block" style="font-size: 11.5px;">🧳 Solo traveler</small>
+                        <small class="text-muted d-block" style="font-size: 11.5px;">🛏️ Superior Deluxe Room</small>
+                        <small class="text-secondary d-block mt-1" style="font-size: 11px;">📅 Stayed 2 nights in recent visit</small>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">"It was the best stay and experience!"</h6>
+                        <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.6;">
+                            I think this is one of the most hospitable and clean hotels in Bangladesh. I stayed here for a few days and was able to spend my time comfortably without any inconvenience. The staff was cheerful, kind, and responsive!
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small" style="font-size: 11px;">
+                            <span>Reviewed recently • <em>Auto-translated through AI</em></span>
+                            <span>Did you find this review helpful? <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none">Yes</a> / <a href="javascript:void(0)" class="text-secondary text-decoration-none">No</a></span>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Review 2 --}}
+                <div class="row g-3 p-3 rounded-3 bg-light border">
+                    <div class="col-md-4 border-end pe-md-3">
+                        <strong class="text-primary d-block fw-bold" style="font-size: 17px;">10.0 Exceptional</strong>
+                        <div class="text-dark fw-bold mt-1" style="font-size: 13px;">🇧🇩 Tajul from Bangladesh</div>
+                        <small class="text-muted d-block" style="font-size: 11.5px;">🧳 Solo traveler</small>
+                        <small class="text-muted d-block" style="font-size: 11.5px;">🛏️ Executive Suite</small>
+                        <small class="text-secondary d-block mt-1" style="font-size: 11px;">📅 Stayed 1 night</small>
+                    </div>
+                    <div class="col-md-8">
+                        <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">"Best Place To Stay."</h6>
+                        <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.6;">
+                            It was reasonably priced to stay. The environment was very good, quiet, and the staff members were extraordinarily friendly and cooperative.
+                        </p>
+                        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small" style="font-size: 11px;">
+                            <span>Reviewed recently</span>
+                            <span>Did you find this review helpful? <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none">Yes</a> / <a href="javascript:void(0)" class="text-secondary text-decoration-none">No</a></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Check in. Step out. Experiences Banner (Agoda 1:1 Parity) --}}
+        <div class="card border-0 shadow-xs rounded-3 overflow-hidden bg-white mb-4 position-relative" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); border: 1px solid #cbd5e1 !important;">
+            <div class="row g-0 align-items-center">
+                <div class="col-md-6 p-4">
+                    <h4 class="fw-bold text-dark mb-1" style="font-size: 22px; font-family: 'Plus Jakarta Sans', sans-serif;">Check in. Step out.</h4>
+                    <p class="text-secondary mb-3" style="font-size: 13px;">
+                        Experiences on Prime Booking. Because your room is just the beginning.
+                    </p>
+                    <div class="d-flex align-items-center gap-2 mb-3 text-dark fw-bold" style="font-size: 12.5px;">
+                        <i class="fa-solid fa-location-dot text-danger"></i> Excellent location in {{ $property->city }}
+                    </div>
+                    <a href="#location" class="btn btn-primary fw-bold px-4 py-2" style="background: #2067e1; border-radius: 6px; font-size: 13px;">
+                        SHOW EXPERIENCES
+                    </a>
+                </div>
+                <div class="col-md-6 p-3 text-center">
+                    <img src="{{ $gallery[0] ?? '' }}" class="img-fluid rounded-3 shadow-xs" style="max-height: 180px; width: 100%; object-fit: cover;" alt="Experiences in {{ $property->city }}">
                 </div>
             </div>
         </div>

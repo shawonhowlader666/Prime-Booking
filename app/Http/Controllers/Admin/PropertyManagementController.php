@@ -12,7 +12,31 @@ class PropertyManagementController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Property::withCount('bookings')->latest();
+        // 1. Single-pass high performance indexed stats aggregate (1 fast query instead of 5)
+        $statsRaw = Property::selectRaw("
+            COUNT(*) as total,
+            COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
+            COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending,
+            COUNT(CASE WHEN is_featured = 1 THEN 1 END) as featured,
+            COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive
+        ")->first();
+
+        $stats = [
+            'total'    => (int) ($statsRaw->total ?? 0),
+            'active'   => (int) ($statsRaw->active ?? 0),
+            'pending'  => (int) ($statsRaw->pending ?? 0),
+            'featured' => (int) ($statsRaw->featured ?? 0),
+            'inactive' => (int) ($statsRaw->inactive ?? 0),
+        ];
+
+        // 2. Lean, optimized query with eager loading to prevent N+1 queries
+        $query = Property::with(['vendor:id,name,email'])
+            ->select([
+                'id', 'vendor_id', 'name', 'slug', 'type', 'city',
+                'star_rating', 'address', 'price_per_night', 'primary_image',
+                'status', 'is_featured', 'created_at'
+            ])
+            ->withCount(['rooms', 'bookings']);
 
         if ($request->filled('city')) {
             $query->where('city', 'like', '%' . $request->city . '%');
@@ -36,15 +60,7 @@ class PropertyManagementController extends Controller
             });
         }
 
-        $properties = $query->paginate(15)->withQueryString();
-
-        $stats = [
-            'total'    => Property::count(),
-            'active'   => Property::where('status', 'active')->count(),
-            'pending'  => Property::where('status', 'pending')->count(),
-            'featured' => Property::where('is_featured', true)->count(),
-            'inactive' => Property::where('status', 'inactive')->count(),
-        ];
+        $properties = $query->latest('id')->paginate(15)->withQueryString();
 
         return view('admin.properties.index', compact('properties', 'stats'));
     }

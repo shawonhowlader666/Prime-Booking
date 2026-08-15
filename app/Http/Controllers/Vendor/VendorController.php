@@ -18,26 +18,53 @@ class VendorController extends Controller
         return auth()->id() ?? 1;
     }
 
-    // ── My Properties List ─────────────────────────────────────
+    // ── My Properties List (Optimized for High Scale) ─────────
     public function propertyIndex(Request $request)
     {
         $vendorId = $this->vendorId();
-        $query = Property::where('vendor_id', $vendorId)->withCount('bookings');
 
-        if ($s = $request->search) {
-            $query->where(fn($q) => $q->where('name', 'like', "%$s%")->orWhere('city', 'like', "%$s%"));
+        // 1. Single-pass high performance indexed stats aggregate (1 fast query instead of 4)
+        $statsRaw = Property::where('vendor_id', $vendorId)
+            ->selectRaw("
+                COUNT(*) as total,
+                COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
+                COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive,
+                COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending
+            ")->first();
+
+        $stats = [
+            'total'    => (int) ($statsRaw->total ?? 0),
+            'active'   => (int) ($statsRaw->active ?? 0),
+            'inactive' => (int) ($statsRaw->inactive ?? 0),
+            'pending'  => (int) ($statsRaw->pending ?? 0),
+        ];
+
+        // 2. Optimized lean query with withCount to avoid N+1 queries
+        $query = Property::where('vendor_id', $vendorId)
+            ->select([
+                'id', 'vendor_id', 'name', 'slug', 'type', 'city',
+                'star_rating', 'address', 'price_per_night', 'primary_image',
+                'status', 'created_at'
+            ])
+            ->withCount(['rooms', 'bookings']);
+
+        if ($s = trim($request->search ?? '')) {
+            $query->where(function ($q) use ($s) {
+                $q->where('name', 'like', "%{$s}%")
+                  ->orWhere('city', 'like', "%{$s}%")
+                  ->orWhere('type', 'like', "%{$s}%");
+            });
         }
+
         if ($status = $request->status) {
             $query->where('status', $status);
         }
 
-        $properties = $query->latest()->paginate(15)->withQueryString();
-        $stats = [
-            'total'    => Property::where('vendor_id', $vendorId)->count(),
-            'active'   => Property::where('vendor_id', $vendorId)->where('status', 'active')->count(),
-            'inactive' => Property::where('vendor_id', $vendorId)->where('status', 'inactive')->count(),
-            'pending'  => Property::where('vendor_id', $vendorId)->where('status', 'pending')->count(),
-        ];
+        if ($type = $request->type) {
+            $query->where('type', $type);
+        }
+
+        $properties = $query->latest('id')->paginate(15)->withQueryString();
 
         return view('vendor.properties.index', compact('properties', 'stats'));
     }

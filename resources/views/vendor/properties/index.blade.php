@@ -4,146 +4,288 @@
 @php use App\Services\CurrencyService; @endphp
 
 <div class="page-header-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-        <h1 class="page-title m-0">My Hotel Properties</h1>
-        <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal" style="display:inline-flex;align-items:center;gap:7px;font-size:13px;padding:0 18px;height:36px;border:none;cursor:pointer;">
-            <i class="fa-solid fa-plus"></i> Add New Property
-        </button>
-    </div>
-    <div class="page-breadcrumb mt-2">
-        <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><strong style="color:#333;">My Properties</strong>
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5">
+        <div>
+            <h1 class="page-title m-0 d-flex align-items-center">
+                <i class="fa-solid fa-hotel text-primary me-2"></i> My Hotel Properties
+            </h1>
+            <div class="page-breadcrumb mt-1.5">
+                <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <span class="sep">-</span><strong style="color:#1e293b;">My Properties</strong>
+            </div>
+        </div>
+        <div class="d-flex align-items-center gap-2">
+            <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addPropertyModal" style="display:inline-flex; align-items:center; gap:7px; font-size:12.5px; padding:0 16px; height:34px; border-radius:4px; border:none; cursor:pointer;">
+                <i class="fa-solid fa-plus"></i> Add New Property
+            </button>
+        </div>
     </div>
 </div>
 
 <div class="page-content-area">
     @if(session('success'))
-        <div class="admin-alert success mb-3"><i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}</div>
+        <div class="admin-alert success mb-3" style="border-radius:6px;">
+            <i class="fa-solid fa-circle-check me-1.5"></i> {{ session('success') }}
+        </div>
     @endif
 
     @if($errors->any())
-        <div class="admin-alert error mb-3">
+        <div class="admin-alert error mb-3" style="border-radius:6px;">
             <i class="fa-solid fa-circle-xmark me-2"></i>
             <strong>Submission Error:</strong>
             <span class="ms-2">{{ implode(', ', $errors->all()) }}</span>
         </div>
     @endif
 
-    {{-- KPI Cards --}}
-    <div class="row g-3 mb-3">
-        <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(24,144,255,0.1);color:#1890ff;"><i class="fa-solid fa-hotel"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['total'] ?? count($properties ?? []) }}</div><div class="kpi-label">Total Listings</div></div><div class="kpi-accent-bar" style="background:#1890ff;"></div></div>
+    {{-- KPI Cards (2x2 on Mobile, 4 in row on Desktop) --}}
+    <div class="row g-2.5 g-sm-3 mb-3">
+        <div class="col-6 col-sm-6 col-xl-3">
+            <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">TOTAL LISTINGS</p>
+                        <p class="kpi-value" style="font-size:18px; font-weight:800; color:#1890ff; margin:0;">{{ $stats['total'] ?? 0 }}</p>
+                        <span style="font-size:11px; color:#64748b;">Properties listed</span>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-hotel"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
+            </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(40,199,111,0.1);color:#28c76f;"><i class="fa-solid fa-circle-check"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['active'] ?? 0 }}</div><div class="kpi-label">Active Live</div></div><div class="kpi-accent-bar" style="background:#28c76f;"></div></div>
+
+        <div class="col-6 col-sm-6 col-xl-3">
+            <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">ACTIVE LIVE</p>
+                        <p class="kpi-value" style="font-size:18px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['active'] ?? 0 }}</p>
+                        <span style="font-size:11px; color:#52c41a; font-weight:600;">Accepting Bookings</span>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#28c76f;"></div>
+            </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(255,159,67,0.1);color:#ff9f43;"><i class="fa-solid fa-clock"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['pending'] ?? 0 }}</div><div class="kpi-label">Pending Review</div></div><div class="kpi-accent-bar" style="background:#ff9f43;"></div></div>
+
+        <div class="col-6 col-sm-6 col-xl-3">
+            <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">PENDING REVIEW</p>
+                        <p class="kpi-value" style="font-size:18px; font-weight:800; color:#ff9f43; margin:0;">{{ $stats['pending'] ?? 0 }}</p>
+                        <span style="font-size:11px; color:#64748b;">Under Admin Check</span>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
+            </div>
         </div>
-        <div class="col-6 col-md-3">
-            <div class="kpi-card"><div class="kpi-icon" style="background:rgba(234,84,85,0.1);color:#ea5455;"><i class="fa-solid fa-eye-slash"></i></div><div class="kpi-content"><div class="kpi-value">{{ $stats['inactive'] ?? 0 }}</div><div class="kpi-label">Inactive</div></div><div class="kpi-accent-bar" style="background:#ea5455;"></div></div>
+
+        <div class="col-6 col-sm-6 col-xl-3">
+            <div class="kpi-card" style="border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">INACTIVE</p>
+                        <p class="kpi-value" style="font-size:18px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['inactive'] ?? 0 }}</p>
+                        <span style="font-size:11px; color:#64748b;">Paused Listings</span>
+                    </div>
+                    <div style="width:36px; height:36px; border-radius:50%; background:#fff2f0; color:#ea5455; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
+                        <i class="fa-solid fa-eye-slash"></i>
+                    </div>
+                </div>
+                <div class="kpi-accent-bar" style="background:#ea5455;"></div>
+            </div>
         </div>
     </div>
 
     {{-- Filter Bar --}}
-    <div class="page-filters-bar mb-3">
+    <div class="data-table-card mb-3 p-3" style="border-radius:6px; background:#ffffff; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
         <form action="{{ route('vendor.properties.index') }}" method="GET">
-            <div class="row g-2 align-items-end">
-                <div class="col-md-5"><input type="text" name="search" value="{{ request('search') }}" class="form-control form-control-sm" placeholder="Search by name or city..." style="height:32px;font-size:12.5px;"></div>
-                <div class="col-md-3">
-                    <select name="status" class="form-select form-select-sm" style="height:32px;font-size:12.5px;">
-                        <option value="">All Status</option>
-                        <option value="active" {{ request('status')=='active'?'selected':'' }}>Active</option>
-                        <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>Inactive</option>
-                        <option value="pending" {{ request('status')=='pending'?'selected':'' }}>Pending Review</option>
+            <div class="row g-2 align-items-center">
+                <div class="col-12 col-md-5">
+                    <div class="input-group input-group-sm">
+                        <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" name="search" value="{{ request('search') }}" class="form-control border-start-0" placeholder="Search by property name, city, location..." style="height:34px; font-size:12.5px;">
+                    </div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <select name="type" class="form-select form-select-sm" style="height:34px; font-size:12.5px;">
+                        <option value="">All Categories</option>
+                        <option value="hotel" {{ request('type')=='hotel'?'selected':'' }}>Hotel &amp; Resort</option>
+                        <option value="resort" {{ request('type')=='resort'?'selected':'' }}>Beach Resort</option>
+                        <option value="houseboat" {{ request('type')=='houseboat'?'selected':'' }}>Ship / Houseboat</option>
+                        <option value="homestay" {{ request('type')=='homestay'?'selected':'' }}>Eco Homestay</option>
+                        <option value="apartment" {{ request('type')=='apartment'?'selected':'' }}>Serviced Apartment</option>
                     </select>
                 </div>
-                <div class="col-md-2"><button class="btn btn-primary btn-sm w-100" style="height:32px;font-size:12.5px;"><i class="fa-solid fa-search me-1"></i>Filter</button></div>
-                <div class="col-md-2"><a href="{{ route('vendor.properties.index') }}" class="btn btn-outline-secondary btn-sm w-100" style="height:32px;font-size:12.5px;">Reset</a></div>
+                <div class="col-6 col-md-2">
+                    <select name="status" class="form-select form-select-sm" style="height:34px; font-size:12.5px;">
+                        <option value="">All Status</option>
+                        <option value="active" {{ request('status')=='active'?'selected':'' }}>Active Live</option>
+                        <option value="pending" {{ request('status')=='pending'?'selected':'' }}>Pending Review</option>
+                        <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>Inactive</option>
+                    </select>
+                </div>
+                <div class="col-12 col-md-2 d-flex gap-1.5">
+                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1" style="height:34px; font-size:12.5px; font-weight:600; border-radius:4px;">
+                        <i class="fa-solid fa-filter me-1"></i> Filter
+                    </button>
+                    <a href="{{ route('vendor.properties.index') }}" class="btn btn-outline-secondary btn-sm px-2.5" title="Reset Filters" style="height:34px; font-size:12px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px;">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </a>
+                </div>
             </div>
         </form>
     </div>
 
-    {{-- Table --}}
-    <div class="stockifly-card">
+    {{-- Main Property Table --}}
+    <div class="data-table-card p-0 mb-4" style="border-radius:6px; background:#ffffff; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
         <div class="table-responsive">
-            <table class="table table-hover mb-0" id="propertiesTable">
-                <thead class="stockifly-table-head">
+            <table class="table table-stockifly align-middle mb-0" id="propertiesTable">
+                <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Property</th>
-                        <th>City</th>
-                        <th>Type</th>
-                        <th>Price/Night</th>
+                        <th style="padding-left: 20px !important;">#</th>
+                        <th>Property &amp; Details</th>
+                        <th>City / Location</th>
+                        <th>Category</th>
+                        <th>Price / Night</th>
                         <th>Bookings</th>
                         <th>Status</th>
-                        <th style="text-align:right;">Actions</th>
+                        <th style="text-align:right; padding-right: 20px !important;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                 @forelse($properties as $property)
                     <tr>
-                        <td style="font-size:12px;color:#64748b;">{{ $loop->iteration }}</td>
+                        <td style="padding-left: 20px !important; font-size:12px; color:#64748b; font-weight:600;">
+                            {{ $loop->iteration + ($properties->currentPage() - 1) * $properties->perPage() }}
+                        </td>
                         <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <img src="{{ $property->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=40&fit=crop' }}" width="50" height="35" style="object-fit:cover;border-radius:4px;flex-shrink:0;" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=60&h=40&fit=crop'">
+                            <div class="d-flex align-items-center gap-2.5">
+                                <img src="{{ $property->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=120&h=80&fit=crop' }}" width="56" height="40" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=120&h=80&fit=crop'">
                                 <div>
-                                    <div class="fw-bold" style="font-size:12.5px;">{{ $property->name }}</div>
-                                    <div style="font-size:11px;color:#64748b;">{{ str_repeat('★', $property->star_rating ?? 0) }}</div>
+                                    <strong style="font-size:13px; color:#1e293b; display:block;">{{ $property->name }}</strong>
+                                    <div class="d-flex align-items-center gap-1.5 mt-0.5">
+                                        <span class="text-warning" style="font-size:11px;">
+                                            @for($i=0; $i<($property->star_rating ?? 5); $i++)★@endfor
+                                        </span>
+                                        <span class="badge bg-light text-dark border" style="font-size:10px;">
+                                            <i class="fa-solid fa-bed text-primary me-0.5"></i> {{ $property->rooms_count ?? 0 }} Room Types
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
                         </td>
-                        <td style="font-size:12.5px;">{{ $property->city }}</td>
-                        <td><span class="badge-gateway">{{ ucfirst($property->type) }}</span></td>
-                        <td style="font-size:12.5px;font-weight:600;">৳{{ number_format($property->price_per_night) }}</td>
-                        <td style="font-size:12.5px;text-align:center;">{{ $property->bookings_count ?? 0 }}</td>
+                        <td style="font-size:12.5px; color:#334155;">
+                            <i class="fa-solid fa-location-dot text-danger me-1" style="font-size:11px;"></i> {{ $property->city }}
+                        </td>
+                        <td>
+                            <span class="badge bg-light text-primary border fw-semibold" style="font-size:11px; text-transform:capitalize;">
+                                {{ $property->type }}
+                            </span>
+                        </td>
+                        <td>
+                            <strong style="font-size:13.5px; color:#2067e1;">৳ {{ number_format($property->price_per_night) }}</strong>
+                            <small class="text-muted d-block" style="font-size:10px;">Base MRP</small>
+                        </td>
+                        <td style="text-align:center;">
+                            <span class="badge bg-light text-secondary border fw-bold px-2 py-1" style="font-size:11px;">
+                                <i class="fa-solid fa-ticket text-primary me-1"></i> {{ $property->bookings_count ?? 0 }}
+                            </span>
+                        </td>
                         <td>
                             @if(($property->status ?? 'active') === 'active')
-                                <span class="badge-status active">Active</span>
+                                <span class="badge bg-success-light text-success fw-bold px-2 py-1" style="font-size:11px; background:#f6ffed; border:1px solid #b7eb8f; border-radius:4px;">
+                                    <i class="fa-solid fa-circle-check me-1"></i> Active
+                                </span>
                             @elseif(($property->status ?? '') === 'pending')
-                                <span class="badge-status pending">Pending Review</span>
+                                <span class="badge bg-warning-light text-warning fw-bold px-2 py-1" style="font-size:11px; background:#fffbe6; border:1px solid #ffe58f; color:#d48806 !important; border-radius:4px;">
+                                    <i class="fa-solid fa-clock me-1"></i> Pending Review
+                                </span>
                             @elseif(($property->status ?? '') === 'rejected')
-                                <span class="badge-status cancelled" style="background:#fff2f0; color:#ff4d4f; border:1px solid #ffccc7; cursor:pointer;" title="Feedback: {{ $property->rejection_reason ?? 'Requires update' }}">
+                                <span class="badge bg-danger-light text-danger fw-bold px-2 py-1" style="font-size:11px; background:#fff2f0; border:1px solid #ffccc7; border-radius:4px;" title="Feedback: {{ $property->rejection_reason ?? 'Requires update' }}">
                                     <i class="fa-solid fa-circle-exclamation me-1"></i> Rejected
                                 </span>
                             @else
-                                <span class="badge-status cancelled">Inactive</span>
+                                <span class="badge bg-secondary-light text-secondary fw-bold px-2 py-1" style="font-size:11px; background:#f1f5f9; border:1px solid #cbd5e1; border-radius:4px;">
+                                    <i class="fa-solid fa-eye-slash me-1"></i> Inactive
+                                </span>
                             @endif
                         </td>
-                        <td style="text-align:right;">
-                            <div class="action-gear-dropdown">
-                                <button class="action-gear-btn"><i class="fa-solid fa-ellipsis-vertical"></i></button>
-                                <div class="dropdown-menu dropdown-menu-end py-1">
-                                    <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-pen me-2 text-primary"></i>Edit Property</a>
-                                    <a href="{{ route('vendor.rooms.index', $property->id) }}" class="dropdown-item"><i class="fa-solid fa-bed me-2 text-info"></i>Manage Rooms</a>
-                                    <a href="{{ route('vendor.availability.index') }}" class="dropdown-item"><i class="fa-solid fa-calendar-days me-2 text-success"></i>Calendar Rates</a>
-                                    @if(($property->status ?? '') !== 'pending')
-                                        <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
-                                             @csrf
-                                             <button type="submit" class="dropdown-item"><i class="fa-solid fa-toggle-on me-2 text-warning"></i>Toggle Status ({{ $property->status === 'active' ? 'Deactivate' : 'Activate' }})</button>
+                        <td style="text-align:right; padding-right: 20px !important;">
+                            <div class="d-inline-flex gap-1.5 align-items-center">
+                                {{-- Direct Room Inventory Shortcut --}}
+                                <a href="{{ route('vendor.rooms.index', $property->id) }}" class="btn btn-sm btn-outline-primary fw-semibold px-2.5 py-1" title="Manage Room Categories" style="font-size:11.5px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
+                                    <i class="fa-solid fa-bed me-1"></i> Rooms
+                                </a>
+
+                                {{-- Direct Rate Calendar Shortcut --}}
+                                <a href="{{ route('vendor.availability.index') }}" class="btn btn-sm btn-light border fw-semibold px-2.5 py-1 text-dark" title="Rates & Availability Calendar" style="font-size:11.5px; height:28px; border-radius:4px; display:inline-flex; align-items:center;">
+                                    <i class="fa-solid fa-calendar-days text-success me-1"></i> Rates
+                                </a>
+
+                                {{-- Actions Dropdown --}}
+                                <div class="action-gear-dropdown">
+                                    <button class="btn btn-sm btn-light border px-2 py-1" style="height:28px; border-radius:4px;" title="More Actions">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                    <div class="dropdown-menu dropdown-menu-end py-1 shadow-sm border" style="font-size:12.5px; min-width:180px;">
+                                        <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item py-1.5">
+                                            <i class="fa-solid fa-pen me-2 text-primary"></i> Edit Property
+                                        </a>
+                                        <a href="{{ route('pages.hotel-detail', $property->id) }}" target="_blank" class="dropdown-item py-1.5">
+                                            <i class="fa-solid fa-arrow-up-right-from-square me-2 text-info"></i> View on Main Web
+                                        </a>
+                                        @if(($property->status ?? '') !== 'pending')
+                                            <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
+                                                 @csrf
+                                                 <button type="submit" class="dropdown-item py-1.5">
+                                                     <i class="fa-solid fa-toggle-on me-2 text-warning"></i> {{ $property->status === 'active' ? 'Deactivate' : 'Activate' }}
+                                                 </button>
+                                            </form>
+                                        @else
+                                            <span class="dropdown-item text-muted disabled py-1.5" style="font-size:11.5px;">
+                                                <i class="fa-solid fa-clock me-2 text-warning"></i> Awaiting Review
+                                            </span>
+                                        @endif
+                                        <div class="dropdown-divider my-1"></div>
+                                        <form action="{{ route('vendor.properties.destroy', $property->id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this property permanently?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" class="dropdown-item text-danger py-1.5">
+                                                <i class="fa-solid fa-trash me-2"></i> Delete
+                                            </button>
                                         </form>
-                                    @else
-                                        <span class="dropdown-item text-muted disabled" style="font-size:12px;"><i class="fa-solid fa-clock me-2 text-warning"></i>Awaiting Admin Review</span>
-                                    @endif
-                                    <div class="dropdown-divider my-1"></div>
-                                    <form action="{{ route('vendor.properties.destroy', $property->id) }}" method="POST" onsubmit="return confirm('Delete this property permanently?')">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="dropdown-item text-danger"><i class="fa-solid fa-trash me-2"></i>Delete</button>
-                                    </form>
+                                    </div>
                                 </div>
                             </div>
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="8" class="text-center py-5" style="color:#94a3b8;font-size:13px;">
-                        <i class="fa-solid fa-hotel fa-2x mb-2 d-block"></i>No properties found. <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#addPropertyModal" class="fw-bold text-primary">Add your first property now</a>
-                    </td></tr>
+                    <tr>
+                        <td colspan="8" class="text-center py-5 text-muted">
+                            <div style="font-size:32px; color:#cbd5e1; margin-bottom:8px;"><i class="fa-solid fa-hotel"></i></div>
+                            <h6 class="fw-bold text-dark mb-1">No Properties Found</h6>
+                            <p class="mb-3" style="font-size:13px; color:#64748b;">Get started by listing your hotel, resort, or ship to receive guest bookings.</p>
+                            <button type="button" class="btn btn-primary btn-sm fw-bold px-3 py-1.5" data-bs-toggle="modal" data-bs-target="#addPropertyModal" style="background:#2067e1; border-radius:4px;">
+                                <i class="fa-solid fa-plus me-1"></i> Add New Property
+                            </button>
+                        </td>
+                    </tr>
                 @endforelse
                 </tbody>
             </table>
         </div>
         @if(method_exists($properties, 'hasPages') && $properties->hasPages())
-            <div class="stockifly-table-footer"><div>Showing {{ $properties->firstItem() }}–{{ $properties->lastItem() }} of {{ $properties->total() }}</div><div>{{ $properties->links() }}</div></div>
+            <div class="stockifly-table-footer p-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#fafafa;">
+                <div style="font-size:12px; color:#64748b;">Showing {{ $properties->firstItem() }}–{{ $properties->lastItem() }} of {{ $properties->total() }} Properties</div>
+                <div>{{ $properties->links() }}</div>
+            </div>
         @endif
     </div>
 </div>

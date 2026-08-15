@@ -202,17 +202,45 @@
                             <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Deluxe Sea View Suite" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
                         </div>
 
+@php
+    $allBathroomFeatures = [
+        ['name' => 'Private Bathroom', 'icon' => 'fa-solid fa-shower text-primary'],
+        ['name' => 'Hot Water Geyser', 'icon' => 'fa-solid fa-fire text-danger'],
+        ['name' => 'Bathtub / Jacuzzi', 'icon' => 'fa-solid fa-bath text-info'],
+        ['name' => 'Hairdryer', 'icon' => 'fa-solid fa-wind text-secondary'],
+        ['name' => 'Free Luxury Toiletries', 'icon' => 'fa-solid fa-pump-soap text-success'],
+        ['name' => 'Bathrobe & Slippers', 'icon' => 'fa-solid fa-vest text-warning'],
+        ['name' => 'Dental & Shaving Kit', 'icon' => 'fa-solid fa-tooth text-info'],
+        ['name' => 'Vanity Mirror', 'icon' => 'fa-solid fa-circle-notch text-secondary'],
+    ];
+
+    $allRoomAmenities = [
+        ['name' => 'Air Conditioning', 'icon' => 'fa-solid fa-snowflake text-info'],
+        ['name' => 'Free Wi-Fi', 'icon' => 'fa-solid fa-wifi text-primary'],
+        ['name' => 'Smart Flat TV', 'icon' => 'fa-solid fa-tv text-dark'],
+        ['name' => 'Tea & Coffee Maker', 'icon' => 'fa-solid fa-mug-hot text-warning'],
+        ['name' => 'Mini Fridge', 'icon' => 'fa-solid fa-box text-primary'],
+        ['name' => 'Work Desk', 'icon' => 'fa-solid fa-laptop text-secondary'],
+        ['name' => 'Safety Locker', 'icon' => 'fa-solid fa-vault text-warning'],
+        ['name' => 'Electric Kettle', 'icon' => 'fa-solid fa-fire-burner text-danger'],
+        ['name' => 'Ironing Facilities', 'icon' => 'fa-solid fa-shirt text-primary'],
+        ['name' => 'Soundproofing', 'icon' => 'fa-solid fa-volume-xmark text-secondary'],
+        ['name' => 'Blackout Curtains', 'icon' => 'fa-solid fa-moon text-dark'],
+        ['name' => 'Daily Housekeeping', 'icon' => 'fa-solid fa-broom text-success'],
+    ];
+@endphp
+
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Bed Type <span class="text-danger">*</span>
                             </label>
                             <select name="bed_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="King Bed">King Bed</option>
-                                <option value="Queen Bed">Queen Bed</option>
-                                <option value="Double Bed">Double Bed</option>
-                                <option value="Twin Beds">Twin Beds</option>
-                                <option value="Single Bed">Single Bed</option>
-                                <option value="Suite">Executive Suite</option>
+                                <option value="King Bed">🛏️ 1 King Size Bed</option>
+                                <option value="Queen Bed">🛏️ 1 Queen Size Bed</option>
+                                <option value="Twin Beds">🛏️🛏️ 2 Twin / Single Beds</option>
+                                <option value="Triple Bed">🛏️🛏️🛏️ 3 Single Beds (Triple)</option>
+                                <option value="Executive Suite">👑 Super King Bed + Jacuzzi</option>
+                                <option value="Bunk Bed">🛌 Bunk Beds (Family Room)</option>
                             </select>
                         </div>
 
@@ -256,12 +284,14 @@
                                 Room View <span class="text-danger">*</span>
                             </label>
                             <select name="view_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                <option value="Sea View / Ocean Front">🌊 Sea View / Ocean Front</option>
+                                <option value="Sea View / Ocean Front">🌊 Direct Ocean / Sea View</option>
+                                <option value="Beachfront View">🏖️ Beachfront &amp; Wave View</option>
                                 <option value="City Skyline View">🏙️ City Skyline View</option>
-                                <option value="Mountain / Hill View">⛰️ Mountain / Hill View</option>
-                                <option value="Garden & Pool View">🌴 Garden &amp; Pool View</option>
+                                <option value="Mountain / Hill View">⛰️ Scenic Mountain / Hill View</option>
+                                <option value="Garden & Pool View">🌴 Lush Garden &amp; Pool View</option>
                                 <option value="Lake / River View">⛵ Lake / River View</option>
-                                <option value="Courtyard View">🌿 Inner Courtyard View</option>
+                                <option value="Sunset View">🌅 Sunset Panoramic View</option>
+                                <option value="Courtyard View">🌿 Quiet Inner Courtyard View</option>
                             </select>
                         </div>
 
@@ -303,10 +333,11 @@
                                 Bathroom Features &amp; Toiletries
                             </label>
                             <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
-                                @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
-                                    <label class="d-inline-flex align-items-center px-2.5 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
-                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" checked style="margin:0; width:15px; height:15px; cursor:pointer;">
-                                        <span>{{ $bFeat }}</span>
+                                @foreach($allBathroomFeatures as $bFeat)
+                                    <label class="d-inline-flex align-items-center px-3 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat['name'] }}" checked style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <i class="{{ $bFeat['icon'] }} me-1.5" style="width:14px;"></i>
+                                        <span>{{ $bFeat['name'] }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -317,10 +348,11 @@
                                 Popular In-Room Amenities (Select All Applicable)
                             </label>
                             <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
-                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker', 'Electric Kettle', 'Ironing Facilities', 'Soundproofing'] as $amenity)
+                                @foreach($allRoomAmenities as $amenity)
                                     <label class="d-inline-flex align-items-center px-3 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
-                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" style="margin:0; width:15px; height:15px; cursor:pointer;">
-                                        <span>{{ $amenity }}</span>
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity['name'] }}" style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <i class="{{ $amenity['icon'] }} me-1.5" style="width:14px;"></i>
+                                        <span>{{ $amenity['name'] }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -409,8 +441,15 @@
                                 Bed Type <span class="text-danger">*</span>
                             </label>
                             <select name="bed_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                @foreach(['King Bed', 'Queen Bed', 'Double Bed', 'Twin Beds', 'Single Bed', 'Suite'] as $bt)
-                                    <option value="{{ $bt }}" {{ ($r->bed_type == $bt) ? 'selected' : '' }}>{{ $bt }}</option>
+                                @foreach([
+                                    'King Bed' => '🛏️ 1 King Size Bed',
+                                    'Queen Bed' => '🛏️ 1 Queen Size Bed',
+                                    'Twin Beds' => '🛏️🛏️ 2 Twin / Single Beds',
+                                    'Triple Bed' => '🛏️🛏️🛏️ 3 Single Beds (Triple)',
+                                    'Executive Suite' => '👑 Super King Bed + Jacuzzi',
+                                    'Bunk Bed' => '🛌 Bunk Beds (Family Room)'
+                                ] as $btVal => $btLbl)
+                                    <option value="{{ $btVal }}" {{ ($r->bed_type == $btVal) ? 'selected' : '' }}>{{ $btLbl }}</option>
                                 @endforeach
                             </select>
                         </div>
@@ -455,7 +494,16 @@
                                 Room View <span class="text-danger">*</span>
                             </label>
                             <select name="view_type" class="form-select form-select-sm" required style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
-                                @foreach(['Sea View / Ocean Front' => '🌊 Sea View / Ocean Front', 'City Skyline View' => '🏙️ City Skyline View', 'Mountain / Hill View' => '⛰️ Mountain / Hill View', 'Garden & Pool View' => '🌴 Garden & Pool View', 'Lake / River View' => '⛵ Lake / River View', 'Courtyard View' => '🌿 Inner Courtyard View'] as $vVal => $vLbl)
+                                @foreach([
+                                    'Sea View / Ocean Front' => '🌊 Direct Ocean / Sea View',
+                                    'Beachfront View' => '🏖️ Beachfront & Wave View',
+                                    'City Skyline View' => '🏙️ City Skyline View',
+                                    'Mountain / Hill View' => '⛰️ Scenic Mountain / Hill View',
+                                    'Garden & Pool View' => '🌴 Lush Garden & Pool View',
+                                    'Lake / River View' => '⛵ Lake / River View',
+                                    'Sunset View' => '🌅 Sunset Panoramic View',
+                                    'Courtyard View' => '🌿 Quiet Inner Courtyard View'
+                                ] as $vVal => $vLbl)
                                     <option value="{{ $vVal }}" {{ ($r->view_type == $vVal) ? 'selected' : '' }}>{{ $vLbl }}</option>
                                 @endforeach
                             </select>
@@ -500,10 +548,11 @@
                             </label>
                             <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
                                 @php $currentBFeats = is_array($r->bathroom_features) ? $r->bathroom_features : ['Private Bathroom', 'Hot Water Geyser']; @endphp
-                                @foreach(['Private Bathroom', 'Hot Water Geyser', 'Bathtub / Jacuzzi', 'Hairdryer', 'Free Toiletries', 'Bathrobe & Slippers'] as $bFeat)
-                                    <label class="d-inline-flex align-items-center px-2.5 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
-                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat }}" {{ in_array($bFeat, $currentBFeats) ? 'checked' : '' }} style="margin:0; width:15px; height:15px; cursor:pointer;">
-                                        <span>{{ $bFeat }}</span>
+                                @foreach($allBathroomFeatures as $bFeat)
+                                    <label class="d-inline-flex align-items-center px-3 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="bathroom_features[]" value="{{ $bFeat['name'] }}" {{ in_array($bFeat['name'], $currentBFeats) ? 'checked' : '' }} style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <i class="{{ $bFeat['icon'] }} me-1.5" style="width:14px;"></i>
+                                        <span>{{ $bFeat['name'] }}</span>
                                     </label>
                                 @endforeach
                             </div>
@@ -515,10 +564,11 @@
                             </label>
                             <div class="d-flex flex-wrap gap-2 p-2.5 rounded-2 border" style="background:#f8fafc;">
                                 @php $currentFacs = is_array($r->facilities) ? $r->facilities : []; @endphp
-                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker', 'Electric Kettle', 'Ironing Facilities', 'Soundproofing'] as $amenity)
+                                @foreach($allRoomAmenities as $amenity)
                                     <label class="d-inline-flex align-items-center px-3 py-1.5 rounded-2 border bg-white shadow-xs" style="font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none;">
-                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" {{ in_array($amenity, $currentFacs) ? 'checked' : '' }} style="margin:0; width:15px; height:15px; cursor:pointer;">
-                                        <span>{{ $amenity }}</span>
+                                        <input class="form-check-input me-2 flex-shrink-0" type="checkbox" name="amenities[]" value="{{ $amenity['name'] }}" {{ in_array($amenity['name'], $currentFacs) ? 'checked' : '' }} style="margin:0; width:15px; height:15px; cursor:pointer;">
+                                        <i class="{{ $amenity['icon'] }} me-1.5" style="width:14px;"></i>
+                                        <span>{{ $amenity['name'] }}</span>
                                     </label>
                                 @endforeach
                             </div>

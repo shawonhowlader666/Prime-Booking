@@ -220,21 +220,29 @@
             @php
                 $cityInsight = \App\Services\Search\CityInsightService::getInsights($destination);
             @endphp
-            <div class="mb-3 px-3 py-2.5 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2 shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
-                <div class="d-flex align-items-center gap-2.5">
-                    <i class="{{ $cityInsight['icon'] }} fs-4"></i>
+            <div class="mb-3 p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 42px; height: 42px; background: #ffffff; border: 1px solid #86efac;">
+                        <i class="{{ $cityInsight['icon'] }} fs-5"></i>
+                    </div>
                     <div>
-                        <div class="d-flex align-items-center gap-2">
-                            <strong class="text-dark" style="font-size: 13.5px;">{{ $destination }}</strong>
-                            <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2 py-0.5" style="font-size: 11px;">{{ $cityInsight['season_badge'] }}</span>
-                            <span class="fw-bold text-secondary" style="font-size: 12px;">{{ $cityInsight['temp'] }} · {{ $cityInsight['condition'] }}</span>
+                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
+                            <strong class="text-dark fw-bold" style="font-size: 14px;">{{ $destination }}</strong>
+                            <span class="badge fw-semibold px-2.5 py-1" style="font-size: 11px; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 20px;">
+                                <i class="fa-solid fa-sparkles me-1 text-success" style="font-size: 10px;"></i>{{ $cityInsight['season_badge'] }}
+                            </span>
+                            <span class="text-secondary fw-semibold" style="font-size: 12.5px;">
+                                <i class="fa-solid fa-cloud-sun text-warning me-1"></i>{{ $cityInsight['temp'] }} · {{ $cityInsight['condition'] }}
+                            </span>
                         </div>
-                        <small class="text-secondary d-block" style="font-size: 12px; line-height: 1.3;">{{ $cityInsight['tip'] }}</small>
+                        <div class="text-secondary" style="font-size: 12px; line-height: 1.35; color: #475569;">
+                            <i class="fa-solid fa-circle-info text-success me-1 opacity-75"></i>{{ $cityInsight['tip'] }}
+                        </div>
                     </div>
                 </div>
                 <div>
-                    <span class="badge bg-white text-dark border px-2.5 py-1.5 shadow-xs fw-semibold" style="font-size: 11px;">
-                        <i class="fa-solid fa-bolt text-warning me-1"></i> Best Rates Guaranteed
+                    <span class="badge bg-white text-dark border px-3 py-1.5 shadow-xs fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 11.5px; border-color: #cbd5e1 !important; border-radius: 20px;">
+                        <i class="fa-solid fa-bolt text-warning"></i> Best Rates Guaranteed
                     </span>
                 </div>
             </div>

@@ -254,11 +254,16 @@
                 
                 {{-- Left Card 1: Badges, Title & Address --}}
                 <div class="card agoda-card-border p-4 mb-4">
-                    {{-- Badges --}}
-                    <div class="d-flex align-items-center gap-2 mb-2">
-                        <span class="badge text-white fw-bold px-2.5 py-1" style="background-color: #0b2545; font-size: 11px; border-radius: 4px;">Domestic Deal</span>
-                        <span class="badge bg-white fw-bold px-2.5 py-1" style="color: #16a34a; border: 1px solid #16a34a; font-size: 11px; border-radius: 4px;">
-                            <i class="fa-solid fa-building me-1"></i> Apartment/Flat
+                    {{-- Badges & Stars --}}
+                    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+                        <span class="badge text-white fw-bold px-2.5 py-1" style="background-color: #0b2545; font-size: 11px; border-radius: 4px;">
+                            {{ $property->is_featured ? '⭐ Featured Property' : 'Top Verified Deal' }}
+                        </span>
+                        <span class="badge bg-white fw-bold px-2.5 py-1" style="color: #16a34a; border: 1px solid #16a34a; font-size: 11px; border-radius: 4px; text-transform: capitalize;">
+                            <i class="fa-solid fa-hotel me-1"></i> {{ ucfirst($property->type ?: 'Hotel & Resort') }}
+                        </span>
+                        <span class="text-warning" style="font-size: 13px; letter-spacing: 1px;">
+                            @for($i = 0; $i < ($property->star_rating ?? 5); $i++)★@endfor
                         </span>
                     </div>
 
@@ -267,7 +272,9 @@
                         {{ $property->name }}
                     </h2>
                     <p class="text-secondary small mb-0" style="font-size: 13px;">
-                        {{ $property->address ?: 'House#06 Road-21, Sector 4, Uttara, Dhaka, Bangladesh, 1230' }} - 
+                        <i class="fa-solid fa-location-dot text-danger me-1"></i>
+                        {{ $property->address ?: ($property->city . ', Bangladesh') }}
+                        @if(!empty($property->nearest_landmark)) • <span class="text-dark fw-semibold"><i class="fa-solid fa-map-pin text-primary me-0.5"></i> {{ $property->nearest_landmark }}</span> @endif - 
                         <a href="#location" class="fw-bold text-decoration-none" style="color: #2067e1;">SEE MAP</a>
                     </p>
                 </div>

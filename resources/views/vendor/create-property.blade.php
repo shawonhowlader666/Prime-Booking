@@ -4,7 +4,7 @@
 @section('content')
 
 {{-- PAGE HEADER --}}
-<div class="page-header-card mb-4">
+<div class="page-header-card mb-3">
     <div class="page-breadcrumb mb-1">
         <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
         <span class="sep">-</span><a href="{{ route('vendor.properties.index') }}">My Properties</a>
@@ -20,16 +20,16 @@
 
 {{-- CONTENT AREA --}}
 <div class="page-content-area">
-    <div style="max-width:960px; margin:0 auto;">
+    <div style="max-width:980px; margin:0 auto;">
 
         @if(session('success'))
-            <div class="admin-alert success mb-4">
+            <div class="admin-alert success mb-3">
                 <i class="fa-solid fa-circle-check me-2"></i> {{ session('success') }}
             </div>
         @endif
 
         @if($errors->any())
-            <div class="admin-alert error mb-4">
+            <div class="admin-alert error mb-3">
                 <i class="fa-solid fa-circle-xmark me-2"></i>
                 <strong>Please review the input errors below:</strong>
                 <span class="ms-2">{{ implode(', ', $errors->all()) }}</span>
@@ -37,13 +37,13 @@
         @endif
 
         {{-- ENTERPRISE MODERATION & COMMISSION NOTICE BANNER --}}
-        <div class="p-3 mb-4 rounded-3 border" style="background:#f0f7ff; border-color:#bae0ff !important;">
+        <div class="p-3 mb-3 rounded border" style="background:#f0f7ff; border-color:#bae0ff !important;">
             <div class="d-flex align-items-start gap-2.5">
-                <div style="width:36px; height:36px; border-radius:50%; background:#2067e1; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:16px;">
+                <div style="width:34px; height:34px; border-radius:50%; background:#2067e1; color:#fff; display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:15px;">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <div>
-                    <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">Vendor Listing Moderation &amp; Commission Notice</h6>
+                    <h6 class="fw-bold text-dark mb-1" style="font-size:13px;">Vendor Listing Moderation &amp; Commission Notice</h6>
                     <p class="mb-0 text-secondary" style="font-size:12px; line-height:1.5;">
                         Submitted listings are saved with status <strong>"Pending Admin Review"</strong>. Once approved by our team, your hotel goes live instantly. Standard platform contract commission rate (default 15.00%) applies per room booking. Real-time notifications will alert your inbox upon status approval.
                     </p>
@@ -54,13 +54,17 @@
         <form action="{{ route('vendor.properties.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
-            {{-- STEP 1: BASIC INFO --}}
-            <div class="data-table-card p-4 mb-4" style="border-radius:8px;">
-                <div class="border-bottom pb-2 mb-3">
-                    <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-hotel me-2 text-primary"></i> Step 1 — Basic Property Classification</h6>
-                    <small class="text-muted" style="font-size:11.5px;">Enter official property name, type, and geographic destination.</small>
+            {{-- SINGLE MASTER CARD CONTAINER (Enterprise Best Practice) --}}
+            <div class="form-card" style="border-radius:6px; background:#ffffff; border:1px solid #e2e8f0; padding:28px; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+
+                {{-- SECTION 1: BASIC INFO --}}
+                <div class="border-bottom pb-2.5 mb-3">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:14.5px;">
+                        <i class="fa-solid fa-hotel text-primary me-2" style="font-size:15px; width:18px;"></i>
+                        <span>1. Property Details &amp; Geographic Location</span>
+                    </h5>
                 </div>
-                <div class="row g-3">
+                <div class="row g-3 mb-4">
                     <div class="col-md-8">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Property Full Name <span style="color:#ff4d4f;">*</span></label>
                         <input type="text" name="name" class="form-control form-control-sm" value="{{ old('name') }}"
@@ -99,50 +103,49 @@
                         </select>
                     </div>
                     <div class="col-12">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Full Property Street Address <span style="color:#ff4d4f;">*</span></label>
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Full Property Physical Address <span style="color:#ff4d4f;">*</span></label>
                         <input type="text" name="address" class="form-control form-control-sm" value="{{ old('address') }}"
                             placeholder="e.g. Plot 14, Main Marine Drive, Kalatoli, Cox's Bazar 4700" required style="font-size:13px; height:38px;">
                     </div>
                 </div>
-            </div>
 
-            {{-- STEP 2: PRICING & MRP --}}
-            <div class="data-table-card p-4 mb-4" style="border-radius:8px;">
-                <div class="border-bottom pb-2 mb-3">
-                    <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-tags me-2 text-primary"></i> Step 2 — Nightly Base Pricing</h6>
-                    <small class="text-muted" style="font-size:11.5px;">Set standard base nightly price and optional MRP price for discount badge generation.</small>
+                {{-- SECTION 2: PRICING --}}
+                <div class="border-bottom pb-2.5 mb-3 mt-4">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:14.5px;">
+                        <i class="fa-solid fa-bangladeshi-taka-sign text-success me-2" style="font-size:15px; width:18px;"></i>
+                        <span>2. Nightly Base Pricing &amp; MRP Discount</span>
+                    </h5>
                 </div>
-                <div class="row g-3">
+                <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Standard Base Price Per Night (BDT ৳) <span style="color:#ff4d4f;">*</span></label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text fw-bold">৳ BDT</span>
+                            <span class="input-group-text fw-bold bg-light">৳ BDT</span>
                             <input type="number" name="price_per_night" class="form-control" value="{{ old('price_per_night') }}" placeholder="e.g. 8500" required style="font-size:13px; height:38px;">
                         </div>
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Original / Regular MRP Price (BDT ৳) — Optional</label>
                         <div class="input-group input-group-sm">
-                            <span class="input-group-text fw-bold">৳ BDT</span>
-                            <input type="number" name="original_price" class="form-control" value="{{ old('original_price') }}" placeholder="e.g. 12000 (Shows discount badge)" style="font-size:13px; height:38px;">
+                            <span class="input-group-text fw-bold bg-light">৳ BDT</span>
+                            <input type="number" name="original_price" class="form-control" value="{{ old('original_price') }}" placeholder="e.g. 12000 (Generates discount badge)" style="font-size:13px; height:38px;">
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- STEP 3: DUAL PHOTO UPLOADER (FILE OR URL) --}}
-            <div class="data-table-card p-4 mb-4" style="border-radius:8px;">
-                <div class="border-bottom pb-2 mb-3">
-                    <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-images me-2 text-primary"></i> Step 3 — High-Res Photos &amp; Media</h6>
-                    <small class="text-muted" style="font-size:11.5px;">Upload thumbnail photo directly from your device OR paste image CDN URL.</small>
+                {{-- SECTION 3: MEDIA ASSETS --}}
+                <div class="border-bottom pb-2.5 mb-3 mt-4">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:14.5px;">
+                        <i class="fa-solid fa-images text-purple me-2" style="font-size:15px; width:18px; color:#7367f0;"></i>
+                        <span>3. High-Res Photos &amp; Video Tour</span>
+                    </h5>
                 </div>
-                <div class="row g-3">
+                <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
                             <i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Thumbnail Photo (Device)
                         </label>
-                        <input type="file" name="primary_image_file" class="form-control form-control-sm" accept="image/*" onchange="previewFile(this)" style="font-size:12.5px;">
-                        <small class="text-muted" style="font-size:11px;">Supports JPG, PNG, WEBP max 5MB.</small>
+                        <input type="file" name="primary_image_file" class="form-control form-control-sm" accept="image/*" onchange="previewFile(this)" style="font-size:12.5px; height:38px; padding:4px 12px;">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
@@ -150,40 +153,49 @@
                         </label>
                         <input type="url" name="primary_image" id="primaryImgUrl" class="form-control form-control-sm"
                             value="{{ old('primary_image') }}" placeholder="https://images.unsplash.com/photo-..."
-                            oninput="previewUrl(this.value)" style="font-size:12.5px;">
+                            oninput="previewUrl(this.value)" style="font-size:12.5px; height:38px;">
                     </div>
                     <div class="col-12">
-                        <div id="imgPreviewWrap" class="p-2 border rounded bg-light" style="display:none; max-width:240px;">
+                        <div id="imgPreviewWrap" class="p-2 border rounded bg-light" style="display:none; max-width:260px;">
                             <span class="text-secondary d-block mb-1" style="font-size:11px; font-weight:700;">LIVE PHOTO PREVIEW:</span>
-                            <img id="imgPreview" src="" style="width:100%; height:120px; object-fit:cover; border-radius:4px;" alt="Thumbnail Preview">
+                            <img id="imgPreview" src="" style="width:100%; height:130px; object-fit:cover; border-radius:4px;" alt="Thumbnail Preview">
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Upload Multiple Gallery Photos (Device)</label>
+                        <input type="file" name="gallery_image_files[]" class="form-control form-control-sm" multiple accept="image/*" style="font-size:12.5px; height:38px; padding:4px 12px;">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">YouTube Video Tour URL (Optional)</label>
+                        <input type="url" name="video_url" class="form-control form-control-sm" value="{{ old('video_url') }}" placeholder="https://www.youtube.com/watch?v=..." style="font-size:12.5px; height:38px;">
+                    </div>
                     <div class="col-12">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Gallery Photos Upload (Device Files or Image URLs)</label>
-                        <input type="file" name="gallery_image_files[]" class="form-control form-control-sm mb-2" multiple accept="image/*" style="font-size:12.5px;">
-                        <textarea name="gallery_images" class="form-control form-control-sm" rows="3"
-                            placeholder="Optionally paste additional image URLs (one URL per line)&#10;https://your-cdn.com/room1.jpg&#10;https://your-cdn.com/room2.jpg" style="font-size:12.5px;">{{ old('gallery_images') }}</textarea>
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Additional Gallery URLs (One URL per line — Optional)</label>
+                        <textarea name="gallery_images" class="form-control form-control-sm" rows="2"
+                            placeholder="https://your-cdn.com/room1.jpg&#10;https://your-cdn.com/room2.jpg" style="font-size:12.5px;">{{ old('gallery_images') }}</textarea>
                     </div>
                 </div>
-            </div>
 
-            {{-- STEP 4: DESCRIPTION --}}
-            <div class="data-table-card p-4 mb-4" style="border-radius:8px;">
-                <div class="border-bottom pb-2 mb-3">
-                    <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-align-left me-2 text-primary"></i> Step 4 — Property Description &amp; Overview</h6>
-                    <small class="text-muted" style="font-size:11.5px;">Provide detailed description, room highlights, breakfast policies, and location features.</small>
+                {{-- SECTION 4: OVERVIEW & DESCRIPTION --}}
+                <div class="border-bottom pb-2.5 mb-3 mt-4">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:14.5px;">
+                        <i class="fa-solid fa-align-left text-primary me-2" style="font-size:15px; width:18px;"></i>
+                        <span>4. Property Overview &amp; Description</span>
+                    </h5>
                 </div>
-                <textarea name="description" class="form-control" rows="5" required style="font-size:13px;"
-                    placeholder="Describe your property — luxury features, sea view balconies, complimentary breakfast, nearby tourist spots, check-in/out policies...">{{ old('description') }}</textarea>
-            </div>
+                <div class="mb-4">
+                    <textarea name="description" class="form-control" rows="4" required style="font-size:13px;"
+                        placeholder="Describe your property — luxury features, sea view balconies, complimentary breakfast, nearby tourist spots, check-in/out policies...">{{ old('description') }}</textarea>
+                </div>
 
-            {{-- STEP 5: AMENITIES & FACILITIES --}}
-            <div class="data-table-card p-4 mb-4" style="border-radius:8px;">
-                <div class="border-bottom pb-2 mb-3">
-                    <h6 class="fw-bold text-dark m-0"><i class="fa-solid fa-list-check me-2 text-primary"></i> Step 5 — Property Amenities &amp; Services</h6>
-                    <small class="text-muted" style="font-size:11.5px;">Select all complimentary guest amenities included at your property.</small>
+                {{-- SECTION 5: AMENITIES & FACILITIES --}}
+                <div class="border-bottom pb-2.5 mb-3 mt-4">
+                    <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:14.5px;">
+                        <i class="fa-solid fa-list-check text-info me-2" style="font-size:15px; width:18px;"></i>
+                        <span>5. Included Amenities &amp; Guest Services</span>
+                    </h5>
                 </div>
-                <div class="row g-2">
+                <div class="row g-2.5 mb-4">
                     @foreach([
                         ['wifi','fa-wifi','Free High-Speed Wi-Fi'],
                         ['pool','fa-person-swimming','Swimming Pool & Splash Zone'],
@@ -201,7 +213,7 @@
                         ['elevator','fa-elevator','Elevator / Lift Access'],
                     ] as $am)
                     <div class="col-6 col-md-3">
-                        <label style="padding:10px 12px; border:1px solid #e2e8f0; border-radius:6px; display:flex; align-items:center; gap:10px; cursor:pointer; background:#f8fafc; transition:all 0.15s; width:100%;">
+                        <label style="padding:10px 12px; border:1px solid #e2e8f0; border-radius:4px; display:flex; align-items:center; gap:10px; cursor:pointer; background:#f8fafc; transition:all 0.15s; width:100%;">
                             <input type="checkbox" name="amenities[]" value="{{ $am[0] }}" class="form-check-input mt-0"
                                 {{ in_array($am[0], old('amenities', [])) ? 'checked' : '' }}>
                             <span style="font-size:12px; font-weight:600; color:#334155; display:flex; align-items:center; gap:6px;">
@@ -211,18 +223,18 @@
                     </div>
                     @endforeach
                 </div>
-            </div>
 
-            {{-- ACTIONS FOOTER --}}
-            <div class="d-flex align-items-center justify-content-end gap-2 pb-4">
-                <a href="{{ route('vendor.properties.index') }}" class="btn btn-light border text-secondary fw-bold px-4 py-2" style="font-size:13px; border-radius:6px;">
-                    Cancel
-                </a>
-                <button type="submit" class="btn btn-primary fw-bold px-5 py-2" style="background-color: #2067e1; font-size:13px; border-radius:6px; border:none;">
-                    Submit Property Listing <i class="fa-solid fa-paper-plane ms-1"></i>
-                </button>
-            </div>
+                {{-- SUBMIT FOOTER --}}
+                <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
+                    <a href="{{ route('vendor.properties.index') }}" class="btn btn-light border text-secondary fw-bold px-4 py-2" style="font-size:13px; border-radius:4px;">
+                        Cancel
+                    </a>
+                    <button type="submit" class="btn btn-primary fw-bold px-5 py-2" style="background-color: #2067e1; font-size:13px; border-radius:4px; border:none;">
+                        Submit Property Listing <i class="fa-solid fa-paper-plane ms-1"></i>
+                    </button>
+                </div>
 
+            </div>
         </form>
     </div>
 </div>

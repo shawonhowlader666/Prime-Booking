@@ -76,6 +76,45 @@ class VendorTourPackageController extends Controller
         return redirect()->route('vendor.packages.index')->with('success', 'Tour Package submitted for admin approval! It will go live once approved.');
     }
 
+    public function edit(int $id): View
+    {
+        $package = TourPackage::where('vendor_id', auth()->id())->findOrFail($id);
+        return view('vendor.packages.edit', compact('package'));
+    }
+
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        $package = TourPackage::where('vendor_id', auth()->id())->findOrFail($id);
+        $validated = $request->validate([
+            'title'            => 'required|string|max:255',
+            'destination'      => 'required|string|max:100',
+            'duration_days'    => 'required|integer|min:1',
+            'duration_nights'  => 'required|integer|min:0',
+            'price_per_person' => 'required|numeric|min:1',
+            'discount_price'   => 'nullable|numeric|min:0',
+            'featured_image'   => 'nullable|url',
+            'max_seats'        => 'required|integer|min:1',
+        ]);
+
+        $inclusionsList = array_filter(array_map('trim', explode("\n", $request->input('inclusions', ''))));
+        $highlightsList = array_filter(array_map('trim', explode("\n", $request->input('highlights', ''))));
+
+        $package->update([
+            'title'            => $validated['title'],
+            'destination'      => $validated['destination'],
+            'duration_days'    => $validated['duration_days'],
+            'duration_nights'  => $validated['duration_nights'],
+            'price_per_person' => $validated['price_per_person'],
+            'discount_price'   => $validated['discount_price'] ?? null,
+            'featured_image'   => $validated['featured_image'] ?? $package->featured_image,
+            'inclusions'       => !empty($inclusionsList) ? $inclusionsList : $package->inclusions,
+            'highlights'       => !empty($highlightsList) ? $highlightsList : $package->highlights,
+            'max_seats'        => $validated['max_seats'],
+        ]);
+
+        return redirect()->route('vendor.packages.index')->with('success', 'Tour Package updated successfully.');
+    }
+
     /**
      * Delete a vendor package.
      * DELETE /vendor/packages/{id}

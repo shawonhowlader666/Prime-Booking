@@ -13,6 +13,11 @@ class SuggestionController extends Controller
 {
     use ApiResponseTrait;
 
+    public function index(Request $request)
+    {
+        return $this->suggestions($request);
+    }
+
     /**
      * Real-time Autocomplete Suggestions API (Agoda Exact Parity)
      * GET /api/v1/search/suggestions?q=cox&search_type=hotel

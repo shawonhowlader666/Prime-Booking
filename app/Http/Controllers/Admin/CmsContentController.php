@@ -57,6 +57,16 @@ class CmsContentController extends Controller
         return back()->with('success', "New CMS page '{$validated['title']}' created successfully!");
     }
 
+    public function create()
+    {
+        return view('admin.cms.create');
+    }
+
+    public function show(CmsContent $cm)
+    {
+        return view('admin.cms.edit', ['page' => $cm]);
+    }
+
     public function edit(CmsContent $cm)
     {
         return view('admin.cms.edit', ['page' => $cm]);

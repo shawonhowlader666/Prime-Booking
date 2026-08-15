@@ -66,6 +66,39 @@ class VendorPromotionController extends Controller
         return redirect()->route('vendor.promotions.index')->with('success', 'Promo coupon created successfully!');
     }
 
+    public function edit(int $id): View
+    {
+        $coupon = Coupon::where('vendor_id', auth()->id())->findOrFail($id);
+        $properties = Property::where('vendor_id', auth()->id())->get();
+        return view('vendor.promotions.edit', compact('coupon', 'properties'));
+    }
+
+    public function update(Request $request, int $id): RedirectResponse
+    {
+        $coupon = Coupon::where('vendor_id', auth()->id())->findOrFail($id);
+        $validated = $request->validate([
+            'code'        => 'required|string|max:50|unique:coupons,code,' . $coupon->id,
+            'type'        => 'required|in:percent,percentage,fixed',
+            'value'       => 'nullable|numeric|min:1',
+            'amount'      => 'nullable|numeric|min:1',
+            'min_spend'   => 'nullable|numeric|min:0',
+            'expires_at'  => 'nullable|date',
+            'property_id' => 'nullable|exists:properties,id',
+        ]);
+
+        $val = $validated['amount'] ?? $validated['value'] ?? $coupon->amount;
+        $coupon->update([
+            'code'        => strtoupper(trim($validated['code'])),
+            'type'        => $validated['type'],
+            'amount'      => $val,
+            'min_spend'   => $validated['min_spend'] ?? 0,
+            'expires_at'  => $validated['expires_at'] ?? $coupon->expires_at,
+            'property_id' => $validated['property_id'] ?? null,
+        ]);
+
+        return redirect()->route('vendor.promotions.index')->with('success', 'Promotion coupon updated successfully.');
+    }
+
     /**
      * Delete vendor promo coupon.
      * DELETE /vendor/promotions/{id}

@@ -46,6 +46,11 @@ class DealController extends Controller
         return redirect()->route('admin.deals.index')->with('success', 'Deal created successfully!');
     }
 
+    public function show(Deal $deal)
+    {
+        return redirect()->route('admin.deals.edit', $deal);
+    }
+
     public function edit(Deal $deal)
     {
         return view('admin.deals.edit', compact('deal'));

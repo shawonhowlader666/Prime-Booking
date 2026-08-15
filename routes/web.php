@@ -162,6 +162,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/users/{id}', [UserManagementController::class, 'update'])->name('users.update');
     Route::post('/users/{id}/ban', [UserManagementController::class, 'ban'])->name('users.ban');
     Route::post('/users/{id}/activate', [UserManagementController::class, 'activate'])->name('users.activate');
+    Route::post('/users/{id}/role', [UserManagementController::class, 'updateRole'])->name('users.update-role');
+    Route::post('/users/{id}/toggle-status', [UserManagementController::class, 'toggleStatus'])->name('users.toggle-status');
     Route::post('/users/{id}/promote-vendor', [UserManagementController::class, 'promoteVendor'])->name('users.promote-vendor');
     Route::post('/users/{id}/demote', [UserManagementController::class, 'demote'])->name('users.demote');
     Route::delete('/users/{id}', [UserManagementController::class, 'destroy'])->name('users.destroy');
@@ -229,6 +231,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/content/hero/slides/{id}', [ContentController::class, 'updateSlide'])->name('content.hero.slides.update');
     Route::post('/content/hero/slides/{id}/toggle', [ContentController::class, 'toggleSlide'])->name('content.hero.slides.toggle');
     Route::delete('/content/hero/slides/{id}', [ContentController::class, 'destroySlide'])->name('content.hero.slides.destroy');
+    Route::get('/content/destinations', [ContentController::class, 'destinations'])->name('content.destinations');
+    Route::post('/content/destinations', [ContentController::class, 'updateDestinations'])->name('content.destinations.update');
 
     // Amenities Catalog
     Route::get('/amenities', [AmenityController::class, 'index'])->name('amenities.index');
@@ -336,6 +340,8 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::get('/packages',          [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'index'])->name('packages.index');
     Route::get('/packages/create',   [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'create'])->name('packages.create');
     Route::post('/packages',         [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'store'])->name('packages.store');
+    Route::get('/packages/{id}/edit',[App\Http\Controllers\Vendor\VendorTourPackageController::class, 'edit'])->name('packages.edit');
+    Route::put('/packages/{id}',     [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'update'])->name('packages.update');
     Route::delete('/packages/{id}',  [App\Http\Controllers\Vendor\VendorTourPackageController::class, 'destroy'])->name('packages.destroy');
 
     // ── Guest Reviews ──────────────────────────────────────────

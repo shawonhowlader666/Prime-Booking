@@ -125,6 +125,26 @@ class VendorDashboardController extends Controller
         return view('vendor.booking-detail', compact('booking'));
     }
 
+    public function updateBookingStatus(Request $request, $reference)
+    {
+        $vendorId = auth()->id() ?? 1;
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+        $booking = Booking::where('booking_reference', $reference)
+            ->whereIn('property_id', $propertyIds)
+            ->firstOrFail();
+
+        $validated = $request->validate([
+            'status' => 'required|string|in:pending,confirmed,completed,cancelled',
+        ]);
+
+        $booking->update([
+            'status' => $validated['status'],
+            'booking_status' => $validated['status'],
+        ]);
+
+        return back()->with('success', "Booking #{$reference} status updated to {$validated['status']}.");
+    }
+
     // ─── Earnings Report ──────────────────────────────────────────────────
 
     public function earnings()

@@ -111,6 +111,34 @@ class FeaturedDestinationController extends Controller
         return redirect()->route('destinations.index')->with('success', "\"{$dest->city}\" destination updated.");
     }
 
+    public function create()
+    {
+        return view('admin.destinations.create');
+    }
+
+    public function edit($id)
+    {
+        $destination = FeaturedDestination::findOrFail($id);
+        return view('admin.destinations.edit', compact('destination'));
+    }
+
+    public function reorder(Request $request)
+    {
+        $orders = $request->input('orders', []);
+        foreach ($orders as $order) {
+            if (isset($order['id'], $order['sort_order'])) {
+                FeaturedDestination::where('id', $order['id'])->update(['sort_order' => (int)$order['sort_order']]);
+            }
+        }
+        Cache::forget('featured_destinations');
+        return response()->json(['success' => true]);
+    }
+
+    public function ajaxStore(Request $request)
+    {
+        return $this->store($request);
+    }
+
     public function destroy($id)
     {
         $dest = FeaturedDestination::findOrFail($id);

@@ -128,6 +128,25 @@ class UserManagementController extends Controller
         return back()->with('success', "User \"{$user->name}\" is now active.");
     }
 
+    public function updateRole(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+        $role = $request->input('role', 'user');
+        $user->update(['role' => $role]);
+        $this->log('updated_role', $user, "Changed role of {$user->email} to {$role}");
+        return back()->with('success', "User role updated to {$role} successfully.");
+    }
+
+    public function toggleStatus($id)
+    {
+        $user = User::findOrFail($id);
+        if ($user->status === 'banned') {
+            return $this->activate($id);
+        } else {
+            return $this->ban($id);
+        }
+    }
+
     // ─── Promote to Vendor ────────────────────────────────────────────────
 
     public function promoteVendor($id)

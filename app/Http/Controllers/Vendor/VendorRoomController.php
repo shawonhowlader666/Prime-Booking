@@ -65,12 +65,13 @@ class VendorRoomController extends Controller
             'total_rooms'     => 'nullable|integer|min:1',
         ]);
 
-        $facilities = [];
+        $facilities = (array) ($request->amenities ?? []);
         if ($request->facilities_text) {
-            $facilities = array_filter(
+            $customFac = array_filter(
                 array_map('trim', explode("\n", $request->facilities_text)),
                 fn($line) => !empty($line)
             );
+            $facilities = array_unique(array_merge($facilities, $customFac));
         }
 
         Room::create([
@@ -78,6 +79,7 @@ class VendorRoomController extends Controller
             'name'               => $request->name,
             'bed_type'           => $request->bed_type,
             'price_per_night'    => (float) $request->price_per_night,
+            'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : null,
             'max_adults'         => (int) $request->max_adults,
             'max_children'       => (int) ($request->max_children ?? 1),
             'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? 1),
@@ -89,7 +91,7 @@ class VendorRoomController extends Controller
 
         return redirect()
             ->route('vendor.rooms.index', $property->id)
-            ->with('success', '✅ New room type added successfully!');
+            ->with('success', '✅ New room category added successfully!');
     }
 
     /** Update room type */
@@ -107,18 +109,20 @@ class VendorRoomController extends Controller
             'max_adults'      => 'required|integer|min:1',
         ]);
 
-        $facilities = [];
+        $facilities = (array) ($request->amenities ?? []);
         if ($request->facilities_text) {
-            $facilities = array_filter(
+            $customFac = array_filter(
                 array_map('trim', explode("\n", $request->facilities_text)),
                 fn($line) => !empty($line)
             );
+            $facilities = array_unique(array_merge($facilities, $customFac));
         }
 
         $room->update([
             'name'               => $request->name,
             'bed_type'           => $request->bed_type ?? $room->bed_type,
             'price_per_night'    => (float) $request->price_per_night,
+            'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : $room->room_size_sqm,
             'max_adults'         => (int) $request->max_adults,
             'max_children'       => (int) ($request->max_children ?? $room->max_children),
             'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? 1),

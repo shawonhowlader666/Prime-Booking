@@ -386,6 +386,13 @@
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Room Size (m²)
+                            </label>
+                            <input type="number" name="room_size_sqm" class="form-control form-control-sm" placeholder="e.g. 35" min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Total Room Units <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="total_rooms" class="form-control form-control-sm" value="10" required min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
@@ -403,6 +410,20 @@
                                 Max Children
                             </label>
                             <input type="number" name="max_children" class="form-control form-control-sm" value="1" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Popular In-Room Amenities (Select All Applicable)
+                            </label>
+                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'] as $amenity)
+                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
+                                        <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" style="cursor:pointer;">
+                                        {{ $amenity }}
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
 
                         <div class="col-12 col-md-6">
@@ -424,9 +445,9 @@
 
                         <div class="col-12 col-md-6">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Amenities &amp; Facilities (1 per line)
+                                Additional Amenities &amp; Notes (1 per line)
                             </label>
-                            <textarea name="facilities_text" class="form-control" rows="3" placeholder="Air Conditioning&#10;Free High-Speed Wi-Fi&#10;Sea View Balcony&#10;Smart TV" style="font-size:12px; border:1px solid #d9d9d9; border-radius:4px;"></textarea>
+                            <textarea name="facilities_text" class="form-control" rows="3" placeholder="Extra Pillows&#10;Bathtub&#10;Bathrobes" style="font-size:12px; border:1px solid #d9d9d9; border-radius:4px;"></textarea>
                         </div>
                     </div>
                 </div>
@@ -484,6 +505,13 @@
 
                         <div class="col-12 col-md-4">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Room Size (m²)
+                            </label>
+                            <input type="number" name="room_size_sqm" class="form-control form-control-sm" value="{{ $r->room_size_sqm }}" placeholder="e.g. 35" min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 Total Room Units <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="total_rooms" class="form-control form-control-sm" value="{{ $r->total_rooms ?? 10 }}" required min="1" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
@@ -501,6 +529,21 @@
                                 Max Children
                             </label>
                             <input type="number" name="max_children" class="form-control form-control-sm" value="{{ $r->max_children ?? 1 }}" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                Popular In-Room Amenities
+                            </label>
+                            <div class="d-flex flex-wrap gap-2 p-2.5 rounded border" style="background:#f8fafc;">
+                                @php $currentFacs = is_array($r->facilities) ? $r->facilities : []; @endphp
+                                @foreach(['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'] as $amenity)
+                                    <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2.5 py-1 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
+                                        <input class="form-check-input m-0" type="checkbox" name="amenities[]" value="{{ $amenity }}" {{ in_array($amenity, $currentFacs) ? 'checked' : '' }} style="cursor:pointer;">
+                                        {{ $amenity }}
+                                    </label>
+                                @endforeach
+                            </div>
                         </div>
 
                         <div class="col-12 col-md-6">
@@ -522,9 +565,13 @@
 
                         <div class="col-12 col-md-6">
                             <label class="form-label mb-1" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                Amenities &amp; Facilities (1 per line)
+                                Additional Custom Amenities (1 per line)
                             </label>
-                            <textarea name="facilities_text" class="form-control" rows="3" style="font-size:12px; border:1px solid #d9d9d9; border-radius:4px;">{{ is_array($r->facilities) ? implode("\n", $r->facilities) : $r->facilities }}</textarea>
+                            @php
+                                $presetList = ['Air Conditioning', 'Free Wi-Fi', 'Smart Flat TV', 'Sea / City View', 'Private Balcony', 'Hot Water / Geyser', 'Tea & Coffee Maker', 'Mini Fridge', 'Work Desk', 'Safety Locker'];
+                                $customLines = array_diff($currentFacs, $presetList);
+                            @endphp
+                            <textarea name="facilities_text" class="form-control" rows="3" style="font-size:12px; border:1px solid #d9d9d9; border-radius:4px;">{{ implode("\n", $customLines) }}</textarea>
                         </div>
                     </div>
                 </div>

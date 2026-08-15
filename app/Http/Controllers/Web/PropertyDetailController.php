@@ -65,8 +65,20 @@ class PropertyDetailController extends Controller
             $property->rooms = collect();
         }
 
-        // Related properties (same city)
-        $related = $this->repository->getRelated($property, 4);
+        // Smart Algorithmic Recommendations (Multi-Attribute Jaccard & Proximity)
+        $recommendationService = app(\App\Services\RecommendationService::class);
+        $related = $recommendationService->getSimilarProperties($property, 4);
+        if ($related->isEmpty()) {
+            $related = $this->repository->getRelated($property, 4);
+        }
+
+        // Live Social Proof & Demand Signals
+        $socialProofService = app(\App\Services\SocialProofService::class);
+        $socialProof = $socialProofService->getSignals($property);
+
+        // Google SEO Schema (JSON-LD)
+        $seoSchemaService = app(\App\Services\SeoSchemaService::class);
+        $seoSchema = $seoSchemaService->generateHotelSchema($property);
 
         // Latest reviews from DB (limit 10 for page load)
         $reviews = Review::where('property_id', $property->id)
@@ -87,6 +99,8 @@ class PropertyDetailController extends Controller
         return view('pages.hotel-detail', compact(
             'property',
             'related',
+            'socialProof',
+            'seoSchema',
             'reviews',
             'checkIn',
             'checkOut',

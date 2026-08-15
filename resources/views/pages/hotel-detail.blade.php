@@ -83,6 +83,14 @@
 @section('title', e($property->name) . ' — Book Hotels in ' . ($property->city ?: 'Bangladesh') . ' | PRIME BOOKING')
 @section('meta_description', 'Book ' . e($property->name) . ' in ' . e($property->city) . '. ' . $revCount . ' verified guest reviews. Best rate guaranteed.')
 
+@if(isset($seoSchema) && !empty($seoSchema))
+    @push('head')
+    <script type="application/ld+json">
+    {!! $seoSchema !!}
+    </script>
+    @endpush
+@endif
+
 @section('content')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
@@ -391,10 +399,26 @@
                             Best seller
                         </span>
                         <span class="badge bg-white text-dark fw-bold px-2.5 py-1 d-inline-flex align-items-center gap-1.5 border" style="font-size: 11px; border-radius: 4px; border-color: #cbd5e1 !important;">
-                            <span style="font-weight: 900; background: linear-gradient(135deg, #2563eb, #db2777, #ea580c); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">a</span>
-                            <span style="letter-spacing: 0.5px; color: #3b82f6; font-weight: 700;">Agoda</span> PREFERRED
+                            <span style="letter-spacing: 0.5px; color: #2067e1; font-weight: 800;">PRIME</span> PREFERRED
                         </span>
+                        @if(isset($socialProof) && $socialProof['is_popular'])
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2.5 py-1 border border-danger border-opacity-25" style="font-size: 11px; border-radius: 4px;">
+                            <i class="fa-solid fa-fire text-danger me-1"></i> HIGH DEMAND
+                        </span>
+                        @endif
                     </div>
+
+                    @if(isset($socialProof))
+                    <div class="mb-3 p-2 px-3 rounded-2 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #fff1f2; border: 1px solid #ffe4e6; font-size: 12px; font-weight: 600; color: #9f1239;">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-fire text-danger"></i>
+                            <span>{{ $socialProof['urgency_text'] }}</span>
+                        </div>
+                        <div class="d-flex align-items-center gap-1 text-secondary" style="font-size: 11.5px;">
+                            <i class="fa-solid fa-eye text-primary"></i> {{ $socialProof['viewing_now'] }} looking right now
+                        </div>
+                    </div>
+                    @endif
 
                     {{-- Title & Address --}}
                     <div class="d-flex align-items-center gap-2 mb-1 flex-wrap">

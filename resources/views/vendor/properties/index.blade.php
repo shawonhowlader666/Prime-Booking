@@ -29,7 +29,7 @@
         </div>
     @endif
 
-    @if($errors->any())
+    @if(isset($errors) && $errors->any())
         <div class="admin-alert error mb-3" style="border-radius:6px;">
             <i class="fa-solid fa-circle-xmark me-2"></i>
             <strong>Submission Error:</strong>
@@ -239,7 +239,7 @@
                                         <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item py-1.5">
                                             <i class="fa-solid fa-pen me-2 text-primary"></i> Edit Property
                                         </a>
-                                        <a href="{{ route('pages.hotel-detail', $property->id) }}" target="_blank" class="dropdown-item py-1.5">
+                                        <a href="{{ route('hotels.show', $property->id) }}" target="_blank" class="dropdown-item py-1.5">
                                             <i class="fa-solid fa-arrow-up-right-from-square me-2 text-info"></i> View on Main Web
                                         </a>
                                         @if(($property->status ?? '') !== 'pending')

@@ -207,10 +207,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::put('/packages/{package}', [App\Http\Controllers\Admin\TourPackageController::class, 'update'])->name('packages.update');
     Route::post('/packages/{id}/status', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'toggleStatus'])->name('packages.toggle');
     Route::delete('/packages/{id}', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'destroy'])->name('packages.destroy');
-    Route::resource('deals', DealController::class)->names('admin.deals');
-    Route::post('/deals/{id}/toggle', [DealController::class, 'toggleStatus'])->name('admin.deals.toggle')->name('deals.toggle');
-    Route::resource('cms', CmsContentController::class)->names('admin.cms');
-    Route::resource('amenities', AmenityController::class)->only(['index', 'store', 'destroy'])->names('admin.amenities');
+    Route::resource('deals', DealController::class);
+    Route::post('/deals/{id}/toggle', [DealController::class, 'toggleStatus'])->name('deals.toggle');
+    Route::resource('cms', CmsContentController::class);
+    Route::resource('amenities', AmenityController::class)->only(['index', 'store', 'destroy']);
 
     // Marketing & Promo Coupons
     Route::get('/coupons', [CouponController::class, 'index'])->name('coupons.index');
@@ -475,27 +475,4 @@ Route::get('/lang/{locale}', function ($locale) {
     cookie()->queue(cookie()->forever('locale', $locale));
     return redirect()->back();
 })->name('lang.switch');
-
-// ─────────────────────────────────────────────────────────────────────────────
-// RESTful Standard JSON API Endpoints (Mobile App & Third-Party Integration)
-// ─────────────────────────────────────────────────────────────────────────────
-Route::get('/api/v1/properties', function (\Illuminate\Http\Request $request) {
-    $query = \App\Models\Property::with('rooms')->active();
-    if ($request->filled('city')) {
-        $query->where('city', 'like', '%' . $request->city . '%');
-    }
-    if ($request->filled('min_price')) {
-        $query->where('price_per_night', '>=', $request->min_price);
-    }
-    if ($request->filled('max_price')) {
-        $query->where('price_per_night', '<=', $request->max_price);
-    }
-    $properties = $query->paginate($request->get('per_page', 20));
-    return \App\Http\Resources\PropertyResource::collection($properties);
-})->name('api.v1.properties');
-
-Route::get('/api/v1/properties/{id}', function ($id) {
-    $property = \App\Models\Property::with('rooms')->findOrFail($id);
-    return new \App\Http\Resources\PropertyResource($property);
-})->name('api.v1.properties.show');
 

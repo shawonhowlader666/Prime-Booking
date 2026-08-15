@@ -13,24 +13,21 @@ Auth::guard('web')->login($admin);
 \Laravel\Sanctum\Sanctum::actingAs($admin);
 
 $routes = [
-    '/admin/featured-destinations/create',
-    '/vendor/availability',
-    '/api/v1/auth/me',
-    '/api/v1/search',
-    '/api/v1/suggestions',
+    '/admin/dashboard',
 ];
 
 foreach ($routes as $uri) {
     echo "Testing {$uri} ... ";
     try {
         $req = Request::create($uri, 'GET');
+        app()->instance('request', $req);
         $resp = app('router')->dispatch($req);
         $status = $resp->getStatusCode();
         echo "Status {$status}" . PHP_EOL;
         if (isset($resp->exception)) {
-            echo "  Error: " . $resp->exception->getMessage() . " in " . basename($resp->exception->getFile()) . ":" . $resp->exception->getLine() . PHP_EOL;
+            echo "  Error: " . $resp->exception->getMessage() . " in " . $resp->exception->getFile() . ":" . $resp->exception->getLine() . PHP_EOL;
         }
     } catch (\Throwable $e) {
-        echo "Exception: " . $e->getMessage() . " in " . basename($e->getFile()) . ":" . $e->getLine() . PHP_EOL;
+        echo "Exception: " . $e->getMessage() . " in " . $e->getFile() . ":" . $e->getLine() . PHP_EOL;
     }
 }

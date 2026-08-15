@@ -202,28 +202,28 @@
                             <input type="date" name="end_date" id="formEndDate" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px; padding:6px 12px;">
                         </div>
 
-                        <div class="mb-3.5">
+                        <div class="mb-3">
                             <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
                                 Nightly Rate (BDT ৳)
                             </label>
-                            <div class="input-group input-group-sm">
+                            <div class="input-group input-group-sm mb-2">
                                 <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px; font-size:12px; color:#595959;">৳ BDT</span>
                                 <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
                             </div>
-                            <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
-                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
+                                <button type="button" class="btn btn-outline-secondary py-1 px-2.5" onclick="applyPricePreset(1.15)" style="font-size:11px; border-radius:4px; font-weight:600;">
                                     <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                <button type="button" class="btn btn-outline-secondary py-1 px-2.5" onclick="applyPricePreset(1.25)" style="font-size:11px; border-radius:4px; font-weight:600;">
                                     <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                <button type="button" class="btn btn-outline-secondary py-1 px-2.5" onclick="applyPricePreset(1.0)" style="font-size:11px; border-radius:4px; font-weight:600;">
                                     <i class="fa-solid fa-rotate-left me-0.5"></i> Base
                                 </button>
                             </div>
                         </div>
 
-                        <div class="mb-3.5 p-2.5 rounded bg-light border" style="border-radius:4px; border-color:#e8e8e8 !important;">
+                        <div class="mb-4 p-2.5 rounded" style="background:#fafafa; border:1px solid #e8e8e8; border-radius:4px;">
                             <div class="form-check form-switch m-0 d-flex align-items-center">
                                 <input class="form-check-input" type="checkbox" name="is_blocked" value="1" id="blockRoomCheck" style="cursor:pointer; width:38px; height:20px;">
                                 <label class="form-check-label fw-bold text-danger ms-2.5 mb-0" for="blockRoomCheck" style="font-size:12px; cursor:pointer;">
@@ -232,7 +232,7 @@
                             </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background-color: #1890ff; font-size:13px; border-radius:4px; border:none; letter-spacing:0.3px; height:38px; box-shadow: 0 2px 6px rgba(24,144,255,0.25);">
+                        <button type="submit" class="btn btn-primary w-100 fw-bold" style="background-color: #1890ff; font-size:13px; border-radius:4px; border:none; letter-spacing:0.4px; height:40px; box-shadow: 0 2px 6px rgba(24,144,255,0.25);">
                             <i class="fa-solid fa-floppy-disk me-1.5"></i> SAVE CHANGES
                         </button>
                     </form>

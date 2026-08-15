@@ -166,18 +166,35 @@
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ $b->guest_name ?? optional($b->user)->name ?? 'Guest User' }}</strong>
-                            <div style="font-size:11.5px; color:#475569; display:flex; align-items:center; gap:6px; margin-top:2px;">
-                                <a href="tel:{{ $b->guest_phone ?? optional($b->user)->phone }}" class="text-dark fw-semibold" style="text-decoration:none;" title="Call Guest">
-                                    <i class="fa-solid fa-phone text-secondary" style="font-size:10px;"></i> {{ $b->guest_phone ?? optional($b->user)->phone ?? 'N/A' }}
-                                </a>
-                                @if($b->guest_phone ?? optional($b->user)->phone)
-                                    <a href="https://wa.me/88{{ preg_replace('/[^0-9]/', '', $b->guest_phone ?? optional($b->user)->phone) }}" target="_blank" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:10px; padding:2px 5px; text-decoration:none;" title="WhatsApp Chat">
+                            @php
+                                $gPhone   = $b->guest_phone ?? optional($b->user)->phone ?? null;
+                                $gEmail   = $b->guest_email ?? optional($b->user)->email ?? null;
+                                $gPhNum   = $gPhone ? preg_replace('/[^0-9]/', '', $gPhone) : null;
+                                $gWaNum   = $gPhNum ? (str_starts_with($gPhNum, '880') ? $gPhNum : '880' . ltrim($gPhNum, '0')) : null;
+                            @endphp
+                            <div style="font-size:11.5px; color:#475569; display:flex; align-items:center; gap:5px; margin-top:3px; flex-wrap:wrap;">
+                                @if($gPhone)
+                                    <a href="tel:{{ $gPhone }}" class="text-dark fw-semibold" style="text-decoration:none; font-size:12px;" title="Call Guest">
+                                        <i class="fa-solid fa-phone text-secondary" style="font-size:10px;"></i> {{ $gPhone }}
+                                    </a>
+                                    {{-- WhatsApp --}}
+                                    <a href="https://wa.me/{{ $gWaNum }}" target="_blank"
+                                       class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25"
+                                       style="font-size:10px; padding:2px 6px; text-decoration:none;" title="WhatsApp Chat">
                                         <i class="fa-brands fa-whatsapp"></i>
                                     </a>
+                                    {{-- IP/VoIP Call placeholder --}}
+                                    <a href="tel:{{ $gPhone }}" data-ipcall="{{ $gPhone }}"
+                                       class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25"
+                                       style="font-size:10px; padding:2px 6px; text-decoration:none;" title="IP/VoIP Call">
+                                        <i class="fa-solid fa-headset"></i>
+                                    </a>
+                                @else
+                                    <span class="text-muted" style="font-size:11px;">No Phone</span>
                                 @endif
                             </div>
-                            @if($b->guest_email ?? optional($b->user)->email)
-                                <div style="font-size:11px; color:#94a3b8; margin-top:1px;">{{ $b->guest_email ?? optional($b->user)->email }}</div>
+                            @if($gEmail)
+                                <div style="font-size:11px; color:#94a3b8; margin-top:2px;">{{ $gEmail }}</div>
                             @endif
                         </td>
                         <td>
@@ -196,13 +213,25 @@
                             <strong style="color:var(--primary); font-size:13.5px;">BDT {{ number_format($b->amount ?? 0) }}</strong>
                         </td>
                         <td>
-                            <span class="badge-status {{ strtolower($b->payment_status ?? 'pending') == 'paid' ? 'confirmed' : 'pending' }}">
-                                {{ ucfirst($b->payment_status ?? 'pending') }}
-                            </span>
+                            @if(strtolower($b->payment_status ?? '') === 'paid')
+                                <span class="badge bg-success bg-opacity-10 text-success fw-bold border border-success border-opacity-25" style="font-size:10px; padding:2px 8px; border-radius:4px;">
+                                    <i class="fa-solid fa-circle-check me-1"></i> PAID
+                                </span>
+                            @elseif(strtolower($b->payment_status ?? '') === 'refunded')
+                                <span class="badge bg-info bg-opacity-10 text-info fw-bold border border-info border-opacity-25" style="font-size:10px; padding:2px 8px; border-radius:4px;">
+                                    <i class="fa-solid fa-rotate-left me-1"></i> REFUNDED
+                                </span>
+                            @else
+                                <span class="badge bg-warning bg-opacity-15 text-dark fw-bold border border-warning border-opacity-25" style="font-size:10px; padding:2px 8px; border-radius:4px;">
+                                    <i class="fa-solid fa-clock me-1 text-warning"></i> UNPAID
+                                </span>
+                            @endif
                             @if($b->payment_method)
-                            <span class="badge bg-light text-dark border ms-1" style="font-size:10px; font-weight:600; text-transform:uppercase;">
-                                <i class="fa-solid fa-wallet text-primary me-1"></i>{{ $b->payment_method }}
-                            </span>
+                            <div style="margin-top:3px;">
+                                <span class="badge bg-light text-dark border" style="font-size:10px; font-weight:600; text-transform:uppercase;">
+                                    <i class="fa-solid fa-wallet text-primary me-1"></i>{{ str_replace('_', ' ', $b->payment_method) }}
+                                </span>
+                            </div>
                             @endif
                         </td>
                         <td>
@@ -230,6 +259,7 @@
                                             </button>
                                         </form>
                                     </li>
+                                    @if(strtolower($b->payment_status ?? '') !== 'paid')
                                     <li>
                                         <form action="{{ route('admin.bookings.update-payment', $b->id) }}" method="POST" class="m-0">
                                             @csrf
@@ -239,6 +269,30 @@
                                             </button>
                                         </form>
                                     </li>
+                                    @endif
+                                    @if(isset($gPhone) && $gPhone)
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        {{-- 📞 IP/VoIP Call — connect Twilio / Vonage / PortSIP here --}}
+                                        <a class="dropdown-item py-1.5 px-3 text-primary" href="tel:{{ $gPhone }}" data-ipcall="{{ $gPhone }}">
+                                            <i class="fa-solid fa-headset me-2"></i> IP/VoIP Call Guest
+                                        </a>
+                                    </li>
+                                    <li>
+                                        {{-- 💬 WhatsApp Chat --}}
+                                        <a class="dropdown-item py-1.5 px-3" style="color:#25d366;"
+                                           href="https://wa.me/{{ $gWaNum }}?text={{ urlencode('Hello ' . ($b->guest_name ?? 'Guest') . ', your booking ' . $b->booking_reference . ' is confirmed.') }}"
+                                           target="_blank">
+                                            <i class="fa-brands fa-whatsapp me-2"></i> WhatsApp Guest
+                                        </a>
+                                    </li>
+                                    <li>
+                                        {{-- 📲 SMS — connect BulkSMSBD / Twilio SMS API here --}}
+                                        <a class="dropdown-item py-1.5 px-3 text-secondary" href="sms:{{ $gPhone }}" data-sms="{{ $gPhone }}">
+                                            <i class="fa-solid fa-comment-sms me-2"></i> Send SMS
+                                        </a>
+                                    </li>
+                                    @endif
                                     <li><hr class="dropdown-divider my-1"></li>
                                     <li>
                                         <form action="{{ route('admin.bookings.destroy', $b->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this booking record permanently?')">

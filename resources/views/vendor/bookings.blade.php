@@ -91,17 +91,34 @@
                         </td>
                         <td>
                             <strong style="font-size:13px; color:#1e293b; display:block;">{{ $b->guest_name }}</strong>
-                            <div style="font-size:11.5px; color:#475569; display:flex; align-items:center; gap:6px; margin-top:2px;">
-                                <a href="tel:{{ $b->guest_phone }}" class="text-dark fw-semibold" style="text-decoration:none;" title="Call Guest">
-                                    <i class="fa-solid fa-phone text-secondary" style="font-size:10px;"></i> {{ $b->guest_phone ?? 'N/A' }}
-                                </a>
-                                @if($b->guest_phone)
-                                    <a href="https://wa.me/88{{ preg_replace('/[^0-9]/', '', $b->guest_phone) }}" target="_blank" class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:10px; padding:2px 5px; text-decoration:none;" title="WhatsApp Chat">
+                            @php
+                                $phone    = $b->guest_phone ?? null;
+                                $phoneNum = $phone ? preg_replace('/[^0-9]/', '', $phone) : null;
+                                $waNum    = $phoneNum ? (str_starts_with($phoneNum, '880') ? $phoneNum : '880' . ltrim($phoneNum, '0')) : null;
+                            @endphp
+                            <div style="font-size:11.5px; color:#475569; display:flex; align-items:center; gap:5px; margin-top:3px; flex-wrap:wrap;">
+                                @if($phone)
+                                    {{-- 📞 Click to Call --}}
+                                    <a href="tel:{{ $phone }}" class="text-dark fw-semibold" style="text-decoration:none; font-size:12px;" title="Call Guest">
+                                        <i class="fa-solid fa-phone text-secondary" style="font-size:10px;"></i> {{ $phone }}
+                                    </a>
+                                    {{-- 💬 WhatsApp Direct Chat --}}
+                                    <a href="https://wa.me/{{ $waNum }}" target="_blank"
+                                       class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25"
+                                       style="font-size:10px; padding:2px 6px; text-decoration:none;" title="WhatsApp Guest">
                                         <i class="fa-brands fa-whatsapp"></i>
                                     </a>
+                                    {{-- 📲 IP Call (click-to-call placeholder — connect Twilio/Vonage API here) --}}
+                                    <a href="tel:{{ $phone }}" data-ipcall="{{ $phone }}"
+                                       class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25"
+                                       style="font-size:10px; padding:2px 6px; text-decoration:none;" title="IP/VoIP Call">
+                                        <i class="fa-solid fa-headset"></i>
+                                    </a>
+                                @else
+                                    <span class="text-muted" style="font-size:11px;">No Phone</span>
                                 @endif
                             </div>
-                            <div style="font-size:11px; color:#94a3b8; margin-top:1px;">{{ $b->guest_email }}</div>
+                            <div style="font-size:11px; color:#94a3b8; margin-top:2px;">{{ $b->guest_email ?? '' }}</div>
                         </td>
                         <td>
                             <span style="font-size:12.5px; font-weight:600;">{{ $b->property?->name ?? 'Property' }}</span>
@@ -111,6 +128,9 @@
                         </td>
                         <td>
                             <strong style="color:var(--primary); font-size:14px;">{{ CurrencyService::format($b->amount) }}</strong>
+                            @if(($b->nights ?? 0) > 0)
+                                <div style="font-size:10px; color:#94a3b8;">{{ $b->nights ?? $b->nights_count }} nights</div>
+                            @endif
                         </td>
                         <td>
                             <div class="d-flex flex-column gap-1">
@@ -153,6 +173,30 @@
                                         </form>
                                     </li>
                                     @endif
+                                    @if($b->guest_phone)
+                                    <li><hr class="dropdown-divider my-1"></li>
+                                    <li>
+                                        {{-- 📞 IP/VoIP Call — connect Twilio / Vonage / PortSIP here --}}
+                                        <a class="dropdown-item py-1.5 px-3 text-primary" href="tel:{{ $b->guest_phone }}" data-ipcall="{{ $b->guest_phone }}">
+                                            <i class="fa-solid fa-headset me-2"></i> IP/VoIP Call Guest
+                                        </a>
+                                    </li>
+                                    <li>
+                                        {{-- 💬 WhatsApp Chat --}}
+                                        <a class="dropdown-item py-1.5 px-3" style="color:#25d366;"
+                                           href="https://wa.me/{{ $waNum }}?text={{ urlencode('Hello ' . $b->guest_name . ', your booking ' . $b->booking_reference . ' is confirmed.') }}"
+                                           target="_blank">
+                                            <i class="fa-brands fa-whatsapp me-2"></i> WhatsApp Guest
+                                        </a>
+                                    </li>
+                                    <li>
+                                        {{-- 📲 SMS — connect BulkSMSBD / Twilio SMS API here --}}
+                                        <a class="dropdown-item py-1.5 px-3 text-secondary" href="sms:{{ $b->guest_phone }}" data-sms="{{ $b->guest_phone }}">
+                                            <i class="fa-solid fa-comment-sms me-2"></i> Send SMS
+                                        </a>
+                                    </li>
+                                    @endif
+                                    <li><hr class="dropdown-divider my-1"></li>
                                     <li>
                                         <a class="dropdown-item py-1.5 px-3" href="{{ route('checkout.confirmation', $b->booking_reference) }}" target="_blank">
                                             <i class="fa-solid fa-print text-success me-2"></i> Print Guest Voucher / Invoice
@@ -164,7 +208,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="8" style="text-align:center; padding:32px; color:#8c8c8c;">
+                        <td colspan="9" style="text-align:center; padding:32px; color:#8c8c8c;">
                             No reservations found for your properties.
                         </td>
                     </tr>

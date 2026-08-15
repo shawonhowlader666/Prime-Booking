@@ -14,18 +14,39 @@ class VendorRoomController extends Controller
 {
     private function vendorId(): int
     {
-        return auth()->id() ?? 1;
+        $id = auth()->id();
+        abort_unless($id, 403, 'Unauthorized vendor access.');
+        return $id;
     }
 
-    /** List rooms for vendor property */
+    /** List rooms for vendor property with real-time KPI metrics */
     public function index($propertyId)
     {
+        $vendorId = $this->vendorId();
+
         $property = Property::where('id', $propertyId)
-            ->where('vendor_id', $this->vendorId())
-            ->with('rooms')
+            ->where('vendor_id', $vendorId)
+            ->with(['rooms' => function($q) {
+                $q->orderBy('price_per_night', 'asc');
+            }])
             ->firstOrFail();
 
-        return view('vendor.rooms.index', compact('property'));
+        $rooms = $property->rooms;
+        $totalCategories = $rooms->count();
+        $totalUnits      = (int) $rooms->sum('total_rooms');
+        $avgPrice        = $totalCategories > 0 ? (float) $rooms->avg('price_per_night') : 0;
+        $minPrice        = $totalCategories > 0 ? (float) $rooms->min('price_per_night') : 0;
+        $maxPrice        = $totalCategories > 0 ? (float) $rooms->max('price_per_night') : 0;
+
+        $stats = [
+            'total_categories' => $totalCategories,
+            'total_units'      => $totalUnits,
+            'avg_price'        => $avgPrice,
+            'min_price'        => $minPrice,
+            'max_price'        => $maxPrice,
+        ];
+
+        return view('vendor.rooms.index', compact('property', 'rooms', 'stats'));
     }
 
     /** Store new room for vendor property */

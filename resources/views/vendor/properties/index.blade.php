@@ -104,48 +104,44 @@
         </div>
     </div>
 
-    {{-- Filter Bar --}}
-    <div class="data-table-card mb-3 p-3" style="border-radius:6px; background:#ffffff; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
-        <form action="{{ route('vendor.properties.index') }}" method="GET">
-            <div class="row g-2 align-items-center">
-                <div class="col-12 col-md-5">
-                    <div class="input-group input-group-sm">
-                        <span class="input-group-text bg-light text-muted border-end-0"><i class="fa-solid fa-magnifying-glass"></i></span>
-                        <input type="text" name="search" value="{{ request('search') }}" class="form-control border-start-0" placeholder="Search by property name, city, location..." style="height:34px; font-size:12.5px;">
-                    </div>
-                </div>
-                <div class="col-6 col-md-3">
-                    <select name="type" class="form-select form-select-sm" style="height:34px; font-size:12.5px;">
-                        <option value="">All Categories</option>
-                        <option value="hotel" {{ request('type')=='hotel'?'selected':'' }}>Hotel &amp; Resort</option>
-                        <option value="resort" {{ request('type')=='resort'?'selected':'' }}>Beach Resort</option>
-                        <option value="houseboat" {{ request('type')=='houseboat'?'selected':'' }}>Ship / Houseboat</option>
-                        <option value="homestay" {{ request('type')=='homestay'?'selected':'' }}>Eco Homestay</option>
-                        <option value="apartment" {{ request('type')=='apartment'?'selected':'' }}>Serviced Apartment</option>
-                    </select>
-                </div>
-                <div class="col-6 col-md-2">
-                    <select name="status" class="form-select form-select-sm" style="height:34px; font-size:12.5px;">
-                        <option value="">All Status</option>
-                        <option value="active" {{ request('status')=='active'?'selected':'' }}>Active Live</option>
-                        <option value="pending" {{ request('status')=='pending'?'selected':'' }}>Pending Review</option>
-                        <option value="inactive" {{ request('status')=='inactive'?'selected':'' }}>Inactive</option>
-                    </select>
-                </div>
-                <div class="col-12 col-md-2 d-flex gap-1.5">
-                    <button type="submit" class="btn btn-primary btn-sm flex-grow-1" style="height:34px; font-size:12.5px; font-weight:600; border-radius:4px;">
-                        <i class="fa-solid fa-filter me-1"></i> Filter
-                    </button>
-                    <a href="{{ route('vendor.properties.index') }}" class="btn btn-outline-secondary btn-sm px-2.5" title="Reset Filters" style="height:34px; font-size:12px; display:inline-flex; align-items:center; justify-content:center; border-radius:4px;">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </a>
+    {{-- Main Property Table Card with Sleek Right-Aligned Auto-Filter Toolbar --}}
+    <div class="data-table-card p-0 mb-4" style="border-radius:6px; background:#ffffff; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
+        {{-- Card Header Toolbar --}}
+        <div class="p-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2.5" style="background:#fafafa;">
+            {{-- Left Title & Dynamic Count Badge --}}
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h6 class="m-0 fw-bold text-dark" style="font-size:14px;">All Listed Properties</h6>
+                <span class="badge bg-primary text-white" id="propertiesCountBadge" style="font-size:11px; border-radius:4px;">{{ $properties->count() }} Properties</span>
+            </div>
+
+            {{-- Right Auto-Filter Controls (Category, Status, and Search Box) --}}
+            <div class="d-flex align-items-center gap-2 flex-wrap ms-auto">
+                {{-- Category Auto-Filter --}}
+                <select id="propertyTypeFilter" class="form-select form-select-sm" onchange="autoFilterProperties()" style="height:32px; font-size:12px; width:145px; border:1px solid #d9d9d9; border-radius:4px; font-weight:500;">
+                    <option value="">All Categories</option>
+                    <option value="hotel">Hotel &amp; Resort</option>
+                    <option value="resort">Beach Resort</option>
+                    <option value="houseboat">Ship / Houseboat</option>
+                    <option value="homestay">Eco Homestay</option>
+                    <option value="apartment">Serviced Apartment</option>
+                </select>
+
+                {{-- Status Auto-Filter --}}
+                <select id="propertyStatusFilter" class="form-select form-select-sm" onchange="autoFilterProperties()" style="height:32px; font-size:12px; width:130px; border:1px solid #d9d9d9; border-radius:4px; font-weight:500;">
+                    <option value="">All Status</option>
+                    <option value="active">Active Live</option>
+                    <option value="pending">Pending Review</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="rejected">Rejected</option>
+                </select>
+
+                {{-- Sleek Compact Search Box --}}
+                <div style="width:220px; max-width:100%;">
+                    <input type="text" id="propertySearchInput" class="form-control form-control-sm" placeholder="🔍 Search name, city..." onkeyup="autoFilterProperties()" style="height:32px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
                 </div>
             </div>
-        </form>
-    </div>
+        </div>
 
-    {{-- Main Property Table --}}
-    <div class="data-table-card p-0 mb-4" style="border-radius:6px; background:#ffffff; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);">
         <div class="table-responsive">
             <table class="table table-stockifly align-middle mb-0" id="propertiesTable">
                 <thead>
@@ -162,7 +158,7 @@
                 </thead>
                 <tbody>
                 @forelse($properties as $property)
-                    <tr>
+                    <tr class="property-row-item" data-name="{{ strtolower($property->name) }}" data-city="{{ strtolower($property->city ?? '') }}" data-type="{{ strtolower($property->type ?? '') }}" data-status="{{ strtolower($property->status ?? 'active') }}">
                         <td style="padding-left: 20px !important; font-size:12px; color:#64748b; font-weight:600;">
                             {{ $loop->iteration + ($properties->currentPage() - 1) * $properties->perPage() }}
                         </td>
@@ -452,4 +448,44 @@
     </div>
 </div>
 
+@endsection
+
+@section('scripts')
+<script>
+/**
+ * Instant Automatic Filter for Properties Table
+ * Triggers on every keystroke in Search or dropdown selection change (Category & Status)
+ */
+function autoFilterProperties() {
+    const searchVal = (document.getElementById('propertySearchInput')?.value || '').toLowerCase().trim();
+    const typeVal   = (document.getElementById('propertyTypeFilter')?.value || '').toLowerCase().trim();
+    const statusVal = (document.getElementById('propertyStatusFilter')?.value || '').toLowerCase().trim();
+
+    let visibleCount = 0;
+    const rows = document.querySelectorAll('.property-row-item');
+
+    rows.forEach(row => {
+        const name   = (row.getAttribute('data-name') || '').toLowerCase();
+        const city   = (row.getAttribute('data-city') || '').toLowerCase();
+        const type   = (row.getAttribute('data-type') || '').toLowerCase();
+        const status = (row.getAttribute('data-status') || '').toLowerCase();
+
+        const matchSearch = !searchVal || name.includes(searchVal) || city.includes(searchVal) || type.includes(searchVal);
+        const matchType   = !typeVal || type.includes(typeVal);
+        const matchStatus = !statusVal || status === statusVal;
+
+        if (matchSearch && matchType && matchStatus) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    const badge = document.getElementById('propertiesCountBadge');
+    if (badge) {
+        badge.innerText = `${visibleCount} Properties`;
+    }
+}
+</script>
 @endsection

@@ -355,6 +355,33 @@
                             <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Nearest Landmark</label>
                             <input type="text" name="nearest_landmark" class="form-control form-control-sm" placeholder="e.g. Near Kolatoli Beach Point" style="font-size:12.5px; height:36px;">
                         </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Real-Time GPS Coordinates (Lat, Long)</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="latitude" class="form-control" placeholder="Lat: 21.4272" style="font-size:12px; height:36px;">
+                                <input type="text" name="longitude" class="form-control" placeholder="Long: 91.9702" style="font-size:12px; height:36px;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Google Maps Embed / Location Link</label>
+                            <input type="url" name="map_embed_url" class="form-control form-control-sm" placeholder="https://maps.google.com/..." style="font-size:12.5px; height:36px;">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Check-in / Check-out Hours</label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text bg-light text-secondary" style="font-size:11px;">In</span>
+                                <input type="text" name="checkin_time" class="form-control" value="14:00" placeholder="14:00" style="font-size:12px; height:36px;">
+                                <span class="input-group-text bg-light text-secondary" style="font-size:11px;">Out</span>
+                                <input type="text" name="checkout_time" class="form-control" value="12:00" placeholder="12:00" style="font-size:12px; height:36px;">
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Hotel Contact Phone &amp; Email</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" name="contact_phone" class="form-control" placeholder="+8801700000000" style="font-size:12px; height:36px;">
+                                <input type="email" name="contact_email" class="form-control" placeholder="info@hotel.com" style="font-size:12px; height:36px;">
+                            </div>
+                        </div>
                     </div>
 
                     {{-- SECTION 2: PRICING & POLICIES --}}

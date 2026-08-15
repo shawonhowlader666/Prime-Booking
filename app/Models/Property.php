@@ -78,6 +78,8 @@ class Property extends Model
         'images', 'amenities', 'is_featured', 'status',
         'rooms_left', 'no_credit_card_required', 'location_score',
         'nearest_landmark', 'free_cancellation',
+        'latitude', 'longitude', 'map_embed_url', 'postal_code',
+        'checkin_time', 'checkout_time', 'contact_phone', 'contact_email', 'house_rules',
         'rejection_reason', 'approved_at', 'rejected_at',
     ];
 

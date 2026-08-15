@@ -1371,6 +1371,153 @@
             </div>
         </div>
 
+        {{-- 14. Real-Time Location & Interactive Map Section (Screenshot Parity) --}}
+        <div id="location" class="card agoda-card-border p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold text-dark mb-0" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px;">
+                        <i class="fa-solid fa-location-dot text-danger me-2"></i> Location &amp; Nearby Highlights
+                    </h5>
+                    <small class="text-muted" style="font-size: 12px;">Exact physical address and interactive GPS location</small>
+                </div>
+                @php
+                    $mapsQuery = urlencode(($property->name . ' ' . $property->address . ' ' . $property->city));
+                    if (!empty($property->latitude) && !empty($property->longitude)) {
+                        $mapsQuery = "{$property->latitude},{$property->longitude}";
+                    }
+                @endphp
+                <a href="https://www.google.com/maps/search/?api=1&query={{ $mapsQuery }}" target="_blank" rel="noopener" class="btn btn-outline-primary btn-sm fw-bold px-3 py-1.5" style="border-radius: 6px; font-size: 12.5px;">
+                    <i class="fa-solid fa-diamond-turn-right me-1"></i> Get Directions in Google Maps
+                </a>
+            </div>
+
+            <div class="row g-4">
+                <div class="col-lg-5">
+                    <div class="p-3 bg-light rounded-3 mb-3 border">
+                        <strong class="d-block text-dark mb-1" style="font-size: 13.5px;"><i class="fa-solid fa-building me-1 text-primary"></i> Full Address:</strong>
+                        <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.5;">
+                            {{ $property->address ?: ($property->city . ', Bangladesh') }}
+                            @if(!empty($property->postal_code)) - {{ $property->postal_code }} @endif
+                        </p>
+
+                        @if(!empty($property->nearest_landmark))
+                        <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top">
+                            <i class="fa-solid fa-map-pin text-danger fs-6"></i>
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 11px;">Prominent Landmark</small>
+                                <strong class="text-dark" style="font-size: 12.5px;">{{ $property->nearest_landmark }}</strong>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!empty($property->latitude) && !empty($property->longitude))
+                        <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top">
+                            <i class="fa-solid fa-satellite text-info fs-6"></i>
+                            <div>
+                                <small class="text-muted d-block" style="font-size: 11px;">GPS Coordinates</small>
+                                <code class="text-dark fw-bold" style="font-size: 11.5px;">{{ $property->latitude }}, {{ $property->longitude }}</code>
+                            </div>
+                        </div>
+                        @endif
+                    </div>
+
+                    @if(!empty($property->contact_phone) || !empty($property->contact_email))
+                    <div class="p-3 bg-light rounded-3 border">
+                        <strong class="d-block text-dark mb-2" style="font-size: 13px;"><i class="fa-solid fa-headset me-1 text-success"></i> Hotel Direct Contacts:</strong>
+                        @if(!empty($property->contact_phone))
+                        <div class="d-flex align-items-center gap-2 text-secondary mb-1" style="font-size: 12.5px;">
+                            <i class="fa-solid fa-phone text-muted" style="width: 14px;"></i>
+                            <a href="tel:{{ $property->contact_phone }}" class="text-dark text-decoration-none fw-semibold">{{ $property->contact_phone }}</a>
+                        </div>
+                        @endif
+                        @if(!empty($property->contact_email))
+                        <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 12.5px;">
+                            <i class="fa-solid fa-envelope text-muted" style="width: 14px;"></i>
+                            <a href="mailto:{{ $property->contact_email }}" class="text-dark text-decoration-none">{{ $property->contact_email }}</a>
+                        </div>
+                        @endif
+                    </div>
+                    @endif
+                </div>
+
+                <div class="col-lg-7">
+                    <div class="rounded-3 overflow-hidden border shadow-xs" style="height: 240px; background: #e2e8f0; position: relative;">
+                        @if(!empty($property->map_embed_url))
+                            <iframe src="{{ $property->map_embed_url }}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
+                        @elseif(!empty($property->latitude) && !empty($property->longitude))
+                            <iframe width="100%" height="100%" style="border:0;" loading="lazy" src="https://maps.google.com/maps?q={{ $property->latitude }},{{ $property->longitude }}&hl=en&z=15&output=embed"></iframe>
+                        @else
+                            <iframe width="100%" height="100%" style="border:0;" loading="lazy" src="https://maps.google.com/maps?q={{ urlencode(($property->name . ' ' . $property->city . ' Bangladesh')) }}&hl=en&z=14&output=embed"></iframe>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- 15. Property Policies & House Rules Section (Screenshot Parity) --}}
+        <div id="policies" class="card agoda-card-border p-4 mb-4">
+            <h5 class="fw-bold text-dark mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px;">
+                <i class="fa-solid fa-shield-halved text-primary me-2"></i> Property Policies &amp; House Rules
+            </h5>
+
+            <div class="row g-3">
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-arrow-right-to-bracket text-primary"></i>
+                            <small class="text-muted fw-bold" style="font-size: 11px; text-transform: uppercase;">Check-in</small>
+                        </div>
+                        <strong class="text-dark d-block" style="font-size: 14px;">From {{ $property->checkin_time ?: '14:00' }}</strong>
+                        <small class="text-muted" style="font-size: 11px;">Valid Govt ID required</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-arrow-right-from-bracket text-danger"></i>
+                            <small class="text-muted fw-bold" style="font-size: 11px; text-transform: uppercase;">Check-out</small>
+                        </div>
+                        <strong class="text-dark d-block" style="font-size: 14px;">Until {{ $property->checkout_time ?: '12:00' }}</strong>
+                        <small class="text-muted" style="font-size: 11px;">Late check-out on request</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-ban-smoking text-warning"></i>
+                            <small class="text-muted fw-bold" style="font-size: 11px; text-transform: uppercase;">Cancellation</small>
+                        </div>
+                        <strong class="text-dark d-block" style="font-size: 13px;">
+                            {{ $property->free_cancellation ? 'Free Cancellation' : 'Non-Refundable' }}
+                        </strong>
+                        <small class="text-muted" style="font-size: 11px;">{{ $property->free_cancellation ? 'Cancel free before check-in' : 'Policy applies' }}</small>
+                    </div>
+                </div>
+
+                <div class="col-md-3 col-6">
+                    <div class="p-3 bg-light rounded-3 border h-100">
+                        <div class="d-flex align-items-center gap-2 mb-1">
+                            <i class="fa-solid fa-credit-card text-success"></i>
+                            <small class="text-muted fw-bold" style="font-size: 11px; text-transform: uppercase;">Payment</small>
+                        </div>
+                        <strong class="text-dark d-block" style="font-size: 13px;">
+                            {{ $property->no_credit_card_required ? 'Pay at Hotel' : 'Online Prepaid' }}
+                        </strong>
+                        <small class="text-muted" style="font-size: 11px;">bKash, Nagad, Visa &amp; Cash</small>
+                    </div>
+                </div>
+            </div>
+
+            @if(!empty($property->house_rules))
+            <div class="mt-3 p-3 bg-light rounded-3 border">
+                <strong class="d-block text-dark mb-1" style="font-size: 13px;"><i class="fa-solid fa-list-check me-1 text-primary"></i> Special House Rules:</strong>
+                <p class="text-secondary mb-0" style="font-size: 12.5px; line-height: 1.5; white-space: pre-line;">{{ $property->house_rules }}</p>
+            </div>
+            @endif
+        </div>
+
         {{-- 16. Trending Cities Section (Screenshot Parity) --}}
         <div class="mb-4 position-relative">
             <h5 class="fw-bold text-dark mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">Trending Cities</h5>

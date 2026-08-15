@@ -58,8 +58,13 @@
                             placeholder="e.g. Royal Ocean Resort &amp; Spa" required style="font-size:13px; height:38px;">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Property Category <span style="color:#ff4d4f;">*</span></label>
-                        <select name="type" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;">Property Type <span style="color:#ff4d4f;">*</span></label>
+                            <button type="button" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="font-size:11px;" onclick="promptVendorCreateCategory()">
+                                + Add Custom Type
+                            </button>
+                        </div>
+                        <select name="type" id="vendorCreatePropTypeSelect" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
                             <option value="hotel" {{ old('type') == 'hotel' ? 'selected' : '' }}>Hotel &amp; Resort</option>
                             <option value="resort" {{ old('type') == 'resort' ? 'selected' : '' }}>Beach Resort &amp; Spa</option>
                             <option value="houseboat" {{ old('type') == 'houseboat' ? 'selected' : '' }}>Ship &amp; Houseboat</option>
@@ -68,8 +73,13 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">City / Destination <span style="color:#ff4d4f;">*</span></label>
-                        <select name="city" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label fw-bold text-dark m-0" style="font-size:12.5px;">City / Destination <span style="color:#ff4d4f;">*</span></label>
+                            <button type="button" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="font-size:11px;" onclick="promptVendorCreateCity()">
+                                + Add New City/Area
+                            </button>
+                        </div>
+                        <select name="city" id="vendorCreatePropCitySelect" class="form-select form-select-sm" required style="font-size:13px; height:38px;">
                             <option value="Cox's Bazar Sea Beach" {{ old('city') == "Cox's Bazar Sea Beach" ? 'selected' : '' }}>Cox's Bazar Sea Beach</option>
                             <option value="Dhaka City" {{ old('city') == 'Dhaka City' ? 'selected' : '' }}>Dhaka City</option>
                             <option value="Sylhet & Sreemangal" {{ old('city') == 'Sylhet & Sreemangal' ? 'selected' : '' }}>Sylhet &amp; Sreemangal</option>
@@ -242,6 +252,21 @@
                     @endforeach
                 </div>
 
+                {{-- Dynamic Custom Amenity Tag Builder --}}
+                <div class="p-3 border rounded bg-light mb-4" style="border-radius:4px;">
+                    <label class="form-label fw-bold text-dark mb-1.5 d-flex align-items-center justify-content-between" style="font-size:12.5px;">
+                        <span><i class="fa-solid fa-plus-circle text-primary me-1"></i> + Add Custom Hotel Facility / Amenity</span>
+                        <small class="text-muted">Type any custom facility and click + Add</small>
+                    </label>
+                    <div class="input-group input-group-sm mb-2" style="max-width:400px;">
+                        <input type="text" id="vendorCreateCustomAmenityInput" class="form-control" placeholder="e.g. Heli-pad, EV Charger, Private Jacuzzi, Boat Safari..." style="font-size:12.5px; height:36px; border-radius:4px 0 0 4px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addVendorCreateCustomAmenity();}">
+                        <button type="button" class="btn btn-primary fw-bold" style="background:#2067e1; font-size:12.5px; border-radius:0 4px 4px 0;" onclick="addVendorCreateCustomAmenity()">
+                            + Add
+                        </button>
+                    </div>
+                    <div id="vendorCreateCustomAmenitiesContainer" class="d-flex flex-wrap gap-2"></div>
+                </div>
+
                 {{-- SUBMIT FOOTER --}}
                 <div class="d-flex align-items-center justify-content-end gap-2 pt-3 border-top">
                     <a href="{{ route('vendor.properties.index') }}" class="btn btn-light border text-secondary fw-bold px-4 py-2" style="font-size:13px; border-radius:4px;">
@@ -261,6 +286,43 @@
 
 @section('scripts')
 <script>
+function promptVendorCreateCategory() {
+    const select = document.getElementById('vendorCreatePropTypeSelect');
+    const custom = prompt("Enter new Property Category (e.g. Glamping Tent, Floating Resort, Luxury Villa, Heritage Palace):");
+    if (custom && custom.trim() !== "") {
+        const opt = document.createElement('option');
+        opt.value = custom.trim();
+        opt.textContent = "✨ " + custom.trim();
+        opt.selected = true;
+        select.appendChild(opt);
+    }
+}
+
+function promptVendorCreateCity() {
+    const select = document.getElementById('vendorCreatePropCitySelect');
+    const custom = prompt("Enter new Destination City or Region (e.g. Saint Martin Island, Kaptai Lake, Jaflong, Bangkok, Dubai):");
+    if (custom && custom.trim() !== "") {
+        const opt = document.createElement('option');
+        opt.value = custom.trim();
+        opt.textContent = "📍 " + custom.trim();
+        opt.selected = true;
+        select.appendChild(opt);
+    }
+}
+
+function addVendorCreateCustomAmenity() {
+    const input = document.getElementById('vendorCreateCustomAmenityInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const container = document.getElementById('vendorCreateCustomAmenitiesContainer');
+    const pill = document.createElement('span');
+    pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
+    pill.style.fontSize = '12px';
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    container.appendChild(pill);
+    input.value = '';
+}
+
 function previewUrl(url) {
     const wrap = document.getElementById('imgPreviewWrap');
     const img  = document.getElementById('imgPreview');

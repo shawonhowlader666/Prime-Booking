@@ -52,19 +52,35 @@
                         <input type="text" name="name" class="form-control" value="{{ old('name', $property->name) }}" required>
                     </div>
                     <div class="col-md-4">
-                        <label class="form-label">Type</label>
-                        <select name="type" class="form-select">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label m-0">Type</label>
+                            <button type="button" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="font-size:11px;" onclick="promptVendorEditCategory()">
+                                + Add Type
+                            </button>
+                        </div>
+                        <select name="type" id="vendorEditPropTypeSelect" class="form-select">
                             @foreach(['hotel' => 'Hotel & Resort', 'houseboat' => 'Ship & Houseboat', 'homestay' => 'Home Stay & Cottage', 'apartment' => 'Apartment / Suite', 'resort' => 'Beach Resort'] as $v => $l)
                                 <option value="{{ $v }}" {{ old('type', $property->type) == $v ? 'selected' : '' }}>{{ $l }}</option>
                             @endforeach
+                            @if(!in_array($property->type, ['hotel', 'houseboat', 'homestay', 'apartment', 'resort']))
+                                <option value="{{ $property->type }}" selected>✨ {{ ucfirst($property->type) }}</option>
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">City / Destination</label>
-                        <select name="city" class="form-select">
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <label class="form-label m-0">City / Destination</label>
+                            <button type="button" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="font-size:11px;" onclick="promptVendorEditCity()">
+                                + Add City
+                            </button>
+                        </div>
+                        <select name="city" id="vendorEditPropCitySelect" class="form-select">
                             @foreach(["Cox's Bazar Sea Beach","Dhaka City","Sylhet & Sreemangal","Sajek Valley & Rangamati","Sundarbans & Mongla","Kuakata Sunset Beach","Chittagong City","Bandarban Hill District"] as $c)
                                 <option value="{{ $c }}" {{ old('city', $property->city) == $c ? 'selected' : '' }}>{{ $c }}</option>
                             @endforeach
+                            @if(!empty($property->city) && !in_array($property->city, ["Cox's Bazar Sea Beach","Dhaka City","Sylhet & Sreemangal","Sajek Valley & Rangamati","Sundarbans & Mongla","Kuakata Sunset Beach","Chittagong City","Bandarban Hill District"]))
+                                <option value="{{ $property->city }}" selected>📍 {{ $property->city }}</option>
+                            @endif
                         </select>
                     </div>
                     <div class="col-md-6">
@@ -204,6 +220,36 @@
                     </div>
                     @endforeach
                 </div>
+
+                {{-- Dynamic Custom Amenity Tag Builder --}}
+                <div class="p-3 border rounded bg-light mt-3" style="border-radius:4px;">
+                    <label class="form-label fw-bold text-dark mb-1.5 d-flex align-items-center justify-content-between" style="font-size:12.5px;">
+                        <span><i class="fa-solid fa-plus-circle text-primary me-1"></i> + Add Custom Hotel Facility / Amenity</span>
+                        <small class="text-muted">Type any custom facility and click + Add</small>
+                    </label>
+                    <div class="input-group input-group-sm mb-2" style="max-width:400px;">
+                        <input type="text" id="vendorEditCustomAmenityInput" class="form-control" placeholder="e.g. Heli-pad, EV Charger, Private Jacuzzi, Boat Safari..." style="font-size:12.5px; height:36px; border-radius:4px 0 0 4px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addVendorEditCustomAmenity();}">
+                        <button type="button" class="btn btn-primary fw-bold" style="background:#2067e1; font-size:12.5px; border-radius:0 4px 4px 0;" onclick="addVendorEditCustomAmenity()">
+                            + Add
+                        </button>
+                    </div>
+                    <div id="vendorEditCustomAmenitiesContainer" class="d-flex flex-wrap gap-2">
+                        @php
+                            $standardList = ['wifi','pool','parking','ac','restaurant','breakfast','gym','spa','bar','beachfront','pet','transfer','laundry','elevator'];
+                        @endphp
+                        @if(is_array($currentAmenities))
+                            @foreach($currentAmenities as $cAm)
+                                @if(!in_array($cAm, $standardList))
+                                <span class="badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs" style="font-size:12px;">
+                                    <i class="fa-solid fa-circle-check text-success"></i> {{ $cAm }}
+                                    <input type="hidden" name="amenities[]" value="{{ $cAm }}">
+                                    <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>
+                                </span>
+                                @endif
+                            @endforeach
+                        @endif
+                    </div>
+                </div>
             </div>
 
             {{-- Delete zone --}}
@@ -242,6 +288,43 @@
 
 @section('scripts')
 <script>
+function promptVendorEditCategory() {
+    const select = document.getElementById('vendorEditPropTypeSelect');
+    const custom = prompt("Enter new Property Category (e.g. Glamping Tent, Floating Cottage, Luxury Villa, Heritage Palace):");
+    if (custom && custom.trim() !== "") {
+        const opt = document.createElement('option');
+        opt.value = custom.trim();
+        opt.textContent = "✨ " + custom.trim();
+        opt.selected = true;
+        select.appendChild(opt);
+    }
+}
+
+function promptVendorEditCity() {
+    const select = document.getElementById('vendorEditPropCitySelect');
+    const custom = prompt("Enter new Destination City or Region (e.g. Saint Martin Island, Kaptai Lake, Jaflong, Bangkok, Dubai):");
+    if (custom && custom.trim() !== "") {
+        const opt = document.createElement('option');
+        opt.value = custom.trim();
+        opt.textContent = "📍 " + custom.trim();
+        opt.selected = true;
+        select.appendChild(opt);
+    }
+}
+
+function addVendorEditCustomAmenity() {
+    const input = document.getElementById('vendorEditCustomAmenityInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const container = document.getElementById('vendorEditCustomAmenitiesContainer');
+    const pill = document.createElement('span');
+    pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
+    pill.style.fontSize = '12px';
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    container.appendChild(pill);
+    input.value = '';
+}
+
 document.querySelectorAll('input[name="amenities[]"]').forEach(function(cb) {
     cb.addEventListener('change', function() {
         const label = this.closest('label');

@@ -16,8 +16,26 @@ class RoomController extends Controller
     /** GET /admin/properties/{propertyId}/rooms — List rooms for a property */
     public function index($propertyId)
     {
-        $property = Property::with('rooms')->findOrFail($propertyId);
-        return view('admin.rooms.index', compact('property'));
+        $property = Property::with(['rooms' => function($q) {
+            $q->orderBy('price_per_night', 'asc');
+        }])->findOrFail($propertyId);
+
+        $rooms = $property->rooms;
+        $totalCategories = $rooms->count();
+        $totalUnits      = (int) $rooms->sum('total_rooms');
+        $avgPrice        = $totalCategories > 0 ? (float) $rooms->avg('price_per_night') : 0;
+        $minPrice        = $totalCategories > 0 ? (float) $rooms->min('price_per_night') : 0;
+        $maxPrice        = $totalCategories > 0 ? (float) $rooms->max('price_per_night') : 0;
+
+        $stats = [
+            'total_categories' => $totalCategories,
+            'total_units'      => $totalUnits,
+            'avg_price'        => $avgPrice,
+            'min_price'        => $minPrice,
+            'max_price'        => $maxPrice,
+        ];
+
+        return view('admin.rooms.index', compact('property', 'rooms', 'stats'));
     }
 
     /** GET /admin/properties/{propertyId}/rooms/create — Show create form */

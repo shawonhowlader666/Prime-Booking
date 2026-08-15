@@ -9,29 +9,29 @@
 <div class="page-header-card">
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <div>
-            <h1 class="page-title m-0">Rates &amp; Availability Calendar</h1>
+            <h1 class="page-title m-0">Rates &amp; Availability</h1>
             <div class="page-breadcrumb mt-1.5">
                 <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
                 <span class="sep">-</span><span>Inventory</span>
-                <span class="sep">-</span><strong style="color:#333;">Rates &amp; Calendar</strong>
+                <span class="sep">-</span><strong style="color:#333;">Rates &amp; Availability</strong>
             </div>
         </div>
         
         {{-- FULLY FUNCTIONAL EXPORT TOOLBAR --}}
         <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-            <button type="button" class="btn-tbl-copy" onclick="copyRatesToClipboard()" title="Copy Calendar to Clipboard">
+            <button type="button" class="btn-tbl-copy" onclick="copyRatesToClipboard()" title="Copy to Clipboard">
                 <i class="fa-regular fa-copy me-1"></i> Copy
             </button>
-            <button type="button" class="btn-tbl-excel" onclick="exportRatesExcel()" title="Export Excel Spreadsheet">
+            <button type="button" class="btn-tbl-excel" onclick="exportRatesExcel()" title="Export Excel">
                 <i class="fa-solid fa-file-excel me-1"></i> Excel
             </button>
-            <button type="button" class="btn-export-csv" onclick="exportRatesCSV()" title="Export CSV Data">
+            <button type="button" class="btn-export-csv" onclick="exportRatesCSV()" title="Export CSV">
                 <i class="fa-solid fa-file-csv me-1"></i> CSV
             </button>
-            <button type="button" class="btn-export-pdf" onclick="printCalendarGrid()" title="Print PDF Document">
+            <button type="button" class="btn-export-pdf" onclick="printCalendarGrid()" title="Print PDF">
                 <i class="fa-solid fa-file-pdf me-1"></i> PDF
             </button>
-            <button type="button" class="btn-tbl-print" onclick="printCalendarGrid()" title="Print Calendar View">
+            <button type="button" class="btn-tbl-print" onclick="printCalendarGrid()" title="Print View">
                 <i class="fa-solid fa-print me-1"></i> Print
             </button>
             @if($selectedRoom)
@@ -60,8 +60,8 @@
             <div class="kpi-card" onclick="filterAvailabilityStatus('all', document.querySelector('[data-filter=all]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to view all days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">SELECTED ROOM &amp; BASE RATE</p>
-                        <p class="kpi-value" style="font-size:17px; font-weight:800; color:#1e293b; margin:0;">{{ Str::limit($selectedRoom->name, 20) }}</p>
+                        <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">SELECTED ROOM</p>
+                        <p class="kpi-value" style="font-size:16px; font-weight:800; color:#1e293b; margin:0;">{{ Str::limit($selectedRoom->name, 22) }}</p>
                         <span style="font-size:12px; color:#2067e1; font-weight:700;">৳ {{ number_format($selectedRoom->price_per_night) }} / night</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
@@ -76,9 +76,9 @@
             <div class="kpi-card" onclick="filterAvailabilityStatus('available', document.querySelector('[data-filter=available]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Available days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">AVAILABLE BOOKABLE DAYS</p>
-                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['available_days'] }} / {{ $daysCount }} Days</p>
-                        <span style="font-size:11.5px; color:#52c41a; font-weight:600;"><i class="fa-solid fa-filter me-1"></i>Filter Available</span>
+                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">AVAILABLE DAYS</p>
+                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#28c76f; margin:0;">{{ $stats['available_days'] }} / {{ $daysCount }} Days</p>
+                        <span style="font-size:11.5px; color:#52c41a; font-weight:600;">Bookable Inventory</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-circle-check"></i>
@@ -92,9 +92,9 @@
             <div class="kpi-card" onclick="filterAvailabilityStatus('blocked', document.querySelector('[data-filter=blocked]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Sold Out/Blocked days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">SOLD OUT / BLOCKED</p>
-                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['sold_out_days'] }} Days</p>
-                        <span style="font-size:11.5px; color:#ff4d4f; font-weight:600;"><i class="fa-solid fa-filter me-1"></i>Filter Blocked</span>
+                        <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">BLOCKED DAYS</p>
+                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#ea5455; margin:0;">{{ $stats['sold_out_days'] }} Days</p>
+                        <span style="font-size:11.5px; color:#ff4d4f; font-weight:600;">Sold Out / Locked</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#fff5f5; color:#ea5455; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
                         <i class="fa-solid fa-ban"></i>
@@ -108,8 +108,8 @@
             <div class="kpi-card" onclick="filterAvailabilityStatus('custom', document.querySelector('[data-filter=custom]'))" style="cursor:pointer; border-radius:6px; border:1px solid #e8e8e8; box-shadow:0 1px 3px rgba(0,0,0,0.03);" title="Click to filter Seasonal Priced days">
                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                     <div>
-                        <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">SEASONAL PRICED DAYS</p>
-                        <p class="kpi-value" style="font-size:20px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['custom_price_days'] }} Days</p>
+                        <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">SEASONAL RATES</p>
+                        <p class="kpi-value" style="font-size:19px; font-weight:800; color:#7367f0; margin:0;">{{ $stats['custom_price_days'] }} Days</p>
                         <span style="font-size:11.5px; color:#64748b;">Avg: ৳ {{ number_format($stats['avg_price']) }}/night</span>
                     </div>
                     <div style="width:36px; height:36px; border-radius:50%; background:#f0eefc; color:#7367f0; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0;">
@@ -125,29 +125,26 @@
     <div class="data-table-card" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03); margin-bottom: 24px !important;">
         <div class="data-table-card-header" style="padding: 14px 24px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius: 6px 6px 0 0;">
             <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
-                <div>
-                    <h5 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:14.5px; color:#0f172a;">
-                        <i class="fa-solid fa-hotel text-primary me-2" style="font-size:15px;"></i>
-                        <span>Select Property &amp; Room Category</span>
-                    </h5>
-                    <small class="text-secondary mt-0.5 d-block" style="font-size:12px;">Choose which hotel and specific room category you want to view, forecast, and manage calendar rates for.</small>
-                </div>
-                <div class="btn-group btn-group-sm" role="group" style="height:34px;">
-                    <button type="button" class="btn btn-outline-secondary active fw-bold px-3" id="btnViewGrid" onclick="toggleCalendarView('grid')">
+                <h5 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:14px; text-transform:uppercase; letter-spacing:0.4px;">
+                    <i class="fa-solid fa-hotel text-primary me-2" style="font-size:15px;"></i>
+                    <span>Select Room &amp; Timeline</span>
+                </h5>
+                <div class="btn-group btn-group-sm" role="group" style="height:32px;">
+                    <button type="button" class="btn btn-outline-secondary active fw-bold px-3" id="btnViewGrid" onclick="toggleCalendarView('grid')" style="font-size:12px;">
                         <i class="fa-solid fa-table-cells-large me-1"></i> Grid View
                     </button>
-                    <button type="button" class="btn btn-outline-secondary fw-bold px-3" id="btnViewTable" onclick="toggleCalendarView('table')">
+                    <button type="button" class="btn btn-outline-secondary fw-bold px-3" id="btnViewTable" onclick="toggleCalendarView('table')" style="font-size:12px;">
                         <i class="fa-solid fa-list me-1"></i> Table View
                     </button>
                 </div>
             </div>
         </div>
 
-        <div style="padding: 20px 24px;">
+        <div style="padding: 18px 24px;">
             <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="row g-3 align-items-end">
                 <div class="col-12 col-md-7">
                     <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
-                        <i class="fa-solid fa-bed text-primary me-1"></i> Choose Hotel &amp; Room Category <span style="color:#ff4d4f;">*</span>
+                        <i class="fa-solid fa-bed text-primary me-1"></i> Room Category <span style="color:#ff4d4f;">*</span>
                     </label>
                     <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff;">
                         @foreach($properties as $p)
@@ -164,7 +161,7 @@
 
                 <div class="col-12 col-md-5">
                     <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
-                        <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
+                        <i class="fa-solid fa-calendar-week text-primary me-1"></i> Timeline
                     </label>
                     <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px;">
                         <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>📅 Next 14 Days (2 Weeks)</option>
@@ -178,21 +175,21 @@
             {{-- 🎯 LIVE ACTIVE SELECTION STATUS BANNER --}}
             <div class="mt-3 p-2.5 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff; border-radius:4px;">
                 <div class="d-flex align-items-center gap-2">
-                    <div style="width:26px; height:26px; border-radius:50%; background:#1890ff; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
+                    <div style="width:24px; height:24px; border-radius:50%; background:#1890ff; color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; flex-shrink:0;">
                         <i class="fa-solid fa-check"></i>
                     </div>
                     <div style="font-size:12.5px; color:#1e293b;">
-                        <span class="text-secondary">Currently Managing:</span> 
-                        <strong class="text-primary" style="font-size:13px;">{{ $selectedRoom->name }}</strong>
+                        <span class="text-secondary">Managing:</span> 
+                        <strong class="text-primary">{{ $selectedRoom->name }}</strong>
                         <span class="text-muted mx-1.5">•</span>
-                        <span>Base Rate: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }} / night</strong></span>
+                        <span>Base: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }}/night</strong></span>
                         <span class="text-muted mx-1.5">•</span>
-                        <span>Hotel: <strong class="text-secondary">{{ $selectedRoom->property->name ?? 'Your Hotel' }}</strong></span>
+                        <span>{{ $selectedRoom->property->name ?? 'Hotel' }}</span>
                     </div>
                 </div>
                 <div>
                     <span class="badge bg-primary text-white px-2.5 py-1" style="font-size:11px; border-radius:3px; font-weight:600;">
-                        <i class="fa-solid fa-circle-check me-1"></i> Active Inventory
+                        <i class="fa-solid fa-circle-check me-1"></i> Active
                     </span>
                 </div>
             </div>
@@ -206,12 +203,9 @@
         <div class="col-12 col-lg-4">
             <div class="data-table-card" style="border-radius:6px !important; background:#ffffff; border:1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
                 <div class="data-table-card-header" style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius:6px 6px 0 0;">
-                    <div>
-                        <h6 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
-                            <i class="fa-solid fa-sliders text-primary me-2"></i> Update Rates &amp; Dates
-                        </h6>
-                        <small class="text-muted mt-0.5 d-block" style="font-size:11px;">Click any date box on the right or choose a date range below.</small>
-                    </div>
+                    <h6 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
+                        <i class="fa-solid fa-sliders text-primary me-2"></i> Set Rate &amp; Status
+                    </h6>
                 </div>
 
                 <div style="padding: 20px 22px;">
@@ -235,11 +229,11 @@
 
                         <div class="mb-3.5">
                             <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
-                                Custom Nightly Rate (BDT ৳)
+                                Nightly Rate (BDT ৳)
                             </label>
                             <div class="input-group input-group-sm">
                                 <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px; font-size:12px; color:#595959;">৳ BDT</span>
-                                <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base rate: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
+                                <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
                             </div>
                             <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
                                 <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
@@ -249,23 +243,22 @@
                                     <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
                                 </button>
                                 <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                    <i class="fa-solid fa-rotate-left me-0.5"></i> Base (৳{{ number_format($selectedRoom->price_per_night) }})
+                                    <i class="fa-solid fa-rotate-left me-0.5"></i> Base
                                 </button>
                             </div>
-                            <small class="text-muted d-block mt-1.5" style="font-size:11px;">Leave empty to keep standard base price (৳{{ number_format($selectedRoom->price_per_night) }}).</small>
                         </div>
 
                         <div class="mb-3.5 p-2.5 rounded bg-light border" style="border-radius:4px; border-color:#e8e8e8 !important;">
                             <div class="form-check form-switch m-0 d-flex align-items-center">
                                 <input class="form-check-input" type="checkbox" name="is_blocked" value="1" id="blockRoomCheck" style="cursor:pointer; width:38px; height:20px;">
                                 <label class="form-check-label fw-bold text-danger ms-2.5 mb-0" for="blockRoomCheck" style="font-size:12px; cursor:pointer;">
-                                    <i class="fa-solid fa-ban me-1"></i> Block Room / Mark as Sold Out
+                                    <i class="fa-solid fa-ban me-1"></i> Block / Sold Out
                                 </label>
                             </div>
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background-color: #1890ff; font-size:13px; border-radius:4px; border:none; letter-spacing:0.3px; height:38px; box-shadow: 0 2px 6px rgba(24,144,255,0.25);">
-                            <i class="fa-solid fa-floppy-disk me-1.5"></i> SAVE CALENDAR RATES
+                            <i class="fa-solid fa-floppy-disk me-1.5"></i> SAVE CHANGES
                         </button>
                     </form>
                 </div>
@@ -279,16 +272,13 @@
                 {{-- TOOLBAR & FUNCTIONAL FILTER BUTTONS --}}
                 <div class="data-table-card-header" style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius:6px 6px 0 0;">
                     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
-                        <div>
-                            <h6 class="mb-0 fw-bold text-dark" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
-                                <i class="fa-solid fa-calendar-days text-primary me-1.5"></i> {{ $daysCount }}-Day Rates Grid
-                            </h6>
-                            <small class="text-muted d-block mt-0.5" style="font-size:11px;">Selected Room: <strong>{{ $selectedRoom->name }}</strong></small>
-                        </div>
+                        <h6 class="mb-0 fw-bold text-dark" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
+                            <i class="fa-solid fa-calendar-days text-primary me-1.5"></i> {{ $daysCount }}-Day Calendar
+                        </h6>
 
-                        {{-- 100% FUNCTIONAL INTERACTIVE TICK CHECKBOX FILTERS (Matching Screenshot) --}}
+                        {{-- 100% FUNCTIONAL INTERACTIVE TICK CHECKBOX FILTERS --}}
                         <div class="d-flex align-items-center gap-2 flex-wrap">
-                            <span class="text-secondary fw-bold me-1" style="font-size:11.5px;">Filter:</span>
+                            <span class="text-secondary fw-bold me-1" style="font-size:11px; text-transform:uppercase;">Filter:</span>
 
                             {{-- Available Tick Filter --}}
                             <label class="filter-tick-badge is-available checked" id="lblChkAvailable" title="Toggle Available Dates" style="cursor:pointer;">
@@ -302,7 +292,7 @@
                             <label class="filter-tick-badge is-blocked checked" id="lblChkBlocked" title="Toggle Sold Out Dates" style="cursor:pointer;">
                                 <input type="checkbox" id="chkBlocked" checked onchange="applyTickFilters()" style="display:none;">
                                 <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
-                                <span class="tick-label" style="color:#cf1322;">Sold Out/Blocked</span>
+                                <span class="tick-label" style="color:#cf1322;">Blocked</span>
                                 <span class="badge-pill-count">{{ $stats['sold_out_days'] }}</span>
                             </label>
 
@@ -310,7 +300,7 @@
                             <label class="filter-tick-badge is-custom checked" id="lblChkCustom" title="Toggle Seasonal Rates" style="cursor:pointer;">
                                 <input type="checkbox" id="chkCustom" checked onchange="applyTickFilters()" style="display:none;">
                                 <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
-                                <span class="tick-label" style="color:#531dab;">Seasonal Rate</span>
+                                <span class="tick-label" style="color:#531dab;">Seasonal</span>
                                 <span class="badge-pill-count">{{ $stats['custom_price_days'] }}</span>
                             </label>
 

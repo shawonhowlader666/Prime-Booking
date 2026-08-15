@@ -1297,6 +1297,58 @@
             </div>
         </div>
 
+        {{-- 13. Property Facilities & Amenities (Full Dynamic Grid) --}}
+        <div id="facilities" class="card agoda-card-border p-4 mb-4">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold text-dark mb-0" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 18px;">
+                    <i class="fa-solid fa-list-check text-primary me-2"></i> Facilities &amp; Amenities
+                </h5>
+                <span class="badge bg-light text-secondary border" style="font-size: 12px;">Verified Hotel Features</span>
+            </div>
+
+            @php
+                $amenitiesList = is_array($property->amenities) ? $property->amenities : (json_decode($property->amenities, true) ?: []);
+                $amenityMap = [
+                    'wifi' => ['icon' => 'fa-wifi', 'label' => 'Free Wi-Fi in all rooms & areas'],
+                    'pool' => ['icon' => 'fa-person-swimming', 'label' => 'Swimming Pool'],
+                    'parking' => ['icon' => 'fa-square-parking', 'label' => 'Free Guest Parking'],
+                    'ac' => ['icon' => 'fa-snowflake', 'label' => 'Air Conditioning'],
+                    'restaurant' => ['icon' => 'fa-utensils', 'label' => 'Multi-Cuisine Restaurant'],
+                    'breakfast' => ['icon' => 'fa-mug-hot', 'label' => 'Free Daily Breakfast'],
+                    'gym' => ['icon' => 'fa-dumbbell', 'label' => 'Fitness Center / Gym'],
+                    'beachfront' => ['icon' => 'fa-water', 'label' => 'Beachfront / Ocean View'],
+                    'transfer' => ['icon' => 'fa-van-shuttle', 'label' => 'Airport Shuttle Transfer'],
+                    'frontdesk' => ['icon' => 'fa-headset', 'label' => '24/7 Front Desk Reception'],
+                    'elevator' => ['icon' => 'fa-elevator', 'label' => 'Elevator / Lift Access'],
+                    'spa' => ['icon' => 'fa-spa', 'label' => 'Spa & Wellness Center'],
+                ];
+            @endphp
+
+            @if(!empty($amenitiesList) && count($amenitiesList) > 0)
+            <div class="row g-3">
+                @foreach($amenitiesList as $amKey)
+                    @php
+                        $cleanKey = strtolower(trim($amKey));
+                        $item = $amenityMap[$cleanKey] ?? ['icon' => 'fa-circle-check', 'label' => ucfirst(str_replace('_', ' ', $amKey))];
+                    @endphp
+                    <div class="col-md-3 col-6">
+                        <div class="p-2.5 bg-light rounded-3 border d-flex align-items-center gap-2.5 h-100">
+                            <i class="fa-solid {{ $item['icon'] }} text-primary" style="width: 18px; font-size: 14px;"></i>
+                            <span class="fw-semibold text-dark" style="font-size: 12.5px;">{{ $item['label'] }}</span>
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            @else
+            <div class="row g-3">
+                <div class="col-md-3 col-6"><div class="p-2.5 bg-light rounded-3 border d-flex align-items-center gap-2"><i class="fa-solid fa-wifi text-primary"></i> <span class="fw-semibold text-dark" style="font-size:12.5px;">Free Wi-Fi</span></div></div>
+                <div class="col-md-3 col-6"><div class="p-2.5 bg-light rounded-3 border d-flex align-items-center gap-2"><i class="fa-solid fa-snowflake text-primary"></i> <span class="fw-semibold text-dark" style="font-size:12.5px;">Air Conditioning</span></div></div>
+                <div class="col-md-3 col-6"><div class="p-2.5 bg-light rounded-3 border d-flex align-items-center gap-2"><i class="fa-solid fa-square-parking text-primary"></i> <span class="fw-semibold text-dark" style="font-size:12.5px;">Free Parking</span></div></div>
+                <div class="col-md-3 col-6"><div class="p-2.5 bg-light rounded-3 border d-flex align-items-center gap-2"><i class="fa-solid fa-headset text-primary"></i> <span class="fw-semibold text-dark" style="font-size:12.5px;">24/7 Front Desk</span></div></div>
+            </div>
+            @endif
+        </div>
+
         {{-- 14. Check in. Step out. Map Experience Banner (Screenshot Parity) --}}
         <div class="card border-0 shadow-xs rounded-3 overflow-hidden bg-white mb-4">
             <div class="row g-0">

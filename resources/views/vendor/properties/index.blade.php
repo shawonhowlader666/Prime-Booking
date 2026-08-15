@@ -316,8 +316,13 @@
                             <input type="text" name="name" class="form-control form-control-sm" placeholder="e.g. Ocean Paradise Resort &amp; Spa" required style="font-size:12.5px; height:36px;">
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Category <span class="text-danger">*</span></label>
-                            <select name="type" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-semibold text-dark m-0" style="font-size:12px;">Category <span class="text-danger">*</span></label>
+                                <button type="button" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="font-size:11px;" onclick="promptAddCustomCategory('propCategorySelect')">
+                                    + Add Custom Type
+                                </button>
+                            </div>
+                            <select name="type" id="propCategorySelect" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
                                 <option value="hotel">Hotel &amp; Resort</option>
                                 <option value="resort">Beach Resort</option>
                                 <option value="houseboat">Ship / Houseboat</option>
@@ -326,8 +331,13 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Destination City <span class="text-danger">*</span></label>
-                            <select name="city" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <label class="form-label fw-semibold text-dark m-0" style="font-size:12px;">Destination City <span class="text-danger">*</span></label>
+                                <button type="button" class="btn btn-link p-0 text-primary fw-bold text-decoration-none" style="font-size:11px;" onclick="promptAddCustomCity('propCitySelect')">
+                                    + Add New City/Area
+                                </button>
+                            </div>
+                            <select name="city" id="propCitySelect" class="form-select form-select-sm" required style="font-size:12.5px; height:36px;">
                                 <option value="Cox's Bazar Sea Beach">Cox's Bazar Sea Beach</option>
                                 <option value="Dhaka City">Dhaka City</option>
                                 <option value="Sylhet & Sreemangal">Sylhet &amp; Sreemangal</option>
@@ -461,11 +471,13 @@
                     </div>
 
                     {{-- SECTION 4: AMENITIES & DESCRIPTION --}}
-                    <div class="d-flex align-items-center gap-2 border-bottom pb-2 mb-3 mt-4">
-                        <span class="badge bg-warning-light text-warning fw-bold" style="background:#fffbe6; color:#d48806 !important; font-size:11px; padding:4px 8px; border-radius:4px;">4</span>
-                        <strong class="text-dark" style="font-size:13.5px;">Amenities &amp; Description</strong>
+                    <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-3 mt-4">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-warning-light text-warning fw-bold" style="background:#fffbe6; color:#d48806 !important; font-size:11px; padding:4px 8px; border-radius:4px;">4</span>
+                            <strong class="text-dark" style="font-size:13.5px;">Amenities &amp; Description</strong>
+                        </div>
                     </div>
-                    <div class="row g-2 mb-3">
+                    <div class="row g-2 mb-2">
                         @foreach([
                             ['wifi','fa-wifi','Free Wi-Fi'],
                             ['pool','fa-person-swimming','Swimming Pool'],
@@ -488,6 +500,22 @@
                         </div>
                         @endforeach
                     </div>
+
+                    {{-- Dynamic Custom Amenity Tag Builder --}}
+                    <div class="p-2.5 border rounded bg-light mb-3">
+                        <label class="form-label fw-semibold text-dark mb-1.5 d-flex align-items-center justify-content-between" style="font-size:11.5px;">
+                            <span><i class="fa-solid fa-plus-circle text-primary me-1"></i> + Add Custom Hotel Facility / Amenity</span>
+                            <small class="text-muted">Type any custom facility and click + Add</small>
+                        </label>
+                        <div class="input-group input-group-sm mb-2" style="max-width:380px;">
+                            <input type="text" id="modalCustomAmenityInput" class="form-control" placeholder="e.g. Heli-pad, EV Charger, Private Jacuzzi..." style="font-size:12px;" onkeydown="if(event.key==='Enter'){event.preventDefault();addModalCustomAmenity();}">
+                            <button type="button" class="btn btn-primary fw-bold" style="background:#2067e1; font-size:12px;" onclick="addModalCustomAmenity()">
+                                + Add
+                            </button>
+                        </div>
+                        <div id="modalCustomAmenitiesContainer" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
                     <div>
                         <label class="form-label fw-semibold text-dark mb-1" style="font-size:12px;">Property Description <span class="text-danger">*</span></label>
                         <textarea name="description" class="form-control form-control-sm" rows="3" placeholder="Briefly describe property highlights, location benefits, and dining features..." required style="font-size:12.5px;"></textarea>
@@ -504,6 +532,45 @@
         </div>
     </div>
 </div>
+
+<script>
+function promptAddCustomCategory(selectId) {
+    const select = document.getElementById(selectId);
+    const custom = prompt("Enter new Property Category (e.g. Glamping Tent, Floating Resort, Luxury Villa, Heritage Palace):");
+    if (custom && custom.trim() !== "") {
+        const opt = document.createElement('option');
+        opt.value = custom.trim();
+        opt.textContent = "✨ " + custom.trim();
+        opt.selected = true;
+        select.appendChild(opt);
+    }
+}
+
+function promptAddCustomCity(selectId) {
+    const select = document.getElementById(selectId);
+    const custom = prompt("Enter new Destination City or Region (e.g. Saint Martin Island, Kaptai Lake, Jaflong, Bangkok, Dubai):");
+    if (custom && custom.trim() !== "") {
+        const opt = document.createElement('option');
+        opt.value = custom.trim();
+        opt.textContent = "📍 " + custom.trim();
+        opt.selected = true;
+        select.appendChild(opt);
+    }
+}
+
+function addModalCustomAmenity() {
+    const input = document.getElementById('modalCustomAmenityInput');
+    const val = input.value.trim();
+    if (!val) return;
+    const container = document.getElementById('modalCustomAmenitiesContainer');
+    const pill = document.createElement('span');
+    pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
+    pill.style.fontSize = '11.5px';
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:7px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    container.appendChild(pill);
+    input.value = '';
+}
+</script>
 
 @endsection
 

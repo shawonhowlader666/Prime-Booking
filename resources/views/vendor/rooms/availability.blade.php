@@ -212,15 +212,15 @@
                                 <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px; font-size:11.5px; color:#595959;">৳ BDT</span>
                                 <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:12.5px; height:34px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
                             </div>
-                            <div class="d-flex align-items-center gap-1.5 flex-wrap">
-                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                    <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
+                            <div class="d-flex align-items-center gap-2 flex-wrap mt-1.5">
+                                <button type="button" class="btn btn-outline-secondary" onclick="applyPricePreset(1.15)" style="font-size:11px; padding: 4px 10px; border-radius:4px; font-weight:600; background:#ffffff; border:1px solid #d9d9d9; color:#475569;">
+                                    <i class="fa-solid fa-bolt text-warning me-1"></i> +15% Weekend
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                    <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
+                                <button type="button" class="btn btn-outline-secondary" onclick="applyPricePreset(1.25)" style="font-size:11px; padding: 4px 10px; border-radius:4px; font-weight:600; background:#ffffff; border:1px solid #d9d9d9; color:#475569;">
+                                    <i class="fa-solid fa-bolt text-warning me-1"></i> +25% Peak
                                 </button>
-                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                    <i class="fa-solid fa-rotate-left me-0.5"></i> Base
+                                <button type="button" class="btn btn-outline-secondary" onclick="applyPricePreset(1.0)" style="font-size:11px; padding: 4px 10px; border-radius:4px; font-weight:600; background:#ffffff; border:1px solid #d9d9d9; color:#475569;">
+                                    <i class="fa-solid fa-rotate-left me-1"></i> Base
                                 </button>
                             </div>
                         </div>

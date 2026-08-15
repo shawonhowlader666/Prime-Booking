@@ -352,9 +352,13 @@
                                 <option value="2">★★ — 2 Star Budget</option>
                             </select>
                         </div>
-                        <div class="col-12">
+                        <div class="col-md-7">
                             <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Street Address <span class="text-danger">*</span></label>
                             <input type="text" name="address" class="form-control form-control-sm" placeholder="e.g. Marine Drive, Kalatoli, Cox's Bazar" required style="font-size:12.5px;">
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Nearest Landmark / Area</label>
+                            <input type="text" name="nearest_landmark" class="form-control form-control-sm" placeholder="e.g. Kolatoli Beach Point (150m)" style="font-size:12.5px;">
                         </div>
                     </div>
 
@@ -381,7 +385,36 @@
 
                     {{-- SECTION 3 --}}
                     <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-camera text-purple me-1.5" style="color:#7367f0;"></i> 3. Photos &amp; Media
+                        <i class="fa-solid fa-shield-halved text-info me-1.5"></i> 3. Booking &amp; Cancellation Policies
+                    </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <div class="p-2.5 border rounded d-flex align-items-center justify-content-between bg-light">
+                                <div>
+                                    <strong class="d-block text-dark" style="font-size:12px;">Free Cancellation Available</strong>
+                                    <small class="text-muted" style="font-size:10.5px;">Guests can cancel free before arrival date</small>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="freeCancelSwitch" checked style="cursor:pointer; width:36px; height:20px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="p-2.5 border rounded d-flex align-items-center justify-content-between bg-light">
+                                <div>
+                                    <strong class="d-block text-dark" style="font-size:12px;">Pay at Hotel / No Card Required</strong>
+                                    <small class="text-muted" style="font-size:10.5px;">Allow guests to pay upon check-in</small>
+                                </div>
+                                <div class="form-check form-switch m-0">
+                                    <input class="form-check-input" type="checkbox" name="no_credit_card_required" value="1" id="payAtHotelSwitch" style="cursor:pointer; width:36px; height:20px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- SECTION 4 --}}
+                    <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
+                        <i class="fa-solid fa-camera text-purple me-1.5" style="color:#7367f0;"></i> 4. Photos &amp; Media
                     </div>
                     <div class="row g-3 mb-3">
                         <div class="col-md-6">
@@ -402,17 +435,17 @@
                         </div>
                     </div>
 
-                    {{-- SECTION 4 --}}
+                    {{-- SECTION 5 --}}
                     <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-align-left text-primary me-1.5"></i> 4. Overview &amp; Description
+                        <i class="fa-solid fa-align-left text-primary me-1.5"></i> 5. Overview &amp; Description
                     </div>
                     <div class="mb-3">
                         <textarea name="description" class="form-control form-control-sm" rows="3" placeholder="Describe property amenities, location highlights, breakfast policies..." required style="font-size:12.5px;"></textarea>
                     </div>
 
-                    {{-- SECTION 5 --}}
+                    {{-- SECTION 6 --}}
                     <div class="fw-bold text-dark border-bottom pb-1.5 mb-3 mt-4" style="font-size:13.5px;">
-                        <i class="fa-solid fa-list-check text-info me-1.5"></i> 5. Amenities &amp; Services
+                        <i class="fa-solid fa-list-check text-info me-1.5"></i> 6. Amenities &amp; Services (Select All That Apply)
                     </div>
                     <div class="row g-2">
                         @foreach([
@@ -420,12 +453,14 @@
                             ['pool','fa-person-swimming','Swimming Pool'],
                             ['parking','fa-car','Free Parking'],
                             ['ac','fa-snowflake','Air Conditioning'],
-                            ['restaurant','fa-utensils','Restaurant'],
+                            ['restaurant','fa-utensils','Multi Restaurant'],
                             ['breakfast','fa-mug-hot','Free Breakfast'],
                             ['gym','fa-dumbbell','Gym / Fitness'],
                             ['beachfront','fa-water','Beachfront View'],
                             ['transfer','fa-van-shuttle','Airport Shuttle'],
+                            ['frontdesk','fa-clock','24/7 Front Desk'],
                             ['elevator','fa-elevator','Elevator / Lift'],
+                            ['spa','fa-spa','Spa & Wellness'],
                         ] as $am)
                         <div class="col-6 col-md-3">
                             <label class="p-2 border rounded d-flex align-items-center gap-2 bg-light w-100 mb-0" style="cursor:pointer; font-size:11.5px;">

@@ -20,7 +20,7 @@ class RecommendationService
         return Cache::remember($cacheKey, 3600, function () use ($target, $limit) {
             $candidates = Property::where('id', '!=', $target->id)
                 ->whereIn('status', ['active', 'published'])
-                ->with(['rooms:id,property_id,name,price_per_night,room_type'])
+                ->with(['rooms:id,property_id,name,price_per_night'])
                 ->get();
 
             if ($candidates->isEmpty()) {

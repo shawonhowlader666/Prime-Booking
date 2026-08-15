@@ -287,7 +287,7 @@
                 </div>
 
                 {{-- VIEW 1: INTERACTIVE 30-DAY CARD GRID VIEW (Matching Screenshot) --}}
-                <div id="calendarGridView" class="p-3" style="max-height: 560px; overflow-y: auto;">
+                <div id="calendarGridView" class="p-3">
                     <div class="row g-2.5" id="calendarGridContainer">
                         @for($d = 0; $d < $daysCount; $d++)
                             @php
@@ -352,7 +352,7 @@
                 </div>
 
                 {{-- VIEW 2: DETAILED DATA TABLE VIEW (Searchable & Printable) --}}
-                <div id="calendarTableView" style="display: none; max-height: 560px; overflow-y: auto;">
+                <div id="calendarTableView" style="display: none;">
                     <div class="p-3 px-3.5 bg-light border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#fafafa !important; border-color:#e8e8e8 !important;">
                         <span class="text-secondary fw-bold" style="font-size:12px; text-transform:uppercase; letter-spacing:0.3px;">
                             <i class="fa-solid fa-list-check text-primary me-1"></i> Detailed Date-by-Date Breakdown
@@ -526,7 +526,7 @@
 
 @section('scripts')
 <style>
-/* 30-DAY GRID CARD STYLING (Matching Screenshot) */
+/* 30-DAY GRID CARD STYLING (60 FPS Ultra Smooth Scrolling) */
 .calendar-day-card {
     background: #ffffff;
     border: 1px solid #e2e8f0;
@@ -535,16 +535,19 @@
     text-align: center;
     cursor: pointer;
     position: relative;
-    transition: all 0.18s ease;
+    transition: transform 0.12s ease, border-color 0.12s ease;
     min-height: 105px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    contain: content;
+    transform: translateZ(0);
 }
 .calendar-day-card:hover {
     border-color: #2067e1;
     box-shadow: 0 4px 12px rgba(32, 103, 225, 0.08);
     transform: translateY(-2px);
+    will-change: transform;
 }
 .calendar-day-card.active-selected {
     border-color: #2067e1 !important;

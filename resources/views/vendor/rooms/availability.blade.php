@@ -122,81 +122,85 @@
     </div>
 
     {{-- 🏢 SMART PROPERTY & ROOM CATEGORY SELECTION CARD (Stockifly Enterprise UI) --}}
-    <div class="data-table-card mb-3.5" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; padding: 20px 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-        <div class="border-bottom pb-3 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-color:#f0f0f0 !important;">
-            <div>
-                <h5 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
-                    <i class="fa-solid fa-hotel text-primary me-2" style="font-size:16px;"></i>
-                    <span>Select Property &amp; Room Category</span>
-                </h5>
-                <small class="text-secondary mt-0.5 d-block" style="font-size:12px;">Choose which hotel and specific room category you want to view, forecast, and manage calendar rates for.</small>
-            </div>
-            <div class="btn-group btn-group-sm" role="group" style="height:34px;">
-                <button type="button" class="btn btn-outline-secondary active fw-bold px-3" id="btnViewGrid" onclick="toggleCalendarView('grid')">
-                    <i class="fa-solid fa-table-cells-large me-1"></i> Grid View
-                </button>
-                <button type="button" class="btn btn-outline-secondary fw-bold px-3" id="btnViewTable" onclick="toggleCalendarView('table')">
-                    <i class="fa-solid fa-list me-1"></i> Table View
-                </button>
+    <div class="data-table-card mb-3.5" style="border-radius: 6px !important; background:#ffffff; border: 1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+        <div class="data-table-card-header" style="padding: 14px 24px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius: 6px 6px 0 0;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                <div>
+                    <h5 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:14.5px; color:#0f172a;">
+                        <i class="fa-solid fa-hotel text-primary me-2" style="font-size:15px;"></i>
+                        <span>Select Property &amp; Room Category</span>
+                    </h5>
+                    <small class="text-secondary mt-0.5 d-block" style="font-size:12px;">Choose which hotel and specific room category you want to view, forecast, and manage calendar rates for.</small>
+                </div>
+                <div class="btn-group btn-group-sm" role="group" style="height:34px;">
+                    <button type="button" class="btn btn-outline-secondary active fw-bold px-3" id="btnViewGrid" onclick="toggleCalendarView('grid')">
+                        <i class="fa-solid fa-table-cells-large me-1"></i> Grid View
+                    </button>
+                    <button type="button" class="btn btn-outline-secondary fw-bold px-3" id="btnViewTable" onclick="toggleCalendarView('table')">
+                        <i class="fa-solid fa-list me-1"></i> Table View
+                    </button>
+                </div>
             </div>
         </div>
 
-        <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="row g-3 align-items-end">
-            <div class="col-12 col-md-6 col-lg-5">
-                <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
-                    <i class="fa-solid fa-bed text-primary me-1"></i> Choose Hotel &amp; Room Category <span style="color:#ff4d4f;">*</span>
-                </label>
-                <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff;">
-                    @foreach($properties as $p)
-                        <optgroup label="🏢 {{ $p->name }} — {{ $p->city }} ({{ $p->star_rating }}★)">
-                            @foreach($p->rooms as $r)
-                                <option value="{{ $r->id }}" {{ $selectedRoom->id === $r->id ? 'selected' : '' }}>
-                                    🛏️ {{ $r->name }}  ➔  BDT ৳{{ number_format($r->price_per_night) }} / night
-                                </option>
-                            @endforeach
-                        </optgroup>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-12 col-md-3 col-lg-3">
-                <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
-                    <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
-                </label>
-                <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px;">
-                    <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>📅 Next 14 Days (2 Weeks)</option>
-                    <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>📅 Next 30 Days (1 Month)</option>
-                    <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>📅 Next 60 Days (2 Months)</option>
-                    <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>📅 Next 90 Days (3 Months)</option>
-                </select>
-            </div>
-
-            <div class="col-12 col-md-3 col-lg-4 d-flex align-items-end gap-2">
-                <button type="submit" class="btn-add-primary w-100 justify-content-center" style="height:38px; font-size:13px; border-radius:4px; font-weight:600;">
-                    <i class="fa-solid fa-rotate me-1.5"></i> Load Room Calendar
-                </button>
-            </div>
-        </form>
-
-        {{-- 🎯 LIVE ACTIVE SELECTION STATUS BANNER --}}
-        <div class="mt-3 p-2.5 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff; border-radius:4px;">
-            <div class="d-flex align-items-center gap-2">
-                <div style="width:26px; height:26px; border-radius:50%; background:#1890ff; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
-                    <i class="fa-solid fa-check"></i>
+        <div style="padding: 20px 24px;">
+            <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="row g-3 align-items-end">
+                <div class="col-12 col-md-6 col-lg-5">
+                    <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                        <i class="fa-solid fa-bed text-primary me-1"></i> Choose Hotel &amp; Room Category <span style="color:#ff4d4f;">*</span>
+                    </label>
+                    <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px; background-color:#ffffff;">
+                        @foreach($properties as $p)
+                            <optgroup label="🏢 {{ $p->name }} — {{ $p->city }} ({{ $p->star_rating }}★)">
+                                @foreach($p->rooms as $r)
+                                    <option value="{{ $r->id }}" {{ $selectedRoom->id === $r->id ? 'selected' : '' }}>
+                                        🛏️ {{ $r->name }}  ➔  BDT ৳{{ number_format($r->price_per_night) }} / night
+                                    </option>
+                                @endforeach
+                            </optgroup>
+                        @endforeach
+                    </select>
                 </div>
-                <div style="font-size:12.5px; color:#1e293b;">
-                    <span class="text-secondary">Currently Managing:</span> 
-                    <strong class="text-primary" style="font-size:13px;">{{ $selectedRoom->name }}</strong>
-                    <span class="text-muted mx-1.5">•</span>
-                    <span>Base Rate: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }} / night</strong></span>
-                    <span class="text-muted mx-1.5">•</span>
-                    <span>Hotel: <strong class="text-secondary">{{ $selectedRoom->property->name ?? 'Your Hotel' }}</strong></span>
+
+                <div class="col-12 col-md-3 col-lg-3">
+                    <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                        <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
+                    </label>
+                    <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#1e293b; height:38px; border:1px solid #d9d9d9; border-radius:4px;">
+                        <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>📅 Next 14 Days (2 Weeks)</option>
+                        <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>📅 Next 30 Days (1 Month)</option>
+                        <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>📅 Next 60 Days (2 Months)</option>
+                        <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>📅 Next 90 Days (3 Months)</option>
+                    </select>
                 </div>
-            </div>
-            <div>
-                <span class="badge bg-primary text-white px-2.5 py-1" style="font-size:11px; border-radius:3px; font-weight:600;">
-                    <i class="fa-solid fa-circle-check me-1"></i> Active Inventory
-                </span>
+
+                <div class="col-12 col-md-3 col-lg-4 d-flex align-items-end gap-2">
+                    <button type="submit" class="btn-add-primary w-100 justify-content-center" style="height:38px; font-size:13px; border-radius:4px; font-weight:600;">
+                        <i class="fa-solid fa-rotate me-1.5"></i> Load Room Calendar
+                    </button>
+                </div>
+            </form>
+
+            {{-- 🎯 LIVE ACTIVE SELECTION STATUS BANNER --}}
+            <div class="mt-3 p-2.5 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff; border-radius:4px;">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width:26px; height:26px; border-radius:50%; background:#1890ff; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; flex-shrink:0;">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div style="font-size:12.5px; color:#1e293b;">
+                        <span class="text-secondary">Currently Managing:</span> 
+                        <strong class="text-primary" style="font-size:13px;">{{ $selectedRoom->name }}</strong>
+                        <span class="text-muted mx-1.5">•</span>
+                        <span>Base Rate: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }} / night</strong></span>
+                        <span class="text-muted mx-1.5">•</span>
+                        <span>Hotel: <strong class="text-secondary">{{ $selectedRoom->property->name ?? 'Your Hotel' }}</strong></span>
+                    </div>
+                </div>
+                <div>
+                    <span class="badge bg-primary text-white px-2.5 py-1" style="font-size:11px; border-radius:3px; font-weight:600;">
+                        <i class="fa-solid fa-circle-check me-1"></i> Active Inventory
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -206,61 +210,71 @@
 
         {{-- Left Panel: Update Rates & Dates Form --}}
         <div class="col-12 col-lg-4">
-            <div class="data-table-card p-4" style="border-radius:6px !important; background:#ffffff; border:1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
-                <div class="border-bottom pb-2.5 mb-3" style="border-color:#f0f0f0 !important;">
-                    <h6 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:14px;">
-                        <i class="fa-solid fa-sliders text-primary me-2"></i> Update Rates &amp; Dates
-                    </h6>
-                    <small class="text-muted mt-0.5 d-block" style="font-size:11.5px;">Click any date box on the right or choose a date range below.</small>
+            <div class="data-table-card" style="border-radius:6px !important; background:#ffffff; border:1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
+                <div class="data-table-card-header" style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius:6px 6px 0 0;">
+                    <div>
+                        <h6 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
+                            <i class="fa-solid fa-sliders text-primary me-2"></i> Update Rates &amp; Dates
+                        </h6>
+                        <small class="text-muted mt-0.5 d-block" style="font-size:11px;">Click any date box on the right or choose a date range below.</small>
+                    </div>
                 </div>
 
-                <form action="{{ route('vendor.availability.update-range') }}" method="POST" id="quickRateForm">
-                    @csrf
-                    <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
+                <div style="padding: 20px 22px;">
+                    <form action="{{ route('vendor.availability.update-range') }}" method="POST" id="quickRateForm">
+                        @csrf
+                        <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Start Date <span style="color:#ff4d4f;">*</span></label>
-                        <input type="date" name="start_date" id="formStartDate" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:6px;">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">End Date <span style="color:#ff4d4f;">*</span></label>
-                        <input type="date" name="end_date" id="formEndDate" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:6px;">
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12px;">Custom Nightly Rate (BDT ৳)</label>
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:6px 0 0 6px;">৳ BDT</span>
-                            <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base rate: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 6px 6px 0;">
-                        </div>
-                        <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
-                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
-                            </button>
-                            <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
-                                <i class="fa-solid fa-rotate-left me-0.5"></i> Base (৳{{ number_format($selectedRoom->price_per_night) }})
-                            </button>
-                        </div>
-                        <small class="text-muted d-block mt-1.5" style="font-size:11px;">Leave empty to keep standard base price (৳{{ number_format($selectedRoom->price_per_night) }}).</small>
-                    </div>
-
-                    <div class="mb-3.5 p-2.5 rounded bg-light border" style="border-radius:6px; border-color:#e8e8e8 !important;">
-                        <div class="form-check form-switch m-0 d-flex align-items-center">
-                            <input class="form-check-input" type="checkbox" name="is_blocked" value="1" id="blockRoomCheck" style="cursor:pointer; width:38px; height:20px;">
-                            <label class="form-check-label fw-bold text-danger ms-2.5 mb-0" for="blockRoomCheck" style="font-size:12.5px; cursor:pointer;">
-                                <i class="fa-solid fa-ban me-1"></i> Block Room / Mark as Sold Out
+                        <div class="mb-3.5">
+                            <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                                Start Date <span style="color:#ff4d4f;">*</span>
                             </label>
+                            <input type="date" name="start_date" id="formStartDate" class="form-control form-control-sm" value="{{ date('Y-m-d') }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px; padding:6px 12px;">
                         </div>
-                    </div>
 
-                    <button type="submit" class="btn btn-primary w-100 fw-bold py-2.5" style="background-color: #2067e1; font-size:13.5px; border-radius:6px; border:none; letter-spacing:0.3px; box-shadow: 0 2px 6px rgba(32,103,225,0.25);">
-                        <i class="fa-solid fa-floppy-disk me-1.5"></i> SAVE CALENDAR RATES
-                    </button>
-                </form>
+                        <div class="mb-3.5">
+                            <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                                End Date <span style="color:#ff4d4f;">*</span>
+                            </label>
+                            <input type="date" name="end_date" id="formEndDate" class="form-control form-control-sm" value="{{ date('Y-m-d', strtotime('+7 days')) }}" required min="{{ date('Y-m-d') }}" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:4px; padding:6px 12px;">
+                        </div>
+
+                        <div class="mb-3.5">
+                            <label class="form-label mb-1.5" style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.4px;">
+                                Custom Nightly Rate (BDT ৳)
+                            </label>
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text fw-bold bg-light" style="border:1px solid #d9d9d9; border-radius:4px 0 0 4px; font-size:12px; color:#595959;">৳ BDT</span>
+                                <input type="number" name="price" id="formCustomPrice" class="form-control" placeholder="Base rate: {{ (int)$selectedRoom->price_per_night }}" step="0.01" style="font-size:13px; height:38px; border:1px solid #d9d9d9; border-radius:0 4px 4px 0;">
+                            </div>
+                            <div class="d-flex align-items-center gap-1.5 flex-wrap mt-2">
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.15)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                    <i class="fa-solid fa-bolt text-warning me-0.5"></i> +15% Weekend
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.25)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                    <i class="fa-solid fa-bolt text-warning me-0.5"></i> +25% Peak
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary py-0.5 px-2" onclick="applyPricePreset(1.0)" style="font-size:10.5px; border-radius:4px; font-weight:600;">
+                                    <i class="fa-solid fa-rotate-left me-0.5"></i> Base (৳{{ number_format($selectedRoom->price_per_night) }})
+                                </button>
+                            </div>
+                            <small class="text-muted d-block mt-1.5" style="font-size:11px;">Leave empty to keep standard base price (৳{{ number_format($selectedRoom->price_per_night) }}).</small>
+                        </div>
+
+                        <div class="mb-3.5 p-2.5 rounded bg-light border" style="border-radius:4px; border-color:#e8e8e8 !important;">
+                            <div class="form-check form-switch m-0 d-flex align-items-center">
+                                <input class="form-check-input" type="checkbox" name="is_blocked" value="1" id="blockRoomCheck" style="cursor:pointer; width:38px; height:20px;">
+                                <label class="form-check-label fw-bold text-danger ms-2.5 mb-0" for="blockRoomCheck" style="font-size:12px; cursor:pointer;">
+                                    <i class="fa-solid fa-ban me-1"></i> Block Room / Mark as Sold Out
+                                </label>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 fw-bold py-2" style="background-color: #1890ff; font-size:13px; border-radius:4px; border:none; letter-spacing:0.3px; height:38px; box-shadow: 0 2px 6px rgba(24,144,255,0.25);">
+                            <i class="fa-solid fa-floppy-disk me-1.5"></i> SAVE CALENDAR RATES
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
@@ -269,45 +283,47 @@
             <div class="data-table-card p-0" style="border-radius:6px !important; background:#ffffff; border:1px solid #e8e8e8 !important; box-shadow: 0 1px 3px rgba(0,0,0,0.03);">
                 
                 {{-- TOOLBAR & FUNCTIONAL FILTER BUTTONS --}}
-                <div class="p-3 px-3.5 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2" style="border-color:#f0f0f0 !important;">
-                    <div>
-                        <h6 class="mb-0 fw-bold text-dark" style="font-size:14.5px;">
-                            <i class="fa-solid fa-calendar-days text-primary me-1.5"></i> {{ $daysCount }}-Day Rates Grid
-                        </h6>
-                        <small class="text-muted d-block mt-0.5" style="font-size:11.5px;">Selected Room: <strong>{{ $selectedRoom->name }}</strong></small>
-                    </div>
+                <div class="data-table-card-header" style="padding: 14px 20px; border-bottom: 1px solid #f0f0f0; background:#ffffff; border-radius:6px 6px 0 0;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 w-100">
+                        <div>
+                            <h6 class="mb-0 fw-bold text-dark" style="font-size:13.5px; text-transform:uppercase; letter-spacing:0.4px;">
+                                <i class="fa-solid fa-calendar-days text-primary me-1.5"></i> {{ $daysCount }}-Day Rates Grid
+                            </h6>
+                            <small class="text-muted d-block mt-0.5" style="font-size:11px;">Selected Room: <strong>{{ $selectedRoom->name }}</strong></small>
+                        </div>
 
-                    {{-- 100% FUNCTIONAL INTERACTIVE TICK CHECKBOX FILTERS (Matching Screenshot) --}}
-                    <div class="d-flex align-items-center gap-2 flex-wrap">
-                        <span class="text-secondary fw-bold me-1" style="font-size:11.5px;">Filter:</span>
+                        {{-- 100% FUNCTIONAL INTERACTIVE TICK CHECKBOX FILTERS (Matching Screenshot) --}}
+                        <div class="d-flex align-items-center gap-2 flex-wrap">
+                            <span class="text-secondary fw-bold me-1" style="font-size:11.5px;">Filter:</span>
 
-                        {{-- Available Tick Filter --}}
-                        <label class="filter-tick-badge is-available checked" id="lblChkAvailable" title="Toggle Available Dates" style="cursor:pointer;">
-                            <input type="checkbox" id="chkAvailable" checked onchange="applyTickFilters()" style="display:none;">
-                            <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
-                            <span class="tick-label" style="color:#0958d9;">Available</span>
-                            <span class="badge-pill-count">{{ $stats['available_days'] }}</span>
-                        </label>
+                            {{-- Available Tick Filter --}}
+                            <label class="filter-tick-badge is-available checked" id="lblChkAvailable" title="Toggle Available Dates" style="cursor:pointer;">
+                                <input type="checkbox" id="chkAvailable" checked onchange="applyTickFilters()" style="display:none;">
+                                <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
+                                <span class="tick-label" style="color:#0958d9;">Available</span>
+                                <span class="badge-pill-count">{{ $stats['available_days'] }}</span>
+                            </label>
 
-                        {{-- Sold Out / Blocked Tick Filter --}}
-                        <label class="filter-tick-badge is-blocked checked" id="lblChkBlocked" title="Toggle Sold Out Dates" style="cursor:pointer;">
-                            <input type="checkbox" id="chkBlocked" checked onchange="applyTickFilters()" style="display:none;">
-                            <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
-                            <span class="tick-label" style="color:#cf1322;">Sold Out/Blocked</span>
-                            <span class="badge-pill-count">{{ $stats['sold_out_days'] }}</span>
-                        </label>
+                            {{-- Sold Out / Blocked Tick Filter --}}
+                            <label class="filter-tick-badge is-blocked checked" id="lblChkBlocked" title="Toggle Sold Out Dates" style="cursor:pointer;">
+                                <input type="checkbox" id="chkBlocked" checked onchange="applyTickFilters()" style="display:none;">
+                                <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
+                                <span class="tick-label" style="color:#cf1322;">Sold Out/Blocked</span>
+                                <span class="badge-pill-count">{{ $stats['sold_out_days'] }}</span>
+                            </label>
 
-                        {{-- Seasonal Price Filter --}}
-                        <label class="filter-tick-badge is-custom checked" id="lblChkCustom" title="Toggle Seasonal Rates" style="cursor:pointer;">
-                            <input type="checkbox" id="chkCustom" checked onchange="applyTickFilters()" style="display:none;">
-                            <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
-                            <span class="tick-label" style="color:#531dab;">Seasonal Rate</span>
-                            <span class="badge-pill-count">{{ $stats['custom_price_days'] }}</span>
-                        </label>
+                            {{-- Seasonal Price Filter --}}
+                            <label class="filter-tick-badge is-custom checked" id="lblChkCustom" title="Toggle Seasonal Rates" style="cursor:pointer;">
+                                <input type="checkbox" id="chkCustom" checked onchange="applyTickFilters()" style="display:none;">
+                                <span class="tick-box"><i class="fa-solid fa-check tick-icon"></i></span>
+                                <span class="tick-label" style="color:#531dab;">Seasonal Rate</span>
+                                <span class="badge-pill-count">{{ $stats['custom_price_days'] }}</span>
+                            </label>
 
-                        <button type="button" class="btn btn-link btn-sm text-secondary p-0 ms-1 fw-bold" onclick="resetAllTickFilters()" style="font-size:11.5px; text-decoration:none;">
-                            <i class="fa-solid fa-rotate-left"></i> Reset
-                        </button>
+                            <button type="button" class="btn btn-link btn-sm text-secondary p-0 ms-1 fw-bold" onclick="resetAllTickFilters()" style="font-size:11.5px; text-decoration:none;">
+                                <i class="fa-solid fa-rotate-left"></i> Reset
+                            </button>
+                        </div>
                     </div>
                 </div>
 

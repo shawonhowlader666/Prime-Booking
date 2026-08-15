@@ -8,20 +8,17 @@
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2.5">
         <div>
             <h1 class="page-title m-0 d-flex align-items-center">
-                <i class="fa-solid fa-bed text-primary me-2"></i> Room Inventory: {{ $property->name }}
+                <i class="fa-solid fa-bed text-primary me-2"></i> Room Inventory
             </h1>
             <div class="page-breadcrumb mt-1.5">
                 <a href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-                <span class="sep">-</span><a href="{{ route('vendor.properties.index') }}">My Properties</a>
-                <span class="sep">-</span><strong style="color:#1e293b;">{{ $property->name }} Rooms</strong>
+                <span class="sep">-</span><a href="{{ route('vendor.properties.index') }}">Properties</a>
+                <span class="sep">-</span><strong style="color:#1e293b;">{{ Str::limit($property->name, 26) }}</strong>
             </div>
         </div>
         <div class="d-flex align-items-center gap-2 flex-wrap">
             {{-- Export Toolbar --}}
             <div class="btn-group btn-group-sm" role="group" style="height:32px;">
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableData('copy')" title="Copy to Clipboard" style="font-size:11.5px;">
-                    <i class="fa-solid fa-copy me-1"></i> Copy
-                </button>
                 <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableData('excel')" title="Export to Excel" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-excel me-1 text-success"></i> Excel
                 </button>
@@ -41,7 +38,7 @@
             </a>
 
             <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addRoomModal" style="height:32px; font-size:12px; padding:0 14px; border-radius:4px; display:inline-flex; align-items:center;">
-                <i class="fa-solid fa-plus me-1.5"></i> Add Room Category
+                <i class="fa-solid fa-plus me-1.5"></i> Add Room Type
             </button>
         </div>
     </div>

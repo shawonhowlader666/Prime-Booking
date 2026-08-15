@@ -121,46 +121,84 @@
         </div>
     </div>
 
-    {{-- STOCKIFLY FILTER & SELECTION TOOLBAR --}}
-    <div class="card border border-gray-200 rounded-3 mb-4 bg-white p-3 shadow-xs" style="border-radius: 8px !important;">
-        <form method="GET" action="{{ route('vendor.availability.index') }}" class="row g-2 align-items-center">
-            <div class="col-md-5">
-                <label class="form-label mb-1 fw-bold text-secondary" style="font-size:11.5px;">Select Property &amp; Room</label>
-                <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600;">
+    {{-- 🏢 SMART PROPERTY & ROOM CATEGORY SELECTION CARD (Stockifly Enterprise UI) --}}
+    <div class="data-table-card p-3.5 mb-4" style="border-radius: 8px; background:#ffffff; border: 1.5px solid #e2e8f0; box-shadow: 0 2px 6px rgba(0,0,0,0.03);">
+        <div class="border-bottom pb-2.5 mb-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-hotel text-primary me-2" style="font-size:16px;"></i>
+                    <span>Select Property &amp; Room Category</span>
+                </h5>
+                <small class="text-secondary" style="font-size:12px;">Choose which hotel and specific room category you want to view, forecast, and manage calendar rates for.</small>
+            </div>
+            <div class="btn-group btn-group-sm" role="group" style="height:34px;">
+                <button type="button" class="btn btn-outline-secondary active fw-bold px-3" id="btnViewGrid" onclick="toggleCalendarView('grid')">
+                    <i class="fa-solid fa-table-cells-large me-1"></i> Grid View
+                </button>
+                <button type="button" class="btn btn-outline-secondary fw-bold px-3" id="btnViewTable" onclick="toggleCalendarView('table')">
+                    <i class="fa-solid fa-list me-1"></i> Table View
+                </button>
+            </div>
+        </div>
+
+        <form method="GET" action="{{ route('vendor.availability.index') }}" id="roomSelectForm" class="row g-3 align-items-end">
+            <div class="col-12 col-md-6 col-lg-5">
+                <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px; color:#0f172a;">
+                    <i class="fa-solid fa-bed text-primary me-1"></i> Choose Hotel &amp; Room Category <span style="color:#ff4d4f;">*</span>
+                </label>
+                <select name="room_id" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13.5px; font-weight:700; color:#0f172a; height:42px; border:1.5px solid #cbd5e1; border-radius:6px; background-color:#f8fafc;">
                     @foreach($properties as $p)
-                        <optgroup label="🏢 {{ $p->name }} ({{ $p->city }})">
+                        <optgroup label="🏢 {{ $p->name }} — {{ $p->city }} ({{ $p->star_rating }}★)">
                             @foreach($p->rooms as $r)
                                 <option value="{{ $r->id }}" {{ $selectedRoom->id === $r->id ? 'selected' : '' }}>
-                                    🛏️ {{ $r->name }} — Base Rate: BDT ৳{{ number_format($r->price_per_night) }}/night
+                                    🛏️ {{ $r->name }}  ➔  BDT ৳{{ number_format($r->price_per_night) }} / night
                                 </option>
                             @endforeach
                         </optgroup>
                     @endforeach
                 </select>
             </div>
-            <div class="col-md-3">
-                <label class="form-label mb-1 fw-bold text-secondary" style="font-size:11.5px;">View Forecast Range</label>
-                <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px;">
-                    <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>Next 14 Days (2 Weeks)</option>
-                    <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>Next 30 Days (1 Month)</option>
-                    <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>Next 60 Days (2 Months)</option>
-                    <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>Next 90 Days (3 Months)</option>
+
+            <div class="col-12 col-md-3 col-lg-3">
+                <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px; color:#0f172a;">
+                    <i class="fa-solid fa-calendar-week text-primary me-1"></i> Forecast Timeline
+                </label>
+                <select name="days" class="form-select form-select-sm" onchange="this.form.submit()" style="font-size: 13px; font-weight:600; color:#0f172a; height:42px; border:1.5px solid #cbd5e1; border-radius:6px;">
+                    <option value="14" {{ $daysCount == 14 ? 'selected' : '' }}>📅 Next 14 Days (2 Weeks)</option>
+                    <option value="30" {{ $daysCount == 30 ? 'selected' : '' }}>📅 Next 30 Days (1 Month)</option>
+                    <option value="60" {{ $daysCount == 60 ? 'selected' : '' }}>📅 Next 60 Days (2 Months)</option>
+                    <option value="90" {{ $daysCount == 90 ? 'selected' : '' }}>📅 Next 90 Days (3 Months)</option>
                 </select>
             </div>
-            <div class="col-md-4 d-flex align-items-end gap-2 pt-3">
-                <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" style="background-color: #2067e1; font-size: 12.5px; height:34px;">
-                    <i class="fa-solid fa-arrows-rotate me-1"></i> Refresh Grid
+
+            <div class="col-12 col-md-3 col-lg-4 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary fw-bold w-100" style="background-color: #2067e1; font-size: 13px; height:42px; border-radius:6px; border:none;">
+                    <i class="fa-solid fa-rotate me-1.5"></i> Load Room Calendar
                 </button>
-                <div class="btn-group btn-group-sm" role="group" style="height:34px;">
-                    <button type="button" class="btn btn-outline-secondary active fw-bold" id="btnViewGrid" onclick="toggleCalendarView('grid')">
-                        <i class="fa-solid fa-table-cells-large"></i> Grid
-                    </button>
-                    <button type="button" class="btn btn-outline-secondary fw-bold" id="btnViewTable" onclick="toggleCalendarView('table')">
-                        <i class="fa-solid fa-list"></i> Table
-                    </button>
-                </div>
             </div>
         </form>
+
+        {{-- 🎯 LIVE ACTIVE SELECTION STATUS BANNER --}}
+        <div class="mt-3 p-2.5 rounded d-flex align-items-center justify-content-between flex-wrap gap-2" style="background:#f0f7ff; border: 1px solid #bae0ff;">
+            <div class="d-flex align-items-center gap-2">
+                <div style="width:28px; height:28px; border-radius:50%; background:#2067e1; color:#fff; display:flex; align-items:center; justify-content:center; font-size:13px; flex-shrink:0;">
+                    <i class="fa-solid fa-check"></i>
+                </div>
+                <div style="font-size:12.5px; color:#1e293b;">
+                    <span class="text-secondary">Currently Managing:</span> 
+                    <strong class="text-primary" style="font-size:13px;">{{ $selectedRoom->name }}</strong>
+                    <span class="text-muted mx-1">•</span>
+                    <span>Base Rate: <strong class="text-dark">৳{{ number_format($selectedRoom->price_per_night) }}/night</strong></span>
+                    <span class="text-muted mx-1">•</span>
+                    <span>Hotel: <strong class="text-secondary">{{ $selectedRoom->property->name ?? 'Your Hotel' }}</strong></span>
+                </div>
+            </div>
+            <div>
+                <span class="badge bg-primary text-white px-2.5 py-1" style="font-size:11.5px; border-radius:4px;">
+                    <i class="fa-solid fa-circle-check me-1"></i> Active Inventory
+                </span>
+            </div>
+        </div>
     </div>
 
     {{-- MAIN DUAL PANEL: CONTROLLER FORM + DYNAMIC RATES GRID --}}

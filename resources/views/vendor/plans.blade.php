@@ -30,7 +30,7 @@
             <div class="col-auto">
                 <span style="font-size:12.5px; color:#595959; font-weight:600;">
                     <i class="fa-solid fa-circle-info" style="color:var(--primary);"></i>
-                    Lower your commission rate and get priority placement on Prime Aviation OTA search results.
+                    Lower your commission rate and get priority placement on Prime Booking OTA search results.
                 </span>
             </div>
         </div>

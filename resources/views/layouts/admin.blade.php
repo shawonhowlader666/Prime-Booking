@@ -7,7 +7,9 @@
     <title>@yield('title', 'PRIME BOOKING Admin Panel')</title>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <!-- Bootstrap 5 -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- DataTables + Buttons (Bootstrap 5 theme) -->
@@ -17,7 +19,7 @@
 
     <style>
         /* ============================================================
-         * CSS Variables — Exact match of Stockifly-SaaS app.css :root
+         * CSS Variables — PRIME BOOKING Enterprise Design System
          * ============================================================ */
         :root {
             --primary: #1890ff;
@@ -29,13 +31,13 @@
             --primary-transparent-10: rgba(24, 144, 255, 0.10);
             --primary-transparent-20: rgba(24, 144, 255, 0.20);
 
-            /* Stockifly layout vars */
+            /* Prime Booking layout vars */
             --sidebar-width: 250px;
             --sidebar-collapsed-width: 64px;
             --admin-body-bg: #f0f2f5;
             --admin-card-border: #e8e8e8;
 
-            /* Stockifly font scale — Barlow thin & tall font */
+            /* Font scale */
             --font-main: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --font-heading: 'Barlow', -apple-system, BlinkMacSystemFont, sans-serif;
             --font-size-base: 13px;
@@ -326,6 +328,40 @@
         }
 
         /* ============================================================
+         * Mobile Backdrop & Toggle Button
+         * ============================================================ */
+        #sbBackdrop {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1039;
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+
+        .btn-mobile-toggle {
+            display: none;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            font-size: 15px;
+            padding: 6px 10px;
+            border-radius: 4px !important;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+        .btn-mobile-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        /* ============================================================
          * Content Area
          * ============================================================ */
         #stockiflyContent {
@@ -356,6 +392,65 @@
             flex-shrink: 0;
             box-sizing: border-box;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        /* ============================================================
+         * 📱 Responsive Mobile / Tablet Layout Rules (< 992px & < 768px)
+         * ============================================================ */
+        @media (max-width: 991.98px) {
+            #stockiflySidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1050;
+                width: 260px !important;
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+            }
+            #stockiflySidebar.show-mobile {
+                transform: translateX(0);
+            }
+            #stockiflyContent {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .btn-mobile-toggle {
+                display: inline-flex !important;
+            }
+            .btn-sidebar-collapse {
+                display: none !important;
+            }
+            .admin-topbar {
+                padding: 0 12px;
+            }
+            .page-header-card {
+                padding: 12px 14px;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .page-header-card {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 10px;
+            }
+            .page-header-card .header-actions {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .page-header-card .header-actions .btn {
+                flex: 1;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            .table-responsive {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 12px;
+            }
+            .kpi-card {
+                margin-bottom: 10px;
+            }
         }
 
         .admin-topbar-left {

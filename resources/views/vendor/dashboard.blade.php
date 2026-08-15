@@ -1,5 +1,5 @@
 @extends('layouts.vendor')
-@section('title', 'Vendor Partner Dashboard | Prime Aviation')
+@section('title', 'Vendor Partner Dashboard | PRIME BOOKING')
 
 @section('content')
 

@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Vendor Partner Portal | PRIME BOOKING')</title>
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         /* ===== Same CSS variables as admin layout ===== */
@@ -306,11 +308,86 @@
             background: #ef4444 !important; color: #ffffff !important;
             border-color: #ef4444 !important; box-shadow: 0 2px 8px rgba(239, 68, 68, 0.3) !important;
         }
+        /* ===== Mobile Backdrop ===== */
+        #sbBackdrop {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: 1039;
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+
         .btn-mobile-toggle {
-            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 6px;
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 4px;
             width: 32px; height: 32px; display: none; align-items: center;
             justify-content: center; cursor: pointer; color: #ffffff; font-size: 14px;
+            transition: all 0.2s ease;
         }
+        .btn-mobile-toggle:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+        }
+
+        /* ===== Responsive Media Queries for Mobile/Tablet (< 992px & < 768px) ===== */
+        @media (max-width: 991.98px) {
+            #vendorSidebar {
+                transform: translateX(-100%);
+                transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1050;
+                width: 260px !important;
+                box-shadow: 4px 0 24px rgba(0, 0, 0, 0.4);
+            }
+            #vendorSidebar.show-mobile {
+                transform: translateX(0);
+            }
+            #vendorContent {
+                margin-left: 0 !important;
+                width: 100% !important;
+            }
+            .btn-mobile-toggle {
+                display: inline-flex !important;
+            }
+            .btn-sidebar-collapse {
+                display: none !important;
+            }
+            .admin-topbar {
+                padding: 0 12px;
+            }
+            .page-header-card {
+                padding: 12px 14px;
+            }
+        }
+
+        @media (max-width: 767.98px) {
+            .page-header-card {
+                flex-direction: column;
+                align-items: stretch !important;
+                gap: 10px;
+            }
+            .page-header-card .header-actions {
+                width: 100%;
+                display: flex;
+                flex-wrap: wrap;
+                gap: 6px;
+            }
+            .page-header-card .header-actions .btn {
+                flex: 1;
+                font-size: 12px;
+                padding: 6px 8px;
+            }
+            .table-responsive {
+                overflow-x: auto !important;
+                -webkit-overflow-scrolling: touch;
+                margin-bottom: 12px;
+            }
+            .kpi-card {
+                margin-bottom: 10px;
+            }
+        }
+
         .topbar-global-search-input {
             background: rgba(255, 255, 255, 0.08) !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;

@@ -66,11 +66,24 @@ class VendorController extends Controller
         ]);
 
         $galleryImages = [];
+
+        // Support multiple gallery file uploads
+        if ($request->hasFile('gallery_image_files')) {
+            foreach ($request->file('gallery_image_files') as $file) {
+                if ($file && $file->isValid()) {
+                    $path = $file->store('uploads/properties/gallery', 'public');
+                    $galleryImages[] = asset('storage/' . $path);
+                }
+            }
+        }
+
+        // Support gallery URL text lines
         if ($request->gallery_images) {
-            $galleryImages = array_filter(
+            $urls = array_filter(
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
+            $galleryImages = array_merge($galleryImages, $urls);
         }
 
         // Handle file upload for primary image

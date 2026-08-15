@@ -68,14 +68,33 @@ class PropertyManagementController extends Controller
             'primary_image'   => 'nullable|url',
         ]);
 
-        // Parse gallery images from textarea (one per line)
         $galleryImages = [];
+
+        // Support gallery file uploads
+        if ($request->hasFile('gallery_image_files')) {
+            foreach ($request->file('gallery_image_files') as $file) {
+                if ($file && $file->isValid()) {
+                    $path = $file->store('uploads/properties/gallery', 'public');
+                    $galleryImages[] = asset('storage/' . $path);
+                }
+            }
+        }
+
+        // Support gallery URL lines
         if ($request->gallery_images) {
-            $galleryImages = array_filter(
+            $urls = array_filter(
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
-            $galleryImages = array_values($galleryImages);
+            $galleryImages = array_merge($galleryImages, $urls);
+        }
+
+        // Handle file upload for primary thumbnail image
+        if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
+            $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
+            $primaryImage = asset('storage/' . $path);
+        } else {
+            $primaryImage = $request->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80';
         }
 
         // Determine publish status — "Save as Draft" button vs "Publish Live"
@@ -91,7 +110,7 @@ class PropertyManagementController extends Controller
             'price_per_night'  => (float) $request->price_per_night,
             'original_price'   => $request->original_price ? (float) $request->original_price : null,
             'description'      => $request->description,
-            'primary_image'    => $request->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80',
+            'primary_image'    => $primaryImage,
             'video_url'              => $request->video_url ?: null,
             'latitude'               => $request->latitude ? (float)$request->latitude : null,
             'longitude'              => $request->longitude ? (float)$request->longitude : null,
@@ -116,8 +135,7 @@ class PropertyManagementController extends Controller
                             'name'           => $rtName,
                             'price_per_night'=> $price,
                             'total_rooms'    => $qty,
-                            'available_rooms'=> $qty,
-                            'max_occupancy'  => $request->room_beds[$i] ?? 2,
+                            'max_guests'     => $request->room_beds[$i] ?? 2,
                         ]);
                     } catch (\Exception $e) {}
                 }

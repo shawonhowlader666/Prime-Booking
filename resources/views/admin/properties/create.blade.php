@@ -20,7 +20,7 @@
 
 {{-- PAGE CONTENT --}}
 <div class="page-content-area">
-    <form action="{{ route('admin.properties.store') }}" method="POST">
+    <form action="{{ route('admin.properties.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         @if ($errors->any())
@@ -169,10 +169,18 @@
             </div>
             <div class="row g-3.5 mb-4">
                 <div class="col-md-6">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Primary Thumbnail Image URL <span style="color:#ff4d4f;">*</span></label>
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">
+                        <i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Thumbnail Photo (Device)
+                    </label>
+                    <input type="file" name="primary_image_file" class="form-control" accept="image/*" onchange="previewFile(this)" style="font-size:13px; border-radius:4px; height:38px; padding:4px 14px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">
+                        <i class="fa-solid fa-link text-primary me-1"></i> OR External Thumbnail Image URL
+                    </label>
                     <input type="url" name="primary_image" id="primaryImgUrl" class="form-control"
-                        value="{{ old('primary_image') }}" placeholder="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80"
-                        oninput="previewImage(this.value)" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        value="{{ old('primary_image') }}" placeholder="https://images.unsplash.com/photo-1566073771259-6a8506099945..."
+                        oninput="previewUrl(this.value)" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                     <div id="imgPreviewWrap" class="mt-2.5" style="display:none;">
                         <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
                     </div>

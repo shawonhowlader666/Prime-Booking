@@ -65,6 +65,25 @@
             animation: pulseGlow 8s ease-in-out infinite alternate;
         }
         
+        .vendor-blob-mid {
+            position: fixed;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(14, 165, 233, 0.3) 0%, transparent 70%);
+            filter: blur(80px);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 2;
+            animation: pbBlobFloatVendor 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pbBlobFloatVendor {
+            0%   { transform: translate(-50%, -50%) scale(1);    }
+            50%  { transform: translate(-50%, calc(-50% + 28px)) scale(1.07); }
+            100% { transform: translate(-50%, calc(-50% - 22px)) scale(0.95); }
+        }
+        
         .glow-sphere-2 {
             position: fixed;
             bottom: -140px;
@@ -96,8 +115,40 @@
             max-width: 440px;
             position: relative;
             z-index: 10;
+            overflow: hidden;
             transition: border-color 0.3s ease, box-shadow 0.3s ease;
         }
+
+        .vendor-glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                120deg,
+                transparent   0%,
+                transparent  30%,
+                rgba(255,255,255,0.12) 48%,
+                rgba(255,255,255,0.18) 50%,
+                rgba(255,255,255,0.12) 52%,
+                transparent  70%,
+                transparent 100%
+            );
+            background-size: 240% 100%;
+            background-position: 240% 0;
+            border-radius: inherit;
+            pointer-events: none;
+            animation: pbShimmerSweep 3.6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes pbShimmerSweep {
+            0%   { background-position: 240%  0; }
+            60%  { background-position: -40%  0; }
+            100% { background-position: -40%  0; }
+        }
+
+        .vendor-glass-card > * { position: relative; z-index: 1; }
+
 
         .vendor-glass-card:hover {
             border-color: rgba(52, 211, 153, 0.55);
@@ -221,6 +272,7 @@
     <div class="bg-grid-overlay"></div>
     <div class="glow-sphere-1"></div>
     <div class="glow-sphere-2"></div>
+    <div class="vendor-blob-mid"></div>
 
     <!-- Unique Large SVG Travel Watermark in Background -->
     <svg class="svg-bg-watermark" viewBox="0 0 800 500" fill="none" xmlns="http://www.w3.org/2000/svg">

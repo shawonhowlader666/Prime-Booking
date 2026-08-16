@@ -30,6 +30,26 @@
             background: radial-gradient(circle, rgba(32,103,225,0.28) 0%, rgba(32,103,225,0) 70%);
             border-radius: 50%;
             pointer-events: none;
+            animation: pulseGlowAdmin 8s ease-in-out infinite alternate;
+        }
+
+        .admin-blob-mid {
+            position: fixed;
+            width: 280px; height: 280px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(6, 182, 212, 0.3) 0%, transparent 70%);
+            filter: blur(80px);
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 2;
+            animation: pbBlobFloatAdmin 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pbBlobFloatAdmin {
+            0%   { transform: translate(-50%, -50%) scale(1);    }
+            50%  { transform: translate(-50%, calc(-50% + 28px)) scale(1.07); }
+            100% { transform: translate(-50%, calc(-50% - 22px)) scale(0.95); }
         }
         .glow-sphere-2 {
             position: fixed;
@@ -40,6 +60,12 @@
             background: radial-gradient(circle, rgba(6,182,212,0.22) 0%, rgba(6,182,212,0) 70%);
             border-radius: 50%;
             pointer-events: none;
+            animation: pulseGlowAdmin 10s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes pulseGlowAdmin {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.8; }
+            100% { transform: scale(1.12) translate(15px, -15px); opacity: 1; }
         }
         .admin-glass-card {
             background: rgba(15, 23, 42, 0.75);
@@ -53,7 +79,38 @@
             max-width: 440px;
             position: relative;
             z-index: 10;
+            overflow: hidden;
         }
+
+        .admin-glass-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(
+                120deg,
+                transparent   0%,
+                transparent  30%,
+                rgba(255,255,255,0.12) 48%,
+                rgba(255,255,255,0.18) 50%,
+                rgba(255,255,255,0.12) 52%,
+                transparent  70%,
+                transparent 100%
+            );
+            background-size: 240% 100%;
+            background-position: 240% 0;
+            border-radius: inherit;
+            pointer-events: none;
+            animation: pbShimmerSweep 3.6s ease-in-out infinite;
+            z-index: 0;
+        }
+
+        @keyframes pbShimmerSweep {
+            0%   { background-position: 240%  0; }
+            60%  { background-position: -40%  0; }
+            100% { background-position: -40%  0; }
+        }
+
+        .admin-glass-card > * { position: relative; z-index: 1; }
         .admin-badge {
             background: linear-gradient(135deg, rgba(32,103,225,0.2) 0%, rgba(6,182,212,0.2) 100%);
             border: 1px solid rgba(6,182,212,0.4);
@@ -126,6 +183,7 @@
 
     <div class="glow-sphere-1"></div>
     <div class="glow-sphere-2"></div>
+    <div class="admin-blob-mid"></div>
 
     <div class="admin-glass-card">
         

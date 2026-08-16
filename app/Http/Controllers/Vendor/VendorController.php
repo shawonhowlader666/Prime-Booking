@@ -435,12 +435,13 @@ class VendorController extends Controller
             'name'                  => 'required|string|max:255',
             'email'                 => 'required|email|unique:users,email,' . $user->id,
             'phone'                 => 'nullable|string|max:20',
+            'avatar'                => 'nullable|image|max:10240',
             'new_password'          => 'nullable|string|min:8|confirmed',
         ]);
 
         $user->name  = $request->name;
         $user->email = $request->email;
-        if ($request->filled('phone')) {
+        if ($request->has('phone')) {
             $user->phone = $request->phone;
         }
         if ($request->filled('new_password')) {
@@ -453,7 +454,7 @@ class VendorController extends Controller
         }
 
         $user->save();
-        return back()->with('success', 'Profile updated successfully!');
+        return back()->with('success', 'Profile & Photo updated successfully!');
     }
 
     // ── Support & Help ─────────────────────────────────────────

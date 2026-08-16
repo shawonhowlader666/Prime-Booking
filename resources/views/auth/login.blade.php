@@ -3,7 +3,7 @@
 @section('title', 'Sign In — Prime Booking')
 @section('meta_description', 'Sign in to your Prime Booking account to manage bookings, access deals, and earn loyalty rewards.')
 
-@push('styles')
+@section('content')
 <style>
 /* ───────────── AURORA BACKGROUND ───────────── */
 .pb-login-bg {
@@ -13,7 +13,7 @@
     align-items: center;
     justify-content: center;
     padding: 60px 16px;
-    background: #080d1a;
+    background: #080d1a !important;
     overflow: hidden;
 }
 
@@ -62,16 +62,16 @@
 /* ───────────── SHIMMER GLASS CARD ───────────── */
 .pb-shimmer-card {
     position: relative;
-    background: rgba(255,255,255,0.065);
-    border: 1px solid rgba(255,255,255,0.13);
-    border-radius: 24px;
-    padding: 44px 40px 36px;
-    backdrop-filter: blur(28px) saturate(160%);
-    -webkit-backdrop-filter: blur(28px) saturate(160%);
+    background: rgba(255,255,255,0.08) !important;
+    border: 1px solid rgba(255,255,255,0.15) !important;
+    border-radius: 24px !important;
+    padding: 44px 40px 36px !important;
+    backdrop-filter: blur(28px) saturate(160%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
     box-shadow:
         0 0 0 1px rgba(255,255,255,0.07) inset,
         0 32px 80px rgba(0,0,0,0.6),
-        0 4px 20px rgba(32,103,225,0.2);
+        0 4px 20px rgba(32,103,225,0.2) !important;
     overflow: hidden;
     animation: pbCardIn 0.6s cubic-bezier(0.16,1,0.3,1) both;
 }
@@ -81,13 +81,6 @@
     to   { opacity:1; transform: translateY(0)    scale(1);    }
 }
 
-/*
- * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- *  SHIMMER EFFECT  (professional name: "Aurora Shimmer")
- *  Technique: CSS linear-gradient sweep via @keyframes
- *  Direction: right → left  (background-position 220% → -20%)
- * ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- */
 .pb-shimmer-card::before {
     content: '';
     position: absolute;
@@ -116,7 +109,6 @@
     100% { background-position: -40%  0; }
 }
 
-/* Lift all card content above the shimmer layer */
 .pb-shimmer-card > * { position: relative; z-index: 1; }
 
 /* ───────────── INPUTS ───────────── */
@@ -125,8 +117,8 @@
     border: 1.5px solid rgba(255,255,255,0.13) !important;
     border-radius: 12px !important;
     color: #ffffff !important;
-    font-size: 14px;
-    height: 48px;
+    font-size: 14px !important;
+    height: 48px !important;
     transition: border-color .2s, box-shadow .2s, background .2s;
 }
 .pb-input::placeholder { color: rgba(255,255,255,0.35) !important; }
@@ -167,74 +159,77 @@
 
 /* ───────────── LABELS ───────────── */
 .pb-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.6);
-    margin-bottom: 7px;
-    display: block;
-    letter-spacing: 0.35px;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    color: rgba(255,255,255,0.7) !important;
+    margin-bottom: 7px !important;
+    display: block !important;
+    letter-spacing: 0.35px !important;
 }
 
 /* ───────────── SUBMIT BTN ───────────── */
 .pb-submit {
-    height: 50px;
-    border-radius: 14px;
-    font-size: 15px;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    border: none;
-    color: #fff;
-    background: linear-gradient(135deg, #2067e1 0%, #6366f1 100%);
-    box-shadow: 0 6px 22px rgba(32,103,225,0.42);
-    transition: transform .18s, box-shadow .18s, filter .18s;
-    cursor: pointer;
+    height: 50px !important;
+    border-radius: 14px !important;
+    font-size: 15px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.4px !important;
+    border: none !important;
+    color: #fff !important;
+    background: linear-gradient(135deg, #2067e1 0%, #6366f1 100%) !important;
+    box-shadow: 0 6px 22px rgba(32,103,225,0.42) !important;
+    transition: transform .18s, box-shadow .18s, filter .18s !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 .pb-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(32,103,225,0.52);
-    filter: brightness(1.1);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 12px 30px rgba(32,103,225,0.52) !important;
+    filter: brightness(1.1) !important;
 }
-.pb-submit:active { transform: translateY(0); }
+.pb-submit:active { transform: translateY(0) !important; }
 
 /* ───────────── SOCIAL BTNS ───────────── */
 .pb-social {
-    height: 46px;
-    border-radius: 12px;
-    font-size: 13.5px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    text-decoration: none;
-    transition: transform .18s, box-shadow .18s, filter .18s;
-    border: 1.5px solid rgba(255,255,255,0.13);
+    height: 46px !important;
+    border-radius: 12px !important;
+    font-size: 13.5px !important;
+    font-weight: 600 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 10px !important;
+    text-decoration: none !important;
+    transition: transform .18s, box-shadow .18s, filter .18s !important;
+    border: 1.5px solid rgba(255,255,255,0.13) !important;
 }
 .pb-social:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 22px rgba(0,0,0,0.35);
-    filter: brightness(1.07);
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.35) !important;
+    filter: brightness(1.07) !important;
 }
-.pb-google  { background: rgba(255,255,255,0.09);  color: #ffffff !important; }
-.pb-fb      { background: rgba(24,119,242,0.18);   color: #60a5fa !important; border-color: rgba(24,119,242,0.35); }
+.pb-google  { background: rgba(255,255,255,0.09) !important;  color: #ffffff !important; }
+.pb-fb      { background: rgba(24,119,242,0.18) !important;   color: #60a5fa !important; border-color: rgba(24,119,242,0.35) !important; }
 
 /* ───────────── DIVIDER ───────────── */
-.pb-divider { display:flex; align-items:center; gap:12px; margin:20px 0; }
-.pb-divider hr { flex:1; margin:0; border-color:rgba(255,255,255,0.12); }
-.pb-divider span { font-size:11.5px; color:rgba(255,255,255,0.35); white-space:nowrap; }
+.pb-divider { display:flex !important; align-items:center !important; gap:12px !important; margin:20px 0 !important; }
+.pb-divider hr { flex:1 !important; margin:0 !important; border-color:rgba(255,255,255,0.15) !important; }
+.pb-divider span { font-size:11.5px !important; color:rgba(255,255,255,0.45) !important; white-space:nowrap !important; }
 
 /* ───────────── ALERTS ───────────── */
 .pb-alert {
-    border-radius: 10px;
-    font-size: 13px;
-    padding: 10px 14px;
-    margin-bottom: 18px;
+    border-radius: 10px !important;
+    font-size: 13px !important;
+    padding: 10px 14px !important;
+    margin-bottom: 18px !important;
 }
-.pb-alert-err { background:rgba(244,63,94,0.14);  border:1px solid rgba(244,63,94,0.35);  color:#fca5a5; }
-.pb-alert-ok  { background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3);  color:#6ee7b7; }
+.pb-alert-err { background:rgba(244,63,94,0.14) !important;  border:1px solid rgba(244,63,94,0.35) !important;  color:#fca5a5 !important; }
+.pb-alert-ok  { background:rgba(16,185,129,0.12) !important; border:1px solid rgba(16,185,129,0.3) !important;  color:#6ee7b7 !important; }
 
 /* ───────────── REMEMBER CHECK ───────────── */
-.form-check-input:checked { background-color:#2067e1; border-color:#2067e1; }
+.form-check-input:checked { background-color:#2067e1 !important; border-color:#2067e1 !important; }
 
 /* ───────────── FLOATING PARTICLES ───────────── */
 .pb-particles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
@@ -251,12 +246,10 @@
 }
 
 @media (max-width:575px) {
-    .pb-shimmer-card { padding:32px 22px 28px; }
+    .pb-shimmer-card { padding:32px 22px 28px !important; }
 }
 </style>
-@endpush
 
-@section('content')
 <section class="pb-login-bg">
 
     {{-- Aurora mid glow --}}

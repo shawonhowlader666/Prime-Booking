@@ -117,6 +117,8 @@
             min-height: 100vh;
         }
     </style>
+    @stack('styles')
+    @yield('head')
 </head>
 <body>
     @include('partials.brand-preloader')

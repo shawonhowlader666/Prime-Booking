@@ -848,8 +848,8 @@
         .sb-sub-item.active { color: #ffffff; background-color: var(--primary); font-weight: 600; }
     </style>
     @yield('head')
-</head>
 <body>
+    @include('partials.brand-preloader')
     <div id="sbBackdrop" onclick="toggleSidebar()"></div>
 
     <!-- ===================== VENDOR SIDEBAR ===================== -->

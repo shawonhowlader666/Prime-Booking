@@ -1577,6 +1577,7 @@
 </head>
 
 <body>
+    @include('partials.brand-preloader')
 
     <!-- Mobile backdrop -->
     <div id="sbBackdrop" onclick="toggleSidebar()"></div>

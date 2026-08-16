@@ -119,6 +119,7 @@
     </style>
 </head>
 <body>
+    @include('partials.brand-preloader')
     {{-- Global Agoda 1:1 Skeleton Loading Overlay --}}
     @include('components.search.loading-skeleton-modal')
 

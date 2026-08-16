@@ -72,7 +72,7 @@
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid rgba(255, 255, 255, 0.12);
-            border-radius: 24px;
+            border-radius: 4px !important;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(32, 103, 225, 0.15);
             padding: 40px 36px;
             width: 100%;
@@ -98,7 +98,7 @@
             );
             background-size: 240% 100%;
             background-position: 240% 0;
-            border-radius: inherit;
+            border-radius: 4px !important;
             pointer-events: none;
             animation: pbShimmerSweep 3.6s ease-in-out infinite;
             z-index: 0;
@@ -120,7 +120,7 @@
             letter-spacing: 1px;
             text-transform: uppercase;
             padding: 6px 14px;
-            border-radius: 20px;
+            border-radius: 4px !important;
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -128,7 +128,7 @@
         .form-control-custom {
             background: rgba(30, 41, 59, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.14);
-            border-radius: 12px;
+            border-radius: 4px !important;
             color: #ffffff;
             font-size: 14px;
             padding: 12px 16px;
@@ -143,7 +143,7 @@
         .btn-admin-submit {
             background: linear-gradient(135deg, #2067e1 0%, #0284c7 100%);
             border: none;
-            border-radius: 12px;
+            border-radius: 4px !important;
             color: #ffffff;
             font-size: 15px;
             font-weight: 700;
@@ -162,7 +162,7 @@
             background: rgba(56, 189, 248, 0.1);
             border: 1px dashed rgba(56, 189, 248, 0.4);
             color: #38bdf8;
-            border-radius: 10px;
+            border-radius: 4px !important;
             padding: 8px 12px;
             font-size: 12px;
             font-weight: 600;

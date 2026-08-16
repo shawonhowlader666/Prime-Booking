@@ -64,7 +64,7 @@
     position: relative;
     background: rgba(255,255,255,0.08) !important;
     border: 1px solid rgba(255,255,255,0.15) !important;
-    border-radius: 24px !important;
+    border-radius: 4px !important;
     padding: 44px 40px 36px !important;
     backdrop-filter: blur(28px) saturate(160%) !important;
     -webkit-backdrop-filter: blur(28px) saturate(160%) !important;
@@ -97,7 +97,7 @@
     );
     background-size: 240% 100%;
     background-position: 240% 0;
-    border-radius: inherit;
+    border-radius: 4px !important;
     pointer-events: none;
     animation: pbShimmerSweep 3.6s ease-in-out infinite;
     z-index: 0;
@@ -115,7 +115,7 @@
 .pb-input {
     background: rgba(255,255,255,0.08) !important;
     border: 1.5px solid rgba(255,255,255,0.13) !important;
-    border-radius: 12px !important;
+    border-radius: 4px !important;
     color: #ffffff !important;
     font-size: 14px !important;
     height: 48px !important;
@@ -170,7 +170,7 @@
 /* ───────────── SUBMIT BTN ───────────── */
 .pb-submit {
     height: 50px !important;
-    border-radius: 14px !important;
+    border-radius: 4px !important;
     font-size: 15px !important;
     font-weight: 700 !important;
     letter-spacing: 0.4px !important;
@@ -194,7 +194,7 @@
 /* ───────────── SOCIAL BTNS ───────────── */
 .pb-social {
     height: 46px !important;
-    border-radius: 12px !important;
+    border-radius: 4px !important;
     font-size: 13.5px !important;
     font-weight: 600 !important;
     display: flex !important;
@@ -220,7 +220,7 @@
 
 /* ───────────── ALERTS ───────────── */
 .pb-alert {
-    border-radius: 10px !important;
+    border-radius: 4px !important;
     font-size: 13px !important;
     padding: 10px 14px !important;
     margin-bottom: 18px !important;

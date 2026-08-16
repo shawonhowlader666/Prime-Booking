@@ -284,8 +284,8 @@
                     @if(session('success'))
                     <div class="pb-alert pb-alert-ok"><i class="fa-solid fa-circle-check me-2"></i>{{ session('success') }}</div>
                     @endif
-                    @if(session('error') || $errors->any())
-                    <div class="pb-alert pb-alert-err"><i class="fa-solid fa-circle-exclamation me-2"></i>{{ session('error') ?: $errors->first() }}</div>
+                    @if(session('error') || (isset($errors) && $errors->any()))
+                    <div class="pb-alert pb-alert-err"><i class="fa-solid fa-circle-exclamation me-2"></i>{{ session('error') ?: (isset($errors) ? $errors->first() : '') }}</div>
                     @endif
 
                     {{-- Social --}}

@@ -1075,14 +1075,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const formHotels = document.getElementById('agodaFormStandard');
     const formAirport = document.getElementById('agodaFormAirport');
 
-    // Agoda-Exact Live Typing Autocomplete Handler
+    // Agoda-Exact Live Typing Autocomplete Handler with AbortController for Lightning Speed
     let searchDebounce = null;
+    let searchAbortController = null;
     if (destInput) {
         // Client-side In-Memory Cache (LRU-like Map) for 0ms nanosecond instant response
         const clientSearchMemoryCache = new Map();
 
         destInput.addEventListener('input', function(e) {
             clearTimeout(searchDebounce);
+            if (searchAbortController) {
+                searchAbortController.abort(); // Cancel previous in-flight request immediately
+            }
             const query = e.target.value.trim();
             const currentType = searchTypeInput ? searchTypeInput.value : 'hotel';
             const staticBox = document.getElementById('agodaStaticSearchSuggestions');
@@ -1107,13 +1111,13 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             searchDebounce = setTimeout(() => {
-                // Use the upgraded web autocomplete endpoint (priority scoring + insight)
-                fetch('/api/search/autocomplete?q=' + encodeURIComponent(query) + '&search_type=' + currentType)
+                searchAbortController = new AbortController();
+                fetch('/api/search/autocomplete?q=' + encodeURIComponent(query) + '&search_type=' + currentType, {
+                    signal: searchAbortController.signal
+                })
                     .then(res => res.json())
                     .then(res => {
-                        // Support both wrapped (res.data) and flat response shapes
                         const apiData = res.data || res;
-                        // Store in Memory Cache (keep max 100 entries)
                         if (clientSearchMemoryCache.size > 100) {
                             const firstKey = clientSearchMemoryCache.keys().next().value;
                             clientSearchMemoryCache.delete(firstKey);
@@ -1125,12 +1129,12 @@ document.addEventListener('DOMContentLoaded', function() {
                         currentKeyboardIndex = -1;
                         renderLiveSuggestions(apiData, query);
                     })
-                    .catch(() => {
-                        // Graceful degradation: show client-side BD city matches
+                    .catch(err => {
+                        if (err.name === 'AbortError') return; // Ignore aborted requests
                         currentKeyboardIndex = -1;
                         renderLiveSuggestions({ locations: [], properties: [] }, query);
                     });
-            }, 180);
+            }, 120); // 120ms ultra-fast snappy debounce
         });
 
         // Keyboard Navigation (Arrow Down / Up / Enter) — Agoda / Google Standard

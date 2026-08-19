@@ -111,11 +111,11 @@
                 {{-- Logged in state: Avatar + Name + VIP Badge (Matching Agoda Screenshot 1:1) --}}
                 <div class="dropdown">
                     <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor: pointer; padding: 2px 0;">
-                        <div style="width: 34px; height: 34px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 15px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(255, 87, 34, 0.25);">
+                        <div style="width: 32px; height: 32px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(255, 87, 34, 0.25);">
                             {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                         </div>
                         <div style="line-height: 1.15; flex-shrink: 0; text-align: left;">
-                            <span style="font-size: 13.5px; font-weight: 600; color: #262626; display: block;">{{ auth()->user()->name }}</span>
+                            <span style="font-size: 13px; font-weight: 600; color: #262626; display: block;">{{ auth()->user()->name }}</span>
                             <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 16px; font-size: 10px; line-height: 1; margin-top: 1px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                                 <div style="background-color: #1b2028; color: #ffffff; padding: 0 4px 0 4px; height: 100%; display: flex; align-items: center; gap: 2px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%); padding-right: 9px;">
                                     <span style="font-size: 7px; color: #ffffff;">★</span>VIP
@@ -126,21 +126,78 @@
                             </div>
                         </div>
                     </div>
+
+                    {{-- 100% Identical Agoda User Dropdown Menu --}}
                     <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-2"
-                         style="width: 280px; border-radius: 14px; box-shadow: 0 14px 40px rgba(0,0,0,0.25) !important;">
-                        <div class="p-3">
-                            <a href="{{ route('trips') }}" class="dropdown-item py-2 fw-bold text-dark fs-6 rounded-2 mb-1"><i class="fa-solid fa-calendar-check text-primary me-2"></i> {{ __('My Trips') }}</a>
-                            <a href="{{ route('booking.history') }}" class="dropdown-item py-2 fw-bold text-dark fs-6 rounded-2 mb-1"><i class="fa-solid fa-suitcase text-primary me-2"></i> {{ __('All Bookings') }}</a>
-                            <a href="{{ route('vip') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-star text-warning me-2"></i> {{ __('PrimeVIP') }}</a>
-                            <a href="{{ route('cashback') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-hand-holding-dollar text-success me-2"></i> {{ __('PrimeCash & Rewards') }}</a>
-                            <a href="{{ route('profile') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-user me-2 text-dark"></i> {{ __('Account Profile') }}</a>
-                            <hr class="my-2 border-gray-200">
-                            <form action="{{ route('auth.logout') }}" method="POST" class="m-0">
+                         style="width: 270px; max-height: 520px; overflow-y: auto; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.18) !important; background: #ffffff;">
+                        
+                        <div style="padding: 16px 20px 8px 20px;">
+                            <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Account') }}</a>
+                            <a href="{{ route('trips') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Trips') }}</a>
+                            <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Property messages') }}</a>
+                            
+                            {{-- AgodaCash row with blue pill badge --}}
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <a href="{{ route('cashback') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('AgodaCash') }}</a>
+                                <span style="background-color: #6366f1; color: #ffffff; font-size: 12px; font-weight: 700; border-radius: 4px; padding: 2px 8px;">{{ $currentCurrency }} 0</span>
+                            </div>
+
+                            <a href="{{ route('cashback') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Cashback Rewards') }}</a>
+
+                            {{-- AgodaVIP row with VIP badge --}}
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <a href="{{ route('vip') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('AgodaVIP') }}</a>
+                                <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 16px; font-size: 9.5px; line-height: 1;">
+                                    <div style="background-color: #1b2028; color: #ffffff; padding: 0 4px; height: 100%; display: flex; align-items: center; gap: 2px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%); padding-right: 8px;">
+                                        ★VIP
+                                    </div>
+                                    <div style="background: linear-gradient(135deg, #d98662 0%, #bd6c48 100%); color: #ffffff; padding: 0 5px; height: 100%; display: flex; align-items: center; font-weight: 700; margin-left: -4px;">
+                                        Bronze
+                                    </div>
+                                </div>
+                            </div>
+
+                            <a href="{{ route('wishlist') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Saved properties list') }}</a>
+                            <a href="{{ route('booking.history') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Reviews') }}</a>
+                            
+                            {{-- PointsMAX row with (P) icon --}}
+                            <div class="d-flex align-items-center justify-content-between mb-3">
+                                <a href="{{ route('cashback') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PointsMAX') }}</a>
+                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1.5px solid #2d2d2d; border-radius: 50%; font-size: 10px; font-weight: 800;">P</span>
+                            </div>
+
+                            <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Profile') }}</a>
+
+                            {{-- SIGN OUT Outline Pill Button (Exact Agoda screenshot) --}}
+                            <form action="{{ route('auth.logout') }}" method="POST" class="my-3 text-center">
                                 @csrf
-                                <button type="submit" class="dropdown-item py-2 fw-bold text-danger rounded-2">
-                                    <i class="fa-solid fa-right-from-bracket me-2"></i> {{ __('Sign Out') }}
+                                <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold" 
+                                        style="color: #2067e1; border-color: #cbd5e1; border-width: 1.5px; padding: 8px 0; font-size: 13.5px; letter-spacing: 0.5px; background: transparent; transition: all 0.2s ease;"
+                                        onmouseover="this.style.borderColor='#2067e1'; this.style.backgroundColor='#f0f7ff'" 
+                                        onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='transparent'">
+                                    SIGN OUT
                                 </button>
                             </form>
+
+                            {{-- Settings Section --}}
+                            <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 10px;">
+                                <div class="text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Settings') }}</div>
+                                
+                                <div class="d-flex align-items-center gap-2 mb-2" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="cursor: pointer;">
+                                    <img src="https://flagcdn.com/w40/gb.png" alt="EN" style="width: 18px; height: 12px; border-radius: 2px;">
+                                    <span style="font-size: 13.5px; font-weight: 600; color: #2d2d2d;">English</span>
+                                </div>
+                                <div class="mb-3" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="cursor: pointer;">
+                                    <span style="font-size: 13px; font-weight: 500; color: #475569;">{{ $currentCurrency }} &nbsp; <strong>{{ $currentCurrency === 'BDT' ? 'Bangladeshi Taka' : ($currentCurrency === 'USD' ? 'US Dollar' : $currentCurrency) }}</strong></span>
+                                </div>
+
+                                {{-- List your place on Agoda --}}
+                                <div style="background: #fafafa; border-radius: 8px; padding: 10px 12px; margin-top: 12px;">
+                                    <div style="font-size: 13.5px; font-weight: 700; color: #2d2d2d;">List your place on Agoda</div>
+                                    <div style="font-size: 11.5px; color: #64748b; margin-bottom: 4px;">Earn money to pay for your travel!</div>
+                                    <a href="{{ route('admin.hotels.create') }}" style="font-size: 13px; font-weight: 700; color: #2067e1; text-decoration: none;">List your place</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

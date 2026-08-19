@@ -1,19 +1,16 @@
-{{-- 7-Color Rainbow Bouncing Dots Preloader (Agoda Style) --}}
+{{-- Agoda Official 5-Color Pristine Bouncing Dots Preloader --}}
 <div id="primeGlobalPreloader" class="prime-preloader-backdrop">
-    {{-- 7-Color Animated Harmonic Dots --}}
-    <div class="prime-wave-container" title="Loading...">
-        <div class="prime-wave-dot" style="--dot-color: #EF4444; --delay: 0.00s;"></div>
-        <div class="prime-wave-dot" style="--dot-color: #F97316; --delay: 0.12s;"></div>
-        <div class="prime-wave-dot" style="--dot-color: #F59E0B; --delay: 0.24s;"></div>
-        <div class="prime-wave-dot" style="--dot-color: #10B981; --delay: 0.36s;"></div>
-        <div class="prime-wave-dot" style="--dot-color: #06B6D4; --delay: 0.48s;"></div>
-        <div class="prime-wave-dot" style="--dot-color: #2067E1; --delay: 0.60s;"></div>
-        <div class="prime-wave-dot" style="--dot-color: #8B5CF6; --delay: 0.72s;"></div>
+    <div class="prime-agoda-loader-card">
+        <div class="agoda-dot agoda-dot-1"></div>
+        <div class="agoda-dot agoda-dot-2"></div>
+        <div class="agoda-dot agoda-dot-3"></div>
+        <div class="agoda-dot agoda-dot-4"></div>
+        <div class="agoda-dot agoda-dot-5"></div>
     </div>
 </div>
 
 <style>
-/* ─── Glassmorphism Preloader Backdrop ─── */
+/* ─── Pristine Agoda Preloader Backdrop ─── */
 .prime-preloader-backdrop {
     position: fixed;
     top: 0;
@@ -24,12 +21,12 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(10, 18, 36, 0.78);
-    backdrop-filter: blur(22px) saturate(190%);
-    -webkit-backdrop-filter: blur(22px) saturate(190%);
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .prime-preloader-backdrop.loaded {
@@ -38,53 +35,41 @@
     pointer-events: none;
 }
 
-/* ─── 7-Color Rainbow Dots (Agoda Style Bouncing) ─── */
-.prime-wave-container {
+/* ─── Clean Crisp White Card ─── */
+.prime-agoda-loader-card {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    height: 60px;
-    padding: 20px 30px;
-    background: rgba(255, 255, 255, 0.06);
-    border: 1px solid rgba(255, 255, 255, 0.16);
-    box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.5), 
-                inset 0 1px 1px rgba(255, 255, 255, 0.1);
-    border-radius: 40px;
-    animation: primeCardPop 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    gap: 8px;
+    padding: 14px 22px;
+    background: #ffffff;
+    border-radius: 9999px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
+    border: 1px solid #f1f5f9;
 }
 
-@keyframes primeCardPop {
-    from { opacity: 0; transform: scale(0.92) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-.prime-wave-dot {
-    width: 14px;
-    height: 14px;
+/* ─── Agoda 5 Brand Color Dots ─── */
+.agoda-dot {
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    background-color: var(--dot-color);
-    box-shadow: 0 0 12px var(--dot-color), 0 0 4px rgba(255,255,255,0.6);
-    animation: primeRainbowDotWave 1.25s ease-in-out infinite alternate;
-    animation-delay: var(--delay);
+    animation: agodaBounce 1.2s infinite ease-in-out both;
 }
 
-@keyframes primeRainbowDotWave {
-    0%, 20% {
-        transform: translateY(10px) scale(0.85);
-        opacity: 0.5;
-        filter: brightness(0.9);
+.agoda-dot-1 { background-color: #3855B3; animation-delay: -0.32s; } /* Agoda Deep Blue */
+.agoda-dot-2 { background-color: #55BFE5; animation-delay: -0.24s; } /* Agoda Sky Cyan */
+.agoda-dot-3 { background-color: #48BB78; animation-delay: -0.16s; } /* Agoda Vibrant Green */
+.agoda-dot-4 { background-color: #F6AD55; animation-delay: -0.08s; } /* Agoda Warm Yellow */
+.agoda-dot-5 { background-color: #E53E3E; animation-delay: 0s; }     /* Agoda Crimson Red */
+
+@keyframes agodaBounce {
+    0%, 80%, 100% {
+        transform: translateY(0) scale(0.85);
+        opacity: 0.65;
     }
-    50% {
-        transform: translateY(-12px) scale(1.15);
+    40% {
+        transform: translateY(-8px) scale(1.15);
         opacity: 1;
-        filter: brightness(1.3);
-        box-shadow: 0 0 20px var(--dot-color), 0 0 8px #ffffff;
-    }
-    80%, 100% {
-        transform: translateY(10px) scale(0.85);
-        opacity: 0.5;
-        filter: brightness(0.9);
     }
 }
 </style>

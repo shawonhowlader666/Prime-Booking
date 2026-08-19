@@ -16,7 +16,7 @@
         <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 60px;">
 
             {{-- Left Nav Links (Exact Agoda Gaps) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 24px;">
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 34px;">
                 <li class="nav-item">
                     <a class="nav-link px-0 fw-semibold" href="{{ route('home') }}"
                        style="color: #2d2d2d; height: 60px; display: flex; align-items: center; font-size: 14.5px;">
@@ -32,9 +32,9 @@
                             <div style="position: absolute; bottom: -3px; left: 4px; width: 0; height: 0; border-left: 3px solid #d91b42; border-bottom: 3px solid transparent;"></div>
                         </div>
                     </div>
-                    <a class="nav-link dropdown-toggle px-0" href="#" role="button" data-bs-toggle="dropdown"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 4px; font-size: 14.5px; font-weight: 500;">
-                        {{ __('Transport') }}
+                    <a class="nav-link dropdown-toggle px-0 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown"
+                       style="color: #475569; height: 60px; padding-top: 4px; font-size: 14.5px; font-weight: 500;">
+                        <span>{{ __('Transport') }}</span>
                     </a>
                     <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 200px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('flights.index') }}"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Domestic Flights</a></li>
@@ -62,7 +62,7 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link px-0 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                        style="color: #475569; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
-                        <i class="fa-solid fa-ellipsis" style="font-size: 17px; color: #475569;"></i>
+                        <i class="fa-solid fa-ellipsis" style="font-size: 18px; color: #475569;"></i>
                     </a>
                     <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('packages') }}"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('Activities & Tours') }}</a></li>
@@ -77,7 +77,7 @@
             </ul>
 
             {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 20px; white-space: nowrap; height: 60px;">
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 28px; white-space: nowrap; height: 60px;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();

@@ -750,6 +750,19 @@ function renderAgodaDynamicCalendar() {
         <div style="flex: 1;">${buildSingleMonthHtml(month1Date.getFullYear(), month1Date.getMonth())}</div>
         <div style="flex: 1;">${buildSingleMonthHtml(month2Date.getFullYear(), month2Date.getMonth())}</div>
     `;
+
+    // Agoda Smart Date Pricing Insights Bar
+    const insightsBar = document.getElementById('agodaCalendarInsightsBar');
+    if (!insightsBar) {
+        const bar = document.createElement('div');
+        bar.id = 'agodaCalendarInsightsBar';
+        bar.style.cssText = 'margin-top: 18px; padding: 10px 14px; background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0; display: flex; align-items: center; gap: 10px; font-size: 12px; color: #166534; font-weight: 500; text-align: left;';
+        bar.innerHTML = `
+            <i class="fa-solid fa-tags" style="color: #16a34a; font-size: 14px;"></i>
+            <span><strong>Tip:</strong> Sunday to Wednesday stays in Bangladesh destinations offer up to <strong>20% cheaper rates</strong> than weekends.</span>
+        `;
+        calendarGrid.parentNode.appendChild(bar);
+    }
 }
 
 function buildSingleMonthHtml(year, month) {
@@ -1027,6 +1040,9 @@ document.addEventListener('DOMContentLoaded', function() {
     // Agoda-Exact Live Typing Autocomplete Handler
     let searchDebounce = null;
     if (destInput) {
+        // Client-side In-Memory Cache (LRU-like Map) for 0ms nanosecond instant response
+        const clientSearchMemoryCache = new Map();
+
         destInput.addEventListener('input', function(e) {
             clearTimeout(searchDebounce);
             const query = e.target.value.trim();
@@ -1041,6 +1057,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
 
+            const cacheKey = `${currentType}:${query.toLowerCase()}`;
+            if (clientSearchMemoryCache.has(cacheKey)) {
+                // 0ms Instant Load from Memory
+                const cachedData = clientSearchMemoryCache.get(cacheKey);
+                if (staticBox) staticBox.style.display = 'none';
+                if (liveBox)   liveBox.style.display   = 'block';
+                currentKeyboardIndex = -1;
+                renderLiveSuggestions(cachedData, query);
+                return;
+            }
+
             searchDebounce = setTimeout(() => {
                 // Use the upgraded web autocomplete endpoint (priority scoring + insight)
                 fetch('/api/search/autocomplete?q=' + encodeURIComponent(query) + '&search_type=' + currentType)
@@ -1048,6 +1075,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     .then(res => {
                         // Support both wrapped (res.data) and flat response shapes
                         const apiData = res.data || res;
+                        // Store in Memory Cache (keep max 100 entries)
+                        if (clientSearchMemoryCache.size > 100) {
+                            const firstKey = clientSearchMemoryCache.keys().next().value;
+                            clientSearchMemoryCache.delete(firstKey);
+                        }
+                        clientSearchMemoryCache.set(cacheKey, apiData);
+
                         if (staticBox) staticBox.style.display = 'none';
                         if (liveBox)   liveBox.style.display   = 'block';
                         currentKeyboardIndex = -1;

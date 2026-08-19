@@ -32,6 +32,10 @@ class AutoCompleteService
     private const TTL_WARM     = 300;   // 5 min  — static city data
     private const TTL_TRENDING = 600;   // 10 min — aggregated counts
 
+    public function __construct(
+        private readonly LocationNormalizerService $normalizer = new LocationNormalizerService()
+    ) {}
+
     // ─── MAIN ENTRY POINT ─────────────────────────────────────────────────
 
     /**
@@ -46,18 +50,23 @@ class AutoCompleteService
             return $this->getDefaultPayload($searchType);
         }
 
-        $cacheKey = "autocomplete:v3:{$searchType}:" . md5(strtolower($query) . ':' . $limit);
+        // Canonical normalization (e.g. 'কক্সবাজার' -> "Cox's Bazar", 'coxsbazar' -> "Cox's Bazar")
+        $canonical = $this->normalizer->normalize($query);
+        $searchTarget = $canonical ?: $query;
 
-        return Cache::remember($cacheKey, self::TTL_HOT, function () use ($query, $searchType, $limit): array {
-            $locations  = $this->scoreAndRankLocations($query, $limit);
-            $properties = $this->fetchProperties($query, $searchType, 5);
-            $insight    = $this->getCityInsight($query, $locations);
+        $cacheKey = "autocomplete:v3:{$searchType}:" . md5(strtolower($searchTarget) . ':' . $limit);
+
+        return Cache::remember($cacheKey, self::TTL_HOT, function () use ($query, $searchTarget, $searchType, $limit): array {
+            $locations  = $this->scoreAndRankLocations($searchTarget, $limit);
+            $properties = $this->fetchProperties($searchTarget, $searchType, 5);
+            $insight    = $this->getCityInsight($searchTarget, $locations);
 
             return [
-                'locations'  => $locations,
-                'properties' => $properties,
-                'insight'    => $insight,
-                'trending'   => [],   // Not shown in typing state
+                'locations'        => $locations,
+                'properties'       => $properties,
+                'insight'          => $insight,
+                'canonical_match'  => $searchTarget !== $query ? $searchTarget : null,
+                'trending'         => [],   // Not shown in typing state
             ];
         });
     }

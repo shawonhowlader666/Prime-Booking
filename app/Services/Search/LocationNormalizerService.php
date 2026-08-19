@@ -138,6 +138,18 @@ class LocationNormalizerService
      * @param string $term
      * @return array{normalized: string, canonical: ?string, latitude: ?float, longitude: ?float, similarity: float}
      */
+    /**
+     * Quick normalization helper returning canonical name or null.
+     */
+    public function normalize(string $term): ?string
+    {
+        $res = $this->resolve($term);
+        return ($res['similarity'] >= 0.65) ? $res['canonical'] : null;
+    }
+
+    /**
+     * Main resolution method with coordinates and similarity score.
+     */
     public function resolve(string $term): array
     {
         $clean = trim($term);

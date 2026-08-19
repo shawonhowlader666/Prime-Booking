@@ -230,7 +230,7 @@
 <!-- Click Outside Dismiss Overlay (Zero Blur, 100% Sharp & Clean) -->
 <div id="agodaSearchBackdropOverlay" style="display: none; position: fixed; inset: 0; background: transparent; z-index: 9; cursor: default;"></div>
 
-<div id="agodaSearchBarWrapper" style="max-width: 1240px; margin: 0 auto 38px auto; position: relative; z-index: 10; text-align: left !important;">
+<div id="agodaSearchBarWrapper" style="max-width: 1140px; margin: 0 auto 38px auto; position: relative; z-index: 10; text-align: left !important;">
 
     <!-- Top White Floating Capsule Tab Pod Container -->
     <div class="agoda-tabs-wrapper">
@@ -279,8 +279,8 @@
                         </div>
                     </div>
 
-                    <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (Screenshots Match) -->
-                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; width: 620px; max-width: 95vw; background: #ffffff; border-radius: 12px; box-shadow: 0 16px 48px rgba(0,0,0,0.32); padding: 0; z-index: 10001; border: 1px solid #cbd5e1; text-align: left !important; overflow: hidden;">
+                    <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (Wide Desktop Layout) -->
+                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; width: 860px; max-width: calc(100vw - 32px); background: #ffffff; border-radius: 14px; box-shadow: 0 20px 50px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.08); padding: 0; z-index: 10001; border: 1px solid #cbd5e1; text-align: left !important; overflow: hidden;">
                         <!-- Triangle Notch Pointer -->
                         <div style="position: absolute; top: -8px; left: 40px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #ffffff;"></div>
 

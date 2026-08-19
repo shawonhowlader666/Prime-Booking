@@ -60,9 +60,9 @@
 
                 {{-- 3 Dots Dropdown Menu (Agoda More Options Dropdown) --}}
                 <li class="nav-item dropdown">
-                    <a class="nav-link px-0 fw-bold dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; font-size: 16px; letter-spacing: 1px; cursor: pointer;">
-                        •••
+                    <a class="nav-link px-0 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                       style="color: #475569; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+                        <i class="fa-solid fa-ellipsis" style="font-size: 17px; color: #475569;"></i>
                     </a>
                     <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('packages') }}"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('Activities & Tours') }}</a></li>

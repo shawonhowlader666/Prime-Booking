@@ -280,9 +280,9 @@
                     </div>
 
                     <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (100% Full Width) -->
-                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; right: 0; width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16); padding: 0; z-index: 10001; border: 1px solid #e2e8f0; text-align: left !important; overflow: hidden;">
-                        <!-- Triangle Notch Pointer -->
-                        <div style="position: absolute; top: -8px; left: 40px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #ffffff;"></div>
+                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 68px; left: 0; right: 0; width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16); padding: 0; z-index: 10001; border: 1px solid #e2e8f0; text-align: left !important;">
+                        <!-- Agoda Speech/SMS Bubble Pointer Notch -->
+                        <div style="position: absolute; top: -8px; left: 36px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 10002;"></div>
 
                         <!-- DEFAULT STATE: Shown when input is clicked (Agoda Exact Match) -->
                         <div id="agodaStaticSearchSuggestions" style="padding: 24px 28px; text-align: left !important;">
@@ -419,9 +419,9 @@
                     </div>
 
                     <!-- Dual Month Interactive Calendar Popover Card (Anchored 6px below date buttons) -->
-                    <div id="agodaCalendarPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; width: 680px; max-width: 94vw; background: #ffffff; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.28); padding: 24px; z-index: 99999; border: 1px solid #e2e8f0;">
-                        <!-- Dynamic Triangle Notch -->
-                        <div id="calendarPointerTriangle" style="position: absolute; top: -8px; left: 60px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #ffffff; transition: left 0.2s ease;"></div>
+                    <div id="agodaCalendarPopoverCard" style="display: none; position: absolute; top: 68px; left: 0; width: 680px; max-width: 94vw; background: #ffffff; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.28); padding: 24px; z-index: 99999; border: 1px solid #e2e8f0;">
+                        <!-- Dynamic Triangle Notch (Agoda SMS/Speech Bubble Notch) -->
+                        <div id="calendarPointerTriangle" style="position: absolute; top: -8px; left: 60px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 100000; transition: left 0.2s ease;"></div>
 
                         <!-- Top Tabs -->
                         <div style="display: flex; gap: 32px; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 20px;">
@@ -463,9 +463,9 @@
                     </button>
 
                     <!-- Interactive Occupancy Stepper Popover Card (Anchored 6px below guest button) -->
-                    <div id="agodaGuestsPopoverCard" style="display: none; position: absolute; top: 66px; right: 0; width: 320px; background: #ffffff; border-radius: 12px; box-shadow: 0 14px 36px rgba(0,0,0,0.25); padding: 20px; z-index: 99999; border: 1px solid #e2e8f0;">
-                        <!-- Triangle Notch -->
-                        <div style="position: absolute; top: -8px; right: 24px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #ffffff;"></div>
+                    <div id="agodaGuestsPopoverCard" style="display: none; position: absolute; top: 68px; right: 0; width: 320px; background: #ffffff; border-radius: 12px; box-shadow: 0 14px 36px rgba(0,0,0,0.25); padding: 20px; z-index: 99999; border: 1px solid #e2e8f0;">
+                        <!-- Triangle Notch (Agoda SMS/Speech Bubble Notch) -->
+                        <div style="position: absolute; top: -8px; right: 28px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 100000;"></div>
 
                         <!-- Item 1: Rooms -->
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">

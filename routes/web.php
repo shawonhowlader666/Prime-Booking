@@ -493,4 +493,16 @@ Route::get('/storage/{path}', function ($path) {
     ]);
 })->where('path', '.*')->name('storage.serve');
 
+// ── Live Cashback Rewards Handshake API (Agoda Parity) ──────────────────────
+Route::post('/api/activate-rewards', function (\Illuminate\Http\Request $request) {
+    session(['prime_rewards_active' => true, 'active_promo_code' => 'PRIMECASH8']);
+    cookie()->queue(cookie('prime_rewards_active', '1', 60 * 24 * 7));
+    return response()->json([
+        'success' => true,
+        'message' => 'PrimeCash 8% Cashback Activated!',
+        'promo_code' => 'PRIMECASH8',
+        'rate' => '8%'
+    ]);
+})->name('api.activate.rewards');
+
 

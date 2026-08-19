@@ -61,11 +61,26 @@ class BookingFlowController extends Controller
             'spa_package'      => ['name' => '60-Min Wellness Spa Voucher', 'price' => 2000],
         ];
 
-        $user = auth()->user();
+        // Auto-apply promotional discount if active via session or query param
+        $activePromoCode = $request->input('promo', $request->input('coupon', session('active_promo_code')));
+        if (!$activePromoCode && (session('prime_rewards_active') || $request->cookie('prime_rewards_active'))) {
+            $activePromoCode = 'PRIMECASH8';
+        }
+
+        $appliedDiscount = 0.0;
+        if ($activePromoCode) {
+            $couponService = app(\App\Services\CouponService::class);
+            $validation = $couponService->validateCoupon($activePromoCode, (float)$subtotal, $property->id);
+            if ($validation['valid'] ?? false) {
+                $appliedDiscount = (float)($validation['discount'] ?? 0);
+                $totalPrice = max(0, $totalPrice - $appliedDiscount);
+            }
+        }
 
         return view('pages.booking-form', compact(
             'property', 'selectedRoom', 'checkIn', 'checkOut',
-            'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user'
+            'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user',
+            'activePromoCode', 'appliedDiscount'
         ));
     }
 

@@ -647,6 +647,15 @@ function pbActivateRewards() {
         icon.className = 'fa-solid fa-check';
         txt.innerText = 'Rewards Activated (8% Applied)';
         
+        // Server session & cookie handshake (Agoda 1:1 Parity)
+        fetch('/api/activate-rewards', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+            }
+        }).catch(e => {});
+
         // Launch Celebration Canvas Confetti
         pbLaunchConfetti();
         

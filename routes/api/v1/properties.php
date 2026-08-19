@@ -16,8 +16,10 @@ Route::get('/properties',          [ApiPropertyController::class, 'index'])->nam
 Route::get('/properties/{id}',     [ApiPropertyController::class, 'show'])->name('api.v1.properties.show');
 
 Route::middleware('throttle:search')->group(function () {
-    Route::get('/search',          [ApiSearchController::class, 'search'])->name('api.v1.search');
-    Route::get('/suggestions',     [SuggestionController::class, 'index'])->name('api.v1.suggestions');
+    Route::get('/search',                  [ApiSearchController::class, 'search'])->name('api.v1.search');
+    Route::get('/search/filter-metadata',  [ApiSearchController::class, 'filterMetadata'])->name('api.v1.search.filters');
+    Route::get('/suggestions',             [SuggestionController::class, 'index'])->name('api.v1.suggestions');
 });
 
-Route::get('/search/suggestions',  [SuggestionController::class, 'suggestions']);
+Route::get('/search/suggestions',          [SuggestionController::class, 'suggestions']);
+

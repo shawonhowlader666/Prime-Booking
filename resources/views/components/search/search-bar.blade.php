@@ -1050,15 +1050,54 @@ document.addEventListener('DOMContentLoaded', function() {
                         const apiData = res.data || res;
                         if (staticBox) staticBox.style.display = 'none';
                         if (liveBox)   liveBox.style.display   = 'block';
+                        currentKeyboardIndex = -1;
                         renderLiveSuggestions(apiData, query);
                     })
                     .catch(() => {
                         // Graceful degradation: show client-side BD city matches
+                        currentKeyboardIndex = -1;
                         renderLiveSuggestions({ locations: [], properties: [] }, query);
                     });
             }, 180);
         });
+
+        // Keyboard Navigation (Arrow Down / Up / Enter) — Agoda / Google Standard
+        let currentKeyboardIndex = -1;
+        destInput.addEventListener('keydown', function(e) {
+            const liveBox = document.getElementById('agodaLiveSearchResultsContainer');
+            if (!liveBox || liveBox.style.display === 'none') return;
+
+            const items = liveBox.querySelectorAll('.agoda-popover-item');
+            if (!items.length) return;
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                currentKeyboardIndex = (currentKeyboardIndex + 1) % items.length;
+                updateKeyboardActiveItem(items);
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                currentKeyboardIndex = (currentKeyboardIndex - 1 + items.length) % items.length;
+                updateKeyboardActiveItem(items);
+            } else if (e.key === 'Enter') {
+                if (currentKeyboardIndex >= 0 && items[currentKeyboardIndex]) {
+                    e.preventDefault();
+                    items[currentKeyboardIndex].click();
+                }
+            }
+        });
+
+        function updateKeyboardActiveItem(items) {
+            items.forEach((it, idx) => {
+                if (idx === currentKeyboardIndex) {
+                    it.style.background = '#e9f2ff';
+                    it.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                } else {
+                    it.style.background = 'transparent';
+                }
+            });
+        }
     }
+
 
     window.selectDestination = function(val) {
         const destInput = document.getElementById('agodaDestinationInput');
@@ -1214,12 +1253,20 @@ document.addEventListener('DOMContentLoaded', function() {
                     leftIconHtml = `<div style="width:62px; height:62px; border-radius:8px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hotel" style="font-size:22px; color:#94a3b8;"></i></div>`;
                 }
 
+                let badgeHtml = '';
+                if (p.badge) {
+                    badgeHtml = `<span style="display:inline-block; font-size:10.5px; font-weight:700; color:${p.badge.color}; background:${p.badge.bg}; padding:1px 6px; border-radius:4px; margin-left:6px;">${p.badge.text}</span>`;
+                }
+
                 html += `
                     <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 24px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
                         ${leftIconHtml}
                         <div style="flex: 1; min-width: 0; text-align: left;">
                             <div style="font-size: 14px; color: #262626; font-weight: 400; line-height: 1.35; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${highlightedPropTitle}</div>
-                            <div style="color: #2067e1; font-size: 12px; font-weight: 400; margin-top: 3px; text-align: left;">${propType}</div>
+                            <div style="color: #2067e1; font-size: 12px; font-weight: 400; margin-top: 3px; text-align: left; display:flex; align-items:center;">
+                                <span>${propType}</span>
+                                ${badgeHtml}
+                            </div>
                         </div>
                     </div>
                 `;

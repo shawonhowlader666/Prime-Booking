@@ -344,6 +344,15 @@ class AutoCompleteService
                 }
             }
 
+                // Agoda-style Smart Urgency / Rating Badge
+                $ratingScore = (float) $p->rating_score;
+                $badge = null;
+                if ($ratingScore >= 8.5) {
+                    $badge = ['text' => 'Guest Favorite', 'color' => '#16a34a', 'bg' => '#f0fdf4'];
+                } elseif ($ratingScore >= 7.5) {
+                    $badge = ['text' => 'Popular Choice', 'color' => '#2563eb', 'bg' => '#eff6ff'];
+                }
+
                 return [
                     'id'             => $p->id,
                     'name'           => $p->name,
@@ -351,7 +360,8 @@ class AutoCompleteService
                     'property_type'  => $p->type ?? 'Hotel',
                     'primary_image'  => $img,
                     'price_per_night'=> (float) $p->price_per_night,
-                    'rating_score'   => (float) $p->rating_score,
+                    'rating_score'   => $ratingScore,
+                    'badge'          => $badge,
                     'url'            => route('hotels.show', $p->id),
                 ];
             })

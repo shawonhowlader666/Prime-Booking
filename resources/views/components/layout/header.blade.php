@@ -1,10 +1,10 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
 <header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0" style="min-height: 56px; height: 56px; z-index: 1050; border-color: #e5e7eb !important; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-    <div class="container-fluid" style="height: 56px; max-width: 1360px; margin: 0 auto; padding-left: 12px; padding-right: 12px; display: flex; align-items: center;">
+    <div class="container" style="height: 56px; max-width: 1200px; margin: 0 auto; padding-left: 16px; padding-right: 16px; display: flex; align-items: center;">
 
         {{-- 100% Identical Prime Booking Logo --}}
-        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 32px !important;">
-            <x-logo height="46" />
+        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 28px !important;">
+            <x-logo height="44" />
         </a>
 
         {{-- Mobile toggle (Triggers Dark Glass Modal) --}}
@@ -15,11 +15,11 @@
         {{-- Desktop Nav Row --}}
         <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 56px;">
 
-            {{-- Left Nav Links (Professional gaps between all items) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 15px; white-space: nowrap; gap: 28px;">
+            {{-- Left Nav Links (Exact Agoda Gaps) --}}
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 24px;">
                 <li class="nav-item">
                     <a class="nav-link px-0 fw-semibold" href="{{ route('home') }}"
-                       style="color: #2d2d2d; height: 56px; display: flex; align-items: center; font-size: 15px;">
+                       style="color: #2d2d2d; height: 56px; display: flex; align-items: center; font-size: 14.5px;">
                         {{ __('Hotels & Homes') }}
                     </a>
                 </li>
@@ -33,38 +33,51 @@
                         </div>
                     </div>
                     <a class="nav-link dropdown-toggle px-0" href="#" role="button" data-bs-toggle="dropdown"
-                       style="color: #475569; height: 56px; display: flex; align-items: center; padding-top: 4px; font-size: 15px; font-weight: 500;">
+                       style="color: #475569; height: 56px; display: flex; align-items: center; padding-top: 4px; font-size: 14.5px; font-weight: 500;">
                         {{ __('Transport') }}
                     </a>
-                    <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 190px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('flights.index') }}">Domestic Flights</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#bus">Express Buses</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#train">Railway Trains</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#ferry">Launch &amp; Ferries</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}">Airport Transfer</a></li>
+                    <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 200px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('flights.index') }}"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Domestic Flights</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#bus"><i class="fa-solid fa-bus text-success me-2"></i> Express Buses</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#train"><i class="fa-solid fa-train text-danger me-2"></i> Railway Trains</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#ferry"><i class="fa-solid fa-ship text-info me-2"></i> Launch &amp; Ferries</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car text-warning me-2"></i> Airport Transfer</a></li>
                     </ul>
                 </li>
 
                 <li class="nav-item">
                     <a class="nav-link px-0" href="{{ route('packages') }}"
-                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 15px; font-weight: 500;">{{ __('Things to do') }}</a>
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Things to do') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-0" href="{{ route('services') }}"
-                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 15px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-0" href="{{ route('search.index') }}?type=apartment"
-                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 15px; font-weight: 500;">{{ __('Apartments') }}</a>
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Apartments') }}</a>
                 </li>
-                <li class="nav-item">
-                    <a class="nav-link px-0 fw-bold" href="#"
-                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 15px; letter-spacing: 1px;">•••</a>
+
+                {{-- 3 Dots Dropdown Menu (Agoda More Options Dropdown) --}}
+                <li class="nav-item dropdown">
+                    <a class="nav-link px-0 fw-bold dropdown-toggle text-decoration-none" href="#" role="button" data-bs-toggle="dropdown"
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 16px; letter-spacing: 1px; cursor: pointer;">
+                        •••
+                    </a>
+                    <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('packages') }}"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('Activities & Tours') }}</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car-side text-success me-2"></i> {{ __('Airport Transfer') }}</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('search.index') }}?type=resort"><i class="fa-solid fa-umbrella-beach text-warning me-2"></i> {{ __('Luxury Resorts') }}</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('search.index') }}?type=villa"><i class="fa-solid fa-house-chimney-user text-danger me-2"></i> {{ __('Private Villas') }}</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('vip') }}"><i class="fa-solid fa-crown text-warning me-2"></i> {{ __('PrimeVIP Program') }}</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('contact') }}"><i class="fa-solid fa-headset text-info me-2"></i> {{ __('Help Center & Support') }}</a></li>
+                    </ul>
                 </li>
             </ul>
 
             {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 24px; white-space: nowrap; height: 56px;">
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 20px; white-space: nowrap; height: 56px;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();

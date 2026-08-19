@@ -279,13 +279,13 @@
                         </div>
                     </div>
 
-                    <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (Wide Desktop Layout) -->
-                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; width: 900px; max-width: calc(100vw - 32px); background: #ffffff; border-radius: 12px; box-shadow: 0 10px 32px rgba(0, 0, 0, 0.14); padding: 0; z-index: 10001; border: 1px solid #e2e8f0; text-align: left !important; overflow: hidden;">
+                    <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (100% Full Width) -->
+                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 66px; left: 0; right: 0; width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16); padding: 0; z-index: 10001; border: 1px solid #e2e8f0; text-align: left !important; overflow: hidden;">
                         <!-- Triangle Notch Pointer -->
                         <div style="position: absolute; top: -8px; left: 40px; width: 0; height: 0; border-left: 8px solid transparent; border-right: 8px solid transparent; border-bottom: 8px solid #ffffff;"></div>
 
                         <!-- DEFAULT STATE: Shown when input is clicked (Agoda Exact Match) -->
-                        <div id="agodaStaticSearchSuggestions" style="padding: 22px 26px; text-align: left !important;">
+                        <div id="agodaStaticSearchSuggestions" style="padding: 24px 28px; text-align: left !important;">
                             
                             <!-- 1. Recent Search Header -->
                             <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 10px; text-align: left !important;">

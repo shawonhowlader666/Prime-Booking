@@ -252,7 +252,7 @@ class AutoCompleteService
             $results[] = [
                 'city'           => $cityName,
                 'country'        => $loc->country ?? 'Bangladesh',
-                'type'           => ucfirst($loc->city ?? 'Location'),
+                'type'           => 'City',   // Fixed: was accidentally using $loc->city as type
                 'property_count' => null,
                 'lat'            => $loc->latitude,
                 'lng'            => $loc->longitude,
@@ -334,11 +334,15 @@ class AutoCompleteService
             ->limit($limit)
             ->get()
             ->map(function ($p) {
-                $img = $p->primary_image
-                    ? (str_starts_with($p->primary_image, 'http')
-                        ? $p->primary_image
-                        : asset('storage/' . ltrim($p->primary_image, '/')))
-                    : null;
+                $img = null;
+            if ($p->primary_image) {
+                $raw = $p->primary_image;
+                if (str_starts_with($raw, 'http://') || str_starts_with($raw, 'https://')) {
+                    $img = $raw;  // Already absolute URL — use as-is
+                } else {
+                    $img = asset('storage/' . ltrim($raw, '/'));  // Relative path → storage URL
+                }
+            }
 
                 return [
                     'id'             => $p->id,

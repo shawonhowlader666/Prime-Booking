@@ -61,9 +61,10 @@ class PropertyResource extends JsonResource
             'discount_pct'    => (int) $discountPct,
             'currency'        => 'BDT',
 
-            // Media
-            'primary_image'   => $primaryImage ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80',
-            'images'          => is_array($images) ? array_values($images) : [],
+            // Media — Smart URL normalization (mobile-safe absolute URLs)
+            'primary_image'   => $this->resolveImageUrl($primaryImage),
+            'images'          => is_array($images) ? array_map([$this, 'resolveImageUrl'], array_values($images)) : [],
+
 
             // Features
             'amenities'       => is_array($amenities) ? array_values($amenities) : [],
@@ -78,5 +79,31 @@ class PropertyResource extends JsonResource
             'stars_display'   => str_repeat('★', max(0, (int) $starRating)),
             'booking_url'     => url("/book/{$id}"),
         ];
+    }
+
+    /**
+     * Normalize any image path to a fully-qualified absolute URL.
+     * Mobile apps need absolute URLs — they can't resolve relative paths.
+     *
+     * Rules:
+     *  - Already http/https → return as-is
+     *  - Relative path (e.g. "properties/img.jpg") → asset('storage/...')
+     *  - Empty/null → return Unsplash fallback
+     */
+    private function resolveImageUrl(?string $path): string
+    {
+        $fallback = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+
+        if (empty($path)) {
+            return $fallback;
+        }
+
+        // Already absolute
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        // Relative → storage URL
+        return asset('storage/' . ltrim($path, '/'));
     }
 }

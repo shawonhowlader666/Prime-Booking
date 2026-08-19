@@ -96,7 +96,7 @@
                 </a>
 
                 @auth
-                {{-- Logged in state: Avatar + Name + VIP Badge (Matching Screenshot) --}}
+                {{-- Logged in state: Avatar + Name + VIP Badge (Matching Agoda Screenshot 1:1) --}}
                 <div class="dropdown">
                     <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor: pointer; padding: 2px 0;">
                         <div style="width: 32px; height: 32px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(255, 87, 34, 0.25);">
@@ -133,7 +133,7 @@
                     </div>
                 </div>
 
-                {{-- Cash Balance Dropdown Badge ((a) BDT ৳0 ▾) Matching Agoda Screenshot --}}
+                {{-- Cash Balance Dropdown Badge ((a) BDT 0 ▾) Matching Agoda Screenshot 1:1 --}}
                 <div class="dropdown">
                     <button class="btn p-0 border-0 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
                             style="color: #6366f1; font-weight: 600; font-size: 13px; height: 56px;">
@@ -153,15 +153,94 @@
                     </ul>
                 </div>
                 @else
-                {{-- 2. "Sign in" Blue Link (Agoda Image Exact) --}}
+                {{-- 2. "Sign in" Blue Link (Agoda Guest Image Exact) --}}
                 <button type="button" class="btn p-0 border-0 fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; font-size: 14px; text-decoration: none; cursor: pointer;">
                     Sign in
                 </button>
 
-                {{-- 3. "Create account" Outlined Pill Button (Agoda Image Exact) --}}
+                {{-- 3. "Create account" Outlined Pill Button (Agoda Guest Image Exact) --}}
                 <button type="button" class="btn btn-outline-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; border-color: #cbd5e1; border-width: 1px; padding: 6px 18px; font-size: 13.5px; background: transparent; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#2067e1'; this.style.backgroundColor='#f0f7ff'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='transparent'">
                     Create account
                 </button>
+
+                {{-- 4. Hamburger ☰ Menu Button (Only for Guests matching Screenshot 1 & 2) --}}
+                <div class="dropdown position-relative">
+                    <button class="btn p-0 border-0 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #2067e1; font-size: 20px; width: 34px; height: 34px; cursor: pointer; border-radius: 6px; transition: background 0.15s;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
+                        <i class="fa-solid fa-bars" style="color: #2067e1; font-size: 19px;"></i>
+                    </button>
+
+                    <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-2"
+                         style="width: 270px; border-radius: 14px; box-shadow: 0 12px 36px rgba(0,0,0,0.18) !important; overflow: hidden; text-align: left;">
+
+                        <!-- Top Notch Speech Pointer -->
+                        <div style="position: absolute; top: -6px; right: 12px; width: 12px; height: 12px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid rgba(0,0,0,0.06); border-left: 1px solid rgba(0,0,0,0.06);"></div>
+
+                        <div style="padding: 16px 18px 8px;">
+                            <!-- My Trips -->
+                            <a href="{{ route('trips') }}" class="d-block text-decoration-none fw-bold" style="color: #1e293b; font-size: 14px; margin-bottom: 16px; padding: 2px 0;">
+                                {{ __('My Trips') }}
+                            </a>
+
+                            <!-- Sign in Header Text -->
+                            <div style="font-weight: 700; color: #1e293b; font-size: 14px; margin-bottom: 10px;">
+                                {{ __('Sign in') }}
+                            </div>
+
+                            <!-- Big Outlined Sign In Pill Button -->
+                            <button type="button" class="btn w-100 fw-bold mb-2" data-bs-toggle="modal" data-bs-target="#agodaAuthModal"
+                                    style="color: #2067e1; border: 1px solid #cbd5e1; border-radius: 24px; padding: 7px 0; font-size: 14px; background: #ffffff; transition: all 0.15s ease;"
+                                    onmouseover="this.style.borderColor='#2067e1'; this.style.background='#f0f7ff'"
+                                    onmouseout="this.style.borderColor='#cbd5e1'; this.style.background='#ffffff'">
+                                {{ __('Sign in') }}
+                            </button>
+
+                            <!-- Big Solid Blue Create Account Pill Button -->
+                            <button type="button" class="btn w-100 fw-bold mb-3" data-bs-toggle="modal" data-bs-target="#agodaAuthModal"
+                                    style="color: #ffffff; background: #2067e1; border-radius: 24px; padding: 8px 0; font-size: 14px; border: none; box-shadow: 0 4px 12px rgba(32, 103, 225, 0.3); transition: background 0.15s ease;"
+                                    onmouseover="this.style.background='#1a56be'"
+                                    onmouseout="this.style.background='#2067e1'">
+                                {{ __('Create account') }}
+                            </button>
+                        </div>
+
+                        <hr class="my-0" style="border-color: #f1f5f9;">
+
+                        <!-- Settings Section (Agoda Exact) -->
+                        <div style="padding: 14px 18px;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 13.5px; margin-bottom: 12px;">
+                                {{ __('Settings') }}
+                            </div>
+
+                            <!-- Language Row (Flag + English) -->
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" class="d-flex align-items-center gap-2 text-decoration-none mb-2" style="color: #1e293b; font-size: 13.5px; font-weight: 500;">
+                                <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 22px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                                <span>{{ app()->getLocale() == 'bn' ? 'বাংলা (Bengali)' : 'English' }}</span>
+                            </a>
+
+                            <!-- Currency Row (e.g. BDT Bangladeshi Taka / USD US Dollar) -->
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" class="d-flex align-items-center gap-2 text-decoration-none" style="color: #1e293b; font-size: 13.5px; font-weight: 500;">
+                                <span style="font-weight: 700; color: #1e293b;">{{ $currentCurrency }}</span>
+                                <span style="color: #64748b; font-size: 13px;">{{ $currentCurrency == 'BDT' ? 'Bangladeshi Taka' : 'US Dollar' }}</span>
+                            </a>
+                        </div>
+
+                        <hr class="my-0" style="border-color: #f1f5f9;">
+
+                        <!-- List Your Place On Agoda / Prime Booking (Agoda Exact) -->
+                        <div style="padding: 14px 18px 16px;">
+                            <div style="font-weight: 700; color: #1e293b; font-size: 13.5px; margin-bottom: 4px;">
+                                {{ __('List your place on Prime Booking') }}
+                            </div>
+                            <div style="font-size: 11.5px; color: #64748b; line-height: 1.35; margin-bottom: 6px;">
+                                {{ __('Earn money to pay for your travel!') }}
+                            </div>
+                            <a href="{{ route('vendor.dashboard') }}" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 13px;">
+                                {{ __('List your place') }}
+                            </a>
+                        </div>
+
+                    </div>
+                </div>
                 @endauth
 
 

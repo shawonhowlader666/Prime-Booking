@@ -30,15 +30,15 @@
         border-radius: 10px;
     }
 
-    /* Floating Capsule Tab Container */
+    /* Floating Capsule Tab Container (Centered) */
     .agoda-tabs-wrapper {
         position: relative;
         top: 14px;
-        margin-left: 20px;
-        margin-bottom: -14px;
+        margin: 0 auto -14px auto;
         z-index: 5;
-        display: inline-flex;
-        max-width: 100%;
+        display: flex;
+        justify-content: center;
+        width: 100%;
     }
     .agoda-tabs-container {
         background-color: #ffffff;

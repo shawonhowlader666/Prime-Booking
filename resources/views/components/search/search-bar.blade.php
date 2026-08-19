@@ -230,7 +230,7 @@
 <!-- Click Outside Dismiss Overlay (Zero Blur, 100% Sharp & Clean) -->
 <div id="agodaSearchBackdropOverlay" style="display: none; position: fixed; inset: 0; background: transparent; z-index: 9; cursor: default;"></div>
 
-<div id="agodaSearchBarWrapper" style="max-width: 1140px; margin: 0 auto 38px auto; position: relative; z-index: 10; text-align: left !important;">
+<div id="agodaSearchBarWrapper" style="max-width: 1240px; margin: 0 auto 38px auto; position: relative; z-index: 10; text-align: left !important;">
 
     <!-- Top White Floating Capsule Tab Pod Container -->
     <div class="agoda-tabs-wrapper">

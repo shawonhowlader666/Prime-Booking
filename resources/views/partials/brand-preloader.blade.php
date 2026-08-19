@@ -40,40 +40,35 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 9px;
-    padding: 20px;
+    gap: 8px;
 }
 
-/* ─── Razor Sharp World-Class Wave Dots ─── */
+/* ─── Exact Agoda Official Bouncing Dots ─── */
 .prime-dot {
-    width: 11px;
-    height: 11px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
-    animation: primeProWave 1.2s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite both;
+    animation: agodaOfficialBounce 1.2s infinite ease-in-out both;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
-    backface-visibility: hidden;
-    -webkit-backface-visibility: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.prime-dot-1 { background: #232f6b; animation-delay: -0.60s; } /* Navy */
-.prime-dot-2 { background: #1a56db; animation-delay: -0.50s; } /* Blue */
-.prime-dot-3 { background: #00a8cc; animation-delay: -0.40s; } /* Cyan */
-.prime-dot-4 { background: #059669; animation-delay: -0.30s; } /* Emerald */
-.prime-dot-5 { background: #d97706; animation-delay: -0.20s; } /* Amber */
-.prime-dot-6 { background: #ea580c; animation-delay: -0.10s; } /* Orange */
+.prime-dot-1 { background: #232f6b; animation-delay: -0.48s; } /* Navy */
+.prime-dot-2 { background: #1a56db; animation-delay: -0.40s; } /* Blue */
+.prime-dot-3 { background: #00a8cc; animation-delay: -0.32s; } /* Cyan */
+.prime-dot-4 { background: #059669; animation-delay: -0.24s; } /* Emerald */
+.prime-dot-5 { background: #d97706; animation-delay: -0.16s; } /* Amber */
+.prime-dot-6 { background: #ea580c; animation-delay: -0.08s; } /* Orange */
 .prime-dot-7 { background: #dc2626; animation-delay: 0.00s; }  /* Red */
 
-@keyframes primeProWave {
-    0%, 100% {
-        transform: translateY(0) scale(0.92);
-        opacity: 0.85;
+@keyframes agodaOfficialBounce {
+    0%, 80%, 100% {
+        transform: translateY(0) scale(0.9);
+        opacity: 0.75;
     }
     40% {
-        transform: translateY(-12px) scale(1.1);
+        transform: translateY(-10px) scale(1.12);
         opacity: 1;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     }
 }
 </style>

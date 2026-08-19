@@ -120,8 +120,21 @@
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Real-Time GPS Coordinates (Lat, Long)</label>
                     <div style="display:flex; gap:8px;">
-                        <input type="text" name="latitude" class="form-control" value="{{ old('latitude') }}" placeholder="Lat: 21.4272" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
-                        <input type="text" name="longitude" class="form-control" value="{{ old('longitude') }}" placeholder="Long: 91.9702" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        <input type="text" name="latitude" id="adminLatitudeInput" class="form-control" value="{{ old('latitude', '21.4272') }}" placeholder="Lat: 21.4272" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;" onchange="updateAdminMarkerFromInputs()">
+                        <input type="text" name="longitude" id="adminLongitudeInput" class="form-control" value="{{ old('longitude', '91.9702') }}" placeholder="Long: 91.9702" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;" onchange="updateAdminMarkerFromInputs()">
+                    </div>
+                </div>
+                <div class="col-12">
+                    <div class="p-2.5 border rounded bg-light" style="border-radius:6px;">
+                        <div class="d-flex justify-content-between align-items-center mb-1.5">
+                            <span class="fw-bold text-dark" style="font-size:12px;">
+                                <i class="fa-solid fa-map-pin text-danger me-1"></i> Interactive Geolocation Pin Picker (OpenStreetMap)
+                            </span>
+                            <small class="text-secondary" style="font-size:11px;">
+                                💡 Click on map or drag pin to auto-fill coordinates
+                            </small>
+                        </div>
+                        <div id="adminMapPicker" style="height: 220px; width: 100%; border-radius: 4px; border: 1px solid #cbd5e1; z-index: 1;"></div>
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -180,22 +193,22 @@
             <div class="border-bottom pb-2.5 mb-4 mt-5">
                 <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">
                     <i class="fa-solid fa-bangladeshi-taka-sign text-success me-2.5" style="font-size:15px; width:20px;"></i>
-                    <span>Pricing &amp; Booking Options</span>
+                    <span>Base Room Rates, MRP &amp; Commercial Terms</span>
                 </h5>
             </div>
             <div class="row g-3.5 mb-4">
                 <div class="col-md-4">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Base Price Per Night (BDT ৳) <span style="color:#ff4d4f;">*</span></label>
-                    <div style="display:flex;">
-                        <span class="input-group-text bg-light text-dark fw-bold" style="font-size:12.5px; border-radius:4px 0 0 4px; padding:0 14px; height:38px;">৳ BDT</span>
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Standard Nightly Price (BDT ৳) <span style="color:#ff4d4f;">*</span></label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light fw-bold" style="font-size:13px; border-radius:4px 0 0 4px; height:38px;">৳</span>
                         <input type="number" name="price_per_night" class="form-control"
                             value="{{ old('price_per_night') }}" placeholder="8500" required style="font-size:13px; border-radius:0 4px 4px 0; height:38px; padding:0 14px;">
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Original Crossed-Out Rate (BDT)</label>
-                    <div style="display:flex;">
-                        <span class="input-group-text bg-light text-muted" style="font-size:12.5px; border-radius:4px 0 0 4px; padding:0 14px; height:38px;">৳ BDT</span>
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Original / Published MRP (BDT ৳)</label>
+                    <div class="input-group">
+                        <span class="input-group-text bg-light fw-bold" style="font-size:13px; border-radius:4px 0 0 4px; height:38px;">৳</span>
                         <input type="number" name="original_price" class="form-control"
                             value="{{ old('original_price') }}" placeholder="11000" style="font-size:13px; border-radius:0 4px 4px 0; height:38px; padding:0 14px;">
                     </div>
@@ -244,7 +257,7 @@
             <div class="row g-3.5 mb-4">
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">
-                        <i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Thumbnail Photo (Device)
+                        <i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Primary Thumbnail (Device)
                     </label>
                     <input type="file" name="primary_image_file" class="form-control" accept="image/*" onchange="previewFile(this)" style="font-size:13px; border-radius:4px; height:38px; padding:4px 14px;">
                 </div>
@@ -259,15 +272,31 @@
                         <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
                     </div>
                 </div>
+
+                {{-- Drag & Drop Multi-Image Dropzone for Admin Gallery Photos --}}
+                <div class="col-12">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">
+                        <i class="fa-solid fa-photo-film text-primary me-1"></i> Property Gallery Photos (Drag &amp; Drop Multi-Upload)
+                    </label>
+                    <div id="adminGalleryDropzone" class="p-4 border-2 border-dashed rounded text-center" style="background:#f8fafc; border-color:#93c5fd; cursor:pointer; transition:all 0.2s ease;" onclick="document.getElementById('adminGalleryFileInput').click()">
+                        <input type="file" id="adminGalleryFileInput" name="gallery_image_files[]" multiple accept="image/*" class="d-none" onchange="handleAdminGalleryFileSelect(this)">
+                        <i class="fa-solid fa-cloud-arrow-up text-primary fs-2 mb-2"></i>
+                        <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">Drag &amp; drop photos here or click to browse</h6>
+                        <p class="text-muted m-0" style="font-size:11.5px;">Supports JPG, PNG, WEBP high-resolution photos (Up to 10MB each)</p>
+                    </div>
+                    {{-- Instant Preview Thumbnails Container --}}
+                    <div id="adminGalleryPreviewContainer" class="d-flex flex-wrap gap-2 mt-2.5"></div>
+                </div>
+
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Video Tour URL (YouTube Embed / MP4)</label>
                     <input type="url" name="video_url" class="form-control"
                         value="{{ old('video_url') }}" placeholder="https://www.youtube.com/embed/..." style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
-                <div class="col-md-12">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Gallery Image URLs (one per line)</label>
-                    <textarea name="gallery_images" class="form-control" rows="3"
-                        placeholder="https://images.unsplash.com/photo-1571896349842...&#10;https://images.unsplash.com/photo-1582719478250..." style="font-size:13px; border-radius:4px; padding:12px 14px;">{{ old('gallery_images') }}</textarea>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Additional Gallery URLs (one per line)</label>
+                    <textarea name="gallery_images" class="form-control" rows="2"
+                        placeholder="https://images.unsplash.com/photo-1571896349842...&#10;https://images.unsplash.com/photo-1582719478250..." style="font-size:13px; border-radius:4px; padding:8px 14px;">{{ old('gallery_images') }}</textarea>
                 </div>
             </div>
 
@@ -388,20 +417,143 @@
 @endsection
 
 @section('scripts')
+{{-- Leaflet Maps CDN --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+// ── Geolocation Interactive Map Picker (Leaflet + OpenStreetMap) ──
+let adminPropertyMap = null;
+let adminPropertyMarker = null;
+
+const cityCoordinates = {
+    "Dhaka City": [23.8103, 90.4125],
+    "Dhaka": [23.8103, 90.4125],
+    "Cox's Bazar Sea Beach": [21.4272, 91.9702],
+    "Cox's Bazar": [21.4272, 91.9702],
+    "Sylhet": [24.8949, 91.8687],
+    "Chittagong": [22.3569, 91.7832],
+    "Kuakata": [21.8167, 90.1167],
+    "Sundarbans & Mongla": [22.4833, 89.6000],
+    "Sreemangal": [24.3065, 91.7296],
+    "Bandarban": [22.1953, 92.2184],
+    "Rangamati": [22.6533, 92.1753],
+    "Sajek Valley": [23.3820, 92.2938]
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    const latInput = document.getElementById('adminLatitudeInput');
+    const lngInput = document.getElementById('adminLongitudeInput');
+    
+    let defaultLat = parseFloat(latInput?.value) || 21.4272;
+    let defaultLng = parseFloat(lngInput?.value) || 91.9702;
+
+    adminPropertyMap = L.map('adminMapPicker').setView([defaultLat, defaultLng], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(adminPropertyMap);
+
+    adminPropertyMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(adminPropertyMap);
+
+    adminPropertyMarker.on('dragend', function (e) {
+        const position = adminPropertyMarker.getLatLng();
+        latInput.value = position.lat.toFixed(6);
+        lngInput.value = position.lng.toFixed(6);
+    });
+
+    adminPropertyMap.on('click', function (e) {
+        adminPropertyMarker.setLatLng(e.latlng);
+        latInput.value = e.latlng.lat.toFixed(6);
+        lngInput.value = e.latlng.lng.toFixed(6);
+    });
+
+    setupAdminGalleryDropzone();
+});
+
+function updateAdminMarkerFromInputs() {
+    const lat = parseFloat(document.getElementById('adminLatitudeInput').value);
+    const lng = parseFloat(document.getElementById('adminLongitudeInput').value);
+    if (!isNaN(lat) && !isNaN(lng) && adminPropertyMap && adminPropertyMarker) {
+        adminPropertyMarker.setLatLng([lat, lng]);
+        adminPropertyMap.panTo([lat, lng]);
+    }
+}
+
 function onAdminCityChanged(select) {
     const selected = select.options[select.selectedIndex];
     if (!selected) return;
     const lat = selected.getAttribute('data-lat');
     const lng = selected.getAttribute('data-lng');
-    const latInput = document.querySelector('input[name="latitude"]');
-    const lngInput = document.querySelector('input[name="longitude"]');
-    if (lat && latInput && (!latInput.value || latInput.value === '')) {
-        latInput.value = parseFloat(lat).toFixed(4);
+    const cityName = selected.value;
+
+    let targetLat = lat ? parseFloat(lat) : (cityCoordinates[cityName] ? cityCoordinates[cityName][0] : null);
+    let targetLng = lng ? parseFloat(lng) : (cityCoordinates[cityName] ? cityCoordinates[cityName][1] : null);
+
+    if (targetLat && targetLng) {
+        document.getElementById('adminLatitudeInput').value = targetLat.toFixed(6);
+        document.getElementById('adminLongitudeInput').value = targetLng.toFixed(6);
+        if (adminPropertyMap && adminPropertyMarker) {
+            adminPropertyMarker.setLatLng([targetLat, targetLng]);
+            adminPropertyMap.setView([targetLat, targetLng], 13);
+        }
     }
-    if (lng && lngInput && (!lngInput.value || lngInput.value === '')) {
-        lngInput.value = parseFloat(lng).toFixed(4);
-    }
+}
+
+// ── Drag & Drop Multi-Image Uploader with Live Preview ──
+function setupAdminGalleryDropzone() {
+    const dropzone = document.getElementById('adminGalleryDropzone');
+    if (!dropzone) return;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#eff6ff';
+            dropzone.style.borderColor = '#2563eb';
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#f8fafc';
+            dropzone.style.borderColor = '#93c5fd';
+        }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleAdminGalleryFiles(files);
+    });
+}
+
+function handleAdminGalleryFileSelect(input) {
+    handleAdminGalleryFiles(input.files);
+}
+
+function handleAdminGalleryFiles(files) {
+    const container = document.getElementById('adminGalleryPreviewContainer');
+    if (!files || !container) return;
+
+    Array.from(files).forEach((file, index) => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const card = document.createElement('div');
+            card.className = 'position-relative border rounded p-1 shadow-sm bg-white';
+            card.style.width = '100px';
+            card.style.height = '85px';
+            card.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" alt="preview">
+                <span class="badge bg-dark position-absolute bottom-0 start-0 m-1 opacity-75" style="font-size:8px;">${(file.size / 1024).toFixed(0)} KB</span>
+                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center m-1 shadow-sm" style="width:18px; height:18px; font-size:9px;" onclick="this.parentElement.remove()" title="Remove">✕</button>
+            `;
+            container.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function promptAdminCustomCategory() {
@@ -441,7 +593,7 @@ function addAdminCustomAmenity() {
     input.value = '';
 }
 
-function previewImage(url) {
+function previewUrl(url) {
     const wrap = document.getElementById('imgPreviewWrap');
     const img = document.getElementById('imgPreview');
     if (url && url.startsWith('http')) {
@@ -449,6 +601,18 @@ function previewImage(url) {
         wrap.style.display = 'block';
     } else {
         wrap.style.display = 'none';
+    }
+}
+function previewFile(input) {
+    const wrap = document.getElementById('imgPreviewWrap');
+    const img  = document.getElementById('imgPreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            wrap.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
 }
 </script>

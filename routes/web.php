@@ -67,7 +67,9 @@ Route::get('/currency/switch/{code}', [PageController::class, 'switchCurrency'])
 Route::get('/api/search/autocomplete', [App\Http\Controllers\Web\AutocompleteController::class, 'search'])->name('search.autocomplete');
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show');
+Route::get('/hotels/{id}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('hotels.preview');
 Route::get('/property/{slug}', [PropertyDetailController::class, 'show'])->name('property.show');
+Route::get('/property/{slug}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('property.preview');
 Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store');
 Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store');
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');

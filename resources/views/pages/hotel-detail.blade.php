@@ -190,8 +190,60 @@
 
 <div class="detail-page-wrapper">
 
+    {{-- Floating Live Preview Bar for Admins and Property Owners --}}
+    @if(!empty($isPreview))
+    <div class="position-sticky top-0 shadow-lg" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%); border-bottom: 2px solid #6366f1; z-index: 2000; padding: 10px 0;">
+        <div class="agoda-page-container d-flex flex-wrap align-items-center justify-content-between gap-2 text-white">
+            <div class="d-flex align-items-center gap-3">
+                <span class="badge px-3 py-2 rounded-pill fw-bold text-uppercase d-flex align-items-center gap-2" style="background: #3b82f6; font-size: 11.5px; letter-spacing: 0.5px;">
+                    <i class="fa-solid fa-eye animate-pulse"></i> LIVE PREVIEW MODE
+                </span>
+                <div>
+                    <span class="fw-semibold text-white" style="font-size: 13.5px;">{{ $property->name }}</span>
+                    <span class="text-white-50 ms-2" style="font-size: 12px;">Status:</span>
+                    @if($property->status === 'active' || $property->status === 'published')
+                        <span class="badge bg-success text-white px-2 py-1 ms-1">Active / Live</span>
+                    @elseif($property->status === 'pending')
+                        <span class="badge bg-warning text-dark px-2 py-1 ms-1">Pending Approval</span>
+                    @elseif($property->status === 'rejected')
+                        <span class="badge bg-danger text-white px-2 py-1 ms-1">Rejected</span>
+                    @else
+                        <span class="badge bg-secondary text-white px-2 py-1 ms-1">{{ ucfirst($property->status) }}</span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="d-flex align-items-center gap-2">
+                @if(!empty($isAdminPreview))
+                    @if($property->status === 'pending' || $property->status === 'inactive')
+                    <form action="{{ route('properties.approve', $property->id) }}" method="POST" class="d-inline">
+                        @csrf
+                        <button type="submit" class="btn btn-sm btn-success fw-bold px-3 d-flex align-items-center gap-1 shadow-sm" style="border-radius: 4px; font-size: 12.5px;">
+                            <i class="fa-solid fa-check"></i> Approve & Publish
+                        </button>
+                    </form>
+                    @endif
+                    <a href="{{ route('properties.edit', $property->id) }}" class="btn btn-sm btn-light fw-bold px-3 d-flex align-items-center gap-1" style="border-radius: 4px; font-size: 12.5px;">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Listing
+                    </a>
+                    <a href="{{ route('properties.index') }}" class="btn btn-sm btn-outline-light px-3" style="border-radius: 4px; font-size: 12.5px;">
+                        <i class="fa-solid fa-arrow-left"></i> Admin Center
+                    </a>
+                @else
+                    <a href="{{ route('properties.edit', $property->id) }}" class="btn btn-sm btn-warning text-dark fw-bold px-3 d-flex align-items-center gap-1 shadow-sm" style="border-radius: 4px; font-size: 12.5px;">
+                        <i class="fa-solid fa-pen-to-square"></i> Edit Listing
+                    </a>
+                    <a href="{{ route('properties.index') }}" class="btn btn-sm btn-outline-light px-3" style="border-radius: 4px; font-size: 12.5px;">
+                        <i class="fa-solid fa-arrow-left"></i> Vendor Dashboard
+                    </a>
+                @endif
+            </div>
+        </div>
+    </div>
+    @endif
+
     {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact 1:1 Parity - Single Clean Row) --}}
-    <div class="agoda-detail-search-bar shadow-sm" style="background: #132968; padding: 12px 0; position: sticky; top: 0; z-index: 1030;">
+    <div class="agoda-detail-search-bar shadow-sm" style="background: #132968; padding: 12px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
         <div class="agoda-page-container">
             <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center">
                 {{-- 1. Destination Input --}}
@@ -433,10 +485,33 @@
                         </span>
                     </div>
 
-                    <p class="text-secondary small mb-0" style="font-size: 13px;">
-                        {{ $property->address ?: ($property->city . ', Bangladesh, 1230') }}- 
-                        <a href="#location" class="fw-bold text-decoration-none" style="color: #2067e1;">SEE MAP</a>
+                    <p class="text-secondary small mb-2" style="font-size: 13px;">
+                        <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ $property->address ?: ($property->city . ', Bangladesh, 1230') }} — 
+                        <a href="#location" class="fw-bold text-decoration-none" style="color: #2067e1;">SEE ON MAP</a>
                     </p>
+
+                    {{-- Bangladesh Trust & Direct Contact Badges --}}
+                    <div class="d-flex align-items-center gap-2 flex-wrap pt-2 border-top">
+                        @php
+                            $waPhone = preg_replace('/[^0-9]/', '', $property->contact_phone ?? '8801700000000');
+                            if (str_starts_with($waPhone, '01')) { $waPhone = '88' . $waPhone; }
+                            $waText = urlencode("Hello! I am inquiring about room availability at " . $property->name . " via Prime Booking.");
+                        @endphp
+                        @if(!empty($property->contact_phone))
+                        <a href="https://wa.me/{{ $waPhone }}?text={{ $waText }}" target="_blank" class="btn btn-sm text-white fw-bold d-inline-flex align-items-center gap-1.5 px-3 py-1 shadow-xs" style="background:#25D366; font-size:12px; border-radius:4px; border:none;" title="Chat directly with Hotel Front Desk on WhatsApp">
+                            <i class="fa-brands fa-whatsapp fs-6"></i> <span>WhatsApp Front Desk</span>
+                        </a>
+                        @endif
+                        <span class="badge bg-light text-dark border px-2.5 py-1.5 d-inline-flex align-items-center gap-1" style="font-size:11px; font-weight:600;">
+                            <i class="fa-solid fa-mobile-screen text-danger"></i> bKash &amp; Nagad Instant
+                        </span>
+                        <span class="badge bg-light text-dark border px-2.5 py-1.5 d-inline-flex align-items-center gap-1" style="font-size:11px; font-weight:600;">
+                            <i class="fa-solid fa-money-bill-wave text-success"></i> Pay at Hotel Available
+                        </span>
+                        <span class="badge bg-light text-dark border px-2.5 py-1.5 d-inline-flex align-items-center gap-1" style="font-size:11px; font-weight:600;">
+                            <i class="fa-solid fa-shield-halved text-primary"></i> 100% Verified Bangladesh Hotel
+                        </span>
+                    </div>
                 </div>
 
                 {{-- Left Card 2: Highlights from Guests (Dynamic from DB / Model) --}}

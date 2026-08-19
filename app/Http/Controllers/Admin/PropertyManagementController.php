@@ -274,7 +274,6 @@ class PropertyManagementController extends Controller
             'pets_policy'     => $request->pets_policy ?? $property->pets_policy,
             'free_cancellation'      => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $property->free_cancellation,
             'no_credit_card_required'=> $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : $property->no_credit_card_required,
-            'gallery_images'  => $finalGallery,
             'images'          => $finalGallery,
             'amenities'       => $request->amenities ?? [],
             'is_featured'     => $request->boolean('is_featured'),

@@ -164,8 +164,18 @@
         {{-- Action Buttons --}}
         <div style="padding:24px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center;">
             <a href="{{ route('booking.voucher', $booking->booking_reference) }}" target="_blank" class="action-btn btn-primary-action">
-                <i class="fa-solid fa-ticket"></i> View & Print Voucher
+                <i class="fa-solid fa-ticket"></i> View &amp; Print Voucher
             </a>
+            @php
+                $hPhone = preg_replace('/[^0-9]/', '', $booking->property?->contact_phone ?? '8801700000000');
+                if (str_starts_with($hPhone, '01')) { $hPhone = '88' . $hPhone; }
+                $waBookingText = urlencode("Hello " . ($booking->property?->name ?? 'Hotel') . "! My Booking Reference is #" . $booking->booking_reference . " for " . $booking->guest_name . " (Check-in: " . $booking->check_in . ").");
+            @endphp
+            @if(!empty($booking->property?->contact_phone))
+            <a href="https://wa.me/{{ $hPhone }}?text={{ $waBookingText }}" target="_blank" class="action-btn" style="background:#25D366; color:#fff; border:none;">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp Hotel
+            </a>
+            @endif
             <a href="{{ route('hotels.show', $booking->property_id) }}" class="action-btn btn-outline-action">
                 <i class="fa-solid fa-hotel"></i> View Property
             </a>

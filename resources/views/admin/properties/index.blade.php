@@ -292,8 +292,8 @@
                                             </li>
                                         @endif
                                         <li>
-                                            <a class="dropdown-item py-1.5 px-3" href="{{ route('hotels.show', $p->id) }}" target="_blank">
-                                                <i class="fa-solid fa-arrow-up-right-from-square text-info me-2"></i> View Live Site
+                                            <a class="dropdown-item py-1.5 px-3" href="{{ route('hotels.preview', $p->id) }}" target="_blank">
+                                                <i class="fa-solid fa-eye text-primary me-2"></i> Preview on Web
                                             </a>
                                         </li>
                                         <li><hr class="dropdown-divider my-1"></li>

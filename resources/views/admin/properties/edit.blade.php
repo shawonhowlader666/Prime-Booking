@@ -13,8 +13,8 @@
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title" style="font-size:16px;">Editing: {{ $property->name }}</h1>
         <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a href="{{ route('hotels.show', $property->id) }}" target="_blank" class="btn-table-action primary" style="padding:6px 14px;">
-                View Live <i class="fa-solid fa-external-link ms-1"></i>
+            <a href="{{ route('hotels.preview', $property->id) }}" target="_blank" class="btn-table-action primary" style="padding:6px 14px; background:#4f46e5; border-color:#4f46e5;">
+                <i class="fa-solid fa-eye me-1"></i> Preview on Web <i class="fa-solid fa-external-link ms-1"></i>
             </a>
             <a href="{{ route('admin.properties.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959; padding:6px 14px;">
                 <i class="fa-solid fa-arrow-left"></i> Back
@@ -40,7 +40,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.properties.update', $property->id) }}" method="POST">
+        <form action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
@@ -122,8 +122,21 @@
                     <div class="col-md-6">
                         <label class="form-label">Real-Time GPS Coordinates (Lat, Long)</label>
                         <div style="display:flex; gap:8px;">
-                            <input type="text" name="latitude" class="form-control" value="{{ old('latitude', $property->latitude) }}" placeholder="Lat: 21.4272">
-                            <input type="text" name="longitude" class="form-control" value="{{ old('longitude', $property->longitude) }}" placeholder="Long: 91.9702">
+                            <input type="text" name="latitude" id="adminEditLatitudeInput" class="form-control" value="{{ old('latitude', $property->latitude) }}" placeholder="Lat: 21.4272" onchange="updateAdminEditMarkerFromInputs()">
+                            <input type="text" name="longitude" id="adminEditLongitudeInput" class="form-control" value="{{ old('longitude', $property->longitude) }}" placeholder="Long: 91.9702" onchange="updateAdminEditMarkerFromInputs()">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-2.5 border rounded bg-light" style="border-radius:6px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                <span class="fw-bold text-dark" style="font-size:12px;">
+                                    <i class="fa-solid fa-map-pin text-danger me-1"></i> Interactive Geolocation Pin Picker (OpenStreetMap)
+                                </span>
+                                <small class="text-secondary" style="font-size:11px;">
+                                    💡 Click on map or drag pin to update latitude &amp; longitude coordinates
+                                </small>
+                            </div>
+                            <div id="adminEditMapPicker" style="height: 220px; width: 100%; border-radius: 4px; border: 1px solid #cbd5e1; z-index: 1;"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -182,7 +195,7 @@
             {{-- STEP 2: Pricing --}}
             <div class="form-card mb-3">
                 <div class="form-section-title">
-                    <i class="fa-solid fa-bangladeshi-taka-sign me-1"></i> Pricing &amp; Discount Setup
+                    <i class="fa-solid fa-bangladeshi-taka-sign me-1"></i> Pricing &amp; Visibility
                 </div>
                 <div class="row g-3">
                     <div class="col-md-3">
@@ -194,7 +207,7 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">Original Price (Crossed-out BDT)</label>
+                        <label class="form-label">Original Price (for Discount)</label>
                         <div style="display:flex;">
                             <span class="input-group-text">৳</span>
                             <input type="number" name="original_price" class="form-control" style="border-radius:0 6px 6px 0;"
@@ -231,33 +244,63 @@
             {{-- STEP 3: Images --}}
             <div class="form-card mb-3">
                 <div class="form-section-title">
-                    <i class="fa-solid fa-images me-1"></i> Property Images
+                    <i class="fa-solid fa-images me-1"></i> Property Images &amp; Media
                 </div>
                 <div class="row g-3">
-                    <div class="col-12">
-                        <label class="form-label">Primary / Thumbnail Image URL</label>
-                        @if($property->primary_image)
-                            <div style="margin-bottom:8px; display:flex; align-items:center; gap:12px;">
-                                <img src="{{ $property->primary_image }}" style="height:64px; border-radius:6px; border:1px solid #e8e8e8; object-fit:cover;" alt="Current Image">
-                                <span style="font-size:11.5px; color:#8c8c8c;">Current primary image</span>
-                            </div>
-                        @endif
+                    <div class="col-md-6">
+                        <label class="form-label">Cover Photo (Device Upload)</label>
+                        <input type="file" name="primary_image_file" class="form-control" accept="image/*" onchange="previewFile(this)">
+                        <small class="text-muted" style="font-size:11px;">Upload new JPG/PNG from your computer or phone.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">OR Primary Image Direct URL</label>
                         <input type="url" name="primary_image" id="primaryImgUrl" class="form-control"
                             value="{{ old('primary_image', $property->primary_image) }}"
                             placeholder="https://images.unsplash.com/photo-..."
-                            oninput="previewImage(this.value)">
-                        <div id="imgPreviewWrap" style="margin-top:8px; display:none;">
-                            <img id="imgPreview" src="" style="height:80px; border-radius:6px; border:1px solid #e8e8e8;" alt="Preview">
-                        </div>
+                            oninput="previewUrl(this.value)">
+                    </div>
+                    @if($property->primary_image)
                     <div class="col-12">
-                        <label class="form-label">Official Video Tour URL (YouTube Embed / Vimeo Link)</label>
+                        <div style="margin-bottom:4px; display:flex; align-items:center; gap:12px; padding:6px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px;">
+                            <img src="{{ $property->primary_image }}" style="height:55px; width:75px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Current Image">
+                            <div>
+                                <span class="d-block fw-bold text-dark" style="font-size:11.5px;">Current Active Cover Image</span>
+                                <span style="font-size:11px; color:#64748b; word-break:break-all;">{{ $property->primary_image }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+                    <div class="col-12" id="imgPreviewWrap" style="display:none;">
+                        <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
+                    </div>
+
+                    {{-- Drag & Drop Multi-Image Dropzone for Admin Gallery Photos --}}
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
+                            <i class="fa-solid fa-photo-film text-primary me-1"></i> Add More Gallery Photos (Drag &amp; Drop Multi-Upload)
+                        </label>
+                        <div id="adminEditGalleryDropzone" class="p-4 border-2 border-dashed rounded text-center" style="background:#f8fafc; border-color:#93c5fd; cursor:pointer; transition:all 0.2s ease;" onclick="document.getElementById('adminEditGalleryFileInput').click()">
+                            <input type="file" id="adminEditGalleryFileInput" name="gallery_image_files[]" multiple accept="image/*" class="d-none" onchange="handleAdminEditGalleryFileSelect(this)">
+                            <i class="fa-solid fa-cloud-arrow-up text-primary fs-2 mb-2"></i>
+                            <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">Drag &amp; drop new photos here or click to browse</h6>
+                            <p class="text-muted m-0" style="font-size:11.5px;">Supports JPG, PNG, WEBP high-resolution photos</p>
+                        </div>
+                        {{-- Instant Preview Thumbnails Container --}}
+                        <div id="adminEditGalleryPreviewContainer" class="d-flex flex-wrap gap-2 mt-2.5"></div>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-solid fa-file-video text-danger me-1"></i> Upload Video Tour File (MP4)</label>
+                        <input type="file" name="video_file" class="form-control" accept="video/*">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label"><i class="fa-brands fa-youtube text-danger me-1"></i> OR Video Tour URL (YouTube / Embed)</label>
                         <input type="url" name="video_url" class="form-control"
                             value="{{ old('video_url', $property->video_url) }}" placeholder="e.g. https://www.youtube.com/embed/dQw4w9WgXcQ">
-                        <span style="font-size:11px; color:#8c8c8c; margin-top:4px; display:block;">Enter a YouTube embed URL (or Vimeo/MP4 video link). This enables the "VIDEO TOUR" button on search results & detail pages.</span>
                     </div>
                     <div class="col-12">
                         <label class="form-label">Gallery Image URLs (one per line)</label>
-                        <textarea name="gallery_images" class="form-control" rows="3"
+                        <textarea name="gallery_images" class="form-control" rows="2"
                             placeholder="https://cdn.example.com/image1.jpg&#10;https://cdn.example.com/image2.jpg">{{ old('gallery_images', $galleryText) }}</textarea>
                     </div>
                 </div>
@@ -355,20 +398,143 @@
 @endsection
 
 @section('scripts')
+{{-- Leaflet Maps CDN --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+// ── Geolocation Interactive Map Picker (Leaflet + OpenStreetMap) ──
+let adminEditPropertyMap = null;
+let adminEditPropertyMarker = null;
+
+const cityCoordinates = {
+    "Dhaka City": [23.8103, 90.4125],
+    "Dhaka": [23.8103, 90.4125],
+    "Cox's Bazar Sea Beach": [21.4272, 91.9702],
+    "Cox's Bazar": [21.4272, 91.9702],
+    "Sylhet": [24.8949, 91.8687],
+    "Chittagong": [22.3569, 91.7832],
+    "Kuakata": [21.8167, 90.1167],
+    "Sundarbans & Mongla": [22.4833, 89.6000],
+    "Sreemangal": [24.3065, 91.7296],
+    "Bandarban": [22.1953, 92.2184],
+    "Rangamati": [22.6533, 92.1753],
+    "Sajek Valley": [23.3820, 92.2938]
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    const latInput = document.getElementById('adminEditLatitudeInput');
+    const lngInput = document.getElementById('adminEditLongitudeInput');
+    
+    let defaultLat = parseFloat(latInput?.value) || 21.4272;
+    let defaultLng = parseFloat(lngInput?.value) || 91.9702;
+
+    adminEditPropertyMap = L.map('adminEditMapPicker').setView([defaultLat, defaultLng], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(adminEditPropertyMap);
+
+    adminEditPropertyMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(adminEditPropertyMap);
+
+    adminEditPropertyMarker.on('dragend', function (e) {
+        const position = adminEditPropertyMarker.getLatLng();
+        latInput.value = position.lat.toFixed(6);
+        lngInput.value = position.lng.toFixed(6);
+    });
+
+    adminEditPropertyMap.on('click', function (e) {
+        adminEditPropertyMarker.setLatLng(e.latlng);
+        latInput.value = e.latlng.lat.toFixed(6);
+        lngInput.value = e.latlng.lng.toFixed(6);
+    });
+
+    setupAdminEditGalleryDropzone();
+});
+
+function updateAdminEditMarkerFromInputs() {
+    const lat = parseFloat(document.getElementById('adminEditLatitudeInput').value);
+    const lng = parseFloat(document.getElementById('adminEditLongitudeInput').value);
+    if (!isNaN(lat) && !isNaN(lng) && adminEditPropertyMap && adminEditPropertyMarker) {
+        adminEditPropertyMarker.setLatLng([lat, lng]);
+        adminEditPropertyMap.panTo([lat, lng]);
+    }
+}
+
 function onAdminCityChanged(select) {
     const selected = select.options[select.selectedIndex];
     if (!selected) return;
     const lat = selected.getAttribute('data-lat');
     const lng = selected.getAttribute('data-lng');
-    const latInput = document.querySelector('input[name="latitude"]');
-    const lngInput = document.querySelector('input[name="longitude"]');
-    if (lat && latInput && (!latInput.value || latInput.value === '')) {
-        latInput.value = parseFloat(lat).toFixed(4);
+    const cityName = selected.value;
+
+    let targetLat = lat ? parseFloat(lat) : (cityCoordinates[cityName] ? cityCoordinates[cityName][0] : null);
+    let targetLng = lng ? parseFloat(lng) : (cityCoordinates[cityName] ? cityCoordinates[cityName][1] : null);
+
+    if (targetLat && targetLng) {
+        document.getElementById('adminEditLatitudeInput').value = targetLat.toFixed(6);
+        document.getElementById('adminEditLongitudeInput').value = targetLng.toFixed(6);
+        if (adminEditPropertyMap && adminEditPropertyMarker) {
+            adminEditPropertyMarker.setLatLng([targetLat, targetLng]);
+            adminEditPropertyMap.setView([targetLat, targetLng], 13);
+        }
     }
-    if (lng && lngInput && (!lngInput.value || lngInput.value === '')) {
-        lngInput.value = parseFloat(lng).toFixed(4);
-    }
+}
+
+// ── Drag & Drop Multi-Image Uploader with Live Preview ──
+function setupAdminEditGalleryDropzone() {
+    const dropzone = document.getElementById('adminEditGalleryDropzone');
+    if (!dropzone) return;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#eff6ff';
+            dropzone.style.borderColor = '#2563eb';
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#f8fafc';
+            dropzone.style.borderColor = '#93c5fd';
+        }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleAdminEditGalleryFiles(files);
+    });
+}
+
+function handleAdminEditGalleryFileSelect(input) {
+    handleAdminEditGalleryFiles(input.files);
+}
+
+function handleAdminEditGalleryFiles(files) {
+    const container = document.getElementById('adminEditGalleryPreviewContainer');
+    if (!files || !container) return;
+
+    Array.from(files).forEach((file, index) => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const card = document.createElement('div');
+            card.className = 'position-relative border rounded p-1 shadow-sm bg-white';
+            card.style.width = '100px';
+            card.style.height = '85px';
+            card.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" alt="preview">
+                <span class="badge bg-dark position-absolute bottom-0 start-0 m-1 opacity-75" style="font-size:8px;">${(file.size / 1024).toFixed(0)} KB</span>
+                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center m-1 shadow-sm" style="width:18px; height:18px; font-size:9px;" onclick="this.parentElement.remove()" title="Remove">✕</button>
+            `;
+            container.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function promptAdminEditCategory() {
@@ -384,7 +550,7 @@ function promptAdminEditCategory() {
 }
 
 function promptAdminEditCity() {
-    const select = document.getElementById('adminEditPropCitySelect');
+    const select = document.getElementById('adminPropCitySelect');
     const custom = prompt("Enter new Destination City or Region (e.g. Saint Martin Island, Kaptai Lake, Jaflong, Bangkok, Dubai):");
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');
@@ -408,7 +574,7 @@ function addAdminEditCustomAmenity() {
     input.value = '';
 }
 
-function previewImage(url) {
+function previewUrl(url) {
     const wrap = document.getElementById('imgPreviewWrap');
     const img  = document.getElementById('imgPreview');
     if (url && url.startsWith('http')) {
@@ -418,6 +584,18 @@ function previewImage(url) {
         wrap.style.display = 'none';
     }
 }
+
+function previewFile(input) {
+    const wrap = document.getElementById('imgPreviewWrap');
+    const img  = document.getElementById('imgPreview');
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            img.src = e.target.result;
+            wrap.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+    }
+}
 </script>
 @endsection
-

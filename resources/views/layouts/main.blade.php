@@ -153,6 +153,10 @@
     <!-- Google One Tap Sign In Card Widget (Guest Mode) -->
     @include('components.google-one-tap')
 
+    <!-- Agoda / Honey Exact 1:1 Floating Rewards & QR App Popups (Homepage) -->
+    @if(request()->routeIs('home') || ($activePage ?? '') === 'home')
+        @include('components.floating-marketing-widgets')
+    @endif
 
     <!-- Agoda Native App Bottom Dock Navigation (Mobile Only) -->
     @include('components.layout.mobile-bottom-nav')

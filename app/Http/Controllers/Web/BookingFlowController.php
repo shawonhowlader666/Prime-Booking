@@ -176,6 +176,11 @@ class BookingFlowController extends Controller
             $selectedAddons, $paymentStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout,
             $inventoryService, $couponService
         ) {
+            $specialReq = $request->special_requests;
+            if ($couponCode) {
+                $specialReq = ($specialReq ? $specialReq . ' | ' : '') . "Coupon Applied: {$couponCode} (-৳{$discountAmount})";
+            }
+
             $b = Booking::create([
                 'booking_reference'    => $reference,
                 'property_id'          => $property->id,
@@ -190,19 +195,15 @@ class BookingFlowController extends Controller
                 'nights'               => $nights,
                 'price_per_night'      => $pricePerNight,
                 'subtotal'             => $subtotal,
-                'discount_amount'      => $discountAmount,
-                'coupon_code'          => $couponCode,
                 'tax_amount'           => $taxAmount,
                 'total_price'          => $totalPrice,
                 'total_amount'         => $totalPrice,
-                'commission_rate'      => $commissionRate,
-                'commission_amount'    => $commissionAmount,
-                'vendor_payout_amount' => $vendorPayout,
+                'currency'             => 'BDT',
                 'payment_method'       => $request->payment_method,
                 'payment_status'       => $paymentStatus,
                 'status'               => 'confirmed',
                 'booking_status'       => 'confirmed',
-                'special_requests'     => $request->special_requests,
+                'special_requests'     => $specialReq,
             ]);
 
             foreach ($selectedAddons as $addon) {

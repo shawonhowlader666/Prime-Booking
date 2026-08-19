@@ -240,8 +240,8 @@
                                         <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item py-1.5">
                                             <i class="fa-solid fa-pen me-2 text-primary"></i> Edit Property
                                         </a>
-                                        <a href="{{ route('hotels.show', $property->id) }}" target="_blank" class="dropdown-item py-1.5">
-                                            <i class="fa-solid fa-arrow-up-right-from-square me-2 text-info"></i> View on Main Web
+                                        <a href="{{ route('hotels.preview', $property->id) }}" target="_blank" class="dropdown-item py-1.5">
+                                            <i class="fa-solid fa-eye me-2 text-info"></i> Preview on Web
                                         </a>
                                         @if(($property->status ?? '') !== 'pending')
                                             <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">

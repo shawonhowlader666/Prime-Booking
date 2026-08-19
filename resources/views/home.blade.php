@@ -86,16 +86,119 @@
             @include('components.search.search-bar')
         </div>
     </div>
-
-    <div class="d-none d-lg-flex" style="position:absolute;right:0;top:110px;background-color:#f97316;color:#fff;width:40px;height:80px;border-radius:12px 0 0 12px;font-weight:800;font-size:1.5rem;align-items:center;justify-content:center;box-shadow:-4px 0 12px rgba(0,0,0,0.2);cursor:pointer;z-index:10;" title="Host your Property">
-        h
-    </div>
 </section>
+
+{{-- ============================================================ --}}
+{{-- TRIP SAVINGS & JOURNEY PLANNING SECTION (Agoda 1:1 Parity)   --}}
+{{-- ============================================================ --}}
+<div class="py-4 pt-5" style="background: #ffffff; border-bottom: 1px solid #e2e8f0; margin-top: 45px;">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
+        
+        {{-- 1. Top Green Banner: Unlocked Trip Savings Deals --}}
+        <div class="card p-3.5 px-4 mb-4 border-0 position-relative overflow-hidden" style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border-radius: 12px; border: 1px solid #bbf7d0 !important;">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+                <div>
+                    <h4 class="fw-bold mb-1" style="color: #14532d; font-size: 18.5px; letter-spacing: -0.3px;">
+                        {{ auth()->check() ? auth()->user()->name : 'Shawon' }}! You've unlocked Trip Savings deals!
+                    </h4>
+                    <p class="mb-0 fw-semibold" style="color: #15803d; font-size: 13px;">
+                        Save more with Trip Savings
+                    </p>
+                </div>
+                <div class="d-none d-md-flex align-items-center gap-2">
+                    <span class="badge text-white px-3 py-2 fw-bold d-inline-flex align-items-center gap-1.5" style="background: #00897b; font-size: 12.5px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,137,123,0.25);">
+                        <i class="fa-solid fa-tag"></i> Trip Savings
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        {{-- 2. Need more hotels for your trip? --}}
+        <div class="mb-4">
+            <h5 class="fw-bold text-dark mb-2.5" style="font-size: 17.5px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
+            <div class="card p-3.5 bg-white border" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+                    <div class="d-flex align-items-start gap-3">
+                        <div style="width: 44px; height: 44px; background: #e8f5e9; color: #2e7d32; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                            <i class="fa-solid fa-hotel"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge text-white px-2 py-0.5 fw-bold d-inline-flex align-items-center gap-1" style="background: #00897b; font-size: 10.5px; border-radius: 4px;">
+                                    <i class="fa-solid fa-suitcase-rolling" style="font-size: 9px;"></i> Trip Savings
+                                </span>
+                                <span class="badge text-white px-2 py-0.5 fw-bold" style="background: #16a34a; font-size: 10.5px; border-radius: 4px;">
+                                    Up to 5% off
+                                </span>
+                            </div>
+                            <h6 class="fw-bold text-dark mb-0.5" style="font-size: 14.5px;">Book another place to stay</h6>
+                            <p class="text-secondary small mb-1.5" style="font-size: 12px;">We have unlocked the best deals with Trip Savings</p>
+                            <div class="text-secondary small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 11.5px;">
+                                <i class="fa-regular fa-calendar text-primary"></i> 15 Sep - 16 Sep &bull; 1 Adult 
+                                <a href="{{ route('search.index') }}" class="text-primary text-decoration-none ms-1"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i></a>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ route('search.index') }}" class="btn btn-outline-primary px-4 py-1.5 fw-bold rounded-pill" style="font-size: 13.5px; border-width: 1.5px;">
+                            Search
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- 3. Plan your journey to your hotel --}}
+        <div class="mb-3">
+            <h5 class="fw-bold text-dark mb-1" style="font-size: 17.5px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
+            <p class="text-secondary small mb-3" style="font-size: 12.5px;">Book your ride in advance for a hassle-free trip</p>
+
+            <div class="row g-3">
+                {{-- Card A: Airport Transfer --}}
+                <div class="col-md-6">
+                    <div class="card p-3.5 bg-white border h-100" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size: 15px;">Book your airport transfer</h6>
+                                <p class="text-secondary small mb-2.5" style="font-size: 12px; line-height: 1.4;">Pre-book trusted airport pickup &amp; drop in Dhaka, Cox's Bazar, Sylhet &amp; Chittagong.</p>
+                                <a href="{{ route('transfers.index') }}" class="btn btn-sm text-white fw-bold px-3 py-1.5 rounded-pill" style="background: #2067e1; font-size: 12px;">
+                                    Book Transfer <i class="fa-solid fa-arrow-right ms-1" style="font-size: 10px;"></i>
+                                </a>
+                            </div>
+                            <div style="width: 110px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <img src="{{ asset('images/bd_hero_slide1.png') }}" onerror="this.src='https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=220&q=80'" alt="Airport Transfer" style="max-height: 70px; max-width: 100px; object-fit: contain;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Card B: Rent a Car --}}
+                <div class="col-md-6">
+                    <div class="card p-3.5 bg-white border h-100" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                        <div class="d-flex align-items-center justify-content-between gap-3">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size: 15px;">Rent a car</h6>
+                                <p class="text-secondary small mb-2.5" style="font-size: 12px; line-height: 1.4;">Flexible daily car rentals &amp; chauffeur drive across Bangladesh.</p>
+                                <a href="{{ route('transfers.index') }}" class="btn btn-sm text-white fw-bold px-3 py-1.5 rounded-pill" style="background: #2067e1; font-size: 12px;">
+                                    Find Cars <i class="fa-solid fa-arrow-right ms-1" style="font-size: 10px;"></i>
+                                </a>
+                            </div>
+                            <div style="width: 110px; height: 75px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                <img src="{{ asset('images/bd_hero_slide4.png') }}" onerror="this.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=220&q=80'" alt="Rent a Car" style="max-height: 70px; max-width: 100px; object-fit: contain;">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
 
 {{-- ============================================================ --}}
 {{-- LUXURY BD DESTINATIONS — INFINITE VISUAL CARDS MARQUEE SLIDER --}}
 {{-- ============================================================ --}}
-<div class="py-4" style="background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%); border-bottom: 1px solid #cbd5e1; margin-top: 60px; overflow: hidden; position: relative;">
+<div class="py-4" style="background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%); border-bottom: 1px solid #cbd5e1; margin-top: 0; overflow: hidden; position: relative;">
     <div style="max-width: 1366px; margin: 0 auto; padding: 0 20px;">
         
         <div class="d-flex align-items-center justify-content-between mb-3">

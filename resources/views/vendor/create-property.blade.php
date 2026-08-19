@@ -119,8 +119,21 @@
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Real-Time GPS Coordinates (Lat, Long)</label>
                         <div style="display:flex; gap:8px;">
-                            <input type="text" name="latitude" class="form-control form-control-sm" value="{{ old('latitude') }}" placeholder="Lat: 21.4272" style="font-size:13px; height:38px;">
-                            <input type="text" name="longitude" class="form-control form-control-sm" value="{{ old('longitude') }}" placeholder="Long: 91.9702" style="font-size:13px; height:38px;">
+                            <input type="text" name="latitude" id="vendorLatitudeInput" class="form-control form-control-sm" value="{{ old('latitude', '21.4272') }}" placeholder="Lat: 21.4272" style="font-size:13px; height:38px;" onchange="updateMarkerFromInputs()">
+                            <input type="text" name="longitude" id="vendorLongitudeInput" class="form-control form-control-sm" value="{{ old('longitude', '91.9702') }}" placeholder="Long: 91.9702" style="font-size:13px; height:38px;" onchange="updateMarkerFromInputs()">
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="p-2.5 border rounded bg-light" style="border-radius:6px;">
+                            <div class="d-flex justify-content-between align-items-center mb-1.5">
+                                <span class="fw-bold text-dark" style="font-size:12px;">
+                                    <i class="fa-solid fa-map-pin text-danger me-1"></i> Interactive Geolocation Pin Picker (OpenStreetMap)
+                                </span>
+                                <small class="text-secondary" style="font-size:11px;">
+                                    💡 Click on map or drag pin to auto-fill latitude &amp; longitude
+                                </small>
+                            </div>
+                            <div id="vendorMapPicker" style="height: 220px; width: 100%; border-radius: 4px; border: 1px solid #cbd5e1; z-index: 1;"></div>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -209,7 +222,7 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
-                            <i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Thumbnail Photo (Device)
+                            <i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Primary Thumbnail (Device)
                         </label>
                         <input type="file" name="primary_image_file" class="form-control form-control-sm" accept="image/*" onchange="previewFile(this)" style="font-size:12.5px; height:38px; padding:4px 12px;">
                     </div>
@@ -223,20 +236,32 @@
                     </div>
                     <div class="col-12">
                         <div id="imgPreviewWrap" class="p-2 border rounded bg-light" style="display:none; max-width:260px;">
-                            <span class="text-secondary d-block mb-1" style="font-size:11px; font-weight:700;">LIVE PHOTO PREVIEW:</span>
+                            <span class="text-secondary d-block mb-1" style="font-size:11px; font-weight:700;">PRIMARY PHOTO PREVIEW:</span>
                             <img id="imgPreview" src="" style="width:100%; height:130px; object-fit:cover; border-radius:4px;" alt="Thumbnail Preview">
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Upload Multiple Gallery Photos (Device)</label>
-                        <input type="file" name="gallery_image_files[]" class="form-control form-control-sm" multiple accept="image/*" style="font-size:12.5px; height:38px; padding:4px 12px;">
+                    
+                    {{-- Drag & Drop Multi-Image Dropzone for Gallery Photos --}}
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
+                            <i class="fa-solid fa-photo-film text-primary me-1"></i> Property Gallery Photos (Drag &amp; Drop Multi-Upload)
+                        </label>
+                        <div id="galleryDropzone" class="p-4 border-2 border-dashed rounded text-center" style="background:#f8fafc; border-color:#93c5fd; cursor:pointer; transition:all 0.2s ease;" onclick="document.getElementById('galleryFileInput').click()">
+                            <input type="file" id="galleryFileInput" name="gallery_image_files[]" multiple accept="image/*" class="d-none" onchange="handleGalleryFileSelect(this)">
+                            <i class="fa-solid fa-cloud-arrow-up text-primary fs-2 mb-2"></i>
+                            <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">Drag &amp; drop photos here or click to browse</h6>
+                            <p class="text-muted m-0" style="font-size:11.5px;">Supports JPG, PNG, WEBP high-resolution photos (Up to 10MB each)</p>
+                        </div>
+                        {{-- Instant Preview Thumbnails Container --}}
+                        <div id="galleryPreviewContainer" class="d-flex flex-wrap gap-2 mt-2.5"></div>
                     </div>
+
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">YouTube Video Tour URL (Optional)</label>
                         <input type="url" name="video_url" class="form-control form-control-sm" value="{{ old('video_url') }}" placeholder="https://www.youtube.com/watch?v=..." style="font-size:12.5px; height:38px;">
                     </div>
-                    <div class="col-12">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Additional Gallery URLs (One URL per line — Optional)</label>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Additional Gallery URLs (One per line — Optional)</label>
                         <textarea name="gallery_images" class="form-control form-control-sm" rows="2"
                             placeholder="https://your-cdn.com/room1.jpg&#10;https://your-cdn.com/room2.jpg" style="font-size:12.5px;">{{ old('gallery_images') }}</textarea>
                     </div>
@@ -323,20 +348,144 @@
 @endsection
 
 @section('scripts')
+{{-- Leaflet Maps CDN --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <script>
+// ── Geolocation Interactive Map Picker (Leaflet + OpenStreetMap) ──
+let propertyMap = null;
+let propertyMarker = null;
+
+const cityCoordinates = {
+    "Dhaka City": [23.8103, 90.4125],
+    "Dhaka": [23.8103, 90.4125],
+    "Cox's Bazar Sea Beach": [21.4272, 91.9702],
+    "Cox's Bazar": [21.4272, 91.9702],
+    "Sylhet": [24.8949, 91.8687],
+    "Chittagong": [22.3569, 91.7832],
+    "Kuakata": [21.8167, 90.1167],
+    "Sundarbans & Mongla": [22.4833, 89.6000],
+    "Sreemangal": [24.3065, 91.7296],
+    "Bandarban": [22.1953, 92.2184],
+    "Rangamati": [22.6533, 92.1753],
+    "Sajek Valley": [23.3820, 92.2938]
+};
+
+document.addEventListener("DOMContentLoaded", function () {
+    const latInput = document.getElementById('vendorLatitudeInput');
+    const lngInput = document.getElementById('vendorLongitudeInput');
+    
+    let defaultLat = parseFloat(latInput?.value) || 21.4272;
+    let defaultLng = parseFloat(lngInput?.value) || 91.9702;
+
+    propertyMap = L.map('vendorMapPicker').setView([defaultLat, defaultLng], 13);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+        attribution: '© OpenStreetMap contributors'
+    }).addTo(propertyMap);
+
+    propertyMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(propertyMap);
+
+    propertyMarker.on('dragend', function (e) {
+        const position = propertyMarker.getLatLng();
+        latInput.value = position.lat.toFixed(6);
+        lngInput.value = position.lng.toFixed(6);
+    });
+
+    propertyMap.on('click', function (e) {
+        propertyMarker.setLatLng(e.latlng);
+        latInput.value = e.latlng.lat.toFixed(6);
+        lngInput.value = e.latlng.lng.toFixed(6);
+    });
+
+    // Setup Drag and Drop File Upload listeners
+    setupGalleryDropzone();
+});
+
+function updateMarkerFromInputs() {
+    const lat = parseFloat(document.getElementById('vendorLatitudeInput').value);
+    const lng = parseFloat(document.getElementById('vendorLongitudeInput').value);
+    if (!isNaN(lat) && !isNaN(lng) && propertyMap && propertyMarker) {
+        propertyMarker.setLatLng([lat, lng]);
+        propertyMap.panTo([lat, lng]);
+    }
+}
+
 function onVendorCityChanged(select) {
     const selected = select.options[select.selectedIndex];
     if (!selected) return;
     const lat = selected.getAttribute('data-lat');
     const lng = selected.getAttribute('data-lng');
-    const latInput = document.querySelector('input[name="latitude"]');
-    const lngInput = document.querySelector('input[name="longitude"]');
-    if (lat && latInput && (!latInput.value || latInput.value === '')) {
-        latInput.value = parseFloat(lat).toFixed(4);
+    const cityName = selected.value;
+
+    let targetLat = lat ? parseFloat(lat) : (cityCoordinates[cityName] ? cityCoordinates[cityName][0] : null);
+    let targetLng = lng ? parseFloat(lng) : (cityCoordinates[cityName] ? cityCoordinates[cityName][1] : null);
+
+    if (targetLat && targetLng) {
+        document.getElementById('vendorLatitudeInput').value = targetLat.toFixed(6);
+        document.getElementById('vendorLongitudeInput').value = targetLng.toFixed(6);
+        if (propertyMap && propertyMarker) {
+            propertyMarker.setLatLng([targetLat, targetLng]);
+            propertyMap.setView([targetLat, targetLng], 13);
+        }
     }
-    if (lng && lngInput && (!lngInput.value || lngInput.value === '')) {
-        lngInput.value = parseFloat(lng).toFixed(4);
-    }
+}
+
+// ── Drag & Drop Multi-Image Uploader with Live Preview ──
+function setupGalleryDropzone() {
+    const dropzone = document.getElementById('galleryDropzone');
+    if (!dropzone) return;
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#eff6ff';
+            dropzone.style.borderColor = '#2563eb';
+        }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropzone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            dropzone.style.background = '#f8fafc';
+            dropzone.style.borderColor = '#93c5fd';
+        }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        handleGalleryFiles(files);
+    });
+}
+
+function handleGalleryFileSelect(input) {
+    handleGalleryFiles(input.files);
+}
+
+function handleGalleryFiles(files) {
+    const container = document.getElementById('galleryPreviewContainer');
+    if (!files || !container) return;
+
+    Array.from(files).forEach((file, index) => {
+        if (!file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            const card = document.createElement('div');
+            card.className = 'position-relative border rounded p-1 shadow-sm bg-white';
+            card.style.width = '100px';
+            card.style.height = '85px';
+            card.innerHTML = `
+                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" alt="preview">
+                <span class="badge bg-dark position-absolute bottom-0 start-0 m-1 opacity-75" style="font-size:8px;">${(file.size / 1024).toFixed(0)} KB</span>
+                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center m-1 shadow-sm" style="width:18px; height:18px; font-size:9px;" onclick="this.parentElement.remove()" title="Remove">✕</button>
+            `;
+            container.appendChild(card);
+        };
+        reader.readAsDataURL(file);
+    });
 }
 
 function promptVendorCreateCategory() {

@@ -195,7 +195,7 @@
                                 <div style="background: #fafafa; border-radius: 8px; padding: 10px 12px; margin-top: 12px;">
                                     <div style="font-size: 13.5px; font-weight: 700; color: #2d2d2d;">List your place on Agoda</div>
                                     <div style="font-size: 11.5px; color: #64748b; margin-bottom: 4px;">Earn money to pay for your travel!</div>
-                                    <a href="{{ route('admin.hotels.create') }}" style="font-size: 13px; font-weight: 700; color: #2067e1; text-decoration: none;">List your place</a>
+                                    <a href="{{ Route::has('admin.properties.create') ? route('admin.properties.create') : '#' }}" style="font-size: 13px; font-weight: 700; color: #2067e1; text-decoration: none;">List your place</a>
                                 </div>
                             </div>
                         </div>

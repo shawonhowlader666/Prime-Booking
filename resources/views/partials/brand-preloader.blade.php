@@ -1,11 +1,13 @@
-{{-- Agoda Official 5-Color Pristine Bouncing Dots Preloader (Pure Floating Dots, Ultra Smooth Wave) --}}
+{{-- Prime Booking 7-Color Rainbow Bouncing Dots Preloader (Pure Floating Dots, Ultra Smooth Wave) --}}
 <div id="primeGlobalPreloader" class="prime-preloader-backdrop">
-    <div class="prime-agoda-smooth-dots">
-        <div class="agoda-dot agoda-dot-1"></div>
-        <div class="agoda-dot agoda-dot-2"></div>
-        <div class="agoda-dot agoda-dot-3"></div>
-        <div class="agoda-dot agoda-dot-4"></div>
-        <div class="agoda-dot agoda-dot-5"></div>
+    <div class="prime-brand-smooth-dots">
+        <div class="prime-dot prime-dot-1"></div>
+        <div class="prime-dot prime-dot-2"></div>
+        <div class="prime-dot prime-dot-3"></div>
+        <div class="prime-dot prime-dot-4"></div>
+        <div class="prime-dot prime-dot-5"></div>
+        <div class="prime-dot prime-dot-6"></div>
+        <div class="prime-dot prime-dot-7"></div>
     </div>
 </div>
 
@@ -34,29 +36,31 @@
 }
 
 /* ─── Pure Floating Dots Container (No White Card, No Frame) ─── */
-.prime-agoda-smooth-dots {
+.prime-brand-smooth-dots {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 10px;
 }
 
-/* ─── Ultra Smooth Floating Dots ─── */
-.agoda-dot {
-    width: 14px;
-    height: 14px;
+/* ─── 7 Prime Logo Colors with Ultra Smooth Wave ─── */
+.prime-dot {
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
-    animation: agodaUltraSmoothWave 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    animation: primeUltraSmoothWave 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
     will-change: transform;
 }
 
-.agoda-dot-1 { background-color: #3f51b5; animation-delay: 0.00s; } /* Agoda Indigo Blue */
-.agoda-dot-2 { background-color: #03a9f4; animation-delay: 0.14s; } /* Agoda Sky Cyan */
-.agoda-dot-3 { background-color: #00bfa5; animation-delay: 0.28s; } /* Agoda Emerald Green */
-.agoda-dot-4 { background-color: #ff9800; animation-delay: 0.42s; } /* Agoda Warm Amber */
-.agoda-dot-5 { background-color: #f44336; animation-delay: 0.56s; } /* Agoda Coral Red */
+.prime-dot-1 { background-color: #3b3b98; animation-delay: 0.00s; } /* Deep Navy */
+.prime-dot-2 { background-color: #2b59c3; animation-delay: 0.10s; } /* Royal Blue */
+.prime-dot-3 { background-color: #00b4d8; animation-delay: 0.20s; } /* Bright Cyan */
+.prime-dot-4 { background-color: #10b981; animation-delay: 0.30s; } /* Emerald Green */
+.prime-dot-5 { background-color: #ffb703; animation-delay: 0.40s; } /* Golden Yellow */
+.prime-dot-6 { background-color: #fb8500; animation-delay: 0.50s; } /* Vibrant Orange */
+.prime-dot-7 { background-color: #e63946; animation-delay: 0.60s; } /* Crimson Red */
 
-@keyframes agodaUltraSmoothWave {
+@keyframes primeUltraSmoothWave {
     0%, 100% {
         transform: translateY(0);
     }

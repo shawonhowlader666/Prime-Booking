@@ -3,7 +3,7 @@
     <div class="container-fluid" style="height: 60px; width: 100%; margin: 0; padding-left: 8px; padding-right: 8px; display: flex; align-items: center;">
 
         {{-- 100% Identical Prime Booking Logo --}}
-        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 28px !important;">
+        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 48px !important;">
             <x-logo height="44" />
         </a>
 

@@ -296,7 +296,7 @@
                             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: left !important;">
                                 <div onclick="selectDestination('Khulna, Bangladesh')" style="background: #f0f5fc; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='#e4effa'" onmouseout="this.style.background='#f0f5fc'">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
-                                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Khulna, Bangladesh</span>
+                                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.25;">Khulna, Bangladesh</span>
                                         <span style="font-size: 12px; color: #595959; flex-shrink: 0;"><i class="fa-solid fa-user" style="font-size: 10.5px;"></i> 1</span>
                                     </div>
                                     <div style="font-size: 12px; color: #595959; margin-top: 4px;">8 Sep 2026 - 15 Sep 2026</div>
@@ -304,7 +304,7 @@
 
                                 <div onclick="selectDestination('Rose Garden Guest House, Khulna, Bangladesh')" style="background: #f0f5fc; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='#e4effa'" onmouseout="this.style.background='#f0f5fc'">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
-                                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Rose Garden Guest House...</span>
+                                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13px; line-height: 1.25; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Rose Garden Guest House, Khulna, Bangladesh</span>
                                         <span style="font-size: 12px; color: #595959; flex-shrink: 0;"><i class="fa-solid fa-user" style="font-size: 10.5px;"></i> 1</span>
                                     </div>
                                     <div style="font-size: 12px; color: #595959; margin-top: 4px;">8 Sep 2026 - 15 Sep 2026</div>
@@ -312,7 +312,7 @@
 
                                 <div onclick="selectDestination('Sylhet, Bangladesh')" style="background: #f0f5fc; border-radius: 8px; padding: 12px 14px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='#e4effa'" onmouseout="this.style.background='#f0f5fc'">
                                     <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
-                                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sylhet, Bangladesh</span>
+                                        <span style="font-weight: 700; color: #1a1a1a; font-size: 13.5px; line-height: 1.25;">Sylhet, Bangladesh</span>
                                         <span style="font-size: 12px; color: #595959; flex-shrink: 0;"><i class="fa-solid fa-user" style="font-size: 10.5px;"></i> 1</span>
                                     </div>
                                     <div style="font-size: 12px; color: #595959; margin-top: 4px;">8 Sep 2026 - 15 Sep 2026</div>
@@ -361,15 +361,15 @@
                                         International destinations
                                     </div>
                                     <div style="display: flex; flex-direction: column; gap: 18px; text-align: left !important;">
-                                        <div onclick="selectDestination('Singapore')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important;">
+                                        <div onclick="selectDestination('Singapore')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important; padding: 2px 0;">
                                             <div style="font-size: 13.5px; color: #1a1a1a;"><span style="font-weight: 700;">Singapore</span> <span style="color: #737373; font-weight: 400;">(1,326)</span></div>
                                             <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">shopping, restaurants</div>
                                         </div>
-                                        <div onclick="selectDestination('Bangkok, Thailand')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important;">
+                                        <div onclick="selectDestination('Bangkok, Thailand')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important; padding: 2px 0;">
                                             <div style="font-size: 13.5px; color: #1a1a1a;"><span style="font-weight: 700;">Bangkok</span> <span style="color: #737373; font-weight: 400;">(12,048)</span></div>
                                             <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">shopping, restaurants</div>
                                         </div>
-                                        <div onclick="selectDestination('Kuala Lumpur, Malaysia')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important;">
+                                        <div onclick="selectDestination('Kuala Lumpur, Malaysia')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important; padding: 2px 0;">
                                             <div style="font-size: 13.5px; color: #1a1a1a;"><span style="font-weight: 700;">Kuala Lumpur</span> <span style="color: #737373; font-weight: 400;">(19,902)</span></div>
                                             <div style="font-size: 12px; color: #6b7280; margin-top: 2px;">shopping, restaurants</div>
                                         </div>

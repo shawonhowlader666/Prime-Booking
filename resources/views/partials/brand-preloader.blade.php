@@ -40,38 +40,40 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 12px;
+    gap: 9px;
+    padding: 20px;
 }
 
-/* ─── Razor Sharp Solid High-DPI Dots (100% Crisp) ─── */
+/* ─── Razor Sharp World-Class Wave Dots ─── */
 .prime-dot {
-    width: 14px;
-    height: 14px;
+    width: 11px;
+    height: 11px;
     border-radius: 50%;
-    animation: primeUltraSmoothWave 1.3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    animation: primeProWave 1.2s cubic-bezier(0.445, 0.05, 0.55, 0.95) infinite both;
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
 }
 
-.prime-dot-1 { background: #232f6b; animation-delay: 0.00s; } /* Navy */
-.prime-dot-2 { background: #1a56db; animation-delay: 0.10s; } /* Blue */
-.prime-dot-3 { background: #00a8cc; animation-delay: 0.20s; } /* Cyan */
-.prime-dot-4 { background: #059669; animation-delay: 0.30s; } /* Emerald */
-.prime-dot-5 { background: #d97706; animation-delay: 0.40s; } /* Amber */
-.prime-dot-6 { background: #ea580c; animation-delay: 0.50s; } /* Orange */
-.prime-dot-7 { background: #dc2626; animation-delay: 0.60s; } /* Red */
+.prime-dot-1 { background: #232f6b; animation-delay: -0.60s; } /* Navy */
+.prime-dot-2 { background: #1a56db; animation-delay: -0.50s; } /* Blue */
+.prime-dot-3 { background: #00a8cc; animation-delay: -0.40s; } /* Cyan */
+.prime-dot-4 { background: #059669; animation-delay: -0.30s; } /* Emerald */
+.prime-dot-5 { background: #d97706; animation-delay: -0.20s; } /* Amber */
+.prime-dot-6 { background: #ea580c; animation-delay: -0.10s; } /* Orange */
+.prime-dot-7 { background: #dc2626; animation-delay: 0.00s; }  /* Red */
 
-@keyframes primeUltraSmoothWave {
+@keyframes primeProWave {
     0%, 100% {
-        transform: translateY(0) translateZ(0);
+        transform: translateY(0) scale(0.92);
+        opacity: 0.85;
     }
-    30% {
-        transform: translateY(-16px) translateZ(0);
-    }
-    60% {
-        transform: translateY(3px) translateZ(0);
+    40% {
+        transform: translateY(-12px) scale(1.1);
+        opacity: 1;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.12);
     }
 }
 </style>

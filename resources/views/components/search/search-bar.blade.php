@@ -457,6 +457,14 @@
                         <!-- Triangle Notch (Agoda SMS/Speech Bubble Notch) -->
                         <div style="position: absolute; top: -8px; right: 28px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 100000;"></div>
 
+                        <!-- Quick Presets Row (Agoda / Airbnb Standard) -->
+                        <div style="display: flex; gap: 6px; margin-bottom: 18px; padding-bottom: 14px; border-bottom: 1px solid #f1f5f9;">
+                            <button type="button" class="btn btn-sm btn-light text-nowrap fw-semibold" onclick="applyGuestPreset(1, 1, 0)" style="font-size: 11px; border-radius: 20px; padding: 3px 10px; border: 1px solid #e2e8f0;">Solo (1A, 1R)</button>
+                            <button type="button" class="btn btn-sm btn-light text-nowrap fw-semibold" onclick="applyGuestPreset(2, 1, 0)" style="font-size: 11px; border-radius: 20px; padding: 3px 10px; border: 1px solid #e2e8f0;">Couple (2A, 1R)</button>
+                            <button type="button" class="btn btn-sm btn-light text-nowrap fw-semibold" onclick="applyGuestPreset(2, 1, 1)" style="font-size: 11px; border-radius: 20px; padding: 3px 10px; border: 1px solid #e2e8f0;">Family (2A, 1C)</button>
+                            <button type="button" class="btn btn-sm btn-light text-nowrap fw-semibold" onclick="applyGuestPreset(4, 2, 0)" style="font-size: 11px; border-radius: 20px; padding: 3px 10px; border: 1px solid #e2e8f0;">Group (4A, 2R)</button>
+                        </div>
+
                         <!-- Item 1: Rooms -->
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px;">
                             <div>
@@ -497,6 +505,13 @@
 
                         <!-- Dynamic Child Age Selector (Agoda Screenshot 5 Exact Parity) -->
                         <div id="childAgeContainer" style="display: none; margin-top: 16px; border-top: 1px solid #f1f5f9; padding-top: 12px;"></div>
+
+                        <!-- Bottom Done / Confirm Button -->
+                        <div style="margin-top: 18px; border-top: 1px solid #f1f5f9; padding-top: 12px; text-align: right;">
+                            <button type="button" class="btn btn-primary btn-sm px-4 fw-bold" onclick="hideAllSearchPopovers()" style="border-radius: 8px; font-size: 13px; background: #2067e1; border: none;">
+                                Done
+                            </button>
+                        </div>
 
                     </div>
                 </div>
@@ -932,6 +947,17 @@ document.addEventListener('DOMContentLoaded', function() {
         if (btnCheckIn) btnCheckIn.classList.remove('active-border');
         if (btnCheckOut) btnCheckOut.classList.remove('active-border');
     }
+
+    window.hideAllSearchPopovers = function() {
+        hideBackdrop();
+    };
+
+    window.applyGuestPreset = function(adults, rooms, children) {
+        currentAdults = adults;
+        currentRooms = rooms;
+        currentChildren = children;
+        updateUI();
+    };
 
     function updateUI() {
         if (valRooms) valRooms.textContent = currentRooms;

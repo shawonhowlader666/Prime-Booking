@@ -65,6 +65,8 @@ Route::get('/sitemap.xml', function () {
 Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/currency/switch/{code}', [PageController::class, 'switchCurrency'])->name('currency.switch');
 Route::get('/api/search/autocomplete', [App\Http\Controllers\Web\AutocompleteController::class, 'search'])->name('search.autocomplete');
+Route::post('/api/search/log-query', [App\Http\Controllers\Web\AutocompleteController::class, 'logSelection'])->name('search.log.selection');
+
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show');
 Route::get('/hotels/{id}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('hotels.preview');

@@ -1,137 +1,81 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
-use App\Models\Location;
-use App\Models\Property;
+use App\Services\Search\AutoCompleteService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 
 /**
- * AutocompleteController — 100% Database-Driven
+ * AutocompleteController — Thin HTTP adapter over AutoCompleteService.
  *
- * ZERO hardcoded city arrays.
- * All city/district suggestions come from:
- *  1. `locations` table (admin-managed, hierarchy-aware)
- *  2. `properties.city` + `properties.address` (vendor-entered data)
+ * Responsibilities:
+ *  - Validate/sanitize input
+ *  - Delegate ALL business logic to AutoCompleteService
+ *  - Return consistent JSON response shape
+ *  - Log search asynchronously (fire-and-forget via queue)
  *
- * Cache strategy: 5 min per query term (low overhead, always fresh enough)
+ * Routes:
+ *  GET /api/search/autocomplete?q=khulna&search_type=hotel
+ *  POST /api/search/log-query   (selection logging)
  */
 class AutocompleteController extends Controller
 {
+    public function __construct(
+        private readonly AutoCompleteService $service
+    ) {}
+
+    /**
+     * Main autocomplete endpoint.
+     * Called on every debounced keystroke (180ms) from the search card.
+     */
     public function search(Request $request): JsonResponse
     {
-        $q      = trim((string) $request->input('q', ''));
-        $limit  = min((int) $request->input('limit', 10), 20);
+        $q          = trim((string) $request->input('q', ''));
+        $searchType = $request->input('search_type', 'hotel');
+        $limit      = min((int) $request->input('limit', 8), 20);
 
         if (strlen($q) < 1) {
-            return response()->json(['success' => true, 'destinations' => [], 'properties' => [], 'data' => ['locations' => [], 'properties' => []]]);
+            // Default payload: trending + BD grid + personalized (if logged in)
+            $payload = $this->service->getDefaultPayload($searchType);
+        } else {
+            // Live typing: scored locations + properties + city insight
+            $payload = $this->service->getSuggestions($q, $searchType, $limit);
+
+            // Log asynchronously — zero latency impact
+            $this->service->logSearch(
+                query:       $q,
+                resolvedCity: $payload['locations'][0]['city'] ?? null,
+                params:      $request->only(['check_in', 'check_out', 'guests', 'rooms', 'search_type']),
+                resultCount: count($payload['locations']) + count($payload['properties']),
+            );
         }
 
-        $cacheKey = 'autocomplete:' . md5(strtolower($q) . ':' . $limit);
-
-        [$destinations, $properties] = Cache::remember($cacheKey, 300, function () use ($q, $limit): array {
-
-            // ─── 1. LOCATION TABLE (admin-managed: districts, upazilas, landmarks) ──
-            $locationRows = Location::where(function ($lq) use ($q) {
-                    $lq->where('name',    'LIKE', "%{$q}%")
-                       ->orWhere('city',  'LIKE', "%{$q}%");
-                })
-                ->orderByDesc('is_popular')
-                ->orderByDesc('id')
-                ->limit(6)
-                ->get();
-
-            $destinations = $locationRows->map(fn ($loc) => [
-                'type'     => 'city',
-                'city'     => $loc->name,
-                'country'  => $loc->country ?? 'Bangladesh',
-                'loc_type' => ucfirst($loc->city ?? 'Location'),
-                'title'    => $loc->name . ($loc->city && $loc->city !== $loc->name ? ', ' . $loc->city : '') . ', ' . ($loc->country ?? 'Bangladesh'),
-                'subtitle' => ($loc->is_popular ? 'Popular · ' : '') . ($loc->city ?? 'Bangladesh'),
-                'lat'      => $loc->latitude,
-                'lng'      => $loc->longitude,
-            ])->toArray();
-
-            // ─── 2. DISTINCT CITIES FROM LIVE PROPERTIES (vendor-entered) ──────────
-            if (count($destinations) < 6) {
-                $dbCities = Property::active()
-                    ->where(function ($pq) use ($q) {
-                        $pq->where('city',    'LIKE', "%{$q}%")
-                           ->orWhere('address','LIKE', "%{$q}%");
-                    })
-                    ->distinct()
-                    ->limit(6)
-                    ->pluck('city')
-                    ->filter()
-                    ->toArray();
-
-                $existingNames = array_map('strtolower', array_column($destinations, 'city'));
-
-                foreach ($dbCities as $c) {
-                    if (!in_array(strtolower($c), $existingNames, true)) {
-                        $destinations[] = [
-                            'type'     => 'city',
-                            'city'     => $c,
-                            'country'  => 'Bangladesh',
-                            'loc_type' => 'City / Area',
-                            'title'    => $c . ', Bangladesh',
-                            'subtitle' => 'City / Area',
-                            'lat'      => null,
-                            'lng'      => null,
-                        ];
-                        $existingNames[] = strtolower($c);
-                    }
-                }
-            }
-
-            $destinations = array_slice($destinations, 0, 6);
-
-            // ─── 3. PROPERTY SEARCH (hotel names, addresses, landmarks) ───────────
-            $properties = Property::active()
-                ->where(function ($pq) use ($q) {
-                    $pq->where('name',             'LIKE', "%{$q}%")
-                       ->orWhere('city',            'LIKE', "%{$q}%")
-                       ->orWhere('address',         'LIKE', "%{$q}%")
-                       ->orWhere('nearest_landmark','LIKE', "%{$q}%");
-                })
-                ->select(['id', 'name', 'slug', 'city', 'address', 'price_per_night', 'primary_image', 'rating_score', 'type'])
-                ->limit(5)
-                ->get()
-                ->map(fn ($p) => [
-                    'type'            => 'property',
-                    'property_type'   => $p->type ?? 'Hotel',          // e.g. Hotel, Resort, Houseboat
-                    'id'              => $p->id,
-                    'name'            => $p->name,
-                    'city'            => $p->city,
-                    'address'         => $p->address,
-                    'price_per_night' => (float) $p->price_per_night,
-                    'primary_image'   => $p->primary_image
-                                            ? (str_starts_with($p->primary_image, 'http')
-                                                ? $p->primary_image
-                                                : asset('storage/' . ltrim($p->primary_image, '/')))
-                                            : null,
-                    'rating_score'    => (float) $p->rating_score,
-                    'title'           => $p->name,
-                    'subtitle'        => ($p->city ? $p->city . ', Bangladesh' : 'Bangladesh'),
-                    'url'             => route('hotels.show', $p->id),
-                ])
-                ->toArray();
-
-            return [$destinations, $properties];
-        });
-
         return response()->json([
-            'success'      => true,
-            'destinations' => $destinations,
-            'properties'   => $properties,
-            'data'         => [
-                'locations'  => $destinations,
-                'properties' => $properties,
-            ],
+            'success' => true,
+            'data'    => $payload,
+            // Backward-compat keys for the existing JS that reads data.locations / data.properties
+            'locations'  => $payload['locations']  ?? [],
+            'properties' => $payload['properties'] ?? [],
         ]);
     }
-}
 
+    /**
+     * Log when user selects a destination (clicked on a suggestion pill).
+     * Called via POST from JS — fire-and-forget from client side.
+     */
+    public function logSelection(Request $request): JsonResponse
+    {
+        $this->service->logSearch(
+            query:        trim((string) $request->input('query', '')),
+            resolvedCity: $request->input('city'),
+            params:       $request->only(['check_in', 'check_out', 'guests', 'rooms', 'search_type']),
+            resultCount:  (int) $request->input('result_count', 1),
+        );
+
+        return response()->json(['success' => true]);
+    }
+}

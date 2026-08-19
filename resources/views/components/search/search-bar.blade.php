@@ -283,109 +283,87 @@
                     <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 68px; left: 0; right: 0; width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16); padding: 0; z-index: 10001; border: 1px solid #e2e8f0; text-align: left !important;">
                         <!-- Agoda Speech/SMS Bubble Pointer Notch -->
                         <div style="position: absolute; top: -8px; left: 36px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 10002;"></div>
+                        <!-- DEFAULT STATE: Smart Popover — localStorage pills + DB city grid + "Book another place" CTA -->
+                        <div id="agodaStaticSearchSuggestions" style="text-align: left !important;">
 
-                        <!-- DEFAULT STATE: Shown when input is clicked (Agoda Exact Match) -->
-                        <div id="agodaStaticSearchSuggestions" style="padding: 24px 28px; text-align: left !important;">
-                            
-                            <!-- 1. Recent Search Header -->
-                            <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 10px; text-align: left !important;">
-                                Recent search
+                            <!-- ① Recent Search Pills — hydrated from localStorage by JS -->
+                            <div id="pbRecentSearchSection" style="padding: 20px 28px 0; display: none;">
+                                <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 10px;">Recent search</div>
+                                <div id="pbRecentSearchPills" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;"></div>
                             </div>
 
-                            <!-- 2. Recent Search 3 Clean Equal Pills (Agoda Exact Match) -->
-                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: left !important;">
-                                <div onclick="selectDestination('Khulna, Bangladesh')" style="background: #f0f5fc; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='#e2eeff'" onmouseout="this.style.background='#f0f5fc'">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 4px;">
-                                        <span style="font-weight: 700; color: #1e293b; font-size: 13.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Khulna, Bangladesh</span>
-                                        <span style="font-size: 11.5px; color: #64748b; flex-shrink: 0;"><i class="fa-solid fa-user" style="font-size: 10px;"></i> 1</span>
-                                    </div>
-                                    <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">8 Sep 2026 - 15 Sep 2026</div>
-                                </div>
+                            <!-- ② Destinations Grid — 2 column (BD left + International right) -->
+                            <div id="pbDestinationsGrid" style="padding: 20px 28px; text-align: left !important;">
 
-                                <div onclick="selectDestination('Rose Garden Guest House, Khulna, Bangladesh')" style="background: #f0f5fc; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='#e2eeff'" onmouseout="this.style.background='#f0f5fc'">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 4px;">
-                                        <span style="font-weight: 700; color: #1e293b; font-size: 13px; line-height: 1.2; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">Rose Garden Guest House, Khulna, Bangladesh</span>
-                                        <span style="font-size: 11.5px; color: #64748b; flex-shrink: 0;"><i class="fa-solid fa-user" style="font-size: 10px;"></i> 1</span>
-                                    </div>
-                                    <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">8 Sep 2026 - 15 Sep 2026</div>
-                                </div>
+                                <!-- Left: Destinations in Bangladesh (loaded from API / fallback static) -->
+                                <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px;">
 
-                                <div onclick="selectDestination('Sylhet, Bangladesh')" style="background: #f0f5fc; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: background 0.15s ease;" onmouseover="this.style.background='#e2eeff'" onmouseout="this.style.background='#f0f5fc'">
-                                    <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 4px;">
-                                        <span style="font-weight: 700; color: #1e293b; font-size: 13.5px; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Sylhet, Bangladesh</span>
-                                        <span style="font-size: 11.5px; color: #64748b; flex-shrink: 0;"><i class="fa-solid fa-user" style="font-size: 10px;"></i> 1</span>
+                                    <div style="border-right: 1px solid #edf2f7; padding-right: 20px;">
+                                        <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 14px;">Destinations in Bangladesh</div>
+                                        <div id="pbBdCitiesGrid" style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 14px; column-gap: 16px;">
+                                            <!-- Hydrated by JS from API or fallback static list below -->
+                                            @php
+                                            $bdCities = [
+                                                ['name' => 'Chittagong',       'img' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=90&q=75',   'count' => 59],
+                                                ['name' => "Cox's Bazar",      'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=90&q=75',   'count' => 118],
+                                                ['name' => 'Sreemangal',       'img' => 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=90&q=75',   'count' => 25],
+                                                ['name' => 'Sylhet',           'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=90&q=75',   'count' => 95],
+                                                ['name' => 'Dhaka',            'img' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=90&q=75',   'count' => 538],
+                                                ['name' => 'Rajshahi',         'img' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=90&q=75',   'count' => 11],
+                                            ];
+                                            @endphp
+                                            @foreach($bdCities as $c)
+                                            <div onclick="selectDestination('{{ $c['name'] }}, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 3px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                                <img src="{{ $c['img'] }}" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="{{ $c['name'] }}">
+                                                <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $c['name'] }}</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">({{ $c['count'] }})</span></div>
+                                            </div>
+                                            @endforeach
+                                        </div>
                                     </div>
-                                    <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">8 Sep 2026 - 15 Sep 2026</div>
+
+                                    <!-- Right: International Destinations -->
+                                    <div style="display: flex; flex-direction: column; justify-content: space-between;">
+                                        <div>
+                                            <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 14px;">International destinations</div>
+                                            <div style="display: flex; flex-direction: column; gap: 16px;">
+                                                <div onclick="selectDestination('Singapore')" class="agoda-popover-item" style="cursor: pointer; padding: 2px 0;">
+                                                    <div style="font-size: 13.5px; color: #1e293b;"><span style="font-weight: 700;">Singapore</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">(1,326)</span></div>
+                                                    <div style="font-size: 11.5px; color: #78716c; margin-top: 1px;">shopping, restaurants</div>
+                                                </div>
+                                                <div onclick="selectDestination('Bangkok, Thailand')" class="agoda-popover-item" style="cursor: pointer; padding: 2px 0;">
+                                                    <div style="font-size: 13.5px; color: #1e293b;"><span style="font-weight: 700;">Bangkok</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">(12,048)</span></div>
+                                                    <div style="font-size: 11.5px; color: #78716c; margin-top: 1px;">shopping, restaurants</div>
+                                                </div>
+                                                <div onclick="selectDestination('Kuala Lumpur, Malaysia')" class="agoda-popover-item" style="cursor: pointer; padding: 2px 0;">
+                                                    <div style="font-size: 13.5px; color: #1e293b;"><span style="font-weight: 700;">Kuala Lumpur</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">(19,902)</span></div>
+                                                    <div style="font-size: 11.5px; color: #78716c; margin-top: 1px;">shopping, restaurants</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div style="text-align: right; margin-top: 10px;">
+                                            <a href="{{ route('search.index') }}" style="font-size: 12.5px; font-weight: 600; color: #2067e1; text-decoration: none;">View all <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
-                            <!-- 3. Two Column Destinations Grid (Bangladesh Left + International Right) -->
-                            <div style="margin-top: 20px; display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; text-align: left !important;">
-
-                                <!-- Left Column: Destinations in Bangladesh -->
-                                <div style="border-right: 1px solid #edf2f7; padding-right: 20px; text-align: left !important;">
-                                    <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 14px; text-align: left !important;">
-                                        Destinations in Bangladesh
-                                    </div>
-                                    <div style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 14px; column-gap: 16px; text-align: left !important;">
-                                        <div onclick="selectDestination('Chittagong, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                            <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=90&q=75" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Chittagong">
-                                            <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">Chittagong</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">(59)</span></div>
-                                        </div>
-                                        <div onclick="selectDestination('Cox\'s Bazar, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=90&q=75" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Cox's Bazar">
-                                            <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">Cox's Bazar</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">(118)</span></div>
-                                        </div>
-                                        <div onclick="selectDestination('Sreemangal Upazila, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                            <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=90&q=75" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Sreemangal">
-                                            <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">Sreemangal Upazila</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">(25)</span></div>
-                                        </div>
-                                        <div onclick="selectDestination('Sylhet, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                            <img src="https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=90&q=75" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Sylhet">
-                                            <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">Sylhet</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">(95)</span></div>
-                                        </div>
-                                        <div onclick="selectDestination('Dhaka, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                            <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?w=90&q=75" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Dhaka">
-                                            <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">Dhaka</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">(538)</span></div>
-                                        </div>
-                                        <div onclick="selectDestination('Rajshahi, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 2px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
-                                            <img src="https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=90&q=75" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="Rajshahi">
-                                            <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">Rajshahi</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">(11)</span></div>
-                                        </div>
-                                    </div>
+                            <!-- ③ "Book another place to stay" CTA — Agoda Exact (shown if prior search in localStorage) -->
+                            <div id="pbBookAnotherCta" style="display: none; border-top: 1px solid #f1f5f9; padding: 14px 28px; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
+                                <div style="font-size: 13.5px; font-weight: 700; color: #1e293b; margin-bottom: 2px;">Book another place to stay</div>
+                                <div style="font-size: 12px; color: #64748b; margin-bottom: 6px;">We have unlocked the best deals with Trip Savings</div>
+                                <div id="pbBookAnotherDetails" style="font-size: 12px; color: #2067e1; font-weight: 600;">
+                                    <i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>
+                                    <span id="pbBookAnotherDates"></span> &bull; <span id="pbBookAnotherGuests"></span>
+                                    <i class="fa-solid fa-arrow-up-right-from-square" style="margin-left: 6px; font-size: 10px;"></i>
                                 </div>
-
-                                <!-- Right Column: International Destinations -->
-                                <div style="text-align: left !important; display: flex; flex-direction: column; justify-content: space-between;">
-                                    <div>
-                                        <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 14px; text-align: left !important;">
-                                            International destinations
-                                        </div>
-                                        <div style="display: flex; flex-direction: column; gap: 16px; text-align: left !important;">
-                                            <div onclick="selectDestination('Singapore')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important; padding: 2px 0;">
-                                                <div style="font-size: 13.5px; color: #1e293b;"><span style="font-weight: 700;">Singapore</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">(1,326)</span></div>
-                                                <div style="font-size: 11.5px; color: #78716c; margin-top: 1px;">shopping, restaurants</div>
-                                            </div>
-                                            <div onclick="selectDestination('Bangkok, Thailand')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important; padding: 2px 0;">
-                                                <div style="font-size: 13.5px; color: #1e293b;"><span style="font-weight: 700;">Bangkok</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">(12,048)</span></div>
-                                                <div style="font-size: 11.5px; color: #78716c; margin-top: 1px;">shopping, restaurants</div>
-                                            </div>
-                                            <div onclick="selectDestination('Kuala Lumpur, Malaysia')" class="agoda-popover-item" style="cursor: pointer; text-align: left !important; padding: 2px 0;">
-                                                <div style="font-size: 13.5px; color: #1e293b;"><span style="font-weight: 700;">Kuala Lumpur</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">(19,902)</span></div>
-                                                <div style="font-size: 11.5px; color: #78716c; margin-top: 1px;">shopping, restaurants</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div style="text-align: right; margin-top: 10px;">
-                                        <a href="{{ route('search.index') }}" style="font-size: 12.5px; font-weight: 600; color: #2067e1; text-decoration: none;">View all <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a>
-                                    </div>
-                                </div>
-
                             </div>
+
                         </div>
 
-                        <!-- LIVE TYPING STATE: Shown when user types (Image 3 Exact Match) -->
+                        <!-- LIVE TYPING STATE: Shown when user types -->
                         <div id="agodaLiveSearchResultsContainer" style="display: none; max-height: 480px; overflow-y: auto; padding: 6px 0;"></div>
+
+
 
                     </div>
 
@@ -600,21 +578,139 @@
 
 <!-- Vanilla JS Handlers for Focus Dark Blur Overlay & All Popovers -->
 <script>
+
+// ════════════════════════════════════════════════════════════════
+// PB_SEARCH_HISTORY — localStorage-based recent search engine
+// Stores up to 5 recent searches per browser (no server needed)
+// ════════════════════════════════════════════════════════════════
+const PB_SEARCH_KEY = 'pb_recent_searches_v2';
+const PB_MAX_HISTORY = 5;
+
+function pbGetRecentSearches() {
+    try {
+        return JSON.parse(localStorage.getItem(PB_SEARCH_KEY) || '[]');
+    } catch(e) { return []; }
+}
+
+function pbSaveSearch(destination, checkIn, checkOut, guests) {
+    try {
+        let searches = pbGetRecentSearches();
+        // Remove duplicate
+        searches = searches.filter(s => s.destination !== destination);
+        // Prepend new
+        searches.unshift({ destination, checkIn, checkOut, guests, ts: Date.now() });
+        // Keep only latest 5
+        searches = searches.slice(0, PB_MAX_HISTORY);
+        localStorage.setItem(PB_SEARCH_KEY, JSON.stringify(searches));
+    } catch(e) {}
+}
+
+function pbFormatDate(dateStr) {
+    if (!dateStr) return '';
+    try {
+        const d = new Date(dateStr);
+        const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        return `${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
+    } catch(e) { return dateStr; }
+}
+
+// Hydrate recent pills + "Book another place" CTA from localStorage
+function pbHydrateRecentSearches() {
+    const searches = pbGetRecentSearches();
+    const section  = document.getElementById('pbRecentSearchSection');
+    const pillsEl  = document.getElementById('pbRecentSearchPills');
+    const ctaEl    = document.getElementById('pbBookAnotherCta');
+
+    if (!pillsEl || !section) return;
+
+    if (searches.length === 0) {
+        section.style.display = 'none';
+        if (ctaEl) ctaEl.style.display = 'none';
+        return;
+    }
+
+    // Show recent pills (up to 3)
+    const recent3 = searches.slice(0, 3);
+    pillsEl.innerHTML = recent3.map(s => {
+        const dateRange = (s.checkIn && s.checkOut)
+            ? `${pbFormatDate(s.checkIn)} - ${pbFormatDate(s.checkOut)}`
+            : 'Flexible dates';
+        const guestText = s.guests ? `<i class="fa-solid fa-user" style="font-size: 10px;"></i> ${s.guests}` : '';
+        const safeName  = (s.destination || '').replace(/'/g, "\\'");
+        return `
+            <div onclick="selectDestination('${safeName}')"
+                 style="background: #f0f5fc; border-radius: 8px; padding: 10px 12px; cursor: pointer; transition: background 0.15s ease;"
+                 onmouseover="this.style.background='#e2eeff'" onmouseout="this.style.background='#f0f5fc'">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 4px;">
+                    <span style="font-weight: 700; color: #1e293b; font-size: 13px; line-height: 1.25;
+                                 display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+                        ${s.destination}
+                    </span>
+                    <span style="font-size: 11.5px; color: #64748b; flex-shrink: 0;">${guestText}</span>
+                </div>
+                <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">${dateRange}</div>
+            </div>`;
+    }).join('');
+
+    section.style.display = 'block';
+
+    // "Book another place to stay" CTA — show if there's at least 1 prior search
+    if (ctaEl && searches.length > 0) {
+        const last = searches[0];
+        const datesEl   = document.getElementById('pbBookAnotherDates');
+        const guestsEl  = document.getElementById('pbBookAnotherGuests');
+        if (datesEl && last.checkIn && last.checkOut) {
+            datesEl.textContent = `${pbFormatDate(last.checkIn)} - ${pbFormatDate(last.checkOut)}`;
+        }
+        if (guestsEl && last.guests) {
+            guestsEl.textContent = `${last.guests} Adult${last.guests > 1 ? 's' : ''}`;
+        }
+        ctaEl.onclick = () => selectDestination(last.destination || '');
+        ctaEl.style.display = 'block';
+    }
+}
+
+// ════════════════════════════════════════════════════════════════
+// selectDestination — Called when user clicks any suggestion
+// Saves to history + logs to server + fills input
+// ════════════════════════════════════════════════════════════════
 function selectDestination(name) {
-    const input = document.getElementById('agodaDestinationInput');
-    const popover = document.getElementById('agodaDestinationPopoverCard');
+    const input    = document.getElementById('agodaDestinationInput');
+    const popover  = document.getElementById('agodaDestinationPopoverCard');
     const backdrop = document.getElementById('agodaSearchBackdropOverlay');
+    const clearBtn = document.getElementById('agodaClearDestinationBtn');
+
     if (input) input.value = name;
     if (popover) popover.style.display = 'none';
     if (backdrop) backdrop.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'inline-block';
+
+    // Save to localStorage (capture current date values from form)
+    const checkIn  = document.getElementById('inputCheckIn')?.value  || '';
+    const checkOut = document.getElementById('inputCheckOut')?.value || '';
+    const guests   = document.getElementById('inputGuests')?.value   || 1;
+    pbSaveSearch(name, checkIn, checkOut, guests);
+
+    // Log to server (async, fire-and-forget, never blocks UI)
+    try {
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
+        fetch('/api/search/log-query', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+            body: JSON.stringify({ query: name, city: name.split(',')[0]?.trim(), guests, check_in: checkIn, check_out: checkOut }),
+            keepalive: true,
+        }).catch(() => {}); // silent fail
+    } catch(e) {}
 }
 
 let isSelectingCheckOut = false;
-let checkInVal = "{{ request('check_in', date('Y-m-d')) }}";
+let checkInVal  = "{{ request('check_in', date('Y-m-d')) }}";
 let checkOutVal = "{{ request('check_out', date('Y-m-d', strtotime('+7 days'))) }}";
 
-let currentNavYear = new Date().getFullYear();
+let currentNavYear  = new Date().getFullYear();
 let currentNavMonth = new Date().getMonth();
+
+
 
 function prevCalendarMonth() {
     currentNavMonth--;
@@ -917,7 +1013,9 @@ document.addEventListener('DOMContentLoaded', function() {
             positionPopover(destCard, destTrigger);
             destCard.style.display = 'block';
             if (calendarCard) calendarCard.style.display = 'none';
-            if (guestsCard) guestsCard.style.display = 'none';
+            if (guestsCard)   guestsCard.style.display   = 'none';
+            // Hydrate localStorage pills + "Book another place" CTA
+            pbHydrateRecentSearches();
         });
     }
 
@@ -934,25 +1032,28 @@ document.addEventListener('DOMContentLoaded', function() {
             const query = e.target.value.trim();
             const currentType = searchTypeInput ? searchTypeInput.value : 'hotel';
             const staticBox = document.getElementById('agodaStaticSearchSuggestions');
-            const liveBox = document.getElementById('agodaLiveSearchResultsContainer');
+            const liveBox   = document.getElementById('agodaLiveSearchResultsContainer');
 
             if (query.length === 0) {
                 if (staticBox) staticBox.style.display = 'block';
-                if (liveBox) liveBox.style.display = 'none';
+                if (liveBox)   liveBox.style.display   = 'none';
+                pbHydrateRecentSearches();
                 return;
             }
 
             searchDebounce = setTimeout(() => {
-                fetch('/api/v1/search/suggestions?q=' + encodeURIComponent(query) + '&search_type=' + currentType)
+                // Use the upgraded web autocomplete endpoint (priority scoring + insight)
+                fetch('/api/search/autocomplete?q=' + encodeURIComponent(query) + '&search_type=' + currentType)
                     .then(res => res.json())
                     .then(res => {
+                        // Support both wrapped (res.data) and flat response shapes
                         const apiData = res.data || res;
                         if (staticBox) staticBox.style.display = 'none';
-                        if (liveBox) liveBox.style.display = 'block';
+                        if (liveBox)   liveBox.style.display   = 'block';
                         renderLiveSuggestions(apiData, query);
                     })
-                    .catch(err => {
-                        // Still show client-side results even if API fails
+                    .catch(() => {
+                        // Graceful degradation: show client-side BD city matches
                         renderLiveSuggestions({ locations: [], properties: [] }, query);
                     });
             }, 180);
@@ -1129,8 +1230,27 @@ document.addEventListener('DOMContentLoaded', function() {
             html = `<div style="padding: 24px; text-align: center; color: #737373; font-size: 13.5px;">No matching destinations or properties found for "<strong>${query}</strong>".</div>`;
         }
 
+        // ── 3. CityInsight Badge (weather + travel tip from server) ──────────
+        const insight = data.insight;
+        if (insight && insight.temp) {
+            html += `
+                <div style="margin: 0 24px 12px; padding: 10px 14px; background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
+                             border-radius: 10px; border: 1px solid #dbeafe; display: flex; align-items: center; gap: 12px;">
+                    <i class="${insight.icon || 'fa-solid fa-compass text-primary'}" style="font-size: 20px; flex-shrink: 0;"></i>
+                    <div style="flex: 1;">
+                        <div style="font-size: 12.5px; font-weight: 700; color: #1e3a5f; margin-bottom: 2px;">
+                            ${insight.temp} · ${insight.condition}
+                            <span style="margin-left: 6px; font-size: 11px; background: #2067e1; color: white;
+                                         padding: 1px 7px; border-radius: 20px; font-weight: 600;">${insight.season_badge}</span>
+                        </div>
+                        <div style="font-size: 11.5px; color: #475569;">${insight.tip}</div>
+                    </div>
+                </div>`;
+        }
+
         container.innerHTML = html;
     }
+
 
     if (btnCheckIn && calendarCard) {
         btnCheckIn.addEventListener('click', function(e) {

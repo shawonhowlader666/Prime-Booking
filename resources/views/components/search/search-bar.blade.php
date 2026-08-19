@@ -286,8 +286,20 @@
                         <!-- DEFAULT STATE: Smart Popover — localStorage pills + DB city grid + "Book another place" CTA -->
                         <div id="agodaStaticSearchSuggestions" style="text-align: left !important;">
 
+                            <!-- ⓪ Agoda 1:1 GPS Current Location Direct Pick Item -->
+                            <div onclick="useHomeCurrentLocation(event)" class="agoda-popover-item" style="padding: 14px 28px 10px; cursor: pointer; display: flex; align-items: center; gap: 14px; border-bottom: 1px solid #f1f5f9; transition: background 0.12s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
+                                <div style="width: 38px; height: 38px; border-radius: 50%; background: #e0edff; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                    <i class="fa-solid fa-location-crosshairs text-primary" style="font-size: 17px;"></i>
+                                </div>
+                                <div style="flex: 1; text-align: left;">
+                                    <div style="font-size: 14.5px; font-weight: 700; color: #1e293b; line-height: 1.25;">Near My Current Location</div>
+                                    <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Find stays around your real-time GPS location</div>
+                                </div>
+                                <span style="font-size: 11px; font-weight: 700; color: #2067e1; background: #eef5ff; padding: 3px 8px; border-radius: 6px;">GPS</span>
+                            </div>
+
                             <!-- ① Recent Search Pills — hydrated from localStorage by JS -->
-                            <div id="pbRecentSearchSection" style="padding: 20px 28px 0; display: none;">
+                            <div id="pbRecentSearchSection" style="padding: 16px 28px 0; display: none;">
                                 <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 10px;">Recent search</div>
                                 <div id="pbRecentSearchPills" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;"></div>
                             </div>

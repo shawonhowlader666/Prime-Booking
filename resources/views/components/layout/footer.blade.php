@@ -214,11 +214,4 @@
 
     </div>
 
-
-
 </footer>
-
-<!-- Floating Save More on App Button (Agoda style) -->
-<a href="#" style="position: fixed; bottom: 24px; right: 24px; z-index: 9999; background-color: #2067e1; color: #fff; text-decoration: none; padding: 12px 20px; border-radius: 30px; font-weight: 700; font-size: 14px; box-shadow: 0 4px 16px rgba(32,103,225,0.4); display: flex; align-items: center; gap: 8px;">
-    <i class="fa-solid fa-mobile-screen"></i> Save more on App!
-</a>

@@ -755,6 +755,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
     document.querySelectorAll('.scroll-reveal').forEach(el => obs.observe(el));
 });
-</script>
+{{-- Prime Booking Floating Rewards & QR App Popups (Agoda 1:1) --}}
+@include('components.floating-marketing-widgets')
 
 @endsection

@@ -1,145 +1,147 @@
 {{-- 
 ========================================================================
- Prime Booking: Floating Cashback & App QR Code Popups (1:1 Agoda Parity)
+ Prime Booking: Floating Marketing & App QR Code Popups (Agoda 1:1)
 ========================================================================
 --}}
 <style>
-/* Master Container */
-.prime-floating-widgets-wrap {
-    position: fixed;
-    bottom: 85px;
-    right: 28px;
-    z-index: 1040;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    align-items: flex-end;
-    pointer-events: none;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+/* Master Fixed Floating Container */
+#primeFloatingWidgetsWrap {
+    position: fixed !important;
+    top: 110px !important;
+    right: 24px !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 14px !important;
+    align-items: flex-end !important;
+    pointer-events: none !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
 }
 
-.prime-floating-widgets-wrap * {
+#primeFloatingWidgetsWrap * {
     box-sizing: border-box;
 }
 
-.prime-floating-card {
-    pointer-events: auto;
-    background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14), 0 2px 8px rgba(0, 0, 0, 0.06);
-    border: 1px solid #eef2f6;
-    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-    position: relative;
+.prime-float-card {
+    pointer-events: auto !important;
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    box-shadow: 0 14px 40px rgba(0, 0, 0, 0.15), 0 2px 10px rgba(0, 0, 0, 0.06) !important;
+    border: 1px solid #e2e8f0 !important;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    position: relative !important;
+    display: block !important;
+    visibility: visible !important;
+    opacity: 1 !important;
 }
 
 /* ========================================================================
- 1. TOP CARD: PrimeCash Rewards & Cashback Popup
+ 1. TOP CARD: PrimeCash Rewards & Cashback (Get 1% to 8% back)
 ======================================================================== */
-.prime-reward-popup {
-    width: 320px;
-    padding: 16px 18px 14px;
-    animation: primePopIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+.prime-reward-card-box {
+    width: 320px !important;
+    padding: 16px 18px 14px !important;
 }
 
 .prime-reward-topbar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 6px;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    padding-bottom: 6px !important;
 }
 
 .prime-reward-logo-h {
-    font-family: 'Georgia', serif;
-    font-size: 22px;
-    font-weight: 700;
-    color: #1e293b;
-    line-height: 1;
-    font-style: italic;
-    letter-spacing: -0.5px;
+    font-family: 'Georgia', serif !important;
+    font-size: 24px !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+    line-height: 1 !important;
+    font-style: italic !important;
+    letter-spacing: -0.5px !important;
 }
 
 .prime-brand-logo-pill {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 2px !important;
 }
 
 .prime-brand-logo-pill .brand-text {
-    font-size: 11px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: 0.8px;
-    text-transform: lowercase;
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    letter-spacing: 0.8px !important;
+    text-transform: lowercase !important;
 }
 
 .prime-brand-logo-pill .dots-row {
-    display: flex;
-    gap: 3px;
+    display: flex !important;
+    gap: 3.5px !important;
 }
 
 .prime-brand-logo-pill .dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
+    width: 5px !important;
+    height: 5px !important;
+    border-radius: 50% !important;
 }
 
 .prime-reward-actions {
-    display: flex;
-    align-items: center;
-    gap: 6px;
+    display: flex !important;
+    align-items: center !important;
+    gap: 6px !important;
 }
 
 .prime-icon-btn {
-    background: transparent;
-    border: none;
-    color: #94a3b8;
-    cursor: pointer;
-    padding: 4px;
-    font-size: 13px;
-    border-radius: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.15s ease;
+    background: transparent !important;
+    border: none !important;
+    color: #94a3b8 !important;
+    cursor: pointer !important;
+    padding: 4px !important;
+    font-size: 14px !important;
+    border-radius: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.15s ease !important;
 }
 
 .prime-icon-btn:hover {
-    color: #334155;
-    background: #f1f5f9;
+    color: #334155 !important;
+    background: #f1f5f9 !important;
 }
 
 .prime-reward-title {
-    font-size: 21px;
-    font-weight: 800;
-    color: #0f172a;
-    text-align: center;
-    margin: 12px 0 14px;
-    letter-spacing: -0.3px;
+    font-size: 21px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    text-align: center !important;
+    margin: 12px 0 14px !important;
+    letter-spacing: -0.3px !important;
 }
 
 .prime-reward-btn {
-    width: 100%;
-    background: #d84315;
-    color: #ffffff;
-    font-weight: 700;
-    font-size: 14px;
-    padding: 10px 16px;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    box-shadow: 0 2px 6px rgba(216, 67, 21, 0.25);
+    width: 100% !important;
+    background: #d84315 !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    font-size: 14px !important;
+    padding: 11px 16px !important;
+    border-radius: 6px !important;
+    border: none !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    box-shadow: 0 2px 6px rgba(216, 67, 21, 0.25) !important;
 }
 
 .prime-reward-btn:hover {
-    background: #bf360c;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 10px rgba(216, 67, 21, 0.35);
+    background: #bf360c !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 10px rgba(216, 67, 21, 0.35) !important;
 }
 
 .prime-reward-btn.activated {
@@ -148,231 +150,237 @@
 }
 
 .prime-reward-footer-note {
-    font-size: 10.5px;
-    color: #64748b;
-    text-align: center;
-    margin-top: 10px;
-    margin-bottom: 0;
-    line-height: 1.4;
+    font-size: 10.5px !important;
+    color: #64748b !important;
+    text-align: center !important;
+    margin-top: 10px !important;
+    margin-bottom: 0 !important;
+    line-height: 1.4 !important;
 }
 
 .prime-reward-footer-note a {
-    color: #475569;
-    text-decoration: underline;
+    color: #475569 !important;
+    text-decoration: underline !important;
 }
 
 /* ========================================================================
- 2. BOTTOM CARD: App QR Code / Instant Savings Card (Exact Screenshot Parity)
+ 2. BOTTOM CARD: Save 10% on your 1st app booking! QR Code Card
 ======================================================================== */
-.prime-app-popup {
-    width: 290px;
-    padding: 22px 20px 0;
-    animation: primePopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    position: relative;
+.prime-app-card-box {
+    width: 290px !important;
+    padding: 22px 20px 0 !important;
 }
 
-/* Tooltip Downward Arrow pointing to the blue button */
-.prime-app-popup::after {
-    content: '';
-    position: absolute;
-    bottom: -8px;
-    right: 28px;
-    width: 16px;
-    height: 16px;
-    background: #ffffff;
-    transform: rotate(45deg);
-    border-right: 1px solid #eef2f6;
-    border-bottom: 1px solid #eef2f6;
-    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.04);
+/* Tooltip Downward Arrow pointing down */
+.prime-app-card-box::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -8px !important;
+    right: 28px !important;
+    width: 16px !important;
+    height: 16px !important;
+    background: #ffffff !important;
+    transform: rotate(45deg) !important;
+    border-right: 1px solid #e2e8f0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+    box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.04) !important;
 }
 
 .prime-app-title {
-    font-size: 20px;
-    font-weight: 800;
-    color: #0f172a;
-    text-align: center;
-    line-height: 1.25;
-    margin-bottom: 6px;
-    letter-spacing: -0.3px;
+    font-size: 20px !important;
+    font-weight: 800 !important;
+    color: #0f172a !important;
+    text-align: center !important;
+    line-height: 1.25 !important;
+    margin-bottom: 6px !important;
+    letter-spacing: -0.3px !important;
 }
 
 .prime-app-subtitle {
-    font-size: 12.5px;
-    color: #475569;
-    text-align: center;
-    margin-bottom: 18px;
-    line-height: 1.35;
+    font-size: 12.5px !important;
+    color: #475569 !important;
+    text-align: center !important;
+    margin-bottom: 16px !important;
+    line-height: 1.35 !important;
 }
 
-/* Smartphone Mockup Frame (Pixel Perfect with Agoda Screenshot) */
+/* Smartphone Mockup Frame (Agoda Pixel-Perfect) */
 .prime-phone-mockup {
-    width: 200px;
-    margin: 0 auto;
-    background: #ffffff;
-    border: 7px solid #9baec8;
-    border-bottom: none;
-    border-radius: 36px 36px 0 0;
-    padding: 0 10px 0;
-    position: relative;
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03);
+    width: 200px !important;
+    margin: 0 auto !important;
+    background: #ffffff !important;
+    border: 7px solid #9baec8 !important;
+    border-bottom: none !important;
+    border-radius: 36px 36px 0 0 !important;
+    padding: 0 10px 0 !important;
+    position: relative !important;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.03) !important;
 }
 
 /* Phone Top Notch */
 .prime-phone-notch {
-    width: 68px;
-    height: 11px;
-    background: #9baec8;
-    border-radius: 0 0 12px 12px;
-    margin: 0 auto 8px;
+    width: 68px !important;
+    height: 11px !important;
+    background: #9baec8 !important;
+    border-radius: 0 0 12px 12px !important;
+    margin: 0 auto 8px !important;
 }
 
 /* Brand Logo inside phone */
 .prime-phone-brand {
-    text-align: center;
-    margin-bottom: 8px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 3px;
+    text-align: center !important;
+    margin-bottom: 8px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    gap: 3px !important;
 }
 
 .prime-phone-brand .brand-name {
-    font-size: 13px;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: 0.5px;
-    line-height: 1;
-    text-transform: lowercase;
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    color: #1e293b !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1 !important;
+    text-transform: lowercase !important;
 }
 
 .prime-phone-brand .dots-row {
-    display: flex;
-    gap: 3.5px;
+    display: flex !important;
+    gap: 3.5px !important;
 }
 
 .prime-phone-brand .dot {
-    width: 5px;
-    height: 5px;
-    border-radius: 50%;
+    width: 5px !important;
+    height: 5px !important;
+    border-radius: 50% !important;
 }
 
 /* QR Code Container */
 .prime-phone-qr-frame {
-    background: #ffffff;
-    border-radius: 6px;
-    padding: 4px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 4px;
+    background: #ffffff !important;
+    border-radius: 6px !important;
+    padding: 4px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin-bottom: 4px !important;
 }
 
 .prime-phone-qr-frame img {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 4px;
+    width: 100% !important;
+    height: auto !important;
+    display: block !important;
+    border-radius: 4px !important;
 }
 
 /* ========================================================================
  3. BOTTOM FLOATING TOGGLE BUTTON (Blue Circle with '✕')
 ======================================================================== */
-.prime-floating-toggle-btn {
-    pointer-events: auto;
-    position: fixed;
-    bottom: 24px;
-    right: 28px;
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: #2067e1;
-    color: #ffffff;
-    border: none;
-    box-shadow: 0 4px 18px rgba(32, 103, 225, 0.45);
-    cursor: pointer;
-    z-index: 1045;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+#primeFloatingToggleBtn {
+    pointer-events: auto !important;
+    position: fixed !important;
+    bottom: 24px !important;
+    right: 28px !important;
+    width: 48px !important;
+    height: 48px !important;
+    border-radius: 50% !important;
+    background: #2067e1 !important;
+    color: #ffffff !important;
+    border: none !important;
+    box-shadow: 0 4px 18px rgba(32, 103, 225, 0.45) !important;
+    cursor: pointer !important;
+    z-index: 999999 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    font-size: 18px !important;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
 }
 
-.prime-floating-toggle-btn:hover {
-    transform: scale(1.08);
-    background: #1752b8;
-    box-shadow: 0 6px 22px rgba(32, 103, 225, 0.55);
+#primeFloatingToggleBtn:hover {
+    transform: scale(1.08) !important;
+    background: #1752b8 !important;
+    box-shadow: 0 6px 22px rgba(32, 103, 225, 0.55) !important;
 }
 
-/* Slide and Fade Animations */
-@keyframes primePopIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-    }
-}
-
-.prime-card-closing {
-    opacity: 0 !important;
-    transform: translateY(20px) scale(0.95) !important;
-    pointer-events: none !important;
+/* Side Sticky Orange 'h' Tab */
+#primeStickyRewardsTab {
+    pointer-events: auto !important;
+    position: fixed !important;
+    right: 0 !important;
+    top: 140px !important;
+    background-color: #f97316 !important;
+    color: #ffffff !important;
+    width: 38px !important;
+    height: 60px !important;
+    border-radius: 8px 0 0 8px !important;
+    font-family: 'Georgia', serif !important;
+    font-weight: 700 !important;
+    font-style: italic !important;
+    font-size: 1.5rem !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-shadow: -3px 2px 10px rgba(0,0,0,0.18) !important;
+    cursor: pointer !important;
+    z-index: 999998 !important;
 }
 
 /* Settings Popover Menu */
 .prime-reward-settings-menu {
-    position: absolute;
-    top: 40px;
-    right: 12px;
-    width: 220px;
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 8px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-    padding: 10px 12px;
-    z-index: 1050;
+    position: absolute !important;
+    top: 40px !important;
+    right: 12px !important;
+    width: 220px !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+    padding: 10px 12px !important;
+    z-index: 1000000 !important;
     display: none;
-    font-size: 12px;
-    color: #334155;
+    font-size: 12px !important;
+    color: #334155 !important;
 }
 
 .prime-reward-settings-menu.show {
-    display: block;
-    animation: primePopIn 0.2s ease forwards;
+    display: block !important;
 }
 
-/* Responsive adjustments for Mobile */
+/* Mobile responsive */
 @media (max-width: 768px) {
-    .prime-floating-widgets-wrap {
-        bottom: 74px;
-        right: 14px;
+    #primeFloatingWidgetsWrap {
+        top: auto !important;
+        bottom: 74px !important;
+        right: 14px !important;
     }
-    .prime-reward-popup {
-        width: 280px;
+    .prime-reward-card-box {
+        width: 280px !important;
     }
-    .prime-app-popup {
-        display: none; /* Mobile visitors already on smartphone */
+    .prime-app-card-box {
+        display: none !important;
     }
-    .prime-floating-toggle-btn {
-        bottom: 74px;
-        right: 14px;
-        width: 40px;
-        height: 40px;
-        font-size: 15px;
+    #primeFloatingToggleBtn {
+        bottom: 74px !important;
+        right: 14px !important;
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 15px !important;
     }
 }
 </style>
 
-<!-- Floating Popups Container -->
-<div class="prime-floating-widgets-wrap" id="primeFloatingWidgets">
+<!-- Side Sticky Orange Tab -->
+<div id="primeStickyRewardsTab" onclick="primeToggleFloatingCards()" title="PrimeCash Cashback Rewards">
+    h
+</div>
 
-    {{-- ================================================================
-     1. TOP CARD: PrimeCash Rewards Card
-    ================================================================ --}}
-    <div class="prime-floating-card prime-reward-popup" id="primeRewardCard">
+<!-- Floating Popups Container -->
+<div id="primeFloatingWidgetsWrap">
+
+    {{-- 1. TOP CARD: PrimeCash Rewards Card --}}
+    <div class="prime-float-card prime-reward-card-box" id="primeRewardCard">
         
         <!-- Settings Popover Menu -->
         <div class="prime-reward-settings-menu" id="primeRewardSettingsMenu">
@@ -406,10 +414,10 @@
             </div>
 
             <div class="prime-reward-actions">
-                <button type="button" class="prime-icon-btn" onclick="toggleRewardsSettings(event)" title="Rewards Settings">
+                <button type="button" class="prime-icon-btn" onclick="primeToggleRewardsSettings(event)" title="Rewards Settings">
                     <i class="fa-solid fa-gear"></i>
                 </button>
-                <button type="button" class="prime-icon-btn" onclick="closeRewardCard()" title="Dismiss">
+                <button type="button" class="prime-icon-btn" onclick="primeCloseRewardCard()" title="Dismiss">
                     <i class="fa-solid fa-xmark"></i>
                 </button>
             </div>
@@ -421,8 +429,8 @@
         </div>
 
         <!-- CTA Button -->
-        <button type="button" class="prime-reward-btn" id="activateRewardsBtn" onclick="activatePrimeCashRewards()">
-            <i class="fa-solid fa-bolt me-1" id="rewardsBtnIcon"></i> <span id="rewardsBtnText">Activate Rewards</span>
+        <button type="button" class="prime-reward-btn" id="primeActivateRewardsBtn" onclick="primeActivateRewards()">
+            <i class="fa-solid fa-bolt me-1" id="primeRewardsBtnIcon"></i> <span id="primeRewardsBtnText">Activate Rewards</span>
         </button>
 
         <!-- Footer Note -->
@@ -431,10 +439,8 @@
         </p>
     </div>
 
-    {{-- ================================================================
-     2. BOTTOM CARD: App QR Code / Instant Savings Card (Exact Screenshot)
-    ================================================================ --}}
-    <div class="prime-floating-card prime-app-popup" id="primeAppCard">
+    {{-- 2. BOTTOM CARD: App QR Code / Instant Savings Card --}}
+    <div class="prime-float-card prime-app-card-box" id="primeAppCard">
         <div class="prime-app-title">
             Save 10% on your 1st app booking!
         </div>
@@ -464,24 +470,14 @@
 </div>
 
 <!-- Bottom Floating Toggle Button (Blue Circle with '✕') -->
-<button type="button" id="toggleFloatingCardsBtn" class="prime-floating-toggle-btn" onclick="toggleFloatingCards()" title="Toggle Savings Widgets">
-    <i class="fa-solid fa-xmark" id="floatingToggleIcon"></i>
+<button type="button" id="primeFloatingToggleBtn" onclick="primeToggleFloatingCards()" title="Toggle Savings Widgets">
+    <i class="fa-solid fa-xmark" id="primeFloatingToggleIcon"></i>
 </button>
 
 <script>
-let rewardsActivated = false;
-let isCardsVisible = true;
+let primeCardsVisible = true;
 
-document.addEventListener('DOMContentLoaded', function() {
-    if (localStorage.getItem('prime_rewards_active') === 'true') {
-        setRewardsStateActivated();
-    }
-    if (sessionStorage.getItem('prime_widgets_collapsed') === 'true') {
-        hideFloatingWidgets(false);
-    }
-});
-
-function toggleRewardsSettings(e) {
+function primeToggleRewardsSettings(e) {
     e.stopPropagation();
     const menu = document.getElementById('primeRewardSettingsMenu');
     if (menu) {
@@ -496,76 +492,45 @@ document.addEventListener('click', function(e) {
     }
 });
 
-function activatePrimeCashRewards() {
-    const btn = document.getElementById('activateRewardsBtn');
-    const icon = document.getElementById('rewardsBtnIcon');
-    const txt = document.getElementById('rewardsBtnText');
+function primeActivateRewards() {
+    const btn = document.getElementById('primeActivateRewardsBtn');
+    const icon = document.getElementById('primeRewardsBtnIcon');
+    const txt = document.getElementById('primeRewardsBtnText');
     
-    if (!rewardsActivated) {
-        rewardsActivated = true;
-        localStorage.setItem('prime_rewards_active', 'true');
-        
+    if (btn && icon && txt) {
         btn.classList.add('activated');
         icon.className = 'fa-solid fa-check';
         txt.innerText = 'Rewards Activated (8% Applied)';
         
         if (typeof showSaasToast === 'function') {
-            showSaasToast('🎉 PrimeCash 8% Cashback Activated for your bookings!', 'success');
-        } else {
-            alert('🎉 PrimeCash 8% Cashback Activated! Your savings will be applied automatically.');
+            showSaasToast('🎉 PrimeCash 8% Cashback Activated!', 'success');
         }
     }
 }
 
-function setRewardsStateActivated() {
-    rewardsActivated = true;
-    const btn = document.getElementById('activateRewardsBtn');
-    const icon = document.getElementById('rewardsBtnIcon');
-    const txt = document.getElementById('rewardsBtnText');
-    if (btn && icon && txt) {
-        btn.classList.add('activated');
-        icon.className = 'fa-solid fa-check';
-        txt.innerText = 'Rewards Activated (8% Applied)';
-    }
-}
-
-function closeRewardCard() {
+function primeCloseRewardCard() {
     const card = document.getElementById('primeRewardCard');
     if (card) {
-        card.classList.add('prime-card-closing');
-        setTimeout(() => card.style.display = 'none', 300);
+        card.style.display = 'none';
     }
 }
 
-function toggleFloatingCards() {
-    if (isCardsVisible) {
-        hideFloatingWidgets(true);
-    } else {
-        showFloatingWidgets();
-    }
-}
-
-function hideFloatingWidgets(animated = true) {
-    const wrap = document.getElementById('primeFloatingWidgets');
-    const icon = document.getElementById('floatingToggleIcon');
-    isCardsVisible = false;
-    sessionStorage.setItem('prime_widgets_collapsed', 'true');
-    
-    if (wrap) wrap.style.display = 'none';
-    if (icon) icon.className = 'fa-solid fa-gift';
-}
-
-function showFloatingWidgets() {
-    const wrap = document.getElementById('primeFloatingWidgets');
-    const icon = document.getElementById('floatingToggleIcon');
+function primeToggleFloatingCards() {
+    const wrap = document.getElementById('primeFloatingWidgetsWrap');
+    const icon = document.getElementById('primeFloatingToggleIcon');
     const rCard = document.getElementById('primeRewardCard');
     const aCard = document.getElementById('primeAppCard');
-    isCardsVisible = true;
-    sessionStorage.removeItem('prime_widgets_collapsed');
     
-    if (wrap) wrap.style.display = 'flex';
-    if (rCard) { rCard.style.display = 'block'; rCard.classList.remove('prime-card-closing'); }
-    if (aCard) { aCard.style.display = 'block'; aCard.classList.remove('prime-card-closing'); }
-    if (icon) icon.className = 'fa-solid fa-xmark';
+    if (primeCardsVisible) {
+        primeCardsVisible = false;
+        if (wrap) wrap.style.display = 'none';
+        if (icon) icon.className = 'fa-solid fa-gift';
+    } else {
+        primeCardsVisible = true;
+        if (wrap) wrap.style.display = 'flex';
+        if (rCard) rCard.style.display = 'block';
+        if (aCard) aCard.style.display = 'block';
+        if (icon) icon.className = 'fa-solid fa-xmark';
+    }
 }
 </script>

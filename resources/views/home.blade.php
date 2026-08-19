@@ -94,32 +94,47 @@
 <div class="py-4 pt-4" style="background: #ffffff; border-bottom: 1px solid #e2e8f0; margin-top: 45px;">
     <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
         
-        {{-- 1. Top Green Banner: Unlocked Trip Savings Deals --}}
-        <div class="card p-3 px-4 mb-4 border-0 position-relative overflow-hidden" style="background: linear-gradient(135deg, #dcfce7 0%, #f0fdf4 100%); border-radius: 12px; border: 1px solid #bbf7d0 !important;">
-            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+        {{-- 1. Top Green Banner: Unlocked Trip Savings Deals with Agoda Phone Illustration --}}
+        <div class="card p-4 mb-4 border-0 position-relative overflow-hidden" style="background: linear-gradient(135deg, #dcfce7 0%, #eefcf3 60%, #f0fdf4 100%); border-radius: 14px; border: 1px solid #bbf7d0 !important; min-height: 100px;">
+            <div class="d-flex align-items-center justify-content-between position-relative" style="z-index: 2;">
                 <div>
-                    <h4 class="fw-bold mb-1" style="color: #14532d; font-size: 18px; letter-spacing: -0.3px;">
+                    <h4 class="fw-bold mb-1" style="color: #14532d; font-size: 19px; letter-spacing: -0.3px;">
                         {{ auth()->check() ? auth()->user()->name : 'Shawon' }}! You've unlocked Trip Savings deals!
                     </h4>
-                    <p class="mb-0 fw-semibold" style="color: #15803d; font-size: 13px;">
+                    <p class="mb-0 fw-medium" style="color: #166534; font-size: 13.5px;">
                         Save more with Trip Savings
                     </p>
                 </div>
-                <div class="d-none d-md-flex align-items-center gap-2">
-                    <span class="badge text-white px-3 py-2 fw-bold d-inline-flex align-items-center gap-1.5" style="background: #00897b; font-size: 12.5px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,137,123,0.25);">
-                        <i class="fa-solid fa-tag"></i> Trip Savings
-                    </span>
+            </div>
+
+            {{-- Agoda Phone + Pill Graphic (Matching Right Side of Screenshot 1:1) --}}
+            <div class="d-none d-md-flex align-items-center position-absolute" style="right: 25px; top: 50%; transform: translateY(-50%); z-index: 1;">
+                <div style="position: relative; width: 150px; height: 80px; display: flex; align-items: center; justify-content: center;">
+                    <!-- Rotating tilted smartphone graphic -->
+                    <div style="position: absolute; right: 10px; top: 2px; width: 68px; height: 76px; background: #ffffff; border: 3px solid #334155; border-radius: 12px; transform: rotate(15deg); box-shadow: 0 4px 14px rgba(0,0,0,0.12); padding: 4px; overflow: hidden;">
+                        <div style="font-size: 7px; font-weight: 800; color: #475569; text-align: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 1px;">agoda</div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2px; margin-top: 4px;">
+                            <div style="height: 14px; background: #c084fc; border-radius: 3px;"></div>
+                            <div style="height: 14px; background: #60a5fa; border-radius: 3px;"></div>
+                            <div style="height: 14px; background: #f472b6; border-radius: 3px;"></div>
+                            <div style="height: 14px; background: #fbbf24; border-radius: 3px;"></div>
+                        </div>
+                    </div>
+                    <!-- Trip Savings Overlay Pill -->
+                    <div style="position: absolute; left: -10px; top: 26px; z-index: 3; background: #00897b; color: #ffffff; padding: 4px 14px; border-radius: 20px; font-weight: 800; font-size: 13px; box-shadow: 0 4px 12px rgba(0, 137, 123, 0.35); display: flex; align-items: center; gap: 6px; white-space: nowrap;">
+                        <i class="fa-solid fa-tag" style="font-size: 11px;"></i> Trip Savings
+                    </div>
                 </div>
             </div>
         </div>
 
         {{-- 2. Need more hotels for your trip? --}}
         <div class="mb-4">
-            <h5 class="fw-bold text-dark mb-2.5" style="font-size: 17.5px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
-            <div class="card p-3.5 bg-white border" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            <h5 class="fw-bold text-dark mb-2.5" style="font-size: 18px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
+            <div class="card p-3.5 bg-white border" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.02);">
                 <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
                     <div class="d-flex align-items-start gap-3">
-                        <div style="width: 44px; height: 44px; background: #e8f5e9; color: #2e7d32; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
+                        <div style="width: 44px; height: 44px; background: #e8f5e9; color: #00897b; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 22px; flex-shrink: 0;">
                             <i class="fa-solid fa-hotel"></i>
                         </div>
                         <div>
@@ -134,7 +149,7 @@
                             <h6 class="fw-bold text-dark mb-0.5" style="font-size: 14.5px;">Book another place to stay</h6>
                             <p class="text-secondary small mb-1.5" style="font-size: 12px;">We have unlocked the best deals with Trip Savings</p>
                             <div class="text-secondary small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 11.5px;">
-                                <i class="fa-regular fa-calendar text-primary"></i> 15 Sep - 16 Sep &bull; 1 Adult 
+                                15 Sep - 16 Sep &bull; 1 Adult 
                                 <a href="{{ route('search.index') }}" class="text-primary text-decoration-none ms-1"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i></a>
                             </div>
                         </div>
@@ -150,17 +165,17 @@
 
         {{-- 3. Plan your journey to your hotel --}}
         <div class="mb-3">
-            <h5 class="fw-bold text-dark mb-1" style="font-size: 17.5px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
+            <h5 class="fw-bold text-dark mb-1" style="font-size: 18px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
             <p class="text-secondary small mb-3" style="font-size: 12.5px;">Book your ride in advance for a hassle-free trip</p>
 
             <div class="row g-3">
                 {{-- Card A: Airport Transfer --}}
                 <div class="col-md-6">
-                    <div class="card p-3.5 bg-white border h-100" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="card p-3.5 bg-white border h-100" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.02);">
                         <div class="d-flex align-items-center justify-content-between gap-3">
                             <div>
-                                <div style="width: 80px; height: 50px; display: flex; align-items: center; margin-bottom: 8px;">
-                                    <img src="{{ asset('images/bd_hero_slide1.png') }}" onerror="this.src='https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=220&q=80'" alt="Airport Transfer" style="max-height: 48px; max-width: 80px; object-fit: contain;">
+                                <div style="width: 100px; height: 50px; display: flex; align-items: center; margin-bottom: 8px;">
+                                    <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=220&q=80" alt="Airport Transfer" style="max-height: 48px; max-width: 90px; object-fit: contain;">
                                 </div>
                                 <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">Book your airport transfer</h6>
                                 <p class="text-secondary small mb-2" style="font-size: 12px; line-height: 1.35;">Get to your hotel easily and securely</p>
@@ -179,11 +194,11 @@
 
                 {{-- Card B: Rent a Car --}}
                 <div class="col-md-6">
-                    <div class="card p-3.5 bg-white border h-100" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+                    <div class="card p-3.5 bg-white border h-100" style="border-radius: 12px; border-color: #e2e8f0 !important; box-shadow: 0 1px 4px rgba(0,0,0,0.02);">
                         <div class="d-flex align-items-center justify-content-between gap-3">
                             <div>
-                                <div style="width: 80px; height: 50px; display: flex; align-items: center; margin-bottom: 8px;">
-                                    <img src="{{ asset('images/bd_hero_slide4.png') }}" onerror="this.src='https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=220&q=80'" alt="Rent a Car" style="max-height: 48px; max-width: 80px; object-fit: contain;">
+                                <div style="width: 100px; height: 50px; display: flex; align-items: center; margin-bottom: 8px;">
+                                    <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=220&q=80" alt="Rent a Car" style="max-height: 48px; max-width: 90px; object-fit: contain;">
                                 </div>
                                 <h6 class="fw-bold text-dark mb-1" style="font-size: 14.5px;">Rent a car</h6>
                                 <p class="text-secondary small mb-2" style="font-size: 12px; line-height: 1.35;">Find an ideal ride for your trip</p>

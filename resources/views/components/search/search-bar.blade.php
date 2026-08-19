@@ -1467,19 +1467,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     if (tabHotels) tabHotels.addEventListener('click', function() {
         setActiveTab(tabHotels, 'hotel', 'HOTELS, RESORTS & HOMES IN BANGLADESH', false);
+        const destInput = document.getElementById('agodaDestinationInput');
+        if (destInput) destInput.placeholder = "{{ __('Enter a destination or hotel name') }}";
     });
     if (tabHomes) tabHomes.addEventListener('click', function() {
         setActiveTab(tabHomes, 'boat', 'SUNDARBAN SHIPS & TANGUAR HAOR HOUSEBOATS', false);
         const destInput = document.getElementById('agodaDestinationInput');
-        if (destInput && !destInput.value) destInput.value = 'Sundarbans, Bangladesh';
+        if (destInput) {
+            destInput.placeholder = "{{ __('Enter Sundarbans, Tanguar Haor, or Ship name') }}";
+            if (!destInput.value) destInput.value = 'Sundarbans, Bangladesh';
+        }
     });
     if (tabLongStays) tabLongStays.addEventListener('click', function() {
         setActiveTab(tabLongStays, 'homestay', 'BOOK A HOME STAY IN BANGLADESH', false);
+        const destInput = document.getElementById('agodaDestinationInput');
+        if (destInput) destInput.placeholder = "{{ __('Enter city, area, or villa name') }}";
         const checkbox = document.getElementById('entireHomesAgodaMatchExact100');
         const inputEntire = document.getElementById('inputEntireHome');
         if (checkbox) checkbox.checked = true;
         if (inputEntire) inputEntire.value = 1;
     });
+
     if (tabAirport) tabAirport.addEventListener('click', function() {
         setActiveTab(tabAirport, 'airport', 'BOOK YOUR AIRPORT TRANSFER', true);
     });

@@ -322,21 +322,23 @@ class AutoCompleteService
                   ->orWhere('nearest_landmark','LIKE', "%{$query}%");
             });
 
-        // Search type filter
-        if ($searchType === 'houseboat') {
+        // Search type filter (100% aligned with active Top Tab buttons)
+        if ($searchType === 'houseboat' || $searchType === 'boat' || $searchType === 'ship') {
             $builder->where(function ($q) {
                 $q->where('type', 'like', '%Ship%')
                   ->orWhere('type', 'like', '%Houseboat%')
+                  ->orWhere('type', 'like', '%Boat%')
                   ->orWhere('name', 'like', '%Sundarban%')
                   ->orWhere('name', 'like', '%Haor%');
             });
-        } elseif ($searchType === 'homestay') {
+        } elseif ($searchType === 'homestay' || $searchType === 'villa' || $searchType === 'apartment') {
             $builder->where(function ($q) {
                 $q->where('type', 'like', '%Homestay%')
                   ->orWhere('type', 'like', '%Apartment%')
                   ->orWhere('type', 'like', '%Villa%');
             });
         }
+
 
         return $builder
             ->select(['id', 'name', 'city', 'address', 'price_per_night', 'primary_image', 'rating_score', 'type'])

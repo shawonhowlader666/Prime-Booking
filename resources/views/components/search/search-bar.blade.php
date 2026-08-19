@@ -1092,36 +1092,34 @@ document.addEventListener('DOMContentLoaded', function() {
         if (properties.length > 0) {
             html += `
                 <div style="padding: 12px 24px 6px; font-size: 11px; font-weight: 700; color: #737373; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 6px; border-top: 1px solid #f1f5f9; text-align: left;">
-                    MATCHING PROPERTIES & CRUISES
+                    MATCHING PROPERTIES &amp; CRUISES
                 </div>
             `;
             properties.forEach(p => {
-                const img      = p.primary_image || null;
+                const imgUrl   = p.primary_image || null;
                 const safeName = (p.name || '').replace(/'/g, "\\'");
-                const propType = p.type ? (p.type.charAt(0).toUpperCase() + p.type.slice(1)) : 'Property';
-                const fullPropTitle = p.name + (p.city ? ', ' + p.city + ', Bangladesh' : '');
+                // Use property_type from API (Hotel, Resort, Houseboat, etc.) — Agoda 1:1
+                const propType = p.property_type || p.type_label || 'Hotel';
+                const cityPart = p.city ? ', ' + p.city + ', Bangladesh' : '';
+                const fullPropTitle = (p.name || '') + cityPart;
                 const highlightedPropTitle = highlightMatch(fullPropTitle, query);
 
-                let leftIconHtml = `<i class="fa-solid fa-hotel" style="font-size: 18px; color: #262626; width: 22px; text-align: center; flex-shrink: 0;"></i>`;
-                if (img) {
-                    leftIconHtml = `<img src="${img}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; flex-shrink: 0;">`;
+                // Thumbnail: real image from DB (62x62px) or bed icon fallback — Agoda 1:1
+                let leftIconHtml;
+                if (imgUrl) {
+                    leftIconHtml = `<img src="${imgUrl}" style="width: 62px; height: 62px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid #e2e8f0;" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                                    <div style="display:none; width:62px; height:62px; border-radius:8px; background:#f1f5f9; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hotel" style="font-size:22px; color:#94a3b8;"></i></div>`;
+                } else {
+                    leftIconHtml = `<div style="width:62px; height:62px; border-radius:8px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hotel" style="font-size:22px; color:#94a3b8;"></i></div>`;
                 }
 
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 12px 24px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
-                        <div style="display: flex; align-items: center; gap: 16px; flex: 1; min-width: 0; text-align: left;">
-                            ${leftIconHtml}
-                            <div style="flex: 1; min-width: 0; text-align: left;">
-                                <div style="font-size: 14.5px; color: #262626; font-weight: 400; line-height: 1.3; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${highlightedPropTitle}</div>
-                                <div style="color: #737373; font-size: 12px; font-weight: 400; margin-top: 2px; text-align: left;">${propType}</div>
-                            </div>
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 24px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
+                        ${leftIconHtml}
+                        <div style="flex: 1; min-width: 0; text-align: left;">
+                            <div style="font-size: 14px; color: #262626; font-weight: 400; line-height: 1.35; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${highlightedPropTitle}</div>
+                            <div style="color: #2067e1; font-size: 12px; font-weight: 400; margin-top: 3px; text-align: left;">${propType}</div>
                         </div>
-                        ${p.price_per_night ? `
-                            <div style="text-align: right; flex-shrink: 0;">
-                                <span style="font-size: 14px; font-weight: 700; color: #2067e1; display: block;">BDT ${Number(p.price_per_night).toLocaleString()}</span>
-                                <span style="font-size: 10px; color: #737373; font-weight: 400; display: block;">/ night</span>
-                            </div>
-                        ` : ''}
                     </div>
                 `;
             });

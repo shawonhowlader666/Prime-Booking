@@ -97,21 +97,25 @@ class AutocompleteController extends Controller
                        ->orWhere('address',         'LIKE', "%{$q}%")
                        ->orWhere('nearest_landmark','LIKE', "%{$q}%");
                 })
-                ->select(['id', 'name', 'slug', 'city', 'address', 'price_per_night', 'primary_image', 'rating_score'])
+                ->select(['id', 'name', 'slug', 'city', 'address', 'price_per_night', 'primary_image', 'rating_score', 'type'])
                 ->limit(5)
                 ->get()
                 ->map(fn ($p) => [
                     'type'            => 'property',
+                    'property_type'   => $p->type ?? 'Hotel',          // e.g. Hotel, Resort, Houseboat
                     'id'              => $p->id,
                     'name'            => $p->name,
                     'city'            => $p->city,
                     'address'         => $p->address,
                     'price_per_night' => (float) $p->price_per_night,
-                    'primary_image'   => $p->primary_image ?: '',
+                    'primary_image'   => $p->primary_image
+                                            ? (str_starts_with($p->primary_image, 'http')
+                                                ? $p->primary_image
+                                                : asset('storage/' . ltrim($p->primary_image, '/')))
+                                            : null,
                     'rating_score'    => (float) $p->rating_score,
                     'title'           => $p->name,
-                    'subtitle'        => ($p->city ? $p->city . ' · ' : '') . \App\Services\CurrencyService::format($p->price_per_night) . '/night',
-                    'image'           => $p->primary_image ?: '',
+                    'subtitle'        => ($p->city ? $p->city . ', Bangladesh' : 'Bangladesh'),
                     'url'             => route('hotels.show', $p->id),
                 ])
                 ->toArray();

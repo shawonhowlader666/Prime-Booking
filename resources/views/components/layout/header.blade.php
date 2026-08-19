@@ -61,38 +61,45 @@
                     <a class="nav-link px-2 fw-bold" href="#"
                        style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; font-size: 16px; letter-spacing: 1px;">•••</a>
                 </li>
-            </ul>
-
-            {{-- Right Controls (Agoda 100% Exact 1:1 Matching Spacing & Layout) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 28px; white-space: nowrap; height: 60px;">
+                       {{-- Right Controls (Agoda Image 1: 100% Exact 1:1 Matching Layout) --}}
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 20px; white-space: nowrap; height: 60px;">
 
                 @php
-                    $currentLoc = app()->getLocale();
-                    $flagCodes = [
-                        'en' => 'us', 'bn' => 'bd', 'hi' => 'in', 'ar' => 'sa', 'zh' => 'cn',
-                        'ms' => 'my', 'ur' => 'pk', 'ne' => 'np', 'kr' => 'kr', 'jp' => 'jp',
-                        'th' => 'th', 'id' => 'id', 'vn' => 'vn', 'de' => 'de', 'fr' => 'fr',
-                        'es' => 'es', 'ru' => 'ru', 'tr' => 'tr'
-                    ];
-                    $activeFlagImg = $flagCodes[$currentLoc] ?? 'bd';
+                    $currentCurrency = \App\Helpers\CurrencyHelper::current();
+                    // Flag mapping: Default Bangladesh Flag for BDT, US Flag for USD, etc.
+                    $currencyFlag = match($currentCurrency) {
+                        'USD' => 'us',
+                        'EUR' => 'eu',
+                        'GBP' => 'gb',
+                        'SGD' => 'sg',
+                        'MYR' => 'my',
+                        'THB' => 'th',
+                        'INR' => 'in',
+                        'AED' => 'ae',
+                        'SAR' => 'sa',
+                        default => 'bd', // Default Bangladesh Flag 🇧🇩
+                    };
                 @endphp
 
-                {{-- Flag + Active Currency Badge (Triggers Select Language & Currency Modal) --}}
-                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="font-size: 13px; color: #2067e1; font-weight: 600; cursor: pointer;">
-                    <img src="https://flagcdn.com/w40/{{ $activeFlagImg }}.png" alt="{{ strtoupper($currentLoc) }}" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
-                    <span style="color: #2067e1; font-weight: 700; font-size: 13px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                {{-- 1. Flag & Currency Badge (Agoda Image 1 Exact: Flag + Currency Text) --}}
+                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #1e293b; font-weight: 500; font-size: 14px; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                    @if($currencyFlag === 'bd')
+                        <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                    @elseif($currencyFlag === 'us')
+                        <img src="https://flagcdn.com/w40/us.png" alt="US" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                    @else
+                        <img src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                    @endif
+                    <span style="color: #1e293b; font-weight: 500; font-size: 14px;">{{ $currentCurrency }}</span>
                 </a>
 
-                {{-- Avatar Circle & Profile Dropdown (Dynamic Auth) --}}
                 @auth
+                {{-- Avatar Circle & Profile Dropdown (Logged in state) --}}
                 <div class="dropdown">
                     <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor: pointer; padding: 4px 0;">
-                        {{-- Avatar Circle --}}
                         <div style="width: 36px; height: 36px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(255, 87, 34, 0.25);">
                             {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                         </div>
-
-                        {{-- Name + VIP Badge --}}
                         <div style="line-height: 1.1; flex-shrink: 0;">
                             <span style="font-size: 13px; font-weight: 600; color: #2d2d2d; display: block;">{{ auth()->user()->name }}</span>
                             <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 17px; font-size: 10.5px; line-height: 1; margin-top: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
@@ -105,29 +112,15 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Exact Agoda Profile Dropdown Menu --}}
                     <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-2"
                          style="width: 290px; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.25) !important;">
-                        
                         <div class="p-3">
                             <a href="{{ route('trips') }}" class="dropdown-item py-2 fw-bold text-dark fs-6 rounded-2 mb-1"><i class="fa-solid fa-calendar-check text-primary me-2"></i> {{ __('My Trips') }}</a>
                             <a href="{{ route('booking.history') }}" class="dropdown-item py-2 fw-bold text-dark fs-6 rounded-2 mb-1"><i class="fa-solid fa-suitcase text-primary me-2"></i> {{ __('All Bookings') }}</a>
                             <a href="{{ route('vip') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-star text-warning me-2"></i> {{ __('PrimeVIP') }}</a>
                             <a href="{{ route('cashback') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-hand-holding-dollar text-success me-2"></i> {{ __('PrimeCash & Rewards') }}</a>
-                            <a href="{{ route('pointsmax') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-plane-arrival text-info me-2"></i> {{ __('PointsMAX') }}</a>
-                            <a href="{{ route('messages') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-comment-dots text-primary me-2"></i> {{ __('Property Messages') }}</a>
-                            <a href="{{ route('reviews') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-star-half-stroke text-warning me-2"></i> {{ __('My Reviews') }}</a>
-                            <a href="{{ route('wishlist') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-heart text-danger me-2"></i> {{ __('Wishlist & Saved') }}</a>
                             <a href="{{ route('profile') }}" class="dropdown-item py-2 fw-semibold text-secondary rounded-2 mb-1"><i class="fa-solid fa-user me-2 text-dark"></i> {{ __('Account Profile') }}</a>
-                            
                             <hr class="my-2 border-gray-200">
-
-                            <a href="{{ route('vendor.dashboard') }}" class="dropdown-item py-2 fw-bold text-info rounded-2 mb-1"><i class="fa-solid fa-building me-2"></i> {{ __('Vendor Portal') }}</a>
-                            <a href="{{ route('admin.dashboard') }}" class="dropdown-item py-2 fw-bold text-warning rounded-2 mb-1"><i class="fa-solid fa-gauge me-2"></i> {{ __('Admin Control Panel') }}</a>
-
-                            <hr class="my-2 border-gray-200">
-
                             <form action="{{ route('auth.logout') }}" method="POST" class="m-0">
                                 @csrf
                                 <button type="submit" class="dropdown-item py-2 fw-bold text-danger rounded-2">
@@ -138,31 +131,34 @@
                     </div>
                 </div>
                 @else
-                <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-1.5" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="font-size: 13px; border-width: 1.5px;">
-                    <i class="fa-regular fa-user me-1"></i> Sign In / Register
+                {{-- 2. "Sign in" Blue Link (Agoda Image 1 Exact) --}}
+                <button type="button" class="btn p-0 border-0 fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; font-size: 14px; text-decoration: none; cursor: pointer;">
+                    Sign in
+                </button>
+
+                {{-- 3. "Create account" Outlined Pill Button (Agoda Image 1 Exact) --}}
+                <button type="button" class="btn btn-outline-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; border-color: #cbd5e1; border-width: 1px; padding: 7px 20px; font-size: 14px; background: transparent; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#2067e1'; this.style.backgroundColor='#f0f7ff'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='transparent'">
+                    Create account
                 </button>
                 @endauth
 
-                {{-- Wallet / Cash Balance Dropdown Badge (a BDT ৳0 ▾) Matching Screenshot 1 --}}
+                {{-- 4. Hamburger ☰ Menu Button (Agoda Image 1 Exact) --}}
                 <div class="dropdown">
-                    <button class="btn p-0 border-0 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            style="color: #6366f1; font-weight: 600; font-size: 13px; height: 60px;">
-                        <div style="width: 20px; height: 20px; background: #6366f1; color: #ffffff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; margin-right: 2px;">a</div>
-                        <span style="color: #6366f1; font-weight: 600; font-size: 13px;">BDT ৳0</span>
+                    <button class="btn p-0 border-0 d-flex align-items-center justify-content-center" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: #2067e1; font-size: 20px; width: 32px; height: 32px; cursor: pointer; border-radius: 6px; transition: background 0.15s;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
+                        <i class="fa-solid fa-bars" style="color: #2067e1; font-size: 19px;"></i>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-3 mt-2"
-                        style="min-width: 250px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
-                        <li class="p-2 border-bottom mb-2">
-                            <div class="small text-secondary fw-medium">Prime Cash Balance</div>
-                            <div class="h6 mb-0 fw-bold text-primary">BDT ৳0.00</div>
-                        </li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('cashback') }}"><i class="fa-solid fa-wallet me-2 text-success"></i> PrimeCash Rewards</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('booking.history') }}"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i> My Bookings</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('wishlist') }}"><i class="fa-solid fa-heart me-2 text-danger"></i> Saved Properties</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('messages') }}"><i class="fa-solid fa-comment-dots me-2 text-primary"></i> Property Messages</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('profile') }}"><i class="fa-solid fa-gear me-2 text-secondary"></i> Account Settings</a></li>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-2 mt-2" style="min-width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+                        <li><a class="dropdown-item py-2 fw-medium rounded-2" href="{{ route('home') }}"><i class="fa-solid fa-hotel me-2 text-primary"></i> Hotels & Homes</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium rounded-2" href="{{ route('flights.index') }}"><i class="fa-solid fa-plane-departure me-2 text-info"></i> Domestic Flights</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium rounded-2" href="{{ route('packages') }}"><i class="fa-solid fa-suitcase-rolling me-2 text-success"></i> Tour Packages</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium rounded-2" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car me-2 text-warning"></i> Airport Transfer</a></li>
+                        <li><hr class="dropdown-divider my-1"></li>
+                        <li><a class="dropdown-item py-2 fw-medium rounded-2" href="{{ route('vendor.dashboard') }}"><i class="fa-solid fa-building me-2 text-primary"></i> List Your Property</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium rounded-2" href="{{ route('services') }}#support"><i class="fa-solid fa-headset me-2 text-secondary"></i> Help & Support</a></li>
                     </ul>
                 </div>
+
+            </div>
             </div>
         </div>
     </header>
@@ -408,39 +404,51 @@ window.addEventListener('scroll', function () {
             <!-- Modal Body with 3 Column Layout from Screenshot -->
             <div class="modal-body px-4 pb-4 overflow-y-auto" style="max-height: 540px;">
                 
-                <!-- Select Currency Section -->
+                <!-- Select Currency Section (Agoda Image 2: 100% Exact 3-Column Clean Grid) -->
                 <div class="mb-4 pb-3 border-bottom">
-                    <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;">Select Currency</h6>
-                    <div class="row g-2">
-                        <div class="col-4">
-                            <a href="{{ route('currency.switch', 'BDT') }}" class="agoda-lang-btn text-decoration-none {{ \App\Helpers\CurrencyHelper::current() == 'BDT' ? 'active' : '' }}">
-                                @if(\App\Helpers\CurrencyHelper::current() == 'BDT')
-                                <i class="fa-solid fa-check text-primary me-1" style="font-size: 11px;"></i>
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                        <h6 class="fw-bold text-dark mb-0" style="font-size: 15px;">Select your currency</h6>
+                    </div>
+                    @php
+                        $activeCurr = \App\Helpers\CurrencyHelper::current();
+                        $currencies = [
+                            ['code' => 'BDT', 'symbol' => '৳',   'name' => 'Bangladeshi Taka',    'flag' => 'bd'],
+                            ['code' => 'USD', 'symbol' => '$',   'name' => 'US Dollar',           'flag' => 'us'],
+                            ['code' => 'EUR', 'symbol' => '€',   'name' => 'Euro',                'flag' => 'eu'],
+                            ['code' => 'GBP', 'symbol' => '£',   'name' => 'British Pound',       'flag' => 'gb'],
+                            ['code' => 'SGD', 'symbol' => 'S$',  'name' => 'Singapore Dollar',    'flag' => 'sg'],
+                            ['code' => 'MYR', 'symbol' => 'RM',  'name' => 'Malaysian Ringgit',   'flag' => 'my'],
+                            ['code' => 'THB', 'symbol' => '฿',   'name' => 'Thai Baht',           'flag' => 'th'],
+                            ['code' => 'INR', 'symbol' => '₹',   'name' => 'Indian Rupee',        'flag' => 'in'],
+                            ['code' => 'AED', 'symbol' => 'AED', 'name' => 'Emirati Dirham',      'flag' => 'ae'],
+                            ['code' => 'SAR', 'symbol' => 'SAR', 'name' => 'Saudi Riyal',         'flag' => 'sa'],
+                            ['code' => 'CAD', 'symbol' => 'C$',  'name' => 'Canadian Dollar',     'flag' => 'ca'],
+                            ['code' => 'AUD', 'symbol' => 'A$',  'name' => 'Australian Dollar',   'flag' => 'au'],
+                            ['code' => 'CHF', 'symbol' => 'CHF', 'name' => 'Swiss Franc',         'flag' => 'ch'],
+                            ['code' => 'RMB', 'symbol' => '¥',   'name' => 'Chinese Yuan',        'flag' => 'cn'],
+                            ['code' => 'JPY', 'symbol' => '¥',   'name' => 'Japanese Yen',        'flag' => 'jp'],
+                        ];
+                    @endphp
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                        @foreach($currencies as $c)
+                        @php $isActive = ($activeCurr === $c['code']); @endphp
+                        <a href="{{ route('currency.switch', $c['code']) }}"
+                           class="text-decoration-none d-flex align-items-center justify-content-between"
+                           style="padding: 10px 14px; border-radius: 8px; border: {{ $isActive ? '2px solid #2067e1' : '1px solid #e2e8f0' }}; background: {{ $isActive ? '#ffffff' : '#ffffff' }}; transition: all 0.15s ease;"
+                           onmouseover="if(!{{ $isActive ? 1 : 0 }}) this.style.borderColor='#2067e1'"
+                           onmouseout="if(!{{ $isActive ? 1 : 0 }}) this.style.borderColor='#e2e8f0'">
+                            <div class="d-flex align-items-center gap-2" style="min-width: 0;">
+                                @if($isActive)
+                                <i class="fa-solid fa-check text-primary" style="font-size: 13px; flex-shrink: 0;"></i>
                                 @endif
-                                <span class="fs-6 me-1">🇧🇩</span>
-                                <span class="agoda-lang-text fw-bold">BDT (৳)</span>
-                            </a>
-                        </div>
-                        <div class="col-4">
-                            <a href="{{ route('currency.switch', 'USD') }}" class="agoda-lang-btn text-decoration-none {{ \App\Helpers\CurrencyHelper::current() == 'USD' ? 'active' : '' }}">
-                                @if(\App\Helpers\CurrencyHelper::current() == 'USD')
-                                <i class="fa-solid fa-check text-primary me-1" style="font-size: 11px;"></i>
-                                @endif
-                                <span class="fs-6 me-1">🇺🇸</span>
-                                <span class="agoda-lang-text fw-bold">USD ($)</span>
-                            </a>
-                        </div>
-                        <div class="col-4">
-                            <a href="{{ route('currency.switch', 'EUR') }}" class="agoda-lang-btn text-decoration-none {{ \App\Helpers\CurrencyHelper::current() == 'EUR' ? 'active' : '' }}">
-                                @if(\App\Helpers\CurrencyHelper::current() == 'EUR')
-                                <i class="fa-solid fa-check text-primary me-1" style="font-size: 11px;"></i>
-                                @endif
-                                <span class="fs-6 me-1">🇪🇺</span>
-                                <span class="agoda-lang-text fw-bold">EUR (€)</span>
-                            </a>
-                        </div>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 13px; min-width: 32px;">{{ $c['code'] }}</span>
+                                <span style="color: #475569; font-size: 12.5px; font-weight: {{ $isActive ? '700' : '400' }}; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $c['name'] }}</span>
+                            </div>
+                        </a>
+                        @endforeach
                     </div>
                 </div>
+
 
                 <!-- Suggested languages Section -->
                 <div class="mb-4">

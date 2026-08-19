@@ -12,7 +12,7 @@
 </div>
 
 <style>
-/* ─── Ultra Clean Light Backdrop ─── */
+/* ─── 100% Solid Pure White Backdrop (Zero Transparency, Zero Blur) ─── */
 .prime-preloader-backdrop {
     position: fixed;
     top: 0;
@@ -23,10 +23,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.94);
+    background: #ffffff !important;
     opacity: 1;
     visibility: visible;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
 }
 
 .prime-preloader-backdrop.loaded {
@@ -35,40 +35,43 @@
     pointer-events: none;
 }
 
-/* ─── Pure Floating Dots Container (No White Card, No Frame) ─── */
+/* ─── Pure Floating Dots Container ─── */
 .prime-brand-smooth-dots {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 10px;
+    gap: 12px;
 }
 
-/* ─── 7 Prime Logo Colors with Ultra Smooth Wave ─── */
+/* ─── Razor Sharp Solid High-DPI Dots (100% Crisp) ─── */
 .prime-dot {
-    width: 13px;
-    height: 13px;
+    width: 14px;
+    height: 14px;
     border-radius: 50%;
-    animation: primeUltraSmoothWave 1.4s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
-    will-change: transform;
+    animation: primeUltraSmoothWave 1.3s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
 }
 
-.prime-dot-1 { background-color: #3b3b98; animation-delay: 0.00s; } /* Deep Navy */
-.prime-dot-2 { background-color: #2b59c3; animation-delay: 0.10s; } /* Royal Blue */
-.prime-dot-3 { background-color: #00b4d8; animation-delay: 0.20s; } /* Bright Cyan */
-.prime-dot-4 { background-color: #10b981; animation-delay: 0.30s; } /* Emerald Green */
-.prime-dot-5 { background-color: #ffb703; animation-delay: 0.40s; } /* Golden Yellow */
-.prime-dot-6 { background-color: #fb8500; animation-delay: 0.50s; } /* Vibrant Orange */
-.prime-dot-7 { background-color: #e63946; animation-delay: 0.60s; } /* Crimson Red */
+.prime-dot-1 { background: #232f6b; animation-delay: 0.00s; } /* Navy */
+.prime-dot-2 { background: #1a56db; animation-delay: 0.10s; } /* Blue */
+.prime-dot-3 { background: #00a8cc; animation-delay: 0.20s; } /* Cyan */
+.prime-dot-4 { background: #059669; animation-delay: 0.30s; } /* Emerald */
+.prime-dot-5 { background: #d97706; animation-delay: 0.40s; } /* Amber */
+.prime-dot-6 { background: #ea580c; animation-delay: 0.50s; } /* Orange */
+.prime-dot-7 { background: #dc2626; animation-delay: 0.60s; } /* Red */
 
 @keyframes primeUltraSmoothWave {
     0%, 100% {
-        transform: translateY(0);
+        transform: translateY(0) translateZ(0);
     }
     30% {
-        transform: translateY(-16px);
+        transform: translateY(-16px) translateZ(0);
     }
     60% {
-        transform: translateY(4px);
+        transform: translateY(3px) translateZ(0);
     }
 }
 </style>

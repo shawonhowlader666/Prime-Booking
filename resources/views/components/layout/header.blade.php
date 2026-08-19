@@ -1,6 +1,6 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
 <header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0 shadow-sm" style="min-height: 56px; height: 56px; z-index: 1050; border-color: #e5e7eb !important;">
-    <div class="container-fluid px-3 px-xl-4" style="height: 56px; max-width: 1200px; margin: 0 auto;">
+    <div class="container" style="height: 56px; max-width: 1140px; margin: 0 auto; padding-left: 15px; padding-right: 15px;">
 
         {{-- 100% Identical Prime Booking SVG/PNG Logo --}}
         <a class="navbar-brand d-flex align-items-center me-3 me-xl-4 flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0;">
@@ -14,6 +14,7 @@
 
         {{-- Desktop Nav Row --}}
         <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 56px;">
+
 
             {{-- Left Nav Links (Exact Agoda screenshot gaps & font size) --}}
             <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 13.5px; white-space: nowrap; gap: 24px;">

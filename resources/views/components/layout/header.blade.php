@@ -1,10 +1,10 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
-<header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0 shadow-sm" style="min-height: 60px; z-index: 1050; border-color: #e5e7eb !important;">
-    <div class="container-fluid px-3" style="min-height: 60px; max-width: 1140px; margin: 0 auto;">
+<header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0 shadow-sm" style="min-height: 56px; height: 56px; z-index: 1050; border-color: #e5e7eb !important;">
+    <div class="container-fluid px-3 px-xl-4" style="height: 56px; max-width: 1200px; margin: 0 auto;">
 
-        {{-- 100% Identical Prime Booking SVG Logo --}}
-        <a class="navbar-brand d-flex align-items-center me-2 me-xl-4 flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none;">
-            <x-logo height="40" />
+        {{-- 100% Identical Prime Booking SVG/PNG Logo --}}
+        <a class="navbar-brand d-flex align-items-center me-3 me-xl-4 flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0;">
+            <x-logo height="36" />
         </a>
 
         {{-- Mobile toggle (Triggers Dark Glass Modal) --}}
@@ -13,27 +13,27 @@
         </button>
 
         {{-- Desktop Nav Row --}}
-        <div class="collapse navbar-collapse py-2 py-lg-0 d-none d-lg-flex" id="agodaMainNav">
+        <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 56px;">
 
-            {{-- Left Nav Links (Generous Agoda gaps) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14px; white-space: nowrap; gap: 20px;">
+            {{-- Left Nav Links (Exact Agoda screenshot gaps & font size) --}}
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 13.5px; white-space: nowrap; gap: 24px;">
                 <li class="nav-item">
-                    <a class="nav-link px-2 fw-semibold" href="{{ route('home') }}"
-                       style="color: #2d2d2d; height: 60px; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; font-size: 14px;">
+                    <a class="nav-link px-0 fw-semibold" href="{{ route('home') }}"
+                       style="color: #262626; height: 56px; display: flex; align-items: center; font-size: 13.5px;">
                         {{ __('Hotels & Homes') }}
                     </a>
                 </li>
 
                 {{-- Transport Dropdown with Red "New!" Badge --}}
                 <li class="nav-item dropdown position-relative">
-                    <div style="position: absolute; top: 6px; left: 6px; z-index: 10; pointer-events: none;">
-                        <div style="background-color: #d91b42; color: #ffffff; font-size: 9.5px; font-weight: 800; border-radius: 3px; padding: 1px 5px; line-height: 1.2; box-shadow: 0 1px 3px rgba(217, 27, 66, 0.3);">
+                    <div style="position: absolute; top: 4px; left: -2px; z-index: 10; pointer-events: none;">
+                        <div style="background-color: #d91b42; color: #ffffff; font-size: 9px; font-weight: 800; border-radius: 3px; padding: 1px 4px; line-height: 1.1; box-shadow: 0 1px 3px rgba(217, 27, 66, 0.3);">
                             New!
                             <div style="position: absolute; bottom: -3px; left: 4px; width: 0; height: 0; border-left: 3px solid #d91b42; border-bottom: 3px solid transparent;"></div>
                         </div>
                     </div>
-                    <a class="nav-link dropdown-toggle px-2" href="#" role="button" data-bs-toggle="dropdown"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 8px; padding-bottom: 0; font-size: 14px; font-weight: 500;">
+                    <a class="nav-link dropdown-toggle px-0" href="#" role="button" data-bs-toggle="dropdown"
+                       style="color: #475569; height: 56px; display: flex; align-items: center; padding-top: 6px; font-size: 13.5px; font-weight: 500;">
                         {{ __('Transport') }}
                     </a>
                     <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 190px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
@@ -46,27 +46,28 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ route('packages') }}"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; font-size: 14px; font-weight: 500;">{{ __('Things to do') }}</a>
+                    <a class="nav-link px-0" href="{{ route('packages') }}"
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 13.5px; font-weight: 500;">{{ __('Things to do') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ route('services') }}"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; font-size: 14px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
+                    <a class="nav-link px-0" href="{{ route('services') }}"
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 13.5px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-2" href="{{ route('search.index') }}?type=apartment"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; font-size: 14px; font-weight: 500;">{{ __('Apartments') }}</a>
+                    <a class="nav-link px-0" href="{{ route('search.index') }}?type=apartment"
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 13.5px; font-weight: 500;">{{ __('Apartments') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-2 fw-bold" href="#"
-                       style="color: #475569; height: 60px; display: flex; align-items: center; padding-top: 0; padding-bottom: 0; font-size: 16px; letter-spacing: 1px;">•••</a>
+                    <a class="nav-link px-0 fw-bold" href="#"
+                       style="color: #475569; height: 56px; display: flex; align-items: center; font-size: 15px; letter-spacing: 1px;">•••</a>
                 </li>
-                       {{-- Right Controls (Agoda Image 1: 100% Exact 1:1 Matching Layout) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 20px; white-space: nowrap; height: 60px;">
+            </ul>
+
+            {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 22px; white-space: nowrap; height: 56px;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();
-                    // Flag mapping: Default Bangladesh Flag for BDT, US Flag for USD, etc.
                     $currencyFlag = match($currentCurrency) {
                         'USD' => 'us',
                         'EUR' => 'eu',
@@ -81,39 +82,39 @@
                     };
                 @endphp
 
-                {{-- 1. Flag & Currency Badge (Agoda Image 1 Exact: Flag + Currency Text) --}}
-                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #1e293b; font-weight: 500; font-size: 14px; cursor: pointer; padding: 4px 6px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                {{-- 1. Flag & Currency Badge (Agoda Image Exact: Flag + Currency Text) --}}
+                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 500; font-size: 13.5px; cursor: pointer; padding: 2px 4px;">
                     @if($currencyFlag === 'bd')
-                        <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 22px; height: 14px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     @elseif($currencyFlag === 'us')
-                        <img src="https://flagcdn.com/w40/us.png" alt="US" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        <img src="https://flagcdn.com/w40/us.png" alt="US" style="width: 22px; height: 14px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     @else
-                        <img src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 24px; height: 16px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        <img src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 22px; height: 14px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     @endif
-                    <span style="color: #1e293b; font-weight: 500; font-size: 14px;">{{ $currentCurrency }}</span>
+                    <span style="color: #262626; font-weight: 500; font-size: 13.5px;">{{ $currentCurrency }}</span>
                 </a>
 
                 @auth
-                {{-- Avatar Circle & Profile Dropdown (Logged in state) --}}
+                {{-- Logged in state: Avatar + Name + VIP Badge (Matching Screenshot) --}}
                 <div class="dropdown">
-                    <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor: pointer; padding: 4px 0;">
-                        <div style="width: 36px; height: 36px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 16px; flex-shrink: 0; box-shadow: 0 2px 5px rgba(255, 87, 34, 0.25);">
+                    <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor: pointer; padding: 2px 0;">
+                        <div style="width: 32px; height: 32px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 2px 4px rgba(255, 87, 34, 0.25);">
                             {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                         </div>
-                        <div style="line-height: 1.1; flex-shrink: 0;">
-                            <span style="font-size: 13px; font-weight: 600; color: #2d2d2d; display: block;">{{ auth()->user()->name }}</span>
-                            <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 17px; font-size: 10.5px; line-height: 1; margin-top: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
-                                <div style="background-color: #1b2028; color: #ffffff; padding: 0 5px 0 5px; height: 100%; display: flex; align-items: center; gap: 2px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%); padding-right: 12px;">
-                                    <span style="font-size: 8px; color: #ffffff;">★</span>VIP
+                        <div style="line-height: 1.1; flex-shrink: 0; text-align: left;">
+                            <span style="font-size: 13px; font-weight: 600; color: #262626; display: block;">{{ auth()->user()->name }}</span>
+                            <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 16px; font-size: 10px; line-height: 1; margin-top: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.2);">
+                                <div style="background-color: #1b2028; color: #ffffff; padding: 0 4px 0 4px; height: 100%; display: flex; align-items: center; gap: 2px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%); padding-right: 10px;">
+                                    <span style="font-size: 7px; color: #ffffff;">★</span>VIP
                                 </div>
-                                <div style="background: linear-gradient(135deg, #d98662 0%, #bd6c48 100%); color: #1e293b; padding: 0 6px 0 6px; height: 100%; display: flex; align-items: center; font-weight: 700; margin-left: -5px;">
+                                <div style="background: linear-gradient(135deg, #d98662 0%, #bd6c48 100%); color: #1e293b; padding: 0 5px 0 5px; height: 100%; display: flex; align-items: center; font-weight: 700; margin-left: -4px;">
                                     Bronze
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-2"
-                         style="width: 290px; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.25) !important;">
+                         style="width: 280px; border-radius: 14px; box-shadow: 0 14px 40px rgba(0,0,0,0.25) !important;">
                         <div class="p-3">
                             <a href="{{ route('trips') }}" class="dropdown-item py-2 fw-bold text-dark fs-6 rounded-2 mb-1"><i class="fa-solid fa-calendar-check text-primary me-2"></i> {{ __('My Trips') }}</a>
                             <a href="{{ route('booking.history') }}" class="dropdown-item py-2 fw-bold text-dark fs-6 rounded-2 mb-1"><i class="fa-solid fa-suitcase text-primary me-2"></i> {{ __('All Bookings') }}</a>
@@ -130,17 +131,38 @@
                         </div>
                     </div>
                 </div>
+
+                {{-- Cash Balance Dropdown Badge ((a) BDT ৳0 ▾) Matching Agoda Screenshot --}}
+                <div class="dropdown">
+                    <button class="btn p-0 border-0 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            style="color: #6366f1; font-weight: 600; font-size: 13px; height: 56px;">
+                        <div style="width: 18px; height: 18px; background: #6366f1; color: #ffffff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 10px; margin-right: 1px;">a</div>
+                        <span style="color: #6366f1; font-weight: 600; font-size: 13px;">{{ $currentCurrency }} 0</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-3 mt-2"
+                         style="min-width: 250px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+                        <li class="p-2 border-bottom mb-2">
+                            <div class="small text-secondary fw-medium">Prime Cash Balance</div>
+                            <div class="h6 mb-0 fw-bold text-primary">{{ $currentCurrency }} 0.00</div>
+                        </li>
+                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('cashback') }}"><i class="fa-solid fa-wallet me-2 text-success"></i> PrimeCash Rewards</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('booking.history') }}"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i> My Bookings</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('wishlist') }}"><i class="fa-solid fa-heart me-2 text-danger"></i> Saved Properties</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('profile') }}"><i class="fa-solid fa-gear me-2 text-secondary"></i> Account Settings</a></li>
+                    </ul>
+                </div>
                 @else
-                {{-- 2. "Sign in" Blue Link (Agoda Image 1 Exact) --}}
+                {{-- 2. "Sign in" Blue Link (Agoda Image Exact) --}}
                 <button type="button" class="btn p-0 border-0 fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; font-size: 14px; text-decoration: none; cursor: pointer;">
                     Sign in
                 </button>
 
-                {{-- 3. "Create account" Outlined Pill Button (Agoda Image 1 Exact) --}}
-                <button type="button" class="btn btn-outline-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; border-color: #cbd5e1; border-width: 1px; padding: 7px 20px; font-size: 14px; background: transparent; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#2067e1'; this.style.backgroundColor='#f0f7ff'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='transparent'">
+                {{-- 3. "Create account" Outlined Pill Button (Agoda Image Exact) --}}
+                <button type="button" class="btn btn-outline-primary rounded-pill fw-bold" data-bs-toggle="modal" data-bs-target="#agodaAuthModal" style="color: #2067e1; border-color: #cbd5e1; border-width: 1px; padding: 6px 18px; font-size: 13.5px; background: transparent; transition: all 0.2s ease;" onmouseover="this.style.borderColor='#2067e1'; this.style.backgroundColor='#f0f7ff'" onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='transparent'">
                     Create account
                 </button>
                 @endauth
+
 
                 {{-- 4. Hamburger ☰ Menu Button with Agoda Screenshot 1 Exact Dropdown Card --}}
                 <div class="dropdown position-relative">

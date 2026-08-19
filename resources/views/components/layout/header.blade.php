@@ -1,10 +1,10 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
-<header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0" style="min-height: 50px; height: 50px; z-index: 1050; border-color: #e5e7eb !important; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-    <div class="container" style="height: 50px; max-width: 1140px; margin: 0 auto; padding-left: 15px; padding-right: 15px; display: flex; align-items: center;">
+<header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0" style="min-height: 58px; height: 58px; z-index: 1050; border-color: #e5e7eb !important; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+    <div class="container-fluid" style="height: 58px; width: 100%; margin: 0; padding-left: 28px; padding-right: 28px; display: flex; align-items: center;">
 
         {{-- 100% Identical Prime Booking Logo --}}
-        <a class="navbar-brand d-flex align-items-center me-3 me-xl-4 flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 28px !important;">
-            <x-logo height="30" />
+        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 36px !important;">
+            <x-logo height="44" />
         </a>
 
         {{-- Mobile toggle (Triggers Dark Glass Modal) --}}
@@ -13,28 +13,27 @@
         </button>
 
         {{-- Desktop Nav Row --}}
-        <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 50px;">
-
+        <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 58px;">
 
             {{-- Left Nav Links (Exact Agoda screenshot gaps & font size) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 13px; white-space: nowrap; gap: 20px;">
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14px; white-space: nowrap; gap: 30px;">
                 <li class="nav-item">
                     <a class="nav-link px-0 fw-semibold" href="{{ route('home') }}"
-                       style="color: #2d2d2d; height: 50px; display: flex; align-items: center; font-size: 13px;">
+                       style="color: #2d2d2d; height: 58px; display: flex; align-items: center; font-size: 14px;">
                         {{ __('Hotels & Homes') }}
                     </a>
                 </li>
 
                 {{-- Transport Dropdown with Red "New!" Badge --}}
                 <li class="nav-item dropdown position-relative">
-                    <div style="position: absolute; top: 2px; left: -2px; z-index: 10; pointer-events: none;">
-                        <div style="background-color: #d91b42; color: #ffffff; font-size: 8.5px; font-weight: 800; border-radius: 3px; padding: 1px 4px; line-height: 1.1; box-shadow: 0 1px 3px rgba(217, 27, 66, 0.3);">
+                    <div style="position: absolute; top: 5px; left: -2px; z-index: 10; pointer-events: none;">
+                        <div style="background-color: #d91b42; color: #ffffff; font-size: 9px; font-weight: 800; border-radius: 3px; padding: 1px 4px; line-height: 1.1; box-shadow: 0 1px 3px rgba(217, 27, 66, 0.3);">
                             New!
                             <div style="position: absolute; bottom: -3px; left: 4px; width: 0; height: 0; border-left: 3px solid #d91b42; border-bottom: 3px solid transparent;"></div>
                         </div>
                     </div>
                     <a class="nav-link dropdown-toggle px-0" href="#" role="button" data-bs-toggle="dropdown"
-                       style="color: #475569; height: 50px; display: flex; align-items: center; padding-top: 4px; font-size: 13px; font-weight: 500;">
+                       style="color: #475569; height: 58px; display: flex; align-items: center; padding-top: 4px; font-size: 14px; font-weight: 500;">
                         {{ __('Transport') }}
                     </a>
                     <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 190px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
@@ -48,24 +47,24 @@
 
                 <li class="nav-item">
                     <a class="nav-link px-0" href="{{ route('packages') }}"
-                       style="color: #475569; height: 50px; display: flex; align-items: center; font-size: 13px; font-weight: 500;">{{ __('Things to do') }}</a>
+                       style="color: #475569; height: 58px; display: flex; align-items: center; font-size: 14px; font-weight: 500;">{{ __('Things to do') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-0" href="{{ route('services') }}"
-                       style="color: #475569; height: 50px; display: flex; align-items: center; font-size: 13px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
+                       style="color: #475569; height: 58px; display: flex; align-items: center; font-size: 14px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-0" href="{{ route('search.index') }}?type=apartment"
-                       style="color: #475569; height: 50px; display: flex; align-items: center; font-size: 13px; font-weight: 500;">{{ __('Apartments') }}</a>
+                       style="color: #475569; height: 58px; display: flex; align-items: center; font-size: 14px; font-weight: 500;">{{ __('Apartments') }}</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link px-0 fw-bold" href="#"
-                       style="color: #475569; height: 50px; display: flex; align-items: center; font-size: 14px; letter-spacing: 1px;">•••</a>
+                       style="color: #475569; height: 58px; display: flex; align-items: center; font-size: 15px; letter-spacing: 1px;">•••</a>
                 </li>
             </ul>
 
             {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 16px; white-space: nowrap; height: 50px;">
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 26px; white-space: nowrap; height: 58px;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();

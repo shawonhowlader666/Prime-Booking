@@ -1,5 +1,5 @@
 @props([
-    'height' => '38px',
+    'height' => '44px',
     'mode' => 'light',
     'class' => '',
     'style' => ''

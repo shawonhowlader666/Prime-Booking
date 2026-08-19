@@ -313,18 +313,27 @@
                                     <div style="border-right: 1px solid #edf2f7; padding-right: 20px;">
                                         <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 14px;">Destinations in Bangladesh</div>
                                         <div id="pbBdCitiesGrid" style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 14px; column-gap: 16px;">
-                                            <!-- Hydrated by JS from API or fallback static list below -->
                                             @php
-                                            $bdCities = [
-                                                ['name' => 'Chittagong',       'img' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=90&q=75',   'count' => 59],
-                                                ['name' => "Cox's Bazar",      'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=90&q=75',   'count' => 118],
-                                                ['name' => 'Sreemangal',       'img' => 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=90&q=75',   'count' => 25],
-                                                ['name' => 'Sylhet',           'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?w=90&q=75',   'count' => 95],
-                                                ['name' => 'Dhaka',            'img' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=90&q=75',   'count' => 538],
-                                                ['name' => 'Rajshahi',         'img' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?w=90&q=75',   'count' => 11],
-                                            ];
+                                            // 100% Real Live Database Cities & Counts
+                                            $liveBdCities = \Illuminate\Support\Facades\Cache::remember('home_live_bd_cities_v1', 600, function() {
+                                                return \App\Models\Property::active()
+                                                    ->select('city')
+                                                    ->selectRaw('COUNT(*) as count')
+                                                    ->selectRaw('MIN(primary_image) as img')
+                                                    ->whereNotNull('city')
+                                                    ->groupBy('city')
+                                                    ->orderByDesc('count')
+                                                    ->limit(6)
+                                                    ->get()
+                                                    ->map(function($r) {
+                                                        $rawImg = $r->img;
+                                                        $img = $rawImg ? (str_starts_with($rawImg, 'http') ? $rawImg : asset('storage/' . ltrim($rawImg, '/'))) : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';
+                                                        return ['name' => $r->city, 'img' => $img, 'count' => (int)$r->count];
+                                                    })
+                                                    ->toArray();
+                                            });
                                             @endphp
-                                            @foreach($bdCities as $c)
+                                            @foreach($liveBdCities as $c)
                                             <div onclick="selectDestination('{{ $c['name'] }}, Bangladesh')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 3px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                                                 <img src="{{ $c['img'] }}" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="{{ $c['name'] }}">
                                                 <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $c['name'] }}</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">({{ $c['count'] }})</span></div>
@@ -1273,21 +1282,21 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
 
-        // ── 1. City / Location Suggestions (Agoda 1:1 Match) ───────
-        const clientCities = matchClientCities(query || '');
-        const serverLocs = (data.locations || []).filter(sl =>
-            !clientCities.some(cc => cc.city.toLowerCase() === (sl.city || '').toLowerCase())
-        );
-        const allLocations = [...clientCities, ...serverLocs].slice(0, 8);
+        // ── 1. City / Location Suggestions (100% Live DB from API) ───────
+        let allLocations = data.locations || [];
+        if (allLocations.length === 0) {
+            allLocations = matchClientCities(query || '');
+        }
 
         if (allLocations.length > 0) {
-            allLocations.forEach(loc => {
+            allLocations.slice(0, 8).forEach(loc => {
                 const cityName  = loc.city || loc.title || '';
                 const country   = loc.country || 'Bangladesh';
                 const locType   = loc.type || loc.loc_type || 'City';
-                const fullTitle = cityName + ', ' + country;
+                const fullTitle = cityName + (country && !cityName.includes(country) ? ', ' + country : '');
                 const safeTitle = fullTitle.replace(/'/g, "\\'");
                 const highlightedFullTitle = highlightMatch(fullTitle, query);
+
 
                 html += `
                     <div class="agoda-popover-item" onclick="selectDestination('${safeTitle}')" style="padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">

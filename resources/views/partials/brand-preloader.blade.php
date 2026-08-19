@@ -1,6 +1,6 @@
-{{-- Agoda Official 5-Color Pristine Bouncing Dots Preloader --}}
+{{-- Agoda Official 5-Color Pristine Bouncing Dots Preloader (Direct Floating Dots, No Blurry Card) --}}
 <div id="primeGlobalPreloader" class="prime-preloader-backdrop">
-    <div class="prime-agoda-loader-card">
+    <div class="prime-agoda-dots-wrapper">
         <div class="agoda-dot agoda-dot-1"></div>
         <div class="agoda-dot agoda-dot-2"></div>
         <div class="agoda-dot agoda-dot-3"></div>
@@ -10,7 +10,7 @@
 </div>
 
 <style>
-/* ─── Pristine Agoda Preloader Backdrop ─── */
+/* ─── Pure Crystal Clean Preloader Backdrop (No Blur/Fog) ─── */
 .prime-preloader-backdrop {
     position: fixed;
     top: 0;
@@ -21,9 +21,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.88);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(255, 255, 255, 0.92);
     opacity: 1;
     visibility: visible;
     transition: opacity 0.3s ease, visibility 0.3s ease;
@@ -35,41 +33,35 @@
     pointer-events: none;
 }
 
-/* ─── Clean Crisp White Card ─── */
-.prime-agoda-loader-card {
+/* ─── Pure Floating Dots Wrapper ─── */
+.prime-agoda-dots-wrapper {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 14px 22px;
-    background: #ffffff;
-    border-radius: 9999px;
-    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.04);
-    border: 1px solid #f1f5f9;
+    gap: 10px;
 }
 
-/* ─── Agoda 5 Brand Color Dots ─── */
+/* ─── Ultra Solid & Sharp Agoda 5 Brand Color Dots (100% Solid, No Opacity Loss) ─── */
 .agoda-dot {
-    width: 10px;
-    height: 10px;
+    width: 13px;
+    height: 13px;
     border-radius: 50%;
-    animation: agodaBounce 1.2s infinite ease-in-out both;
+    animation: agodaBounce 1.1s infinite ease-in-out both;
+    opacity: 1 !important;
 }
 
-.agoda-dot-1 { background-color: #3855B3; animation-delay: -0.32s; } /* Agoda Deep Blue */
-.agoda-dot-2 { background-color: #55BFE5; animation-delay: -0.24s; } /* Agoda Sky Cyan */
-.agoda-dot-3 { background-color: #48BB78; animation-delay: -0.16s; } /* Agoda Vibrant Green */
-.agoda-dot-4 { background-color: #F6AD55; animation-delay: -0.08s; } /* Agoda Warm Yellow */
-.agoda-dot-5 { background-color: #E53E3E; animation-delay: 0s; }     /* Agoda Crimson Red */
+.agoda-dot-1 { background-color: #2b59c3; animation-delay: -0.32s; } /* Agoda Royal Blue */
+.agoda-dot-2 { background-color: #00bcd4; animation-delay: -0.24s; } /* Agoda Cyan */
+.agoda-dot-3 { background-color: #10b981; animation-delay: -0.16s; } /* Agoda Green */
+.agoda-dot-4 { background-color: #f59e0b; animation-delay: -0.08s; } /* Agoda Amber Yellow */
+.agoda-dot-5 { background-color: #ef4444; animation-delay: 0s; }     /* Agoda Red */
 
 @keyframes agodaBounce {
     0%, 80%, 100% {
-        transform: translateY(0) scale(0.85);
-        opacity: 0.65;
+        transform: translateY(0) scale(0.9);
     }
     40% {
-        transform: translateY(-8px) scale(1.15);
-        opacity: 1;
+        transform: translateY(-14px) scale(1.15);
     }
 }
 </style>

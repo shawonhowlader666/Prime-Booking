@@ -1,6 +1,6 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
 <header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0" style="min-height: 64px; height: 64px; z-index: 1050; border-color: #e5e7eb !important; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-    <div class="container" style="height: 64px; max-width: 1220px; margin: 0 auto; padding-left: 20px; padding-right: 20px; display: flex; align-items: center;">
+    <div class="container-fluid" style="height: 64px; max-width: 1360px; margin: 0 auto; padding-left: 12px; padding-right: 12px; display: flex; align-items: center;">
 
         {{-- 100% Identical Prime Booking Logo --}}
         <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 32px !important;">
@@ -15,8 +15,8 @@
         {{-- Desktop Nav Row --}}
         <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 64px;">
 
-            {{-- Left Nav Links (Exact Agoda screenshot gaps & font size) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 13.5px; white-space: nowrap; gap: 22px;">
+            {{-- Left Nav Links (Professional gaps between all items) --}}
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 13.5px; white-space: nowrap; gap: 28px;">
                 <li class="nav-item">
                     <a class="nav-link px-0 fw-semibold" href="{{ route('home') }}"
                        style="color: #2d2d2d; height: 64px; display: flex; align-items: center; font-size: 13.5px;">
@@ -64,7 +64,7 @@
             </ul>
 
             {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 20px; white-space: nowrap; height: 64px;">
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 24px; white-space: nowrap; height: 64px;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();

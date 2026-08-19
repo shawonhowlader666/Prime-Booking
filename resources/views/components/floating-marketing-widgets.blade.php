@@ -368,34 +368,47 @@
 }
 
 /* ========================================================================
- 3. BOTTOM BLUE TOGGLE BUTTON (Circle with '✕')
+ 3. BOTTOM BLUE TOGGLE BUTTON (Morphs between Circle '✕' and Pill 'Save more on App!')
 ======================================================================== */
 .pb-bottom-toggle-btn {
     pointer-events: auto;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
     background: #2067e1;
     color: #ffffff;
     border: none;
-    box-shadow: 0 4px 16px rgba(32, 103, 225, 0.45);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 17px;
-    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-    margin-right: 4px;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 16px rgba(32, 103, 225, 0.45);
+    margin-right: 2px;
 }
 
 .pb-bottom-toggle-btn:hover {
-    transform: scale(1.08);
+    transform: scale(1.05);
     background: #1752b8;
     box-shadow: 0 6px 20px rgba(32, 103, 225, 0.55);
 }
 
-.pb-bottom-toggle-btn:active {
-    transform: scale(0.96);
+.pb-bottom-toggle-btn.pb-btn-circle {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    font-size: 17px;
+}
+
+.pb-bottom-toggle-btn.pb-btn-pill {
+    width: auto !important;
+    height: 40px !important;
+    border-radius: 24px !important;
+    padding: 0 16px !important;
+    font-size: 13.5px !important;
+    font-weight: 700 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 8px !important;
+    letter-spacing: 0.2px !important;
+    animation: pbFadeSlide 0.25s ease forwards;
 }
 
 /* Canvas Confetti */
@@ -523,8 +536,8 @@
         </div>
     </div>
 
-    {{-- 3. CIRCULAR BLUE TOGGLE BUTTON (Directly Below Bottom Card) --}}
-    <button type="button" class="pb-bottom-toggle-btn" id="pbCircleToggleBtn" onclick="pbToggleBottomCard()" title="Toggle Deals Card">
+    {{-- 3. CIRCULAR / PILL MORPHING BLUE BUTTON (Directly Below Bottom Card) --}}
+    <button type="button" class="pb-bottom-toggle-btn pb-btn-circle" id="pbCircleToggleBtn" onclick="pbToggleBottomCard()" title="Close App Savings">
         <i class="fa-solid fa-xmark" id="pbToggleIcon"></i>
     </button>
 
@@ -598,19 +611,27 @@ function pbRestoreTopCard() {
 
 function pbToggleBottomCard() {
     const appCard = document.getElementById('pbBottomAppCard');
-    const icon = document.getElementById('pbToggleIcon');
+    const toggleBtn = document.getElementById('pbCircleToggleBtn');
     
     if (pbBottomCardVisible) {
         pbBottomCardVisible = false;
         if (appCard) appCard.classList.add('is-hidden');
-        if (icon) icon.className = 'fa-solid fa-mobile-screen';
+        if (toggleBtn) {
+            toggleBtn.className = 'pb-bottom-toggle-btn pb-btn-pill';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>Save more on App!</span>';
+            toggleBtn.title = 'Open App Savings';
+        }
     } else {
         pbBottomCardVisible = true;
         if (appCard) {
             appCard.classList.remove('is-hidden');
             appCard.style.display = 'block';
         }
-        if (icon) icon.className = 'fa-solid fa-xmark';
+        if (toggleBtn) {
+            toggleBtn.className = 'pb-bottom-toggle-btn pb-btn-circle';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+            toggleBtn.title = 'Close App Savings';
+        }
     }
 }
 

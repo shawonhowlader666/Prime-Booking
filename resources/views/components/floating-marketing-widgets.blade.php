@@ -8,13 +8,13 @@
 /* Master Floating Dock (Unified Vertical Stack - Prevents ANY Overlapping) */
 .pb-unified-dock {
     position: fixed;
-    top: 85px;
+    top: 75px;
     right: 24px;
     z-index: 999999;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
-    gap: 14px;
+    gap: 10px;
     pointer-events: none;
     font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     user-select: none;
@@ -31,10 +31,10 @@
 ======================================================================== */
 .pb-card-top-rewards {
     pointer-events: auto;
-    width: 310px;
+    width: 295px;
     background: #ffffff;
-    border-radius: 16px;
-    padding: 14px 16px 12px;
+    border-radius: 14px;
+    padding: 12px 14px 10px;
     box-shadow: 0 12px 36px -4px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.06);
     position: relative;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
@@ -53,12 +53,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding-bottom: 4px;
+    padding-bottom: 2px;
 }
 
 .pb-honey-h {
     font-family: 'Georgia', serif;
-    font-size: 23px;
+    font-size: 21px;
     font-weight: 700;
     font-style: italic;
     color: #1e293b;
@@ -69,11 +69,11 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 1.5px;
 }
 
 .pb-center-brand .pb-brand-txt {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
     color: #0f172a;
     letter-spacing: 0.5px;
@@ -83,12 +83,12 @@
 
 .pb-center-brand .pb-dots {
     display: flex;
-    gap: 3.5px;
+    gap: 3px;
 }
 
 .pb-center-brand .pb-dot {
-    width: 5px;
-    height: 5px;
+    width: 4.5px;
+    height: 4.5px;
     border-radius: 50%;
 }
 
@@ -103,7 +103,7 @@
     border: none;
     color: #94a3b8;
     cursor: pointer;
-    padding: 4px;
+    padding: 3px;
     font-size: 13px;
     border-radius: 6px;
     display: flex;
@@ -126,20 +126,20 @@
     background: #fff7ed;
     color: #c2410c;
     border-radius: 20px;
-    padding: 2.5px 9px;
-    font-size: 10.5px;
+    padding: 2px 8px;
+    font-size: 10px;
     font-weight: 700;
-    margin: 6px auto 0;
+    margin: 4px auto 0;
     width: fit-content;
 }
 
 /* Headline */
 .pb-top-title {
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 800;
     color: #0f172a;
     text-align: center;
-    margin: 8px 0 12px;
+    margin: 6px 0 10px;
     letter-spacing: -0.3px;
 }
 
@@ -149,16 +149,16 @@
     background: #d84315;
     color: #ffffff;
     font-weight: 700;
-    font-size: 14px;
-    padding: 10px 16px;
-    border-radius: 8px;
+    font-size: 13.5px;
+    padding: 9px 14px;
+    border-radius: 7px;
     border: none;
     cursor: pointer;
     transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 6px;
     box-shadow: 0 3px 10px rgba(216, 67, 21, 0.25);
 }
 
@@ -175,11 +175,11 @@
 
 /* Footer note */
 .pb-top-note {
-    font-size: 10px;
+    font-size: 9.5px;
     color: #64748b;
     text-align: center;
-    margin-top: 8px;
-    line-height: 1.4;
+    margin-top: 6px;
+    line-height: 1.35;
 }
 
 .pb-top-note a {
@@ -195,13 +195,13 @@
     top: 140px;
     background-color: #f97316;
     color: #ffffff;
-    width: 36px;
-    height: 56px;
+    width: 34px;
+    height: 52px;
     border-radius: 8px 0 0 8px;
     font-family: 'Georgia', serif;
     font-weight: 700;
     font-style: italic;
-    font-size: 1.45rem;
+    font-size: 1.35rem;
     display: none;
     align-items: center;
     justify-content: center;
@@ -220,10 +220,10 @@
 ======================================================================== */
 .pb-card-bottom-app {
     pointer-events: auto;
-    width: 290px;
+    width: 280px;
     background: #ffffff;
-    border-radius: 18px;
-    padding: 18px 18px 10px;
+    border-radius: 16px;
+    padding: 14px 16px 8px;
     box-shadow: 0 14px 40px -6px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.06);
     position: relative;
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
@@ -241,10 +241,10 @@
 .pb-card-bottom-app::after {
     content: '';
     position: absolute;
-    bottom: -6px;
-    right: 20px;
-    width: 12px;
-    height: 12px;
+    bottom: -5px;
+    right: 18px;
+    width: 11px;
+    height: 11px;
     background: #ffffff;
     transform: rotate(45deg);
     border-right: 1px solid rgba(15, 23, 42, 0.08);
@@ -252,54 +252,54 @@
 }
 
 .pb-app-title-txt {
-    font-size: 19px;
+    font-size: 17.5px;
     font-weight: 800;
     color: #0f172a;
     text-align: center;
     line-height: 1.25;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
     letter-spacing: -0.3px;
 }
 
 .pb-app-sub-txt {
-    font-size: 12px;
+    font-size: 11.5px;
     color: #475569;
     text-align: center;
-    margin-bottom: 12px;
+    margin-bottom: 10px;
     line-height: 1.3;
 }
 
 /* Phone Mockup Frame */
 .pb-phone-frame {
-    width: 196px;
+    width: 176px;
     margin: 0 auto;
     background: #ffffff;
-    border: 6px solid #94a3b8;
+    border: 5px solid #94a3b8;
     border-bottom: none;
-    border-radius: 32px 32px 0 0;
-    padding: 0 10px 0;
+    border-radius: 28px 28px 0 0;
+    padding: 0 8px 0;
     position: relative;
 }
 
 .pb-phone-notch-bar {
-    width: 62px;
-    height: 9px;
+    width: 54px;
+    height: 8px;
     background: #94a3b8;
-    border-radius: 0 0 10px 10px;
-    margin: 0 auto 6px;
+    border-radius: 0 0 8px 8px;
+    margin: 0 auto 5px;
 }
 
 .pb-phone-brand-tag {
     text-align: center;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 2px;
+    gap: 1.5px;
 }
 
 .pb-phone-brand-tag .name {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 800;
     color: #1e293b;
     letter-spacing: 0.5px;
@@ -309,12 +309,12 @@
 
 .pb-phone-brand-tag .dots {
     display: flex;
-    gap: 3px;
+    gap: 2.5px;
 }
 
 .pb-phone-brand-tag .dot {
-    width: 4.5px;
-    height: 4.5px;
+    width: 4px;
+    height: 4px;
     border-radius: 50%;
 }
 
@@ -340,9 +340,9 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    margin-top: 8px;
-    padding: 5px 10px;
+    gap: 5px;
+    margin-top: 6px;
+    padding: 4px 8px;
     background: #f8fafc;
     border: 1px dashed #cbd5e1;
     border-radius: 6px;

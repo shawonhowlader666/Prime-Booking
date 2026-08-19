@@ -115,12 +115,13 @@
                             {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                         </div>
                         <div style="line-height: 1.15; flex-shrink: 0; text-align: left;">
-                            <span style="font-size: 13px; font-weight: 600; color: #262626; display: block;">{{ auth()->user()->name }}</span>
-                            <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 16px; font-size: 10px; line-height: 1; margin-top: 1px; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
-                                <div style="background-color: #1b2028; color: #ffffff; padding: 0 4px 0 4px; height: 100%; display: flex; align-items: center; gap: 2px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%); padding-right: 9px;">
-                                    <span style="font-size: 7px; color: #ffffff;">★</span>VIP
+                            <span style="font-size: 13.5px; font-weight: 600; color: #262626; display: block; margin-bottom: 2px;">{{ auth()->user()->name }}</span>
+                            {{-- 100% Identical VIP Bronze Badge --}}
+                            <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 18px; font-size: 10.5px; line-height: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.12);">
+                                <div style="background-color: #1e2430; color: #ffffff; padding: 0 6px 0 5px; height: 100%; display: flex; align-items: center; gap: 3px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); padding-right: 9px;">
+                                    <span style="font-size: 8px; color: #ffffff;">★</span>VIP
                                 </div>
-                                <div style="background: linear-gradient(135deg, #d98662 0%, #bd6c48 100%); color: #1e293b; padding: 0 4px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; margin-left: -4px;">
+                                <div style="background-color: #ba6d4a; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px; letter-spacing: 0.2px;">
                                     Bronze
                                 </div>
                             </div>
@@ -147,11 +148,11 @@
                             {{-- AgodaVIP row with VIP badge --}}
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <a href="{{ route('vip') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('AgodaVIP') }}</a>
-                                <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 16px; font-size: 9.5px; line-height: 1;">
-                                    <div style="background-color: #1b2028; color: #ffffff; padding: 0 4px; height: 100%; display: flex; align-items: center; gap: 2px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 80% 100%, 0 100%); padding-right: 8px;">
+                                <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 18px; font-size: 10.5px; line-height: 1;">
+                                    <div style="background-color: #1e2430; color: #ffffff; padding: 0 6px 0 5px; height: 100%; display: flex; align-items: center; gap: 3px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); padding-right: 9px;">
                                         ★VIP
                                     </div>
-                                    <div style="background: linear-gradient(135deg, #d98662 0%, #bd6c48 100%); color: #ffffff; padding: 0 5px; height: 100%; display: flex; align-items: center; font-weight: 700; margin-left: -4px;">
+                                    <div style="background-color: #ba6d4a; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px;">
                                         Bronze
                                     </div>
                                 </div>

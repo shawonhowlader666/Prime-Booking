@@ -172,7 +172,7 @@
 
 {{-- 3. Agoda Coupon Deals Strip Banner (Image 2 Parity) --}}
 <div style="background: #fff0f3; border-bottom: 1px solid #fecdd3; padding: 10px 0;">
-    <div class="d-flex align-items-center justify-content-between" style="max-width: 1140px; margin: 0 auto; padding: 0 16px; font-size: 13px;">
+    <div class="d-flex align-items-center justify-content-between" style="max-width: 1240px; margin: 0 auto; padding: 0 16px; font-size: 13px;">
         <div class="d-flex align-items-center gap-2">
             <span class="badge bg-danger rounded-pill px-2 py-1"><i class="fa-solid fa-tag"></i></span>
             <strong class="text-dark">Looking for instant coupons?</strong>
@@ -183,7 +183,7 @@
 </div>
 
 {{-- 4. Main Search Results Layout --}}
-<div style="max-width: 1140px; margin: 0 auto; padding: 24px 16px;">
+<div style="max-width: 1240px; margin: 0 auto; padding: 24px 16px;">
     <div class="row g-4">
         
         {{-- Left Filter Sidebar --}}
@@ -270,101 +270,230 @@
             </div>
             @endif
 
-            {{-- Applied Active Filter Removable Tags Strip --}}
+            {{-- Applied Active Filter Removable Tags Strip (ALL filter types) --}}
             @php
-                $hasFilters = request()->hasAny(['q', 'min_price', 'max_price', 'guest_rating', 'star_rating']);
+                $hasFilters = request()->hasAny(['q','min_price','max_price','guest_rating','star_rating','amenities','bed_type','room_feature','pay_later','free_cancel','property_type']);
+                $clearBaseParams = array_filter(['destination'=>request('destination'),'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests'),'rooms'=>request('rooms')]);
             @endphp
             @if($hasFilters)
-            <div class="d-flex align-items-center gap-1.5 mb-3 pb-2 border-bottom flex-wrap">
+            <div class="d-flex align-items-center gap-1 mb-3 pb-2 border-bottom flex-wrap">
                 <span class="small text-muted fw-bold me-1" style="font-size: 11.5px;">Active filters:</span>
-                
+
                 @if(request('q'))
-                    <a href="{{ route('search.index', request()->except('q')) }}" class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        "{{ request('q') }}" <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    <a href="{{ route('search.index', request()->except('q')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        "{{ Str::limit(request('q'), 20) }}" <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
                 @endif
 
-                @if(request('min_price'))
-                    <a href="{{ route('search.index', request()->except('min_price')) }}" class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Min: ৳{{ number_format((float)request('min_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                @if(request('min_price') && (float)request('min_price') > 0)
+                    <a href="{{ route('search.index', request()->except('min_price')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Min ৳{{ number_format((float)request('min_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
                 @endif
 
-                @if(request('max_price'))
-                    <a href="{{ route('search.index', request()->except('max_price')) }}" class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Max: ৳{{ number_format((float)request('max_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                @if(request('max_price') && (float)request('max_price') < 10000000)
+                    <a href="{{ route('search.index', request()->except('max_price')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Max ৳{{ number_format((float)request('max_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
                 @endif
 
-                @if(request('guest_rating'))
-                    @foreach((array)request('guest_rating') as $gr)
-                        <a href="{{ route('search.index', array_merge(request()->except('guest_rating'), ['guest_rating' => array_diff((array)request('guest_rating'), [$gr])])) }}" class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                            Rating {{ $gr }}+ <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                        </a>
-                    @endforeach
+                @foreach((array)request('guest_rating',[]) as $gr)
+                    <a href="{{ route('search.index', array_merge(request()->except('guest_rating'), ['guest_rating' => array_diff((array)request('guest_rating',[]), [$gr])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Rating {{ $gr }}+ <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endforeach
+
+                @foreach((array)request('star_rating',[]) as $sr)
+                    <a href="{{ route('search.index', array_merge(request()->except('star_rating'), ['star_rating' => array_diff((array)request('star_rating',[]), [$sr])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        {{ $sr }}★ <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endforeach
+
+                @foreach((array)request('property_type',[]) as $pt)
+                    <a href="{{ route('search.index', array_merge(request()->except('property_type'), ['property_type' => array_diff((array)request('property_type',[]), [$pt])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        {{ ucfirst($pt) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endforeach
+
+                @foreach((array)request('amenities',[]) as $am)
+                    <a href="{{ route('search.index', array_merge(request()->except('amenities'), ['amenities' => array_diff((array)request('amenities',[]), [$am])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        {{ $am }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endforeach
+
+                @foreach((array)request('bed_type',[]) as $bt)
+                    <a href="{{ route('search.index', array_merge(request()->except('bed_type'), ['bed_type' => array_diff((array)request('bed_type',[]), [$bt])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        {{ ucfirst($bt) }} bed <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endforeach
+
+                @foreach((array)request('room_feature',[]) as $rf)
+                    <a href="{{ route('search.index', array_merge(request()->except('room_feature'), ['room_feature' => array_diff((array)request('room_feature',[]), [$rf])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        {{ str_replace('_',' ',ucfirst($rf)) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endforeach
+
+                @if(request('pay_later'))
+                    <a href="{{ route('search.index', request()->except('pay_later')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        No credit card <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
                 @endif
 
-                @if(request('star_rating'))
-                    @foreach((array)request('star_rating') as $sr)
-                        <a href="{{ route('search.index', array_merge(request()->except('star_rating'), ['star_rating' => array_diff((array)request('star_rating'), [$sr])])) }}" class="badge bg-light text-dark border px-2.5 py-1.5 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                            {{ $sr }} Stars <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                        </a>
-                    @endforeach
+                @if(request('free_cancel'))
+                    <a href="{{ route('search.index', request()->except('free_cancel')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Free cancel <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
                 @endif
 
-                <a href="{{ route('search.index', ['destination' => request('destination'), 'check_in' => request('check_in'), 'check_out' => request('check_out')]) }}" class="text-decoration-none fw-bold ms-2 text-danger" style="font-size: 11.5px;">
-                    Clear all
+                <a href="{{ route('search.index', $clearBaseParams) }}" class="text-decoration-none fw-bold ms-auto text-danger" style="font-size: 11.5px; white-space:nowrap;">
+                    <i class="fa-solid fa-rotate-left me-1"></i>Clear all
                 </a>
             </div>
             @endif
 
-            {{-- Results Header & Sort Dropdown --}}
+            {{-- Results Header & AJAX Sort Dropdown (no full page reload) --}}
             <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">
-                        {{ $searchResults['total_count'] }} properties in {{ $destination ?: 'Bangladesh' }}
+                        <span id="resultsCount">{{ $searchResults['total_count'] }}</span> properties in {{ $destination ?: 'Bangladesh' }}
                     </h4>
                 </div>
-                <form action="{{ route('search.index') }}" method="GET" class="d-flex align-items-center gap-2 m-0">
-                    @foreach(request()->except(['sort_by', 'page']) as $k => $v)
-                        @if(is_array($v))
-                            @foreach($v as $arrVal)
-                                <input type="hidden" name="{{ $k }}[]" value="{{ $arrVal }}">
-                            @endforeach
-                        @else
-                            <input type="hidden" name="{{ $k }}" value="{{ $v }}">
-                        @endif
-                    @endforeach
+                <div class="d-flex align-items-center gap-2">
+                    {{-- Mobile: Show Filters toggle --}}
+                    <button class="btn btn-outline-secondary btn-sm rounded-pill fw-bold d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas" aria-controls="mobileFilterOffcanvas" style="font-size:12px;">
+                        <i class="fa-solid fa-sliders me-1"></i> Filters
+                    </button>
                     <label class="small text-muted fw-semibold mb-0 d-none d-sm-inline">Sort by:</label>
-                    <select name="sort_by" class="form-select form-select-sm rounded-3 fw-semibold" style="width: 190px; font-size: 13px; border-color: #cbd5e1;" onchange="this.form.submit();">
-                        <option value="featured" @selected(request('sort_by') == 'featured')>Best match</option>
-                        <option value="price_low" @selected(request('sort_by') == 'price_low')>Lowest price first</option>
-                        <option value="price_high" @selected(request('sort_by') == 'price_high')>Highest price first</option>
-                        <option value="rating" @selected(request('sort_by') == 'rating')>Highest guest rating</option>
-                        <option value="newest" @selected(request('sort_by') == 'newest')>Newest listings</option>
+                    <select id="sortBySelect" class="form-select form-select-sm rounded-3 fw-semibold" style="width: 190px; font-size: 13px; border-color: #cbd5e1;">
+                        <option value="featured" {{ request('sort_by','featured') == 'featured' ? 'selected' : '' }}>Best match</option>
+                        <option value="price_low" {{ request('sort_by') == 'price_low' ? 'selected' : '' }}>Lowest price first</option>
+                        <option value="price_high" {{ request('sort_by') == 'price_high' ? 'selected' : '' }}>Highest price first</option>
+                        <option value="rating" {{ request('sort_by') == 'rating' ? 'selected' : '' }}>Highest guest rating</option>
+                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Newest listings</option>
                     </select>
-                </form>
+                </div>
+            </div>
+
+            {{-- Agoda Popular Quick Filter Chips Bar --}}
+            <div class="d-flex align-items-center gap-2 overflow-x-auto pb-2 mb-2" style="scrollbar-width: none;">
+                @php
+                    $quickAmenities = (array) request('amenities', []);
+                    $hasBreakfast = in_array('Breakfast included', $quickAmenities);
+                    $hasPool = in_array('Swimming pool', $quickAmenities);
+                    $hasWifi = in_array('Free WiFi', $quickAmenities);
+                    $isFreeCancel = request('free_cancel') == 1;
+                    $isPayLater = request('pay_later') == 1;
+                    $is5Star = request('star_rating') == '5';
+                    $isTopRated = request('guest_rating') == '9';
+                @endphp
+
+                {{-- Free Cancellation --}}
+                <a href="{{ route('search.index', array_merge(request()->query(), ['free_cancel' => $isFreeCancel ? null : 1])) }}" 
+                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
+                   style="font-size: 12px; {{ $isFreeCancel ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <i class="fa-solid fa-check {{ $isFreeCancel ? 'text-white' : 'text-success' }}"></i> Free cancellation
+                </a>
+
+                {{-- Breakfast Included --}}
+                @php
+                    $breakfastParams = request()->query();
+                    if ($hasBreakfast) {
+                        $breakfastParams['amenities'] = array_values(array_diff($quickAmenities, ['Breakfast included']));
+                    } else {
+                        $breakfastParams['amenities'] = array_merge($quickAmenities, ['Breakfast included']);
+                    }
+                @endphp
+                <a href="{{ route('search.index', $breakfastParams) }}" 
+                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
+                   style="font-size: 12px; {{ $hasBreakfast ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <i class="fa-solid fa-mug-saucer {{ $hasBreakfast ? 'text-white' : 'text-warning' }}"></i> Breakfast included
+                </a>
+
+                {{-- Swimming Pool --}}
+                @php
+                    $poolParams = request()->query();
+                    if ($hasPool) {
+                        $poolParams['amenities'] = array_values(array_diff($quickAmenities, ['Swimming pool']));
+                    } else {
+                        $poolParams['amenities'] = array_merge($quickAmenities, ['Swimming pool']);
+                    }
+                @endphp
+                <a href="{{ route('search.index', $poolParams) }}" 
+                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
+                   style="font-size: 12px; {{ $hasPool ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <i class="fa-solid fa-person-swimming {{ $hasPool ? 'text-white' : 'text-info' }}"></i> Swimming pool
+                </a>
+
+                {{-- Pay at Hotel --}}
+                <a href="{{ route('search.index', array_merge(request()->query(), ['pay_later' => $isPayLater ? null : 1])) }}" 
+                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
+                   style="font-size: 12px; {{ $isPayLater ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <i class="fa-solid fa-wallet {{ $isPayLater ? 'text-white' : 'text-success' }}"></i> Pay at hotel
+                </a>
+
+                {{-- Top Rated 9+ --}}
+                <a href="{{ route('search.index', array_merge(request()->query(), ['guest_rating' => $isTopRated ? null : 9])) }}" 
+                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
+                   style="font-size: 12px; {{ $isTopRated ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <i class="fa-solid fa-star text-warning"></i> Superb 9.0+
+                </a>
+
+                {{-- 5-Star Luxury --}}
+                <a href="{{ route('search.index', array_merge(request()->query(), ['star_rating' => $is5Star ? null : 5])) }}" 
+                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
+                   style="font-size: 12px; {{ $is5Star ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                    <i class="fa-solid fa-crown text-warning"></i> 5-Star Stays
+                </a>
             </div>
 
             {{-- Property Cards Grid --}}
-            <div class="d-flex flex-column gap-3">
+            <div class="d-flex flex-column gap-3" id="propertyCardsFeed">
                 @forelse($searchResults['merged_results'] as $item)
                     @include('components.search.property-card', ['item' => $item])
                 @empty
-                    <div class="card border-0 shadow-xs rounded-4 p-5 text-center bg-white my-3">
-                        <div class="mb-3 text-muted"><i class="fa-solid fa-hotel display-3 text-opacity-25"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">No properties found matching your criteria</h5>
-                        <p class="text-secondary small mb-3">Try adjusting your filters or price range to discover more available stays.</p>
-                        <div>
-                            <a href="{{ route('search.index') }}" class="btn text-white fw-bold px-4 py-2" style="background-color: #2067e1; border-radius: 8px; font-size: 13px;">Clear All Filters</a>
+                    {{-- Smart Empty State with Fallback Suggestions --}}
+                    @php
+                        $suggestedFallback = \App\Models\Property::select([
+                                'id','name','slug','type','city','address',
+                                'star_rating','rating_score','total_reviews',
+                                'price_per_night','original_price','primary_image',
+                                'free_cancellation','no_credit_card_required',
+                                'latitude','longitude','status',
+                            ])
+                            ->active()
+                            ->orderByDesc('rating_score')
+                            ->limit(4)
+                            ->get();
+
+                    @endphp
+                    <div class="card border-0 shadow-xs rounded-4 p-4 text-center bg-white my-2">
+                        <div class="mb-3" style="font-size: 48px;">🔍</div>
+                        <h5 class="fw-bold text-dark mb-1">No properties found in "{{ $destination ?: 'this area' }}"</h5>
+                        <p class="text-secondary small mb-3">Try removing filters, expanding your price range, or explore nearby destinations below.</p>
+                        <div class="d-flex gap-2 flex-wrap justify-content-center mb-2">
+                            <a href="{{ route('search.index', array_filter(['destination'=>$destination,'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')])) }}" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" style="font-size:12px;">Remove all filters</a>
+                            <a href="{{ route('search.index', ['destination'=>'Cox\'s Bazar','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Cox's Bazar</a>
+                            <a href="{{ route('search.index', ['destination'=>'Dhaka','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Dhaka</a>
                         </div>
                     </div>
+                    @if($suggestedFallback->count() > 0)
+                    <div class="mt-3">
+                        <h6 class="fw-bold text-dark mb-3" style="font-size:15px; font-family:'Plus Jakarta Sans',sans-serif;">
+                            <i class="fa-solid fa-star text-warning me-2"></i>You might also like — Top Rated Stays
+                        </h6>
+                        <div class="d-flex flex-column gap-3">
+                            @foreach($suggestedFallback as $item)
+                                @include('components.search.property-card', ['item' => $item])
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
                 @endforelse
             </div>
 
             @if(isset($searchResults['paginator']) && $searchResults['paginator']->hasPages())
-                <div class="mt-4 d-flex justify-content-center">
-                    {{ $searchResults['paginator']->appends(request()->query())->links() }}
+                <div class="mt-4 d-flex justify-content-center" id="paginationContainer">
+                    {{ $searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking') }}
                 </div>
             @endif
 
@@ -373,83 +502,85 @@
     </div>
 </div>
 
-{{-- Interactive Leaflet OpenStreetMap Agoda-Exact Split-Screen Modal --}}
+{{-- Interactive Leaflet OpenStreetMap Agoda-Exact Split-Screen Modal (100% Exact 1:1 Parity with Agoda.com) --}}
 <div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen m-0 p-0">
-        <div class="modal-content border-0 rounded-0 overflow-hidden" style="background:#f8fafc;">
+        <div class="modal-content border-0 rounded-0 overflow-hidden" style="background:#ffffff;">
             
-            {{-- Top Modal Bar: Close button & Quick Filters --}}
-            <div class="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-xs" style="z-index: 1050; height: 56px;">
+            {{-- Top Modal Bar: Hide filters & Close X (Agoda Exact) --}}
+            <div class="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-xs" style="z-index: 1050; height: 58px;">
                 <div class="d-flex align-items-center gap-3">
-                    <button type="button" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1 fw-bold d-flex align-items-center gap-1.5" id="toggleMapFilterSidebarBtn" style="font-size:12.5px;">
-                        <i class="fa-solid fa-sliders"></i> <span id="toggleFilterBtnText">Hide filters</span>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3.5 py-1.5 fw-bold d-flex align-items-center gap-2" id="toggleMapFilterSidebarBtn" style="border-color: #2067e1; color: #2067e1; font-size: 13px; background: #ffffff;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>
+                        </svg>
+                        <span id="toggleFilterBtnText">Hide filters</span>
                     </button>
-                    <div class="fw-bold text-dark d-none d-md-block" style="font-size:14px;">
-                        <span id="mapModalPropertyCount">{{ count($searchResults['merged_results']) }}</span> properties available in {{ $destination ?: 'Bangladesh' }}
-                    </div>
                 </div>
-                <div class="d-flex align-items-center gap-3">
-                    <button type="button" class="btn-close fs-6 p-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                <div>
+                    <button type="button" class="btn btn-link p-0 text-primary fs-4 text-decoration-none" data-bs-dismiss="modal" aria-label="Close" style="color: #2067e1 !important; line-height: 1;">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
                 </div>
             </div>
 
             {{-- Main Split View Container (3 Panels) --}}
-            <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100vh - 56px);">
+            <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100vh - 58px);">
                 
                 {{-- Panel 1: Left Filter Sidebar (Collapsible - Agoda 1:1 Complete Parity) --}}
-                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3" style="width: 300px; min-width: 300px; flex-shrink: 0; transition: all 0.3s ease;">
+                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3.5" style="width: 280px; min-width: 280px; flex-shrink: 0; transition: all 0.3s ease;">
                     
                     {{-- Text Search --}}
-                    <div class="mb-3">
-                        <div class="input-group input-group-sm rounded-pill border px-2 py-1 bg-white align-items-center" style="border: 1.5px solid #2067e1 !important;">
-                            <span class="bg-transparent border-0 pe-1 text-primary" style="font-size: 12.5px;"><i class="fa-solid fa-magnifying-glass"></i></span>
-                            <input type="text" id="mapSearchInput" class="form-control form-control-sm border-0 bg-transparent ps-1 shadow-none" placeholder="Text search" onkeyup="filterMapItems()">
+                    <div class="mb-4">
+                        <div class="d-flex align-items-center px-3 py-2 rounded-pill" style="background: #f0f3f8;">
+                            <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
+                            <input type="text" id="mapSearchInput" class="border-0 bg-transparent w-100 shadow-none text-dark fw-medium" placeholder="Text search" style="font-size: 13.5px; outline: none;" onkeyup="filterMapItems()">
                         </div>
                     </div>
 
-                    {{-- Budget Slider with Dual Box Display --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-1" style="font-size:12.5px; font-family:'Plus Jakarta Sans',sans-serif;">Your budget (per night)</label>
-                        <input type="range" id="mapPriceRange" class="form-range my-2" min="500" max="80000" step="500" value="80000" oninput="document.getElementById('mapMaxBudgetBox').textContent = this.value; filterMapItems();">
-                        <div class="d-flex align-items-center gap-2 mt-1">
-                            <div class="border rounded p-1 text-center" style="width:75px; font-size:11.5px; background:#fafafa;">
-                                <small class="text-muted d-block" style="font-size:9px;">USD</small>
-                                <strong>0</strong>
+                    {{-- Budget Slider with Dual Typeable Box Display (Agoda 1:1 Parity) --}}
+                    <div class="mb-4 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size: 13.5px;">Your budget (per night)</label>
+                        <input type="range" id="mapPriceRange" class="form-range my-2" min="0" max="{{ $maxConvertedPrice ?? 1000 }}" step="{{ ($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5 }}" value="{{ $maxConvertedPrice ?? 1000 }}" oninput="onMapSliderChange(this.value);">
+                        <div class="d-flex align-items-center gap-2 mt-2">
+                            <div class="border rounded-2 p-1 px-2 d-flex align-items-center gap-1.5" style="width: 110px; background: #ffffff; border-color: #cbd5e1 !important;">
+                                <span class="text-secondary fw-bold" style="font-size: 11px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="0" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
                             </div>
-                            <span class="text-muted">-------</span>
-                            <div class="border rounded p-1 text-center" style="width:90px; font-size:11.5px; background:#fafafa;">
-                                <small class="text-muted d-block" style="font-size:9px;">USD</small>
-                                <strong id="mapMaxBudgetBox">800</strong>
+                            <span class="text-muted" style="letter-spacing: -1px;">---------</span>
+                            <div class="border rounded-2 p-1 px-2 d-flex align-items-center gap-1.5" style="width: 115px; background: #ffffff; border-color: #cbd5e1 !important;">
+                                <span class="text-secondary fw-bold" style="font-size: 11px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
                             </div>
                         </div>
                     </div>
 
                     {{-- Your active filters with 1-click Clear --}}
                     <div class="d-flex justify-content-between align-items-center mb-2 pb-1">
-                        <span class="fw-bold text-dark" style="font-size:12.5px;">Your filters</span>
-                        <a href="javascript:void(0);" onclick="clearAllMapFilters();" class="text-primary text-decoration-none fw-bold" style="font-size:11px;">CLEAR</a>
+                        <span class="fw-bold text-dark" style="font-size: 13px;">Your filters</span>
+                        <a href="javascript:void(0);" onclick="clearAllMapFilters();" class="text-primary text-decoration-none fw-bold" style="font-size: 11.5px;">CLEAR</a>
                     </div>
                     <div id="activeMapFiltersBadgeContainer" class="mb-3 d-flex flex-wrap gap-1">
                         {{-- Populated dynamically via JS --}}
                     </div>
 
                     {{-- 1. Popular Filters --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Popular filters for {{ $destination ?: 'Chittagong' }}</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                    <div class="mb-4 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Popular filters for {{ $destination ?: 'Chittagong' }}</label>
+                        <div class="d-flex flex-column gap-2.5">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="breakfast" onchange="filterMapItems()"> Breakfast included</span>
                                 <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()"> Free cancellation</span>
                                 <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()"> Pay at the hotel</span>
                                 <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="rating_8" onchange="filterMapItems()"> Guest rating: 8+ Excellent</span>
                                 <span class="text-muted small">({{ max(1, (int)(count($searchResults['merged_results']) * 0.7)) }})</span>
                             </label>
@@ -457,239 +588,73 @@
                     </div>
 
                     {{-- 2. Property Type --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Property type</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                    <div class="mb-4 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Property type</label>
+                        <div class="d-flex flex-column gap-2.5">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_entire" onchange="filterMapItems()"> Entire homes &amp; apartments</span>
                                 <span class="text-muted small">(4)</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_apartment" onchange="filterMapItems()"> Apartment/Flat</span>
                                 <span class="text-muted small">(4)</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_hotel" onchange="filterMapItems()"> Hotels &amp; Resorts</span>
                                 <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
                         </div>
                     </div>
 
-                    {{-- 3. Neighborhood --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Neighborhood</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="area_chittagong" onchange="filterMapItems()"> {{ $destination ?: 'Chittagong' }}</span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="area_kotwali" onchange="filterMapItems()"> Kotwali</span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="area_agrabad" onchange="filterMapItems()"> Agrabad</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 4. Payment Options --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Payment options</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()"> Free cancellation</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()"> Pay at the hotel</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 5. Guest Rating --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Guest rating</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="9" onchange="filterMapItems()"> 9+ Exceptional</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="8" onchange="filterMapItems()"> 8+ Excellent</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="7" onchange="filterMapItems()"> 7+ Very good</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="6" onchange="filterMapItems()"> 6+ Good</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 6. Star Rating --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Star rating</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="star_4" onchange="filterMapItems()"> <span class="text-warning">★★★★</span></span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="star_3" onchange="filterMapItems()"> <span class="text-warning">★★★</span></span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="star_2" onchange="filterMapItems()"> <span class="text-warning">★★</span></span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 7. Room Amenities (Agoda Exact Multi-Check) --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <div class="d-flex justify-content-between align-items-center mb-2">
-                            <label class="fw-bold text-dark m-0" style="font-size:12.5px;">Room amenities</label>
-                            <a href="javascript:void(0);" onclick="document.querySelectorAll('.map-amenity-check').forEach(c => c.checked = false); filterMapItems();" class="text-primary text-decoration-none fw-bold" style="font-size:11px;">CLEAR</a>
-                        </div>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="tv" onchange="filterMapItems()"> TV</span>
-                                <span class="text-muted small">(19)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="coffee" onchange="filterMapItems()"> Coffee/tea maker</span>
-                                <span class="text-muted small">(15)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="balcony" onchange="filterMapItems()"> Balcony/terrace</span>
-                                <span class="text-muted small">(14)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="fridge" onchange="filterMapItems()"> Refrigerator</span>
-                                <span class="text-muted small">(13)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="bathtub" onchange="filterMapItems()"> Bathtub</span>
-                                <span class="text-muted small">(10)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                    {{-- 3. Room Amenities --}}
+                    <div class="mb-4 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Room amenities</label>
+                        <div class="d-flex flex-column gap-2.5">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="ac" onchange="filterMapItems()"> Air conditioning</span>
                                 <span class="text-muted small">(5)</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="heating" onchange="filterMapItems()"> Heating</span>
-                                <span class="text-muted small">(5)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="iron" onchange="filterMapItems()"> Ironing facilities</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="washing_machine" onchange="filterMapItems()"> Washing machine</span>
                                 <span class="text-muted small">(4)</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="kitchen" onchange="filterMapItems()"> Kitchen</span>
-                                <span class="text-muted small">(2)</span>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="heating" onchange="filterMapItems()"> Heating</span>
+                                <span class="text-muted small">(5)</span>
                             </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="private_pool" onchange="filterMapItems()"> Private pool</span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 8. Property Facilities --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Property facilities</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="wifi" onchange="filterMapItems()"> Internet</span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="parking" onchange="filterMapItems()"> Car park</span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="family" onchange="filterMapItems()"> Family/child friendly</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="non_smoking" onchange="filterMapItems()"> Non-smoking</span>
-                                <span class="text-muted small">(3)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="disabled" onchange="filterMapItems()"> Facilities for disabled guests</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 9. Bed Type --}}
-                    <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Bed type</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_double" onchange="filterMapItems()"> Double</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_queen" onchange="filterMapItems()"> Queen</span>
-                                <span class="text-muted small">(2)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_single" onchange="filterMapItems()"> Single/twin</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_king" onchange="filterMapItems()"> King</span>
-                                <span class="text-muted small">(1)</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    {{-- 10. Distance to Center --}}
-                    <div class="mb-3 pb-3">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Distance to center</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_center" onchange="filterMapItems()"> Inside city center</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_2km" onchange="filterMapItems()"> &lt;2 km to center</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_5km" onchange="filterMapItems()"> 2-5 km to center</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
-                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_10km" onchange="filterMapItems()"> 5-10 km to center</span>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="wifi" onchange="filterMapItems()"> Free Wi-Fi</span>
+                                <span class="text-muted small">(12)</span>
                             </label>
                         </div>
                     </div>
 
                 </div>
 
-                {{-- Panel 2: Center Scrollable Property Cards --}}
-                <div id="agodaMapCardsCol" class="bg-light border-end overflow-y-auto p-3" style="width: 380px; min-width: 340px; flex-shrink: 0;">
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-2 border-bottom">
-                        <span class="text-muted fw-bold" style="font-size:12px;"><span id="visibleCardsCount">{{ count($searchResults['merged_results']) }}</span> properties available</span>
-                        <select id="mapSortSelect" class="form-select form-select-sm" style="width:auto; font-size:11.5px; font-weight:600;" onchange="sortMapItems(this.value)">
-                            <option value="recommended">Recommended</option>
-                            <option value="price_low">Lowest price first</option>
-                            <option value="rating_high">Guest rating</option>
-                        </select>
+                {{-- Panel 2: Center Scrollable Horizontal Property Cards (Agoda 1:1 Parity) --}}
+                <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto p-3" style="width: 440px; min-width: 420px; flex-shrink: 0;">
+                    
+                    {{-- Header with Result Count, Nights, and Floating Sort Box --}}
+                    <div class="mb-3 pb-2.5 border-bottom">
+                        <div class="fw-bold text-dark" style="font-size: 15px;">
+                            <span id="visibleCardsCount">{{ count($searchResults['merged_results']) }}</span> properties available
+                        </div>
+                        <div class="text-secondary small d-flex align-items-center gap-1.5 mb-2.5" style="font-size: 12px;">
+                            <i class="fa-regular fa-calendar" style="font-size: 11px;"></i> {{ $checkinCarbon->diffInDays($checkoutCarbon) }} nights ({{ $checkinCarbon->format('M j') }} – {{ $checkoutCarbon->format('M j') }})
+                        </div>
+                        <div class="position-relative">
+                            <label style="position: absolute; top: -8px; left: 10px; background: #ffffff; padding: 0 4px; font-size: 10.5px; font-weight: 600; color: #64748b; z-index: 1;">Sort by</label>
+                            <select id="mapSortSelect" class="form-select form-select-sm fw-bold text-dark shadow-none" style="height: 42px; border-radius: 8px; border-color: #cbd5e1; font-size: 13.5px;" onchange="sortMapItems(this.value)">
+                                <option value="recommended">Recommended</option>
+                                <option value="price_low">Lowest price first</option>
+                                <option value="rating_high">Guest rating</option>
+                            </select>
+                        </div>
                     </div>
 
                     {{-- Dynamic Property Cards List --}}
-                    <div id="agodaMapCardsList" class="d-flex flex-column gap-3">
-                        {{-- Injected dynamically via JS from mapProperties JSON --}}
+                    <div id="agodaMapCardsList" class="d-flex flex-column gap-2.5">
+                        {{-- Injected dynamically via JS as Horizontal Agoda Cards --}}
                     </div>
                 </div>
 
@@ -698,16 +663,18 @@
                     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-                    {{-- Floating Map Search Pill (Agoda Exact UI with Smart Autocomplete Dropdown) --}}
-                    <div class="position-absolute top-0 start-50 translate-middle-x mt-3" style="z-index: 1000; width: 340px;">
-                        <div class="shadow-md rounded-pill bg-white px-3 py-1.5 d-flex align-items-center gap-2 border" style="background:#ffffff; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
-                            <i class="fa-solid fa-magnifying-glass text-primary" style="font-size:13px;"></i>
-                            <input type="text" id="mapHeaderSearchInput" class="border-0 bg-transparent w-100" placeholder="Search on map..." autocomplete="off" style="outline:none; font-size:13px; font-weight:500;" onkeyup="handleMapSearchAutocomplete(this.value)">
-                            <button type="button" class="btn btn-link p-0 text-muted d-none" id="clearMapSearchBtn" onclick="clearMapSearch()" style="text-decoration:none;"><i class="fa-solid fa-circle-xmark"></i></button>
+                    {{-- Floating Map Search Pill (Agoda Exact UI Positioned at Top Left of Map Canvas) --}}
+                    <div class="position-absolute" style="top: 16px; left: 16px; z-index: 1000; width: 300px;">
+                        <div class="bg-white rounded-pill d-flex align-items-center gap-2 border px-3" style="background: #ffffff; height: 46px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); border-color: #cbd5e1 !important;">
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2067e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg>
+                            <input type="text" id="mapHeaderSearchInput" class="border-0 bg-transparent w-100 text-dark fw-medium" placeholder="Search on map..." autocomplete="off" style="outline:none; font-size:14px;" onkeyup="handleMapSearchAutocomplete(this.value)">
+                            <button type="button" class="btn btn-link p-0 text-muted d-none" id="clearMapSearchBtn" onclick="clearMapSearch()" style="text-decoration:none;"><i class="fa-solid fa-circle-xmark fs-6"></i></button>
                         </div>
 
                         {{-- Agoda 1:1 Smart Location Dropdown (Auto-suggests Cities, Districts, Landmarks & Railway Stations) --}}
-                        <div id="agodaMapSuggestDropdown" class="bg-white rounded-3 shadow-lg border mt-1.5 overflow-hidden d-none" style="max-height: 280px; overflow-y: auto;">
+                        <div id="agodaMapSuggestDropdown" class="bg-white rounded-3 shadow-lg border mt-1.5 overflow-hidden d-none" style="max-height: 280px; overflow-y: auto; border-color: #cbd5e1 !important;">
                             <div id="agodaMapSuggestList" class="py-1"></div>
                         </div>
                     </div>
@@ -723,28 +690,32 @@
 @php
     $defaultLat = 22.3569; // Chattogram / Bangladesh Default Center
     $defaultLng = 91.7832;
+    $currCode = \App\Helpers\CurrencyHelper::current();
 
-    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng) {
-        $isObj    = is_object($p);
-        $id       = $isObj ? ($p->id ?? $idx + 1) : ($p['id'] ?? $idx + 1);
-        $name     = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
-        $slug     = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
-        $rawPrice = (float)($isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0));
-        $city     = $isObj ? ($p->city ?? $p->address ?? 'Chattogram') : ($p['city'] ?? $p['address'] ?? 'Chattogram');
-        $image    = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
-        $score    = (float)($isObj ? ($p->rating_score ?? 8.5) : ($p['rating_score'] ?? 8.5));
-        $reviews  = (int)($isObj ? ($p->total_reviews ?? 4) : ($p['total_reviews'] ?? 4));
-        $lat      = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
-        $lng      = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
-        $type     = $isObj ? ($p->type ?? 'hotel') : ($p['type'] ?? 'hotel');
-        $freeCancel = (bool)($isObj ? ($p->free_cancellation ?? true) : ($p['free_cancellation'] ?? true));
-        $payLater   = (bool)($isObj ? ($p->no_credit_card_required ?? true) : ($p['no_credit_card_required'] ?? true));
+    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng, $currCode) {
+        $isObj       = is_object($p);
+        $id          = $isObj ? ($p->id ?? $idx + 1) : ($p['id'] ?? $idx + 1);
+        $name        = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
+        $slug        = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
+        $rawPriceBDT = (float)($isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0));
+        if ($rawPriceBDT <= 0) $rawPriceBDT = 3500;
+        $convertedPrice = round(\App\Services\CurrencyService::convert($rawPriceBDT, 'BDT', $currCode), 2);
+        $formattedPrice = \App\Services\CurrencyService::format($rawPriceBDT);
+        $city        = $isObj ? ($p->city ?? $p->address ?? 'Chattogram') : ($p['city'] ?? $p['address'] ?? 'Chattogram');
+        $image       = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
+        $score       = (float)($isObj ? ($p->rating_score ?? 8.5) : ($p['rating_score'] ?? 8.5));
+        $reviews     = (int)($isObj ? ($p->total_reviews ?? 4) : ($p['total_reviews'] ?? 4));
+        $lat         = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
+        $lng         = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
+        $type        = $isObj ? ($p->type ?? 'hotel') : ($p['type'] ?? 'hotel');
+        $freeCancel  = (bool)($isObj ? ($p->free_cancellation ?? true) : ($p['free_cancellation'] ?? true));
+        $payLater    = (bool)($isObj ? ($p->no_credit_card_required ?? true) : ($p['no_credit_card_required'] ?? true));
 
         return [
             'id'          => $id,
             'name'        => $name,
-            'price_raw'   => $rawPrice > 0 ? $rawPrice : 3500,
-            'price'       => $rawPrice > 0 ? \App\Services\CurrencyService::format($rawPrice) : 'USD 35',
+            'price_raw'   => $convertedPrice,
+            'price'       => $formattedPrice,
             'city'        => $city,
             'image'       => $image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
             'score'       => $score > 0 ? number_format($score, 1) : '8.8',
@@ -759,6 +730,8 @@
             'pay_later'   => $payLater,
         ];
     });
+
+    $maxConvertedPrice = ceil(($mapProperties->max('price_raw') ?: 500) * 1.2);
 
     $gpsProps = $mapProperties->where('has_gps', true);
     if ($gpsProps->count() > 0) {
@@ -843,32 +816,33 @@
             var html = '';
             items.forEach(function(item) {
                 html += `
-                    <div class="card border border-gray-200 rounded-3 overflow-hidden shadow-xs agoda-map-card" id="mapCard_${item.id}" style="border:1px solid #e2e8f0; border-radius:8px; cursor:pointer; background:#ffffff; transition:all 0.2s;" onmouseenter="highlightMarker(${item.id})" onmouseleave="unhighlightMarker(${item.id})" onclick="focusProperty(${item.id})">
-                        <div class="position-relative" style="height:140px; overflow:hidden;">
-                            <img src="${item.image}" alt="${item.name}" class="w-100 h-100" style="object-fit:cover;">
-                            <span class="badge position-absolute top-0 start-0 m-2" style="background:#2067e1; font-size:10px; font-weight:700;"><i class="fa-solid fa-house-chimney me-1"></i>${item.type}</span>
+                    <div class="card border rounded-3 overflow-hidden shadow-xs agoda-map-card" id="mapCard_${item.id}" style="border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; background:#ffffff; display:flex; flex-direction:row; height:155px; margin-bottom:4px; transition:all 0.2s; position:relative;" onmouseenter="highlightMarker(${item.id})" onmouseleave="unhighlightMarker(${item.id})" onclick="window.open('${item.url}', '_blank')">
+                        <!-- Left Hotel Photo -->
+                        <div style="width:140px; min-width:140px; height:100%; position:relative; overflow:hidden; background:#f1f5f9;">
+                            <img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;">
+                            <button type="button" class="btn position-absolute top-0 end-0 m-1.5 p-0 rounded-circle" style="background:rgba(255,255,255,0.88); border:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center; z-index:5;" onclick="event.stopPropagation(); toggleMapCardWishlist(this, ${item.id})" title="Save to wishlist">
+                                <i class="fa-regular fa-heart text-danger" style="font-size:12px;"></i>
+                            </button>
                         </div>
-                        <div class="p-2.5 p-3">
-                            <h6 class="fw-bold text-dark mb-1 text-truncate" style="font-size:13.5px; font-family:'Plus Jakarta Sans',sans-serif;" title="${item.name}">${item.name}</h6>
-                            <div class="d-flex align-items-center gap-1 text-muted mb-2" style="font-size:11px;">
-                                <i class="fa-solid fa-location-dot text-primary"></i> ${item.city}
+                        <!-- Right Info -->
+                        <div style="flex:1; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between; min-width:0;">
+                            <div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                                    <h6 style="font-size:13.5px; font-weight:700; color:#1e293b; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}">${item.name}</h6>
+                                    <div style="text-align:right; flex-shrink:0;">
+                                        <div style="font-size:15px; font-weight:800; color:#1e293b; line-height:1;">${item.price}</div>
+                                        <div style="font-size:9.5px; color:#64748b; margin-top:2px;">Per night before taxes and fees</div>
+                                    </div>
+                                </div>
+                                <div style="color:#f59e0b; font-size:11px; margin-top:2px;">★★★</div>
+                                <div style="display:flex; align-items:baseline; gap:4px; margin-top:4px;">
+                                    <strong style="color:#2067e1; font-size:13px; font-weight:800;">${item.score} ${item.rating_text}</strong>
+                                </div>
+                                <div style="font-size:11px; color:#64748b;">${item.reviews} reviews</div>
                             </div>
-                            <div class="d-flex align-items-center justify-content-between mb-2">
-                                <div class="d-flex align-items-center gap-1.5">
-                                    <span class="badge" style="background:#2067e1; color:#fff; font-size:11px; font-weight:800; padding:3px 6px;">${item.score}</span>
-                                    <span class="fw-bold text-dark" style="font-size:11.5px;">${item.rating_text}</span>
-                                    <small class="text-muted" style="font-size:10.5px;">(${item.reviews} reviews)</small>
-                                </div>
-                            </div>
-                            <div class="d-flex align-items-end justify-content-between pt-2 border-top">
-                                <div>
-                                    ${item.free_cancel ? '<span class="text-success fw-bold d-block" style="font-size:10.5px;"><i class="fa-solid fa-check me-1"></i>Free cancellation</span>' : ''}
-                                    <small class="text-muted" style="font-size:10px;">Per night before taxes</small>
-                                </div>
-                                <div class="text-end">
-                                    <div class="fw-bold text-dark" style="font-size:15px; color:#0f172a;">${item.price}</div>
-                                    <a href="${item.url}" target="_blank" class="btn btn-sm btn-primary fw-bold px-2 py-0.5 mt-1" style="font-size:10.5px; border-radius:4px; background:#2067e1;">View Stay</a>
-                                </div>
+                            <div style="margin-top:4px;">
+                                ${item.free_cancel ? '<div style="color:#15803d; font-size:11px; font-weight:600; display:flex; align-items:center; gap:5px;"><span style="display:inline-block; width:6px; height:6px; background:#15803d; border-radius:50%;"></span> Free cancellation</div>' : ''}
+                                <div style="color:#15803d; font-size:11px; font-weight:600; display:flex; align-items:center; gap:5px; margin-top:1px;"><span style="display:inline-block; width:6px; height:6px; background:#15803d; border-radius:50%;"></span> Breakfast</div>
                             </div>
                         </div>
                     </div>
@@ -877,30 +851,47 @@
             container.innerHTML = html;
         };
 
+        // ── Wishlist toggle in map modal cards ──
+        window.toggleMapCardWishlist = function(btn, propertyId) {
+            var icon = btn.querySelector('i');
+            var isWished = icon.classList.contains('fa-solid');
+            if (isWished) {
+                icon.classList.replace('fa-solid', 'fa-regular');
+                btn.style.background = 'rgba(255,255,255,0.85)';
+            } else {
+                icon.classList.replace('fa-regular', 'fa-solid');
+                btn.style.background = 'rgba(255,255,255,0.95)';
+                fetch('/wishlist/toggle/' + propertyId, {
+                    method: 'POST',
+                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '', 'X-Requested-With': 'XMLHttpRequest' }
+                }).catch(function() {});
+            }
+        };
+
         // ── 3. Highlighting and Marker Popups (Agoda 1:1 Parity) ──
         window.highlightMarker = function(id) {
-            // Highlight Marker Pin on Map
+            // Highlight Marker Pin on Map (Agoda Blue Active)
             if (markersMap[id]) {
                 var el = markersMap[id].getElement();
                 if (el) {
                     var badge = el.querySelector('.custom-agoda-pin-inner');
                     if (badge) {
-                        badge.style.backgroundColor = '#16a34a';
+                        badge.style.backgroundColor = '#2067e1';
                         badge.style.color = '#ffffff';
                         badge.style.borderColor = '#ffffff';
-                        badge.style.transform = 'scale(1.15)';
-                        badge.style.boxShadow = '0 6px 18px rgba(22, 163, 74, 0.45)';
+                        badge.style.transform = 'scale(1.12)';
+                        badge.style.boxShadow = '0 6px 18px rgba(32, 103, 225, 0.45)';
                         badge.style.zIndex = '9999';
                     }
                 }
             }
 
-            // Highlight Property Card on Left Column (Agoda Exact Blue Active Outline)
+            // Highlight Property Card
             var card = document.getElementById('mapCard_' + id);
             if (card) {
                 card.style.borderColor = '#2067e1';
                 card.style.borderWidth = '2px';
-                card.style.boxShadow = '0 8px 24px rgba(32, 103, 225, 0.18)';
+                card.style.boxShadow = '0 6px 20px rgba(32, 103, 225, 0.15)';
             }
         };
 
@@ -912,10 +903,10 @@
                     var badge = el.querySelector('.custom-agoda-pin-inner');
                     if (badge) {
                         badge.style.backgroundColor = '#ffffff';
-                        badge.style.color = '#16a34a';
-                        badge.style.borderColor = '#16a34a';
+                        badge.style.color = '#2067e1';
+                        badge.style.borderColor = '#2067e1';
                         badge.style.transform = 'scale(1)';
-                        badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                        badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
                         badge.style.zIndex = '1';
                     }
                 }
@@ -938,10 +929,26 @@
             }
         };
 
+        window.onMapSliderChange = function(val) {
+            var maxInput = document.getElementById('mapMaxBudgetInput');
+            if (maxInput) maxInput.value = val;
+            filterMapItems();
+        };
+
+        window.onMapTypedBudgetChange = function() {
+            var maxVal = parseFloat(document.getElementById('mapMaxBudgetInput')?.value || 0);
+            var slider = document.getElementById('mapPriceRange');
+            if (slider && !isNaN(maxVal) && maxVal > 0) {
+                slider.value = maxVal;
+            }
+            filterMapItems();
+        };
+
         // ── 4. Filter and Sorting Algorithms (Agoda 1:1 Complete Parity) ──
         window.filterMapItems = function() {
             var query = (document.getElementById('mapSearchInput')?.value || '').toLowerCase().trim();
-            var maxBudget = parseFloat(document.getElementById('mapPriceRange')?.value || 999999);
+            var minBudget = parseFloat(document.getElementById('mapMinBudgetInput')?.value || 0);
+            var maxBudget = parseFloat(document.getElementById('mapMaxBudgetInput')?.value || 999999);
             var checks = Array.from(document.querySelectorAll('.map-filter-check:checked')).map(c => c.value);
             var guestRatingRadio = document.querySelector('.map-filter-radio:checked')?.value;
 
@@ -963,13 +970,14 @@
 
             currentFiltered = allProperties.filter(function(item) {
                 if (query && !item.name.toLowerCase().includes(query) && !item.city.toLowerCase().includes(query)) return false;
-                if (item.price_raw > maxBudget) return false;
+                if (item.price_raw < minBudget || item.price_raw > maxBudget) return false;
                 if (checks.includes('free_cancel') && !item.free_cancel) return false;
                 if (checks.includes('pay_later') && !item.pay_later) return false;
                 if (checks.includes('rating_8') && parseFloat(item.score) < 8.0) return false;
                 if (guestRatingRadio && parseFloat(item.score) < parseFloat(guestRatingRadio)) return false;
                 if (checks.includes('type_hotel') && !item.type.toLowerCase().includes('hotel')) return false;
                 if (checks.includes('type_apartment') && !item.type.toLowerCase().includes('apartment')) return false;
+                if (checks.includes('type_entire') && !item.type.toLowerCase().includes('entire') && !item.type.toLowerCase().includes('villa')) return false;
                 if (checks.includes('area_chittagong') && !item.city.toLowerCase().includes('chittagong') && !item.city.toLowerCase().includes('chattogram')) return false;
                 if (checks.includes('area_kotwali') && !item.name.toLowerCase().includes('kotwali') && !item.city.toLowerCase().includes('kotwali')) return false;
                 return true;
@@ -1142,8 +1150,8 @@
                 allProperties.forEach(function(item) {
                     var isSoldOut = item.price_raw <= 0 || item.price.includes('N/A');
                     var pinHtml = isSoldOut 
-                        ? '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#64748b;font-weight:700;font-size:11px;padding:3px 8px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);border:1.5px solid #cbd5e1;cursor:pointer;white-space:nowrap;transition:all 0.2s;">Sold out</div>'
-                        : '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#16a34a;font-weight:800;font-size:11.5px;padding:3px 9px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);border:1.5px solid #16a34a;cursor:pointer;white-space:nowrap;transition:all 0.2s;">' + item.price + '</div>';
+                        ? '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#64748b;font-weight:700;font-size:11px;padding:3px 8px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:1.5px solid #cbd5e1;cursor:pointer;white-space:nowrap;transition:all 0.2s;">Sold out</div>'
+                        : '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#2067e1;font-weight:800;font-size:11.5px;padding:3px 9px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:1.5px solid #2067e1;cursor:pointer;white-space:nowrap;transition:all 0.2s;">' + item.price + '</div>';
 
                     var customIcon = L.divIcon({
                         className: 'custom-agoda-price-pin',
@@ -1177,12 +1185,28 @@
                     markersMap[item.id] = m;
                 });
 
-                // Viewport dynamic sync
+                // Viewport dynamic sync + "Search as I move the map" toggle
                 map.on('moveend', function() {
                     var bounds = map.getBounds();
-                    var inViewport = currentFiltered.filter(i => bounds.contains([i.lat, i.lng]));
+                    var inViewport = currentFiltered.filter(function(i) { return bounds.contains([i.lat, i.lng]); });
                     var countEl = document.getElementById('visibleCardsCount');
                     if (countEl) countEl.textContent = inViewport.length;
+
+                    // If "Search as I move" toggle is on, re-render cards to viewport only
+                    var moveToggle = document.getElementById('searchAsIMoveToggle');
+                    if (moveToggle && moveToggle.checked) {
+                        renderMapCards(inViewport);
+                        // Also dim markers outside viewport
+                        Object.keys(markersMap).forEach(function(id) {
+                            var prop = allProperties.find(function(p) { return p.id == id; });
+                            var el = markersMap[id].getElement();
+                            if (!el) return;
+                            var badge = el.querySelector('.custom-agoda-pin-inner');
+                            if (!badge) return;
+                            var inView = prop && bounds.contains([prop.lat, prop.lng]);
+                            badge.style.opacity = inView ? '1' : '0.35';
+                        });
+                    }
                 });
 
                 mapInitialized = true;
@@ -1193,11 +1217,170 @@
     });
 </script>
 
+{{-- Mobile Off-Canvas Filter Drawer --}}
+<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilterOffcanvas" aria-labelledby="mobileFilterOffcanvasLabel" style="width: min(360px, 90vw);">
+    <div class="offcanvas-header border-bottom" style="background:#1d2b45;">
+        <h6 class="offcanvas-title text-white fw-bold m-0" id="mobileFilterOffcanvasLabel">
+            <i class="fa-solid fa-sliders me-2"></i>Filter Results
+        </h6>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body p-0">
+        @include('components.search.filter-sidebar')
+    </div>
+</div>
+
+{{-- JSON-LD Structured Data for SEO (ItemList + Hotel schema) --}}
+@php
+    $jsonLdItems = collect($searchResults['merged_results'])->take(10)->map(function($p, $idx) {
+        $isObj = is_object($p);
+        $name  = $isObj ? ($p->name ?? '') : ($p['name'] ?? '');
+        $url   = $isObj ? route('property.show', $p->slug ?? $p->id) : route('property.show', $p['slug'] ?? $p['id'] ?? 1);
+        $img   = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
+        $price = (float)($isObj ? ($p->price_per_night ?? 0) : ($p['price_per_night'] ?? 0));
+        return [
+            '@type'    => 'ListItem',
+            'position' => $idx + 1,
+            'item'     => [
+                '@type'       => 'Hotel',
+                'name'        => $name,
+                'url'         => $url,
+                'image'       => $img ?: null,
+                'priceRange'  => $price > 0 ? ('৳' . number_format($price)) : null,
+            ],
+        ];
+    })->values()->toArray();
+@endphp
+@if(count($jsonLdItems))
+<script type="application/ld+json">
+{
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Hotels & Stays in {{ $destination ?: 'Bangladesh' }}",
+    "description": "Search results for {{ $searchResults['total_count'] }} hotels and stays in {{ $destination ?: 'Bangladesh' }} on PRIME BOOKING",
+    "numberOfItems": {{ count($jsonLdItems) }},
+    "itemListElement": @json($jsonLdItems)
+}
+</script>
+@endif
+
 {{-- Bottom Sticky Floating "Map View" Button --}}
-<div class="position-fixed bottom-0 start-50 translate-middle-x mb-4" style="z-index: 1040;">
+<div class="position-fixed bottom-0 start-50 translate-middle-x mb-4" style="z-index: 1039;">
     <button type="button" class="btn text-white fw-bold shadow-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2" style="background-color: #2067e1; font-size: 13.5px; border: 2.5px solid #ffffff; letter-spacing: 0.3px; box-shadow: 0 8px 24px rgba(32, 103, 225, 0.4) !important;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
         <i class="fa-solid fa-map-location-dot fs-5"></i> Map view
     </button>
 </div>
+
+{{-- Destination Autocomplete + AJAX Sort JS --}}
+<script>
+(function() {
+    // ── A. Destination autocomplete on top search bar ──────────────────────────
+    var destInput = document.getElementById('mainDestInput');
+    var acDropdown = null;
+    var acTimer = null;
+
+    if (destInput) {
+        acDropdown = document.createElement('div');
+        acDropdown.id = 'topBarAcDropdown';
+        acDropdown.className = 'position-absolute bg-white rounded-3 shadow-lg border mt-1 d-none';
+        acDropdown.style.cssText = 'z-index:2000; width:340px; max-height:340px; overflow-y:auto; top:100%; left:0;';
+        destInput.closest('.position-relative').appendChild(acDropdown);
+
+        destInput.addEventListener('input', function() {
+            clearTimeout(acTimer);
+            var q = this.value.trim();
+            if (q.length < 1) { acDropdown.classList.add('d-none'); return; }
+            acTimer = setTimeout(function() { fetchAcSuggestions(q); }, 200);
+        });
+
+        destInput.addEventListener('blur', function() {
+            setTimeout(function() { acDropdown.classList.add('d-none'); }, 200);
+        });
+    }
+
+    function fetchAcSuggestions(q) {
+        fetch('/api/search/autocomplete?q=' + encodeURIComponent(q) + '&search_type={{ $searchType ?? "hotel" }}')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                var locs = (data.data && data.data.locations) ? data.data.locations : (data.locations || []);
+                var props = (data.data && data.data.properties) ? data.data.properties : (data.properties || []);
+                renderTopAcDropdown(locs, props, q);
+            }).catch(function() {});
+    }
+
+    function renderTopAcDropdown(locs, props, q) {
+        if (!acDropdown) return;
+        if (!locs.length && !props.length) { acDropdown.classList.add('d-none'); return; }
+        var html = '';
+        var iconMap = { city:'fa-city', landmark:'fa-location-dot', country:'fa-globe', station:'fa-train' };
+        if (locs.length) {
+            html += '<div class="px-3 pt-2 pb-1" style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;">DESTINATIONS</div>';
+            locs.slice(0, 5).forEach(function(l) {
+                var icon = iconMap[l.type] || 'fa-location-dot';
+                html += '<div class="px-3 py-2" style="cursor:pointer;border-bottom:1px solid #f1f5f9;" '
+                    + 'onmousedown="selectTopAcItem(' + JSON.stringify(l.city||l.name||l.destination) + ')" '
+                    + 'onmouseenter="this.style.background=\'#f8fafc\'" onmouseleave="this.style.background=\'transparent\'">'
+                    + '<div class="d-flex align-items-center gap-2">'
+                    + '<span style="width:28px;height:28px;background:#e0edff;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid ' + icon + ' text-primary" style="font-size:12px;"></i></span>'
+                    + '<div><div class="fw-bold text-dark" style="font-size:13px;">' + (l.city||l.name||l.destination) + '</div>'
+                    + '<small class="text-muted" style="font-size:11px;">' + (l.country||l.subtitle||'') + (l.property_count ? ' • '+l.property_count+' properties' : '') + '</small></div>'
+                    + '</div></div>';
+            });
+        }
+        if (props.length) {
+            html += '<div class="px-3 pt-2 pb-1" style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;">PROPERTIES</div>';
+            props.slice(0, 3).forEach(function(p) {
+                html += '<div class="px-3 py-2" style="cursor:pointer;" '
+                    + 'onmousedown="selectTopAcItem(' + JSON.stringify(p.name) + ')" '
+                    + 'onmouseenter="this.style.background=\'#f8fafc\'" onmouseleave="this.style.background=\'transparent\'">'
+                    + '<div class="d-flex align-items-center gap-2">'
+                    + (p.image ? '<img src="'+p.image+'" style="width:32px;height:32px;border-radius:4px;object-fit:cover;">' : '<span style="width:32px;height:32px;background:#f1f5f9;border-radius:4px;display:inline-block;"></span>')
+                    + '<div><div class="fw-bold text-dark" style="font-size:13px;">' + p.name + '</div>'
+                    + '<small class="text-muted" style="font-size:11px;">' + (p.city||'') + (p.price ? ' • from '+p.price : '') + '</small></div>'
+                    + '</div></div>';
+            });
+        }
+        acDropdown.innerHTML = html;
+        acDropdown.classList.remove('d-none');
+    }
+
+    window.selectTopAcItem = function(val) {
+        if (destInput) { destInput.value = val; }
+        if (acDropdown) acDropdown.classList.add('d-none');
+        document.getElementById('searchHeaderForm').submit();
+    };
+
+    // ── B. AJAX Sort (no full page reload) ───────────────────────────────────
+    var sortSelect = document.getElementById('sortBySelect');
+    if (sortSelect) {
+        sortSelect.addEventListener('change', function() {
+            var filterForm = document.getElementById('filterSidebarForm');
+            var resultsContainer = document.getElementById('searchResultsContainer');
+            if (!resultsContainer || !filterForm) { return; }
+
+            var params = new URLSearchParams();
+            var fd = new FormData(filterForm);
+            for (var pair of fd.entries()) { if (pair[1]) params.append(pair[0], pair[1]); }
+            params.set('sort_by', sortSelect.value);
+            params.delete('page');
+
+            var url = filterForm.action + '?' + params.toString();
+            resultsContainer.style.opacity = '0.4';
+            resultsContainer.style.transition = 'opacity 0.15s';
+
+            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+                .then(function(r) { return r.text(); })
+                .then(function(html) {
+                    var doc = new DOMParser().parseFromString(html, 'text/html');
+                    var fresh = doc.getElementById('searchResultsContainer');
+                    if (fresh) resultsContainer.innerHTML = fresh.innerHTML;
+                    resultsContainer.style.opacity = '1';
+                    history.pushState(null, '', url);
+                }).catch(function() { resultsContainer.style.opacity = '1'; });
+        });
+    }
+})();
+</script>
+
 @endsection
 

@@ -28,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ── Web Middleware Stack ──────────────────────────────────────────
         $middleware->web(append: [
+            \App\Http\Middleware\SecurityHeaders::class,
             \App\Http\Middleware\SetLocale::class,
             \App\Http\Middleware\TrackLastLogin::class,
         ]);

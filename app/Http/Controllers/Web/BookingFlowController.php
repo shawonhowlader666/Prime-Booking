@@ -68,6 +68,7 @@ class BookingFlowController extends Controller
         }
 
         $appliedDiscount = 0.0;
+        $couponService = app(\App\Services\CouponService::class);
         if ($activePromoCode) {
             $couponResult = $couponService->validate($activePromoCode, $subtotal);
             if ($couponResult['valid'] ?? false) {
@@ -151,6 +152,13 @@ class BookingFlowController extends Controller
 
         $property = Property::findOrFail($propertyId);
         $room     = $request->room_id ? Room::where('property_id', $propertyId)->find($request->room_id) : null;
+
+        // 0. AI Fraud & Booking Abuse Risk Evaluation
+        $fraudDetector = app(\App\Services\AI\FraudDetector::class);
+        $fraudRisk = $fraudDetector->evaluateBooking($request->all(), auth()->user());
+        if ($fraudRisk['decision'] === 'REJECT_OR_MANUAL_REVIEW') {
+            return back()->withInput()->with('error', 'Unable to process your request at this time. Please contact customer support for assistance.');
+        }
 
         // 1. Enterprise Availability & Overbooking Verification
         if ($room) {
@@ -307,14 +315,61 @@ class BookingFlowController extends Controller
         return view('pages.booking-voucher-print', compact('booking', 'addons'));
     }
 
+    /** GET /booking/invoice/{reference} — Official Tax Invoice / Payment Receipt */
+    public function downloadInvoice($reference)
+    {
+        $booking = Booking::where('booking_reference', $reference)
+            ->with(['property', 'room'])
+            ->firstOrFail();
+
+        $addons = BookingAddon::where('booking_id', $booking->id)->get();
+
+        return view('pages.booking-invoice-print', compact('booking', 'addons'));
+    }
+
     /** GET /my-bookings — User's booking history */
     public function myBookings()
     {
-        $bookings = Booking::where('user_id', auth()->id())
-            ->with('property:id,name,city,primary_image')
+        $userId = auth()->id();
+        if (!$userId) {
+            return redirect()->route('login')->with('info', 'Please sign in to view your reservations.');
+        }
+
+        $bookings = Booking::where('user_id', $userId)
+            ->with(['property:id,name,city,primary_image,star_rating', 'room:id,name'])
             ->orderByDesc('created_at')
             ->paginate(10);
 
         return view('pages.my-bookings', compact('bookings'));
+    }
+
+    /** POST /my-bookings/{reference}/cancel — Self-service booking cancellation */
+    public function cancelBooking(Request $request, string $reference, InventoryService $inventoryService)
+    {
+        $userId = auth()->id();
+        $query = Booking::where('booking_reference', $reference);
+        if ($userId) {
+            $query->where('user_id', $userId);
+        } else {
+            $request->validate(['guest_email' => 'required|email']);
+            $query->where('guest_email', $request->guest_email);
+        }
+
+        $booking = $query->firstOrFail();
+
+        if (in_array($booking->status, ['cancelled', 'completed', 'refunded'])) {
+            return back()->with('error', 'This reservation cannot be cancelled in its current state.');
+        }
+
+        $booking->update([
+            'status'           => 'cancelled',
+            'booking_status'   => 'cancelled',
+            'special_requests' => ($booking->special_requests ? $booking->special_requests . ' | ' : '') . 'Cancelled by guest on ' . now()->toFormattedDateString(),
+        ]);
+
+        // Release room inventory
+        $inventoryService->releaseInventory($booking);
+
+        return back()->with('success', "Booking #{$reference} has been cancelled successfully. Your room dates have been released.");
     }
 }

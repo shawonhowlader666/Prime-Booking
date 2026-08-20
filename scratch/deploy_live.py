@@ -57,6 +57,7 @@ local_root = r"c:\Users\Shawon\Desktop\Prime Booking"
 
 files_to_sync = [
     "app/Http/Controllers/Web/PropertyPreviewController.php",
+    "app/Http/Controllers/Web/PropertyDetailController.php",
     "app/Http/Controllers/Web/BookingFlowController.php",
     "app/Http/Controllers/Vendor/VendorController.php",
     "app/Http/Controllers/Admin/PropertyManagementController.php",
@@ -64,8 +65,15 @@ files_to_sync = [
     "routes/web.php",
     "resources/views/home.blade.php",
     "resources/views/layouts/main.blade.php",
+    "resources/views/components/layout/header.blade.php",
+    "resources/views/components/search/filter-sidebar.blade.php",
+    "resources/views/components/search/property-card.blade.php",
+    "resources/views/components/recently-viewed-drawer.blade.php",
     "resources/views/components/floating-marketing-widgets.blade.php",
+    "resources/views/pages/search-results.blade.php",
     "resources/views/pages/hotel-detail.blade.php",
+    "resources/views/pages/hotel-brochure-print.blade.php",
+    "resources/views/pages/booking-invoice-print.blade.php",
     "resources/views/pages/booking-confirmation.blade.php",
     "resources/views/vendor/create-property.blade.php",
     "resources/views/vendor/edit-property.blade.php",

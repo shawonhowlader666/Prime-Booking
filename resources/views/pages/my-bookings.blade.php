@@ -73,13 +73,26 @@
                             {{ CurrencyService::format($booking->amount) }}
                         </div>
 
-                        <div class="d-flex gap-2 justify-content-md-end flex-wrap">
+                        <div class="d-flex gap-2 justify-content-md-end flex-wrap align-items-center">
+                            @if($booking->property)
+                            <a href="{{ route('booking.form', $booking->property->id) }}" class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold px-2.5" style="font-size:11.5px;" title="Book this property again">
+                                <i class="fa-solid fa-rotate-right me-1"></i> Book Again
+                            </a>
+                            @endif
                             <a href="{{ route('booking.voucher', $booking->booking_reference) }}" class="btn btn-outline-primary btn-sm rounded-pill fw-semibold px-3" style="font-size:12px;">
-                                <i class="fa-solid fa-ticket me-1"></i> View Voucher
+                                <i class="fa-solid fa-ticket me-1"></i> Voucher
                             </a>
-                            <a href="{{ route('booking.voucher.download', $booking->booking_reference) }}" target="_blank" class="btn btn-primary btn-sm rounded-pill fw-semibold px-3" style="font-size:12px;">
-                                <i class="fa-solid fa-print me-1"></i> Print E-Ticket
+                            <a href="{{ route('booking.invoice', $booking->booking_reference) }}" class="btn btn-outline-secondary btn-sm rounded-pill fw-semibold px-2.5" style="font-size:12px;" title="Official Tax Invoice & Receipt">
+                                <i class="fa-solid fa-file-invoice-dollar me-1"></i> Invoice
                             </a>
+                            @if(in_array(strtolower($booking->effective_status), ['confirmed', 'pending']))
+                            <form action="{{ route('booking.cancel', $booking->booking_reference) }}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to cancel booking #{{ $booking->booking_reference }}? Your reserved dates will be released.');">
+                                @csrf
+                                <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill fw-semibold px-2.5" style="font-size:11.5px;">
+                                    <i class="fa-solid fa-ban me-1"></i> Cancel
+                                </button>
+                            </form>
+                            @endif
                         </div>
                     </div>
                 </div>

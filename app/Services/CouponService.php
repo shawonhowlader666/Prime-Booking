@@ -99,6 +99,16 @@ class CouponService
     }
 
     /**
+     * Alias for validateCoupon for seamless compatibility.
+     */
+    public function validate(string $code, float $subtotal, ?int $propertyId = null, ?int $userId = null): array
+    {
+        $res = $this->validateCoupon($code, $subtotal, $propertyId, $userId);
+        $res['discount_amount'] = $res['discount'] ?? 0.0;
+        return $res;
+    }
+
+    /**
      * Increment coupon usage count upon successful booking.
      */
     public function recordUsage(string $code): void

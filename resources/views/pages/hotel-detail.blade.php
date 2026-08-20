@@ -395,18 +395,23 @@
                 </div>
             </div>
 
-            {{-- Action Icons (Wishlist & Share) Top Right --}}
+            {{-- Action Icons (Wishlist, Price Alert, Share) Top Right --}}
             <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 15;">
+                <button type="button" class="btn btn-light rounded-pill shadow-sm d-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold" style="background: #ffffff; font-size: 12.5px;" title="Set Price Drop Alert" data-bs-toggle="modal" data-bs-target="#priceAlertModal">
+                    <i class="fa-solid fa-bell text-warning"></i> <span class="d-none d-sm-inline">Price Alert</span>
+                </button>
                 <button type="button" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Share Property" onclick="sharePropertyLink();">
                     <i class="fa-solid fa-share-nodes text-dark fs-6"></i>
                 </button>
-                <form action="{{ route('wishlist.toggle') }}" method="POST" class="m-0">
-                    @csrf
-                    <input type="hidden" name="property_id" value="{{ $property->id }}">
-                    <button type="submit" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Save to Wishlist">
-                        <i class="fa-regular fa-heart text-dark fs-5"></i>
-                    </button>
-                </form>
+                <a href="{{ route('hotels.brochure', $property->id) }}" target="_blank" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-dark" style="width: 40px; height: 40px; background: #ffffff;" title="Print Official Hotel Brochure & Flyer">
+                    <i class="fa-solid fa-file-pdf fs-6 text-primary"></i>
+                </a>
+                @php
+                    $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('property_id', $property->id)->exists();
+                @endphp
+                <button type="button" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Save to Wishlist" onclick="toggleDetailWishlist(this, {{ $property->id }});">
+                    <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-dark' }} fa-heart fs-5"></i>
+                </button>
             </div>
         </div>
     </div>
@@ -422,7 +427,7 @@
                     <a href="#facilities" class="agoda-nav-item">Facilities</a>
                     <a href="#reviews" class="agoda-nav-item">Reviews</a>
                     <a href="#location" class="agoda-nav-item">Location</a>
-                    <a href="#policies" class="agoda-nav-item">Policies</a>
+                    <a href="#faqs" class="agoda-nav-item">FAQs</a>
                 </div>
                 <div class="d-none d-md-flex align-items-center gap-3 py-2">
                     <div class="text-end">
@@ -456,6 +461,9 @@
                         <span class="badge bg-white text-dark fw-bold px-2.5 py-1 d-inline-flex align-items-center gap-1.5 border" style="font-size: 11px; border-radius: 4px; border-color: #cbd5e1 !important;">
                             <span style="letter-spacing: 0.5px; color: #2067e1; font-weight: 800;">PRIME</span> PREFERRED
                         </span>
+                        <button type="button" class="badge bg-success bg-opacity-10 text-success fw-bold px-2.5 py-1 border border-success border-opacity-25 btn p-0 text-start shadow-none" style="font-size: 11px; border-radius: 4px;" data-bs-toggle="modal" data-bs-target="#bestPriceGuaranteeModal" title="Learn about our Best Price Guarantee">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> BEST PRICE GUARANTEE
+                        </button>
                         @if(isset($socialProof) && $socialProof['is_popular'])
                         <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2.5 py-1 border border-danger border-opacity-25" style="font-size: 11px; border-radius: 4px;">
                             <i class="fa-solid fa-fire text-danger me-1"></i> HIGH DEMAND
@@ -631,6 +639,29 @@
                     </div>
                 </div>
 
+                {{-- Agoda Flight + Hotel Bundle & Save Callout Card --}}
+                <div class="card border-0 rounded-3 p-3 mb-4 text-white shadow-xs position-relative overflow-hidden" style="background: linear-gradient(135deg, #1d2b45 0%, #0f172a 100%); border: 1px solid #334155 !important;">
+                    <div class="row align-items-center g-3">
+                        <div class="col-md-8">
+                            <div class="d-flex align-items-center gap-2 mb-1">
+                                <span class="badge bg-warning text-dark fw-bold px-2 py-0.5" style="font-size: 10.5px;">COMBO SAVINGS</span>
+                                <span class="text-white fw-bold small"><i class="fa-solid fa-plane-departure text-warning me-1"></i> Need flights to {{ $property->city }}?</span>
+                            </div>
+                            <h6 class="fw-bold text-white mb-1" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                Bundle your stay at {{ $property->name }} with Domestic Flights
+                            </h6>
+                            <p class="text-white-50 small mb-0" style="font-size: 12px;">
+                                Book your hotel and flight together on PRIME BOOKING to unlock extra baggage allowance &amp; package savings up to ৳2,500.
+                            </p>
+                        </div>
+                        <div class="col-md-4 text-md-end">
+                            <a href="{{ route('flights.index') }}?destination={{ urlencode($property->city) }}&date={{ $checkinCarbon->format('Y-m-d') }}" class="btn btn-warning btn-sm px-3.5 py-2 rounded-pill fw-bold text-dark shadow-sm d-inline-flex align-items-center gap-1.5" style="font-size: 12.5px;">
+                                <i class="fa-solid fa-plane text-dark"></i> Search Flights to {{ $property->city }}
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Facilities Grid (Dynamic from Model / DB) --}}
                 <div id="facilities" class="card agoda-card-border mb-4" style="padding: 20px !important;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -657,10 +688,21 @@
                     </div>
                 </div>
 
-                {{-- High Demand Urgency Callout Banner --}}
-                <div class="card agoda-card-border mb-4" style="padding: 16px 20px !important; background-color: #fef2f2 !important; border: 1px solid #fee2e2 !important;">
-                    <h6 class="fw-bold mb-1" style="color: #d93025; font-size: 15px;">This property is in high demand!</h6>
-                    <p class="text-dark mb-0" style="font-size: 13px;">Popular choice in {{ $property->city ?: 'Bangladesh' }}</p>
+                {{-- High Demand Urgency & Real-Time Social Proof Callout Banner --}}
+                <div class="card agoda-card-border mb-4 overflow-hidden shadow-xs" style="padding: 16px 20px !important; background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%) !important; border: 1px solid #fecdd3 !important; border-radius: 12px !important;">
+                    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-1.5">
+                        <h6 class="fw-bold mb-0 d-flex align-items-center gap-2" style="color: #e11d48; font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <span class="spinner-grow spinner-grow-sm text-danger" role="status" style="width: 10px; height: 10px;"></span>
+                            This property is in high demand!
+                        </h6>
+                        <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2.5 py-1" style="font-size: 11px;">
+                            <i class="fa-solid fa-fire me-1"></i> Highly Booked
+                        </span>
+                    </div>
+                    <div class="d-flex flex-column gap-1 mt-1 text-dark" style="font-size: 12.5px;">
+                        <div>{{ $socialProof['urgency_text'] ?? ('🔥 5 guests booked this property in the last 24 hours.') }}</div>
+                        <div class="text-secondary" style="font-size: 12px;"><i class="fa-regular fa-eye text-primary me-1"></i> {{ $socialProof['live_views_text'] ?? ('👁️ 8 other travelers are viewing this hotel right now.') }}</div>
+                    </div>
                 </div>
 
             </div>
@@ -775,13 +817,20 @@
 
         {{-- 6. Select Your Room Section & Filter Pills (Exact Agoda 1:1 Parity) --}}
         <div id="rooms" class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
                 <h4 class="fw-bold text-dark mb-0" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">
                     Select your room
                 </h4>
-                <a href="#rooms" class="fw-bold text-decoration-none small d-flex align-items-center gap-1.5" style="color: #2067e1; font-size: 13px;">
-                    <i class="fa-solid fa-award text-dark fs-6"></i> We price match!
-                </a>
+                <div class="d-flex align-items-center gap-2.5">
+                    @if($property->rooms->count() >= 2)
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-1.5 shadow-xs" data-bs-toggle="modal" data-bs-target="#compareRoomsModal" style="font-size: 12.5px;">
+                        <i class="fa-solid fa-code-compare me-1"></i> Compare Room Types
+                    </button>
+                    @endif
+                    <a href="#rooms" class="fw-bold text-decoration-none small d-flex align-items-center gap-1.5" style="color: #2067e1; font-size: 13px;">
+                        <i class="fa-solid fa-award text-dark fs-6"></i> We price match!
+                    </a>
+                </div>
             </div>
 
             {{-- Room Filter Container Box (Exact Agoda 1:1 Parity) --}}
@@ -952,7 +1001,7 @@
                                             {{-- Sub-col 3: Book Button --}}
                                             <div class="col-md-3 text-end ps-2">
                                                 <div class="text-dark d-block mb-1.5 fw-bold" style="font-size: 13px;">1 room</div>
-                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
+                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
                                                     <span>Book</span>
                                                     <small style="font-size: 10.5px; font-weight: 500; opacity: 0.95;">Pay at hotel</small>
                                                 </a>
@@ -1003,7 +1052,7 @@
 
                                             <div class="col-md-3 text-end ps-2">
                                                 <div class="text-dark d-block mb-1.5 fw-bold" style="font-size: 13px;">1 room</div>
-                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
+                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
                                                     <span>Book</span>
                                                     <small style="font-size: 10.5px; font-weight: 500; opacity: 0.95;">Pay at hotel</small>
                                                 </a>
@@ -1057,7 +1106,7 @@
 
                                             <div class="col-md-3 text-end ps-2">
                                                 <div class="text-dark d-block mb-1.5 fw-bold" style="font-size: 13px;">1 room</div>
-                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
+                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
                                                     <span>Book</span>
                                                     <small style="font-size: 10.5px; font-weight: 500; opacity: 0.95;">Pay at hotel</small>
                                                 </a>
@@ -1482,9 +1531,14 @@
                         Reviews of {{ $property->name }} from real guests <i class="fa-solid fa-circle-info text-muted fs-6"></i>
                     </h5>
                 </div>
-                <div class="text-end">
-                    <small class="text-secondary d-block" style="font-size: 11px;">Verified reviews</small>
-                    <span class="fw-bold text-primary" style="font-size: 13px;">PRIME BOOKING Verified</span>
+                <div class="d-flex align-items-center gap-2">
+                    <button type="button" class="btn btn-primary btn-sm rounded-pill fw-bold px-3 py-1.5 shadow-xs" data-bs-toggle="modal" data-bs-target="#writeReviewModal" style="background:#2067e1; font-size:12.5px;">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Write a Review
+                    </button>
+                    <div class="text-end d-none d-sm-block">
+                        <small class="text-secondary d-block" style="font-size: 11px;">Verified reviews</small>
+                        <span class="fw-bold text-primary" style="font-size: 12.5px;">PRIME BOOKING Verified</span>
+                    </div>
                 </div>
             </div>
 
@@ -1562,6 +1616,19 @@
                 </div>
             </div>
 
+            {{-- Instant Search Within Reviews Box --}}
+            <div class="row g-2 align-items-center mb-3">
+                <div class="col-md-6">
+                    <div class="input-group input-group-sm shadow-xs">
+                        <span class="input-group-text bg-white border-end-0 text-muted"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        <input type="text" id="reviewSearchInput" class="form-control border-start-0" placeholder="Search reviews (e.g. clean, breakfast, wifi, pool)..." oninput="searchReviewsKeyword(this.value);" style="font-size: 12.5px;">
+                    </div>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <span id="reviewMatchCount" class="badge bg-light text-secondary border px-2.5 py-1.5" style="font-size: 11.5px;">Showing all reviews</span>
+                </div>
+            </div>
+
             {{-- Verified Guest Reviews List (Dynamic from Database) --}}
             <div class="d-flex flex-column gap-3 border-top pt-4" id="verifiedReviewsContainer">
                 @forelse($reviews ?? $property->reviews ?? [] as $rev)
@@ -1580,8 +1647,16 @@
                             {{ $rev->comment }}
                         </p>
                         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 text-muted small" style="font-size: 11px;">
-                            <span>Verified guest review</span>
-                            <span>Did you find this review helpful? <a href="javascript:void(0)" class="text-primary fw-bold text-decoration-none">Yes</a> / <a href="javascript:void(0)" class="text-secondary text-decoration-none">No</a></span>
+                            <span><i class="fa-solid fa-circle-check text-success me-1"></i> Verified guest review</span>
+                            <span class="d-flex align-items-center gap-1.5 review-vote-box" data-review-id="{{ $rev->id }}">
+                                <span>Was this helpful?</span>
+                                <button type="button" class="btn btn-outline-primary btn-sm py-0.5 px-2.5 rounded-pill fw-bold" style="font-size: 11px;" onclick="voteReview({{ $rev->id }}, 'helpful', this);">
+                                    <i class="fa-regular fa-thumbs-up me-1"></i> Yes <span class="vote-count-num">({{ $rev->helpful_count ?: 0 }})</span>
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm py-0.5 px-2 rounded-pill" style="font-size: 11px;" onclick="voteReview({{ $rev->id }}, 'unhelpful', this);">
+                                    <i class="fa-regular fa-thumbs-down"></i>
+                                </button>
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -1947,6 +2022,83 @@
                 <p class="text-secondary mb-0" style="font-size: 12.5px; line-height: 1.5; white-space: pre-line;">{{ $property->house_rules }}</p>
             </div>
             @endif
+
+            {{-- Frequently Asked Questions (FAQ) & Host Direct Inquiry Section --}}
+            <div id="faqs" class="mt-4 pt-4 border-top">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+                    <div>
+                        <h5 class="fw-bold text-dark mb-1" style="font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                            <i class="fa-solid fa-circle-question text-primary me-2"></i> Frequently Asked Questions
+                        </h5>
+                        <p class="text-secondary small mb-0">Answers to top guest questions about {{ $property->name }}</p>
+                    </div>
+                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-1.5 shadow-xs" data-bs-toggle="modal" data-bs-target="#askHostModal">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Ask a Question
+                    </button>
+                </div>
+
+                <div class="accordion accordion-flush bg-white rounded-3 border overflow-hidden" id="hotelDetailFaqAccordion">
+                    {{-- FAQ 1 --}}
+                    <div class="accordion-item border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold text-dark py-3 px-3.5" type="button" data-bs-toggle="collapse" data-bs-target="#faqItem1" style="font-size: 13.5px;">
+                                What are the check-in and check-out times at {{ $property->name }}?
+                            </button>
+                        </h2>
+                        <div id="faqItem1" class="accordion-collapse collapse" data-bs-parent="#hotelDetailFaqAccordion">
+                            <div class="accordion-body text-secondary small px-3.5 pt-0 pb-3" style="line-height: 1.6;">
+                                Check-in is available from <strong>{{ $property->checkin_time ?: '14:00' }}</strong> onwards, and check-out is until <strong>{{ $property->checkout_time ?: '12:00' }}</strong>. Early check-in or late check-out can be requested when making your reservation, subject to availability.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- FAQ 2 --}}
+                    <div class="accordion-item border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold text-dark py-3 px-3.5" type="button" data-bs-toggle="collapse" data-bs-target="#faqItem2" style="font-size: 13.5px;">
+                                Does {{ $property->name }} offer free cancellation?
+                            </button>
+                        </h2>
+                        <div id="faqItem2" class="accordion-collapse collapse" data-bs-parent="#hotelDetailFaqAccordion">
+                            <div class="accordion-body text-secondary small px-3.5 pt-0 pb-3" style="line-height: 1.6;">
+                                @if($property->free_cancellation)
+                                Yes! Most room rates at {{ $property->name }} offer <strong>Free Cancellation</strong> up to 24-48 hours before check-in.
+                                @else
+                                Cancellation policies depend on the specific room type chosen. Please review the rate conditions before confirming your reservation.
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- FAQ 3 --}}
+                    <div class="accordion-item border-bottom">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold text-dark py-3 px-3.5" type="button" data-bs-toggle="collapse" data-bs-target="#faqItem3" style="font-size: 13.5px;">
+                                What payment methods are supported?
+                            </button>
+                        </h2>
+                        <div id="faqItem3" class="accordion-collapse collapse" data-bs-parent="#hotelDetailFaqAccordion">
+                            <div class="accordion-body text-secondary small px-3.5 pt-0 pb-3" style="line-height: 1.6;">
+                                You can pay securely online via <strong>bKash, Nagad, Rocket, or Visa/Mastercard</strong>, or choose <strong>Pay at Hotel</strong> upon arrival.
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- FAQ 4 --}}
+                    <div class="accordion-item">
+                        <h2 class="accordion-header">
+                            <button class="accordion-button collapsed fw-bold text-dark py-3 px-3.5" type="button" data-bs-toggle="collapse" data-bs-target="#faqItem4" style="font-size: 13.5px;">
+                                Can I arrange airport pickup or parking?
+                            </button>
+                        </h2>
+                        <div id="faqItem4" class="accordion-collapse collapse" data-bs-parent="#hotelDetailFaqAccordion">
+                            <div class="accordion-body text-secondary small px-3.5 pt-0 pb-3" style="line-height: 1.6;">
+                                Yes! Airport transfer can be booked as an add-on during checkout, and on-site guest parking is available at the property.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         {{-- 16. Discover new places Section (Screenshot Parity) --}}
@@ -2014,6 +2166,85 @@
                 <button class="btn btn-light rounded-circle shadow-md position-absolute top-50 end-0 translate-middle-y me-1 d-flex align-items-center justify-content-center" style="width: 38px; height: 38px; z-index: 10; border: 1px solid #cbd5e1; background: #fff;" onclick="this.previousElementSibling.scrollBy({left: 200, behavior: 'smooth'});">
                     <i class="fa-solid fa-chevron-right text-dark fs-6"></i>
                 </button>
+            </div>
+        </div>
+
+        {{-- 15. Frequently Asked Questions (Agoda FAQ Accordion Parity) --}}
+        <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white" id="faqs">
+            <div class="d-flex align-items-center justify-content-between mb-3 flex-wrap gap-2">
+                <div>
+                    <h5 class="fw-bold text-dark mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <i class="fa-solid fa-circle-question text-primary me-2"></i>Frequently Asked Questions
+                    </h5>
+                    <small class="text-muted">Important stay details, check-in policies, and guest amenities for {{ $property->name }}.</small>
+                </div>
+                <a href="{{ route('contact') }}" class="btn btn-outline-primary btn-sm fw-semibold rounded-pill px-3">
+                    <i class="fa-solid fa-headset me-1"></i> Ask a Question
+                </a>
+            </div>
+
+            <div class="accordion accordion-flush" id="hotelFaqAccordion">
+                
+                {{-- FAQ 1: Check-in / Check-out --}}
+                <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                    <h2 class="accordion-header" id="faqHeading1">
+                        <button class="accordion-button fw-bold text-dark collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1" style="font-size: 14.5px;">
+                            What are the check-in and check-out times at {{ $property->name }}?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#hotelFaqAccordion">
+                        <div class="accordion-body text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                            Check-in is typically from <strong>14:00 (2:00 PM)</strong> onwards, and check-out is until <strong>12:00 (12:00 PM)</strong>. Early check-in or late check-out may be requested during booking subject to room availability.
+                        </div>
+                    </div>
+                </div>
+
+                {{-- FAQ 2: Breakfast --}}
+                <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                    <h2 class="accordion-header" id="faqHeading2">
+                        <button class="accordion-button fw-bold text-dark collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2" style="font-size: 14.5px;">
+                            Does this property serve breakfast?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#hotelFaqAccordion">
+                        <div class="accordion-body text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                            Yes, guests can enjoy delicious continental, buffet, or Asian breakfast options during their stay. Select room rates include complimentary breakfast automatically.
+                        </div>
+                    </div>
+                </div>
+
+                {{-- FAQ 3: Airport Transfer --}}
+                <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                    <h2 class="accordion-header" id="faqHeading3">
+                        <button class="accordion-button fw-bold text-dark collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3" style="font-size: 14.5px;">
+                            Can {{ $property->name }} arrange airport transfer?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#hotelFaqAccordion">
+                        <div class="accordion-body text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                            Yes! Dedicated airport transfer services can be scheduled easily upon reservation or via our Prime Booking transfer partner portal.
+                        </div>
+                    </div>
+                </div>
+
+                {{-- FAQ 4: Cancellation Policy --}}
+                <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                    <h2 class="accordion-header" id="faqHeading4">
+                        <button class="accordion-button fw-bold text-dark collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse4" aria-expanded="false" aria-controls="faqCollapse4" style="font-size: 14.5px;">
+                            What is the cancellation policy for this hotel?
+                        </button>
+                    </h2>
+                    <div id="faqCollapse4" class="accordion-collapse collapse" aria-labelledby="faqHeading4" data-bs-parent="#hotelFaqAccordion">
+                        <div class="accordion-body text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                            @if($property->free_cancellation)
+                            This stay offers <strong>Free Cancellation</strong> up to 24-48 hours before check-in. You can self-cancel your reservation directly from your Prime Booking user portal at zero cancellation penalty.
+                            @else
+                            Standard hotel cancellation terms apply. Cancellation terms are highlighted explicitly under each individual room rate selection.
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -2584,10 +2815,721 @@
             }).catch(() => {});
         } else {
             navigator.clipboard.writeText(window.location.href).then(() => {
-                alert('Property link copied to clipboard!');
+                showHotelToast('Property link copied to clipboard!');
             });
         }
     }
+
+    // AJAX Wishlist Toggle on Hotel Detail
+    function toggleDetailWishlist(btn, propertyId) {
+        const icon = btn.querySelector('i');
+        const isCurrentlySaved = icon.classList.contains('fa-solid');
+
+        // Optimistic UI state toggle
+        if (isCurrentlySaved) {
+            icon.className = 'fa-regular text-dark fa-heart fs-5';
+        } else {
+            icon.className = 'fa-solid text-danger fa-heart fs-5';
+            btn.style.transform = 'scale(1.2)';
+            setTimeout(() => { btn.style.transform = 'scale(1)'; }, 200);
+        }
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        fetch('{{ route("wishlist.toggle") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ property_id: propertyId })
+        })
+        .then(res => {
+            if (res.status === 401) {
+                window.location.href = '{{ route("login") }}';
+                return;
+            }
+            return res.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                showHotelToast(data.message || (data.is_wishlisted ? 'Saved to wishlist! ❤️' : 'Removed from wishlist.'));
+            }
+        })
+        .catch(() => {});
+    }
+
+    // Interactive Review Mention Filter
+    function filterReviewsByMention(mention, btn) {
+        document.querySelectorAll('.mention-filter-btn').forEach(b => {
+            b.classList.remove('btn-primary', 'text-white');
+            b.classList.add('btn-light', 'text-dark', 'border');
+            b.style.background = '';
+        });
+        if (btn) {
+            btn.classList.remove('btn-light', 'text-dark', 'border');
+            btn.classList.add('btn-primary', 'text-white');
+            btn.style.background = '#2067e1';
+        }
+
+        const cards = document.querySelectorAll('.verified-review-card');
+        let matched = 0;
+
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            if (mention === 'all' || text.includes(mention.toLowerCase())) {
+                card.classList.remove('d-none');
+                matched++;
+            } else {
+                card.classList.add('d-none');
+            }
+        });
+
+        const badge = document.getElementById('reviewMatchCount');
+        if (badge) {
+            badge.textContent = mention === 'all' ? `Showing all ${cards.length} reviews` : `Showing ${matched} of ${cards.length} reviews matching "${mention}"`;
+        }
+    }
+
+    // Instant Search Reviews by Keyword
+    function searchReviewsKeyword(kw) {
+        const query = (kw || '').trim().toLowerCase();
+        const cards = document.querySelectorAll('.verified-review-card');
+        let matched = 0;
+
+        cards.forEach(card => {
+            const text = card.textContent.toLowerCase();
+            if (!query || text.includes(query)) {
+                card.classList.remove('d-none');
+                matched++;
+            } else {
+                card.classList.add('d-none');
+            }
+        });
+
+        const badge = document.getElementById('reviewMatchCount');
+        if (badge) {
+            badge.textContent = !query ? `Showing all ${cards.length} reviews` : `Showing ${matched} of ${cards.length} reviews matching "${query}"`;
+        }
+    }
+
+    // AJAX Helpful Review Vote Handler
+    function voteReview(reviewId, type, btn) {
+        const box = btn.closest('.review-vote-box');
+        const countSpan = box.querySelector('.vote-count-num');
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        btn.disabled = true;
+
+        fetch(`/api/v1/reviews/${reviewId}/vote`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ type: type })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                if (type === 'helpful') {
+                    btn.classList.remove('btn-outline-primary');
+                    btn.classList.add('btn-primary');
+                    const icon = btn.querySelector('i');
+                    if (icon) icon.className = 'fa-solid fa-thumbs-up me-1';
+                    if (countSpan) countSpan.textContent = `(${data.helpful_count})`;
+                }
+                showHotelToast(data.message);
+            } else {
+                showHotelToast(data.message || 'Already voted.');
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+        });
+    }
+
+    function showHotelToast(msg) {
+        let toast = document.getElementById('hotelDetailToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'hotelDetailToast';
+            toast.style.cssText = 'position:fixed;bottom:24px;right:24px;background:#0f172a;color:#ffffff;padding:12px 20px;border-radius:10px;font-size:13.5px;font-weight:600;box-shadow:0 10px 25px rgba(0,0,0,0.25);z-index:9999;transition:all 0.3s cubic-bezier(0.16,1,0.3,1);opacity:0;transform:translateY(20px);pointer-events:none;';
+            document.body.appendChild(toast);
+        }
+        toast.textContent = msg;
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateY(0)';
+        clearTimeout(window._hotelToastTimer);
+        window._hotelToastTimer = setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(20px)';
+        }, 2800);
+    }
+
+    // Price Drop Alert Form Submission
+    function submitPriceAlert(e) {
+        e.preventDefault();
+        const form = e.target;
+        const email = form.querySelector('#priceAlertEmail').value;
+        const targetPrice = form.querySelector('#priceAlertTargetPrice').value;
+        const btn = form.querySelector('button[type="submit"]');
+        const feedback = form.querySelector('#priceAlertFeedback');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Subscribing...';
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        fetch('{{ route("api.v1.price-alert.subscribe") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                property_id: {{ $property->id }},
+                email: email,
+                target_price: targetPrice || null
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-bell me-1"></i> Activate Price Alert';
+            if (data.success) {
+                feedback.className = 'alert alert-success p-2 small mt-3 mb-0';
+                feedback.textContent = data.message;
+                feedback.classList.remove('d-none');
+                setTimeout(() => {
+                    const modalEl = document.getElementById('priceAlertModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    showHotelToast('🔔 Price Alert activated for ' + email);
+                }, 1800);
+            } else {
+                feedback.className = 'alert alert-danger p-2 small mt-3 mb-0';
+                feedback.textContent = data.message || 'Failed to set price alert.';
+                feedback.classList.remove('d-none');
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-bell me-1"></i> Activate Price Alert';
+            feedback.className = 'alert alert-danger p-2 small mt-3 mb-0';
+            feedback.textContent = 'Network error. Please try again.';
+            feedback.classList.remove('d-none');
+        });
+    }
 </script>
+
+{{-- Price Drop Alert Modal --}}
+<div class="modal fade" id="priceAlertModal" tabindex="-1" aria-labelledby="priceAlertModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4" style="background: #f8fafc;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle bg-warning bg-opacity-25 text-warning d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="fa-solid fa-bell"></i>
+                    </span>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="priceAlertModalLabel" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                        Set Price Drop Alert
+                    </h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="submitPriceAlert(event);">
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">
+                        Track <strong>{{ $property->name }}</strong>. We'll automatically email you when the price per night drops below your target rate.
+                    </p>
+                    
+                    <div class="p-2.5 rounded-3 mb-3 d-flex align-items-center justify-content-between" style="background: #f1f5f9;">
+                        <span class="small text-muted">Current Rate</span>
+                        <strong class="text-dark fs-6">৳{{ number_format((float)$property->price_per_night) }} / night</strong>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">Your Email Address <span class="text-danger">*</span></label>
+                        <input type="email" id="priceAlertEmail" class="form-control rounded-3" value="{{ auth()->user()?->email }}" placeholder="e.g. yourname@example.com" required style="font-size: 13.5px;">
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label fw-bold text-dark small mb-1">Target Price per Night (Optional)</label>
+                        <div class="input-group">
+                            <span class="input-group-text bg-light text-muted fw-bold">৳</span>
+                            <input type="number" id="priceAlertTargetPrice" class="form-control rounded-end-3" placeholder="{{ round($property->price_per_night * 0.85) }}" min="100" style="font-size: 13.5px;">
+                        </div>
+                        <small class="text-muted" style="font-size: 11px;">Leave empty to receive an alert on ANY price drop or flash deal.</small>
+                    </div>
+
+                    <div id="priceAlertFeedback" class="d-none"></div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm fw-bold rounded-pill px-4">
+                        <i class="fa-solid fa-bell me-1"></i> Activate Price Alert
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{-- Compare Room Types Modal --}}
+<div class="modal fade" id="compareRoomsModal" tabindex="-1" aria-labelledby="compareRoomsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4 bg-light d-flex align-items-center justify-content-between">
+                <div>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="compareRoomsModalLabel" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                        <i class="fa-solid fa-code-compare text-primary me-2"></i>Compare Room Types — {{ $property->name }}
+                    </h5>
+                    <small class="text-muted">Compare size, bed options, amenities, and rates across all available rooms.</small>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-bordered mb-0 align-middle text-center" style="min-width: 600px; border-color: #e2e8f0;">
+                        <thead class="bg-light">
+                            <tr>
+                                <th class="text-start p-3" style="width: 180px; background: #f1f5f9;">Room Feature</th>
+                                @foreach($property->rooms as $r)
+                                <th class="p-3" style="width: calc((100% - 180px) / {{ max(1, $property->rooms->count()) }});">
+                                    <div class="fw-bold text-dark fs-6">{{ $r->name }}</div>
+                                    <div class="fw-bold text-danger fs-5 mt-1">৳{{ number_format((float)$r->price_per_night) }}<small class="text-muted fw-normal fs-6">/nt</small></div>
+                                </th>
+                                @endforeach
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="text-start fw-bold text-dark bg-light px-3" style="font-size: 13px;">Room Area</td>
+                                @foreach($property->rooms as $r)
+                                <td class="fw-semibold text-secondary" style="font-size: 12.5px;">{{ $r->formatted_size ?: '46 m² / 495 ft²' }}</td>
+                                @endforeach
+                            </tr>
+                            <tr>
+                                <td class="text-start fw-bold text-dark bg-light px-3" style="font-size: 13px;">Bed Setup</td>
+                                @foreach($property->rooms as $r)
+                                <td class="fw-semibold text-secondary" style="font-size: 12.5px;">{{ $r->bed_type ?: '1 King / Queen Bed' }}</td>
+                                @endforeach
+                            </tr>
+                            <tr>
+                                <td class="text-start fw-bold text-dark bg-light px-3" style="font-size: 13px;">Max Guests</td>
+                                @foreach($property->rooms as $r)
+                                <td class="text-dark" style="font-size: 12.5px;">{{ $r->max_adults ?: 2 }} Adults + {{ $r->max_children ?: 1 }} Child</td>
+                                @endforeach
+                            </tr>
+                            <tr>
+                                <td class="text-start fw-bold text-dark bg-light px-3" style="font-size: 13px;">View</td>
+                                @foreach($property->rooms as $r)
+                                <td class="text-secondary" style="font-size: 12.5px;">{{ $r->view_type ?: 'City view' }}</td>
+                                @endforeach
+                            </tr>
+                            <tr>
+                                <td class="text-start fw-bold text-dark bg-light px-3" style="font-size: 13px;">Free Wi-Fi & AC</td>
+                                @foreach($property->rooms as $r)
+                                <td><i class="fa-solid fa-circle-check text-success fs-6"></i></td>
+                                @endforeach
+                            </tr>
+                            <tr>
+                                <td class="text-start fw-bold text-dark bg-light px-3" style="font-size: 13px;">Booking Action</td>
+                                @foreach($property->rooms as $r)
+                                <td class="p-3">
+                                    <a href="{{ route('booking.form', ['propertyId' => $property->id, 'room_id' => $r->id, 'check_in' => $checkIn, 'check_out' => $checkOut, 'guests' => $guests]) }}" class="btn btn-primary btn-sm fw-bold rounded-pill w-100 py-1.5" style="font-size: 12.5px;">
+                                        Book This Room
+                                    </a>
+                                </td>
+                                @endforeach
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="modal-footer py-2.5 px-4 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill fw-semibold" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Write a Review Modal --}}
+<div class="modal fade" id="writeReviewModal" tabindex="-1" aria-labelledby="writeReviewModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4" style="background: #f8fafc;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle bg-primary bg-opacity-25 text-primary d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="fa-solid fa-star"></i>
+                    </span>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="writeReviewModalLabel" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                        Write a Verified Guest Review
+                    </h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form onsubmit="submitVerifiedReview(event);">
+                <div class="modal-body p-4">
+                    <p class="text-secondary small mb-3">
+                        Share your authentic experience at <strong>{{ $property->name }}</strong> to help other travelers make informed choices.
+                    </p>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">Your Rating Score (1 to 10) <span class="text-danger">*</span></label>
+                        <div class="d-flex align-items-center gap-3">
+                            <input type="range" class="form-range flex-grow-1" id="reviewRatingInput" min="1" max="10" step="0.5" value="9" oninput="document.getElementById('reviewRatingDisplay').textContent = this.value + ' / 10';">
+                            <span class="badge bg-primary fs-6 fw-bold px-3 py-1.5" id="reviewRatingDisplay">9.0 / 10</span>
+                        </div>
+                    </div>
+
+                    @guest
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">Your Full Name <span class="text-danger">*</span></label>
+                        <input type="text" id="reviewGuestName" class="form-control rounded-3" placeholder="e.g. Tanvir Ahmed" required style="font-size: 13.5px;">
+                    </div>
+                    @endguest
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold text-dark small mb-1">Review Comments <span class="text-danger">*</span></label>
+                        <textarea id="reviewComment" class="form-control rounded-3" rows="4" placeholder="Tell us about the room, cleanliness, staff hospitality, and location..." required minlength="5" maxlength="2000" style="font-size: 13.5px;"></textarea>
+                        <small class="text-muted" style="font-size: 11px;">Our AI engine scans and verifies feedback automatically.</small>
+                    </div>
+
+                    <div id="reviewFeedback" class="d-none"></div>
+                </div>
+                <div class="modal-footer border-top px-4 py-3 bg-light">
+                    <button type="button" class="btn btn-outline-secondary btn-sm fw-semibold rounded-pill px-3" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm fw-bold rounded-pill px-4">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Submit Review
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submitVerifiedReview(e) {
+        e.preventDefault();
+        const form = e.target;
+        const rating = form.querySelector('#reviewRatingInput').value;
+        const comment = form.querySelector('#reviewComment').value;
+        const nameInput = form.querySelector('#reviewGuestName');
+        const guestName = nameInput ? nameInput.value : '';
+        const btn = form.querySelector('button[type="submit"]');
+        const feedback = form.querySelector('#reviewFeedback');
+
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-1"></i> Submitting...';
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+
+        fetch('{{ route("hotels.review.store", $property->id) }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': csrfToken,
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({
+                rating: rating,
+                comment: comment,
+                guest_name: guestName
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Review';
+            if (data.success) {
+                feedback.className = 'alert alert-success p-2 small mt-3 mb-0';
+                feedback.textContent = data.message;
+                feedback.classList.remove('d-none');
+                setTimeout(() => {
+                    const modalEl = document.getElementById('writeReviewModal');
+                    const modal = bootstrap.Modal.getInstance(modalEl);
+                    if (modal) modal.hide();
+                    showHotelToast('🌟 Thank you! Your review has been processed.');
+                    setTimeout(() => { window.location.reload(); }, 1000);
+                }, 1500);
+            } else {
+                feedback.className = 'alert alert-danger p-2 small mt-3 mb-0';
+                feedback.textContent = data.message || 'Review validation failed.';
+                feedback.classList.remove('d-none');
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fa-solid fa-paper-plane me-1"></i> Submit Review';
+            feedback.className = 'alert alert-danger p-2 small mt-3 mb-0';
+            feedback.textContent = 'Submission failed. Please try again.';
+            feedback.classList.remove('d-none');
+        });
+    }
+
+    // Web Share API & Quick Share Modal Handler
+    function sharePropertyLink() {
+        const title = "{{ addslashes($property->name) }} - Prime Booking";
+        const text = "Check out {{ addslashes($property->name) }} in {{ addslashes($property->city ?: 'Bangladesh') }} on Prime Booking!";
+        const url = window.location.href;
+
+        if (navigator.share) {
+            navigator.share({
+                title: title,
+                text: text,
+                url: url
+            }).catch(() => {});
+        } else {
+            const modalEl = document.getElementById('sharePropertyModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
+        }
+    }
+
+    function copyShareLink(btn) {
+        const input = document.getElementById('sharePropertyUrlInput');
+        if (!input) return;
+        input.select();
+        navigator.clipboard.writeText(input.value).then(() => {
+            const orig = btn.innerHTML;
+            btn.className = 'btn btn-success fw-bold px-3';
+            btn.innerHTML = '<i class="fa-solid fa-check me-1"></i> Copied!';
+            showHotelToast('🔗 Property link copied to clipboard!');
+            setTimeout(() => {
+                btn.className = 'btn btn-primary fw-bold px-3';
+                btn.innerHTML = orig;
+            }, 2000);
+        });
+    }
+</script>
+
+{{-- Quick Share Property Modal --}}
+<div class="modal fade" id="sharePropertyModal" tabindex="-1" aria-labelledby="sharePropertyModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 rounded-4 shadow-lg overflow-hidden">
+            <div class="modal-header border-bottom py-3 px-4" style="background: #f8fafc;">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle bg-primary bg-opacity-25 text-primary d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </span>
+                    <h5 class="modal-title fw-bold text-dark mb-0" id="sharePropertyModalLabel" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                        Share this Property
+                    </h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body p-4">
+                <p class="text-secondary small mb-3">
+                    Share <strong>{{ $property->name }}</strong> with family, friends, or travel companions:
+                </p>
+
+                <div class="input-group mb-4 shadow-xs">
+                    <input type="text" id="sharePropertyUrlInput" class="form-control" value="{{ url()->current() }}" readonly style="font-size: 13px; background: #f8fafc;">
+                    <button type="button" class="btn btn-primary fw-bold px-3" onclick="copyShareLink(this);">
+                        <i class="fa-regular fa-copy me-1"></i> Copy
+                    </button>
+                </div>
+
+                <div class="d-flex align-items-center justify-content-around py-2 border-top">
+                    @php
+                        $encodedUrl = urlencode(url()->current());
+                        $encodedText = urlencode("Check out {$property->name} on Prime Booking: " . url()->current());
+                    @endphp
+                    <a href="https://api.whatsapp.com/send?text={{ $encodedText }}" target="_blank" rel="noopener" class="text-decoration-none text-center d-flex flex-column align-items-center gap-1 text-dark">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 44px; height: 44px; background: #25D366; color: #fff; font-size: 20px;">
+                            <i class="fa-brands fa-whatsapp"></i>
+                        </span>
+                        <small class="fw-semibold" style="font-size: 11px;">WhatsApp</small>
+                    </a>
+                    <a href="https://www.facebook.com/sharer/sharer.php?u={{ $encodedUrl }}" target="_blank" rel="noopener" class="text-decoration-none text-center d-flex flex-column align-items-center gap-1 text-dark">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 44px; height: 44px; background: #1877F2; color: #fff; font-size: 20px;">
+                            <i class="fa-brands fa-facebook-f"></i>
+                        </span>
+                        <small class="fw-semibold" style="font-size: 11px;">Facebook</small>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?text={{ $encodedText }}" target="_blank" rel="noopener" class="text-decoration-none text-center d-flex flex-column align-items-center gap-1 text-dark">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 44px; height: 44px; background: #000000; color: #fff; font-size: 18px;">
+                            <i class="fa-brands fa-x-twitter"></i>
+                        </span>
+                        <small class="fw-semibold" style="font-size: 11px;">X (Twitter)</small>
+                    </a>
+                    <a href="mailto:?subject={{ urlencode($property->name . ' on Prime Booking') }}&body={{ $encodedText }}" class="text-decoration-none text-center d-flex flex-column align-items-center gap-1 text-dark">
+                        <span class="rounded-circle d-inline-flex align-items-center justify-content-center shadow-xs" style="width: 44px; height: 44px; background: #EA4335; color: #fff; font-size: 18px;">
+                            <i class="fa-solid fa-envelope"></i>
+                        </span>
+                        <small class="fw-semibold" style="font-size: 11px;">Email</small>
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer py-2.5 px-4 bg-light">
+                <button type="button" class="btn btn-secondary btn-sm px-4 rounded-pill fw-semibold" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Ask Host / Property Inquiry Modal --}}
+<div class="modal fade" id="askHostModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg p-3">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold text-dark" style="font-size: 17px;"><i class="fa-solid fa-headset text-primary me-2"></i> Ask a Question to {{ $property->name }}</h5>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form action="{{ route('inquiry.store') }}" method="POST" id="askHostForm" onsubmit="submitHostInquiry(event)">
+                    @csrf
+                    <input type="hidden" name="service_type" value="Property Inquiry: {{ $property->name }}">
+                    <input type="hidden" name="destination" value="{{ $property->city }}">
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Your Full Name</label>
+                        <input type="text" name="name" class="form-control rounded-3" value="{{ auth()->user()->name ?? '' }}" placeholder="e.g. Tanvir Ahmed" required style="height: 44px;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Mobile Phone (WhatsApp)</label>
+                        <input type="text" name="phone" class="form-control rounded-3" value="{{ auth()->user()->phone ?? '+880 ' }}" placeholder="+880 1700-000000" required style="height: 44px;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Email Address</label>
+                        <input type="email" name="email" class="form-control rounded-3" value="{{ auth()->user()->email ?? '' }}" placeholder="name@example.com" style="height: 44px;">
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold small text-dark">Your Question or Special Request</label>
+                        <textarea name="message" class="form-control rounded-3" rows="3" placeholder="e.g. Is early check-in available? Can you arrange airport pickup?" required></textarea>
+                    </div>
+
+                    <div id="askHostAlert" class="d-none alert mb-3 small py-2"></div>
+
+                    <button type="submit" class="btn btn-primary w-100 fw-bold rounded-3 py-2.5 shadow-sm" id="askHostSubmitBtn">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Send Question to Host
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function submitHostInquiry(e) {
+    e.preventDefault();
+    const form = document.getElementById('askHostForm');
+    const btn = document.getElementById('askHostSubmitBtn');
+    const alertBox = document.getElementById('askHostAlert');
+    const originalText = btn.innerHTML;
+
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Sending...';
+    alertBox.className = 'd-none alert mb-3 small py-2';
+
+    const formData = new FormData(form);
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+        body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        alertBox.className = 'alert alert-success mb-3 small py-2';
+        alertBox.textContent = data.message || 'Thank you! Your question has been sent to the property host.';
+        form.reset();
+        setTimeout(() => {
+            const modalEl = document.getElementById('askHostModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            if (modal) modal.hide();
+        }, 2500);
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+        alertBox.className = 'alert alert-danger mb-3 small py-2';
+        alertBox.textContent = 'Unable to send question right now. Please try again.';
+    });
+}
+
+// Record this property to Recently Viewed
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        const prop = {
+            id: {{ $property->id }},
+            name: @json($property->name),
+            city: @json($property->city),
+            price: @json(\App\Services\CurrencyService::format($property->price_per_night)),
+            rating: @json(number_format((float)($property->rating_score ?? 8.5), 1)),
+            image: @json($gallery[0] ?? $property->primary_image)
+        };
+        let recents = JSON.parse(localStorage.getItem('prime_recent_properties')) || [];
+        recents = recents.filter(item => item.id !== prop.id);
+        recents.unshift(prop);
+        if (recents.length > 8) recents.pop();
+        localStorage.setItem('prime_recent_properties', JSON.stringify(recents));
+        if (typeof renderRecentProperties === 'function') renderRecentProperties();
+    } catch(e) {}
+});
+</script>
+{{-- Best Price Guarantee Modal --}}
+<div class="modal fade" id="bestPriceGuaranteeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow-lg p-3">
+            <div class="modal-header border-0 pb-0">
+                <div class="d-flex align-items-center gap-2">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-success text-white shadow-xs" style="width: 38px; height: 38px;">
+                        <i class="fa-solid fa-shield-halved fs-6"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" style="font-size: 16px;">Best Price Guarantee</h5>
+                        <small class="text-secondary" style="font-size: 11.5px;">Book with confidence on PRIME BOOKING</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close shadow-none" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-3">
+                <div class="p-3 bg-light rounded-3 border mb-3">
+                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px;"><i class="fa-solid fa-hand-holding-dollar text-success me-1"></i> Found a cheaper price elsewhere?</strong>
+                    <p class="text-secondary small mb-0" style="line-height: 1.5;">
+                        If you find a lower publicly available rate on another travel website for the same room type, dates, and terms, we will match the price and refund the difference!
+                    </p>
+                </div>
+
+                <h6 class="fw-bold text-dark small text-uppercase mb-2">How It Works:</h6>
+                <div class="d-flex flex-column gap-2 text-secondary small mb-3">
+                    <div class="d-flex align-items-start gap-2">
+                        <span class="badge rounded-circle bg-primary text-white p-1" style="font-size: 10px; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                        <span>Book your stay at <strong>{{ $property->name }}</strong> on Prime Booking.</span>
+                    </div>
+                    <div class="d-flex align-items-start gap-2">
+                        <span class="badge rounded-circle bg-primary text-white p-1" style="font-size: 10px; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                        <span>Find a lower price for the identical property, room, and dates online.</span>
+                    </div>
+                    <div class="d-flex align-items-start gap-2">
+                        <span class="badge rounded-circle bg-primary text-white p-1" style="font-size: 10px; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                        <span>Contact our 24/7 concierge support via WhatsApp or email before check-in.</span>
+                    </div>
+                </div>
+
+                <a href="https://api.whatsapp.com/send?phone=8801700000000&text={{ urlencode('Hello Prime Booking, I would like to claim the Best Price Guarantee for ' . $property->name) }}" target="_blank" rel="noopener" class="btn btn-success w-100 fw-bold rounded-3 py-2.5 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                    <i class="fa-brands fa-whatsapp fs-5"></i> Contact Price Match Concierge
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 

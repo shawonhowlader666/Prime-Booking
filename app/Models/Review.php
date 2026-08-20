@@ -15,7 +15,15 @@ class Review extends Model
         'guest_name',
         'rating',
         'comment',
+        'helpful_count',
+        'unhelpful_count',
         'status',
+    ];
+
+    protected $casts = [
+        'rating'          => 'float',
+        'helpful_count'   => 'integer',
+        'unhelpful_count' => 'integer',
     ];
 
     public function property()

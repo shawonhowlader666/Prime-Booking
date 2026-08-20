@@ -35,8 +35,14 @@ class InquiryController extends Controller
             'status'       => 'pending',
         ]);
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you! Your inquiry has been received. Our concierge support team will contact you shortly at ' . $validated['phone'] . '.',
+            ]);
+        }
+
         return redirect()->back()->with('success', 'Thank you! Your message has been received by PRIME BOOKING. Our support team will contact you shortly at ' . $validated['phone'] . '.');
     }
 }
-
 

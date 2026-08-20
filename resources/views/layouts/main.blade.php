@@ -161,6 +161,9 @@
     <!-- Agoda Native App Bottom Dock Navigation (Mobile Only) -->
     @include('components.layout.mobile-bottom-nav')
 
+    <!-- Agoda Recently Viewed Properties Floating Dock & Drawer -->
+    @include('components.recently-viewed-drawer')
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>

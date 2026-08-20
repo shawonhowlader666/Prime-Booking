@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Web;
 
 use App\Http\Controllers\Controller;
 use App\Models\Review;
+use App\Models\Property;
 use App\Repositories\PropertyRepository;
 use App\Services\CurrencyService;
 use Illuminate\Http\Request;
@@ -111,28 +112,77 @@ class PropertyDetailController extends Controller
 
     /**
      * Submit a guest review for a property.
-     * POST /properties/{id}/review
+     * POST /hotels/{id}/review or POST /property/{id}/review
      */
-    public function submitReview(Request $request, int|string $id): RedirectResponse
+    public function submitReview(Request $request, int|string $id): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
-            'guest_name' => 'required|string|max:255',
-            'rating'     => 'required|integer|min:1|max:5',
-            'comment'    => 'required|string|min:5|max:1000',
+            'guest_name' => 'nullable|string|max:255',
+            'rating'     => 'required|numeric|min:1|max:10',
+            'comment'    => 'required|string|min:5|max:2000',
         ]);
 
         $propertyId = is_numeric($id) ? (int)$id : 1;
+        $user = auth()->user();
+        $guestName = $user ? $user->name : ($validated['guest_name'] ?? 'Verified Guest');
 
-        Review::create([
-            'property_id' => $propertyId,
-            'user_id'     => auth()->id(),
-            'guest_name'  => $validated['guest_name'],
-            'rating'      => $validated['rating'],
-            'comment'     => $validated['comment'],
-            'status'      => 'pending',
+        // AI Sentiment Analysis & Auto-flagging
+        $analyzer = app(\App\Services\AI\SentimentAnalyzer::class);
+        $sentimentResult = $analyzer->analyze($validated['comment'], (float)$validated['rating']);
+
+        $status = $sentimentResult['is_flagged'] ? 'flagged' : 'pending';
+
+        $review = Review::create([
+            'property_id'     => $propertyId,
+            'user_id'         => $user?->id,
+            'guest_name'      => e(strip_tags($guestName)),
+            'rating'          => (float) $validated['rating'],
+            'comment'         => e(strip_tags($validated['comment'])),
+            'status'          => $status,
         ]);
 
-        return redirect()->back()->with('success', 'Thank you for your feedback! Your review has been submitted for moderation.');
+        // Auto-approve clean reviews and update property average rating & count
+        if ($status !== 'flagged') {
+            $review->update(['status' => 'approved']);
+
+            $avgRating = Review::where('property_id', $propertyId)->where('status', 'approved')->avg('rating');
+            $reviewCount = Review::where('property_id', $propertyId)->where('status', 'approved')->count();
+
+            Property::where('id', $propertyId)->update([
+                'rating_score'  => round((float)($avgRating ?: $validated['rating']), 1),
+                'total_reviews' => $reviewCount,
+            ]);
+        }
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success'   => true,
+                'message'   => $status === 'flagged' ? 'Your review has been submitted for moderation.' : 'Thank you! Your verified review has been published.',
+                'sentiment' => $sentimentResult['sentiment'],
+                'review'    => $review,
+            ]);
+        }
+
+        return redirect()->back()->with('success', $status === 'flagged' ? 'Your review has been submitted for moderation.' : 'Thank you! Your verified review has been published.');
+    }
+
+    /**
+     * Show/print shareable property brochure.
+     * GET /hotels/{id}/brochure
+     */
+    public function brochure(int|string $id): View
+    {
+        if (is_numeric($id)) {
+            $property = $this->repository->findWithRooms((int) $id);
+        } else {
+            $property = $this->repository->findBySlug((string) $id);
+        }
+
+        if (! $property) {
+            $property = Property::with('rooms')->firstOrFail();
+        }
+
+        return view('pages.hotel-brochure-print', compact('property'));
     }
 }
 

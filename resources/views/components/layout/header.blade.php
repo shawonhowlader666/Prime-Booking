@@ -65,6 +65,7 @@
                         <i class="fa-solid fa-ellipsis" style="font-size: 18px; color: #475569;"></i>
                     </a>
                     <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 220px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('properties.compare') }}"><i class="fa-solid fa-code-compare text-primary me-2"></i> {{ __('Compare Stays') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('packages') }}"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('Activities & Tours') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car-side text-success me-2"></i> {{ __('Airport Transfer') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('search.index') }}?type=resort"><i class="fa-solid fa-umbrella-beach text-warning me-2"></i> {{ __('Luxury Resorts') }}</a></li>
@@ -387,6 +388,7 @@
 </div>
 </header>
 
+@if(request()->routeIs('home') || ($activePage ?? '') === 'home')
 {{-- ======================================================= --}}
 {{-- Agoda-Exact Sticky Dark Navy Search Bar (on scroll)     --}}
 {{-- ======================================================= --}}
@@ -505,6 +507,7 @@ window.addEventListener('scroll', function () {
     bar.style.transform = window.scrollY > 280 ? 'translateY(0%)' : 'translateY(-100%)';
 });
 </script>
+@endif
 
 <!-- Select Your Language Modal (100% Agoda Exact Screenshot Parity) -->
 <style>

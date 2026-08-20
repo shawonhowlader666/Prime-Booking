@@ -39,3 +39,9 @@ Schedule::command('auth:clear-resets')->daily();
 Schedule::call(function () {
     \App\Models\ActivityLog::where('created_at', '<', now()->subDays(180))->delete();
 })->monthly()->name('prune-old-activity-logs');
+
+/**
+ * Scan active price drop alerts and notify subscribers
+ */
+Schedule::command('alerts:check-price-drops')->dailyAt('09:00')->withoutOverlapping();
+

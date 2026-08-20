@@ -46,6 +46,27 @@ class SearchController extends Controller
         // Zero hardcoded strings — 100% database-driven.
         $popularAreas = $this->getPopularAreasForDestination($params['destination']);
 
+        // Log search activity for analytics & trending destinations
+        if (!empty($params['destination'])) {
+            try {
+                \App\Models\SearchLog::create([
+                    'query'         => mb_substr($params['destination'], 0, 255),
+                    'resolved_city' => mb_substr($params['destination'], 0, 100),
+                    'check_in'      => $params['check_in'] ?? null,
+                    'check_out'     => $params['check_out'] ?? null,
+                    'guests'        => (int) ($params['guests'] ?? 2),
+                    'rooms'         => (int) request('rooms', 1),
+                    'result_count'  => count($searchResults['merged_results'] ?? []),
+                    'user_id'       => auth()->id(),
+                    'ip'            => request()->ip() ?? '127.0.0.1',
+                    'session_id'    => session()->getId() ?? 'anonymous',
+                    'search_type'   => $params['search_type'] ?? 'hotel',
+                ]);
+            } catch (\Throwable $e) {
+                // Non-blocking
+            }
+        }
+
         return view('pages.search-results', [
             // Search results data
             'searchResults'   => $searchResults,

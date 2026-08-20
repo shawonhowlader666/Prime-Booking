@@ -17,7 +17,16 @@
     <div class="p-3">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
             <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;">Filter by</h6>
-            <a href="{{ route('search.index') }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
+            @php
+                $sidebarClearParams = array_filter([
+                    'destination' => request('destination'),
+                    'check_in'    => request('check_in'),
+                    'check_out'   => request('check_out'),
+                    'guests'      => request('guests'),
+                    'rooms'       => request('rooms'),
+                ]);
+            @endphp
+            <a href="{{ route('search.index', $sidebarClearParams) }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
         </div>
 
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
@@ -232,20 +241,94 @@
             });
             </script>
 
-            {{-- 3. Price Budget Range Slider --}}
-            <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Your budget (per night)</label>
-                <div class="row g-2">
-                    <div class="col-6">
-                        <small class="text-muted d-block" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">MIN BDT</small>
-                        <input type="number" name="min_price" class="form-control form-control-sm rounded-2" placeholder="0" value="{{ request('min_price', 0) }}" style="font-size: 12px; font-weight: 600;">
-                    </div>
-                    <div class="col-6">
-                        <small class="text-muted d-block" style="font-size: 10px; font-weight: 600; text-transform: uppercase;">MAX BDT</small>
-                        <input type="number" name="max_price" class="form-control form-control-sm rounded-2" placeholder="35,000" value="{{ request('max_price', 35000) }}" style="font-size: 12px; font-weight: 600;">
-                    </div>
+            {{-- 3. Premium Dual-Handle Price Range Slider --}}
+            @php
+                $dbMinPrice = (int)($priceRange['min'] ?? 500);
+                $dbMaxPrice = (int)($priceRange['max'] ?? 80000);
+                $selMin = (int)request('min_price', $dbMinPrice);
+                $selMax = (int)request('max_price', $dbMaxPrice);
+            @endphp
+            <div class="mb-4 pb-3 border-bottom" id="priceSliderWidget">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <label class="fw-bold text-dark m-0" style="font-size: 13px;">Your budget (per night)</label>
+                    <span class="badge fw-bold" style="background:#e0edff;color:#2067e1;font-size:11px;border-radius:10px;" id="priceRangePill">
+                        ৳<span id="priceMinDisplay">{{ number_format($selMin) }}</span> – ৳<span id="priceMaxDisplay">{{ number_format($selMax) }}</span>
+                    </span>
                 </div>
+
+                {{-- Dual-range track container --}}
+                <div class="position-relative mt-3 mb-2" style="height: 20px;" id="dualRangeContainer">
+                    <div id="dualRangeTrack" style="position:absolute;top:50%;left:0;right:0;height:4px;background:#e2e8f0;border-radius:2px;transform:translateY(-50%);"></div>
+                    <div id="dualRangeActive" style="position:absolute;top:50%;height:4px;background:#2067e1;border-radius:2px;transform:translateY(-50%);"></div>
+                    <input type="range" id="priceMinRange" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}" step="500"
+                        value="{{ $selMin }}"
+                        style="position:absolute;width:100%;top:50%;transform:translateY(-50%);opacity:0;cursor:pointer;z-index:3;height:20px;"
+                        oninput="syncPriceSlider()">
+                    <input type="range" id="priceMaxRange" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}" step="500"
+                        value="{{ $selMax }}"
+                        style="position:absolute;width:100%;top:50%;transform:translateY(-50%);opacity:0;cursor:pointer;z-index:3;height:20px;"
+                        oninput="syncPriceSlider()">
+                    {{-- Visual thumb circles --}}
+                    <div id="thumbMin" style="position:absolute;top:50%;width:16px;height:16px;background:#2067e1;border:2px solid #ffffff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(32,103,225,0.4);pointer-events:none;z-index:4;"></div>
+                    <div id="thumbMax" style="position:absolute;top:50%;width:16px;height:16px;background:#2067e1;border:2px solid #ffffff;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(32,103,225,0.4);pointer-events:none;z-index:4;"></div>
+                </div>
+
+                <div class="d-flex justify-content-between" style="font-size:11px; color:#64748b; font-weight:600;">
+                    <span>৳{{ number_format($dbMinPrice) }}</span>
+                    <span>৳{{ number_format($dbMaxPrice) }}</span>
+                </div>
+
+                {{-- Hidden inputs that submit with the form --}}
+                <input type="hidden" name="min_price" id="minPriceHidden" value="{{ $selMin }}">
+                <input type="hidden" name="max_price" id="maxPriceHidden" value="{{ $selMax }}">
             </div>
+            <script>
+            (function(){
+                var minRange = document.getElementById('priceMinRange');
+                var maxRange = document.getElementById('priceMaxRange');
+                var thumbMin = document.getElementById('thumbMin');
+                var thumbMax = document.getElementById('thumbMax');
+                var activeBar = document.getElementById('dualRangeActive');
+                var minDisp  = document.getElementById('priceMinDisplay');
+                var maxDisp  = document.getElementById('priceMaxDisplay');
+                var minHidden = document.getElementById('minPriceHidden');
+                var maxHidden = document.getElementById('maxPriceHidden');
+                var debounceTimer;
+
+                window.syncPriceSlider = function() {
+                    var min = parseInt(minRange.value);
+                    var max = parseInt(maxRange.value);
+                    var rangeMin = parseInt(minRange.min);
+                    var rangeMax = parseInt(minRange.max);
+
+                    // Prevent overlap
+                    if (min > max - 500) { min = max - 500; minRange.value = min; }
+                    if (max < min + 500) { max = min + 500; maxRange.value = max; }
+
+                    var pMin = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
+                    var pMax = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
+
+                    thumbMin.style.left = pMin + '%';
+                    thumbMax.style.left = pMax + '%';
+                    activeBar.style.left  = pMin + '%';
+                    activeBar.style.width = (pMax - pMin) + '%';
+
+                    minDisp.textContent = min.toLocaleString();
+                    maxDisp.textContent = max.toLocaleString();
+                    minHidden.value = min;
+                    maxHidden.value = max;
+
+                    clearTimeout(debounceTimer);
+                    debounceTimer = setTimeout(function() {
+                        // Trigger the sidebar AJAX filter after 400ms of no movement
+                        if (typeof triggerAjaxFilterSearch === 'function') triggerAjaxFilterSearch();
+                    }, 400);
+                };
+
+                // Init positioning on load
+                syncPriceSlider();
+            })();
+            </script>
 
             {{-- 4. Guest Rating (Agoda 9+, 8+, 7+) --}}
             @php

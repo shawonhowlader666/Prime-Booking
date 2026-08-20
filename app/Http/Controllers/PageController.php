@@ -139,10 +139,28 @@ class PageController extends Controller
             'site_tagline' => SiteSetting::get('site_tagline', 'Best Price Guarantee'),
         ];
 
+        // ── Personalized Recent Searches for "Continue Your Search" ──────
+        $sessionId = session()->getId();
+        $recentSearches = \App\Models\SearchLog::recent(7)
+            ->where(function ($q) use ($currentUser, $sessionId) {
+                if ($currentUser) {
+                    $q->where('user_id', $currentUser->id);
+                }
+                if ($sessionId) {
+                    $q->orWhere('session_id', $sessionId);
+                }
+            })
+            ->whereNotNull('resolved_city')
+            ->where('resolved_city', '!=', '')
+            ->select('resolved_city', 'check_in', 'check_out', 'guests', 'rooms')
+            ->distinct()
+            ->limit(4)
+            ->get();
+
         return view('home', compact(
             'company', 'theme', 'featuredProperties', 'destinations', 'stats',
             'accommodationPromos', 'flightActivityPromos', 'propertyTypeCounts',
-            'currentUser', 'userBookings', 'recentBookings',
+            'currentUser', 'userBookings', 'recentBookings', 'recentSearches',
             'vipTier', 'vipDiscount', 'vipNextTier', 'vipNextRequired', 'vipThresholds',
             'siteSettings'
         ));

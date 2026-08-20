@@ -64,19 +64,41 @@ Route::get('/sitemap.xml', function () {
 // Public Front-end Routes
 Route::get('/', [PageController::class, 'index'])->name('home');
 Route::get('/currency/switch/{code}', [PageController::class, 'switchCurrency'])->name('currency.switch');
-Route::get('/api/search/autocomplete', [App\Http\Controllers\Web\AutocompleteController::class, 'search'])->name('search.autocomplete');
-Route::post('/api/search/log-query', [App\Http\Controllers\Web\AutocompleteController::class, 'logSelection'])->name('search.log.selection');
+Route::get('/lang/switch/{lang}', function ($lang) {
+    if (in_array($lang, ['en', 'bn', 'kr', 'es', 'zh', 'ar', 'ms', 'th', 'hi', 'fr', 'de', 'ja'])) {
+        session()->put('locale', $lang);
+        cookie()->queue('locale', $lang, 60 * 24 * 365);
+    }
+    return redirect()->back();
+})->name('lang.switch');
+// Dynamic robots.txt (blocks admin/vendor from indexing)
+Route::get('/robots.txt', function () {
+    $content = "User-agent: *\nDisallow: /admin\nDisallow: /vendor\nDisallow: /api/deploy-sync-secret-key-*\nDisallow: /payment/\nCrawl-delay: 1\nSitemap: " . url('/sitemap.xml');
+    return response($content, 200, ['Content-Type' => 'text/plain']);
+});
+
+Route::middleware(['throttle:120,1'])->group(function () {
+    Route::get('/api/search/autocomplete', [App\Http\Controllers\Web\AutocompleteController::class, 'search'])->name('search.autocomplete');
+    Route::post('/api/search/log-query', [App\Http\Controllers\Web\AutocompleteController::class, 'logSelection'])->name('search.log.selection');
+});
+
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/compare', [\App\Http\Controllers\Web\CompareController::class, 'index'])->name('properties.compare');
 Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show');
 Route::get('/hotels/{id}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('hotels.preview');
+Route::get('/hotels/{id}/brochure', [PropertyDetailController::class, 'brochure'])->name('hotels.brochure');
 Route::get('/property/{slug}', [PropertyDetailController::class, 'show'])->name('property.show');
 Route::get('/property/{slug}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('property.preview');
+Route::get('/property/{slug}/brochure', [PropertyDetailController::class, 'brochure'])->name('property.brochure');
 Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store');
 Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store');
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');
 Route::get('/tour-packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages');
 Route::get('/packages/{slug}', [App\Http\Controllers\Web\TourPackageController::class, 'show'])->name('packages.show');
+Route::post('/packages/book', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->name('packages.book');
+Route::post('/checkout/process', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->name('checkout.process');
+Route::get('/packages/voucher/{reference}', [App\Http\Controllers\Web\TourPackageController::class, 'voucher'])->name('packages.voucher');
 
 // Domestic Flight Booking Routes
 Route::get('/flights', [App\Http\Controllers\Web\FlightBookingController::class, 'index'])->name('flights.index');
@@ -86,6 +108,7 @@ Route::get('/flights/voucher/{pnr}', [App\Http\Controllers\Web\FlightBookingCont
 // Airport Taxi & Transfer Routes
 Route::get('/transfers', [App\Http\Controllers\Web\TransferBookingController::class, 'index'])->name('transfers.index');
 Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->name('transfers.book');
+Route::get('/transfers/voucher/{reference}', [App\Http\Controllers\Web\TransferBookingController::class, 'voucher'])->name('transfers.voucher');
 
 // Public Guest Inquiry Form Submission Routes
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
@@ -96,8 +119,12 @@ Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordControll
 Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->name('booking.form');
 Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->name('booking.store');
 Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.confirmation');
-Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.voucher');
+Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher');
+Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher.download');
+Route::get('/booking/invoice/{reference}', [BookingFlowController::class, 'downloadInvoice'])->name('booking.invoice');
+Route::get('/booking/invoice/{reference}/download', [BookingFlowController::class, 'downloadInvoice'])->name('booking.invoice.download');
 Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('booking.history');
+Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->name('booking.cancel');
 Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->name('coupon.validate');
 
 // Public High-Speed VIP & Rewards Loyalty API Endpoints (Agoda Enterprise API Parity)
@@ -159,6 +186,215 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'programs' => $programs,
         ]);
     })->name('pointsmax.programs');
+
+    // ── Real-time Room Availability Check ──────────────────────────────────
+    Route::get('/property/{id}/check-availability', function (\Illuminate\Http\Request $request, $id, \App\Services\InventoryService $inventoryService) {
+        $property = \App\Models\Property::with('rooms')->find($id);
+        if (!$property) {
+            return response()->json(['success' => false, 'message' => 'Property not found'], 404);
+        }
+
+        $checkIn  = $request->query('check_in', now()->format('Y-m-d'));
+        $checkOut = $request->query('check_out', now()->addDay()->format('Y-m-d'));
+        $roomsReq = (int) $request->query('rooms', 1);
+
+        $availableRooms = [];
+        foreach ($property->rooms as $room) {
+            $avail = $inventoryService->checkAvailability((int)$room->id, (string)$checkIn, (string)$checkOut, $roomsReq);
+            $availableRooms[] = [
+                'room_id'       => $room->id,
+                'room_name'     => $room->name,
+                'price_night'   => (float)$room->price_per_night,
+                'is_available'  => $avail['is_available'],
+                'min_available' => $avail['min_available'] ?? 0,
+                'reason'        => $avail['reason'] ?? null,
+            ];
+        }
+
+        $hasAnyAvailable = empty($availableRooms) ? true : collect($availableRooms)->contains('is_available', true);
+
+        return response()->json([
+            'success'            => true,
+            'property_id'        => (int)$id,
+            'check_in'           => $checkIn,
+            'check_out'          => $checkOut,
+            'is_available'       => $hasAnyAvailable,
+            'rooms_availability' => $availableRooms,
+        ]);
+    })->name('property.check-availability');
+
+    // ── Dynamic Booking Price Preview ──────────────────────────────────────
+    Route::post('/booking/price-preview', function (\Illuminate\Http\Request $request) {
+        $propertyId = (int) $request->input('property_id');
+        $roomId     = $request->input('room_id') ? (int) $request->input('room_id') : null;
+        $checkIn    = $request->input('check_in', now()->format('Y-m-d'));
+        $checkOut   = $request->input('check_out', now()->addDay()->format('Y-m-d'));
+        $couponCode = trim((string) $request->input('coupon_code', ''));
+
+        $property = \App\Models\Property::find($propertyId);
+        if (!$property) {
+            return response()->json(['success' => false, 'message' => 'Property not found'], 404);
+        }
+
+        $pricePerNight = (float) $property->price_per_night;
+        if ($roomId) {
+            $room = \App\Models\Room::find($roomId);
+            if ($room && $room->price_per_night > 0) {
+                $pricePerNight = (float) $room->price_per_night;
+            }
+        }
+
+        $start = \Carbon\Carbon::parse($checkIn);
+        $end   = \Carbon\Carbon::parse($checkOut);
+        $nights = max(1, (int) $start->diffInDays($end));
+
+        $subtotal = $pricePerNight * $nights;
+        $discount = 0;
+        $discountMsg = '';
+
+        if (!empty($couponCode)) {
+            $coupon = \App\Models\Coupon::where('code', $couponCode)->where('is_active', 1)->first();
+            if ($coupon) {
+                if ($coupon->type === 'percent') {
+                    $discount = ($subtotal * $coupon->value) / 100;
+                } else {
+                    $discount = min($subtotal, (float) $coupon->value);
+                }
+                $discountMsg = "Coupon {$couponCode} applied (-৳" . number_format($discount) . ")";
+            }
+        }
+
+        $serviceFee = round($subtotal * 0.05); // 5% platform fee
+        $total = max(0, ($subtotal - $discount) + $serviceFee);
+
+        return response()->json([
+            'success'         => true,
+            'nights'          => $nights,
+            'price_per_night' => $pricePerNight,
+            'subtotal'        => $subtotal,
+            'discount'        => $discount,
+            'discount_msg'    => $discountMsg,
+            'service_fee'     => $serviceFee,
+            'total'           => $total,
+            'formatted_total' => '৳' . number_format($total),
+        ]);
+    })->name('booking.price-preview');
+
+    // ── Monthly Room Availability Calendar Feed ───────────────────────────
+    Route::get('/property/{id}/availability-calendar', function (\Illuminate\Http\Request $request, $id) {
+        $property = \App\Models\Property::with('rooms')->find($id);
+        if (!$property) {
+            return response()->json(['success' => false, 'message' => 'Property not found'], 404);
+        }
+
+        $monthStr = $request->query('month', now()->format('Y-m'));
+        try {
+            $startDate = \Carbon\Carbon::parse($monthStr . '-01')->startOfMonth();
+            $endDate   = $startDate->copy()->endOfMonth();
+        } catch (\Throwable $e) {
+            $startDate = now()->startOfMonth();
+            $endDate   = now()->endOfMonth();
+        }
+
+        $calendarDays = [];
+        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
+        $basePrice = (float)$property->price_per_night;
+
+        foreach ($period as $day) {
+            $dayStr = $day->format('Y-m-d');
+            $isPast = $day->isPast() && !$day->isToday();
+
+            $calendarDays[$dayStr] = [
+                'date'         => $dayStr,
+                'day'          => (int)$day->format('j'),
+                'day_name'     => $day->format('D'),
+                'is_past'      => $isPast,
+                'is_available' => !$isPast,
+                'price'        => $basePrice,
+                'formatted'    => '৳' . number_format($basePrice),
+            ];
+        }
+
+        return response()->json([
+            'success'     => true,
+            'property_id' => (int)$id,
+            'month'       => $startDate->format('F Y'),
+            'calendar'    => $calendarDays,
+        ]);
+    })->name('property.availability-calendar');
+
+    // ── Real-Time Hotel Price Drop Alert Subscription ──────────────────────
+    Route::post('/price-alert/subscribe', function (\Illuminate\Http\Request $request) {
+        $validated = $request->validate([
+            'property_id'  => 'required|integer|exists:properties,id',
+            'email'        => 'required|email|max:150',
+            'target_price' => 'nullable|numeric|min:0',
+        ]);
+
+        $property = \App\Models\Property::findOrFail($validated['property_id']);
+        $user = auth()->user();
+        $email = strtolower(trim($validated['email']));
+
+        $alert = \App\Models\PriceAlert::updateOrCreate(
+            [
+                'property_id' => $property->id,
+                'email'       => $email,
+            ],
+            [
+                'user_id'                => $user?->id,
+                'target_price'           => $validated['target_price'] ?? null,
+                'current_price_at_alert' => (float)$property->price_per_night,
+                'status'                 => 'active',
+            ]
+        );
+
+        return response()->json([
+            'success' => true,
+            'message' => "🔔 Price alert created! We'll notify {$email} as soon as the rate for {$property->name} drops.",
+            'alert'   => $alert,
+        ]);
+    })->name('price-alert.subscribe');
+
+    // ── Real-Time Multi-Currency Rates & Active Symbols ───────────────────
+    Route::get('/currency/rates', function () {
+        return response()->json([
+            'success'          => true,
+            'current_currency' => \App\Helpers\CurrencyHelper::current(),
+            'currencies'       => \App\Helpers\CurrencyHelper::getCurrencies(),
+        ]);
+    })->name('currency.rates');
+
+    // ── Guest Review Helpful Vote API ──────────────────────────────────────
+    Route::post('/reviews/{id}/vote', function (\Illuminate\Http\Request $request, $id) {
+        $review = \App\Models\Review::findOrFail($id);
+        $type = $request->input('type', 'helpful') === 'unhelpful' ? 'unhelpful' : 'helpful';
+
+        $sessionKey = "voted_review_{$id}";
+        if (session()->has($sessionKey)) {
+            return response()->json([
+                'success'         => false,
+                'message'         => 'You have already voted on this review.',
+                'helpful_count'   => $review->helpful_count,
+                'unhelpful_count' => $review->unhelpful_count,
+            ], 422);
+        }
+
+        if ($type === 'helpful') {
+            $review->increment('helpful_count');
+        } else {
+            $review->increment('unhelpful_count');
+        }
+
+        session()->put($sessionKey, $type);
+
+        return response()->json([
+            'success'         => true,
+            'message'         => 'Thank you for your feedback! 👍',
+            'type'            => $type,
+            'helpful_count'   => $review->fresh()->helpful_count,
+            'unhelpful_count' => $review->fresh()->unhelpful_count,
+        ]);
+    })->name('reviews.vote');
 });
 
 // Payment Gateway Routes (bKash & SSLCommerz Sandbox/Live)
@@ -177,6 +413,12 @@ Route::post('/payment/ssl/ipn', [PaymentCallbackController::class, 'sslIpn'])->n
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 Route::get('/my-wishlist', [WishlistController::class, 'index'])->name('wishlist');
 Route::post('/wishlist/toggle', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+// Alias for AJAX calls that embed property ID in URL (map modal wishlist)
+Route::post('/wishlist/toggle/{id}', function (\Illuminate\Http\Request $request, $id) {
+    $request->merge(['property_id' => $id]);
+    return app()->call([app(WishlistController::class), 'toggle'], ['request' => $request]);
+})->name('wishlist.toggle.id');
+
 
 
 // Super Admin Control Panel, SaaS Tenants & Settings Routes
@@ -364,6 +606,47 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
         \Illuminate\Support\Facades\Cache::flush();
         return back()->with('success', '✅ All caches cleared (views, routes, Redis).');
     })->name('system.cache-clear');
+
+    // System Health & Operational Diagnostics Engine
+    Route::get('/system/health', function () {
+        $dbStatus = 'OK';
+        $dbLatencyMs = 0;
+        try {
+            $t0 = microtime(true);
+            \Illuminate\Support\Facades\DB::select('SELECT 1');
+            $dbLatencyMs = round((microtime(true) - $t0) * 1000, 2);
+        } catch (\Throwable $e) {
+            $dbStatus = 'ERROR: ' . $e->getMessage();
+        }
+
+        $health = [
+            'status'          => $dbStatus === 'OK' ? 'HEALTHY' : 'DEGRADED',
+            'timestamp'       => now()->toIso8601String(),
+            'environment'     => app()->environment(),
+            'php_version'     => PHP_VERSION,
+            'laravel_version' => app()->version(),
+            'database'        => [
+                'connection' => config('database.default'),
+                'status'     => $dbStatus,
+                'latency_ms' => $dbLatencyMs,
+            ],
+            'cache_driver'    => config('cache.default'),
+            'extensions'      => [
+                'pdo_mysql' => extension_loaded('pdo_mysql'),
+                'mbstring'  => extension_loaded('mbstring'),
+                'curl'      => extension_loaded('curl'),
+                'openssl'   => extension_loaded('openssl'),
+            ],
+            'metrics'         => [
+                'active_properties' => \App\Models\Property::where('status', 'active')->count(),
+                'total_bookings'    => \App\Models\Booking::count(),
+                'total_users'       => \App\Models\User::count(),
+                'unapproved_reviews'=> \App\Models\Review::where('is_approved', 0)->count(),
+            ],
+        ];
+
+        return response()->json($health, 200, [], JSON_PRETTY_PRINT);
+    })->name('system.health');
 
     // Admin Destination Banners & Media Manager
     Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('destinations.index');

@@ -233,8 +233,22 @@
             </div>
 
             {{-- Price Section --}}
-            <a href="{{ route('hotels.show', $id) }}" class="mt-3 text-decoration-none d-block">
-                <small class="text-muted d-block" style="font-size: 10px; line-height: 1.2;">Per night before taxes and fees</small>
+            <a href="{{ route('hotels.show', $id) }}" class="mt-2 text-decoration-none d-block">
+                @auth
+                <div class="mb-1">
+                    <span class="badge bg-warning bg-opacity-10 text-dark fw-bold border border-warning-subtle rounded px-2 py-1" style="font-size: 10.5px;">
+                        <i class="fa-solid fa-crown text-warning me-1"></i> VIP Member Price
+                    </span>
+                </div>
+                @else
+                <div class="mb-1">
+                    <span class="badge bg-danger bg-opacity-10 text-danger fw-bold border border-danger-subtle rounded px-2 py-0.5" style="font-size: 10.5px;">
+                        <i class="fa-solid fa-lock me-1"></i> Secret Deal: 10% Off
+                    </span>
+                </div>
+                @endauth
+
+                <small class="text-muted d-block" style="font-size: 10px; line-height: 1.2;">Per night before taxes &amp; fees</small>
 
                 <div class="fw-bold text-dark mb-0" style="font-size: 22px; color: #1d2b45 !important; line-height: 1.1; font-family: 'Plus Jakarta Sans', sans-serif;">
                     {{ \App\Services\CurrencyService::format($priceVal) }}

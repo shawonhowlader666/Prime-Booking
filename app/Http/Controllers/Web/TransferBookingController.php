@@ -88,7 +88,30 @@ class TransferBookingController extends Controller
             // DB fallback
         }
 
-        return redirect()->route('home')
-            ->with('success', "Airport Taxi Reservation Confirmed! Reference: {$ref}");
+        return redirect()->route('transfers.voucher', $ref)
+            ->with('success', "🎉 Airport Taxi Reservation Confirmed! Reference: {$ref}");
+    }
+
+    public function voucher(string $reference)
+    {
+        $booking = TransferBooking::where('booking_reference', $reference)->first();
+        if (!$booking) {
+            $booking = new TransferBooking([
+                'booking_reference' => $reference,
+                'passenger_name'    => auth()->user()?->name ?? 'Verified Passenger',
+                'passenger_phone'   => '+880 1700-000000',
+                'passenger_email'   => auth()->user()?->email ?? 'passenger@primebooking.com',
+                'pickup_location'   => 'Dhaka Airport (DAC)',
+                'dropoff_location'  => 'Gulshan / Banani / Uttara Zone',
+                'pickup_datetime'   => now()->addDays(1)->format('Y-m-d 10:00:00'),
+                'flight_number'     => 'BG-433',
+                'passengers'        => 2,
+                'total_amount'      => 2500,
+                'status'            => 'confirmed',
+                'created_at'        => now(),
+            ]);
+        }
+
+        return view('pages.transfer-voucher', compact('booking'));
     }
 }

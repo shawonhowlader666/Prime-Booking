@@ -8,79 +8,8 @@
         <div class="row g-4">
             
             <!-- Left White Sidebar Navigation (1:1 Exact Match of Agoda Live) -->
-            <div class="col-lg-3 col-md-4" style="max-width: 260px;">
-                <div class="bg-white border shadow-sm" style="border-color: #cbd5e1 !important; border-radius: 20px !important; padding: 20px 14px 28px 14px;">
-                    <div class="d-flex flex-column" style="gap: 4px;">
-                        
-                        <a href="{{ route('trips') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-calendar-check text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('My Trips') }}</span>
-                        </a>
-
-                        <a href="{{ route('bookings') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-suitcase text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('All bookings') }}</span>
-                        </a>
-
-                        <a href="{{ route('search.index') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-hotel text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('Hotels') }}</span>
-                        </a>
-
-                        <a href="{{ route('services') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-plane text-dark" style="font-size: 17px; transform: rotate(-45deg);"></i></div>
-                            <span>{{ __('Flights') }}</span>
-                        </a>
-
-                        <a href="{{ route('search.index') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-icons text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('Activities') }}</span>
-                        </a>
-
-                        <a href="{{ route('messages') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-comment-dots text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('Property messages') }}</span>
-                        </a>
-
-                        <a href="{{ route('reviews') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-star text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('Reviews') }}</span>
-                        </a>
-
-                        <a href="{{ route('vip') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;">
-                                <span class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 10px;"><i class="fa-solid fa-star"></i></span>
-                            </div>
-                            <span>PrimeVIP</span>
-                        </a>
-
-                        <a href="{{ route('cashback') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;">
-                                <span class="bg-dark text-white fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 11px;">a</span>
-                            </div>
-                            <span>PrimeCash</span>
-                        </a>
-
-                        <a href="{{ route('cashback') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-hand-holding-dollar text-dark" style="font-size: 17px;"></i></div>
-                            <span>Cashback Rewards</span>
-                        </a>
-
-                        <!-- PointsMAX (Active Blue Pill) -->
-                        <a href="{{ route('pointsmax') }}" class="text-decoration-none d-flex align-items-center text-white fw-bold active-booking-tab" style="background-color: #2067e1; padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;">
-                                <span class="bg-white text-primary fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 11px;">P</span>
-                            </div>
-                            <span>PointsMAX</span>
-                        </a>
-
-                        <a href="{{ route('profile') }}" class="text-decoration-none d-flex align-items-center text-dark fw-bold" style="padding: 11px 16px; border-radius: 12px; gap: 14px; font-size: 14px;">
-                            <div style="width: 24px; display: flex; justify-content: center;"><i class="fa-solid fa-user text-dark" style="font-size: 17px;"></i></div>
-                            <span>{{ __('Profile') }}</span>
-                        </a>
-
-                    </div>
-                </div>
+            <div class="col-lg-3 col-md-4" style="max-width: 270px;">
+                <x-user-sidebar activePage="pointsmax" />
             </div>
 
             <!-- Right Column: PointsMAX Partner Miles -->

@@ -301,16 +301,16 @@
 </style>
 
 <div class="py-4" style="background-color: #f4f6fa; min-height: 90vh;">
-    <div style="max-width: 1240px; margin: 0 auto; padding: 0 15px;">
-        <div class="row g-4">
+    <div style="max-width: 1280px; margin: 0 auto; padding: 0 24px 0 36px;">
+        <div class="row g-4 justify-content-start">
             
             <!-- Left White Sidebar Navigation (1:1 Exact Match of Agoda Live) -->
-            <div class="col-lg-3 col-md-4" style="max-width: 260px;">
+            <div class="col-lg-3 col-md-4" style="max-width: 270px; padding-right: 12px;">
                 <x-user-sidebar activePage="vip" />
             </div>
 
             <!-- Right Column: AgodaVIP Loyalty Dashboard & Benefits Track -->
-            <div class="col-lg-9 col-md-8">
+            <div class="col-lg-9 col-md-8" style="padding-left: 16px;">
 
                 {{-- ── 1. MAIN USER STATUS HERO CARD (1:1 Agoda Exact) ── --}}
                 <div class="agoda-vip-status-card">

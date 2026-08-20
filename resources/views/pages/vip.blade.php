@@ -65,14 +65,15 @@
     padding: 0 16px;
 }
 
-/* 1. Main User Status Hero Card */
+/* 1. Main User Status Hero Card (1:1 3D Shadow & Border Parity) */
 .agoda-vip-status-card {
     background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    border: 1px solid #edf2f7;
     padding: 32px 36px 28px 36px;
     margin-bottom: 24px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .vip-avatar-circle {
@@ -87,7 +88,7 @@
     font-size: 26px;
     font-weight: 700;
     flex-shrink: 0;
-    box-shadow: 0 2px 8px rgba(92, 92, 214, 0.25);
+    box-shadow: 0 4px 14px rgba(92, 92, 214, 0.3);
 }
 
 .vip-badge-pill {
@@ -220,9 +221,9 @@
 /* 4. Comparison Table */
 .vip-comparison-card {
     background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    border: 1px solid #edf2f7;
     padding: 40px 36px;
     margin-bottom: 32px;
 }
@@ -261,9 +262,9 @@
 /* 5. Booking Promo Showcase */
 .vip-promo-showcase-box {
     background: #ffffff;
-    border-radius: 16px;
-    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
-    border: 1px solid #e2e8f0;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+    border: 1px solid #edf2f7;
     padding: 40px 36px;
     margin-bottom: 24px;
     text-align: center;

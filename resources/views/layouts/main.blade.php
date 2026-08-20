@@ -121,8 +121,7 @@
     @yield('head')
 </head>
 <body>
-    @include('partials.brand-preloader')
-    {{-- Global Agoda 1:1 Skeleton Loading Overlay --}}
+    {{-- Global Agoda 1:1 Fast 7-Color Dots Loading Overlay --}}
     @include('components.search.loading-skeleton-modal')
 
     <!-- Master Header Navigation (Starts directly at top, exactly like Agoda.com) -->

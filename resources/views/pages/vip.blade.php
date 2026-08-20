@@ -417,43 +417,42 @@
             <div style="line-height: 1.45;">
                 <strong style="color: #1d4ed8; font-size: 13.5px;">Book Flights and Activities to upgrade your VIP level faster <i class="fa-solid fa-square-arrow-up-right ms-0.5"></i></strong><br>
                 <span style="color: #4b5563; font-size: 13px;">Now in addition to stays, Flights and Activities bookings, completed in last 2 years, count towards your progress VIP 🎉</span>
-                    {{-- ── 3. WHAT IS AGODAVIP? EXPLAIN BOX WITH 1:1 AGODA MASCOTS ── --}}
-        <div class="agoda-vip-explain-box">
+            </div>
+        </div>
+
+        {{-- ── 3. WHAT IS AGODAVIP? EXPLAIN BOX (Clean Crisp Card) ── --}}
+        <div class="card border p-4 mb-4 shadow-xs" style="border-radius: 16px !important; background: #ffffff; border-color: #e2e8f0 !important;">
             <div class="row align-items-center">
                 <div class="col-md-7">
-                    <h2 class="fw-bold mb-3" style="font-size: 26px; color: #ffffff; letter-spacing: -0.3px;">What is AgodaVIP?</h2>
-                    <p style="font-size: 15px; line-height: 1.6; color: #e2e8f0; margin-bottom: 0;">
+                    <h2 class="fw-bold mb-2" style="font-size: 24px; color: #0f172a; letter-spacing: -0.3px;">What is AgodaVIP?</h2>
+                    <p style="font-size: 14.5px; line-height: 1.6; color: #475569; margin-bottom: 0;">
                         AgodaVIP is our loyalty program for rewarding our most loyal customers with amazing deals. Once you qualify, you'll join automatically.
                     </p>
                 </div>
-                <div class="col-md-5 text-center mt-4 mt-md-0">
+                <div class="col-md-5 text-center mt-3 mt-md-0">
                     {{-- 100% Authentic Agoda Podium Stage Vector SVG --}}
-                    <svg viewBox="0 0 280 140" style="max-width: 260px; width: 100%; height: auto; overflow: visible;">
+                    <svg viewBox="0 0 280 140" style="max-width: 250px; width: 100%; height: auto; overflow: visible;">
                         {{-- Podium Stage Bases --}}
-                        <rect x="95" y="85" width="90" height="55" rx="2" fill="#ecc43a" />
+                        <rect x="95" y="85" width="90" height="55" rx="4" fill="#ecc43a" />
                         <text x="140" y="120" fill="#78350f" font-size="18" font-weight="900" text-anchor="middle">1</text>
                         
-                        <rect x="25" y="100" width="70" height="40" rx="2" fill="#cbd5e1" />
+                        <rect x="25" y="100" width="70" height="40" rx="4" fill="#cbd5e1" />
                         <text x="60" y="126" fill="#475569" font-size="16" font-weight="900" text-anchor="middle">2</text>
                         
-                        <rect x="185" y="110" width="70" height="30" rx="2" fill="#d97706" />
+                        <rect x="185" y="110" width="70" height="30" rx="4" fill="#d97706" />
                         <text x="220" y="130" fill="#ffffff" font-size="14" font-weight="900" text-anchor="middle">3</text>
 
                         {{-- 1st Place Purple Mascot (Gold Medal Winner) --}}
                         <g transform="translate(110, 35)">
                             <circle cx="30" cy="30" r="24" fill="#8b5cf6" />
-                            {{-- Eyes & Smile --}}
                             <circle cx="23" cy="26" r="2.5" fill="#1e1b4b" />
                             <circle cx="37" cy="26" r="2.5" fill="#1e1b4b" />
                             <path d="M 24 34 Q 30 40 36 34" stroke="#1e1b4b" stroke-width="2" fill="none" stroke-linecap="round" />
-                            {{-- Cheeks --}}
                             <circle cx="18" cy="32" r="2.5" fill="#f472b6" opacity="0.6" />
                             <circle cx="42" cy="32" r="2.5" fill="#f472b6" opacity="0.6" />
-                            {{-- Ribbon & Gold Medal --}}
                             <path d="M 12 38 L 2 55 L 8 58 Z" fill="#ef4444" />
                             <circle cx="4" cy="58" r="7" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
                             <text x="4" y="61" fill="#78350f" font-size="7" font-weight="900" text-anchor="middle">★</text>
-                            {{-- Arm waving --}}
                             <path d="M 12 36 Q 4 45 6 52" stroke="#6d28d9" stroke-width="3" fill="none" stroke-linecap="round" />
                         </g>
 
@@ -463,9 +462,7 @@
                             <circle cx="20" cy="22" r="2" fill="#083344" />
                             <circle cx="30" cy="22" r="2" fill="#083344" />
                             <path d="M 21 28 Q 25 33 29 28" stroke="#083344" stroke-width="1.8" fill="none" stroke-linecap="round" />
-                            {{-- Silver Medal on chest --}}
                             <circle cx="25" cy="36" r="5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1" />
-                            {{-- Legs --}}
                             <path d="M 18 45 L 18 50" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" />
                             <path d="M 32 45 L 32 50" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" />
                         </g>
@@ -476,7 +473,6 @@
                             <circle cx="21" cy="19" r="1.8" fill="#022c22" />
                             <circle cx="29" cy="19" r="1.8" fill="#022c22" />
                             <path d="M 22 25 Q 25 28 28 25" stroke="#022c22" stroke-width="1.5" fill="none" stroke-linecap="round" />
-                            {{-- Legs --}}
                             <path d="M 19 38 L 19 42" stroke="#047857" stroke-width="2.5" stroke-linecap="round" />
                             <path d="M 31 38 L 31 42" stroke="#047857" stroke-width="2.5" stroke-linecap="round" />
                         </g>
@@ -503,26 +499,36 @@
                 <table class="vip-table">
                     <thead>
                         <tr>
-                            <th></th>
-                            <th>
-                                <div class="fw-bold text-dark mb-1" style="font-size: 14px;">VIP Bronze</div>
-                                <div style="width: 26px; height: 26px; border-radius: 50%; background: #ba6d4a; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin: 0 auto;">★</div>
+                            <th style="vertical-align: middle;"></th>
+                            <th style="vertical-align: middle; min-width: 90px;">
+                                <div class="d-flex flex-column align-items-center justify-content-center gap-1.5" style="height: 60px;">
+                                    <span class="fw-bold text-dark" style="font-size: 13.5px; white-space: nowrap;">VIP Bronze</span>
+                                    <span style="width: 26px; height: 26px; border-radius: 50%; background: #ba6d4a; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">★</span>
+                                </div>
                             </th>
-                            <th>
-                                <div class="text-muted mb-1" style="font-size: 13.5px;">VIP Silver <i class="fa-solid fa-lock" style="font-size: 10px;"></i></div>
-                                <div style="width: 26px; height: 26px; border-radius: 50%; background: #cbd5e1; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin: 0 auto;">★</div>
+                            <th style="vertical-align: middle; min-width: 90px;">
+                                <div class="d-flex flex-column align-items-center justify-content-center gap-1.5" style="height: 60px;">
+                                    <span class="text-muted" style="font-size: 13px; white-space: nowrap;">VIP Silver <i class="fa-solid fa-lock" style="font-size: 10px;"></i></span>
+                                    <span style="width: 26px; height: 26px; border-radius: 50%; background: #cbd5e1; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">★</span>
+                                </div>
                             </th>
-                            <th>
-                                <div class="text-muted mb-1" style="font-size: 13.5px;">VIP Gold <i class="fa-solid fa-lock" style="font-size: 10px;"></i></div>
-                                <div style="width: 26px; height: 26px; border-radius: 50%; background: #fef08a; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin: 0 auto;">★</div>
+                            <th style="vertical-align: middle; min-width: 90px;">
+                                <div class="d-flex flex-column align-items-center justify-content-center gap-1.5" style="height: 60px;">
+                                    <span class="text-muted" style="font-size: 13px; white-space: nowrap;">VIP Gold <i class="fa-solid fa-lock" style="font-size: 10px;"></i></span>
+                                    <span style="width: 26px; height: 26px; border-radius: 50%; background: #fef08a; color: #d97706; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">★</span>
+                                </div>
                             </th>
-                            <th>
-                                <div class="text-muted mb-1" style="font-size: 13.5px;">VIP Platinum <i class="fa-solid fa-lock" style="font-size: 10px;"></i></div>
-                                <div style="width: 26px; height: 26px; border-radius: 50%; background: #cbd5e1; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin: 0 auto;">★</div>
+                            <th style="vertical-align: middle; min-width: 90px;">
+                                <div class="d-flex flex-column align-items-center justify-content-center gap-1.5" style="height: 60px;">
+                                    <span class="text-muted" style="font-size: 13px; white-space: nowrap;">VIP Platinum <i class="fa-solid fa-lock" style="font-size: 10px;"></i></span>
+                                    <span style="width: 26px; height: 26px; border-radius: 50%; background: #cbd5e1; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">★</span>
+                                </div>
                             </th>
-                            <th>
-                                <div class="text-muted mb-1" style="font-size: 13.5px;">VIP Diamond <i class="fa-solid fa-lock" style="font-size: 10px;"></i></div>
-                                <div style="width: 26px; height: 26px; border-radius: 50%; background: #f3e8ff; color: #9333ea; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; margin: 0 auto;">★</div>
+                            <th style="vertical-align: middle; min-width: 90px;">
+                                <div class="d-flex flex-column align-items-center justify-content-center gap-1.5" style="height: 60px;">
+                                    <span class="text-muted" style="font-size: 13px; white-space: nowrap;">VIP Diamond <i class="fa-solid fa-lock" style="font-size: 10px;"></i></span>
+                                    <span style="width: 26px; height: 26px; border-radius: 50%; background: #f3e8ff; color: #9333ea; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; flex-shrink: 0;">★</span>
+                                </div>
                             </th>
                         </tr>
                     </thead>

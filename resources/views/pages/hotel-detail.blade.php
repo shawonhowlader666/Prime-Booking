@@ -753,24 +753,17 @@
                     </div>
                 </div>
 
-                {{-- Right Card 3: Combined Interactive Map & Closest Landmarks Single Card --}}
+                {{-- Right Card 3: Combined Interactive Real Leaflet Map & Closest Landmarks Single Card --}}
                 <div id="location" class="card agoda-card-border overflow-hidden mb-4 flex-grow-1">
-                    {{-- Map Header Banner --}}
-                    <div class="position-relative text-center" style="height: 140px; background: #e8f0fe; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
-                        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                            <rect width="100%" height="100%" fill="#f1f5f9"/>
-                            <path d="M 0 40 L 300 40" stroke="#fef08a" stroke-width="14"/>
-                            <path d="M 120 0 L 120 140" stroke="#fef08a" stroke-width="12"/>
-                            <path d="M 0 100 L 300 100" stroke="#ffffff" stroke-width="8"/>
-                            <path d="M 220 0 L 220 140" stroke="#ffffff" stroke-width="8"/>
-                            <path d="M 0 0 L 80 80 L 120 140" fill="#dcfce7" opacity="0.6"/>
-                            <circle cx="120" cy="40" r="9" fill="#dc2626" stroke="#ffffff" stroke-width="2.5"/>
-                            <path d="M 116 38 L 124 38 M 120 34 L 120 42" stroke="#ffffff" stroke-width="2"/>
-                        </svg>
-                        <div class="position-absolute top-50 start-50 translate-middle">
-                            <span class="fw-bold text-dark text-decoration-none d-inline-block" style="font-size: 13px; letter-spacing: 0.5px;">
-                                SEE MAP
-                            </span>
+                    {{-- Real Leaflet Mini Map Header Banner (Agoda Exact 1:1 Live Location) --}}
+                    <div class="position-relative text-center overflow-hidden" style="height: 150px; background: #e2e8f0; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal" title="Click to view full interactive map">
+                        <div id="hotelDetailMiniMap" style="width: 100%; height: 100%; pointer-events: none; z-index: 1;"></div>
+                        
+                        {{-- Floating Agoda-Exact "SEE MAP" Pill Button --}}
+                        <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 10;">
+                            <button type="button" class="btn text-white fw-bold shadow-md rounded-pill px-3.5 py-1.5 d-flex align-items-center gap-1.5" style="background-color: #2067e1; font-size: 12.5px; letter-spacing: 0.5px; border: 2px solid #ffffff; box-shadow: 0 4px 14px rgba(32,103,225,0.45) !important;">
+                                <i class="fa-solid fa-location-dot"></i> SEE MAP
+                            </button>
                         </div>
                     </div>
 
@@ -3520,6 +3513,124 @@ document.addEventListener('DOMContentLoaded', function() {
     } catch(e) {}
 });
 </script>
+
+{{-- Leaflet CSS & JS for Live Interactive Maps --}}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var hotelLat = {{ (float)($property->latitude ?: 21.4272) }};
+    var hotelLng = {{ (float)($property->longitude ?: 92.0058) }};
+    var hotelName = @json($property->name);
+    var hotelAddress = @json($property->address ?: $property->city ?: 'Bangladesh');
+    var hotelPrice = @json(\App\Services\CurrencyService::format($property->price_per_night));
+    var hotelImage = @json($gallery[0] ?? $property->primary_image);
+
+    // 1. Mini Map (Sidebar Live Real OpenStreetMap)
+    var miniEl = document.getElementById('hotelDetailMiniMap');
+    if (miniEl && typeof L !== 'undefined') {
+        try {
+            var miniMap = L.map('hotelDetailMiniMap', {
+                center: [hotelLat, hotelLng],
+                zoom: 14,
+                zoomControl: false,
+                attributionControl: false,
+                dragging: false,
+                touchZoom: false,
+                doubleClickZoom: false,
+                scrollWheelZoom: false,
+                boxZoom: false,
+                keyboard: false
+            });
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18
+            }).addTo(miniMap);
+
+            var miniPin = L.divIcon({
+                className: 'hotel-mini-pin',
+                html: '<div style="width:30px;height:30px;background:#dc2626;border:2.5px solid #ffffff;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#ffffff;box-shadow:0 3px 10px rgba(0,0,0,0.35);font-size:13px;"><i class="fa-solid fa-hotel"></i></div>',
+                iconSize: [30, 30],
+                iconAnchor: [15, 15]
+            });
+            L.marker([hotelLat, hotelLng], {icon: miniPin}).addTo(miniMap);
+        } catch(e) {
+            console.warn('MiniMap init error:', e);
+        }
+    }
+
+    // 2. Full Modal Map on Click
+    var modalEl = document.getElementById('hotelDetailMapModal');
+    var fullMap = null;
+    if (modalEl && typeof L !== 'undefined') {
+        modalEl.addEventListener('shown.bs.modal', function () {
+            if (!fullMap) {
+                fullMap = L.map('hotelDetailFullMap').setView([hotelLat, hotelLng], 15);
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '&copy; OpenStreetMap contributors | PRIME BOOKING'
+                }).addTo(fullMap);
+
+                var fullPin = L.divIcon({
+                    className: 'hotel-full-pin',
+                    html: '<div style="background:#2067e1;color:#ffffff;font-weight:800;font-size:12.5px;padding:6px 14px;border-radius:22px;box-shadow:0 4px 16px rgba(32,103,225,0.45);border:2px solid #ffffff;white-space:nowrap;display:flex;align-items:center;gap:6px;"><i class="fa-solid fa-hotel"></i> ' + hotelPrice + '</div>',
+                    iconSize: [120, 34],
+                    iconAnchor: [60, 17]
+                });
+
+                var popupContent = `
+                    <div style="width:230px;font-family:\'Plus Jakarta Sans\',sans-serif;padding:4px;">
+                        <img src="${hotelImage}" style="width:100%;height:115px;object-fit:cover;border-radius:6px;margin-bottom:8px;">
+                        <div style="font-weight:700;font-size:13.5px;color:#0f172a;line-height:1.25;margin-bottom:4px;">${hotelName}</div>
+                        <div style="font-size:11.5px;color:#64748b;margin-bottom:8px;"><i class="fa-solid fa-location-dot text-danger me-1"></i>${hotelAddress}</div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;">
+                            <span style="font-weight:800;font-size:14px;color:#2067e1;">${hotelPrice}</span>
+                            <span style="font-size:10.5px;color:#64748b;">Per night</span>
+                        </div>
+                    </div>
+                `;
+
+                L.marker([hotelLat, hotelLng], {icon: fullPin})
+                    .addTo(fullMap)
+                    .bindPopup(popupContent)
+                    .openPopup();
+            } else {
+                fullMap.invalidateSize();
+                fullMap.setView([hotelLat, hotelLng], 15);
+            }
+        });
+    }
+});
+</script>
+
+{{-- Interactive Real Leaflet Map Modal for Hotel Detail Page --}}
+<div class="modal fade" id="hotelDetailMapModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(4px); background: rgba(0, 0, 0, 0.75);">
+    <div class="modal-dialog modal-dialog-centered modal-xl" style="max-width: 1100px; height: 85vh; margin: 7.5vh auto;">
+        <div class="modal-content border-0 overflow-hidden shadow-2xl" style="height: 100%; border-radius: 12px; background: #ffffff;">
+            <div class="modal-header border-bottom px-4 py-3 bg-white" style="border-color: #e2e8f0 !important; z-index: 10;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-primary text-white" style="width: 34px; height: 34px;">
+                        <i class="fa-solid fa-location-dot fs-6"></i>
+                    </span>
+                    <div>
+                        <h5 class="modal-title fw-bold text-dark mb-0" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif;">{{ $property->name }}</h5>
+                        <small class="text-secondary" style="font-size: 12px;"><i class="fa-solid fa-map-pin text-danger me-1"></i>{{ $property->address ?: $property->city ?: 'Bangladesh' }}</small>
+                    </div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <a href="https://www.google.com/maps/dir/?api=1&destination={{ (float)($property->latitude ?: 21.4272) }},{{ (float)($property->longitude ?: 92.0058) }}" target="_blank" rel="noopener" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1.5 fw-bold d-flex align-items-center gap-1.5" style="font-size: 12px;">
+                        <i class="fa-solid fa-diamond-turn-right"></i> Get Directions
+                    </a>
+                    <button type="button" class="btn-close shadow-none ms-2" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+            </div>
+            <div class="modal-body p-0 position-relative" style="height: calc(100% - 65px);">
+                <div id="hotelDetailFullMap" style="width: 100%; height: 100%; z-index: 1;"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- Best Price Guarantee Modal --}}
 <div class="modal fade" id="bestPriceGuaranteeModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

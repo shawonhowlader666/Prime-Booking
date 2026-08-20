@@ -44,10 +44,14 @@
             'icon'  => 'fa-solid fa-star',
             'route' => route('reviews'),
         ],
+        @php
+            $sidebarVipStats = auth()->check() ? app(\App\Services\VIPLoyaltyService::class)->getUserTier(auth()->user()) : null;
+            $sidebarBadgeColor = $sidebarVipStats['badge_color'] ?? '#ba6d4a';
+        @endphp
         [
             'key'   => 'vip',
             'label' => 'PrimeVIP',
-            'custom_icon' => '<span class="bg-dark text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 10px;"><i class="fa-solid fa-star"></i></span>',
+            'custom_icon' => '<span class="text-white rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 10px; background-color: ' . $sidebarBadgeColor . ';"><i class="fa-solid fa-star"></i></span>',
             'route' => route('vip'),
         ],
         [

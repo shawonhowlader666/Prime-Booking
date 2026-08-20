@@ -384,9 +384,10 @@
 
                 
                 <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['free_cancel' => $isFreeCancel ? null : 1]))); ?>" 
-                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; <?php echo e($isFreeCancel ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
-                    <i class="fa-solid fa-check <?php echo e($isFreeCancel ? 'text-white' : 'text-success'); ?>"></i> Free cancellation
+                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
+                   style="font-size: 12px; padding: 6px 14px; <?php echo e($isFreeCancel ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-check <?php echo e($isFreeCancel ? 'text-white' : 'text-success'); ?>" style="margin-right: 7px; font-size: 11px;"></i>
+                    <span>Free cancellation</span>
                 </a>
 
                 
@@ -399,9 +400,10 @@
                     }
                 ?>
                 <a href="<?php echo e(route('search.index', $breakfastParams)); ?>" 
-                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; <?php echo e($hasBreakfast ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
-                    <i class="fa-solid fa-mug-saucer <?php echo e($hasBreakfast ? 'text-white' : 'text-warning'); ?>"></i> Breakfast included
+                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
+                   style="font-size: 12px; padding: 6px 14px; <?php echo e($hasBreakfast ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-mug-saucer <?php echo e($hasBreakfast ? 'text-white' : 'text-warning'); ?>" style="margin-right: 7px; font-size: 11.5px;"></i>
+                    <span>Breakfast included</span>
                 </a>
 
                 
@@ -414,30 +416,34 @@
                     }
                 ?>
                 <a href="<?php echo e(route('search.index', $poolParams)); ?>" 
-                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; <?php echo e($hasPool ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
-                    <i class="fa-solid fa-person-swimming <?php echo e($hasPool ? 'text-white' : 'text-info'); ?>"></i> Swimming pool
+                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
+                   style="font-size: 12px; padding: 6px 14px; <?php echo e($hasPool ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-person-swimming <?php echo e($hasPool ? 'text-white' : 'text-info'); ?>" style="margin-right: 7px; font-size: 12px;"></i>
+                    <span>Swimming pool</span>
                 </a>
 
                 
                 <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['pay_later' => $isPayLater ? null : 1]))); ?>" 
-                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; <?php echo e($isPayLater ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
-                    <i class="fa-solid fa-wallet <?php echo e($isPayLater ? 'text-white' : 'text-success'); ?>"></i> Pay at hotel
+                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
+                   style="font-size: 12px; padding: 6px 14px; <?php echo e($isPayLater ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-wallet <?php echo e($isPayLater ? 'text-white' : 'text-success'); ?>" style="margin-right: 7px; font-size: 11.5px;"></i>
+                    <span>Pay at hotel</span>
                 </a>
 
                 
                 <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['guest_rating' => $isTopRated ? null : 9]))); ?>" 
-                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; <?php echo e($isTopRated ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
-                    <i class="fa-solid fa-star text-warning"></i> Superb 9.0+
+                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
+                   style="font-size: 12px; padding: 6px 14px; <?php echo e($isTopRated ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-star text-warning" style="margin-right: 7px; font-size: 11px;"></i>
+                    <span>Superb 9.0+</span>
                 </a>
 
                 
                 <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['star_rating' => $is5Star ? null : 5]))); ?>" 
-                   class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; <?php echo e($is5Star ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
-                    <i class="fa-solid fa-crown text-warning"></i> 5-Star Stays
+                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
+                   style="font-size: 12px; padding: 6px 14px; <?php echo e($is5Star ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-crown text-warning" style="margin-right: 7px; font-size: 11.5px;"></i>
+                    <span>5-Star Stays</span>
                 </a>
             </div>
 

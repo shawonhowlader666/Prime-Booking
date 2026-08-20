@@ -245,7 +245,7 @@
     {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact 1:1 Parity - Single Clean Row) --}}
     <div class="agoda-detail-search-bar shadow-sm" style="background: #132968; padding: 12px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
         <div class="agoda-page-container">
-            <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center">
+            <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" onsubmit="showAgodaSearchLoading();">
                 {{-- 1. Destination Input --}}
                 <div class="col-12 col-lg-3">
                     <div class="input-group bg-white rounded-3 overflow-hidden shadow-xs" style="height: 46px;">

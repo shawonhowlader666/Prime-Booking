@@ -3,7 +3,7 @@
     <div class="container-fluid" style="height: 60px; width: 100%; margin: 0; padding-left: 8px; padding-right: 8px; display: flex; align-items: center;">
 
         {{-- 100% Identical Prime Booking Logo --}}
-        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 36px !important;">
+        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 56px !important;">
             <x-logo height="44" />
         </a>
 
@@ -16,7 +16,7 @@
         <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 60px;">
 
             {{-- Left Nav Links (Exact Agoda Gaps) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 28px;">
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 32px;">
                 <li class="nav-item">
                     <a class="nav-link px-1 fw-semibold" href="{{ route('home') }}"
                        style="color: #2d2d2d; height: 60px; display: flex; align-items: center; font-size: 14.5px;">
@@ -96,7 +96,7 @@
                 @endphp
 
                 {{-- 1. Flag & Currency Badge (Agoda Image Exact: Flag + Currency Text) --}}
-                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 6px 12px; border-radius: 6px; gap: 10px; transition: background 0.15s ease;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 6px 12px; border-radius: 6px; gap: 14px; transition: background 0.15s ease;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
                     @if($currencyFlag === 'bd')
                         <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
                     @elseif($currencyFlag === 'us')

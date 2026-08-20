@@ -114,6 +114,18 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
         ]);
     })->name('vip.status');
 
+    Route::get('/user/vip-status', function (\App\Services\VIPLoyaltyService $vipService) {
+        $user = auth()->user();
+        $stats = $vipService->getUserTier($user);
+        return response()->json([
+            'status'       => 'success',
+            'success'      => true,
+            'is_logged_in' => (bool)$user,
+            'user'         => $user ? ['id' => $user->id, 'name' => $user->name, 'email' => $user->email] : null,
+            'vip'          => $stats,
+        ]);
+    })->name('user.vip-status');
+
     Route::get('/vip/tiers', function () {
         return response()->json([
             'status'  => 'success',

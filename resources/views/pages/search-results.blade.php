@@ -503,9 +503,9 @@
 </div>
 
 {{-- Interactive Leaflet OpenStreetMap Agoda-Exact Split-Screen Modal (100% Exact 1:1 Parity with Agoda.com) --}}
-<div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(2px); background: rgba(0, 0, 0, 0.65);">
-    <div class="modal-dialog modal-fullscreen m-0 p-0" style="width: 100vw; height: 100vh; max-width: 100vw;">
-        <div class="modal-content border-0 rounded-0 overflow-hidden" style="height: 100%; border-radius: 0 !important; background: #ffffff;">
+<div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(4px); background: rgba(0, 0, 0, 0.7);">
+    <div class="modal-dialog modal-dialog-centered" style="width: 94vw; max-width: 1420px; height: 92vh; margin: 4vh auto;">
+        <div class="modal-content border-0 overflow-hidden" style="height: 100%; border-radius: 0 !important; box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6); background: #ffffff;">
             
             {{-- Top Modal Bar: Hide filters & Close X (Agoda Exact) --}}
             <div class="d-flex justify-content-between align-items-center px-4 bg-white border-bottom" style="z-index: 1050; height: 48px; border-color: #e2e8f0 !important;">

@@ -172,14 +172,15 @@ class RewardPointService
         }
 
         $discountBdt = $this->convertPointsToBdt($pointsToRedeem);
+        $validBookingId = ($bookingId && Booking::where('id', $bookingId)->exists()) ? $bookingId : null;
 
-        return DB::transaction(function () use ($user, $wallet, $pointsToRedeem, $discountBdt, $bookingId) {
+        return DB::transaction(function () use ($user, $wallet, $pointsToRedeem, $discountBdt, $validBookingId) {
             $wallet->decrement('points_balance', $pointsToRedeem);
             $wallet->increment('total_redeemed_points', $pointsToRedeem);
 
             RewardTransaction::create([
                 'user_id'      => $user->id,
-                'booking_id'   => $bookingId,
+                'booking_id'   => $validBookingId,
                 'type'         => 'redeemed',
                 'points'       => -$pointsToRedeem,
                 'amount_value' => $discountBdt,

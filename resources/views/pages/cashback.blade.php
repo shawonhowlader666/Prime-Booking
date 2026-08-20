@@ -253,7 +253,7 @@
                             </tbody>
                         </table>
                     </div>
-                    @if($transactions->hasPages())
+                    @if(method_exists($transactions, 'hasPages') && $transactions->hasPages())
                     <div class="p-3 border-top">
                         {{ $transactions->links() }}
                     </div>

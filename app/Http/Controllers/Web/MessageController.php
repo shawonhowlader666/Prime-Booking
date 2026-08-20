@@ -14,15 +14,13 @@ class MessageController extends Controller
         $company = config('company');
         $userId  = auth()->id();
 
-        if (!$userId) {
-            return redirect()->route('login')->with('info', 'Please sign in to view your messages.');
-        }
-
-        $messages = Message::where('sender_id', $userId)
-            ->orWhere('receiver_id', $userId)
-            ->with(['sender', 'receiver', 'property'])
-            ->latest()
-            ->paginate(15);
+        $messages = $userId
+            ? Message::where('sender_id', $userId)
+                ->orWhere('receiver_id', $userId)
+                ->with(['sender', 'receiver', 'property'])
+                ->latest()
+                ->paginate(15)
+            : collect();
 
         return view('pages.messages', compact('company', 'messages'));
     }

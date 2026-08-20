@@ -114,8 +114,9 @@ Route::get('/api/v1/user/vip-status', function (\App\Services\VIPLoyaltyService 
 
 Route::get('/api/v1/vip/tiers', function () {
     return response()->json([
-        'status' => 'success',
-        'tiers' => [
+        'status'  => 'success',
+        'success' => true,
+        'tiers'   => [
             'Bronze'   => ['min_bookings' => 0, 'discount' => (float)\App\Models\SiteSetting::get('vip_bronze_discount', 0), 'perks' => ['Best price guarantee', 'Insider deals']],
             'Silver'   => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_silver_threshold', 2), 'discount' => (float)\App\Models\SiteSetting::get('vip_silver_discount', 12), 'perks' => ['VIP deals up to 12% off']],
             'Gold'     => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_gold_threshold', 5), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_gold_spend', 200), 'discount' => (float)\App\Models\SiteSetting::get('vip_gold_discount', 18), 'perks' => ['VIP deals up to 18% off']],

@@ -78,9 +78,11 @@
                                 </div>
                             @endforeach
                         </div>
+                        @if(method_exists($messages, 'links'))
                         <div class="mt-4">
                             {{ $messages->links() }}
                         </div>
+                        @endif
                     </div>
 
                 @else

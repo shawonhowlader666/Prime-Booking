@@ -3,7 +3,23 @@
 @section('title', 'Payments and Subscriptions | Prime Booking')
 @section('meta_description', 'Manage saved payment methods, email subscriptions, newsletter frequencies and booking reminders.')
 
-@section('content')
+<style>
+/* Agoda 1:1 3D Card Hover Elevation & Smooth Physics */
+.agoda-subscription-card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 12px !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    transform: translateZ(0);
+}
+.agoda-subscription-card:hover {
+    transform: translateY(-2.5px);
+    box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.06);
+    border-color: #cbd5e1 !important;
+}
+</style>
+
 <div class="py-4" style="background-color: #f7f9fa; min-height: 88vh; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
     <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
         <div class="row g-4">
@@ -19,7 +35,7 @@
                 {{-- ── SECTION 1: PAYMENT METHODS ── --}}
                 <h3 class="fw-bold text-dark mb-3" style="font-size: 22px; letter-spacing: -0.3px;">Payment methods</h3>
                 
-                <div class="bg-white border shadow-sm p-4 mb-5" style="border-color: #e2e8f0 !important; border-radius: 12px !important;">
+                <div class="agoda-subscription-card p-4 mb-5">
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center gap-2">
                             <span class="text-dark fw-semibold" style="font-size: 15px;">Save my credit card information</span>
@@ -42,7 +58,7 @@
                 <h3 class="fw-bold text-dark mb-3" style="font-size: 22px; letter-spacing: -0.3px;">Email subscriptions</h3>
                 
                 {{-- Newsletter Frequency Radio Row (1:1 Exact Parity) --}}
-                <div class="bg-white border shadow-sm p-4 mb-3" style="border-color: #e2e8f0 !important; border-radius: 12px !important;">
+                <div class="agoda-subscription-card p-4 mb-3">
                     <div class="fw-bold text-dark mb-3" style="font-size: 14.5px;">Newsletter</div>
                     <div class="d-flex flex-wrap align-items-center gap-4 gap-md-5">
                         <label class="d-flex align-items-center gap-2 m-0" style="cursor: pointer; font-size: 14.5px; color: #334155;">
@@ -68,7 +84,7 @@
                 </div>
 
                 {{-- Booking Assist Reminders Switch --}}
-                <div class="bg-white border shadow-sm p-4 mb-3" style="border-color: #e2e8f0 !important; border-radius: 12px !important;">
+                <div class="agoda-subscription-card p-4 mb-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="text-dark fw-semibold" style="font-size: 14.5px;">I would like to receive booking assist reminders</span>
                         <div class="d-flex align-items-center gap-3">
@@ -83,7 +99,7 @@
                 </div>
 
                 {{-- Agoda Promotions Email Switch --}}
-                <div class="bg-white border shadow-sm p-4 mb-3" style="border-color: #e2e8f0 !important; border-radius: 12px !important;">
+                <div class="agoda-subscription-card p-4 mb-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="text-dark fw-semibold" style="font-size: 14.5px;">I would like to receive emails about Prime promotions</span>
                         <div class="d-flex align-items-center gap-3">
@@ -98,7 +114,7 @@
                 </div>
 
                 {{-- Upcoming Trip Offers Switch (1:1 Exact Parity) --}}
-                <div class="bg-white border shadow-sm p-4 mb-3" style="border-color: #e2e8f0 !important; border-radius: 12px !important;">
+                <div class="agoda-subscription-card p-4 mb-3">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="text-dark fw-semibold" style="font-size: 14.5px;">I would like to know about information and offers related to my upcoming trip</span>
                         <div class="d-flex align-items-center gap-3">

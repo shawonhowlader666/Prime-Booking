@@ -939,9 +939,28 @@
         window.focusProperty = function(id) {
             var prop = allProperties.find(p => p.id == id);
             if (prop && map) {
-                map.setView([prop.lat, prop.lng], 15, {animate: true});
+                map.setView([prop.lat, prop.lng], 16, {animate: true});
                 if (markersMap[id]) markersMap[id].openPopup();
             }
+        };
+
+        window.openHotelOnMap = function(id) {
+            var modalEl = document.getElementById('interactiveMapModal');
+            if (!modalEl) return;
+            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+            modal.show();
+            setTimeout(function() {
+                if (window.focusProperty) {
+                    window.focusProperty(id);
+                }
+                if (window.highlightMarker) {
+                    window.highlightMarker(id);
+                }
+                var card = document.getElementById('mapCard_' + id);
+                if (card) {
+                    card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }, 450);
         };
 
         window.onMapSliderChange = function(val) {

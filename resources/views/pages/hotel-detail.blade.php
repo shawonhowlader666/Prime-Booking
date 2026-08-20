@@ -493,10 +493,12 @@
                         </span>
                     </div>
 
-                    <p class="text-secondary small mb-2" style="font-size: 13px;">
-                        <i class="fa-solid fa-location-dot text-danger me-1"></i> {{ $property->address ?: ($property->city . ', Bangladesh, 1230') }} — 
-                        <a href="#location" class="fw-bold text-decoration-none" style="color: #2067e1;">SEE ON MAP</a>
-                    </p>
+                    <div class="text-secondary small mb-2 d-inline-flex align-items-center flex-wrap" style="font-size: 13px; cursor: pointer;" onclick="document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});" title="Click to view hotel location on map">
+                        <i class="fa-solid fa-location-dot text-danger me-1.5 flex-shrink-0"></i>
+                        <span style="text-decoration: underline; text-underline-offset: 2px; color: #1e293b;">{{ $property->address ?: ($property->city . ', Bangladesh, 1230') }}</span>
+                        <span class="mx-1 text-muted">—</span>
+                        <a href="#location" class="fw-bold" style="color: #2067e1; text-decoration: underline; text-underline-offset: 2px;" onclick="event.preventDefault(); document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});">SEE ON MAP</a>
+                    </div>
 
                     {{-- Bangladesh Trust & Direct Contact Badges --}}
                     <div class="d-flex align-items-center gap-2 flex-wrap pt-2 border-top">

@@ -163,9 +163,12 @@
                     </div>
                 </div>
 
-                {{-- Location Link --}}
-                <div class="small mb-1" style="font-size: 12.5px; color: #2067e1 !important; font-weight: 500;">
-                    <i class="fa-solid fa-location-dot me-1"></i> {{ $address }} — <span class="text-decoration-underline position-relative" style="cursor: pointer; z-index: 10;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">View on map</span>
+                {{-- Location Link (Entire Line Clickable to Open and Center Hotel on Map) --}}
+                <div class="small mb-1 d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2067e1 !important; font-weight: 500; cursor: pointer; position: relative; z-index: 20;" onclick="event.preventDefault(); event.stopPropagation(); openHotelOnMap({{ $id }});" title="Click to view {{ $name }} on interactive map">
+                    <i class="fa-solid fa-location-dot text-primary me-1.5 flex-shrink-0"></i>
+                    <span style="text-decoration: underline; text-underline-offset: 2px;">{{ $address }}</span>
+                    <span class="mx-1 text-secondary">—</span>
+                    <span class="fw-bold" style="text-decoration: underline; text-underline-offset: 2px;">View on map</span>
                 </div>
 
                 {{-- Nearest Landmark / Distance Content --}}

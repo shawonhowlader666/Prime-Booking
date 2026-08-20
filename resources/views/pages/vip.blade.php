@@ -65,15 +65,18 @@
     padding: 0 16px;
 }
 
-/* 1. Main User Status Hero Card (1:1 Prominent 3D Shadow & Floating Elevation) */
+/* 1. Main User Status Hero Card (Ultra-Modern High-Elevation 3D Shadow) */
 .agoda-vip-status-card {
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
-    border: 1px solid #e2e8f0;
-    padding: 32px 36px 28px 36px;
+    box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.16), 0 0 0 1px rgba(15, 23, 42, 0.06), 0 2px 4px rgba(15, 23, 42, 0.03);
+    border: none;
+    padding: 34px 38px 30px 38px;
     margin-bottom: 24px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.agoda-vip-status-card:hover {
+    box-shadow: 0 25px 55px -15px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(15, 23, 42, 0.08), 0 4px 8px rgba(15, 23, 42, 0.04);
 }
 
 .vip-avatar-circle {
@@ -222,8 +225,8 @@
 .vip-comparison-card {
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
-    border: 1px solid #edf2f7;
+    box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.02);
+    border: none;
     padding: 40px 36px;
     margin-bottom: 32px;
 }
@@ -263,8 +266,8 @@
 .vip-promo-showcase-box {
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
-    border: 1px solid #edf2f7;
+    box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.14), 0 0 0 1px rgba(15, 23, 42, 0.05), 0 2px 4px rgba(15, 23, 42, 0.02);
+    border: none;
     padding: 40px 36px;
     margin-bottom: 24px;
     text-align: center;

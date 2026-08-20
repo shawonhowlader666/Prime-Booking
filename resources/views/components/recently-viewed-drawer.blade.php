@@ -8,19 +8,19 @@
 </div>
 
 {{-- Offcanvas Drawer --}}
-<div class="offcanvas offcanvas-end rounded-start-4 border-0 shadow-lg" tabindex="-1" id="recentlyViewedOffcanvas" aria-labelledby="recentlyViewedLabel" style="width: 360px;">
-    <div class="offcanvas-header border-bottom py-3 px-4 bg-light">
+<div class="offcanvas offcanvas-end rounded-start-4 border-0 shadow-lg" tabindex="-1" id="recentlyViewedOffcanvas" aria-labelledby="recentlyViewedLabel" style="width: 390px; max-width: 92vw;">
+    <div class="offcanvas-header border-bottom py-3 px-4 bg-white" style="border-color: #e2e8f0 !important;">
         <div class="d-flex align-items-center gap-2">
-            <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 32px; height: 32px;">
+            <span class="rounded-circle d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary" style="width: 34px; height: 34px;">
                 <i class="fa-solid fa-clock-rotate-left fs-6"></i>
             </span>
-            <h5 class="offcanvas-title fw-bold text-dark mb-0" id="recentlyViewedLabel" style="font-size: 16px;">Recently Viewed</h5>
+            <h5 class="offcanvas-title fw-bold text-dark mb-0" id="recentlyViewedLabel" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif;">Recently Viewed</h5>
         </div>
         <button type="button" class="btn-close shadow-none" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
-    <div class="offcanvas-body p-3 overflow-y-auto">
-        <div class="d-flex justify-content-between align-items-center mb-2 px-1">
-            <small class="text-secondary fw-semibold">Your recent searches &amp; stays</small>
+    <div class="offcanvas-body p-3 overflow-y-auto" style="background: #f8fafc;">
+        <div class="d-flex justify-content-between align-items-center mb-2.5 px-1">
+            <small class="text-secondary fw-bold" style="font-size: 12px; color: #64748b !important;">Your recent searches &amp; stays</small>
             <button type="button" class="btn btn-link p-0 text-danger small text-decoration-none fw-bold" onclick="clearRecentProperties();" style="font-size: 11.5px;">
                 Clear history
             </button>
@@ -65,19 +65,20 @@
         if (badge) badge.textContent = list.length;
 
         container.innerHTML = list.map(item => `
-            <div class="card border rounded-3 p-2 shadow-xs hover-shadow position-relative bg-white" style="transition: all 0.2s ease;">
-                <div class="d-flex gap-2.5 align-items-center">
-                    <img src="${item.image}" alt="${item.name}" class="rounded-2 flex-shrink-0" style="width: 70px; height: 70px; object-fit: cover;">
-                    <div class="flex-grow-1 min-w-0">
-                        <a href="/hotels/${item.id}" class="text-dark fw-bold text-decoration-none text-truncate d-block" style="font-size: 13px;">
+            <div class="card border shadow-xs position-relative bg-white" style="border-color: #e2e8f0 !important; border-radius: 10px !important; padding: 12px; transition: all 0.2s ease; overflow: hidden;">
+                <div class="d-flex align-items-center" style="gap: 12px; width: 100%; min-width: 0;">
+                    <img src="${item.image}" alt="${item.name}" class="flex-shrink-0" style="width: 74px; height: 74px; object-fit: cover; border-radius: 8px; background: #f1f5f9;">
+                    <div style="flex: 1; min-width: 0; overflow: hidden;">
+                        <a href="/hotels/${item.id}" class="text-dark fw-bold text-decoration-none d-block hover-primary" style="font-size: 13.5px; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: 'Plus Jakarta Sans', sans-serif;" title="${item.name}">
                             ${item.name}
                         </a>
-                        <small class="text-secondary d-block text-truncate" style="font-size: 11px;">
-                            <i class="fa-solid fa-location-dot text-danger me-1"></i> ${item.city || 'Bangladesh'}
-                        </small>
-                        <div class="d-flex align-items-center justify-content-between mt-1">
-                            <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" style="font-size: 10px;">★ ${item.rating || '8.5'}</span>
-                            <strong class="text-primary font-monospace" style="font-size: 13px;">${item.price}</strong>
+                        <div class="text-secondary d-flex align-items-center mt-1" style="font-size: 11.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #64748b !important;">
+                            <i class="fa-solid fa-location-dot text-danger flex-shrink-0" style="margin-right: 5px; font-size: 11px;"></i>
+                            <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${item.city || 'Bangladesh'}</span>
+                        </div>
+                        <div class="d-flex align-items-center justify-content-between mt-1.5 pt-1.5 border-top" style="border-color: #f1f5f9 !important;">
+                            <span class="badge" style="background:#e0edff; color:#2067e1; font-weight:700; font-size:10.5px; border-radius:4px; padding: 2px 6px;">★ ${item.rating || '8.5'}</span>
+                            <strong class="fw-bold" style="font-size: 13.5px; color: #2067e1 !important; font-family: 'Plus Jakarta Sans', sans-serif;">${item.price}</strong>
                         </div>
                     </div>
                 </div>

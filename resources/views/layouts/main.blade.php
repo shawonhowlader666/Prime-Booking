@@ -128,15 +128,25 @@
     <!-- Master Header Navigation (Starts directly at top, exactly like Agoda.com) -->
     @include('components.layout.header', ['active' => $activePage ?? 'home'])
 
-    <!-- Master Flash Alerts -->
+    <!-- Master Flash Alerts with Auto-Dismiss -->
     @if(session('success'))
-        <div class="container mt-3">
-            <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert">
+        <div class="container mt-3" id="globalMasterSuccessAlert">
+            <div class="alert alert-success alert-dismissible fade show rounded-4 shadow-sm" role="alert" style="transition: opacity 0.5s ease, transform 0.5s ease;">
                 <i class="fa-solid fa-circle-check me-2 fs-5 align-middle"></i>
                 {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
             </div>
         </div>
+        <script>
+            setTimeout(function() {
+                var el = document.getElementById('globalMasterSuccessAlert');
+                if (el) {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(-10px)';
+                    setTimeout(function() { el.remove(); }, 500);
+                }
+            }, 3200);
+        </script>
     @endif
 
     <!-- Main Content Slot -->

@@ -637,20 +637,20 @@
                         
                         <div class="d-flex align-items-center justify-content-between gap-1.5 mt-1">
                             <div class="flex-grow-1" style="min-width: 0;">
-                                <span class="d-block fw-bold text-dark text-uppercase mb-0.5" style="font-size: 9.5px; letter-spacing: 0.5px;">MIN</span>
-                                <div class="border rounded-1 p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border: 1.5px solid #0f172a !important; height: 32px;">
-                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                    <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-dark" value="0" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
+                                <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 9.5px; letter-spacing: 0.5px; line-height: 1;">MIN</span>
+                                <div class="border rounded-1 d-flex align-items-center justify-content-between bg-white" style="border: 1.5px solid #0f172a !important; height: 30px; padding: 0 8px; box-sizing: border-box;">
+                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px; flex-shrink: 0; line-height: 1;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                    <input type="number" id="mapMinBudgetInput" class="form-control border-0 shadow-none fw-bold text-end text-dark p-0 m-0" value="0" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent; height: 100%;" oninput="onMapTypedBudgetChange()">
                                 </div>
                             </div>
-                            <div class="text-muted fw-bold align-self-end mb-1 flex-shrink-0" style="font-size: 10px; letter-spacing: 0.5px; color: #94a3b8 !important;">
+                            <div class="text-muted fw-bold align-self-end flex-shrink-0" style="font-size: 10px; letter-spacing: 0.5px; color: #94a3b8 !important; margin-bottom: 7px;">
                                 -------
                             </div>
                             <div class="flex-grow-1" style="min-width: 0;">
-                                <span class="d-block fw-bold text-dark text-uppercase mb-0.5" style="font-size: 9.5px; letter-spacing: 0.5px;">MAX</span>
-                                <div class="border rounded-1 p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border: 1.5px solid #2067e1 !important; height: 32px; box-shadow: 0 0 0 1px #2067e1;">
-                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                    <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-primary" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
+                                <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 9.5px; letter-spacing: 0.5px; line-height: 1;">MAX</span>
+                                <div class="border rounded-1 d-flex align-items-center justify-content-between bg-white" style="border: 1.5px solid #2067e1 !important; height: 30px; padding: 0 8px; box-shadow: 0 0 0 1px #2067e1; box-sizing: border-box;">
+                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px; flex-shrink: 0; line-height: 1;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                    <input type="number" id="mapMaxBudgetInput" class="form-control border-0 shadow-none fw-bold text-end text-primary p-0 m-0" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent; height: 100%;" oninput="onMapTypedBudgetChange()">
                                 </div>
                             </div>
                         </div>

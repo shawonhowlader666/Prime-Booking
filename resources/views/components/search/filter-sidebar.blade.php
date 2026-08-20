@@ -270,32 +270,32 @@
                     <div id="thumbMax" style="position:absolute;top:50%;width:18px;height:18px;background:#ffffff;border:2.5px solid #2067e1;border-radius:50%;transform:translate(-50%,-50%);box-shadow:0 2px 6px rgba(32,103,225,0.35);pointer-events:none;z-index:4;"></div>
                 </div>
 
-                {{-- Agoda 1:1 Editable MIN / MAX Bordered Input Boxes --}}
+                {{-- Agoda 1:1 Editable MIN / MAX Bordered Input Boxes (Sleek 30px Height, Generous 10px Internal Padding) --}}
                 <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
                     {{-- MIN Box --}}
                     <div class="flex-grow-1" style="min-width: 0;">
-                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">MIN</span>
-                        <div class="d-flex align-items-center bg-white rounded-1 border px-2.5 py-1" id="minInputWrapper" style="border: 1.5px solid #0f172a !important; height: 36px; transition: border-color 0.2s;">
-                            <span class="text-dark fw-bold me-1.5" style="font-size: 13px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
-                            <input type="number" id="priceMinInput" class="form-control border-0 p-0 shadow-none text-end fw-bold"
-                                style="font-size: 13px; color: #0f172a; background: transparent; width: 100%;"
+                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px; line-height: 1;">MIN</span>
+                        <div class="bg-white d-flex align-items-center justify-content-between" id="minInputWrapper" style="border: 1.5px solid #0f172a !important; height: 30px; border-radius: 4px; padding: 0 10px; transition: all 0.2s; box-sizing: border-box;">
+                            <span class="text-dark fw-bold" style="font-size: 11.5px; flex-shrink: 0; line-height: 1; margin-right: 6px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
+                            <input type="number" id="priceMinInput" class="form-control border-0 shadow-none text-end fw-bold p-0 m-0"
+                                style="font-size: 12px; font-weight: 700; color: #0f172a; background: transparent; width: 100%; height: 100%; line-height: 30px;"
                                 value="{{ $selMin }}" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}"
                                 oninput="syncPriceSliderFromInput()" onchange="syncPriceSliderFromInput(true)" onfocus="document.getElementById('minInputWrapper').style.borderColor='#2067e1';" onblur="document.getElementById('minInputWrapper').style.borderColor='#0f172a';">
                         </div>
                     </div>
 
                     {{-- Dashed Separator --}}
-                    <div class="text-muted fw-bold align-self-end mb-2 flex-shrink-0" style="font-size: 11px; letter-spacing: 1px; color: #94a3b8 !important;">
+                    <div class="text-muted fw-bold align-self-end flex-shrink-0" style="font-size: 10px; letter-spacing: 0.5px; color: #94a3b8 !important; margin-bottom: 7px;">
                         -------
                     </div>
 
                     {{-- MAX Box --}}
                     <div class="flex-grow-1" style="min-width: 0;">
-                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px;">MAX</span>
-                        <div class="d-flex align-items-center bg-white rounded-1 border px-2.5 py-1" id="maxInputWrapper" style="border: 1.5px solid #2067e1 !important; height: 36px; box-shadow: 0 0 0 1px #2067e1; transition: border-color 0.2s;">
-                            <span class="text-dark fw-bold me-1.5" style="font-size: 13px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
-                            <input type="number" id="priceMaxInput" class="form-control border-0 p-0 shadow-none text-end fw-bold text-primary"
-                                style="font-size: 13px; font-weight: 700; background: transparent; width: 100%;"
+                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px; line-height: 1;">MAX</span>
+                        <div class="bg-white d-flex align-items-center justify-content-between" id="maxInputWrapper" style="border: 1.5px solid #2067e1 !important; height: 30px; border-radius: 4px; padding: 0 10px; box-shadow: 0 0 0 1px #2067e1; transition: all 0.2s; box-sizing: border-box;">
+                            <span class="text-dark fw-bold" style="font-size: 11.5px; flex-shrink: 0; line-height: 1; margin-right: 6px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
+                            <input type="number" id="priceMaxInput" class="form-control border-0 shadow-none text-end fw-bold p-0 m-0 text-primary"
+                                style="font-size: 12px; font-weight: 700; background: transparent; width: 100%; height: 100%; line-height: 30px;"
                                 value="{{ $selMax }}" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}"
                                 oninput="syncPriceSliderFromInput()" onchange="syncPriceSliderFromInput(true)" onfocus="document.getElementById('maxInputWrapper').style.borderColor='#2067e1';" onblur="document.getElementById('maxInputWrapper').style.borderColor='#2067e1';">
                         </div>

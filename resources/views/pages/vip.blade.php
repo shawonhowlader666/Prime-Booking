@@ -424,74 +424,117 @@
             </div>
         </div>
 
-        {{-- ── 3. WHAT IS AGODAVIP? EXPLAIN BOX (Clean Crisp Card) ── --}}
-        <div class="card border p-4 mb-4 shadow-xs" style="border-radius: 16px !important; background: #ffffff; border-color: #e2e8f0 !important;">
-            <div class="row align-items-center">
-                <div class="col-md-7">
-                    <h2 class="fw-bold mb-2" style="font-size: 24px; color: #0f172a; letter-spacing: -0.3px;">What is AgodaVIP?</h2>
-                    <p style="font-size: 14.5px; line-height: 1.6; color: #475569; margin-bottom: 0;">
+        {{-- ── 3. WHAT IS AGODAVIP? HERO BANNER (100% Exact 1:1 Agoda Vector Parity) ── --}}
+        <div class="agoda-vip-explain-box position-relative overflow-hidden mb-4" style="background: #2b3b52; border-radius: 20px; box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.16); min-height: 270px; border: none; display: flex; flex-direction: column; justify-content: space-between;">
+            
+            {{-- Twinkling Cross Stars on Top Night Sky --}}
+            <svg class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 1;" viewBox="0 0 800 280" preserveAspectRatio="none">
+                {{-- 4-point star markers (Exact matching user screenshot) --}}
+                <g fill="#93c5fd" opacity="0.45">
+                    <path d="M 40 30 L 42 26 L 44 30 L 48 32 L 44 34 L 42 38 L 40 34 L 36 32 Z" />
+                    <path d="M 120 20 L 122 17 L 124 20 L 127 21 L 124 22 L 122 25 L 120 22 L 117 21 Z" />
+                    <path d="M 160 45 L 161 43 L 162 45 L 164 46 L 162 47 L 161 49 L 160 47 L 158 46 Z" />
+                    <path d="M 200 20 L 202 17 L 204 20 L 207 21 L 204 22 L 202 25 L 200 22 L 197 21 Z" />
+                    <path d="M 250 48 L 251 46 L 252 48 L 254 49 L 252 50 L 251 52 L 250 50 L 248 49 Z" />
+                    <path d="M 280 22 L 282 19 L 284 22 L 287 23 L 284 24 L 282 27 L 280 24 L 277 23 Z" />
+                    <path d="M 340 46 L 341 44 L 342 46 L 344 47 L 342 48 L 341 50 L 340 48 L 338 47 Z" />
+                    <path d="M 370 20 L 372 17 L 374 20 L 377 21 L 374 22 L 372 25 L 370 22 L 367 21 Z" />
+                    <path d="M 420 50 L 421 48 L 422 50 L 424 51 L 422 52 L 421 54 L 420 52 L 418 51 Z" />
+                    <path d="M 450 22 L 452 19 L 454 22 L 457 23 L 454 24 L 452 27 L 450 24 L 447 23 Z" />
+                    <path d="M 500 48 L 501 46 L 502 48 L 504 49 L 502 50 L 501 52 L 500 50 L 498 49 Z" />
+                    <path d="M 540 22 L 542 19 L 544 22 L 547 23 L 544 24 L 542 27 L 540 24 L 537 23 Z" />
+                    <path d="M 600 48 L 601 46 L 602 48 L 604 49 L 602 50 L 601 52 L 600 50 L 598 49 Z" />
+                    <path d="M 640 22 L 642 19 L 644 22 L 647 23 L 644 24 L 642 27 L 640 24 L 637 23 Z" />
+                    <path d="M 700 50 L 701 48 L 702 50 L 704 51 L 702 52 L 701 54 L 700 52 L 698 51 Z" />
+                    <path d="M 740 22 L 742 19 L 744 22 L 747 23 L 744 24 L 742 27 L 740 24 L 737 23 Z" />
+                </g>
+            </svg>
+
+            {{-- Top Content Row --}}
+            <div class="row align-items-center p-4 pb-0" style="position: relative; z-index: 2;">
+                <div class="col-md-7 pt-2 ps-3">
+                    <h2 class="fw-bold mb-3" style="font-size: 26px; color: #ffffff; letter-spacing: -0.2px;">What is AgodaVIP?</h2>
+                    <p style="font-size: 15px; line-height: 1.6; color: #f1f5f9; margin-bottom: 0; max-width: 440px;">
                         AgodaVIP is our loyalty program for rewarding our most loyal customers with amazing deals. Once you qualify, you'll join automatically.
                     </p>
                 </div>
-                <div class="col-md-5 text-center mt-3 mt-md-0">
-                    {{-- 100% Authentic Agoda Podium Stage Vector SVG --}}
-                    <svg viewBox="0 0 280 140" style="max-width: 250px; width: 100%; height: auto; overflow: visible;">
-                        {{-- Podium Stage Bases --}}
-                        <rect x="95" y="85" width="90" height="55" rx="4" fill="#ecc43a" />
-                        <text x="140" y="120" fill="#78350f" font-size="18" font-weight="900" text-anchor="middle">1</text>
+                
+                {{-- Podium & Mascots Vector --}}
+                <div class="col-md-5 text-end pe-4 d-flex justify-content-end align-items-end" style="height: 180px;">
+                    <svg viewBox="0 0 340 180" style="width: 320px; height: 180px; overflow: visible;">
+                        {{-- 1st Place Yellow Podium --}}
+                        <rect x="110" y="95" width="90" height="85" fill="#f59e0b" />
                         
-                        <rect x="25" y="100" width="70" height="40" rx="4" fill="#cbd5e1" />
-                        <text x="60" y="126" fill="#475569" font-size="16" font-weight="900" text-anchor="middle">2</text>
-                        
-                        <rect x="185" y="110" width="70" height="30" rx="4" fill="#d97706" />
-                        <text x="220" y="130" fill="#ffffff" font-size="14" font-weight="900" text-anchor="middle">3</text>
+                        {{-- 2nd Place Silver Podium --}}
+                        <rect x="215" y="115" width="80" height="65" fill="#cbd5e1" />
 
                         {{-- 1st Place Purple Mascot (Gold Medal Winner) --}}
-                        <g transform="translate(110, 35)">
-                            <circle cx="30" cy="30" r="24" fill="#8b5cf6" />
-                            <circle cx="23" cy="26" r="2.5" fill="#1e1b4b" />
-                            <circle cx="37" cy="26" r="2.5" fill="#1e1b4b" />
-                            <path d="M 24 34 Q 30 40 36 34" stroke="#1e1b4b" stroke-width="2" fill="none" stroke-linecap="round" />
-                            <circle cx="18" cy="32" r="2.5" fill="#f472b6" opacity="0.6" />
-                            <circle cx="42" cy="32" r="2.5" fill="#f472b6" opacity="0.6" />
-                            <path d="M 12 38 L 2 55 L 8 58 Z" fill="#ef4444" />
-                            <circle cx="4" cy="58" r="7" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
-                            <text x="4" y="61" fill="#78350f" font-size="7" font-weight="900" text-anchor="middle">★</text>
-                            <path d="M 12 36 Q 4 45 6 52" stroke="#6d28d9" stroke-width="3" fill="none" stroke-linecap="round" />
+                        <g transform="translate(122, 18)">
+                            {{-- Purple Round Body --}}
+                            <circle cx="34" cy="36" r="28" fill="#8b5cf6" />
+                            {{-- Cute Eyes & Cheerful Smile --}}
+                            <circle cx="25" cy="33" r="2" fill="#1e1b4b" />
+                            <circle cx="43" cy="33" r="2" fill="#1e1b4b" />
+                            <path d="M 27 41 Q 34 46 41 41" stroke="#1e1b4b" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                            {{-- Red Ribbon with Gold Medal --}}
+                            <path d="M 8 40 L -2 60 L 5 62 Z" fill="#ef4444" />
+                            <circle cx="-1" cy="62" r="8" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
+                            <circle cx="-1" cy="62" r="4" fill="#f59e0b" />
+                            <text x="-1" y="65" fill="#78350f" font-size="7" font-weight="900" text-anchor="middle">★</text>
+                            {{-- Arm holding medal --}}
+                            <path d="M 12 40 Q 2 48 3 56" stroke="#6d28d9" stroke-width="3.5" fill="none" stroke-linecap="round" />
+                            {{-- Legs sitting on podium --}}
+                            <path d="M 24 64 L 24 78" stroke="#6d28d9" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 44 64 L 44 78" stroke="#6d28d9" stroke-width="3.5" stroke-linecap="round" />
                         </g>
 
-                        {{-- 2nd Place Cyan Mascot (Silver Medal Winner) --}}
-                        <g transform="translate(35, 55)">
-                            <circle cx="25" cy="25" r="20" fill="#06b6d4" />
-                            <circle cx="20" cy="22" r="2" fill="#083344" />
-                            <circle cx="30" cy="22" r="2" fill="#083344" />
-                            <path d="M 21 28 Q 25 33 29 28" stroke="#083344" stroke-width="1.8" fill="none" stroke-linecap="round" />
-                            <circle cx="25" cy="36" r="5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1" />
-                            <path d="M 18 45 L 18 50" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" />
-                            <path d="M 32 45 L 32 50" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" />
+                        {{-- 2nd Place Cyan Mascot (Silver Medal Winner on podium 2) --}}
+                        <g transform="translate(225, 48)">
+                            {{-- Cyan Body --}}
+                            <circle cx="28" cy="30" r="24" fill="#06b6d4" />
+                            {{-- Cute Smiling Eyes --}}
+                            <circle cx="22" cy="27" r="1.8" fill="#083344" />
+                            <circle cx="34" cy="27" r="1.8" fill="#083344" />
+                            <path d="M 23 34 Q 28 39 33 34" stroke="#083344" stroke-width="1.6" fill="none" stroke-linecap="round" />
+                            {{-- Red Ribbon with Silver Medal on neck --}}
+                            <path d="M 14 36 L 6 52 L 12 54 Z" fill="#ef4444" />
+                            <circle cx="8" cy="54" r="7" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
+                            <text x="8" y="56.5" fill="#475569" font-size="6" font-weight="900" text-anchor="middle">★</text>
+                            {{-- Legs --}}
+                            <path d="M 20 54 L 20 68" stroke="#0891b2" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 36 54 L 36 68" stroke="#0891b2" stroke-width="3" stroke-linecap="round" />
                         </g>
 
-                        {{-- 3rd Place Green Mascot (Bronze Winner) --}}
-                        <g transform="translate(195, 72)">
-                            <circle cx="25" cy="22" r="17" fill="#10b981" />
-                            <circle cx="21" cy="19" r="1.8" fill="#022c22" />
-                            <circle cx="29" cy="19" r="1.8" fill="#022c22" />
-                            <path d="M 22 25 Q 25 28 28 25" stroke="#022c22" stroke-width="1.5" fill="none" stroke-linecap="round" />
-                            <path d="M 19 38 L 19 42" stroke="#047857" stroke-width="2.5" stroke-linecap="round" />
-                            <path d="M 31 38 L 31 42" stroke="#047857" stroke-width="2.5" stroke-linecap="round" />
+                        {{-- 3rd Place Green Mascot (Standing on Grass/Ground with Grumpy cute look) --}}
+                        <g transform="translate(285, 78)">
+                            {{-- Green Body --}}
+                            <circle cx="26" cy="26" r="22" fill="#10b981" />
+                            {{-- Grumpy / Sulking Eyes --}}
+                            <path d="M 18 20 L 24 23" stroke="#064e3b" stroke-width="1.5" stroke-linecap="round" />
+                            <circle cx="21" cy="24" r="1.8" fill="#064e3b" />
+                            <path d="M 34 20 L 28 23" stroke="#064e3b" stroke-width="1.5" stroke-linecap="round" />
+                            <circle cx="31" cy="24" r="1.8" fill="#064e3b" />
+                            {{-- Grumpy Frown --}}
+                            <path d="M 22 34 Q 26 30 30 34" stroke="#064e3b" stroke-width="1.6" fill="none" stroke-linecap="round" />
+                            {{-- Long Legs standing on floor --}}
+                            <path d="M 18 48 L 18 70" stroke="#047857" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 32 48 L 32 70" stroke="#047857" stroke-width="3" stroke-linecap="round" />
                         </g>
                     </svg>
                 </div>
             </div>
+
+            {{-- Bottom Ground Strip (Sage Green Horizon Ground Line) --}}
+            <div style="background: #b2c5bc; height: 26px; width: 100%; position: relative; z-index: 2;"></div>
         </div>
 
         {{-- ── 4. BENEFITS COMPARISON TABLE ── --}}
         <div class="vip-comparison-card">
             <div class="text-center mb-4">
                 <h3 class="fw-bold text-dark mb-2" style="font-size: 22px;">What are the benefits of AgodaVIP?</h3>
-                <p class="text-secondary mx-auto mb-0" style="max-width: 700px; font-size: 14px; line-height: 1.6;">
+                <p class="text-secondary mx-auto mb-0" style="max-width: 700px; font-size: 14.5px; line-height: 1.6;">
                     You get access to exclusive deals, which are highlighted by the 
-                    <span class="vip-badge-pill" style="vertical-align: middle; margin: 0 2px;">
+                    <span class="vip-badge-pill" style="vertical-align: middle; margin: 0 4px;">
                         <span class="vip-tag">★ VIP</span>
                         <span class="vip-tier-name" style="background-color: #ba6d4a;">Deals</span>
                     </span> 

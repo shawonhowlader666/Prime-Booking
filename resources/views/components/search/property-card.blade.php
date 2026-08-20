@@ -164,8 +164,8 @@
                 </div>
 
                 {{-- Location Link (Entire Line Clickable to Open and Center Hotel on Map) --}}
-                <div class="small mb-1 d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2067e1 !important; font-weight: 500; cursor: pointer; position: relative; z-index: 20;" onclick="event.preventDefault(); event.stopPropagation(); openHotelOnMap({{ $id }});" title="Click to view {{ $name }} on interactive map">
-                    <i class="fa-solid fa-location-dot text-primary me-1.5 flex-shrink-0"></i>
+                <div class="small mb-1.5 d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2067e1 !important; font-weight: 500; cursor: pointer; position: relative; z-index: 20;" onclick="event.preventDefault(); event.stopPropagation(); openHotelOnMap({{ $id }});" title="Click to view {{ $name }} on interactive map">
+                    <i class="fa-solid fa-location-dot text-primary flex-shrink-0" style="margin-right: 7px; font-size: 13px;"></i>
                     <span style="text-decoration: underline; text-underline-offset: 2px;">{{ $address }}</span>
                     <span class="mx-1 text-secondary">—</span>
                     <span class="fw-bold" style="text-decoration: underline; text-underline-offset: 2px;">View on map</span>
@@ -173,8 +173,9 @@
 
                 {{-- Nearest Landmark / Distance Content --}}
                 @if(!empty($nearestLandmark))
-                <div class="text-secondary mb-2" style="font-size: 11.5px; color: #64748b !important;">
-                    <i class="fa-solid fa-train me-1 text-muted"></i> {{ $nearestLandmark }}
+                <div class="text-secondary mb-2 d-flex align-items-center" style="font-size: 11.5px; color: #64748b !important;">
+                    <i class="fa-solid fa-bus text-muted" style="margin-right: 7px; font-size: 12px;"></i>
+                    <span>{{ $nearestLandmark }}</span>
                 </div>
                 @endif
 
@@ -192,8 +193,9 @@
 
                     {{-- 2. Book without a credit card Tag --}}
                     @if($noCreditCard)
-                    <div style="color: #2067e1; font-weight: 500; font-size: 12px;">
-                        <i class="fa-solid fa-credit-card me-1"></i> Book without a credit card
+                    <div class="d-flex align-items-center" style="color: #2067e1; font-weight: 500; font-size: 12px;">
+                        <i class="fa-solid fa-credit-card" style="margin-right: 7px; font-size: 12px;"></i>
+                        <span>Book without a credit card</span>
                     </div>
                     @endif
                 </div>
@@ -203,10 +205,10 @@
             {{-- Bottom Amenities Strip --}}
             <div class="pt-2 border-top d-flex align-items-center gap-3 text-secondary" style="border-color: #f8fafc !important; font-size: 11.5px;">
                 @if(in_array('Free WiFi', $amenitiesList))
-                <span title="Free WiFi"><i class="fa-solid fa-wifi me-1 text-primary"></i> Free WiFi</span>
+                <span title="Free WiFi" class="d-inline-flex align-items-center"><i class="fa-solid fa-wifi text-primary" style="margin-right: 6px;"></i> Free WiFi</span>
                 @endif
                 @if($freeCancellation)
-                <span class="text-success fw-semibold"><i class="fa-solid fa-check me-1"></i> Free cancellation</span>
+                <span class="text-success fw-semibold d-inline-flex align-items-center"><i class="fa-solid fa-check text-success" style="margin-right: 6px;"></i> Free cancellation</span>
                 @endif
             </div>
         </div>

@@ -17,46 +17,48 @@
     margin: 0 auto;
     padding: 0 16px;
 }
-/* 1:1 Link your miles program Card (+ icon) */
+/* 1:1 Link your miles program Card (+ icon) with Deep Bottom 3D Elevation */
 .pointsmax-link-card {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    width: 260px;
-    height: 180px;
+    border: 1px solid #eef2f6;
+    border-radius: 4px;
+    width: 270px;
+    height: 190px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     text-decoration: none;
+    transform: translateZ(0);
 }
 .pointsmax-link-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.06);
-    border-color: #2067e1;
+    transform: translateY(-4px);
+    box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.22), 0 8px 16px -4px rgba(15, 23, 42, 0.12);
+    border-color: #cbd5e1;
 }
 
 /* Active Linked Program Card */
 .pointsmax-active-card {
     background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    width: 260px;
-    height: 180px;
-    padding: 20px;
+    border: 1px solid #eef2f6;
+    border-radius: 4px;
+    width: 270px;
+    height: 190px;
+    padding: 22px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.03);
+    transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
     position: relative;
+    transform: translateZ(0);
 }
 .pointsmax-active-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 12px 28px -6px rgba(15, 23, 42, 0.12);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 35px -8px rgba(15, 23, 42, 0.22), 0 8px 16px -4px rgba(15, 23, 42, 0.12);
     border-color: #cbd5e1;
 }
 </style>

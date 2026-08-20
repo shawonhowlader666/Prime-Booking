@@ -965,7 +965,7 @@
                                                     <i class="fa-solid fa-child text-success me-2" style="width: 14px; text-align: center;"></i> <span>Your kid stays FREE!</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
-                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before Aug 13, 2026</span>
+                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before {{ $checkinCarbon->copy()->subDays(2)->format('M d, Y') }}</span>
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #16a34a; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
@@ -990,8 +990,8 @@
                                                 <div class="fw-bold mb-1" style="color: #c5221f; font-size: 12.5px; line-height: 1.2;">
                                                     Cheapest price you've<br>seen!
                                                 </div>
-                                                <div class="fw-bold mt-1" style="color: #c5221f; font-size: 28px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
-                                                    <span style="font-size: 14px; font-weight: 700;">USD</span> {{ round($room->price_per_night) }}
+                                                <div class="fw-bold mt-1" style="color: #c5221f; font-size: 26px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                                    {{ \App\Services\CurrencyService::format($room->price_per_night) }}
                                                 </div>
                                                 <small class="text-secondary d-block mt-1" style="font-size: 11px;">Per night before taxes</small>
                                             </div>
@@ -1015,13 +1015,13 @@
                                 <div class="card overflow-hidden shadow-xs" style="background: #ffffff !important; border: 1px solid #dddfe2 !important; border-radius: 10px !important;">
                                     <div class="p-3">
                                         <div class="row g-2 align-items-center">
-                                            <div class="col-md-5 border-end pe-3">
+                                             <div class="col-md-5 border-end pe-3">
                                                 <div class="fw-bold text-dark mb-1 d-flex align-items-center" style="font-size: 13px;">
                                                     <i class="fa-solid fa-user text-dark me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">{{ max(1, $rAdults - 2) }} adults</span> 
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #334155; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
-                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before Aug 13, 2026</span>
+                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before {{ $checkinCarbon->copy()->subDays(2)->format('M d, Y') }}</span>
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #16a34a; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
@@ -1042,8 +1042,8 @@
                                             </div>
 
                                             <div class="col-md-4 text-end border-end px-3">
-                                                <div class="fw-bold mt-2" style="color: #c5221f; font-size: 28px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
-                                                    <span style="font-size: 14px; font-weight: 700;">USD</span> {{ round($room->price_per_night * 1.3) }}
+                                                <div class="fw-bold mt-2" style="color: #c5221f; font-size: 26px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                                    {{ \App\Services\CurrencyService::format($room->price_per_night * 1.3) }}
                                                 </div>
                                                 <small class="text-secondary d-block mt-1" style="font-size: 11px;">Per night before taxes</small>
                                             </div>
@@ -1072,7 +1072,7 @@
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #c5221f; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
-                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before Aug 13, 2026</span>
+                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before {{ $checkinCarbon->copy()->subDays(2)->format('M d, Y') }}</span>
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #16a34a; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
                                                 </div>
                                                 <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
@@ -1093,8 +1093,8 @@
                                             </div>
 
                                             <div class="col-md-4 text-end border-end px-3">
-                                                <div class="fw-bold" style="color: #c5221f; font-size: 28px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
-                                                    <span style="font-size: 14px; font-weight: 700;">USD</span> {{ round($room->price_per_night * 0.6) }}
+                                                <div class="fw-bold" style="color: #c5221f; font-size: 26px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
+                                                    {{ \App\Services\CurrencyService::format($room->price_per_night * 0.85) }}
                                                 </div>
                                                 <small class="fw-bold d-block mt-1" style="color: #c5221f; font-size: 12px;">
                                                     🔥 Lowest in 180 days
@@ -2888,6 +2888,64 @@
             }
         })
         .catch(() => {});
+    }
+
+    // ── Interactive Room Filter Engine ──
+    const activeRoomFilters = new Set();
+
+    function toggleRoomFilter(filterKey, el) {
+        if (activeRoomFilters.has(filterKey)) {
+            activeRoomFilters.delete(filterKey);
+            el.classList.remove('active');
+            el.style.backgroundColor = '#ffffff';
+            el.style.color = '#0f172a';
+            el.style.borderColor = '#cbd5e1';
+            const icon = el.querySelector('i');
+            if (icon) {
+                icon.classList.remove('text-white');
+                icon.classList.add('text-dark');
+            }
+        } else {
+            activeRoomFilters.add(filterKey);
+            el.classList.add('active');
+            el.style.backgroundColor = '#2067e1';
+            el.style.color = '#ffffff';
+            el.style.borderColor = '#2067e1';
+            const icon = el.querySelector('i');
+            if (icon) {
+                icon.classList.remove('text-dark');
+                icon.classList.add('text-white');
+            }
+        }
+
+        const roomCards = document.querySelectorAll('.agoda-room-listing-card');
+        let visibleCount = 0;
+
+        roomCards.forEach(card => {
+            let match = true;
+            for (const f of activeRoomFilters) {
+                const val = card.getAttribute('data-' + f);
+                if (val !== 'true') {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const countBadge = document.getElementById('roomFilterCount');
+        if (countBadge) {
+            if (activeRoomFilters.size === 0) {
+                countBadge.textContent = 'Showing all room types';
+            } else {
+                countBadge.textContent = `Showing ${visibleCount} of ${roomCards.length} room types`;
+            }
+        }
     }
 
     // Interactive Review Mention Filter

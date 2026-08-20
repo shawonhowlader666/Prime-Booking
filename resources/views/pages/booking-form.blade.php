@@ -252,15 +252,9 @@
                     {{-- 1. bKash Mobile Banking --}}
                     <label class="pay-option selected position-relative d-flex align-items-center gap-3" id="pay_label_bkash" style="border: 2px solid #2067e1; background: #f8faff; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
                         <input type="radio" name="payment_method" value="bkash" id="pay_bkash" checked style="width:18px; height:18px; accent-color:#e2136e; flex-shrink:0;">
-                        {{-- Authentic Official bKash Logo Badge --}}
-                        <div style="width:62px; height:38px; background:#e2136e; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(226,19,110,0.28); padding:4px;">
-                            <svg viewBox="0 0 110 60" width="54" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M38.5 12.5L24.8 26.2L30.2 2L38.5 12.5Z" fill="#ffffff"/>
-                                <path d="M9.5 12.5L23.2 26.2L17.8 2L9.5 12.5Z" fill="#ffffff"/>
-                                <path d="M24 28L24 55L11 41.5L24 28Z" fill="#ffffff"/>
-                                <path d="M25.6 28L38.6 41.5L25.6 55L25.6 28Z" fill="#ffffff"/>
-                                <text x="46" y="38" fill="#ffffff" font-size="22" font-weight="900" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="-0.5">bKash</text>
-                            </svg>
+                        {{-- Authentic Official bKash Image Badge --}}
+                        <div style="width:72px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; box-shadow:0 3px 8px rgba(226,19,110,0.22);">
+                            <img src="{{ asset('images/payments/bkash.svg') }}" alt="bKash" style="width:100%; height:100%; object-fit:cover;">
                         </div>
                         <div class="flex-grow-1" style="min-width: 0;">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -277,14 +271,9 @@
                     {{-- 2. Nagad Digital Financial Service --}}
                     <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_nagad" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
                         <input type="radio" name="payment_method" value="nagad" id="pay_nagad" style="width:18px; height:18px; accent-color:#f7941d; flex-shrink:0;">
-                        {{-- Authentic Official Nagad Logo Badge --}}
-                        <div style="width:62px; height:38px; background:linear-gradient(135deg, #f7941d 0%, #ed1c24 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(247,148,29,0.28); padding:4px;">
-                            <svg viewBox="0 0 120 60" width="54" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="20" cy="30" r="14" fill="#ffffff" fill-opacity="0.95"/>
-                                <path d="M14 24C17 21 23 21 26 24C29 27 29 33 26 36C23 39 17 39 14 36" stroke="#ed1c24" stroke-width="3" stroke-linecap="round"/>
-                                <circle cx="20" cy="30" r="4.5" fill="#f7941d"/>
-                                <text x="40" y="38" fill="#ffffff" font-size="20" font-weight="900" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="-0.5">Nagad</text>
-                            </svg>
+                        {{-- Authentic Official Nagad Image Badge --}}
+                        <div style="width:72px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; box-shadow:0 3px 8px rgba(247,148,29,0.22);">
+                            <img src="{{ asset('images/payments/nagad.svg') }}" alt="Nagad" style="width:100%; height:100%; object-fit:cover;">
                         </div>
                         <div class="flex-grow-1" style="min-width: 0;">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -302,15 +291,9 @@
                     <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_card" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
                         <input type="radio" name="payment_method" value="card" id="pay_card" style="width:18px; height:18px; accent-color:#1a1f36; flex-shrink:0;">
                         {{-- Authentic Combined Cards Vector Badge --}}
-                        <div style="width:62px; height:38px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:4px; flex-shrink:0; box-shadow:0 3px 8px rgba(15,23,42,0.25); padding:3px 6px;">
-                            <svg viewBox="0 0 36 22" width="26" height="16" fill="none">
-                                <rect width="36" height="22" rx="3" fill="#1434CB"/>
-                                <text x="3" y="16" fill="#ffffff" font-size="12" font-style="italic" font-weight="900" font-family="'Plus Jakarta Sans', sans-serif">VISA</text>
-                            </svg>
-                            <svg viewBox="0 0 32 22" width="22" height="16" fill="none">
-                                <circle cx="10" cy="11" r="8" fill="#EB001B"/>
-                                <circle cx="22" cy="11" r="8" fill="#F79E1B" fill-opacity="0.88"/>
-                            </svg>
+                        <div style="width:72px; height:40px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:4px; flex-shrink:0; box-shadow:0 3px 8px rgba(15,23,42,0.25); padding:3px 6px;">
+                            <img src="{{ asset('images/payments/visa.svg') }}" alt="Visa" style="height:18px; border-radius:3px;">
+                            <img src="{{ asset('images/payments/mastercard.svg') }}" alt="Mastercard" style="height:18px; border-radius:3px;">
                         </div>
                         <div class="flex-grow-1" style="min-width: 0;">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -320,15 +303,9 @@
                             <div class="text-secondary" style="font-size:11.5px; margin-top:2px;">Support all Bangladeshi &amp; International Visa, MasterCard, UnionPay, American Express</div>
                         </div>
                         <div class="d-flex align-items-center gap-1.5 ms-auto flex-shrink-0">
-                            <span class="badge bg-light border p-1 rounded d-flex align-items-center justify-content-center" style="width:28px; height:20px;">
-                                <i class="fa-brands fa-cc-visa text-primary" style="font-size:16px;"></i>
-                            </span>
-                            <span class="badge bg-light border p-1 rounded d-flex align-items-center justify-content-center" style="width:28px; height:20px;">
-                                <i class="fa-brands fa-cc-mastercard text-danger" style="font-size:16px;"></i>
-                            </span>
-                            <span class="badge bg-light border p-1 rounded d-flex align-items-center justify-content-center" style="width:28px; height:20px;">
-                                <i class="fa-brands fa-cc-amex text-info" style="font-size:16px;"></i>
-                            </span>
+                            <img src="{{ asset('images/payments/visa.svg') }}" alt="Visa" style="height:22px; width:34px; object-fit:contain; border-radius:4px; border:1px solid #e2e8f0;">
+                            <img src="{{ asset('images/payments/mastercard.svg') }}" alt="Mastercard" style="height:22px; width:34px; object-fit:contain; border-radius:4px; border:1px solid #e2e8f0;">
+                            <img src="{{ asset('images/payments/amex.svg') }}" alt="Amex" style="height:22px; width:34px; object-fit:contain; border-radius:4px;">
                         </div>
                     </label>
 
@@ -336,11 +313,8 @@
                     <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_ssl" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
                         <input type="radio" name="payment_method" value="sslcommerz" id="pay_ssl" style="width:18px; height:18px; accent-color:#006eb4; flex-shrink:0;">
                         {{-- Authentic Official SSLCommerz Logo Badge --}}
-                        <div style="width:62px; height:38px; background:linear-gradient(135deg, #005691 0%, #0077b6 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(0,110,180,0.28); padding:4px;">
-                            <div class="d-flex align-items-center gap-1">
-                                <i class="fa-solid fa-shield-halved text-white" style="font-size:11px;"></i>
-                                <span style="color:#ffffff; font-size:11.5px; font-weight:900; letter-spacing:0.8px; font-family:'Plus Jakarta Sans',sans-serif;">SSL</span>
-                            </div>
+                        <div style="width:72px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; box-shadow:0 3px 8px rgba(0,110,180,0.22);">
+                            <img src="{{ asset('images/payments/sslcommerz.svg') }}" alt="SSLCommerz" style="width:100%; height:100%; object-fit:cover;">
                         </div>
                         <div class="flex-grow-1" style="min-width: 0;">
                             <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -358,8 +332,8 @@
                     <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_cash" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
                         <input type="radio" name="payment_method" value="cash" id="pay_cash" style="width:18px; height:18px; accent-color:#16a34a; flex-shrink:0;">
                         {{-- Emerald Hotel Reception Badge --}}
-                        <div style="width:62px; height:38px; background:linear-gradient(135deg, #059669 0%, #10b981 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(16,185,129,0.28);">
-                            <i class="fa-solid fa-hotel text-white fs-5"></i>
+                        <div style="width:72px; height:40px; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; overflow:hidden; box-shadow:0 3px 8px rgba(16,185,129,0.22);">
+                            <img src="{{ asset('images/payments/pay_at_hotel.svg') }}" alt="Pay at hotel" style="width:100%; height:100%; object-fit:cover;">
                         </div>
                         <div class="flex-grow-1" style="min-width: 0;">
                             <div class="d-flex align-items-center gap-2 flex-wrap">

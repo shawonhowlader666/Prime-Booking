@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 60" width="160" height="60">
+  <rect width="160" height="60" rx="8" fill="#e2136e"/>
+  <!-- Official bKash Origami Bird -->
+  <g transform="translate(14, 8) scale(0.72)">
+    <polygon points="34.8,17.4 23.2,29 27.8,4 34.8,17.4" fill="#ffffff"/>
+    <polygon points="10.2,17.4 21.8,29 17.2,4 10.2,17.4" fill="#ffffff"/>
+    <polygon points="22.5,30.4 22.5,58 11.6,44.5 22.5,30.4" fill="#ffffff"/>
+    <polygon points="23.9,30.4 34.8,44.5 23.9,58 23.9,30.4" fill="#ffffff"/>
+  </g>
+  <!-- Official bKash Wordmark -->
+  <text x="52" y="38" fill="#ffffff" font-size="26" font-weight="900" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" letter-spacing="-0.5">bKash</text>
+</svg>

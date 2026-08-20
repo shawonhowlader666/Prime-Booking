@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 60" width="100" height="60">
+  <defs>
+    <linearGradient id="hotelGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#059669"/>
+      <stop offset="100%" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <rect width="100" height="60" rx="8" fill="url(#hotelGrad)"/>
+  <g transform="translate(32, 12)">
+    <path d="M18 2L2 6V32H34V6L18 2Z" fill="#ffffff" fill-opacity="0.2"/>
+    <path d="M6 10H14V14H6V10Z" fill="#ffffff"/>
+    <path d="M22 10H30V14H22V10Z" fill="#ffffff"/>
+    <path d="M6 18H14V22H6V18Z" fill="#ffffff"/>
+    <path d="M22 18H30V22H22V18Z" fill="#ffffff"/>
+    <path d="M14 26H22V32H14V26Z" fill="#ffffff"/>
+  </g>
+</svg>

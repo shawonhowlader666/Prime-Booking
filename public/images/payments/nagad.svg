@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 60" width="160" height="60">
+  <defs>
+    <linearGradient id="nagadGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f7941d"/>
+      <stop offset="100%" stop-color="#ed1c24"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="60" rx="8" fill="url(#nagadGrad)"/>
+  <!-- Official Nagad Swirl Icon -->
+  <g transform="translate(14, 11)">
+    <circle cx="19" cy="19" r="15" fill="#ffffff" fill-opacity="0.95"/>
+    <path d="M11 12C15 8 23 8 27 12C31 16 31 24 27 28C23 32 15 32 11 28" stroke="#ed1c24" stroke-width="3.5" stroke-linecap="round"/>
+    <circle cx="19" cy="19" r="5.5" fill="#f7941d"/>
+  </g>
+  <!-- Official Nagad Wordmark -->
+  <text x="56" y="38" fill="#ffffff" font-size="24" font-weight="900" font-family="'Plus Jakarta Sans', system-ui, -apple-system, sans-serif" letter-spacing="-0.5">Nagad</text>
+</svg>

@@ -67,20 +67,23 @@ class BookingFlowController extends Controller
             $activePromoCode = 'PRIMECASH8';
         }
 
-        $appliedDiscount = 0.0;
-        if ($activePromoCode) {
-            $couponService = app(\App\Services\CouponService::class);
-            $validation = $couponService->validateCoupon($activePromoCode, (float)$subtotal, $property->id);
-            if ($validation['valid'] ?? false) {
-                $appliedDiscount = (float)($validation['discount'] ?? 0);
-                $totalPrice = max(0, $totalPrice - $appliedDiscount);
-            }
+        // VIP Automatic Loyalty Discount (AgodaVIP Auto Savings)
+        $user = auth()->user();
+        $vipService = app(\App\Services\VIPLoyaltyService::class);
+        $vipStats = $vipService->getUserTier($user);
+        $vipDiscountPercent = (float) ($vipStats['discount_percent'] ?? 0.0);
+        $vipDiscountAmount = 0.0;
+
+        if ($vipDiscountPercent > 0 && $appliedDiscount == 0) {
+            $vipDiscountAmount = round(($subtotal * $vipDiscountPercent) / 100);
+            $appliedDiscount = $vipDiscountAmount;
+            $totalPrice = max(0, $totalPrice - $vipDiscountAmount);
         }
 
         return view('pages.booking-form', compact(
             'property', 'selectedRoom', 'checkIn', 'checkOut',
             'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user',
-            'activePromoCode', 'appliedDiscount'
+            'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount'
         ));
     }
 

@@ -664,36 +664,26 @@
 
             </div>
 
-            <p class="text-muted fst-italic mx-auto mb-0" style="max-width: 680px; font-size: 12px; line-height: 1.55;">
-                VIP benefits are subject to change and are not guaranteed on an ongoing basis. Agoda reserves the right to modify or withdraw any VIP benefits at its sole discretion.
-            </p>
-        </div>-size: 10.5px;">15% OFF</span>
-                </div>
-            </div>
-
-            <p class="text-muted fst-italic mx-auto mb-0" style="max-width: 680px; font-size: 12px; line-height: 1.55;">
-                VIP benefits are subject to change and are not guaranteed on an ongoing basis. Agoda reserves the right to modify or withdraw any VIP benefits at its sole discretion.
-            </p>
         </div>
 
-        {{-- ── 6. VIP PROGRAM DISCLAIMER ACCORDION (1:1 Matching Screenshot) ── --}}
-        <div class="vip-disclaimer-box">
-            <details open>
-                <summary class="d-flex align-items-center justify-content-between fw-bold text-dark" style="cursor: pointer; font-size: 14.5px; outline: none; list-style: none;">
-                    <span>VIP Program Disclaimer</span>
-                    <i class="fa-solid fa-chevron-up text-secondary" style="font-size: 12px;"></i>
+        {{-- ── 6. VIP PROGRAM DISCLAIMER ACCORDION (1:1 Agoda Closed by Default) ── --}}
+        <div class="vip-disclaimer-box" style="padding: 14px 20px; border-radius: 8px; background: #ffffff; border: 1px solid #e2e8f0; margin-bottom: 28px;">
+            <details class="vip-disclaimer-details">
+                <summary class="d-flex align-items-center justify-content-between fw-bold text-dark" style="cursor: pointer; font-size: 13.5px; outline: none; list-style: none;">
+                    <span style="color: #334155; font-weight: 600;">VIP Program Disclaimer</span>
+                    <i class="fa-solid fa-chevron-down text-secondary disclaimer-chevron" style="font-size: 11px; transition: transform 0.2s ease;"></i>
                 </summary>
-                <div class="mt-3 pt-3 border-top text-secondary" style="font-size: 13px; line-height: 1.65; color: #475569;">
-                    <p class="mb-2">The discounts shown in the VIP Program table represent the maximum discount that may be offered to VIP members. The maximum discount possible is not necessarily always offered.</p>
-                    <p class="mb-2">VIP discounts apply only to room offers marked with a “VIP” badge. The discount stated represents the final price (after applying any applicable Cashback) to VIP members against the final price (after applying any applicable Cashback) to non-Agoda members by hotels under identical conditions. Cashback refers to the cashback rewards provided by Agoda to bookers as a loyalty gift under the separate Agoda Cashback Rewards Program.</p>
-                    <p class="mb-2">Different VIP tiers may receive the same discount for the same room offer. The level of discount will be decided by the participating hotel and/or Agoda.</p>
+                <div class="mt-2.5 pt-2.5 border-top text-secondary" style="font-size: 12.5px; line-height: 1.6; color: #64748b;">
+                    <p class="mb-1.5">The discounts shown in the VIP Program table represent the maximum discount that may be offered to VIP members. The maximum discount possible is not necessarily always offered.</p>
+                    <p class="mb-1.5">VIP discounts apply only to room offers marked with a “VIP” badge. The discount stated represents the final price (after applying any applicable Cashback) to VIP members against the final price (after applying any applicable Cashback) to non-Agoda members by hotels under identical conditions. Cashback refers to the cashback rewards provided by Agoda to bookers as a loyalty gift under the separate Agoda Cashback Rewards Program.</p>
+                    <p class="mb-1.5">Different VIP tiers may receive the same discount for the same room offer. The level of discount will be decided by the participating hotel and/or Agoda.</p>
                     <p class="mb-0">Please note that the discount available to VIP members under the same booking conditions may also be subject to other applicable promotion offered by Agoda, participating hotels and/or third parties, and other relevant factors as determined by Agoda.</p>
                 </div>
             </details>
         </div>
 
         {{-- ── 7. START A NEW SEARCH BUTTON ── --}}
-        <div class="text-center">
+        <div class="text-center mb-2">
             <a href="{{ route('search.index') }}" class="vip-btn-search">
                 Start a new search
             </a>

@@ -67,6 +67,15 @@ class BookingFlowController extends Controller
             $activePromoCode = 'PRIMECASH8';
         }
 
+        $appliedDiscount = 0.0;
+        if ($activePromoCode) {
+            $couponResult = $couponService->validate($activePromoCode, $subtotal);
+            if ($couponResult['valid'] ?? false) {
+                $appliedDiscount = (float) ($couponResult['discount_amount'] ?? 0.0);
+                $totalPrice = max(0, $totalPrice - $appliedDiscount);
+            }
+        }
+
         // VIP Automatic Loyalty Discount (AgodaVIP Auto Savings)
         $user = auth()->user();
         $vipService = app(\App\Services\VIPLoyaltyService::class);

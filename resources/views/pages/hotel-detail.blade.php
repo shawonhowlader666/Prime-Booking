@@ -399,8 +399,9 @@
 
             {{-- Action Icons (Wishlist, Price Alert, Share) Top Right --}}
             <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 15;">
-                <button type="button" class="btn btn-light rounded-pill shadow-sm d-flex align-items-center gap-1.5 px-3 py-1.5 fw-bold" style="background: #ffffff; font-size: 12.5px;" title="Set Price Drop Alert" data-bs-toggle="modal" data-bs-target="#priceAlertModal">
-                    <i class="fa-solid fa-bell text-warning"></i> <span class="d-none d-sm-inline">Price Alert</span>
+                <button type="button" class="btn btn-light rounded-pill shadow-sm d-inline-flex align-items-center fw-bold" style="background: #ffffff; font-size: 12.5px; padding: 7px 16px; border: 1px solid #e2e8f0;" title="Set Price Drop Alert" data-bs-toggle="modal" data-bs-target="#priceAlertModal">
+                    <i class="fa-solid fa-bell text-warning" style="margin-right: 8px; font-size: 13px;"></i>
+                    <span class="d-none d-sm-inline">Price Alert</span>
                 </button>
                 <button type="button" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Share Property" onclick="sharePropertyLink();">
                     <i class="fa-solid fa-share-nodes text-dark fs-6"></i>

@@ -21,6 +21,16 @@ class CurrencyService
         return CurrencyHelper::convert((float)$amountInBdt, $targetCurrency);
     }
 
+    public static function currentCurrency(): string
+    {
+        return CurrencyHelper::current();
+    }
+
+    public static function currentCode(): string
+    {
+        return CurrencyHelper::current();
+    }
+
     public static function getActiveCurrency(): array
     {
         $code = CurrencyHelper::current();

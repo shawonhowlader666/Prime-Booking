@@ -37,10 +37,10 @@
 
             {{-- 2. Text Search Input Box (Agoda 1:1 Pill Style with Property Name Smart Popup) --}}
             <div class="mb-3 pb-3 border-bottom position-relative" id="outerSearchWidgetContainer">
-                <div class="input-group input-group-sm rounded-pill border px-2 py-1 bg-white align-items-center" style="border: 1.5px solid #2067e1 !important; box-shadow: 0 2px 8px rgba(32,103,225,0.15);">
-                    <span class="bg-transparent border-0 pe-1 text-primary" style="font-size: 13px;"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" name="q" id="outerSearchTextInput" class="form-control form-control-sm border-0 bg-transparent ps-1 shadow-none" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13px; font-weight: 500;" autocomplete="off" onkeyup="handleOuterPropertySearch(this.value)">
-                    <button type="button" class="btn btn-link p-0 text-muted {{ request('q') ? '' : 'd-none' }}" id="outerSearchClearBtn" onclick="clearOuterPropertySearch()" style="text-decoration:none; font-size:12px;">
+                <div class="input-group input-group-sm rounded-pill border bg-white align-items-center" style="border: 1.5px solid #2067e1 !important; box-shadow: 0 2px 8px rgba(32,103,225,0.15); height: 38px; padding: 0 12px;">
+                    <span class="bg-transparent border-0 text-primary p-0" style="font-size: 13px; margin-right: 8px;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" id="outerSearchTextInput" class="form-control form-control-sm border-0 bg-transparent p-0 shadow-none" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13px; font-weight: 500;" autocomplete="off" onkeyup="handleOuterPropertySearch(this.value)">
+                    <button type="button" class="btn btn-link p-0 text-muted ms-2 {{ request('q') ? '' : 'd-none' }}" id="outerSearchClearBtn" onclick="clearOuterPropertySearch()" style="text-decoration:none; font-size:13px;">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
                 </div>

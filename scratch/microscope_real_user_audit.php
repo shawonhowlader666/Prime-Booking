@@ -88,10 +88,10 @@ if (!$property) {
     $property = Property::create([
         'name'            => 'The Grand Palace Resort',
         'city'            => 'Cox\'s Bazar',
-        'country'         => 'Bangladesh',
         'price_per_night' => 12500,
         'status'          => 'active',
         'address'         => 'Marine Drive',
+        'slug'            => 'the-grand-palace-resort-' . uniqid(),
     ]);
 }
 

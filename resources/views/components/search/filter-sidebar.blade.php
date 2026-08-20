@@ -3,19 +3,12 @@
     
     {{-- 1. Map View Preview Box with Floating Blue Pill Button (Agoda 1:1 Parity) --}}
     <div class="position-relative text-center p-0 overflow-hidden" style="height: 140px; background: #cad2d9; cursor: pointer; border-radius: 8px 8px 0 0;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-            <rect width="100%" height="100%" fill="#d8e2ea"/>
-            <path d="M 150 0 L 250 0 L 250 90 L 180 50 Z" fill="#a7d49b"/>
-            <path d="M 0 60 L 80 40 L 110 140 L 0 140 Z" fill="#93c47d"/>
-            <path d="M -10 70 Q 70 50 130 80 T 260 60" stroke="#f6c244" stroke-width="10" fill="none"/>
-            <path d="M 110 0 L 110 140" stroke="#f6c244" stroke-width="8" fill="none"/>
-            <line x1="20" y1="0" x2="20" y2="140" stroke="#ffffff" stroke-width="4"/>
-            <line x1="180" y1="0" x2="180" y2="140" stroke="#ffffff" stroke-width="4"/>
-        </svg>
+        {{-- Live Leaflet Mini Map Container with Real Dots --}}
+        <div id="agodaMiniSidebarMap" style="width: 100%; height: 100%; pointer-events: none;"></div>
 
         {{-- Floating Blue Pill Button "Search on Map" --}}
-        <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 10;">
-            <button type="button" class="btn text-white fw-bold shadow-md rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5" style="background-color: #2067e1; font-size: 12px; letter-spacing: 0.3px; border: 2px solid #ffffff;">
+        <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 100;">
+            <button type="button" class="btn text-white fw-bold shadow-md rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5" style="background-color: #2067e1; font-size: 12px; letter-spacing: 0.3px; border: 2px solid #ffffff; box-shadow: 0 4px 14px rgba(32,103,225,0.45) !important;">
                 <i class="fa-solid fa-location-dot"></i> Search on Map
             </button>
         </div>

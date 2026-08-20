@@ -72,7 +72,7 @@ class Property extends Model
     /** @var list<string> */
     protected $fillable = [
         'vendor_id', 'location_id', 'name', 'slug', 'type',
-        'city', 'country', 'star_rating', 'rating_score', 'rating', 'total_reviews',
+        'city', 'star_rating', 'rating_score', 'rating', 'total_reviews',
         'address', 'description', 'price_per_night', 'original_price',
         'primary_image', 'featured_image', 'image', 'video_url', 'commission_rate',
         'images', 'amenities', 'is_featured', 'status',

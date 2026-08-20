@@ -140,7 +140,7 @@
                         <div style="padding: 16px 20px 8px 20px;">
                             <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Account') }}</a>
                             <a href="{{ route('trips') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Trips') }}</a>
-                            <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Property messages') }}</a>
+                            <a href="{{ route('messages') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Property messages') }}</a>
                             
                             {{-- AgodaCash row with blue pill badge --}}
                             <div class="d-flex align-items-center justify-content-between mb-3">
@@ -164,11 +164,11 @@
                             </div>
 
                             <a href="{{ route('wishlist') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Saved properties list') }}</a>
-                            <a href="{{ route('booking.history') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Reviews') }}</a>
+                            <a href="{{ route('reviews') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Reviews') }}</a>
                             
                             {{-- PointsMAX row with (P) icon --}}
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <a href="{{ route('cashback') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PointsMAX') }}</a>
+                                <a href="{{ route('pointsmax') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PointsMAX') }}</a>
                                 <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1.5px solid #2d2d2d; border-radius: 50%; font-size: 10px; font-weight: 800;">P</span>
                             </div>
 

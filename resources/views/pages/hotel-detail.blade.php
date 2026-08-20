@@ -357,12 +357,14 @@
                         {{-- Action Buttons on Bottom of Main Photo --}}
                         <div class="position-absolute bottom-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;" onclick="event.stopPropagation();">
                             @if(!empty($property->video_url))
-                            <button type="button" class="btn btn-danger btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-1.5" style="font-size: 12.5px;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
-                                <i class="fa-solid fa-circle-play"></i> Video Tour
+                            <button type="button" class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12.5px; padding: 7px 16px;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
+                                <i class="fa-solid fa-circle-play text-white" style="margin-right: 8px; font-size: 13px;"></i>
+                                <span>Video Tour</span>
                             </button>
                             @endif
-                            <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill px-3 py-1.5 shadow-sm d-flex align-items-center gap-1.5" style="font-size: 12.5px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                                <i class="fa-solid fa-camera text-primary"></i> See all photos
+                            <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12.5px; padding: 7px 16px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                                <i class="fa-solid fa-camera text-primary" style="margin-right: 8px; font-size: 13px;"></i>
+                                <span>See all photos</span>
                             </button>
                         </div>
                     </div>

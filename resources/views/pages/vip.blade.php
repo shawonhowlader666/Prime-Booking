@@ -424,108 +424,107 @@
             </div>
         </div>
 
-        {{-- ── 3. WHAT IS AGODAVIP? HERO BANNER (100% Exact 1:1 Agoda Vector Parity) ── --}}
-        <div class="agoda-vip-explain-box position-relative overflow-hidden mb-4" style="background: #2b3b52; border-radius: 20px; box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.16); min-height: 270px; border: none; display: flex; flex-direction: column; justify-content: space-between;">
+        {{-- ── 3. WHAT IS AGODAVIP? HERO BANNER (100% Exact 1:1 Parity) ── --}}
+        <div class="agoda-vip-explain-box position-relative overflow-hidden mb-4" style="background: #2b394e; border-radius: 20px; box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.16); min-height: 270px; border: none; display: flex; flex-direction: column; justify-content: space-between;">
             
-            {{-- Twinkling Cross Stars on Top Night Sky --}}
+            {{-- Twinkling Cross Stars on Top Night Sky (1:1 Exact Positions) --}}
             <svg class="position-absolute top-0 start-0 w-100 h-100" style="pointer-events: none; z-index: 1;" viewBox="0 0 800 280" preserveAspectRatio="none">
-                {{-- 4-point star markers (Exact matching user screenshot) --}}
-                <g fill="#93c5fd" opacity="0.45">
-                    <path d="M 40 30 L 42 26 L 44 30 L 48 32 L 44 34 L 42 38 L 40 34 L 36 32 Z" />
-                    <path d="M 120 20 L 122 17 L 124 20 L 127 21 L 124 22 L 122 25 L 120 22 L 117 21 Z" />
-                    <path d="M 160 45 L 161 43 L 162 45 L 164 46 L 162 47 L 161 49 L 160 47 L 158 46 Z" />
-                    <path d="M 200 20 L 202 17 L 204 20 L 207 21 L 204 22 L 202 25 L 200 22 L 197 21 Z" />
-                    <path d="M 250 48 L 251 46 L 252 48 L 254 49 L 252 50 L 251 52 L 250 50 L 248 49 Z" />
-                    <path d="M 280 22 L 282 19 L 284 22 L 287 23 L 284 24 L 282 27 L 280 24 L 277 23 Z" />
-                    <path d="M 340 46 L 341 44 L 342 46 L 344 47 L 342 48 L 341 50 L 340 48 L 338 47 Z" />
-                    <path d="M 370 20 L 372 17 L 374 20 L 377 21 L 374 22 L 372 25 L 370 22 L 367 21 Z" />
-                    <path d="M 420 50 L 421 48 L 422 50 L 424 51 L 422 52 L 421 54 L 420 52 L 418 51 Z" />
-                    <path d="M 450 22 L 452 19 L 454 22 L 457 23 L 454 24 L 452 27 L 450 24 L 447 23 Z" />
-                    <path d="M 500 48 L 501 46 L 502 48 L 504 49 L 502 50 L 501 52 L 500 50 L 498 49 Z" />
-                    <path d="M 540 22 L 542 19 L 544 22 L 547 23 L 544 24 L 542 27 L 540 24 L 537 23 Z" />
-                    <path d="M 600 48 L 601 46 L 602 48 L 604 49 L 602 50 L 601 52 L 600 50 L 598 49 Z" />
-                    <path d="M 640 22 L 642 19 L 644 22 L 647 23 L 644 24 L 642 27 L 640 24 L 637 23 Z" />
-                    <path d="M 700 50 L 701 48 L 702 50 L 704 51 L 702 52 L 701 54 L 700 52 L 698 51 Z" />
-                    <path d="M 740 22 L 742 19 L 744 22 L 747 23 L 744 24 L 742 27 L 740 24 L 737 23 Z" />
+                <g fill="#94a3b8" opacity="0.6">
+                    {{-- Diamonds & Crosses --}}
+                    <path d="M 45 42 L 48 37 L 51 42 L 56 45 L 51 48 L 48 53 L 45 48 L 40 45 Z" />
+                    <path d="M 115 32 L 117 29 L 119 32 L 122 33.5 L 119 35 L 117 38 L 115 35 L 112 33.5 Z" />
+                    <path d="M 155 58 L 157 55 L 159 58 L 162 59.5 L 159 61 L 157 64 L 155 61 L 152 59.5 Z" />
+                    <path d="M 215 36 L 217 33 L 219 36 L 222 37.5 L 219 39 L 217 42 L 215 39 L 212 37.5 Z" />
+                    <path d="M 265 65 L 267 62 L 269 65 L 272 66.5 L 269 68 L 267 71 L 265 68 L 262 66.5 Z" />
+                    <path d="M 315 35 L 317 32 L 319 35 L 322 36.5 L 319 38 L 317 41 L 315 38 L 312 36.5 Z" />
+                    <path d="M 385 58 L 387 55 L 389 58 L 392 59.5 L 389 61 L 387 64 L 385 61 L 382 59.5 Z" />
+                    <path d="M 440 32 L 442 29 L 444 32 L 447 33.5 L 444 35 L 442 38 L 440 35 L 437 33.5 Z" />
+                    <path d="M 505 58 L 507 55 L 509 58 L 512 59.5 L 509 61 L 507 64 L 505 61 L 502 59.5 Z" />
+                    <path d="M 565 32 L 567 29 L 569 32 L 572 33.5 L 569 35 L 567 38 L 565 35 L 562 33.5 Z" />
+                    <path d="M 625 58 L 627 55 L 629 58 L 632 59.5 L 629 61 L 627 64 L 625 61 L 622 59.5 Z" />
+                    <path d="M 685 32 L 687 29 L 689 32 L 692 33.5 L 689 35 L 687 38 L 685 35 L 682 33.5 Z" />
+                    <path d="M 745 58 L 747 55 L 749 58 L 752 59.5 L 749 61 L 747 64 L 745 61 L 742 59.5 Z" />
                 </g>
             </svg>
 
             {{-- Top Content Row --}}
             <div class="row align-items-center p-4 pb-0" style="position: relative; z-index: 2;">
-                <div class="col-md-7 pt-2 ps-3">
-                    <h2 class="fw-bold mb-3" style="font-size: 26px; color: #ffffff; letter-spacing: -0.2px;">What is AgodaVIP?</h2>
-                    <p style="font-size: 15px; line-height: 1.6; color: #f1f5f9; margin-bottom: 0; max-width: 440px;">
+                <div class="col-md-6 pt-3 ps-4">
+                    <h2 class="fw-bold mb-3" style="font-size: 28px; color: #ffffff !important; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">What is AgodaVIP?</h2>
+                    <p style="font-size: 15px; line-height: 1.6; color: #ffffff !important; margin-bottom: 0; max-width: 420px; font-weight: 400; opacity: 0.95;">
                         AgodaVIP is our loyalty program for rewarding our most loyal customers with amazing deals. Once you qualify, you'll join automatically.
                     </p>
                 </div>
                 
-                {{-- Podium & Mascots Vector --}}
-                <div class="col-md-5 text-end pe-4 d-flex justify-content-end align-items-end" style="height: 180px;">
-                    <svg viewBox="0 0 340 180" style="width: 320px; height: 180px; overflow: visible;">
-                        {{-- 1st Place Yellow Podium --}}
-                        <rect x="110" y="95" width="90" height="85" fill="#f59e0b" />
+                {{-- Podium & Mascots Vector (1:1 Exact Match) --}}
+                <div class="col-md-6 text-end pe-4 d-flex justify-content-end align-items-end" style="height: 190px;">
+                    <svg viewBox="0 0 320 190" style="width: 310px; height: 190px; overflow: visible;">
+                        {{-- 1st Place Gold Podium (Orange-Yellow block) --}}
+                        <rect x="70" y="88" width="82" height="102" fill="#f59e0b" />
+                        <rect x="70" y="88" width="82" height="4" fill="#fbbf24" />
                         
-                        {{-- 2nd Place Silver Podium --}}
-                        <rect x="215" y="115" width="80" height="65" fill="#cbd5e1" />
+                        {{-- 2nd Place Silver Podium (Light Silver Gray block) --}}
+                        <rect x="160" y="112" width="76" height="78" fill="#d1d5db" />
+                        <rect x="160" y="112" width="76" height="3" fill="#e5e7eb" />
 
                         {{-- 1st Place Purple Mascot (Gold Medal Winner) --}}
-                        <g transform="translate(122, 18)">
+                        <g transform="translate(80, 15)">
                             {{-- Purple Round Body --}}
-                            <circle cx="34" cy="36" r="28" fill="#8b5cf6" />
-                            {{-- Cute Eyes & Cheerful Smile --}}
-                            <circle cx="25" cy="33" r="2" fill="#1e1b4b" />
-                            <circle cx="43" cy="33" r="2" fill="#1e1b4b" />
-                            <path d="M 27 41 Q 34 46 41 41" stroke="#1e1b4b" stroke-width="1.8" fill="none" stroke-linecap="round" />
-                            {{-- Red Ribbon with Gold Medal --}}
-                            <path d="M 8 40 L -2 60 L 5 62 Z" fill="#ef4444" />
-                            <circle cx="-1" cy="62" r="8" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
-                            <circle cx="-1" cy="62" r="4" fill="#f59e0b" />
-                            <text x="-1" y="65" fill="#78350f" font-size="7" font-weight="900" text-anchor="middle">★</text>
+                            <circle cx="31" cy="35" r="26" fill="#8b5cf6" />
+                            {{-- Eyes & Smile --}}
+                            <ellipse cx="23" cy="33" rx="1.8" ry="2.2" fill="#1e1b4b" />
+                            <ellipse cx="39" cy="33" rx="1.8" ry="2.2" fill="#1e1b4b" />
+                            <path d="M 26 40 Q 31 44 36 40" stroke="#1e1b4b" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                            {{-- Red Ribbon with Gold Medal held on left --}}
+                            <path d="M 12 36 L -2 52 L 4 55 Z" fill="#ef4444" />
+                            <circle cx="-1" cy="54" r="8" fill="#f59e0b" stroke="#d97706" stroke-width="1.5" />
+                            <circle cx="-1" cy="54" r="4" fill="#fbbf24" />
+                            <text x="-1" y="56.5" fill="#78350f" font-size="6.5" font-weight="900" text-anchor="middle">★</text>
                             {{-- Arm holding medal --}}
-                            <path d="M 12 40 Q 2 48 3 56" stroke="#6d28d9" stroke-width="3.5" fill="none" stroke-linecap="round" />
+                            <path d="M 15 36 Q 4 44 4 50" stroke="#6d28d9" stroke-width="3" fill="none" stroke-linecap="round" />
                             {{-- Legs sitting on podium --}}
-                            <path d="M 24 64 L 24 78" stroke="#6d28d9" stroke-width="3.5" stroke-linecap="round" />
-                            <path d="M 44 64 L 44 78" stroke="#6d28d9" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 23 60 L 23 72" stroke="#6d28d9" stroke-width="3.5" stroke-linecap="round" />
+                            <path d="M 39 60 L 39 72" stroke="#6d28d9" stroke-width="3.5" stroke-linecap="round" />
                         </g>
 
                         {{-- 2nd Place Cyan Mascot (Silver Medal Winner on podium 2) --}}
-                        <g transform="translate(225, 48)">
+                        <g transform="translate(170, 48)">
                             {{-- Cyan Body --}}
-                            <circle cx="28" cy="30" r="24" fill="#06b6d4" />
-                            {{-- Cute Smiling Eyes --}}
-                            <circle cx="22" cy="27" r="1.8" fill="#083344" />
-                            <circle cx="34" cy="27" r="1.8" fill="#083344" />
-                            <path d="M 23 34 Q 28 39 33 34" stroke="#083344" stroke-width="1.6" fill="none" stroke-linecap="round" />
+                            <circle cx="26" cy="28" r="22" fill="#06b6d4" />
+                            {{-- Cheerful Eyes & Smile --}}
+                            <ellipse cx="20" cy="26" rx="1.6" ry="2" fill="#083344" />
+                            <ellipse cx="32" cy="26" rx="1.6" ry="2" fill="#083344" />
+                            <path d="M 22 32 Q 26 36 30 32" stroke="#083344" stroke-width="1.6" fill="none" stroke-linecap="round" />
                             {{-- Red Ribbon with Silver Medal on neck --}}
-                            <path d="M 14 36 L 6 52 L 12 54 Z" fill="#ef4444" />
-                            <circle cx="8" cy="54" r="7" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
-                            <text x="8" y="56.5" fill="#475569" font-size="6" font-weight="900" text-anchor="middle">★</text>
+                            <path d="M 14 34 L 7 48 L 12 50 Z" fill="#ef4444" />
+                            <circle cx="9" cy="49" r="6.5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1.2" />
+                            <text x="9" y="51.5" fill="#475569" font-size="5.5" font-weight="900" text-anchor="middle">★</text>
                             {{-- Legs --}}
-                            <path d="M 20 54 L 20 68" stroke="#0891b2" stroke-width="3" stroke-linecap="round" />
-                            <path d="M 36 54 L 36 68" stroke="#0891b2" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 18 50 L 18 64" stroke="#0891b2" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 34 50 L 34 64" stroke="#0891b2" stroke-width="3" stroke-linecap="round" />
                         </g>
 
-                        {{-- 3rd Place Green Mascot (Standing on Grass/Ground with Grumpy cute look) --}}
-                        <g transform="translate(285, 78)">
+                        {{-- 3rd Place Green Mascot (Standing on Grass/Ground with Grumpy / Sulking look) --}}
+                        <g transform="translate(245, 80)">
                             {{-- Green Body --}}
-                            <circle cx="26" cy="26" r="22" fill="#10b981" />
-                            {{-- Grumpy / Sulking Eyes --}}
-                            <path d="M 18 20 L 24 23" stroke="#064e3b" stroke-width="1.5" stroke-linecap="round" />
-                            <circle cx="21" cy="24" r="1.8" fill="#064e3b" />
-                            <path d="M 34 20 L 28 23" stroke="#064e3b" stroke-width="1.5" stroke-linecap="round" />
-                            <circle cx="31" cy="24" r="1.8" fill="#064e3b" />
-                            {{-- Grumpy Frown --}}
-                            <path d="M 22 34 Q 26 30 30 34" stroke="#064e3b" stroke-width="1.6" fill="none" stroke-linecap="round" />
-                            {{-- Long Legs standing on floor --}}
-                            <path d="M 18 48 L 18 70" stroke="#047857" stroke-width="3" stroke-linecap="round" />
-                            <path d="M 32 48 L 32 70" stroke="#047857" stroke-width="3" stroke-linecap="round" />
+                            <circle cx="24" cy="24" r="20" fill="#10b981" />
+                            {{-- Slanted Angled Eyebrows & Eyes --}}
+                            <path d="M 16 19 L 22 22" stroke="#064e3b" stroke-width="1.5" stroke-linecap="round" />
+                            <circle cx="19" cy="23" r="1.6" fill="#064e3b" />
+                            <path d="M 32 19 L 26 22" stroke="#064e3b" stroke-width="1.5" stroke-linecap="round" />
+                            <circle cx="29" cy="23" r="1.6" fill="#064e3b" />
+                            {{-- Frown --}}
+                            <path d="M 20 31 Q 24 28 28 31" stroke="#064e3b" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                            {{-- Legs standing straight down to ground --}}
+                            <path d="M 16 44 L 16 66" stroke="#047857" stroke-width="3" stroke-linecap="round" />
+                            <path d="M 32 44 L 32 66" stroke="#047857" stroke-width="3" stroke-linecap="round" />
                         </g>
                     </svg>
                 </div>
             </div>
 
-            {{-- Bottom Ground Strip (Sage Green Horizon Ground Line) --}}
-            <div style="background: #b2c5bc; height: 26px; width: 100%; position: relative; z-index: 2;"></div>
+            {{-- Bottom Ground Strip (Sage Green Horizon Line) --}}
+            <div style="background: #a9bdb4; height: 28px; width: 100%; position: relative; z-index: 2;"></div>
         </div>
 
         {{-- ── 4. BENEFITS COMPARISON TABLE ── --}}

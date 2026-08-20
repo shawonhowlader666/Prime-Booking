@@ -422,6 +422,27 @@
                     <span id="grand_total" class="text-primary">{{ CurrencyService::format($totalPrice) }}</span>
                 </div>
 
+                @if(isset($rewardSummary) && $rewardSummary['can_withdraw'])
+                {{-- ── 1-Click Prime Rewards Redemption Toggle ── --}}
+                <div class="mt-3 p-3 rounded-3" style="background:#f0fdf4; border:1.5px solid #86efac;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="rounded-circle bg-success text-white d-inline-flex align-items-center justify-content-center" style="width:22px; height:22px; font-size:11px;">
+                                <i class="fa-solid fa-coins"></i>
+                            </span>
+                            <span class="fw-bold text-dark" style="font-size:12.5px;">Redeem Prime Rewards</span>
+                        </div>
+                        <span class="badge bg-success text-white fw-bold">{{ number_format($rewardSummary['points_balance']) }} Pts Available</span>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" type="checkbox" role="switch" id="useRewardsToggle" name="use_rewards" value="1" style="cursor:pointer; width:38px; height:20px;">
+                        <label class="form-check-label text-dark fw-medium small ms-1" for="useRewardsToggle" style="cursor:pointer;">
+                            Use {{ number_format($rewardSummary['points_balance']) }} Points to get <strong>-৳{{ number_format($rewardSummary['bdt_value']) }} OFF</strong>
+                        </label>
+                    </div>
+                </div>
+                @endif
+
                 {{-- ── Promo Code Box ── --}}
                 <div class="mt-3 p-2.5 rounded-3" style="background:#f8fafc; border:1px dashed #cbd5e1;">
                     <label class="form-label mb-1 fw-bold text-dark" style="font-size:11.5px; text-transform:uppercase;">
@@ -507,6 +528,8 @@
     const couponInput       = document.getElementById('coupon_input');
     const applyCouponBtn    = document.getElementById('apply_coupon_btn');
     const couponFeedback    = document.getElementById('coupon_feedback');
+    const useRewardsToggle  = document.getElementById('useRewardsToggle');
+    const rewardsDiscountVal = {{ isset($rewardSummary) ? (float)$rewardSummary['bdt_value'] : 0 }};
 
     function formatBDT(n) {
         return '৳ ' + Math.round(n).toLocaleString('en-BD');
@@ -518,7 +541,12 @@
             addons += parseFloat(cb.dataset.price) || 0;
         });
 
-        const netBase = Math.max(0, subtotal - appliedDiscount + addons);
+        let effectiveDiscount = appliedDiscount;
+        if (useRewardsToggle && useRewardsToggle.checked) {
+            effectiveDiscount += rewardsDiscountVal;
+        }
+
+        const netBase = Math.max(0, subtotal - effectiveDiscount + addons);
         const tax     = Math.round(netBase * taxRate);
         const total   = netBase + tax;
 
@@ -529,10 +557,14 @@
             addonsRow.style.display = 'none';
         }
 
-        if (appliedDiscount > 0) {
+        if (effectiveDiscount > 0) {
             discountRow.style.display = 'flex';
-            couponBadgeText.textContent = appliedCouponCode;
-            discountAmountText.textContent = '- ' + formatBDT(appliedDiscount);
+            if (useRewardsToggle && useRewardsToggle.checked) {
+                couponBadgeText.textContent = appliedCouponCode ? (appliedCouponCode + ' + Rewards') : 'Rewards Points';
+            } else {
+                couponBadgeText.textContent = appliedCouponCode;
+            }
+            discountAmountText.textContent = '- ' + formatBDT(effectiveDiscount);
         } else {
             discountRow.style.display = 'none';
         }
@@ -597,6 +629,18 @@
             });
         });
     }
+
+    if (useRewardsToggle) {
+        useRewardsToggle.addEventListener('change', recalculate);
+    }
+
+    // Payment Option Card Selection
+    document.querySelectorAll('.pay-option').forEach(function(card) {
+        card.addEventListener('change', function() {
+            document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('selected'));
+            this.closest('.pay-option').classList.add('selected');
+        });
+    });
 
     document.querySelectorAll('.addon-check').forEach(function(cb) {
         cb.addEventListener('change', function() {

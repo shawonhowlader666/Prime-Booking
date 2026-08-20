@@ -285,7 +285,77 @@ class PageController extends Controller
 
     public function pointsmax()
     {
-        return view('pages.pointsmax', ['company' => config('company')]);
+        $user = auth()->user();
+        $linkedPrograms = $user && $user->pointsmax_programs
+            ? json_decode($user->pointsmax_programs, true)
+            : (session('pointsmax_programs_' . ($user?->id ?? 'guest')) ?: []);
+
+        return view('pages.pointsmax', [
+            'company'        => config('company'),
+            'linkedPrograms' => $linkedPrograms,
+        ]);
+    }
+
+    public function linkPointsmaxProgram(Request $request)
+    {
+        $request->validate([
+            'program'       => 'required|string',
+            'membership_id' => 'required|string',
+        ]);
+
+        $user = auth()->user();
+        $key = 'pointsmax_programs_' . ($user?->id ?? 'guest');
+        $current = session($key, []);
+        
+        $newProgram = [
+            'id'            => uniqid(),
+            'program'       => $request->program,
+            'membership_id' => $request->membership_id,
+            'is_primary'    => $request->boolean('is_primary', true),
+            'linked_at'     => now()->toFormattedDateString(),
+        ];
+
+        // If marked primary, unset other primaries
+        if ($newProgram['is_primary']) {
+            foreach ($current as &$p) {
+                $p['is_primary'] = false;
+            }
+        }
+
+        $current[] = $newProgram;
+        session([$key => $current]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'PointsMAX program linked successfully!',
+                'program' => $newProgram,
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'PointsMAX program linked successfully!');
+    }
+
+    public function unlinkPointsmaxProgram(Request $request, $id)
+    {
+        $user = auth()->user();
+        $key = 'pointsmax_programs_' . ($user?->id ?? 'guest');
+        $current = session($key, []);
+
+        $filtered = array_values(array_filter($current, function($item) use ($id) {
+            return ($item['id'] ?? '') !== $id;
+        }));
+
+        session([$key => $filtered]);
+
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => 'Program unlinked successfully.',
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Program unlinked successfully.');
     }
 
     public function messages()

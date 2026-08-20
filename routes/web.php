@@ -530,4 +530,9 @@ Route::get('/account/subscription', [PageController::class, 'subscriptions'])->n
 Route::get('/subscriptions', [PageController::class, 'subscriptions'])->name('subscriptions.alias');
 Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
 
+// ── PointsMAX Programs Routes (1:1 Agoda PointsMAX Parity) ──
+Route::get('/account/pointsmax', [PageController::class, 'pointsmax'])->name('pointsmax');
+Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
+Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
+
 

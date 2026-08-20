@@ -77,6 +77,12 @@
             'icon'  => 'fa-solid fa-user',
             'route' => route('profile'),
         ],
+        [
+            'key'   => 'subscription',
+            'label' => 'Payments and Subscriptions',
+            'icon'  => 'fa-solid fa-credit-card',
+            'route' => route('subscriptions'),
+        ],
     ];
 @endphp
 

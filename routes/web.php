@@ -525,16 +525,9 @@ Route::get('/storage/{path}', function ($path) {
     ]);
 })->where('path', '.*')->name('storage.serve');
 
-// ── Live Cashback Rewards Handshake API (Agoda Parity) ──────────────────────
-Route::post('/api/activate-rewards', function (\Illuminate\Http\Request $request) {
-    session(['prime_rewards_active' => true, 'active_promo_code' => 'PRIMECASH8']);
-    cookie()->queue(cookie('prime_rewards_active', '1', 60 * 24 * 7));
-    return response()->json([
-        'success' => true,
-        'message' => 'PrimeCash 8% Cashback Activated!',
-        'promo_code' => 'PRIMECASH8',
-        'rate' => '8%'
-    ]);
-})->name('api.activate.rewards');
+// ── Payments and Subscriptions Routes (1:1 Agoda Subscription Parity) ──
+Route::get('/account/subscription', [PageController::class, 'subscriptions'])->name('subscriptions');
+Route::get('/subscriptions', [PageController::class, 'subscriptions'])->name('subscriptions.alias');
+Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
 
 

@@ -336,6 +336,34 @@ class PageController extends Controller
         return view('pages.transfer', ['company' => config('company'), 'transfers' => $transfers]);
     }
 
+    public function subscriptions()
+    {
+        $user = auth()->user();
+        return view('pages.subscriptions', [
+            'company' => config('company'),
+            'user'    => $user,
+        ]);
+    }
+
+    public function updateSubscriptionSetting(Request $request)
+    {
+        $user = auth()->user();
+        $key = $request->input('key');
+        $value = $request->input('value');
+
+        if ($user && $key) {
+            // Save to user preferences in session / cache
+            session(["sub_pref_{$user->id}_{$key}" => $value]);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscription preference updated successfully.',
+            'key'     => $key,
+            'value'   => $value,
+        ]);
+    }
+
     public function hostProperty()
     {
         return view('pages.host_property', ['company' => config('company')]);

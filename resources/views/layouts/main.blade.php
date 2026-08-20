@@ -94,17 +94,11 @@
             --agoda-red: #ff567d;
             --agoda-font: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
-        /* Barlow Medium & Crisp Global Typography */
-        body, input, button, select, textarea,
-        h1, h2, h3, h4, h5, h6, p, a, li, label, td, th {
-            font-family: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            font-weight: 500;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            text-rendering: optimizeLegibility;
-        }
-        .fw-bold, .fw-bolder, strong, b, h1, h2, h3, h4, h5, h6, .hero-title, .search-btn {
-            font-weight: 600 !important;
+
+        /* ── Ultra-Smooth 60/120 FPS Scrolling & Hardware Acceleration ── */
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
         }
         body {
             background: linear-gradient(180deg, #e2eafc 0%, #edf2fb 50%, #f4f7fc 100%);
@@ -115,6 +109,57 @@
             font-size: 14px;
             line-height: 1.5;
             min-height: 100vh;
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: none;
+            text-rendering: optimizeLegibility;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Barlow Medium & Crisp Global Typography */
+        body, input, button, select, textarea,
+        h1, h2, h3, h4, h5, h6, p, a, li, label, td, th {
+            font-family: 'Barlow', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            font-weight: 500;
+        }
+        .fw-bold, .fw-bolder, strong, b, h1, h2, h3, h4, h5, h6, .hero-title, .search-btn {
+            font-weight: 600 !important;
+        }
+
+        /* ── Virtual Viewport Content-Visibility (Insanely fast scrolling on 1000+ hotel items) ── */
+        .agoda-hotel-card,
+        .agoda-room-listing-card,
+        .verified-review-card,
+        .property-listing-card,
+        .agoda-room-card {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 340px;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+            will-change: transform, opacity;
+        }
+
+        /* ── GPU Optimized Image Rendering ── */
+        img {
+            image-rendering: -webkit-optimize-contrast;
+            max-width: 100%;
+            height: auto;
+        }
+
+        /* ── Sleek Minimalist Scrollbar ── */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
     </style>
     @stack('styles')
@@ -177,6 +222,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // 1. Ultra Fast Intersection Observer for scroll-reveal
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
@@ -186,6 +232,12 @@
             }, { threshold: 0.05, rootMargin: '0px 0px 80px 0px' });
 
             document.querySelectorAll('.scroll-reveal').forEach(el => observer.observe(el));
+
+            // 2. High-Performance Native Async Image Decoder for Butter-Smooth Scroll
+            document.querySelectorAll('img:not([loading])').forEach(img => {
+                img.setAttribute('loading', 'lazy');
+                img.setAttribute('decoding', 'async');
+            });
         });
     </script>
     @stack('scripts')

@@ -278,9 +278,53 @@ class PageController extends Controller
         ]);
     }
 
-    public function cashback()
+    public function cashback(Request $request, \App\Services\RewardPointService $rewardService)
     {
-        return view('pages.cashback', ['company' => config('company')]);
+        $user = auth()->user();
+        $rewardSummary = $rewardService->getUserRewardSummary($user);
+        $transactions = $user
+            ? \App\Models\RewardTransaction::where('user_id', $user->id)->latest()->paginate(10)
+            : collect();
+        $pendingPayouts = $user
+            ? \App\Models\RewardPayoutRequest::where('user_id', $user->id)->latest()->take(5)->get()
+            : collect();
+
+        return view('pages.cashback', [
+            'company'        => config('company'),
+            'user'           => $user,
+            'rewardSummary'  => $rewardSummary,
+            'transactions'   => $transactions,
+            'pendingPayouts' => $pendingPayouts,
+        ]);
+    }
+
+    public function submitRewardPayout(Request $request, \App\Services\RewardPointService $rewardService)
+    {
+        $request->validate([
+            'points'          => 'required|integer|min:1',
+            'payment_gateway' => 'required|string|in:bkash,nagad,rocket,bank',
+            'account_number'  => 'required|string|max:50',
+            'account_name'    => 'nullable|string|max:100',
+        ]);
+
+        $user = auth()->user();
+        if (!$user) {
+            return redirect()->route('login')->with('error', 'Please login to request reward cashout.');
+        }
+
+        $result = $rewardService->requestPayout(
+            $user,
+            (int) $request->points,
+            $request->payment_gateway,
+            $request->account_number,
+            $request->account_name
+        );
+
+        if (!$result['success']) {
+            return back()->with('error', $result['message']);
+        }
+
+        return back()->with('success', $result['message']);
     }
 
     public function pointsmax()

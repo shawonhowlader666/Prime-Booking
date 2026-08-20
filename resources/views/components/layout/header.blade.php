@@ -208,21 +208,21 @@
                     </div>
                 </div>
 
-                {{-- Cash Balance Dropdown Badge ((a) BDT 0 ▾) Matching Agoda Screenshot 1:1 --}}
+                {{-- Cash Balance Dropdown Badge ((a) Rewards Balance ▾) Matching Agoda Screenshot 1:1 --}}
                 <div class="dropdown">
                     <button class="btn p-0 border-0 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown"
                             style="color: #6366f1; font-weight: 600; font-size: 14px; height: 60px; padding: 4px 8px; border-radius: 8px; transition: background 0.15s ease;"
                             onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                         <div style="width: 20px; height: 20px; background: #6366f1; color: #ffffff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px;">a</div>
-                        <span style="color: #6366f1; font-weight: 600; font-size: 14.5px;">{{ $currentCurrency }} 0</span>
+                        <span style="color: #6366f1; font-weight: 600; font-size: 14.5px;">Rewards</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-3 mt-2"
                          style="min-width: 250px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
                         <li class="p-2 border-bottom mb-2">
-                            <div class="small text-secondary fw-medium">Prime Cash Balance</div>
-                            <div class="h6 mb-0 fw-bold text-primary">{{ $currentCurrency }} 0.00</div>
+                            <div class="small text-secondary fw-medium">Prime Rewards Wallet</div>
+                            <div class="h6 mb-0 fw-bold text-primary"><i class="fa-solid fa-coins text-warning me-1"></i> Earn 1 Pt per ৳1,000</div>
                         </li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('cashback') }}"><i class="fa-solid fa-wallet me-2 text-success"></i> PrimeCash Rewards</a></li>
+                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('rewards') }}"><i class="fa-solid fa-wallet me-2 text-success"></i> My Rewards &amp; Payouts</a></li>
                         <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('booking.history') }}"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i> My Bookings</a></li>
                         <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('wishlist') }}"><i class="fa-solid fa-heart me-2 text-danger"></i> Saved Properties</a></li>
                         <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('profile') }}"><i class="fa-solid fa-gear me-2 text-secondary"></i> Account Settings</a></li>

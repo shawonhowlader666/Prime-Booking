@@ -403,6 +403,12 @@
                     <span>+{{ number_format($earnedMiles) }} Miles</span>
                 </div>
                 @endif
+                @if(isset($earnablePoints) && $earnablePoints > 0)
+                <div class="summary-row fw-bold" style="background:#fffbeb; color:#b45309; padding:6px 8px; border-radius:6px; border:1px solid #fef08a;">
+                    <span><i class="fa-solid fa-coins text-warning me-1"></i> Earn Prime Rewards</span>
+                    <span>+{{ number_format($earnablePoints) }} Pts (৳{{ number_format($earnablePoints * ($rewardSummary['point_value'] ?? 10)) }})</span>
+                </div>
+                @endif
                 <div class="summary-row text-success" id="discount_row" style="{{ isset($appliedDiscount) && $appliedDiscount > 0 && !isset($vipDiscountAmount) ? '' : 'display:none;' }}">
                     <span><i class="fa-solid fa-tag me-1"></i> Promo (<span id="coupon_badge_text">{{ $activePromoCode ?? '' }}</span>)</span>
                     <span id="discount_amount_text">- {{ CurrencyService::format($appliedDiscount ?? 0) }}</span>

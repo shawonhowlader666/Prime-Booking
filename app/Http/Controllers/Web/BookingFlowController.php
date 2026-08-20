@@ -96,10 +96,16 @@ class BookingFlowController extends Controller
         $primaryPointsmax = collect($pointsmaxPrograms)->firstWhere('is_primary', true) ?: collect($pointsmaxPrograms)->first();
         $earnedMiles = $primaryPointsmax ? min(6000, max(250, round($subtotal * 0.15))) : 0;
 
+        // Prime Rewards Points (Earn & Redeem)
+        $rewardService = app(\App\Services\RewardPointService::class);
+        $rewardSummary = $rewardService->getUserRewardSummary($user);
+        $earnablePoints = $rewardService->calculatePoints($totalPrice);
+
         return view('pages.booking-form', compact(
             'property', 'selectedRoom', 'checkIn', 'checkOut',
             'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user',
-            'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount', 'primaryPointsmax', 'earnedMiles'
+            'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount', 'primaryPointsmax', 'earnedMiles',
+            'rewardSummary', 'earnablePoints'
         ));
     }
 
@@ -260,11 +266,12 @@ class BookingFlowController extends Controller
             return $b;
         });
 
-        // 5. Automated Multi-Channel Notification Dispatch
+        // 5. Automated Multi-Channel Notification Dispatch & Rewards Point Auto-Credit
         try {
             $notificationService->sendBookingConfirmation($booking);
+            app(\App\Services\RewardPointService::class)->creditBookingPoints($booking);
         } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error("Notification error: " . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error("Booking post-processing error: " . $e->getMessage());
         }
 
         // Route to payment gateway based on selected method

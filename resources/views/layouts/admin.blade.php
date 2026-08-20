@@ -1716,22 +1716,28 @@
                 </div>
             </div>
 
-            {{-- 5. VIP Loyalty Program (Agoda 1:1 Engine) --}}
-            @php $isVIPActive = request()->routeIs('admin.vip.*'); @endphp
+            {{-- 5. User Portals & Loyalty Engines (Dynamic Sync) --}}
+            @php $isPortalsActive = request()->routeIs('admin.vip.*', 'admin.rewards.*', 'admin.reviews.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isVIPActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVIPLoyalty" aria-expanded="{{ $isVIPActive ? 'true' : 'false' }}" data-label="VIP Loyalty Program">
+                <button class="sb-nav-toggle {{ $isPortalsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuUserPortals" aria-expanded="{{ $isPortalsActive ? 'true' : 'false' }}" data-label="User Portals &amp; Loyalty">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-crown text-warning" style="width:16px;text-align:center;"></i> <span>VIP Loyalty Program</span>
+                        <i class="fa-solid fa-crown text-warning" style="width:16px;text-align:center;"></i> <span>Portals &amp; Loyalty</span>
                     </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
-                <div class="collapse {{ $isVIPActive ? 'show' : '' }}" id="menuVIPLoyalty">
+                <div class="collapse {{ $isPortalsActive ? 'show' : '' }}" id="menuUserPortals">
                     <div class="sb-sub-menu">
                         <a href="{{ route('admin.vip.settings') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.settings') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Tier Rules &amp; Discounts
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> VIP Tier Rules &amp; Discounts
                         </a>
                         <a href="{{ route('admin.vip.members') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.members') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> VIP Member Roster
+                        </a>
+                        <a href="{{ route('admin.rewards.index') }}" class="sb-sub-item {{ request()->routeIs('admin.rewards.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rewards (1k=1pt) &amp; Payouts
+                        </a>
+                        <a href="{{ route('admin.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property Reviews Moderation
                         </a>
                     </div>
                 </div>

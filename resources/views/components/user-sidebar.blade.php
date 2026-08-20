@@ -54,16 +54,10 @@
             'route' => route('vip'),
         ],
         [
-            'key'   => 'primecash',
-            'label' => 'PrimeCash',
-            'custom_icon' => '<span class="bg-dark text-white fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 11px;">a</span>',
-            'route' => route('cashback'),
-        ],
-        [
-            'key'   => 'cashback',
-            'label' => 'Cashback Rewards',
-            'icon'  => 'fa-solid fa-hand-holding-dollar',
-            'route' => route('cashback'),
+            'key'   => 'rewards',
+            'label' => 'Rewards',
+            'custom_icon' => '<span class="bg-primary text-white fw-bold rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 20px; height: 20px; font-size: 11px;"><i class="fa-solid fa-coins"></i></span>',
+            'route' => route('rewards'),
         ],
         [
             'key'   => 'pointsmax',

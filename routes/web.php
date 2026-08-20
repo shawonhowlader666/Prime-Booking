@@ -253,6 +253,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/payouts/store', [PayoutController::class, 'store'])->name('payouts.store');
     Route::post('/payouts/{id}/status', [PayoutController::class, 'updateStatus'])->name('payouts.update-status');
 
+    // Rewards & Loyalty Points Management
+    Route::get('/rewards', [App\Http\Controllers\Admin\RewardManagementController::class, 'index'])->name('rewards.index');
+    Route::post('/rewards/settings', [App\Http\Controllers\Admin\RewardManagementController::class, 'updateSettings'])->name('rewards.settings.update');
+    Route::post('/rewards/{id}/approve', [App\Http\Controllers\Admin\RewardManagementController::class, 'approvePayout'])->name('rewards.approve');
+    Route::post('/rewards/{id}/reject', [App\Http\Controllers\Admin\RewardManagementController::class, 'rejectPayout'])->name('rewards.reject');
+
     // Guest Reviews Moderation
     Route::get('/reviews', [ReviewManagementController::class, 'index'])->name('reviews.index');
     Route::post('/reviews/{id}/toggle', [ReviewManagementController::class, 'toggleStatus'])->name('reviews.toggle');
@@ -529,6 +535,11 @@ Route::get('/storage/{path}', function ($path) {
 Route::get('/account/subscription', [PageController::class, 'subscriptions'])->name('subscriptions');
 Route::get('/subscriptions', [PageController::class, 'subscriptions'])->name('subscriptions.alias');
 Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
+
+// ── Rewards & Cashback Routes (1:1 Agoda/Genius Rewards Parity) ──
+Route::get('/rewards', [PageController::class, 'cashback'])->name('rewards');
+Route::get('/account/rewards', [PageController::class, 'cashback'])->name('account.rewards');
+Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit');
 
 // ── PointsMAX Programs Routes (1:1 Agoda PointsMAX Parity) ──
 Route::get('/account/pointsmax', [PageController::class, 'pointsmax'])->name('pointsmax');

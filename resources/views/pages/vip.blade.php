@@ -8,47 +8,16 @@
     $user = auth()->user();
     $currency = \App\Helpers\CurrencyHelper::current();
     
-    // Dynamic Booking Count in last 2 years (High-performance SQL query)
-    $userBookings = $user ? \App\Models\Booking::where(function($q) use ($user) {
-        $q->where('user_id', $user->id)->orWhere('guest_email', $user->email);
-    })->where('created_at', '>=', now()->subYears(2))->whereNotIn('booking_status', ['cancelled'])->count() : 0;
-
-    // Dynamic Spend in last 2 years
-    $userSpend = $user ? (float) \App\Models\Booking::where(function($q) use ($user) {
-        $q->where('user_id', $user->id)->orWhere('guest_email', $user->email);
-    })->where('created_at', '>=', now()->subYears(2))->whereIn('payment_status', ['paid', 'completed'])->sum('total_amount') : 0;
-
-    // Thresholds
-    $silverReq    = $vipThresholds['silver'] ?? 2;
-    $goldReq      = $vipThresholds['gold'] ?? 5;
-    $goldSpend    = 200;
-    $platReq      = $vipThresholds['platinum'] ?? 10;
-    $platSpend    = 400;
-    $diamondReq   = $vipThresholds['diamond'] ?? 15;
-    $diamondSpend = 1500;
-
-    // Determine Active Tier
-    if ($userBookings >= $diamondReq && $userSpend >= $diamondSpend) {
-        $currentTier = 'Diamond';
-        $tierNameFull = 'AgodaVIP Diamond';
-        $activeBadgeColor = '#9333ea';
-    } elseif ($userBookings >= $platReq || $userSpend >= $platSpend) {
-        $currentTier = 'Platinum';
-        $tierNameFull = 'AgodaVIP Platinum';
-        $activeBadgeColor = '#64748b';
-    } elseif ($userBookings >= $goldReq || $userSpend >= $goldSpend) {
-        $currentTier = 'Gold';
-        $tierNameFull = 'AgodaVIP Gold';
-        $activeBadgeColor = '#d97706';
-    } elseif ($userBookings >= $silverReq) {
-        $currentTier = 'Silver';
-        $tierNameFull = 'AgodaVIP Silver';
-        $activeBadgeColor = '#475569';
-    } else {
-        $currentTier = 'Bronze';
-        $tierNameFull = 'AgodaVIP Bronze';
-        $activeBadgeColor = '#ba6d4a';
-    }
+    // Injected from VIPLoyaltyService or dynamic fallback
+    $stats = $userVipStats ?? app(\App\Services\VIPLoyaltyService::class)->getUserTier($user);
+    $userBookings = $stats['bookings_count'] ?? 0;
+    $userSpend    = $stats['total_spend'] ?? 0;
+    $currentTier  = $stats['tier'] ?? 'Bronze';
+    $tierNameFull = $stats['tier_name_full'] ?? 'AgodaVIP Bronze';
+    $activeBadgeColor = $stats['badge_color'] ?? '#ba6d4a';
+    $userDiscountPercent = $stats['discount_percent'] ?? 0;
+    $bookingsNeeded = $stats['bookings_needed'] ?? 2;
+    $spendNeeded = $stats['spend_needed'] ?? 0;
 @endphp
 
 <style>

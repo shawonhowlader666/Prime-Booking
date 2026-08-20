@@ -642,32 +642,56 @@
             container.innerHTML = html;
         };
 
-        // ── 3. Highlighting and Marker Popups ──
+        // ── 3. Highlighting and Marker Popups (Agoda 1:1 Parity) ──
         window.highlightMarker = function(id) {
+            // Highlight Marker Pin on Map
             if (markersMap[id]) {
                 var el = markersMap[id].getElement();
                 if (el) {
                     var badge = el.querySelector('.custom-agoda-pin-inner');
                     if (badge) {
                         badge.style.backgroundColor = '#16a34a';
-                        badge.style.transform = 'scale(1.1)';
+                        badge.style.color = '#ffffff';
+                        badge.style.borderColor = '#ffffff';
+                        badge.style.transform = 'scale(1.15)';
+                        badge.style.boxShadow = '0 6px 18px rgba(22, 163, 74, 0.45)';
                         badge.style.zIndex = '9999';
                     }
                 }
             }
+
+            // Highlight Property Card on Left Column (Agoda Exact Blue Active Outline)
+            var card = document.getElementById('mapCard_' + id);
+            if (card) {
+                card.style.borderColor = '#2067e1';
+                card.style.borderWidth = '2px';
+                card.style.boxShadow = '0 8px 24px rgba(32, 103, 225, 0.18)';
+            }
         };
 
         window.unhighlightMarker = function(id) {
+            // Restore Marker Pin on Map
             if (markersMap[id]) {
                 var el = markersMap[id].getElement();
                 if (el) {
                     var badge = el.querySelector('.custom-agoda-pin-inner');
                     if (badge) {
-                        badge.style.backgroundColor = '#2067e1';
+                        badge.style.backgroundColor = '#ffffff';
+                        badge.style.color = '#16a34a';
+                        badge.style.borderColor = '#16a34a';
                         badge.style.transform = 'scale(1)';
+                        badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
                         badge.style.zIndex = '1';
                     }
                 }
+            }
+
+            // Restore Property Card
+            var card = document.getElementById('mapCard_' + id);
+            if (card) {
+                card.style.borderColor = '#e2e8f0';
+                card.style.borderWidth = '1px';
+                card.style.boxShadow = 'none';
             }
         };
 
@@ -837,9 +861,14 @@
                 }).addTo(map);
 
                 allProperties.forEach(function(item) {
+                    var isSoldOut = item.price_raw <= 0 || item.price.includes('N/A');
+                    var pinHtml = isSoldOut 
+                        ? '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#64748b;font-weight:700;font-size:11px;padding:3px 8px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);border:1.5px solid #cbd5e1;cursor:pointer;white-space:nowrap;transition:all 0.2s;">Sold out</div>'
+                        : '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#16a34a;font-weight:800;font-size:11.5px;padding:3px 9px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.15);border:1.5px solid #16a34a;cursor:pointer;white-space:nowrap;transition:all 0.2s;">' + item.price + '</div>';
+
                     var customIcon = L.divIcon({
                         className: 'custom-agoda-price-pin',
-                        html: '<div class="custom-agoda-pin-inner" style="background:#2067e1;color:#ffffff;font-weight:800;font-size:11.5px;padding:4px 10px;border-radius:18px;box-shadow:0 3px 10px rgba(0,0,0,0.3);border:2px solid #ffffff;cursor:pointer;white-space:nowrap;transition:all 0.2s;">' + item.price + '</div>',
+                        html: pinHtml,
                         iconSize: [80, 28],
                         iconAnchor: [40, 14]
                     });

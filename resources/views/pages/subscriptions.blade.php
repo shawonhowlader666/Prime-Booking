@@ -3,6 +3,7 @@
 @section('title', 'Payments and Subscriptions | Prime Booking')
 @section('meta_description', 'Manage saved payment methods, email subscriptions, newsletter frequencies and booking reminders.')
 
+@section('content')
 <style>
 /* Agoda 1:1 3D Card Hover Elevation & Smooth Physics */
 .agoda-subscription-card {

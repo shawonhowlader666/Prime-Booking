@@ -180,6 +180,24 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
+                            {{-- Omni-Channel Quick Action Hub --}}
+                            <div class="d-inline-flex align-items-center gap-1 me-1">
+                                @if($u->phone)
+                                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', $u->phone) }}" class="btn btn-sm btn-light border text-success shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px;" title="Direct Call ({{ $u->phone }})">
+                                        <i class="fa-solid fa-phone" style="font-size:12px;"></i>
+                                    </a>
+                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $u->phone) }}?text=Hello%20{{ urlencode($u->name) }},%20greetings%20from%20Prime%20Booking!" target="_blank" class="btn btn-sm btn-light border text-success shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px; color:#25D366 !important;" title="WhatsApp Chat">
+                                        <i class="fa-brands fa-whatsapp" style="font-size:13.5px;"></i>
+                                    </a>
+                                    <a href="sms:{{ preg_replace('/[^0-9+]/', '', $u->phone) }}?body=Hello%20{{ urlencode($u->name) }},%20Prime%20Booking%20update:" class="btn btn-sm btn-light border text-primary shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px;" title="SIM SMS">
+                                        <i class="fa-solid fa-comment-sms" style="font-size:12px;"></i>
+                                    </a>
+                                @endif
+                                <a href="mailto:{{ $u->email }}?subject=Prime%20Booking%20Support&body=Dear%20{{ urlencode($u->name) }}," class="btn btn-sm btn-light border text-danger shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px;" title="Send Email / Gmail">
+                                    <i class="fa-solid fa-envelope" style="font-size:12px;"></i>
+                                </a>
+                            </div>
+
                             <div class="dropdown action-gear-dropdown d-inline-block">
                                 <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>

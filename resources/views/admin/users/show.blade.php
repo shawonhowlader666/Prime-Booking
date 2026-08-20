@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'User Profile: ' . $user->name . ' | PRIME BOOKING Admin')
 
 @section('content')
@@ -31,26 +31,65 @@
         <div class="col-lg-8">
 
             {{-- User Information --}}
-            <div class="form-card mb-3">
-                <div class="form-section-title">
-                    <i class="fa-solid fa-address-card me-1"></i> Profile &amp; Contact Details
+            <div class="form-card mb-3" style="border-radius:6px; border:1px solid #e2e8f0; background:#fff; padding:20px;">
+                <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 pb-3 mb-3 border-bottom">
+                    <div class="form-section-title mb-0" style="font-size:15px; font-weight:700; color:#1e293b;">
+                        <i class="fa-solid fa-address-card me-1.5 text-primary"></i> Profile &amp; Omni-Channel Contact Hub
+                    </div>
+                    {{-- 1-Click Direct Omni-Channel Trigger Buttons --}}
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        @if($user->phone)
+                            <a href="tel:{{ preg_replace('/[^0-9+]/', '', $user->phone) }}" class="btn btn-sm btn-outline-success fw-bold px-3 py-1.5" style="border-radius:4px; font-size:12.5px;" title="Direct Call">
+                                <i class="fa-solid fa-phone me-1"></i> Direct Call
+                            </a>
+                            <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $user->phone) }}?text=Hello%20{{ urlencode($user->name) }},%20greetings%20from%20Prime%20Booking!" target="_blank" class="btn btn-sm btn-success fw-bold px-3 py-1.5 text-white" style="border-radius:4px; font-size:12.5px; background:#25D366; border-color:#25D366;" title="WhatsApp Chat">
+                                <i class="fa-brands fa-whatsapp me-1"></i> WhatsApp
+                            </a>
+                            <a href="sms:{{ preg_replace('/[^0-9+]/', '', $user->phone) }}?body=Hello%20{{ urlencode($user->name) }},%20Prime%20Booking%20Update:" class="btn btn-sm btn-outline-primary fw-bold px-3 py-1.5" style="border-radius:4px; font-size:12.5px;" title="Send SIM SMS">
+                                <i class="fa-solid fa-comment-sms me-1"></i> Send SMS
+                            </a>
+                        @endif
+                        <a href="mailto:{{ $user->email }}?subject=Prime%20Booking%20Notification&body=Dear%20{{ urlencode($user->name) }}," class="btn btn-sm btn-outline-danger fw-bold px-3 py-1.5" style="border-radius:4px; font-size:12.5px;" title="Gmail / Email">
+                            <i class="fa-solid fa-envelope me-1"></i> Gmail / Mail
+                        </a>
+                        @if($user->last_login_ip && !in_array($user->last_login_ip, ['127.0.0.1', '::1']))
+                            <a href="https://ipinfo.io/{{ $user->last_login_ip }}" target="_blank" class="btn btn-sm btn-outline-secondary fw-bold px-2.5 py-1.5" style="border-radius:4px; font-size:12.5px;" title="IP Geolocation Lookup">
+                                <i class="fa-solid fa-globe me-1"></i> IP Lookup
+                            </a>
+                        @endif
+                    </div>
                 </div>
                 <div class="row g-3">
                     <div class="col-md-6">
-                        <label class="form-label">Full Name</label>
+                        <label class="form-label" style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">Full Name</label>
                         <p style="font-size:15px; font-weight:700; color:#1e293b; margin:0;">{{ $user->name }}</p>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Email Address</label>
+                        <label class="form-label" style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">Email Address</label>
                         <p style="font-size:14px; font-weight:600; color:#334155; margin:0;">{{ $user->email }}</p>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Phone Number</label>
+                        <label class="form-label" style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">Phone Number</label>
                         <p style="font-size:14px; font-weight:600; color:#334155; margin:0;">{{ $user->phone ?? 'Not provided' }}</p>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Registration Date</label>
+                        <label class="form-label" style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">Registration Date</label>
                         <p style="font-size:14px; font-weight:600; color:#334155; margin:0;">{{ $user->created_at ? $user->created_at->format('F d, Y, h:i A') : 'N/A' }}</p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">Last Login IP &amp; Activity</label>
+                        <p style="font-size:13.5px; font-weight:600; color:#334155; margin:0;">
+                            <code>{{ $user->last_login_ip ?? 'No recorded IP' }}</code>
+                            @if($user->last_login_at)
+                                <small class="text-muted ms-1">({{ $user->last_login_at->diffForHumans() }})</small>
+                            @endif
+                        </p>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label" style="font-size:11.5px; color:#64748b; font-weight:600; text-transform:uppercase;">Loyalty &amp; Miles</label>
+                        <p style="font-size:13.5px; font-weight:700; color:var(--primary); margin:0;">
+                            {{ $user->prime_miles ?? 0 }} Prime Miles | {{ $user->rewards ? $user->rewards->points_balance : 0 }} Reward Pts
+                        </p>
                     </div>
                 </div>
             </div>

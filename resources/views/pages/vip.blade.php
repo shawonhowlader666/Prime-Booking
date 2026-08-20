@@ -65,12 +65,12 @@
     padding: 0 16px;
 }
 
-/* 1. Main User Status Hero Card (1:1 3D Shadow & Border Parity) */
+/* 1. Main User Status Hero Card (1:1 Prominent 3D Shadow & Floating Elevation) */
 .agoda-vip-status-card {
     background: #ffffff;
     border-radius: 20px;
-    box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
-    border: 1px solid #edf2f7;
+    box-shadow: 0 16px 40px -6px rgba(0, 0, 0, 0.12), 0 8px 20px -4px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.03);
+    border: 1px solid #e2e8f0;
     padding: 32px 36px 28px 36px;
     margin-bottom: 24px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;

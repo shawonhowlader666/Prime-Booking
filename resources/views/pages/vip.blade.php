@@ -406,10 +406,7 @@
             <div style="line-height: 1.45;">
                 <strong style="color: #1d4ed8; font-size: 13.5px;">Book Flights and Activities to upgrade your VIP level faster <i class="fa-solid fa-square-arrow-up-right ms-0.5"></i></strong><br>
                 <span style="color: #4b5563; font-size: 13px;">Now in addition to stays, Flights and Activities bookings, completed in last 2 years, count towards your progress VIP 🎉</span>
-            </div>
-        </div>
-
-        {{-- ── 3. WHAT IS AGODAVIP? EXPLAIN BOX WITH ILLUSTRATION ── --}}
+                    {{-- ── 3. WHAT IS AGODAVIP? EXPLAIN BOX WITH 1:1 AGODA MASCOTS ── --}}
         <div class="agoda-vip-explain-box">
             <div class="row align-items-center">
                 <div class="col-md-7">
@@ -418,30 +415,61 @@
                         AgodaVIP is our loyalty program for rewarding our most loyal customers with amazing deals. Once you qualify, you'll join automatically.
                     </p>
                 </div>
-                <div class="col-md-5 text-center mt-3 mt-md-0">
-                    <div class="d-inline-flex align-items-end gap-3 p-3" style="background: rgba(255,255,255,0.06); border-radius: 16px;">
-                        {{-- Purple Winner Character --}}
-                        <div style="text-align: center;">
-                            <div style="width: 44px; height: 44px; border-radius: 50%; background: #9333ea; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; box-shadow: 0 4px 12px rgba(147, 51, 234, 0.4);">
-                                <span style="font-size: 18px;">🥇</span>
-                            </div>
-                            <div style="width: 50px; height: 38px; background: #eab308; border-radius: 4px 4px 0 0; color: #000; font-weight: 800; font-size: 12px; display: flex; align-items: center; justify-content: center;">1</div>
-                        </div>
-                        {{-- Blue 2nd Character --}}
-                        <div style="text-align: center;">
-                            <div style="width: 38px; height: 38px; border-radius: 50%; background: #0284c7; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.4);">
-                                <span style="font-size: 16px;">🥈</span>
-                            </div>
-                            <div style="width: 44px; height: 26px; background: #94a3b8; border-radius: 4px 4px 0 0; color: #000; font-weight: 800; font-size: 11px; display: flex; align-items: center; justify-content: center;">2</div>
-                        </div>
-                        {{-- Green 3rd Character --}}
-                        <div style="text-align: center;">
-                            <div style="width: 34px; height: 34px; border-radius: 50%; background: #16a34a; display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; box-shadow: 0 4px 12px rgba(22, 163, 74, 0.4);">
-                                <span style="font-size: 14px;">🥉</span>
-                            </div>
-                            <div style="width: 40px; height: 18px; background: #d97706; border-radius: 4px 4px 0 0; color: #fff; font-weight: 800; font-size: 10px; display: flex; align-items: center; justify-content: center;">3</div>
-                        </div>
-                    </div>
+                <div class="col-md-5 text-center mt-4 mt-md-0">
+                    {{-- 100% Authentic Agoda Podium Stage Vector SVG --}}
+                    <svg viewBox="0 0 280 140" style="max-width: 260px; width: 100%; height: auto; overflow: visible;">
+                        {{-- Podium Stage Bases --}}
+                        <rect x="95" y="85" width="90" height="55" rx="2" fill="#ecc43a" />
+                        <text x="140" y="120" fill="#78350f" font-size="18" font-weight="900" text-anchor="middle">1</text>
+                        
+                        <rect x="25" y="100" width="70" height="40" rx="2" fill="#cbd5e1" />
+                        <text x="60" y="126" fill="#475569" font-size="16" font-weight="900" text-anchor="middle">2</text>
+                        
+                        <rect x="185" y="110" width="70" height="30" rx="2" fill="#d97706" />
+                        <text x="220" y="130" fill="#ffffff" font-size="14" font-weight="900" text-anchor="middle">3</text>
+
+                        {{-- 1st Place Purple Mascot (Gold Medal Winner) --}}
+                        <g transform="translate(110, 35)">
+                            <circle cx="30" cy="30" r="24" fill="#8b5cf6" />
+                            {{-- Eyes & Smile --}}
+                            <circle cx="23" cy="26" r="2.5" fill="#1e1b4b" />
+                            <circle cx="37" cy="26" r="2.5" fill="#1e1b4b" />
+                            <path d="M 24 34 Q 30 40 36 34" stroke="#1e1b4b" stroke-width="2" fill="none" stroke-linecap="round" />
+                            {{-- Cheeks --}}
+                            <circle cx="18" cy="32" r="2.5" fill="#f472b6" opacity="0.6" />
+                            <circle cx="42" cy="32" r="2.5" fill="#f472b6" opacity="0.6" />
+                            {{-- Ribbon & Gold Medal --}}
+                            <path d="M 12 38 L 2 55 L 8 58 Z" fill="#ef4444" />
+                            <circle cx="4" cy="58" r="7" fill="#fbbf24" stroke="#d97706" stroke-width="1.5" />
+                            <text x="4" y="61" fill="#78350f" font-size="7" font-weight="900" text-anchor="middle">★</text>
+                            {{-- Arm waving --}}
+                            <path d="M 12 36 Q 4 45 6 52" stroke="#6d28d9" stroke-width="3" fill="none" stroke-linecap="round" />
+                        </g>
+
+                        {{-- 2nd Place Cyan Mascot (Silver Medal Winner) --}}
+                        <g transform="translate(35, 55)">
+                            <circle cx="25" cy="25" r="20" fill="#06b6d4" />
+                            <circle cx="20" cy="22" r="2" fill="#083344" />
+                            <circle cx="30" cy="22" r="2" fill="#083344" />
+                            <path d="M 21 28 Q 25 33 29 28" stroke="#083344" stroke-width="1.8" fill="none" stroke-linecap="round" />
+                            {{-- Silver Medal on chest --}}
+                            <circle cx="25" cy="36" r="5" fill="#e2e8f0" stroke="#94a3b8" stroke-width="1" />
+                            {{-- Legs --}}
+                            <path d="M 18 45 L 18 50" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 32 45 L 32 50" stroke="#0e7490" stroke-width="2.5" stroke-linecap="round" />
+                        </g>
+
+                        {{-- 3rd Place Green Mascot (Bronze Winner) --}}
+                        <g transform="translate(195, 72)">
+                            <circle cx="25" cy="22" r="17" fill="#10b981" />
+                            <circle cx="21" cy="19" r="1.8" fill="#022c22" />
+                            <circle cx="29" cy="19" r="1.8" fill="#022c22" />
+                            <path d="M 22 25 Q 25 28 28 25" stroke="#022c22" stroke-width="1.5" fill="none" stroke-linecap="round" />
+                            {{-- Legs --}}
+                            <path d="M 19 38 L 19 42" stroke="#047857" stroke-width="2.5" stroke-linecap="round" />
+                            <path d="M 31 38 L 31 42" stroke="#047857" stroke-width="2.5" stroke-linecap="round" />
+                        </g>
+                    </svg>
                 </div>
             </div>
         </div>
@@ -561,7 +589,7 @@
             </div>
         </div>
 
-        {{-- ── 5. READY TO BOOK A VIP DEAL? ── --}}
+        {{-- ── 5. READY TO BOOK A VIP DEAL? WITH TELESCOPE MASCOT ── --}}
         <div class="vip-promo-showcase-box">
             <h3 class="fw-bold text-dark mb-2" style="font-size: 21px;">Ready to book a VIP deal?</h3>
             <p class="text-secondary mb-4" style="font-size: 14.5px;">
@@ -573,22 +601,56 @@
                 badge and save!
             </p>
 
-            {{-- Mock Agoda Search Card Diagram with Mascot Looking through Telescope --}}
-            <div class="d-inline-block position-relative p-4 border rounded-3 bg-light mb-4" style="max-width: 520px; width: 100%;">
-                <div class="d-flex align-items-center justify-content-between border-bottom pb-2 mb-2">
-                    <div class="d-flex align-items-center gap-2">
-                        <span style="font-weight: 700; font-size: 14px; color: #1e293b;">Agoda Hotel</span>
+            {{-- Exact Agoda Mascot with Telescope & Hotel Search Preview --}}
+            <div class="d-inline-flex align-items-center justify-content-center position-relative p-4 border rounded-3 bg-white mb-4 shadow-xs" style="max-width: 540px; width: 100%; min-height: 160px; background: #fafafa;">
+                
+                {{-- Yellow Mascot with Telescope --}}
+                <svg viewBox="0 0 100 90" style="width: 90px; height: 80px; flex-shrink: 0; margin-right: 15px;">
+                    {{-- Body --}}
+                    <circle cx="45" cy="45" r="30" fill="#f59e0b" />
+                    {{-- Eyes & Smile --}}
+                    <circle cx="36" cy="40" r="3" fill="#451a03" />
+                    <circle cx="50" cy="40" r="3" fill="#451a03" />
+                    <path d="M 38 48 Q 44 54 50 48" stroke="#451a03" stroke-width="2" fill="none" stroke-linecap="round" />
+                    {{-- Cheeks --}}
+                    <circle cx="30" cy="46" r="3" fill="#f97316" opacity="0.6" />
+                    <circle cx="56" cy="46" r="3" fill="#f97316" opacity="0.6" />
+                    {{-- Telescope Tripod & Lens --}}
+                    <path d="M 70 42 L 88 28 L 92 34 L 72 48 Z" fill="#475569" />
+                    <circle cx="90" cy="31" r="5" fill="#38bdf8" opacity="0.8" />
+                    {{-- Tripod Legs --}}
+                    <line x1="72" y1="48" x2="65" y2="78" stroke="#64748b" stroke-width="2" />
+                    <line x1="72" y1="48" x2="80" y2="78" stroke="#64748b" stroke-width="2" />
+                    {{-- Mascot Hands holding tripod --}}
+                    <circle cx="68" cy="46" r="4" fill="#d97706" />
+                    {{-- Mascot Legs --}}
+                    <line x1="38" y1="75" x2="38" y2="84" stroke="#b45309" stroke-width="3" stroke-linecap="round" />
+                    <line x1="52" y1="75" x2="52" y2="84" stroke="#b45309" stroke-width="3" stroke-linecap="round" />
+                </svg>
+
+                {{-- Magnified Deal Card --}}
+                <div class="border rounded-3 p-3 bg-white text-start shadow-sm" style="flex: 1; border-color: #e2e8f0 !important;">
+                    <div class="d-flex align-items-center justify-content-between mb-1.5">
+                        <strong style="font-size: 13.5px; color: #1e293b;">Agoda Hotel</strong>
+                        <div>
+                            <span style="text-decoration: line-through; color: #94a3b8; font-size: 11px;">100</span>
+                            <strong style="color: #dc2626; font-size: 16px; margin-left: 4px;">85</strong>
+                        </div>
                     </div>
-                    <div>
-                        <span style="text-decoration: line-through; color: #94a3b8; font-size: 11px;">100</span>
-                        <strong style="color: #d91b42; font-size: 16px; margin-left: 4px;">85</strong>
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="vip-badge-pill" style="height: 16px; font-size: 9.5px;">
+                            <div class="vip-tag" style="padding: 0 4px;">AgodaVIP★</div>
+                        </div>
+                        <span class="badge" style="background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; font-size: 10px; font-weight: 700;">15% OFF</span>
                     </div>
                 </div>
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="vip-badge-pill">
-                        <div class="vip-tag">AgodaVIP★</div>
-                    </div>
-                    <span class="badge bg-danger" style="font-size: 10.5px;">15% OFF</span>
+
+            </div>
+
+            <p class="text-muted fst-italic mx-auto mb-0" style="max-width: 680px; font-size: 12px; line-height: 1.55;">
+                VIP benefits are subject to change and are not guaranteed on an ongoing basis. Agoda reserves the right to modify or withdraw any VIP benefits at its sole discretion.
+            </p>
+        </div>-size: 10.5px;">15% OFF</span>
                 </div>
             </div>
 

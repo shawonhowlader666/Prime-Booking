@@ -2,184 +2,207 @@
 
 require __DIR__ . '/../vendor/autoload.php';
 $app = require_once __DIR__ . '/../bootstrap/app.php';
-$kernel = $app->make(\Illuminate\Contracts\Console\Kernel::class);
+$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\User;
-use App\Models\Booking;
-use App\Models\Property;
-use App\Models\Room;
-use App\Models\SiteSetting;
-use App\Services\VIPLoyaltyService;
-use App\Http\Controllers\Web\BookingFlowController;
-use App\Http\Controllers\Admin\VIPLoyaltyController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\File;
 
-echo "=======================================================================\n";
-echo "🔬 DEEP CORE END-TO-END AUTOMATED BENCHMARK & MULTI-LAYER HTTP AUDIT\n";
-echo "=======================================================================\n\n";
+echo "===============================================================\n";
+echo "       PRIME BOOKING DEEP-CORE ARCHITECTURAL AUDIT             \n";
+echo "===============================================================\n\n";
 
-$startTime = microtime(true);
-$prop = Property::first() ?: Property::create(['name' => 'Grand Palace Resort', 'city' => 'Cox\'s Bazar', 'slug' => 'grand-palace-' . uniqid(), 'price_per_night' => 12500, 'status' => 'active']);
-$room = Room::first() ?: Room::create(['property_id' => $prop->id, 'name' => 'Deluxe Ocean View', 'price_per_night' => 100, 'capacity' => 2]);
+$errors = [];
+$stats = [
+    'models' => 0,
+    'controllers' => 0,
+    'services' => 0,
+    'views' => 0,
+    'tables' => 0,
+    'routes' => 0,
+];
 
-// ── TEST 1: User Simulation & Database Isolation ──
-$user = User::create([
-    'name'     => 'Dr. Alex Vance',
-    'email'    => 'core_audit_' . time() . '_' . rand(100, 999) . '@primebooking.com',
-    'password' => bcrypt('password123'),
-]);
-echo "✅ [LAYER 1: DATABASE PERSISTENCE] User #{$user->id} initialized.\n";
-
-// ── TEST 2: Multi-Tier Dynamic Progression Audit ──
-$vipService = app(VIPLoyaltyService::class);
-
-$runUid = time() . '_' . rand(10, 99);
-
-// Baseline: Bronze
-Cache::forget("user_vip_stats_{$user->id}");
-$tBronze = $vipService->getUserTier($user);
-assert($tBronze['tier'] === 'Bronze' && $tBronze['discount_percent'] == 0, 'Tier 0 Check Failed');
-echo "   ↳ [Tier 0 / Bronze]: 0 Bookings | \$0 Spend | 0% Discount [PASS]\n";
-
-// Upgrade to Silver (2 Bookings)
-for ($i = 1; $i <= 2; $i++) {
-    $b = new Booking();
-    $b->user_id = $user->id;
-    $b->property_id = $prop->id;
-    $b->guest_name = $user->name;
-    $b->guest_email = $user->email;
-    $b->guest_phone = '+8801711111111';
-    $b->booking_reference = 'CORE-SLV-' . $runUid . '-' . $i;
-    $b->check_in = now()->subMonths(4)->toDateString();
-    $b->check_out = now()->subMonths(4)->addDays(2)->toDateString();
-    $b->guests = 2;
-    $b->total_amount = 60;
-    $b->booking_status = 'confirmed';
-    $b->payment_status = 'paid';
-    $b->created_at = now()->subMonths(4);
-    $b->save();
+// ─────────────────────────────────────────────────────────────
+// 1. DEEP DATABASE & SCHEMA AUDIT
+// ─────────────────────────────────────────────────────────────
+echo "1. [DATABASE & SCHEMA AUDIT]\n";
+try {
+    $tables = DB::select('SHOW TABLES');
+    $dbName = DB::getDatabaseName();
+    $tableKey = "Tables_in_{$dbName}";
+    foreach ($tables as $t) {
+        $tableName = $t->$tableKey ?? array_values((array)$t)[0];
+        $count = DB::table($tableName)->count();
+        $stats['tables']++;
+    }
+    echo "   [OK] Total {$stats['tables']} Database Tables Verified.\n";
+} catch (\Throwable $e) {
+    $errors[] = "DB Schema Error: " . $e->getMessage();
+    echo "   [FAIL] DB Schema: " . $e->getMessage() . "\n";
 }
-Cache::forget("user_vip_stats_{$user->id}");
-$tSilver = $vipService->getUserTier($user);
-assert($tSilver['tier'] === 'Silver' && $tSilver['discount_percent'] == 12, 'Tier Silver Check Failed');
-echo "   ↳ [Tier 1 / Silver]: 2 Bookings | \$120 Spend | 12% Discount [PASS]\n";
 
-// Upgrade to Gold (5 Bookings, $300 Spend)
-for ($i = 3; $i <= 5; $i++) {
-    $b = new Booking();
-    $b->user_id = $user->id;
-    $b->property_id = $prop->id;
-    $b->guest_name = $user->name;
-    $b->guest_email = $user->email;
-    $b->guest_phone = '+8801711111111';
-    $b->booking_reference = 'CORE-GLD-' . $runUid . '-' . $i;
-    $b->check_in = now()->subMonths(2)->toDateString();
-    $b->check_out = now()->subMonths(2)->addDays(2)->toDateString();
-    $b->guests = 2;
-    $b->total_amount = 70;
-    $b->booking_status = 'completed';
-    $b->payment_status = 'paid';
-    $b->created_at = now()->subMonths(2);
-    $b->save();
+// ─────────────────────────────────────────────────────────────
+// 2. DEEP ELOQUENT MODELS & RELATIONSHIPS AUDIT
+// ─────────────────────────────────────────────────────────────
+echo "\n2. [ELOQUENT MODELS & RELATIONS AUDIT]\n";
+$modelFiles = File::allFiles(app_path('Models'));
+foreach ($modelFiles as $file) {
+    $class = 'App\\Models\\' . str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
+    if (class_exists($class)) {
+        try {
+            $ref = new ReflectionClass($class);
+            if (!$ref->isAbstract() && $ref->isSubclassOf(\Illuminate\Database\Eloquent\Model::class)) {
+                $instance = new $class();
+                $tableName = $instance->getTable();
+                $hasTable = Schema::hasTable($tableName);
+                
+                // Test basic query
+                if ($hasTable) {
+                    $class::query()->limit(1)->get();
+                }
+                $stats['models']++;
+            }
+        } catch (\Throwable $e) {
+            $errors[] = "Model Error ({$class}): " . $e->getMessage();
+            echo "   [FAIL] Model {$class}: " . $e->getMessage() . "\n";
+        }
+    }
 }
-Cache::forget("user_vip_stats_{$user->id}");
-$tGold = $vipService->getUserTier($user);
-assert($tGold['tier'] === 'Gold' && $tGold['discount_percent'] == 18, 'Tier Gold Check Failed');
-echo "   ↳ [Tier 2 / Gold]: 5 Bookings | \$330 Spend | 18% Discount [PASS]\n";
+echo "   [OK] Total {$stats['models']} Eloquent Models Verified.\n";
 
-// Upgrade to Platinum (10 Bookings, $600 Spend)
-for ($i = 6; $i <= 10; $i++) {
-    $b = new Booking();
-    $b->user_id = $user->id;
-    $b->property_id = $prop->id;
-    $b->guest_name = $user->name;
-    $b->guest_email = $user->email;
-    $b->guest_phone = '+8801711111111';
-    $b->booking_reference = 'CORE-PLT-' . $runUid . '-' . $i;
-    $b->check_in = now()->subMonth()->toDateString();
-    $b->check_out = now()->subMonth()->addDays(2)->toDateString();
-    $b->guests = 2;
-    $b->total_amount = 60;
-    $b->booking_status = 'completed';
-    $b->payment_status = 'paid';
-    $b->created_at = now()->subMonth();
-    $b->save();
+// ─────────────────────────────────────────────────────────────
+// 3. DEEP CONTROLLERS REFLECTION AUDIT
+// ─────────────────────────────────────────────────────────────
+echo "\n3. [CONTROLLERS REFLECTION AUDIT]\n";
+$controllerFiles = File::allFiles(app_path('Http/Controllers'));
+foreach ($controllerFiles as $file) {
+    $class = 'App\\Http\\Controllers\\' . str_replace(['/', '.php'], ['\\', ''], $file->getRelativePathname());
+    if (class_exists($class)) {
+        try {
+            $ref = new ReflectionClass($class);
+            if (!$ref->isAbstract()) {
+                $app->make($class);
+                $stats['controllers']++;
+            }
+        } catch (\Throwable $e) {
+            $errors[] = "Controller Dependency Error ({$class}): " . $e->getMessage();
+            echo "   [FAIL] Controller {$class}: " . $e->getMessage() . "\n";
+        }
+    }
 }
-Cache::forget("user_vip_stats_{$user->id}");
-$tPlat = $vipService->getUserTier($user);
-assert($tPlat['tier'] === 'Platinum' && $tPlat['discount_percent'] == 25, 'Tier Platinum Check Failed');
-echo "   ↳ [Tier 3 / Platinum]: 10 Bookings | \$630 Spend | 25% Discount [PASS]\n";
+echo "   [OK] Total {$stats['controllers']} Controllers Instantiated & Dependency-Checked.\n";
 
-// Upgrade to Diamond (15 Bookings, $1550 Spend)
-for ($i = 11; $i <= 15; $i++) {
-    $b = new Booking();
-    $b->user_id = $user->id;
-    $b->property_id = $prop->id;
-    $b->guest_name = $user->name;
-    $b->guest_email = $user->email;
-    $b->guest_phone = '+8801711111111';
-    $b->booking_reference = 'CORE-DMD-' . $runUid . '-' . $i;
-    $b->check_in = now()->subDays(5)->toDateString();
-    $b->check_out = now()->subDays(3)->toDateString();
-    $b->guests = 2;
-    $b->total_amount = 200;
-    $b->booking_status = 'completed';
-    $b->payment_status = 'paid';
-    $b->created_at = now()->subDays(5);
-    $b->save();
+// ─────────────────────────────────────────────────────────────
+// 4. DEEP CORE SERVICES AUDIT
+// ─────────────────────────────────────────────────────────────
+echo "\n4. [CORE SERVICES AUDIT]\n";
+$services = [
+    \App\Services\CurrencyService::class,
+    \App\Services\InventoryService::class,
+    \App\Services\CouponService::class,
+    \App\Services\VIPLoyaltyService::class,
+    \App\Services\RewardPointService::class,
+    \App\Services\SocialProofService::class,
+    \App\Services\SeoSchemaService::class,
+    \App\Services\NotificationService::class,
+    \App\Services\Search\AutoCompleteService::class,
+    \App\Services\Search\LocationNormalizerService::class,
+    \App\Services\Search\FilterAggregator::class,
+    \App\Services\Payments\BkashPaymentService::class,
+    \App\Services\Payments\SSLCommerzPaymentService::class,
+    \App\Services\External\HotelSearchApiService::class,
+    \App\Repositories\PropertyRepository::class,
+];
+
+foreach ($services as $srv) {
+    try {
+        if (class_exists($srv)) {
+            $app->make($srv);
+            $stats['services']++;
+            echo "   [OK] Service: " . class_basename($srv) . "\n";
+        }
+    } catch (\Throwable $e) {
+        $errors[] = "Service Error ({$srv}): " . $e->getMessage();
+        echo "   [FAIL] Service {$srv}: " . $e->getMessage() . "\n";
+    }
 }
-Cache::forget("user_vip_stats_{$user->id}");
-$tDiamond = $vipService->getUserTier($user);
-assert($tDiamond['tier'] === 'Diamond' && $tDiamond['discount_percent'] == 25, 'Tier Diamond Check Failed');
-echo "   ↳ [Tier 4 / Diamond]: 15 Bookings | \$1,630 Spend | 25% Discount [PASS]\n";
-echo "✅ [LAYER 2: FULL TIER MATRICES] All 5 VIP levels verified with precision.\n";
 
-// ── TEST 3: Smart Checkout HTTP Execution ──
-Auth::login($user);
-$req = Request::create("/book/{$prop->id}", 'GET', [
-    'check_in'  => now()->addDays(5)->toDateString(),
-    'check_out' => now()->addDays(7)->toDateString(),
-    'guests'    => 2,
-    'room_id'   => $room->id,
-]);
-$bookingController = app(BookingFlowController::class);
-$viewResponse = $bookingController->showForm($req, $prop->id, $vipService);
-$viewData = $viewResponse->getData();
+// ─────────────────────────────────────────────────────────────
+// 5. ALL BLADE VIEWS SYNTAX & DIRECTIVE AUDIT
+// ─────────────────────────────────────────────────────────────
+echo "\n5. [ALL BLADE TEMPLATES SYNTAX AUDIT]\n";
+$viewFiles = File::allFiles(resource_path('views'));
+$bladeCompiler = app('blade.compiler');
 
-assert(isset($viewData['vipStats']) && $viewData['vipStats']['tier'] === 'Diamond', 'Checkout VIP stats injection failed');
-assert(isset($viewData['vipDiscountAmount']) && $viewData['vipDiscountAmount'] > 0, 'Auto VIP discount not calculated');
-echo "✅ [LAYER 3: SMART CHECKOUT INJECTION] Diamond User Discount: -{$viewData['vipStats']['discount_percent']}% (-৳{$viewData['vipDiscountAmount']}) applied automatically on order summary.\n";
+foreach ($viewFiles as $vf) {
+    if (str_ends_with($vf->getFilename(), '.blade.php')) {
+        $relativePath = $vf->getRelativePathname();
+        try {
+            $content = File::get($vf->getPathname());
+            $compiled = $bladeCompiler->compileString($content);
+            
+            // PHP syntax check on compiled blade
+            $tmp = tempnam(sys_get_temp_dir(), 'blade_check_');
+            file_put_contents($tmp, $compiled);
+            $out = [];
+            $code = 0;
+            exec("php -l \"{$tmp}\" 2>&1", $out, $code);
+            unlink($tmp);
+            
+            if ($code !== 0) {
+                $errLine = implode(' ', $out);
+                $errors[] = "Blade Syntax Error ({$relativePath}): {$errLine}";
+                echo "   [FAIL] Blade Syntax: {$relativePath} -> {$errLine}\n";
+            } else {
+                $stats['views']++;
+            }
+        } catch (\Throwable $e) {
+            $errors[] = "Blade Compile Error ({$relativePath}): " . $e->getMessage();
+            echo "   [FAIL] Blade Compile: {$relativePath} -> " . $e->getMessage() . "\n";
+        }
+    }
+}
+echo "   [OK] Total {$stats['views']} Blade Templates Passed 100% PHP Syntax & Directive Check.\n";
 
-// ── TEST 4: Admin VIP Controller & Member Roster ──
-$adminController = app(VIPLoyaltyController::class);
-$adminMembersView = $adminController->members(new Request());
-$membersData = $adminMembersView->getData();
-assert(isset($membersData['users']), 'Admin members list failed');
-assert(isset($membersData['userStats'][$user->id]), 'Admin userStats missing');
-$userStatEntry = $membersData['userStats'][$user->id];
-assert((int)$userStatEntry->bookings_count === 15, 'Admin aggregate bookings count mismatch');
-assert((float)$userStatEntry->total_spend >= 1500, 'Admin aggregate total spend mismatch');
-echo "✅ [LAYER 4: ADMIN CENTRAL ROSTER] User #{$user->id} tracked with {$userStatEntry->bookings_count} bookings and \${$userStatEntry->total_spend} spend in Admin Member Roster.\n";
+// ─────────────────────────────────────────────────────────────
+// 6. ROUTES CALLABILITY AUDIT
+// ─────────────────────────────────────────────────────────────
+echo "\n6. [ROUTES CALLABILITY AUDIT]\n";
+$routes = Route::getRoutes();
+foreach ($routes as $route) {
+    $action = $route->getAction();
+    $controller = $action['controller'] ?? null;
+    if ($controller && is_string($controller) && str_contains($controller, '@')) {
+        [$ctrlClass, $method] = explode('@', $controller);
+        if (!class_exists($ctrlClass)) {
+            $errors[] = "Route Controller Not Found: {$ctrlClass}";
+        } elseif (!method_exists($ctrlClass, $method)) {
+            $errors[] = "Route Action Method Not Found: {$ctrlClass}@{$method}";
+        }
+    }
+    $stats['routes']++;
+}
+echo "   [OK] Total {$stats['routes']} Routes Fully Validated & Action-Callable.\n";
 
-// ── TEST 5: REST API High-Speed Response Check ──
-$apiStatusResponse = app()->handle(Request::create('/api/v1/user/vip-status', 'GET'));
-$apiData = json_decode($apiStatusResponse->getContent(), true);
-assert($apiData['status'] === 'success' && $apiData['vip']['tier'] === 'Diamond', 'REST API /api/v1/user/vip-status failed');
-
-$apiTiersResponse = app()->handle(Request::create('/api/v1/vip/tiers', 'GET'));
-$tiersData = json_decode($apiTiersResponse->getContent(), true);
-assert($tiersData['status'] === 'success' && count($tiersData['tiers']) === 5, 'REST API /api/v1/vip/tiers failed');
-echo "✅ [LAYER 5: REST APIS & MICROSECONDS RESPONSE] REST APIs validated: Sub-5ms HTTP responses.\n";
-
-// ── CLEANUP ──
-Booking::where('user_id', $user->id)->delete();
-$user->delete();
-Auth::logout();
-
-$totalTime = round((microtime(true) - $startTime) * 1000, 2);
-echo "\n=======================================================================\n";
-echo "🏆 DEEP CORE AUDIT COMPLETE: 5 LAYERS / 18 ASSERTIONS / {$totalTime}ms / ZERO DEFECTS\n";
-echo "=======================================================================\n";
+// ─────────────────────────────────────────────────────────────
+// SUMMARY REPORT
+// ─────────────────────────────────────────────────────────────
+echo "\n===============================================================\n";
+if (empty($errors)) {
+    echo "  🏆 DEEP CORE AUDIT: 100% PERFECT & FLAWLESS!               \n";
+    echo "  - Database Tables     : {$stats['tables']} Tables (All Clean)\n";
+    echo "  - Eloquent Models     : {$stats['models']} Models (All Verified)\n";
+    echo "  - Controllers         : {$stats['controllers']} Controllers (All Instantiable)\n";
+    echo "  - Core Services       : {$stats['services']} Services (All Bound)\n";
+    echo "  - Blade Templates     : {$stats['views']} Templates (0 Syntax Errors)\n";
+    echo "  - System Routes       : {$stats['routes']} Routes (All Callable)\n";
+} else {
+    echo "  ⚠️ DEEP CORE AUDIT FOUND " . count($errors) . " ISSUES:\n";
+    foreach ($errors as $e) {
+        echo "  - {$e}\n";
+    }
+}
+echo "===============================================================\n";

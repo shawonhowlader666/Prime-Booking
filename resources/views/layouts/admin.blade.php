@@ -52,6 +52,42 @@
         }
 
         /* ============================================================
+         * Ultra-Smooth 60/120 FPS Scrolling & Hardware Acceleration
+         * ============================================================ */
+        html {
+            scroll-behavior: smooth;
+            -webkit-text-size-adjust: 100%;
+        }
+        body {
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: none;
+            text-rendering: optimizeLegibility;
+        }
+        .card, .table-responsive, .stat-card, .dataTables_wrapper {
+            content-visibility: auto;
+            contain-intrinsic-size: auto 300px;
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+        img {
+            image-rendering: -webkit-optimize-contrast;
+        }
+        ::-webkit-scrollbar {
+            width: 7px;
+            height: 7px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f0f2f5;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* ============================================================
          * Medium & Fine Typography Rule (Crisp Medium Weight 500)
          * ============================================================ */
         body, button, input, select, textarea, th, td, h1, h2, h3, h4, h5, h6, label, span, p, a, div {

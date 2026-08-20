@@ -1,72 +1,70 @@
-@extends('layouts.main', ['activePage' => 'services'])
+<?php $__env->startSection('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING'); ?>
 
-@section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING')
+<?php $__env->startSection('content'); ?>
+<?php echo $__env->make('components.search.loading-skeleton-modal', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
 
-@section('content')
-@include('components.search.loading-skeleton-modal')
 
-{{-- 2. Agoda Compact Subheader Search Bar (Screenshot 1:1 Exact Parity) --}}
-@php
+<?php
     $checkinCarbon = \Carbon\Carbon::parse($checkIn ?: now());
     $checkoutCarbon = \Carbon\Carbon::parse($checkOut ?: now()->addDays(7));
     $guestCount = intval($guests ?: 2);
     $roomsCount = intval(request('rooms', 1));
-@endphp
+?>
 <div style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155;">
     <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
-        <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
-            <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
+        <form action="<?php echo e(route('search.index')); ?>" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
+            <input type="hidden" name="search_type" value="<?php echo e($searchType ?? 'hotel'); ?>">
 
-            {{-- 1. Destination Input Box with Near Me GPS Button --}}
+            
             <div class="col-12 col-lg-3">
                 <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
                     <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
-                    <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
-                    <input type="hidden" name="lat" id="gpsLatInput" value="{{ request('lat') }}">
-                    <input type="hidden" name="lng" id="gpsLngInput" value="{{ request('lng') }}">
+                    <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="<?php echo e($destination); ?>" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
+                    <input type="hidden" name="lat" id="gpsLatInput" value="<?php echo e(request('lat')); ?>">
+                    <input type="hidden" name="lng" id="gpsLngInput" value="<?php echo e(request('lng')); ?>">
                     <button type="button" class="btn btn-link p-0 text-primary ms-1" title="Search Near My Current GPS Location" onclick="useCurrentLocation()" style="font-size: 15px; text-decoration: none;">
                         <i class="fa-solid fa-location-crosshairs" id="gpsCrosshairIcon"></i>
                     </button>
                 </div>
             </div>
 
-            {{-- 2. Check-in Date Box (Agoda 2-line Card) --}}
+            
             <div class="col-6 col-md-3 col-lg-2">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkInNativeInput').showPicker();">
                     <i class="fa-regular fa-calendar text-secondary fs-5"></i>
                     <div style="line-height: 1.15;">
-                        <strong class="d-block text-dark" id="checkInDisplayDate" style="font-size: 13px;">{{ $checkinCarbon->format('j M Y') }}</strong>
-                        <small class="text-secondary" id="checkInDisplayDay" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
+                        <strong class="d-block text-dark" id="checkInDisplayDate" style="font-size: 13px;"><?php echo e($checkinCarbon->format('j M Y')); ?></strong>
+                        <small class="text-secondary" id="checkInDisplayDay" style="font-size: 11px;"><?php echo e($checkinCarbon->format('l')); ?></small>
                     </div>
-                    <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
+                    <input type="date" name="check_in" id="checkInNativeInput" value="<?php echo e($checkinCarbon->format('Y-m-d')); ?>" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
                 </div>
             </div>
 
-            {{-- 3. Check-out Date Box (Agoda 2-line Card) --}}
+            
             <div class="col-6 col-md-3 col-lg-2">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
                     <i class="fa-regular fa-calendar text-secondary fs-5"></i>
                     <div style="line-height: 1.15;">
-                        <strong class="d-block text-dark" id="checkOutDisplayDate" style="font-size: 13px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
-                        <small class="text-secondary" id="checkOutDisplayDay" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
+                        <strong class="d-block text-dark" id="checkOutDisplayDate" style="font-size: 13px;"><?php echo e($checkoutCarbon->format('j M Y')); ?></strong>
+                        <small class="text-secondary" id="checkOutDisplayDay" style="font-size: 11px;"><?php echo e($checkoutCarbon->format('l')); ?></small>
                     </div>
-                    <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
+                    <input type="date" name="check_out" id="checkOutNativeInput" value="<?php echo e($checkoutCarbon->format('Y-m-d')); ?>" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
                 </div>
             </div>
 
-            {{-- 4. Guests & Rooms Box (Agoda 2-line Card with Dropdown) --}}
+            
             <div class="col-12 col-md-4 col-lg-3 position-relative">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-users text-secondary fs-5"></i>
                         <div style="line-height: 1.15;">
-                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 13px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
-                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 11px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
+                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 13px;"><?php echo e($guestCount); ?> adult<?php echo e($guestCount > 1 ? 's' : ''); ?></strong>
+                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 11px;"><?php echo e($roomsCount); ?> room<?php echo e($roomsCount > 1 ? 's' : ''); ?></small>
                         </div>
                     </div>
                 </div>
 
-                {{-- Guests Counter Popover Menu --}}
+                
                 <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1050;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
@@ -75,8 +73,8 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', -1);">-</button>
-                            <input type="hidden" name="guests" id="guestsHiddenInput" value="{{ $guestCount }}">
-                            <span class="fw-bold px-1" id="guestsValText">{{ $guestCount }}</span>
+                            <input type="hidden" name="guests" id="guestsHiddenInput" value="<?php echo e($guestCount); ?>">
+                            <span class="fw-bold px-1" id="guestsValText"><?php echo e($guestCount); ?></span>
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', 1);">+</button>
                         </div>
                     </div>
@@ -87,8 +85,8 @@
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', -1);">-</button>
-                            <input type="hidden" name="rooms" id="roomsHiddenInput" value="{{ $roomsCount }}">
-                            <span class="fw-bold px-1" id="roomsValText">{{ $roomsCount }}</span>
+                            <input type="hidden" name="rooms" id="roomsHiddenInput" value="<?php echo e($roomsCount); ?>">
+                            <span class="fw-bold px-1" id="roomsValText"><?php echo e($roomsCount); ?></span>
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', 1);">+</button>
                         </div>
                     </div>
@@ -98,7 +96,7 @@
                 </div>
             </div>
 
-            {{-- 5. Search Blue Button --}}
+            
             <div class="col-12 col-md-2 col-lg-2">
                 <button type="submit" class="btn text-white w-100 fw-bold rounded-3 shadow-sm" style="background-color: #2067e1; height: 48px; font-size: 14px; letter-spacing: 0.5px;">
                     SEARCH
@@ -170,7 +168,7 @@
     }
 </script>
 
-{{-- 3. Agoda Coupon Deals Strip Banner (Image 2 Parity) --}}
+
 <div style="background: #fff0f3; border-bottom: 1px solid #fecdd3; padding: 10px 0;">
     <div class="d-flex align-items-center justify-content-between" style="max-width: 1240px; margin: 0 auto; padding: 0 16px; font-size: 13px;">
         <div class="d-flex align-items-center gap-2">
@@ -178,23 +176,23 @@
             <strong class="text-dark">Looking for instant coupons?</strong>
             <span class="text-secondary d-none d-md-inline">Check out our Coupons &amp; Deals page for today's BDT discounts</span>
         </div>
-        <a href="{{ route('deals') }}" class="btn btn-sm btn-outline-danger bg-white rounded-pill px-3 py-1 fw-bold" style="font-size: 12px;">See all coupons</a>
+        <a href="<?php echo e(route('deals')); ?>" class="btn btn-sm btn-outline-danger bg-white rounded-pill px-3 py-1 fw-bold" style="font-size: 12px;">See all coupons</a>
     </div>
 </div>
 
-{{-- 4. Main Search Results Layout --}}
+
 <div style="max-width: 1240px; margin: 0 auto; padding: 24px 16px;">
     <div class="row g-4">
         
-        {{-- Left Filter Sidebar --}}
+        
         <div class="col-lg-3">
-            @include('components.search.filter-sidebar')
+            <?php echo $__env->make('components.search.filter-sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
         </div>
 
-        {{-- Right Results Feed --}}
+        
         <div class="col-lg-9" id="searchResultsContainer">
             
-            {{-- Green Prime Homes Promo Banner (Agoda Standard 1:1 Parity) --}}
+            
             <div class="mb-4 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 12px !important; padding: 16px 20px;">
                 <div class="d-flex align-items-center gap-3">
                     <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);">
@@ -209,34 +207,37 @@
                     </div>
                 </div>
                 <div>
-                    <a href="{{ route('search.index', array_merge(request()->query(), ['search_type' => 'homes'])) }}" class="btn text-white fw-bold shadow-xs" style="background-color: #2067e1; border-radius: 8px; font-size: 13px; padding: 8px 18px;">
+                    <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['search_type' => 'homes']))); ?>" class="btn text-white fw-bold shadow-xs" style="background-color: #2067e1; border-radius: 8px; font-size: 13px; padding: 8px 18px;">
                         Show more Homes
                     </a>
                 </div>
             </div>
 
-            {{-- 3.5 Smart Destination Weather & Seasonal Guidance Card --}}
-            @if(!empty($destination))
-            @php
+            
+            <?php if(!empty($destination)): ?>
+            <?php
                 $cityInsight = \App\Services\Search\CityInsightService::getInsights($destination);
-            @endphp
+            ?>
             <div class="mb-3 p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
                 <div class="d-flex align-items-center gap-3">
                     <div class="rounded-circle d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 42px; height: 42px; background: #ffffff; border: 1px solid #86efac;">
-                        <i class="{{ $cityInsight['icon'] }} fs-5"></i>
+                        <i class="<?php echo e($cityInsight['icon']); ?> fs-5"></i>
                     </div>
                     <div>
                         <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                            <strong class="text-dark fw-bold" style="font-size: 14px;">{{ $destination }}</strong>
+                            <strong class="text-dark fw-bold" style="font-size: 14px;"><?php echo e($destination); ?></strong>
                             <span class="badge fw-semibold px-2.5 py-1" style="font-size: 11px; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 20px;">
-                                <i class="fa-solid fa-sparkles me-1 text-success" style="font-size: 10px;"></i>{{ $cityInsight['season_badge'] }}
+                                <i class="fa-solid fa-sparkles me-1 text-success" style="font-size: 10px;"></i><?php echo e($cityInsight['season_badge']); ?>
+
                             </span>
                             <span class="text-secondary fw-semibold" style="font-size: 12.5px;">
-                                <i class="fa-solid fa-cloud-sun text-warning me-1"></i>{{ $cityInsight['temp'] }} · {{ $cityInsight['condition'] }}
+                                <i class="fa-solid fa-cloud-sun text-warning me-1"></i><?php echo e($cityInsight['temp']); ?> · <?php echo e($cityInsight['condition']); ?>
+
                             </span>
                         </div>
                         <div class="text-secondary" style="font-size: 12px; line-height: 1.35; color: #475569;">
-                            <i class="fa-solid fa-circle-info text-success me-1 opacity-75"></i>{{ $cityInsight['tip'] }}
+                            <i class="fa-solid fa-circle-info text-success me-1 opacity-75"></i><?php echo e($cityInsight['tip']); ?>
+
                         </div>
                     </div>
                 </div>
@@ -246,137 +247,131 @@
                     </span>
                 </div>
             </div>
-            @endif
+            <?php endif; ?>
 
-            {{--
-                ════════════════════════════════════════════════
-                POPULAR AREAS PILLS — 100% DATABASE-DRIVEN
-                Source: SearchController::getPopularAreasForDestination()
-                Queries: nearest_landmark + city fields from real properties
-                Cache: 10 min per destination key
-                Zero hardcoded city/area names.
-                ════════════════════════════════════════════════
-            --}}
-            @if(!empty($popularAreas))
+            
+            <?php if(!empty($popularAreas)): ?>
             <div class="d-flex align-items-center gap-2 mb-4 flex-wrap" style="padding: 4px 0;">
-                <span class="small text-muted fw-bold me-1" style="font-size: 12.5px;">Popular areas in {{ $destination ?: 'city' }}:</span>
-                @foreach($popularAreas as $hood)
-                    <a href="{{ route('search.index', array_merge(request()->query(), ['destination' => $destination, 'q' => $hood])) }}"
-                       class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold @if(request('q') == $hood) active bg-primary text-white border-primary @endif"
+                <span class="small text-muted fw-bold me-1" style="font-size: 12.5px;">Popular areas in <?php echo e($destination ?: 'city'); ?>:</span>
+                <?php $__currentLoopData = $popularAreas; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $hood): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['destination' => $destination, 'q' => $hood]))); ?>"
+                       class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold <?php if(request('q') == $hood): ?> active bg-primary text-white border-primary <?php endif; ?>"
                        style="font-size: 12px; border-color: #cbd5e1; color: #475569; padding: 5px 14px;">
-                        {{ $hood }}
-                    </a>
-                @endforeach
-            </div>
-            @endif
+                        <?php echo e($hood); ?>
 
-            {{-- Applied Active Filter Removable Tags Strip (ALL filter types) --}}
-            @php
+                    </a>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+            </div>
+            <?php endif; ?>
+
+            
+            <?php
                 $hasFilters = request()->hasAny(['q','min_price','max_price','guest_rating','star_rating','amenities','bed_type','room_feature','pay_later','free_cancel','property_type']);
                 $clearBaseParams = array_filter(['destination'=>request('destination'),'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests'),'rooms'=>request('rooms')]);
-            @endphp
-            @if($hasFilters)
+            ?>
+            <?php if($hasFilters): ?>
             <div class="d-flex align-items-center gap-1 mb-3 pb-2 border-bottom flex-wrap">
                 <span class="small text-muted fw-bold me-1" style="font-size: 11.5px;">Active filters:</span>
 
-                @if(request('q'))
-                    <a href="{{ route('search.index', request()->except('q')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        "{{ Str::limit(request('q'), 20) }}" <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php if(request('q')): ?>
+                    <a href="<?php echo e(route('search.index', request()->except('q'))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        "<?php echo e(Str::limit(request('q'), 20)); ?>" <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endif
+                <?php endif; ?>
 
-                @if(request('min_price') && (float)request('min_price') > 0)
-                    <a href="{{ route('search.index', request()->except('min_price')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Min ৳{{ number_format((float)request('min_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php if(request('min_price') && (float)request('min_price') > 0): ?>
+                    <a href="<?php echo e(route('search.index', request()->except('min_price'))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Min ৳<?php echo e(number_format((float)request('min_price'))); ?> <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endif
+                <?php endif; ?>
 
-                @if(request('max_price') && (float)request('max_price') < 10000000)
-                    <a href="{{ route('search.index', request()->except('max_price')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Max ৳{{ number_format((float)request('max_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php if(request('max_price') && (float)request('max_price') < 10000000): ?>
+                    <a href="<?php echo e(route('search.index', request()->except('max_price'))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Max ৳<?php echo e(number_format((float)request('max_price'))); ?> <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endif
+                <?php endif; ?>
 
-                @foreach((array)request('guest_rating',[]) as $gr)
-                    <a href="{{ route('search.index', array_merge(request()->except('guest_rating'), ['guest_rating' => array_diff((array)request('guest_rating',[]), [$gr])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Rating {{ $gr }}+ <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php $__currentLoopData = (array)request('guest_rating',[]); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $gr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->except('guest_rating'), ['guest_rating' => array_diff((array)request('guest_rating',[]), [$gr])]))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Rating <?php echo e($gr); ?>+ <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                @foreach((array)request('star_rating',[]) as $sr)
-                    <a href="{{ route('search.index', array_merge(request()->except('star_rating'), ['star_rating' => array_diff((array)request('star_rating',[]), [$sr])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ $sr }}★ <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php $__currentLoopData = (array)request('star_rating',[]); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $sr): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->except('star_rating'), ['star_rating' => array_diff((array)request('star_rating',[]), [$sr])]))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        <?php echo e($sr); ?>★ <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                @foreach((array)request('property_type',[]) as $pt)
-                    <a href="{{ route('search.index', array_merge(request()->except('property_type'), ['property_type' => array_diff((array)request('property_type',[]), [$pt])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ ucfirst($pt) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php $__currentLoopData = (array)request('property_type',[]); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $pt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->except('property_type'), ['property_type' => array_diff((array)request('property_type',[]), [$pt])]))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        <?php echo e(ucfirst($pt)); ?> <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                @foreach((array)request('amenities',[]) as $am)
-                    <a href="{{ route('search.index', array_merge(request()->except('amenities'), ['amenities' => array_diff((array)request('amenities',[]), [$am])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ $am }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php $__currentLoopData = (array)request('amenities',[]); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $am): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->except('amenities'), ['amenities' => array_diff((array)request('amenities',[]), [$am])]))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        <?php echo e($am); ?> <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                @foreach((array)request('bed_type',[]) as $bt)
-                    <a href="{{ route('search.index', array_merge(request()->except('bed_type'), ['bed_type' => array_diff((array)request('bed_type',[]), [$bt])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ ucfirst($bt) }} bed <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php $__currentLoopData = (array)request('bed_type',[]); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $bt): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->except('bed_type'), ['bed_type' => array_diff((array)request('bed_type',[]), [$bt])]))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        <?php echo e(ucfirst($bt)); ?> bed <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                @foreach((array)request('room_feature',[]) as $rf)
-                    <a href="{{ route('search.index', array_merge(request()->except('room_feature'), ['room_feature' => array_diff((array)request('room_feature',[]), [$rf])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ str_replace('_',' ',ucfirst($rf)) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                <?php $__currentLoopData = (array)request('room_feature',[]); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $rf): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <a href="<?php echo e(route('search.index', array_merge(request()->except('room_feature'), ['room_feature' => array_diff((array)request('room_feature',[]), [$rf])]))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        <?php echo e(str_replace('_',' ',ucfirst($rf))); ?> <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endforeach
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
 
-                @if(request('pay_later'))
-                    <a href="{{ route('search.index', request()->except('pay_later')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                <?php if(request('pay_later')): ?>
+                    <a href="<?php echo e(route('search.index', request()->except('pay_later'))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
                         No credit card <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endif
+                <?php endif; ?>
 
-                @if(request('free_cancel'))
-                    <a href="{{ route('search.index', request()->except('free_cancel')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                <?php if(request('free_cancel')): ?>
+                    <a href="<?php echo e(route('search.index', request()->except('free_cancel'))); ?>" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
                         Free cancel <i class="fa-solid fa-xmark text-danger ms-1"></i>
                     </a>
-                @endif
+                <?php endif; ?>
 
-                <a href="{{ route('search.index', $clearBaseParams) }}" class="text-decoration-none fw-bold ms-auto text-danger" style="font-size: 11.5px; white-space:nowrap;">
+                <a href="<?php echo e(route('search.index', $clearBaseParams)); ?>" class="text-decoration-none fw-bold ms-auto text-danger" style="font-size: 11.5px; white-space:nowrap;">
                     <i class="fa-solid fa-rotate-left me-1"></i>Clear all
                 </a>
             </div>
-            @endif
+            <?php endif; ?>
 
-            {{-- Results Header & AJAX Sort Dropdown (no full page reload) --}}
+            
             <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">
-                        <span id="resultsCount">{{ $searchResults['total_count'] }}</span> properties in {{ $destination ?: 'Bangladesh' }}
+                        <span id="resultsCount"><?php echo e($searchResults['total_count']); ?></span> properties in <?php echo e($destination ?: 'Bangladesh'); ?>
+
                     </h4>
                 </div>
                 <div class="d-flex align-items-center gap-2">
-                    {{-- Mobile: Show Filters toggle --}}
+                    
                     <button class="btn btn-outline-secondary btn-sm rounded-pill fw-bold d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas" aria-controls="mobileFilterOffcanvas" style="font-size:12px;">
                         <i class="fa-solid fa-sliders me-1"></i> Filters
                     </button>
                     <label class="small text-muted fw-semibold mb-0 d-none d-sm-inline">Sort by:</label>
                     <select id="sortBySelect" class="form-select form-select-sm rounded-3 fw-semibold" style="width: 190px; font-size: 13px; border-color: #cbd5e1;">
-                        <option value="featured" {{ request('sort_by','featured') == 'featured' ? 'selected' : '' }}>Best match</option>
-                        <option value="price_low" {{ request('sort_by') == 'price_low' ? 'selected' : '' }}>Lowest price first</option>
-                        <option value="price_high" {{ request('sort_by') == 'price_high' ? 'selected' : '' }}>Highest price first</option>
-                        <option value="rating" {{ request('sort_by') == 'rating' ? 'selected' : '' }}>Highest guest rating</option>
-                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Newest listings</option>
+                        <option value="featured" <?php echo e(request('sort_by','featured') == 'featured' ? 'selected' : ''); ?>>Best match</option>
+                        <option value="price_low" <?php echo e(request('sort_by') == 'price_low' ? 'selected' : ''); ?>>Lowest price first</option>
+                        <option value="price_high" <?php echo e(request('sort_by') == 'price_high' ? 'selected' : ''); ?>>Highest price first</option>
+                        <option value="rating" <?php echo e(request('sort_by') == 'rating' ? 'selected' : ''); ?>>Highest guest rating</option>
+                        <option value="newest" <?php echo e(request('sort_by') == 'newest' ? 'selected' : ''); ?>>Newest listings</option>
                     </select>
                 </div>
             </div>
 
-            {{-- Agoda Popular Quick Filter Chips Bar --}}
+            
             <div class="d-flex align-items-center gap-2 overflow-x-auto pb-2 mb-2" style="scrollbar-width: none;">
-                @php
+                <?php
                     $quickAmenities = (array) request('amenities', []);
                     $hasBreakfast = in_array('Breakfast included', $quickAmenities);
                     $hasPool = in_array('Swimming pool', $quickAmenities);
@@ -385,74 +380,74 @@
                     $isPayLater = request('pay_later') == 1;
                     $is5Star = request('star_rating') == '5';
                     $isTopRated = request('guest_rating') == '9';
-                @endphp
+                ?>
 
-                {{-- Free Cancellation --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['free_cancel' => $isFreeCancel ? null : 1])) }}" 
+                
+                <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['free_cancel' => $isFreeCancel ? null : 1]))); ?>" 
                    class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; {{ $isFreeCancel ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-check {{ $isFreeCancel ? 'text-white' : 'text-success' }}"></i> Free cancellation
+                   style="font-size: 12px; <?php echo e($isFreeCancel ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-check <?php echo e($isFreeCancel ? 'text-white' : 'text-success'); ?>"></i> Free cancellation
                 </a>
 
-                {{-- Breakfast Included --}}
-                @php
+                
+                <?php
                     $breakfastParams = request()->query();
                     if ($hasBreakfast) {
                         $breakfastParams['amenities'] = array_values(array_diff($quickAmenities, ['Breakfast included']));
                     } else {
                         $breakfastParams['amenities'] = array_merge($quickAmenities, ['Breakfast included']);
                     }
-                @endphp
-                <a href="{{ route('search.index', $breakfastParams) }}" 
+                ?>
+                <a href="<?php echo e(route('search.index', $breakfastParams)); ?>" 
                    class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; {{ $hasBreakfast ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-mug-saucer {{ $hasBreakfast ? 'text-white' : 'text-warning' }}"></i> Breakfast included
+                   style="font-size: 12px; <?php echo e($hasBreakfast ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-mug-saucer <?php echo e($hasBreakfast ? 'text-white' : 'text-warning'); ?>"></i> Breakfast included
                 </a>
 
-                {{-- Swimming Pool --}}
-                @php
+                
+                <?php
                     $poolParams = request()->query();
                     if ($hasPool) {
                         $poolParams['amenities'] = array_values(array_diff($quickAmenities, ['Swimming pool']));
                     } else {
                         $poolParams['amenities'] = array_merge($quickAmenities, ['Swimming pool']);
                     }
-                @endphp
-                <a href="{{ route('search.index', $poolParams) }}" 
+                ?>
+                <a href="<?php echo e(route('search.index', $poolParams)); ?>" 
                    class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; {{ $hasPool ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-person-swimming {{ $hasPool ? 'text-white' : 'text-info' }}"></i> Swimming pool
+                   style="font-size: 12px; <?php echo e($hasPool ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-person-swimming <?php echo e($hasPool ? 'text-white' : 'text-info'); ?>"></i> Swimming pool
                 </a>
 
-                {{-- Pay at Hotel --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['pay_later' => $isPayLater ? null : 1])) }}" 
+                
+                <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['pay_later' => $isPayLater ? null : 1]))); ?>" 
                    class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; {{ $isPayLater ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-wallet {{ $isPayLater ? 'text-white' : 'text-success' }}"></i> Pay at hotel
+                   style="font-size: 12px; <?php echo e($isPayLater ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
+                    <i class="fa-solid fa-wallet <?php echo e($isPayLater ? 'text-white' : 'text-success'); ?>"></i> Pay at hotel
                 </a>
 
-                {{-- Top Rated 9+ --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['guest_rating' => $isTopRated ? null : 9])) }}" 
+                
+                <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['guest_rating' => $isTopRated ? null : 9]))); ?>" 
                    class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; {{ $isTopRated ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                   style="font-size: 12px; <?php echo e($isTopRated ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
                     <i class="fa-solid fa-star text-warning"></i> Superb 9.0+
                 </a>
 
-                {{-- 5-Star Luxury --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['star_rating' => $is5Star ? null : 5])) }}" 
+                
+                <a href="<?php echo e(route('search.index', array_merge(request()->query(), ['star_rating' => $is5Star ? null : 5]))); ?>" 
                    class="btn btn-sm rounded-pill fw-semibold px-3 py-1 text-nowrap d-flex align-items-center gap-1.5 shadow-xs" 
-                   style="font-size: 12px; {{ $is5Star ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
+                   style="font-size: 12px; <?php echo e($is5Star ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;'); ?>">
                     <i class="fa-solid fa-crown text-warning"></i> 5-Star Stays
                 </a>
             </div>
 
-            {{-- Property Cards Grid --}}
+            
             <div class="d-flex flex-column gap-3" id="propertyCardsFeed">
-                @forelse($searchResults['merged_results'] as $item)
-                    @include('components.search.property-card', ['item' => $item])
-                @empty
-                    {{-- Smart Empty State with Fallback Suggestions --}}
-                    @php
+                <?php $__empty_1 = true; $__currentLoopData = $searchResults['merged_results']; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); $__empty_1 = false; ?>
+                    <?php echo $__env->make('components.search.property-card', ['item' => $item], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); if ($__empty_1): ?>
+                    
+                    <?php
                         $suggestedFallback = \App\Models\Property::select([
                                 'id','name','slug','type','city','address',
                                 'star_rating','rating_score','total_reviews',
@@ -465,49 +460,50 @@
                             ->limit(4)
                             ->get();
 
-                    @endphp
+                    ?>
                     <div class="card border-0 shadow-xs rounded-4 p-4 text-center bg-white my-2">
                         <div class="mb-3" style="font-size: 48px;">🔍</div>
-                        <h5 class="fw-bold text-dark mb-1">No properties found in "{{ $destination ?: 'this area' }}"</h5>
+                        <h5 class="fw-bold text-dark mb-1">No properties found in "<?php echo e($destination ?: 'this area'); ?>"</h5>
                         <p class="text-secondary small mb-3">Try removing filters, expanding your price range, or explore nearby destinations below.</p>
                         <div class="d-flex gap-2 flex-wrap justify-content-center mb-2">
-                            <a href="{{ route('search.index', array_filter(['destination'=>$destination,'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')])) }}" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" style="font-size:12px;">Remove all filters</a>
-                            <a href="{{ route('search.index', ['destination'=>'Cox\'s Bazar','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Cox's Bazar</a>
-                            <a href="{{ route('search.index', ['destination'=>'Dhaka','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Dhaka</a>
+                            <a href="<?php echo e(route('search.index', array_filter(['destination'=>$destination,'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]))); ?>" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" style="font-size:12px;">Remove all filters</a>
+                            <a href="<?php echo e(route('search.index', ['destination'=>'Cox\'s Bazar','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')])); ?>" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Cox's Bazar</a>
+                            <a href="<?php echo e(route('search.index', ['destination'=>'Dhaka','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')])); ?>" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Dhaka</a>
                         </div>
                     </div>
-                    @if($suggestedFallback->count() > 0)
+                    <?php if($suggestedFallback->count() > 0): ?>
                     <div class="mt-3">
                         <h6 class="fw-bold text-dark mb-3" style="font-size:15px; font-family:'Plus Jakarta Sans',sans-serif;">
                             <i class="fa-solid fa-star text-warning me-2"></i>You might also like — Top Rated Stays
                         </h6>
                         <div class="d-flex flex-column gap-3">
-                            @foreach($suggestedFallback as $item)
-                                @include('components.search.property-card', ['item' => $item])
-                            @endforeach
+                            <?php $__currentLoopData = $suggestedFallback; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                <?php echo $__env->make('components.search.property-card', ['item' => $item], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
+                            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </div>
                     </div>
-                    @endif
-                @endforelse
+                    <?php endif; ?>
+                <?php endif; ?>
             </div>
 
-            @if(isset($searchResults['paginator']) && $searchResults['paginator']->hasPages())
+            <?php if(isset($searchResults['paginator']) && $searchResults['paginator']->hasPages()): ?>
                 <div class="mt-4 d-flex justify-content-center" id="paginationContainer">
-                    {{ $searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking') }}
+                    <?php echo e($searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking')); ?>
+
                 </div>
-            @endif
+            <?php endif; ?>
 
         </div>
 
     </div>
 </div>
 
-{{-- Interactive Leaflet OpenStreetMap Agoda-Exact Split-Screen Modal (100% Exact 1:1 Parity with Agoda.com) --}}
+
 <div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen m-0 p-0">
         <div class="modal-content border-0 rounded-0 overflow-hidden" style="background:#ffffff;">
             
-            {{-- Top Modal Bar: Hide filters & Close X (Agoda Exact) --}}
+            
             <div class="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-xs" style="z-index: 1050; height: 58px;">
                 <div class="d-flex align-items-center gap-3">
                     <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3.5 py-1.5 fw-bold d-flex align-items-center gap-2" id="toggleMapFilterSidebarBtn" style="border-color: #2067e1; color: #2067e1; font-size: 13px; background: #ffffff;">
@@ -524,13 +520,13 @@
                 </div>
             </div>
 
-            {{-- Main Split View Container (3 Panels) --}}
+            
             <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100vh - 58px);">
                 
-                {{-- Panel 1: Left Filter Sidebar (Collapsible - Agoda 1:1 Complete Parity) --}}
+                
                 <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3.5" style="width: 280px; min-width: 280px; flex-shrink: 0; transition: all 0.3s ease;">
                     
-                    {{-- Text Search --}}
+                    
                     <div class="mb-4">
                         <div class="d-flex align-items-center px-3 py-2 rounded-pill" style="background: #f0f3f8;">
                             <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
@@ -538,56 +534,56 @@
                         </div>
                     </div>
 
-                    {{-- Budget Slider with Dual Typeable Box Display (Agoda 1:1 Parity) --}}
+                    
                     <div class="mb-4 pb-3 border-bottom">
                         <label class="fw-bold text-dark d-block mb-2" style="font-size: 13.5px;">Your budget (per night)</label>
-                        <input type="range" id="mapPriceRange" class="form-range my-2" min="0" max="{{ $maxConvertedPrice ?? 1000 }}" step="{{ ($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5 }}" value="{{ $maxConvertedPrice ?? 1000 }}" oninput="onMapSliderChange(this.value);">
+                        <input type="range" id="mapPriceRange" class="form-range my-2" min="0" max="<?php echo e($maxConvertedPrice ?? 1000); ?>" step="<?php echo e(($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5); ?>" value="<?php echo e($maxConvertedPrice ?? 1000); ?>" oninput="onMapSliderChange(this.value);">
                         <div class="d-flex align-items-center gap-2 mt-2">
                             <div class="border rounded-2 p-1 px-2 d-flex align-items-center gap-1.5" style="width: 110px; background: #ffffff; border-color: #cbd5e1 !important;">
-                                <span class="text-secondary fw-bold" style="font-size: 11px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                <span class="text-secondary fw-bold" style="font-size: 11px;"><?php echo e(\App\Helpers\CurrencyHelper::current()); ?></span>
                                 <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="0" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
                             </div>
                             <span class="text-muted" style="letter-spacing: -1px;">---------</span>
                             <div class="border rounded-2 p-1 px-2 d-flex align-items-center gap-1.5" style="width: 115px; background: #ffffff; border-color: #cbd5e1 !important;">
-                                <span class="text-secondary fw-bold" style="font-size: 11px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
+                                <span class="text-secondary fw-bold" style="font-size: 11px;"><?php echo e(\App\Helpers\CurrencyHelper::current()); ?></span>
+                                <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="<?php echo e($maxConvertedPrice ?? 1000); ?>" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
                             </div>
                         </div>
                     </div>
 
-                    {{-- Your active filters with 1-click Clear --}}
+                    
                     <div class="d-flex justify-content-between align-items-center mb-2 pb-1">
                         <span class="fw-bold text-dark" style="font-size: 13px;">Your filters</span>
                         <a href="javascript:void(0);" onclick="clearAllMapFilters();" class="text-primary text-decoration-none fw-bold" style="font-size: 11.5px;">CLEAR</a>
                     </div>
                     <div id="activeMapFiltersBadgeContainer" class="mb-3 d-flex flex-wrap gap-1">
-                        {{-- Populated dynamically via JS --}}
+                        
                     </div>
 
-                    {{-- 1. Popular Filters --}}
+                    
                     <div class="mb-4 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Popular filters for {{ $destination ?: 'Chittagong' }}</label>
+                        <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Popular filters for <?php echo e($destination ?: 'Chittagong'); ?></label>
                         <div class="d-flex flex-column gap-2.5">
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="breakfast" onchange="filterMapItems()"> Breakfast included</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
+                                <span class="text-muted small">(<?php echo e(count($searchResults['merged_results'])); ?>)</span>
                             </label>
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()"> Free cancellation</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
+                                <span class="text-muted small">(<?php echo e(count($searchResults['merged_results'])); ?>)</span>
                             </label>
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()"> Pay at the hotel</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
+                                <span class="text-muted small">(<?php echo e(count($searchResults['merged_results'])); ?>)</span>
                             </label>
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="rating_8" onchange="filterMapItems()"> Guest rating: 8+ Excellent</span>
-                                <span class="text-muted small">({{ max(1, (int)(count($searchResults['merged_results']) * 0.7)) }})</span>
+                                <span class="text-muted small">(<?php echo e(max(1, (int)(count($searchResults['merged_results']) * 0.7))); ?>)</span>
                             </label>
                         </div>
                     </div>
 
-                    {{-- 2. Property Type --}}
+                    
                     <div class="mb-4 pb-3 border-bottom">
                         <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Property type</label>
                         <div class="d-flex flex-column gap-2.5">
@@ -601,12 +597,12 @@
                             </label>
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
                                 <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_hotel" onchange="filterMapItems()"> Hotels &amp; Resorts</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
+                                <span class="text-muted small">(<?php echo e(count($searchResults['merged_results'])); ?>)</span>
                             </label>
                         </div>
                     </div>
 
-                    {{-- 3. Room Amenities --}}
+                    
                     <div class="mb-4 pb-3 border-bottom">
                         <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Room amenities</label>
                         <div class="d-flex flex-column gap-2.5">
@@ -631,16 +627,16 @@
 
                 </div>
 
-                {{-- Panel 2: Center Scrollable Horizontal Property Cards (Agoda 1:1 Parity) --}}
+                
                 <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto p-3" style="width: 440px; min-width: 420px; flex-shrink: 0;">
                     
-                    {{-- Header with Result Count, Nights, and Floating Sort Box --}}
+                    
                     <div class="mb-3 pb-2.5 border-bottom">
                         <div class="fw-bold text-dark" style="font-size: 15px;">
-                            <span id="visibleCardsCount">{{ count($searchResults['merged_results']) }}</span> properties available
+                            <span id="visibleCardsCount"><?php echo e(count($searchResults['merged_results'])); ?></span> properties available
                         </div>
                         <div class="text-secondary small d-flex align-items-center gap-1.5 mb-2.5" style="font-size: 12px;">
-                            <i class="fa-regular fa-calendar" style="font-size: 11px;"></i> {{ $checkinCarbon->diffInDays($checkoutCarbon) }} nights ({{ $checkinCarbon->format('M j') }} – {{ $checkoutCarbon->format('M j') }})
+                            <i class="fa-regular fa-calendar" style="font-size: 11px;"></i> <?php echo e($checkinCarbon->diffInDays($checkoutCarbon)); ?> nights (<?php echo e($checkinCarbon->format('M j')); ?> – <?php echo e($checkoutCarbon->format('M j')); ?>)
                         </div>
                         <div class="position-relative">
                             <label style="position: absolute; top: -8px; left: 10px; background: #ffffff; padding: 0 4px; font-size: 10.5px; font-weight: 600; color: #64748b; z-index: 1;">Sort by</label>
@@ -652,18 +648,18 @@
                         </div>
                     </div>
 
-                    {{-- Dynamic Property Cards List --}}
+                    
                     <div id="agodaMapCardsList" class="d-flex flex-column gap-2.5">
-                        {{-- Injected dynamically via JS as Horizontal Agoda Cards --}}
+                        
                     </div>
                 </div>
 
-                {{-- Panel 3: Right Full Height Interactive Map --}}
+                
                 <div class="flex-grow-1 position-relative h-100" style="background:#e5e7eb;">
                     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-                    {{-- Floating Map Search Pill (Agoda Exact UI Positioned at Top Left of Map Canvas) --}}
+                    
                     <div class="position-absolute" style="top: 16px; left: 16px; z-index: 1000; width: 300px;">
                         <div class="bg-white rounded-pill d-flex align-items-center gap-2 border px-3" style="background: #ffffff; height: 46px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); border-color: #cbd5e1 !important;">
                             <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2067e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -673,7 +669,7 @@
                             <button type="button" class="btn btn-link p-0 text-muted d-none" id="clearMapSearchBtn" onclick="clearMapSearch()" style="text-decoration:none;"><i class="fa-solid fa-circle-xmark fs-6"></i></button>
                         </div>
 
-                        {{-- Agoda 1:1 Smart Location Dropdown (Auto-suggests Cities, Districts, Landmarks & Railway Stations) --}}
+                        
                         <div id="agodaMapSuggestDropdown" class="bg-white rounded-3 shadow-lg border mt-1.5 overflow-hidden d-none" style="max-height: 280px; overflow-y: auto; border-color: #cbd5e1 !important;">
                             <div id="agodaMapSuggestList" class="py-1"></div>
                         </div>
@@ -687,7 +683,7 @@
     </div>
 </div>
 
-@php
+<?php
     $defaultLat = 22.3569; // Chattogram / Bangladesh Default Center
     $defaultLng = 91.7832;
     $currCode = \App\Helpers\CurrencyHelper::current();
@@ -752,11 +748,11 @@
         }
         return $p;
     });
-@endphp
+?>
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var allProperties = @json($mapProperties);
+        var allProperties = <?php echo json_encode($mapProperties, 15, 512) ?>;
         var currentFiltered = [...allProperties];
         var mapModal = document.getElementById('interactiveMapModal');
         var mapInitialized = false;
@@ -769,7 +765,7 @@
         if (miniMapEl) {
             try {
                 miniMap = L.map('agodaMiniSidebarMap', {
-                    center: [{{ $centerLat }}, {{ $centerLng }}],
+                    center: [<?php echo e($centerLat); ?>, <?php echo e($centerLng); ?>],
                     zoom: 11,
                     zoomControl: false,
                     attributionControl: false,
@@ -1140,7 +1136,7 @@
             renderMapCards(allProperties);
 
             if (!mapInitialized) {
-                map = L.map('agodaMapContainer', {zoomControl: false}).setView([{{ $centerLat }}, {{ $centerLng }}], 13);
+                map = L.map('agodaMapContainer', {zoomControl: false}).setView([<?php echo e($centerLat); ?>, <?php echo e($centerLng); ?>], 13);
                 L.control.zoom({position: 'bottomright'}).addTo(map);
 
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -1217,7 +1213,7 @@
     });
 </script>
 
-{{-- Mobile Off-Canvas Filter Drawer --}}
+
 <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilterOffcanvas" aria-labelledby="mobileFilterOffcanvasLabel" style="width: min(360px, 90vw);">
     <div class="offcanvas-header border-bottom" style="background:#1d2b45;">
         <h6 class="offcanvas-title text-white fw-bold m-0" id="mobileFilterOffcanvasLabel">
@@ -1226,12 +1222,12 @@
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
     </div>
     <div class="offcanvas-body p-0">
-        @include('components.search.filter-sidebar')
+        <?php echo $__env->make('components.search.filter-sidebar', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>
     </div>
 </div>
 
-{{-- JSON-LD Structured Data for SEO (ItemList + Hotel schema) --}}
-@php
+
+<?php
     $jsonLdItems = collect($searchResults['merged_results'])->take(10)->map(function($p, $idx) {
         $isObj = is_object($p);
         $name  = $isObj ? ($p->name ?? '') : ($p['name'] ?? '');
@@ -1259,21 +1255,22 @@
         'numberOfItems'   => count($jsonLdItems),
         'itemListElement' => $jsonLdItems,
     ];
-@endphp
-@if(count($jsonLdItems))
+?>
+<?php if(count($jsonLdItems)): ?>
 <script type="application/ld+json">
-{!! json_encode($jsonLdData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
-@endif
+<?php echo json_encode($jsonLdData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE); ?>
 
-{{-- Bottom Sticky Floating "Map View" Button --}}
+</script>
+<?php endif; ?>
+
+
 <div class="position-fixed bottom-0 start-50 translate-middle-x mb-4" style="z-index: 1039;">
     <button type="button" class="btn text-white fw-bold shadow-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2" style="background-color: #2067e1; font-size: 13.5px; border: 2.5px solid #ffffff; letter-spacing: 0.3px; box-shadow: 0 8px 24px rgba(32, 103, 225, 0.4) !important;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
         <i class="fa-solid fa-map-location-dot fs-5"></i> Map view
     </button>
 </div>
 
-{{-- Destination Autocomplete + AJAX Sort JS --}}
+
 <script>
 (function() {
     // ── A. Destination autocomplete on top search bar ──────────────────────────
@@ -1301,7 +1298,7 @@
     }
 
     function fetchAcSuggestions(q) {
-        fetch('/api/search/autocomplete?q=' + encodeURIComponent(q) + '&search_type={{ $searchType ?? "hotel" }}')
+        fetch('/api/search/autocomplete?q=' + encodeURIComponent(q) + '&search_type=<?php echo e($searchType ?? "hotel"); ?>')
             .then(function(r) { return r.json(); })
             .then(function(data) {
                 var locs = (data.data && data.data.locations) ? data.data.locations : (data.locations || []);
@@ -1384,5 +1381,7 @@
 })();
 </script>
 
-@endsection
+<?php $__env->stopSection(); ?>
 
+
+<?php echo $__env->make('layouts.main', ['activePage' => 'services'], array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?>

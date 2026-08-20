@@ -508,6 +508,76 @@
     </div>
 </div>
 
+@php
+    $defaultLat = 22.3569; // Chattogram / Bangladesh Default Center
+    $defaultLng = 91.7832;
+    $currCode = \App\Helpers\CurrencyHelper::current();
+
+    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng, $currCode) {
+        $isObj       = is_object($p);
+        $id          = $isObj ? ($p->id ?? $idx + 1) : ($p['id'] ?? $idx + 1);
+        $name        = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
+        $slug        = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
+        $rawPriceBDT = (float)($isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0));
+        if ($rawPriceBDT <= 0) $rawPriceBDT = 3500;
+        $convertedPrice = round(\App\Services\CurrencyService::convert($rawPriceBDT, 'BDT', $currCode), 2);
+        $formattedPrice = \App\Services\CurrencyService::format($rawPriceBDT);
+        $city        = $isObj ? ($p->city ?? $p->address ?? 'Chattogram') : ($p['city'] ?? $p['address'] ?? 'Chattogram');
+        $image       = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
+        $score       = (float)($isObj ? ($p->rating_score ?? 8.5) : ($p['rating_score'] ?? 8.5));
+        $reviews     = (int)($isObj ? ($p->total_reviews ?? 4) : ($p['total_reviews'] ?? 4));
+        $lat         = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
+        $lng         = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
+        $type        = $isObj ? ($p->type ?? 'hotel') : ($p['type'] ?? 'hotel');
+        $freeCancel  = (bool)($isObj ? ($p->free_cancellation ?? true) : ($p['free_cancellation'] ?? true));
+        $payLater    = (bool)($isObj ? ($p->no_credit_card_required ?? true) : ($p['no_credit_card_required'] ?? true));
+
+        return [
+            'id'          => $id,
+            'name'        => $name,
+            'price_raw'   => $convertedPrice,
+            'price'       => $formattedPrice,
+            'city'        => $city,
+            'image'       => $image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
+            'score'       => $score > 0 ? number_format($score, 1) : '8.8',
+            'rating_text' => $score >= 9 ? 'Exceptional' : ($score >= 8 ? 'Excellent' : 'Very Good'),
+            'reviews'     => $reviews,
+            'url'         => route('property.show', $slug),
+            'lat'         => $lat,
+            'lng'         => $lng,
+            'has_gps'     => ($lat !== 0.0 && $lng !== 0.0),
+            'type'        => ucfirst($type),
+            'free_cancel' => $freeCancel,
+            'pay_later'   => $payLater,
+        ];
+    });
+
+    $maxConvertedPrice = ceil(($mapProperties->max('price_raw') ?: 5000) * 1.25);
+    if ($maxConvertedPrice < 10000 && $currCode === 'BDT') {
+        $maxConvertedPrice = 50000;
+    }
+
+    $gpsProps = $mapProperties->where('has_gps', true);
+    if ($gpsProps->count() > 0) {
+        $centerLat = $gpsProps->avg('lat');
+        $centerLng = $gpsProps->avg('lng');
+    } else {
+        $centerLat = $defaultLat;
+        $centerLng = $defaultLng;
+    }
+
+    // Scatter properties that lack exact coordinates around center
+    $mapProperties = $mapProperties->map(function($p, $idx) use ($centerLat, $centerLng) {
+        if (!$p['has_gps']) {
+            $latOffset = (($idx % 5) - 2) * 0.012;
+            $lngOffset = (($idx % 2 === 0 ? 1 : -1) * (($idx % 4) + 1)) * 0.009;
+            $p['lat'] = round($centerLat + $latOffset, 6);
+            $p['lng'] = round($centerLng + $lngOffset, 6);
+        }
+        return $p;
+    });
+@endphp
+
 <style>
     #agodaMapFilterCol::-webkit-scrollbar, #agodaMapCardsCol::-webkit-scrollbar {
         width: 5px;
@@ -710,73 +780,6 @@
         </div>
     </div>
 </div>
-
-@php
-    $defaultLat = 22.3569; // Chattogram / Bangladesh Default Center
-    $defaultLng = 91.7832;
-    $currCode = \App\Helpers\CurrencyHelper::current();
-
-    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng, $currCode) {
-        $isObj       = is_object($p);
-        $id          = $isObj ? ($p->id ?? $idx + 1) : ($p['id'] ?? $idx + 1);
-        $name        = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
-        $slug        = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
-        $rawPriceBDT = (float)($isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0));
-        if ($rawPriceBDT <= 0) $rawPriceBDT = 3500;
-        $convertedPrice = round(\App\Services\CurrencyService::convert($rawPriceBDT, 'BDT', $currCode), 2);
-        $formattedPrice = \App\Services\CurrencyService::format($rawPriceBDT);
-        $city        = $isObj ? ($p->city ?? $p->address ?? 'Chattogram') : ($p['city'] ?? $p['address'] ?? 'Chattogram');
-        $image       = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
-        $score       = (float)($isObj ? ($p->rating_score ?? 8.5) : ($p['rating_score'] ?? 8.5));
-        $reviews     = (int)($isObj ? ($p->total_reviews ?? 4) : ($p['total_reviews'] ?? 4));
-        $lat         = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
-        $lng         = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
-        $type        = $isObj ? ($p->type ?? 'hotel') : ($p['type'] ?? 'hotel');
-        $freeCancel  = (bool)($isObj ? ($p->free_cancellation ?? true) : ($p['free_cancellation'] ?? true));
-        $payLater    = (bool)($isObj ? ($p->no_credit_card_required ?? true) : ($p['no_credit_card_required'] ?? true));
-
-        return [
-            'id'          => $id,
-            'name'        => $name,
-            'price_raw'   => $convertedPrice,
-            'price'       => $formattedPrice,
-            'city'        => $city,
-            'image'       => $image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
-            'score'       => $score > 0 ? number_format($score, 1) : '8.8',
-            'rating_text' => $score >= 9 ? 'Exceptional' : ($score >= 8 ? 'Excellent' : 'Very Good'),
-            'reviews'     => $reviews,
-            'url'         => route('property.show', $slug),
-            'lat'         => $lat,
-            'lng'         => $lng,
-            'has_gps'     => ($lat !== 0.0 && $lng !== 0.0),
-            'type'        => ucfirst($type),
-            'free_cancel' => $freeCancel,
-            'pay_later'   => $payLater,
-        ];
-    });
-
-    $maxConvertedPrice = ceil(($mapProperties->max('price_raw') ?: 500) * 1.2);
-
-    $gpsProps = $mapProperties->where('has_gps', true);
-    if ($gpsProps->count() > 0) {
-        $centerLat = $gpsProps->avg('lat');
-        $centerLng = $gpsProps->avg('lng');
-    } else {
-        $centerLat = $defaultLat;
-        $centerLng = $defaultLng;
-    }
-
-    // Scatter properties that lack exact coordinates around center
-    $mapProperties = $mapProperties->map(function($p, $idx) use ($centerLat, $centerLng) {
-        if (!$p['has_gps']) {
-            $latOffset = (($idx % 5) - 2) * 0.012;
-            $lngOffset = (($idx % 2 === 0 ? 1 : -1) * (($idx % 4) + 1)) * 0.009;
-            $p['lat'] = round($centerLat + $latOffset, 6);
-            $p['lng'] = round($centerLng + $lngOffset, 6);
-        }
-        return $p;
-    });
-@endphp
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -1246,6 +1249,13 @@
 
                     markersMap[item.id] = m;
                 });
+
+                if (Object.keys(markersMap).length > 0) {
+                    try {
+                        var group = new L.featureGroup(Object.values(markersMap));
+                        map.fitBounds(group.getBounds().pad(0.12));
+                    } catch(e) {}
+                }
 
                 // Viewport dynamic sync + "Search as I move the map" toggle
                 map.on('moveend', function() {

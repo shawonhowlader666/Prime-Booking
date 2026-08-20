@@ -92,7 +92,7 @@ class VendorDashboardController extends Controller
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
         $query = Booking::whereIn('property_id', $propertyIds)
-            ->with('property:id,name,city,primary_image');
+            ->with(['property', 'room']);
 
         if ($status = $request->status) {
             $query->where(fn($q) => $q->where('status', $status)->orWhere('booking_status', $status));

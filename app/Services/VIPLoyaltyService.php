@@ -20,6 +20,11 @@ class VIPLoyaltyService
     /**
      * Get VIP Stats & Tier for a given user (Cached for high concurrency)
      */
+    public function getUserVIPStats(?User $user): array
+    {
+        return $this->getUserTier($user);
+    }
+
     public function getUserTier(?User $user): array
     {
         if (!$user) {

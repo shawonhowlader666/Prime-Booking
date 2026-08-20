@@ -82,7 +82,7 @@
                     <i class="fa-solid fa-location-dot text-danger fs-5 mt-1"></i>
                     <div>
                         <strong class="text-dark d-block mb-1">Prime Booking</strong>
-                        <span class="text-secondary small">{{ $siteSettings['address'] }}</span>
+                        <span class="text-secondary small">{{ $siteSettings['address'] ?? \App\Models\SiteSetting::get('site_address', 'House #12, Road #04, Block #A, Banani, Dhaka-1213, Bangladesh') }}</span>
                     </div>
                 </div>
 
@@ -90,7 +90,7 @@
                     <i class="fa-solid fa-phone text-primary fs-5 mt-1"></i>
                     <div>
                         <strong class="text-dark d-block mb-1">Hotline &amp; Support</strong>
-                        <span class="text-secondary small d-block">{{ $siteSettings['phone'] }}</span>
+                        <span class="text-secondary small d-block">{{ $siteSettings['phone'] ?? \App\Models\SiteSetting::get('site_phone', '+880 1770-887733') }}</span>
                     </div>
                 </div>
 
@@ -98,7 +98,7 @@
                     <i class="fa-solid fa-envelope text-info fs-5 mt-1"></i>
                     <div>
                         <strong class="text-dark d-block mb-1">Email Support</strong>
-                        <span class="text-secondary small d-block">{{ $siteSettings['email'] }}</span>
+                        <span class="text-secondary small d-block">{{ $siteSettings['email'] ?? \App\Models\SiteSetting::get('site_email', 'support@primebooking.com.bd') }}</span>
                     </div>
                 </div>
             </div>

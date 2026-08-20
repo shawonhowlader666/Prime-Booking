@@ -9,15 +9,7 @@ class AirportTransfer extends Model
 {
     use HasFactory;
 
-    protected $fillable = [
-        'pickup_location',
-        'dropoff_location',
-        'vehicle_type',
-        'price',
-        'capacity',
-        'luggage_capacity',
-        'is_active',
-    ];
+    protected $guarded = [];
 
     protected $casts = [
         'is_active' => 'boolean',

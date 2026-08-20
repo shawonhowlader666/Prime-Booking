@@ -86,6 +86,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/compare', [\App\Http\Controllers\Web\CompareController::class, 'index'])->name('properties.compare');
 Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show');
+Route::get('/hotel/{slug}', [PropertyDetailController::class, 'show'])->name('hotel.show');
 Route::get('/hotels/{id}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('hotels.preview');
 Route::get('/hotels/{id}/brochure', [PropertyDetailController::class, 'brochure'])->name('hotels.brochure');
 Route::get('/property/{slug}', [PropertyDetailController::class, 'show'])->name('property.show');
@@ -93,6 +94,24 @@ Route::get('/property/{slug}/preview', [\App\Http\Controllers\Web\PropertyPrevie
 Route::get('/property/{slug}/brochure', [PropertyDetailController::class, 'brochure'])->name('property.brochure');
 Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store');
 Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store');
+
+// Informational & Marketing Static Routes
+Route::get('/about', fn() => view('pages.about'))->name('about');
+Route::get('/about-us', fn() => view('pages.about'))->name('about.us');
+Route::get('/contact', fn() => view('pages.contact'))->name('contact');
+Route::get('/contact-us', fn() => view('pages.contact'))->name('contact.us');
+Route::get('/privacy', fn() => view('pages.privacy'))->name('privacy');
+Route::get('/privacy-policy', fn() => view('pages.privacy'))->name('privacy.policy');
+Route::get('/terms', fn() => view('pages.terms'))->name('terms');
+Route::get('/terms-and-conditions', fn() => view('pages.terms'))->name('terms.conditions');
+Route::get('/deals', [PageController::class, 'deals'])->name('deals');
+Route::get('/cashback', [PageController::class, 'cashback'])->name('cashback');
+Route::get('/pointsmax', [PageController::class, 'pointsmax'])->name('pointsmax');
+Route::get('/vip', [PageController::class, 'vip'])->name('vip');
+Route::get('/homes', fn() => view('pages.homes'))->name('homes');
+Route::get('/services', fn() => view('pages.services'))->name('services');
+Route::get('/subscriptions', fn() => view('pages.subscriptions'))->name('subscriptions');
+
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');
 Route::get('/tour-packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages');
 Route::get('/packages/{slug}', [App\Http\Controllers\Web\TourPackageController::class, 'show'])->name('packages.show');

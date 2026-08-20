@@ -3,7 +3,7 @@
     <div class="container-fluid" style="height: 60px; width: 100%; margin: 0; padding-left: 8px; padding-right: 8px; display: flex; align-items: center;">
 
         {{-- 100% Identical Prime Booking Logo --}}
-        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 48px !important;">
+        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 28px !important;">
             <x-logo height="44" />
         </a>
 
@@ -16,9 +16,9 @@
         <div class="collapse navbar-collapse py-0 d-none d-lg-flex" id="agodaMainNav" style="height: 60px;">
 
             {{-- Left Nav Links (Exact Agoda Gaps) --}}
-            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 34px;">
+            <ul class="navbar-nav align-items-center flex-nowrap mb-0" style="font-size: 14.5px; white-space: nowrap; gap: 28px;">
                 <li class="nav-item">
-                    <a class="nav-link px-0 fw-semibold" href="{{ route('home') }}"
+                    <a class="nav-link px-1 fw-semibold" href="{{ route('home') }}"
                        style="color: #2d2d2d; height: 60px; display: flex; align-items: center; font-size: 14.5px;">
                         {{ __('Hotels & Homes') }}
                     </a>
@@ -32,7 +32,7 @@
                             <div style="position: absolute; bottom: -3px; left: 4px; width: 0; height: 0; border-left: 3px solid #d91b42; border-bottom: 3px solid transparent;"></div>
                         </div>
                     </div>
-                    <a class="nav-link dropdown-toggle px-0 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown"
+                    <a class="nav-link dropdown-toggle px-1 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown"
                        style="color: #475569; height: 60px; padding-top: 4px; font-size: 14.5px; font-weight: 500;">
                         <span>{{ __('Transport') }}</span>
                     </a>
@@ -46,21 +46,21 @@
                 </li>
 
                 <li class="nav-item">
-                    <a class="nav-link px-0" href="{{ route('packages') }}"
+                    <a class="nav-link px-1" href="{{ route('packages') }}"
                        style="color: #475569; height: 60px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Things to do') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-0" href="{{ route('services') }}"
+                    <a class="nav-link px-1" href="{{ route('services') }}"
                        style="color: #475569; height: 60px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Coupons & Deals') }}</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link px-0" href="{{ route('search.index') }}?type=apartment"
+                    <a class="nav-link px-1" href="{{ route('search.index') }}?type=apartment"
                        style="color: #475569; height: 60px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Apartments') }}</a>
                 </li>
 
                 {{-- 3 Dots Dropdown Menu (Agoda More Options Dropdown) --}}
                 <li class="nav-item dropdown">
-                    <a class="nav-link px-0 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
+                    <a class="nav-link px-1 text-decoration-none" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"
                        style="color: #475569; height: 60px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
                         <i class="fa-solid fa-ellipsis" style="font-size: 18px; color: #475569;"></i>
                     </a>
@@ -77,7 +77,7 @@
             </ul>
 
             {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 28px; white-space: nowrap; height: 60px;">
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 34px; white-space: nowrap; height: 60px; padding-right: 8px;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();
@@ -96,13 +96,13 @@
                 @endphp
 
                 {{-- 1. Flag & Currency Badge (Agoda Image Exact: Flag + Currency Text) --}}
-                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 2px 4px;">
+                <a href="#" class="d-flex align-items-center gap-2 text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 6px 12px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
                     @if($currencyFlag === 'bd')
-                        <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 22px; height: 14px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     @elseif($currencyFlag === 'us')
-                        <img src="https://flagcdn.com/w40/us.png" alt="US" style="width: 22px; height: 14px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        <img src="https://flagcdn.com/w40/us.png" alt="US" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     @else
-                        <img src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 22px; height: 14px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                        <img src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                     @endif
                     <span style="color: #262626; font-weight: 600; font-size: 14.5px;">{{ $currentCurrency }}</span>
                 </a>
@@ -110,8 +110,8 @@
                 @auth
                 {{-- Logged in state: Avatar + Name + VIP Badge (Matching Agoda Screenshot 1:1) --}}
                 <div class="dropdown">
-                    <div class="d-flex align-items-center gap-2" data-bs-toggle="dropdown" style="cursor: pointer; padding: 2px 0;">
-                        <div style="width: 32px; height: 32px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(255, 87, 34, 0.25);">
+                    <div class="d-flex align-items-center gap-3" data-bs-toggle="dropdown" style="cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <div style="width: 34px; height: 34px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14.5px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(255, 87, 34, 0.25);">
                             {{ strtoupper(substr(auth()->user()->name ?? 'U', 0, 1)) }}
                         </div>
                         <div style="line-height: 1.15; flex-shrink: 0; text-align: left;">
@@ -205,10 +205,11 @@
 
                 {{-- Cash Balance Dropdown Badge ((a) BDT 0 ▾) Matching Agoda Screenshot 1:1 --}}
                 <div class="dropdown">
-                    <button class="btn p-0 border-0 d-flex align-items-center gap-1 dropdown-toggle" type="button" data-bs-toggle="dropdown"
-                            style="color: #6366f1; font-weight: 600; font-size: 14px; height: 60px;">
-                        <div style="width: 19px; height: 19px; background: #6366f1; color: #ffffff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px; margin-right: 2px;">a</div>
-                        <span style="color: #6366f1; font-weight: 600; font-size: 14px;">{{ $currentCurrency }} 0</span>
+                    <button class="btn p-0 border-0 d-flex align-items-center gap-2 dropdown-toggle" type="button" data-bs-toggle="dropdown"
+                            style="color: #6366f1; font-weight: 600; font-size: 14px; height: 60px; padding: 4px 8px; border-radius: 8px; transition: background 0.15s ease;"
+                            onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                        <div style="width: 20px; height: 20px; background: #6366f1; color: #ffffff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px;">a</div>
+                        <span style="color: #6366f1; font-weight: 600; font-size: 14.5px;">{{ $currentCurrency }} 0</span>
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-3 mt-2"
                          style="min-width: 250px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">

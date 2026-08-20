@@ -390,9 +390,15 @@
                     <span>Add-ons</span>
                     <span id="addons_total">৳ 0</span>
                 </div>
-                <div class="summary-row text-success" id="discount_row" style="display:none;">
-                    <span><i class="fa-solid fa-tag me-1"></i> Promo (<span id="coupon_badge_text"></span>)</span>
-                    <span id="discount_amount_text">- ৳ 0</span>
+                @if(isset($vipDiscountAmount) && $vipDiscountAmount > 0)
+                <div class="summary-row text-success fw-bold" style="background:#f0fdf4; padding:6px 8px; border-radius:6px; border:1px solid #bbf7d0;">
+                    <span><i class="fa-solid fa-crown text-warning me-1"></i> {{ $vipStats['tier_name_full'] ?? 'AgodaVIP' }} ({{ $vipStats['discount_percent'] }}% OFF)</span>
+                    <span>- {{ CurrencyService::format($vipDiscountAmount) }}</span>
+                </div>
+                @endif
+                <div class="summary-row text-success" id="discount_row" style="{{ isset($appliedDiscount) && $appliedDiscount > 0 && !isset($vipDiscountAmount) ? '' : 'display:none;' }}">
+                    <span><i class="fa-solid fa-tag me-1"></i> Promo (<span id="coupon_badge_text">{{ $activePromoCode ?? '' }}</span>)</span>
+                    <span id="discount_amount_text">- {{ CurrencyService::format($appliedDiscount ?? 0) }}</span>
                 </div>
                 <div class="summary-row">
                     <span>Taxes & Fees (7.5%)</span>

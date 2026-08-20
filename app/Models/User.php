@@ -16,7 +16,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'status',
         'phone', 'avatar', 'country', 'city', 'dob', 'gender',
         'passport_number', 'passport_expiry',
-        'google_id', 'currency_preference', 'prime_miles', 'remember_token',
+        'google_id', 'currency_preference', 'prime_miles', 'pointsmax_programs', 'remember_token',
         'email_verified_at',
         'last_login_at', 'last_login_ip',
         'total_bookings', 'total_spent',
@@ -27,10 +27,11 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'last_login_at'     => 'datetime',
-            'password'          => 'hashed',
-            'total_spent'       => 'decimal:2',
+            'email_verified_at'  => 'datetime',
+            'last_login_at'      => 'datetime',
+            'password'           => 'hashed',
+            'total_spent'        => 'decimal:2',
+            'pointsmax_programs' => 'array',
         ];
     }
 

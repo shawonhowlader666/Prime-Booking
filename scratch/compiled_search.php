@@ -646,7 +646,7 @@
                 </div>
 
                 
-                <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto px-3.5 py-3" style="width: 440px; min-width: 420px; flex-shrink: 0; border-color: #e2e8f0 !important;">
+                <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto" style="width: 460px; min-width: 460px; padding: 16px 20px !important; flex-shrink: 0; border-color: #e2e8f0 !important;">
                     
                     
                     <div class="mb-2.5 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">

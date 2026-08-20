@@ -2505,19 +2505,21 @@
                 <h5 class="modal-title fw-bold text-white mb-0" style="font-size: 16px;">
                     <i class="fa-solid fa-circle-play text-danger me-2"></i> {{ $property->name }} — Official Video Tour
                 </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="const iframe = this.closest('.modal-content').querySelector('iframe'); if(iframe) iframe.src = iframe.src;"></button>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-0 text-center" style="background:#000; min-height: 500px;">
                 @if($isYoutube)
                 <div class="ratio ratio-16x9">
-                    <iframe src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=1&rel=0&modestbranding=1" 
+                    <iframe id="hotelDetailVideoIframe"
+                            src=""
+                            data-src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=1&rel=0&modestbranding=1" 
                             style="border:0;" 
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                             allowfullscreen>
                     </iframe>
                 </div>
                 @else
-                <video controls autoplay class="w-100 h-100" style="max-height: 75vh; object-fit: contain;">
+                <video id="hotelDetailHtmlVideo" controls class="w-100 h-100" style="max-height: 75vh; object-fit: contain;">
                     <source src="{{ $videoUrl }}" type="video/mp4">
                     Your browser does not support HTML5 video.
                 </video>
@@ -2526,6 +2528,35 @@
         </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var videoModalEl = document.getElementById('videoTourModal');
+        if (videoModalEl) {
+            videoModalEl.addEventListener('show.bs.modal', function() {
+                var iframe = document.getElementById('hotelDetailVideoIframe');
+                if (iframe && iframe.getAttribute('data-src')) {
+                    iframe.src = iframe.getAttribute('data-src');
+                }
+                var vid = document.getElementById('hotelDetailHtmlVideo');
+                if (vid) {
+                    vid.play();
+                }
+            });
+            videoModalEl.addEventListener('hidden.bs.modal', function() {
+                var iframe = document.getElementById('hotelDetailVideoIframe');
+                if (iframe) {
+                    iframe.src = '';
+                }
+                var vid = document.getElementById('hotelDetailHtmlVideo');
+                if (vid) {
+                    vid.pause();
+                    vid.currentTime = 0;
+                }
+            });
+        }
+    });
+</script>
 @endif
 
 <script>

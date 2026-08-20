@@ -280,7 +280,7 @@
             </div>
             <div class="modal-body p-0 text-center">
                 <div class="ratio ratio-16x9">
-                    <iframe src="{{ $videoUrl }}" title="Hotel Video Tour" allowfullscreen class="w-100 h-100 border-0"></iframe>
+                    <iframe src="" data-src="{{ $videoUrl }}" title="Hotel Video Tour" allowfullscreen class="w-100 h-100 border-0"></iframe>
                 </div>
             </div>
         </div>

@@ -467,21 +467,21 @@
                         <button type="button" class="badge bg-success bg-opacity-10 text-success fw-bold px-2.5 py-1 border border-success border-opacity-25 btn p-0 text-start shadow-none" style="font-size: 11px; border-radius: 4px;" data-bs-toggle="modal" data-bs-target="#bestPriceGuaranteeModal" title="Learn about our Best Price Guarantee">
                             <i class="fa-solid fa-shield-halved text-success me-1"></i> BEST PRICE GUARANTEE
                         </button>
-                        @if(isset($socialProof) && $socialProof['is_popular'])
+                        @if(!empty($socialProof['is_popular']))
                         <span class="badge bg-danger bg-opacity-10 text-danger fw-bold px-2.5 py-1 border border-danger border-opacity-25" style="font-size: 11px; border-radius: 4px;">
                             <i class="fa-solid fa-fire text-danger me-1"></i> HIGH DEMAND
                         </span>
                         @endif
                     </div>
 
-                    @if(isset($socialProof))
+                    @if(!empty($socialProof))
                     <div class="mb-3 p-2 px-3 rounded-2 d-flex align-items-center justify-content-between flex-wrap gap-2" style="background: #fff1f2; border: 1px solid #ffe4e6; font-size: 12px; font-weight: 600; color: #9f1239;">
                         <div class="d-flex align-items-center gap-2">
                             <i class="fa-solid fa-fire text-danger"></i>
-                            <span>{{ $socialProof['urgency_text'] }}</span>
+                            <span>{{ $socialProof['urgency_text'] ?? '🔥 High demand: Multiple guests booked this property in the last 24 hours.' }}</span>
                         </div>
                         <div class="d-flex align-items-center gap-1 text-secondary" style="font-size: 11.5px;">
-                            <i class="fa-solid fa-eye text-primary"></i> {{ $socialProof['viewing_now'] }} looking right now
+                            <i class="fa-solid fa-eye text-primary"></i> {{ $socialProof['viewing_now'] ?? 12 }} looking right now
                         </div>
                     </div>
                     @endif

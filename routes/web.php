@@ -100,31 +100,54 @@ Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'confi
 Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('booking.history');
 Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->name('coupon.validate');
 
-// Public High-Speed VIP Loyalty API Endpoints (Agoda Enterprise API Parity)
-Route::get('/api/v1/user/vip-status', function (\App\Services\VIPLoyaltyService $vipService) {
-    $user = auth()->user();
-    $stats = $vipService->getUserTier($user);
-    return response()->json([
-        'status'  => 'success',
-        'is_logged_in' => (bool)$user,
-        'user'    => $user ? ['id' => $user->id, 'name' => $user->name, 'email' => $user->email] : null,
-        'vip'     => $stats,
-    ]);
-})->name('api.user.vip-status');
+// Public High-Speed VIP & Rewards Loyalty API Endpoints (Agoda Enterprise API Parity)
+Route::prefix('api/v1')->name('api.v1.')->group(function () {
+    Route::get('/vip/status', function (\App\Services\VIPLoyaltyService $vipService) {
+        $user = auth()->user();
+        $stats = $vipService->getUserTier($user);
+        return response()->json([
+            'status'       => 'success',
+            'success'      => true,
+            'is_logged_in' => (bool)$user,
+            'user'         => $user ? ['id' => $user->id, 'name' => $user->name, 'email' => $user->email] : null,
+            'vip'          => $stats,
+        ]);
+    })->name('vip.status');
 
-Route::get('/api/v1/vip/tiers', function () {
-    return response()->json([
-        'status'  => 'success',
-        'success' => true,
-        'tiers'   => [
-            'Bronze'   => ['min_bookings' => 0, 'discount' => (float)\App\Models\SiteSetting::get('vip_bronze_discount', 0), 'perks' => ['Best price guarantee', 'Insider deals']],
-            'Silver'   => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_silver_threshold', 2), 'discount' => (float)\App\Models\SiteSetting::get('vip_silver_discount', 12), 'perks' => ['VIP deals up to 12% off']],
-            'Gold'     => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_gold_threshold', 5), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_gold_spend', 200), 'discount' => (float)\App\Models\SiteSetting::get('vip_gold_discount', 18), 'perks' => ['VIP deals up to 18% off']],
-            'Platinum' => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_platinum_threshold', 10), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_platinum_spend', 400), 'discount' => (float)\App\Models\SiteSetting::get('vip_platinum_discount', 25), 'perks' => ['VIP deals up to 25% off', 'Free breakfast on select stays']],
-            'Diamond'  => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_diamond_threshold', 15), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_diamond_spend', 1500), 'discount' => (float)\App\Models\SiteSetting::get('vip_diamond_discount', 25), 'perks' => ['Priority 24/7 Support', 'VIP deals up to 25% off', 'Exclusive Perks']],
-        ]
-    ]);
-})->name('api.vip.tiers');
+    Route::get('/vip/tiers', function () {
+        return response()->json([
+            'status'  => 'success',
+            'success' => true,
+            'tiers'   => [
+                'Bronze'   => ['min_bookings' => 0, 'discount' => (float)\App\Models\SiteSetting::get('vip_bronze_discount', 0), 'perks' => ['Best price guarantee', 'Insider deals']],
+                'Silver'   => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_silver_threshold', 2), 'discount' => (float)\App\Models\SiteSetting::get('vip_silver_discount', 12), 'perks' => ['VIP deals up to 12% off']],
+                'Gold'     => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_gold_threshold', 5), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_gold_spend', 200), 'discount' => (float)\App\Models\SiteSetting::get('vip_gold_discount', 18), 'perks' => ['VIP deals up to 18% off']],
+                'Platinum' => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_platinum_threshold', 10), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_platinum_spend', 400), 'discount' => (float)\App\Models\SiteSetting::get('vip_platinum_discount', 25), 'perks' => ['VIP deals up to 25% off', 'Free breakfast on select stays']],
+                'Diamond'  => ['min_bookings' => (int)\App\Models\SiteSetting::get('vip_diamond_threshold', 15), 'min_spend' => (float)\App\Models\SiteSetting::get('vip_diamond_spend', 1500), 'discount' => (float)\App\Models\SiteSetting::get('vip_diamond_discount', 25), 'perks' => ['Priority 24/7 Support', 'VIP deals up to 25% off', 'Exclusive Perks']],
+            ]
+        ]);
+    })->name('vip.tiers');
+
+    Route::get('/rewards/summary', function (\App\Services\RewardPointService $rewardService) {
+        $user = auth()->user();
+        $summary = $rewardService->getUserRewardSummary($user);
+        return response()->json([
+            'status'  => 'success',
+            'success' => true,
+            'summary' => $summary,
+        ]);
+    })->name('rewards.summary');
+
+    Route::get('/pointsmax/programs', function () {
+        $user = auth()->user();
+        $programs = $user && $user->pointsmax_programs ? (is_array($user->pointsmax_programs) ? $user->pointsmax_programs : json_decode($user->pointsmax_programs, true)) : session('pointsmax_programs_' . ($user?->id ?? 'guest'), []);
+        return response()->json([
+            'status'   => 'success',
+            'success'  => true,
+            'programs' => $programs,
+        ]);
+    })->name('pointsmax.programs');
+});
 
 // Payment Gateway Routes (bKash & SSLCommerz Sandbox/Live)
 Route::get('/payment/bkash/sandbox/{reference}', [PaymentCallbackController::class, 'bkashSandboxRedirect'])->name('payment.bkash.sandbox-redirect');

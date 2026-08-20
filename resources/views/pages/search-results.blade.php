@@ -463,10 +463,18 @@
                     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
                     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
-                    {{-- Floating Map Search Pill (Agoda Exact UI) --}}
-                    <div class="position-absolute top-0 start-50 translate-middle-x mt-3 shadow-md rounded-pill bg-white px-3 py-1.5 d-flex align-items-center gap-2 border" style="z-index: 1000; width: 320px;">
-                        <i class="fa-solid fa-magnifying-glass text-muted" style="font-size:12px;"></i>
-                        <input type="text" id="mapHeaderSearchInput" class="border-0 bg-transparent w-100" placeholder="Search on map..." style="outline:none; font-size:12.5px; font-weight:500;" onkeyup="document.getElementById('mapSearchInput').value=this.value; filterMapItems();">
+                    {{-- Floating Map Search Pill (Agoda Exact UI with Smart Autocomplete Dropdown) --}}
+                    <div class="position-absolute top-0 start-50 translate-middle-x mt-3" style="z-index: 1000; width: 340px;">
+                        <div class="shadow-md rounded-pill bg-white px-3 py-1.5 d-flex align-items-center gap-2 border" style="background:#ffffff; box-shadow: 0 4px 16px rgba(0,0,0,0.18);">
+                            <i class="fa-solid fa-magnifying-glass text-primary" style="font-size:13px;"></i>
+                            <input type="text" id="mapHeaderSearchInput" class="border-0 bg-transparent w-100" placeholder="Search on map..." autocomplete="off" style="outline:none; font-size:13px; font-weight:500;" onkeyup="handleMapSearchAutocomplete(this.value)">
+                            <button type="button" class="btn btn-link p-0 text-muted d-none" id="clearMapSearchBtn" onclick="clearMapSearch()" style="text-decoration:none;"><i class="fa-solid fa-circle-xmark"></i></button>
+                        </div>
+
+                        {{-- Agoda 1:1 Smart Location Dropdown (Auto-suggests Cities, Districts, Landmarks & Railway Stations) --}}
+                        <div id="agodaMapSuggestDropdown" class="bg-white rounded-3 shadow-lg border mt-1.5 overflow-hidden d-none" style="max-height: 280px; overflow-y: auto;">
+                            <div id="agodaMapSuggestList" class="py-1"></div>
+                        </div>
                     </div>
 
                     <div id="agodaMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
@@ -701,17 +709,103 @@
             renderMapCards(currentFiltered);
         };
 
-        window.updateMapMarkers = function(items) {
-            if (!map) return;
-            var visibleIds = items.map(i => i.id);
-            Object.keys(markersMap).forEach(function(id) {
-                var m = markersMap[id];
-                if (visibleIds.includes(parseInt(id))) {
-                    m.setOpacity(1.0);
-                } else {
-                    m.setOpacity(0.2);
+        // ── 6. Agoda-Exact Smart Location Autocomplete Engine ──
+        var geoLocations = [
+            { name: "Kaptai", subtitle: "Bangladesh", type: "city", lat: 22.4967, lng: 92.2244 },
+            { name: "Kolkata", subtitle: "West Bengal, India", type: "city", lat: 22.5726, lng: 88.3639 },
+            { name: "Khagrachari", subtitle: "Bangladesh", type: "city", lat: 23.1322, lng: 91.9490 },
+            { name: "Kaptai Lake", subtitle: "Bangladesh", type: "landmark", lat: 22.4967, lng: 92.2244 },
+            { name: "Khulna", subtitle: "Bangladesh", type: "city", lat: 22.8456, lng: 89.5403 },
+            { name: "Khulna City", subtitle: "Khulna, Bangladesh", type: "city", lat: 22.8456, lng: 89.5403 },
+            { name: "Khulna Division", subtitle: "Bangladesh", type: "division", lat: 22.8456, lng: 89.5403 },
+            { name: "Khulna Railway Station", subtitle: "Jashore Road, Khulna, Bangladesh", type: "station", lat: 22.8200, lng: 89.5500 },
+            { name: "Chattogram", subtitle: "Chittagong Division, Bangladesh", type: "city", lat: 22.3569, lng: 91.7832 },
+            { name: "Cox's Bazar", subtitle: "Chittagong Division, Bangladesh", type: "city", lat: 21.4272, lng: 92.0058 },
+            { name: "Dhaka", subtitle: "Dhaka Division, Bangladesh", type: "city", lat: 23.8103, lng: 90.4125 },
+            { name: "Sylhet", subtitle: "Sylhet Division, Bangladesh", type: "city", lat: 24.8949, lng: 91.8687 },
+            { name: "Sreemangal", subtitle: "Moulvibazar, Sylhet, Bangladesh", type: "city", lat: 24.3065, lng: 91.7296 },
+            { name: "Kuakata", subtitle: "Patuakhali, Barishal, Bangladesh", type: "city", lat: 21.8167, lng: 90.1167 },
+            { name: "Bandarban", subtitle: "Chittagong Hill Tracts, Bangladesh", type: "city", lat: 22.1953, lng: 92.2184 },
+            { name: "Rangamati", subtitle: "Chittagong Hill Tracts, Bangladesh", type: "city", lat: 22.6533, lng: 92.1789 },
+            { name: "Saint Martin's Island", subtitle: "Bay of Bengal, Cox's Bazar", type: "landmark", lat: 20.6273, lng: 92.3225 },
+            { name: "Agrabad Commercial Area", subtitle: "Chattogram, Bangladesh", type: "landmark", lat: 22.3275, lng: 91.8123 },
+            { name: "GEC Circle", subtitle: "Chattogram, Bangladesh", type: "landmark", lat: 22.3587, lng: 91.8214 },
+            { name: "Gulshan-2", subtitle: "Dhaka, Bangladesh", type: "landmark", lat: 23.7925, lng: 90.4167 }
+        ];
+
+        window.handleMapSearchAutocomplete = function(val) {
+            var clearBtn = document.getElementById('clearMapSearchBtn');
+            var dropdown = document.getElementById('agodaMapSuggestDropdown');
+            var list = document.getElementById('agodaMapSuggestList');
+            var sideSearch = document.getElementById('mapSearchInput');
+            if (sideSearch) sideSearch.value = val;
+
+            if (!val || val.trim().length === 0) {
+                if (clearBtn) clearBtn.classList.add('d-none');
+                if (dropdown) dropdown.classList.add('d-none');
+                filterMapItems();
+                return;
+            }
+
+            if (clearBtn) clearBtn.classList.remove('d-none');
+            var query = val.toLowerCase().trim();
+
+            // Filter predefined geo hierarchy + real property database
+            var matchedGeos = geoLocations.filter(g => g.name.toLowerCase().includes(query) || g.subtitle.toLowerCase().includes(query));
+            var matchedProps = allProperties.filter(p => p.name.toLowerCase().includes(query) || p.city.toLowerCase().includes(query));
+
+            var results = [];
+            matchedGeos.forEach(g => results.push({ title: g.name, subtitle: g.subtitle, lat: g.lat, lng: g.lng, isGeo: true }));
+            matchedProps.slice(0, 5).forEach(p => results.push({ title: p.name, subtitle: p.city + ' • ' + p.price, id: p.id, lat: p.lat, lng: p.lng, isProp: true }));
+
+            if (results.length === 0) {
+                if (dropdown) dropdown.classList.add('d-none');
+            } else {
+                var html = '';
+                results.forEach(function(r) {
+                    html += `
+                        <div class="px-3 py-2 agoda-suggest-item" style="cursor:pointer; border-bottom:1px solid #f1f5f9; transition:background 0.15s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'" onclick="selectMapSuggestion('${r.title.replace(/'/g, "\\'")}', ${r.lat}, ${r.lng}, ${r.id || 'null'})">
+                            <div class="fw-bold text-dark" style="font-size:13.5px; font-family:'Plus Jakarta Sans',sans-serif; color:#0f172a;">${r.title}</div>
+                            <small class="text-secondary d-block" style="font-size:11px; line-height:1.2;">${r.subtitle}</small>
+                        </div>
+                    `;
+                });
+                if (list) list.innerHTML = html;
+                if (dropdown) dropdown.classList.remove('d-none');
+            }
+
+            filterMapItems();
+        };
+
+        window.selectMapSuggestion = function(title, lat, lng, propId) {
+            var headerInput = document.getElementById('mapHeaderSearchInput');
+            var sideInput = document.getElementById('mapSearchInput');
+            var dropdown = document.getElementById('agodaMapSuggestDropdown');
+
+            if (headerInput) headerInput.value = title;
+            if (sideInput) sideInput.value = title;
+            if (dropdown) dropdown.classList.add('d-none');
+
+            if (map && lat && lng) {
+                map.setView([lat, lng], propId ? 16 : 14, { animate: true });
+                if (propId && markersMap[propId]) {
+                    markersMap[propId].openPopup();
                 }
-            });
+            }
+            filterMapItems();
+        };
+
+        window.clearMapSearch = function() {
+            var headerInput = document.getElementById('mapHeaderSearchInput');
+            var sideInput = document.getElementById('mapSearchInput');
+            var clearBtn = document.getElementById('clearMapSearchBtn');
+            var dropdown = document.getElementById('agodaMapSuggestDropdown');
+
+            if (headerInput) headerInput.value = '';
+            if (sideInput) sideInput.value = '';
+            if (clearBtn) clearBtn.classList.add('d-none');
+            if (dropdown) dropdown.classList.add('d-none');
+            filterMapItems();
         };
 
         // ── 5. Master Modal Initialization & Toggle ──

@@ -207,6 +207,42 @@
                                     <label class="saas-label">Site Tagline / Subtitle</label>
                                     <input type="text" name="site_tagline" class="form-control saas-input" value="{{ old('site_tagline', $siteSettings['site_tagline']) }}">
                                 </div>
+
+                                {{-- Multi-Currency & Language Dynamic System Defaults --}}
+                                <div class="col-md-4">
+                                    <label class="saas-label"><i class="fa-solid fa-coins text-warning me-1"></i> Default Primary Currency</label>
+                                    <select name="currency" class="form-select saas-input">
+                                        <option value="BDT" {{ ($siteSettings['default_currency'] ?? 'BDT') == 'BDT' ? 'selected' : '' }}>BDT (৳ - Bangladeshi Taka)</option>
+                                        <option value="USD" {{ ($siteSettings['default_currency'] ?? '') == 'USD' ? 'selected' : '' }}>USD ($ - US Dollar)</option>
+                                        <option value="EUR" {{ ($siteSettings['default_currency'] ?? '') == 'EUR' ? 'selected' : '' }}>EUR (€ - Euro)</option>
+                                        <option value="GBP" {{ ($siteSettings['default_currency'] ?? '') == 'GBP' ? 'selected' : '' }}>GBP (£ - British Pound)</option>
+                                        <option value="AED" {{ ($siteSettings['default_currency'] ?? '') == 'AED' ? 'selected' : '' }}>AED (د.إ - UAE Dirham)</option>
+                                        <option value="SAR" {{ ($siteSettings['default_currency'] ?? '') == 'SAR' ? 'selected' : '' }}>SAR (﷼ - Saudi Riyal)</option>
+                                        <option value="INR" {{ ($siteSettings['default_currency'] ?? '') == 'INR' ? 'selected' : '' }}>INR (₹ - Indian Rupee)</option>
+                                        <option value="MYR" {{ ($siteSettings['default_currency'] ?? '') == 'MYR' ? 'selected' : '' }}>MYR (RM - Malaysian Ringgit)</option>
+                                        <option value="SGD" {{ ($siteSettings['default_currency'] ?? '') == 'SGD' ? 'selected' : '' }}>SGD (S$ - Singapore Dollar)</option>
+                                        <option value="THB" {{ ($siteSettings['default_currency'] ?? '') == 'THB' ? 'selected' : '' }}>THB (฿ - Thai Baht)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="saas-label"><i class="fa-solid fa-language text-primary me-1"></i> Default System Language</label>
+                                    <select name="default_language" class="form-select saas-input">
+                                        <option value="en" {{ ($siteSettings['default_language'] ?? 'en') == 'en' ? 'selected' : '' }}>English (US / Global)</option>
+                                        <option value="bn" {{ ($siteSettings['default_language'] ?? '') == 'bn' ? 'selected' : '' }}>বাংলা (Bengali - Bangladesh)</option>
+                                        <option value="ar" {{ ($siteSettings['default_language'] ?? '') == 'ar' ? 'selected' : '' }}>العربية (Arabic)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="saas-label"><i class="fa-solid fa-clock text-info me-1"></i> Default System Timezone</label>
+                                    <select name="timezone" class="form-select saas-input">
+                                        <option value="Asia/Dhaka" {{ ($siteSettings['timezone'] ?? 'Asia/Dhaka') == 'Asia/Dhaka' ? 'selected' : '' }}>Asia/Dhaka (GMT+6 - Bangladesh)</option>
+                                        <option value="Asia/Dubai" {{ ($siteSettings['timezone'] ?? '') == 'Asia/Dubai' ? 'selected' : '' }}>Asia/Dubai (GMT+4 - UAE)</option>
+                                        <option value="Asia/Riyadh" {{ ($siteSettings['timezone'] ?? '') == 'Asia/Riyadh' ? 'selected' : '' }}>Asia/Riyadh (GMT+3 - Saudi)</option>
+                                        <option value="Asia/Singapore" {{ ($siteSettings['timezone'] ?? '') == 'Asia/Singapore' ? 'selected' : '' }}>Asia/Singapore (GMT+8)</option>
+                                        <option value="UTC" {{ ($siteSettings['timezone'] ?? '') == 'UTC' ? 'selected' : '' }}>UTC (Universal Time)</option>
+                                    </select>
+                                </div>
+
                                 <div class="col-md-6">
                                     <label class="saas-label">Support Hotline Phone</label>
                                     <input type="text" name="support_phone" class="form-control saas-input" value="{{ old('support_phone', $siteSettings['support_phone']) }}">

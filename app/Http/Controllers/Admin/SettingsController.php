@@ -21,6 +21,8 @@ class SettingsController extends Controller
             'site_logo'                 => SiteSetting::get('site_logo', asset('assets/img/logo.png')),
             'site_favicon'              => SiteSetting::get('site_favicon', asset('favicon.ico')),
             'default_currency'          => SiteSetting::get('currency', 'BDT'),
+            'default_language'          => SiteSetting::get('default_language', 'en'),
+            'timezone'                  => SiteSetting::get('timezone', 'Asia/Dhaka'),
             'support_phone'             => SiteSetting::get('support_phone', '+880 1700 000000'),
             'support_email'             => SiteSetting::get('support_email', 'support@primeaviation.com'),
             'support_address'           => SiteSetting::get('support_address', 'Gulshan-2, Dhaka-1212, Bangladesh'),

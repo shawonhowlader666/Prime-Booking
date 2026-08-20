@@ -108,7 +108,12 @@
                 </a>
 
                 @auth
-                {{-- Logged in state: Avatar + Name + VIP Badge (Matching Agoda Screenshot 1:1) --}}
+                @php
+                    $headerVipStats = app(\App\Services\VIPLoyaltyService::class)->getUserTier(auth()->user());
+                    $headerTier = $headerVipStats['tier'] ?? 'Bronze';
+                    $headerBadgeColor = $headerVipStats['badge_color'] ?? '#ba6d4a';
+                @endphp
+                {{-- Logged in state: Avatar + Name + Dynamic VIP Badge (Matching Agoda Live) --}}
                 <div class="dropdown">
                     <div class="d-flex align-items-center gap-3" data-bs-toggle="dropdown" style="cursor: pointer; padding: 4px 8px; border-radius: 8px; transition: background 0.15s ease;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
                         <div style="width: 34px; height: 34px; background-color: #ff5722; color: #ffffff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14.5px; flex-shrink: 0; box-shadow: 0 1px 3px rgba(255, 87, 34, 0.25);">
@@ -116,13 +121,13 @@
                         </div>
                         <div style="line-height: 1.15; flex-shrink: 0; text-align: left;">
                             <span style="font-size: 13.5px; font-weight: 600; color: #262626; display: block; margin-bottom: 2px;">{{ auth()->user()->name }}</span>
-                            {{-- 100% Identical VIP Bronze Badge --}}
+                            {{-- Dynamic VIP Badge --}}
                             <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 18px; font-size: 10.5px; line-height: 1; box-shadow: 0 1px 2px rgba(0,0,0,0.12);">
                                 <div style="background-color: #1e2430; color: #ffffff; padding: 0 6px 0 5px; height: 100%; display: flex; align-items: center; gap: 3px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); padding-right: 9px;">
                                     <span style="font-size: 8px; color: #ffffff;">★</span>VIP
                                 </div>
-                                <div style="background-color: #ba6d4a; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px; letter-spacing: 0.2px;">
-                                    Bronze
+                                <div style="background-color: {{ $headerBadgeColor }}; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px; letter-spacing: 0.2px;">
+                                    {{ $headerTier }}
                                 </div>
                             </div>
                         </div>
@@ -145,15 +150,15 @@
 
                             <a href="{{ route('cashback') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Cashback Rewards') }}</a>
 
-                            {{-- AgodaVIP row with VIP badge --}}
+                            {{-- AgodaVIP row with dynamic VIP badge --}}
                             <div class="d-flex align-items-center justify-content-between mb-3">
                                 <a href="{{ route('vip') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('AgodaVIP') }}</a>
                                 <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 18px; font-size: 10.5px; line-height: 1;">
                                     <div style="background-color: #1e2430; color: #ffffff; padding: 0 6px 0 5px; height: 100%; display: flex; align-items: center; gap: 3px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); padding-right: 9px;">
                                         ★VIP
                                     </div>
-                                    <div style="background-color: #ba6d4a; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px;">
-                                        Bronze
+                                    <div style="background-color: {{ $headerBadgeColor }}; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px;">
+                                        {{ $headerTier }}
                                     </div>
                                 </div>
                             </div>

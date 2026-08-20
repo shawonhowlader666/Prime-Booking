@@ -990,6 +990,22 @@
             updateMapMarkers(currentFiltered);
         };
 
+        window.updateMapMarkers = function(items) {
+            if (!map || !markersMap) return;
+            var visibleIds = new Set(items.map(function(i) { return i.id; }));
+            Object.keys(markersMap).forEach(function(id) {
+                var m = markersMap[id];
+                if (!m) return;
+                var el = m.getElement();
+                if (visibleIds.has(parseInt(id)) || visibleIds.has(id)) {
+                    if (!map.hasLayer(m)) map.addLayer(m);
+                    if (el) el.style.display = 'block';
+                } else {
+                    if (el) el.style.display = 'none';
+                }
+            });
+        };
+
         window.uncheckFilter = function(val) {
             var el = document.querySelector(`.map-filter-check[value="${val}"]`);
             if (el) {
@@ -1004,11 +1020,13 @@
             var searchInput = document.getElementById('mapSearchInput');
             var headerSearch = document.getElementById('mapHeaderSearchInput');
             var priceRange = document.getElementById('mapPriceRange');
+            var minInput = document.getElementById('mapMinBudgetInput');
+            var maxInput = document.getElementById('mapMaxBudgetInput');
             if (searchInput) searchInput.value = '';
             if (headerSearch) headerSearch.value = '';
-            if (priceRange) priceRange.value = 80000;
-            var maxBox = document.getElementById('mapMaxBudgetBox');
-            if (maxBox) maxBox.textContent = '800';
+            if (minInput) minInput.value = 0;
+            if (maxInput) maxInput.value = {{ $maxConvertedPrice ?? 1000 }};
+            if (priceRange) priceRange.value = {{ $maxConvertedPrice ?? 1000 }};
             filterMapItems();
         };
 

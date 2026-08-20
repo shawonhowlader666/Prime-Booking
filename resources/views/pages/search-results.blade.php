@@ -630,22 +630,29 @@
                         </div>
                     </div>
 
-                    {{-- Budget Slider with Dual Stacked Box Display (Agoda 1:1 Parity) --}}
+                    {{-- Budget Slider with Dual Side-by-Side Bordered Box Display (Agoda 1:1 Parity) --}}
                     <div class="mb-3 pb-2.5 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <label class="fw-bold text-dark d-block mb-1.5" style="font-size: 12.5px;">Your budget (per night)</label>
-                        <input type="range" id="mapPriceRange" class="form-range my-1.5" min="0" max="{{ $maxConvertedPrice ?? 1000 }}" step="{{ ($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5 }}" value="{{ $maxConvertedPrice ?? 1000 }}" oninput="onMapSliderChange(this.value);">
-                        <div class="d-flex align-items-center gap-2 mt-1.5">
-                            <div class="d-flex flex-column gap-1" style="width: 95px;">
-                                <div class="border rounded p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border-color: #cbd5e1 !important; height: 28px;">
-                                    <span class="text-secondary fw-semibold" style="font-size: 10px; margin-right: 4px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                    <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-dark" value="0" min="0" max="1000000" style="font-size: 11.5px; width: 55px; background: transparent;" oninput="onMapTypedBudgetChange()">
-                                </div>
-                                <div class="border rounded p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border-color: #cbd5e1 !important; height: 28px;">
-                                    <span class="text-secondary fw-semibold" style="font-size: 10px; margin-right: 4px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                    <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-dark" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 11.5px; width: 55px; background: transparent;" oninput="onMapTypedBudgetChange()">
+                        <label class="fw-bold text-dark d-block mb-1.5" style="font-size: 13px;">Your budget (per night)</label>
+                        <input type="range" id="mapPriceRange" class="form-range my-2" min="0" max="{{ $maxConvertedPrice ?? 1000 }}" step="{{ ($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5 }}" value="{{ $maxConvertedPrice ?? 1000 }}" oninput="onMapSliderChange(this.value);">
+                        
+                        <div class="d-flex align-items-center justify-content-between gap-1.5 mt-1">
+                            <div class="flex-grow-1" style="min-width: 0;">
+                                <span class="d-block fw-bold text-dark text-uppercase mb-0.5" style="font-size: 9.5px; letter-spacing: 0.5px;">MIN</span>
+                                <div class="border rounded-1 p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border: 1.5px solid #0f172a !important; height: 32px;">
+                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                    <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-dark" value="0" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
                                 </div>
                             </div>
-                            <span class="text-muted" style="letter-spacing: -1px; font-size: 10.5px;">----------</span>
+                            <div class="text-muted fw-bold align-self-end mb-1 flex-shrink-0" style="font-size: 10px; letter-spacing: 0.5px; color: #94a3b8 !important;">
+                                -------
+                            </div>
+                            <div class="flex-grow-1" style="min-width: 0;">
+                                <span class="d-block fw-bold text-dark text-uppercase mb-0.5" style="font-size: 9.5px; letter-spacing: 0.5px;">MAX</span>
+                                <div class="border rounded-1 p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border: 1.5px solid #2067e1 !important; height: 32px; box-shadow: 0 0 0 1px #2067e1;">
+                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                    <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-primary" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
+                                </div>
+                            </div>
                         </div>
                     </div>
 

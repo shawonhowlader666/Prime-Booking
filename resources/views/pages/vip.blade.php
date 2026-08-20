@@ -69,8 +69,8 @@
 .agoda-vip-status-card {
     background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #edf2f7;
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
     padding: 32px 36px 28px 36px;
     margin-bottom: 24px;
 }
@@ -87,6 +87,7 @@
     font-size: 26px;
     font-weight: 700;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(92, 92, 214, 0.25);
 }
 
 .vip-badge-pill {
@@ -94,8 +95,9 @@
     align-items: center;
     border-radius: 3px;
     overflow: hidden;
-    height: 18px;
-    font-size: 10.5px;
+    height: 19px;
+    font-size: 11px;
+    line-height: 1;
     box-shadow: 0 1px 2px rgba(0,0,0,0.12);
 }
 .vip-badge-pill .vip-tag {
@@ -113,27 +115,28 @@
 .vip-badge-pill .vip-tier-name {
     background-color: #ba6d4a;
     color: #ffffff;
-    padding: 0 7px 0 4px;
+    padding: 0 8px 0 4px;
     height: 100%;
     display: flex;
     align-items: center;
     font-weight: 700;
     font-size: 11px;
     margin-left: -3px;
+    letter-spacing: 0.2px;
 }
 
 /* Stepper Track */
 .vip-stepper-track-container {
     position: relative;
-    padding: 20px 0 5px 0;
+    padding: 22px 0 8px 0;
 }
 .vip-stepper-dashed-line {
     position: absolute;
-    top: 36px;
+    top: 37px;
     left: 45px;
     right: 45px;
     height: 2px;
-    border-top: 2px dashed #e2e8f0;
+    border-top: 2px dashed #cbd5e1;
     z-index: 1;
 }
 .vip-stepper-node {
@@ -143,8 +146,8 @@
     flex: 1;
 }
 .vip-step-circle {
-    width: 28px;
-    height: 28px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     background: #ffffff;
     border: 2px solid #cbd5e1;
@@ -154,7 +157,8 @@
     justify-content: center;
     font-size: 12px;
     margin-bottom: 8px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    transition: all 0.2s ease;
 }
 .vip-step-circle.active-bronze {
     background: #ba6d4a;
@@ -169,9 +173,9 @@
 
 /* 2. Notice Callout Pill */
 .agoda-vip-notice-banner {
-    background: #eff6ff;
+    background: #f0f7ff;
     border-radius: 12px;
-    padding: 12px 18px;
+    padding: 14px 20px;
     margin-bottom: 24px;
     display: flex;
     align-items: flex-start;
@@ -179,16 +183,17 @@
     font-size: 13.5px;
     color: #1e3a8a;
     border: 1px solid #dbeafe;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 .agoda-vip-notice-badge {
     background: #e11d48;
     color: #ffffff;
-    font-size: 10px;
+    font-size: 10.5px;
     font-weight: 800;
-    padding: 2px 6px;
+    padding: 2px 7px;
     border-radius: 4px;
     line-height: 1.2;
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 /* 3. Illustration & Explain Box */
@@ -197,9 +202,10 @@
     border-radius: 16px;
     color: #ffffff;
     padding: 44px 40px 36px 40px;
-    margin-bottom: 36px;
+    margin-bottom: 32px;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 4px 20px rgba(40, 51, 68, 0.15);
 }
 .agoda-vip-explain-box::before {
     content: '';
@@ -215,8 +221,8 @@
 .vip-comparison-card {
     background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #edf2f7;
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
     padding: 40px 36px;
     margin-bottom: 32px;
 }
@@ -225,9 +231,12 @@
     border-collapse: collapse;
 }
 .vip-table th, .vip-table td {
-    padding: 14px 14px;
+    padding: 15px 14px;
     border-bottom: 1px solid #f1f5f9;
     font-size: 13.5px;
+}
+.vip-table tr:hover td {
+    background-color: #fafbfc;
 }
 .vip-table th {
     text-align: center;
@@ -253,8 +262,8 @@
 .vip-promo-showcase-box {
     background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.05);
-    border: 1px solid #edf2f7;
+    box-shadow: 0 1px 12px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.02);
+    border: 1px solid #e2e8f0;
     padding: 40px 36px;
     margin-bottom: 24px;
     text-align: center;
@@ -267,24 +276,26 @@
     border: 1px solid #e2e8f0;
     padding: 18px 24px;
     margin-bottom: 36px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 .vip-btn-search {
     background-color: #1877f2;
     color: #ffffff;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 15.5px;
     border-radius: 999px;
-    padding: 12px 42px;
+    padding: 13px 44px;
     border: none;
-    transition: background 0.15s ease, transform 0.1s ease;
+    transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
     text-decoration: none;
     display: inline-block;
-    box-shadow: 0 2px 8px rgba(24, 119, 242, 0.25);
+    box-shadow: 0 4px 14px rgba(24, 119, 242, 0.35);
 }
 .vip-btn-search:hover {
     background-color: #166fe5;
     color: #ffffff;
     transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(24, 119, 242, 0.45);
 }
 </style>
 

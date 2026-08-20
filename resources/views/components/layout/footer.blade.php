@@ -180,12 +180,25 @@
                 <!-- Payments -->
                 <div class="col-6 col-md-4 col-lg-2">
                     <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Payments Accepted</h6>
-                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px;">
-                        <span style="background: #e11d48; color: #fff; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 5px;">bKash</span>
-                        <span style="background: #f59e0b; color: #fff; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 5px;">Nagad</span>
-                        <span style="background: #7c3aed; color: #fff; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 5px;">Rocket</span>
-                        <span style="background: #1b4fb3; color: #fff; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 5px;">Visa</span>
-                        <span style="background: #e11d48; color: #fff; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 5px;">Master</span>
+                    <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; align-items: center;">
+                        {{-- bKash --}}
+                        <span style="background: #e2136e; color: #fff; font-weight: 900; font-size: 11px; padding: 4px 8px; border-radius: 6px; box-shadow: 0 2px 6px rgba(226,19,110,0.3); font-family: 'Plus Jakarta Sans', sans-serif;">bKash</span>
+                        {{-- Nagad --}}
+                        <span style="background: linear-gradient(135deg, #f7941d 0%, #ed1c24 100%); color: #fff; font-weight: 900; font-size: 11px; padding: 4px 8px; border-radius: 6px; box-shadow: 0 2px 6px rgba(247,148,29,0.3); font-family: 'Plus Jakarta Sans', sans-serif;">Nagad</span>
+                        {{-- Visa Card --}}
+                        <span style="background: #ffffff; padding: 2px 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; height: 25px;">
+                            <i class="fa-brands fa-cc-visa text-primary" style="font-size: 18px;"></i>
+                        </span>
+                        {{-- Mastercard --}}
+                        <span style="background: #ffffff; padding: 2px 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; height: 25px;">
+                            <i class="fa-brands fa-cc-mastercard text-danger" style="font-size: 18px;"></i>
+                        </span>
+                        {{-- Amex --}}
+                        <span style="background: #ffffff; padding: 2px 6px; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; height: 25px;">
+                            <i class="fa-brands fa-cc-amex text-info" style="font-size: 18px;"></i>
+                        </span>
+                        {{-- SSLCommerz --}}
+                        <span style="background: #006eb4; color: #fff; font-weight: 900; font-size: 10px; padding: 4px 8px; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif;">SSL</span>
                     </div>
                     <div style="font-size: 11px; color: #94a3b8; line-height: 1.7;">
                         <i class="fa-solid fa-shield-halved" style="color: #4ade80; margin-right: 5px;"></i>SSL 256-Bit Encrypted<br>

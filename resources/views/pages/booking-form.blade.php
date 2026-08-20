@@ -250,112 +250,125 @@
                 <div class="d-flex flex-column gap-3" id="paymentOptions">
                     
                     {{-- 1. bKash Mobile Banking --}}
-                    <label class="pay-option selected position-relative" id="pay_label_bkash" style="border: 2px solid #2067e1; background: #f8faff; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
-                        <input type="radio" name="payment_method" value="bkash" id="pay_bkash" checked style="width:18px; height:18px; accent-color:#e2136e;">
-                        <div style="width:58px; height:36px; background:#e2136e; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(226,19,110,0.25);">
-                            <svg width="42" height="24" viewBox="0 0 120 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M42.8 15.2L28.5 28.5L34.2 3.8L42.8 15.2Z" fill="white"/>
-                                <path d="M12.5 15.2L26.8 28.5L21.1 3.8L12.5 15.2Z" fill="white"/>
-                                <path d="M27.6 30.2L27.6 56.2L14.2 42.8L27.6 30.2Z" fill="white"/>
-                                <path d="M29.2 30.2L42.6 42.8L29.2 56.2L29.2 30.2Z" fill="white"/>
-                                <text x="52" y="38" fill="white" font-size="24" font-weight="900" font-family="system-ui, -apple-system, sans-serif">bKash</text>
+                    <label class="pay-option selected position-relative d-flex align-items-center gap-3" id="pay_label_bkash" style="border: 2px solid #2067e1; background: #f8faff; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
+                        <input type="radio" name="payment_method" value="bkash" id="pay_bkash" checked style="width:18px; height:18px; accent-color:#e2136e; flex-shrink:0;">
+                        {{-- Authentic Official bKash Logo Badge --}}
+                        <div style="width:62px; height:38px; background:#e2136e; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(226,19,110,0.28); padding:4px;">
+                            <svg viewBox="0 0 110 60" width="54" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M38.5 12.5L24.8 26.2L30.2 2L38.5 12.5Z" fill="#ffffff"/>
+                                <path d="M9.5 12.5L23.2 26.2L17.8 2L9.5 12.5Z" fill="#ffffff"/>
+                                <path d="M24 28L24 55L11 41.5L24 28Z" fill="#ffffff"/>
+                                <path d="M25.6 28L38.6 41.5L25.6 55L25.6 28Z" fill="#ffffff"/>
+                                <text x="46" y="38" fill="#ffffff" font-size="22" font-weight="900" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="-0.5">bKash</text>
                             </svg>
                         </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong class="text-dark" style="font-size:13.5px;">bKash Mobile Banking</strong>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <strong class="text-dark" style="font-size:14px; font-weight:700;">bKash Mobile Banking</strong>
                                 <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size:10px; font-weight:700;">Most Popular in BD</span>
                             </div>
                             <div class="text-secondary" style="font-size:11.5px; margin-top:2px;">Instant checkout via bKash App or USSD dial · 0% Gateway Charge</div>
                         </div>
-                        <span class="badge bg-success text-white fw-bold px-2 py-1 ms-auto" style="font-size:10px; border-radius:4px;">
+                        <span class="badge bg-success text-white fw-bold px-2.5 py-1.5 ms-auto flex-shrink-0" style="font-size:10.5px; border-radius:6px; box-shadow: 0 2px 6px rgba(22,163,74,0.2);">
                             <i class="fa-solid fa-bolt me-1"></i> Instant
                         </span>
                     </label>
 
                     {{-- 2. Nagad Digital Financial Service --}}
-                    <label class="pay-option position-relative" id="pay_label_nagad" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
-                        <input type="radio" name="payment_method" value="nagad" id="pay_nagad" style="width:18px; height:18px; accent-color:#f7941d;">
-                        <div style="width:58px; height:36px; background:linear-gradient(135deg, #f7941d, #ed1c24); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(247,148,29,0.25);">
-                            <svg width="46" height="24" viewBox="0 0 140 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="24" cy="30" r="16" fill="white" opacity="0.95"/>
-                                <circle cx="24" cy="30" r="8" fill="#f7941d"/>
-                                <text x="46" y="38" fill="white" font-size="22" font-weight="900" font-family="system-ui, -apple-system, sans-serif">Nagad</text>
+                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_nagad" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
+                        <input type="radio" name="payment_method" value="nagad" id="pay_nagad" style="width:18px; height:18px; accent-color:#f7941d; flex-shrink:0;">
+                        {{-- Authentic Official Nagad Logo Badge --}}
+                        <div style="width:62px; height:38px; background:linear-gradient(135deg, #f7941d 0%, #ed1c24 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(247,148,29,0.28); padding:4px;">
+                            <svg viewBox="0 0 120 60" width="54" height="30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="20" cy="30" r="14" fill="#ffffff" fill-opacity="0.95"/>
+                                <path d="M14 24C17 21 23 21 26 24C29 27 29 33 26 36C23 39 17 39 14 36" stroke="#ed1c24" stroke-width="3" stroke-linecap="round"/>
+                                <circle cx="20" cy="30" r="4.5" fill="#f7941d"/>
+                                <text x="40" y="38" fill="#ffffff" font-size="20" font-weight="900" font-family="'Plus Jakarta Sans', sans-serif" letter-spacing="-0.5">Nagad</text>
                             </svg>
                         </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong class="text-dark" style="font-size:13.5px;">Nagad Digital Payment</strong>
-                                <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-25" style="font-size:10px; font-weight:600;">Post Office Dfs</span>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <strong class="text-dark" style="font-size:14px; font-weight:700;">Nagad Digital Payment</strong>
+                                <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-30" style="font-size:10px; font-weight:600;">Post Office Dfs</span>
                             </div>
                             <div class="text-secondary" style="font-size:11.5px; margin-top:2px;">Fast payment with Nagad account or App · Secure PIN checkout</div>
                         </div>
-                        <span class="badge bg-light text-secondary border px-2 py-1 ms-auto" style="font-size:10px;">
+                        <span class="badge bg-light text-secondary border px-2.5 py-1.5 ms-auto flex-shrink-0" style="font-size:10.5px; border-radius:6px;">
                             <i class="fa-solid fa-shield-check text-warning me-1"></i> Verified
                         </span>
                     </label>
 
                     {{-- 3. Debit & Credit Cards (Visa, Mastercard, Amex, UnionPay) --}}
-                    <label class="pay-option position-relative" id="pay_label_card" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
-                        <input type="radio" name="payment_method" value="card" id="pay_card" style="width:18px; height:18px; accent-color:#1a1f36;">
-                        <div style="width:58px; height:36px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:3px; flex-shrink:0; box-shadow:0 2px 6px rgba(15,23,42,0.2);">
-                            {{-- Visa SVG --}}
-                            <svg width="22" height="14" viewBox="0 0 40 24" fill="none">
-                                <rect width="40" height="24" rx="3" fill="#1A1F36"/>
-                                <text x="4" y="17" fill="#ffffff" font-size="13" font-style="italic" font-weight="900" font-family="sans-serif">VISA</text>
+                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_card" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
+                        <input type="radio" name="payment_method" value="card" id="pay_card" style="width:18px; height:18px; accent-color:#1a1f36; flex-shrink:0;">
+                        {{-- Authentic Combined Cards Vector Badge --}}
+                        <div style="width:62px; height:38px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:4px; flex-shrink:0; box-shadow:0 3px 8px rgba(15,23,42,0.25); padding:3px 6px;">
+                            <svg viewBox="0 0 36 22" width="26" height="16" fill="none">
+                                <rect width="36" height="22" rx="3" fill="#1434CB"/>
+                                <text x="3" y="16" fill="#ffffff" font-size="12" font-style="italic" font-weight="900" font-family="'Plus Jakarta Sans', sans-serif">VISA</text>
                             </svg>
-                            {{-- Mastercard SVG Circles --}}
-                            <svg width="18" height="14" viewBox="0 0 32 20" fill="none">
-                                <circle cx="11" cy="10" r="9" fill="#EB001B"/>
-                                <circle cx="21" cy="10" r="9" fill="#F79E1B" fill-opacity="0.85"/>
+                            <svg viewBox="0 0 32 22" width="22" height="16" fill="none">
+                                <circle cx="10" cy="11" r="8" fill="#EB001B"/>
+                                <circle cx="22" cy="11" r="8" fill="#F79E1B" fill-opacity="0.88"/>
                             </svg>
                         </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong class="text-dark" style="font-size:13.5px;">Debit / Credit Card (Local &amp; Global)</strong>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <strong class="text-dark" style="font-size:14px; font-weight:700;">Debit / Credit Card (Local &amp; Global)</strong>
                                 <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:10px; font-weight:600;">Visa · Master · AmEx</span>
                             </div>
                             <div class="text-secondary" style="font-size:11.5px; margin-top:2px;">Support all Bangladeshi &amp; International Visa, MasterCard, UnionPay, American Express</div>
                         </div>
-                        <div class="d-flex align-items-center gap-1 ms-auto">
-                            <i class="fa-brands fa-cc-visa text-primary fs-5"></i>
-                            <i class="fa-brands fa-cc-mastercard text-danger fs-5"></i>
-                            <i class="fa-brands fa-cc-amex text-info fs-5"></i>
+                        <div class="d-flex align-items-center gap-1.5 ms-auto flex-shrink-0">
+                            <span class="badge bg-light border p-1 rounded d-flex align-items-center justify-content-center" style="width:28px; height:20px;">
+                                <i class="fa-brands fa-cc-visa text-primary" style="font-size:16px;"></i>
+                            </span>
+                            <span class="badge bg-light border p-1 rounded d-flex align-items-center justify-content-center" style="width:28px; height:20px;">
+                                <i class="fa-brands fa-cc-mastercard text-danger" style="font-size:16px;"></i>
+                            </span>
+                            <span class="badge bg-light border p-1 rounded d-flex align-items-center justify-content-center" style="width:28px; height:20px;">
+                                <i class="fa-brands fa-cc-amex text-info" style="font-size:16px;"></i>
+                            </span>
                         </div>
                     </label>
 
                     {{-- 4. SSLCommerz Internet Banking & Multi-Bank --}}
-                    <label class="pay-option position-relative" id="pay_label_ssl" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
-                        <input type="radio" name="payment_method" value="sslcommerz" id="pay_ssl" style="width:18px; height:18px; accent-color:#006eb4;">
-                        <div style="width:58px; height:36px; background:linear-gradient(135deg, #005691, #0077b6); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(0,110,180,0.25);">
-                            <span style="color:#ffffff; font-size:11px; font-weight:900; letter-spacing:0.5px;">SSL</span>
+                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_ssl" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
+                        <input type="radio" name="payment_method" value="sslcommerz" id="pay_ssl" style="width:18px; height:18px; accent-color:#006eb4; flex-shrink:0;">
+                        {{-- Authentic Official SSLCommerz Logo Badge --}}
+                        <div style="width:62px; height:38px; background:linear-gradient(135deg, #005691 0%, #0077b6 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(0,110,180,0.28); padding:4px;">
+                            <div class="d-flex align-items-center gap-1">
+                                <i class="fa-solid fa-shield-halved text-white" style="font-size:11px;"></i>
+                                <span style="color:#ffffff; font-size:11.5px; font-weight:900; letter-spacing:0.8px; font-family:'Plus Jakarta Sans',sans-serif;">SSL</span>
+                            </div>
                         </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong class="text-dark" style="font-size:13.5px;">SSLCommerz — All Bangladeshi Banks</strong>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <strong class="text-dark" style="font-size:14px; font-weight:700;">SSLCommerz — All Bangladeshi Banks</strong>
                                 <span class="badge bg-info bg-opacity-10 text-dark border border-info border-opacity-25" style="font-size:10px; font-weight:600;">30+ Banks</span>
                             </div>
                             <div class="text-secondary" style="font-size:11.5px; margin-top:2px;">Dutch-Bangla NexusPay, Rocket, CityTouch, BRAC Bank, Islami Bank, EBL, MTB, UCB</div>
                         </div>
-                        <span class="badge bg-light text-primary border px-2 py-1 ms-auto" style="font-size:10px; font-weight:600;">
+                        <span class="badge bg-light text-primary border px-2.5 py-1.5 ms-auto flex-shrink-0" style="font-size:10.5px; font-weight:600;">
                             Net Banking
                         </span>
                     </label>
 
                     {{-- 5. Pay at Hotel / Cash on Arrival --}}
-                    <label class="pay-option position-relative" id="pay_label_cash" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
-                        <input type="radio" name="payment_method" value="cash" id="pay_cash" style="width:18px; height:18px; accent-color:#16a34a;">
-                        <div style="width:58px; height:36px; background:linear-gradient(135deg, #15803d, #16a34a); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 2px 6px rgba(22,163,74,0.25);">
+                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_cash" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
+                        <input type="radio" name="payment_method" value="cash" id="pay_cash" style="width:18px; height:18px; accent-color:#16a34a; flex-shrink:0;">
+                        {{-- Emerald Hotel Reception Badge --}}
+                        <div style="width:62px; height:38px; background:linear-gradient(135deg, #059669 0%, #10b981 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(16,185,129,0.28);">
                             <i class="fa-solid fa-hotel text-white fs-5"></i>
                         </div>
-                        <div class="flex-grow-1">
-                            <div class="d-flex align-items-center gap-2">
-                                <strong class="text-dark" style="font-size:13.5px;">Pay at Hotel / Front Desk</strong>
+                        <div class="flex-grow-1" style="min-width: 0;">
+                            <div class="d-flex align-items-center gap-2 flex-wrap">
+                                <strong class="text-dark" style="font-size:14px; font-weight:700;">Pay at Hotel / Front Desk</strong>
                                 <span class="badge bg-success bg-opacity-10 text-success border border-success border-opacity-25" style="font-size:10px; font-weight:700;">No Prepayment</span>
                             </div>
                             <div class="text-secondary" style="font-size:11.5px; margin-top:2px;">Reserve your room today · Pay cash or card at the property during check-in</div>
                         </div>
-                        <span class="badge bg-warning bg-opacity-20 text-dark fw-bold border border-warning border-opacity-30 px-2 py-1 ms-auto" style="font-size:10px;">
+                        <span class="badge bg-warning bg-opacity-20 text-dark fw-bold border border-warning border-opacity-30 px-2.5 py-1.5 ms-auto flex-shrink-0" style="font-size:10.5px;">
                             0% Advance
                         </span>
                     </label>
@@ -473,24 +486,30 @@
                 <div class="mt-3 text-center">
                     <div class="text-muted mb-2" style="font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.5px;">Trusted &amp; Accepted Payments</div>
                     <div class="d-flex align-items-center justify-content-center gap-1.5 flex-wrap">
-                        {{-- bKash --}}
-                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded" style="background:#e2136e; color:#fff; font-size:10px; font-weight:800; height:22px;">bKash</span>
-                        {{-- Nagad --}}
-                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded" style="background:linear-gradient(135deg,#f7941d,#ed1c24); color:#fff; font-size:10px; font-weight:800; height:22px;">Nagad</span>
-                        {{-- Visa --}}
-                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded border" style="background:#ffffff; height:22px;">
+                        {{-- bKash Official Mini Pill --}}
+                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded shadow-xs" style="background:#e2136e; color:#ffffff; font-size:10.5px; font-weight:900; height:24px; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:-0.2px;">
+                            bKash
+                        </span>
+                        {{-- Nagad Official Mini Pill --}}
+                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded shadow-xs" style="background:linear-gradient(135deg,#f7941d,#ed1c24); color:#ffffff; font-size:10.5px; font-weight:900; height:24px; font-family:'Plus Jakarta Sans',sans-serif; letter-spacing:-0.2px;">
+                            Nagad
+                        </span>
+                        {{-- Visa Card --}}
+                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-0.5 rounded border shadow-xs" style="background:#ffffff; height:24px; border-color:#cbd5e1 !important;">
                             <i class="fa-brands fa-cc-visa text-primary" style="font-size:18px;"></i>
                         </span>
                         {{-- MasterCard --}}
-                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded border" style="background:#ffffff; height:22px;">
+                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-0.5 rounded border shadow-xs" style="background:#ffffff; height:24px; border-color:#cbd5e1 !important;">
                             <i class="fa-brands fa-cc-mastercard text-danger" style="font-size:18px;"></i>
                         </span>
                         {{-- Amex --}}
-                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded border" style="background:#ffffff; height:22px;">
+                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-0.5 rounded border shadow-xs" style="background:#ffffff; height:24px; border-color:#cbd5e1 !important;">
                             <i class="fa-brands fa-cc-amex text-info" style="font-size:18px;"></i>
                         </span>
-                        {{-- SSL --}}
-                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded" style="background:#006eb4; color:#fff; font-size:9px; font-weight:800; height:22px;">SSL</span>
+                        {{-- SSLCommerz --}}
+                        <span class="d-inline-flex align-items-center justify-content-center px-2 py-1 rounded shadow-xs" style="background:#006eb4; color:#ffffff; font-size:9.5px; font-weight:900; height:24px; font-family:'Plus Jakarta Sans',sans-serif;">
+                            SSL
+                        </span>
                     </div>
                 </div>
             </div>

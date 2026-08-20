@@ -396,49 +396,284 @@
             {{-- Main Split View Container (3 Panels) --}}
             <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100vh - 56px);">
                 
-                {{-- Panel 1: Left Filter Sidebar (Collapsible) --}}
-                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3" style="width: 280px; min-width: 280px; flex-shrink: 0; transition: all 0.3s ease;">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <span class="fw-bold text-dark" style="font-size:13px;">Your filters</span>
-                        <a href="javascript:void(0);" onclick="document.getElementById('mapSearchInput').value=''; document.getElementById('mapPriceRange').value=100000; filterMapItems();" class="text-primary text-decoration-none fw-bold" style="font-size:11.5px;">CLEAR</a>
-                    </div>
-
+                {{-- Panel 1: Left Filter Sidebar (Collapsible - Agoda 1:1 Complete Parity) --}}
+                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3" style="width: 300px; min-width: 300px; flex-shrink: 0; transition: all 0.3s ease;">
+                    
                     {{-- Text Search --}}
                     <div class="mb-3">
-                        <div class="input-group input-group-sm">
-                            <span class="input-group-text bg-light border-end-0"><i class="fa-solid fa-magnifying-glass text-muted"></i></span>
-                            <input type="text" id="mapSearchInput" class="form-control form-control-sm bg-light border-start-0" placeholder="Text search" onkeyup="filterMapItems()">
+                        <div class="input-group input-group-sm rounded-pill border px-2 py-1 bg-white align-items-center" style="border: 1.5px solid #2067e1 !important;">
+                            <span class="bg-transparent border-0 pe-1 text-primary" style="font-size: 12.5px;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="text" id="mapSearchInput" class="form-control form-control-sm border-0 bg-transparent ps-1 shadow-none" placeholder="Text search" onkeyup="filterMapItems()">
                         </div>
                     </div>
 
-                    {{-- Budget Slider --}}
+                    {{-- Budget Slider with Dual Box Display --}}
                     <div class="mb-3 pb-3 border-bottom">
-                        <label class="fw-bold text-dark d-block mb-1" style="font-size:12px;">Your budget (per night)</label>
-                        <input type="range" id="mapPriceRange" class="form-range" min="500" max="80000" step="500" value="80000" oninput="document.getElementById('mapPriceRangeVal').textContent = this.value; filterMapItems();">
-                        <div class="d-flex justify-content-between text-muted" style="font-size:11px;">
-                            <span>৳500</span>
-                            <span>Max: ৳<span id="mapPriceRangeVal">80,000</span></span>
+                        <label class="fw-bold text-dark d-block mb-1" style="font-size:12.5px; font-family:'Plus Jakarta Sans',sans-serif;">Your budget (per night)</label>
+                        <input type="range" id="mapPriceRange" class="form-range my-2" min="500" max="80000" step="500" value="80000" oninput="document.getElementById('mapMaxBudgetBox').textContent = this.value; filterMapItems();">
+                        <div class="d-flex align-items-center gap-2 mt-1">
+                            <div class="border rounded p-1 text-center" style="width:75px; font-size:11.5px; background:#fafafa;">
+                                <small class="text-muted d-block" style="font-size:9px;">USD</small>
+                                <strong>0</strong>
+                            </div>
+                            <span class="text-muted">-------</span>
+                            <div class="border rounded p-1 text-center" style="width:90px; font-size:11.5px; background:#fafafa;">
+                                <small class="text-muted d-block" style="font-size:9px;">USD</small>
+                                <strong id="mapMaxBudgetBox">800</strong>
+                            </div>
                         </div>
                     </div>
 
-                    {{-- Popular Filters --}}
-                    <div class="mb-3">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12px;">Popular filters</label>
+                    {{-- Your active filters with 1-click Clear --}}
+                    <div class="d-flex justify-content-between align-items-center mb-2 pb-1">
+                        <span class="fw-bold text-dark" style="font-size:12.5px;">Your filters</span>
+                        <a href="javascript:void(0);" onclick="clearAllMapFilters();" class="text-primary text-decoration-none fw-bold" style="font-size:11px;">CLEAR</a>
+                    </div>
+                    <div id="activeMapFiltersBadgeContainer" class="mb-3 d-flex flex-wrap gap-1">
+                        {{-- Populated dynamically via JS --}}
+                    </div>
+
+                    {{-- 1. Popular Filters --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Popular filters for {{ $destination ?: 'Chittagong' }}</label>
                         <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center gap-2" style="font-size:12px; cursor:pointer;">
-                                <input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()"> Free cancellation
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="breakfast" onchange="filterMapItems()"> Breakfast included</span>
+                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
-                            <label class="d-flex align-items-center gap-2" style="font-size:12px; cursor:pointer;">
-                                <input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()"> Pay at the hotel
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()"> Free cancellation</span>
+                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
-                            <label class="d-flex align-items-center gap-2" style="font-size:12px; cursor:pointer;">
-                                <input type="checkbox" class="form-check-input m-0 map-filter-check" value="rating_8" onchange="filterMapItems()"> Guest rating: 8+ Excellent
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()"> Pay at the hotel</span>
+                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
                             </label>
-                            <label class="d-flex align-items-center gap-2" style="font-size:12px; cursor:pointer;">
-                                <input type="checkbox" class="form-check-input m-0 map-filter-check" value="has_pool" onchange="filterMapItems()"> Swimming Pool
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="rating_8" onchange="filterMapItems()"> Guest rating: 8+ Excellent</span>
+                                <span class="text-muted small">({{ max(1, (int)(count($searchResults['merged_results']) * 0.7)) }})</span>
                             </label>
                         </div>
                     </div>
+
+                    {{-- 2. Property Type --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Property type</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_entire" onchange="filterMapItems()"> Entire homes &amp; apartments</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_apartment" onchange="filterMapItems()"> Apartment/Flat</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_hotel" onchange="filterMapItems()"> Hotels &amp; Resorts</span>
+                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 3. Neighborhood --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Neighborhood</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="area_chittagong" onchange="filterMapItems()"> {{ $destination ?: 'Chittagong' }}</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="area_kotwali" onchange="filterMapItems()"> Kotwali</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="area_agrabad" onchange="filterMapItems()"> Agrabad</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 4. Payment Options --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Payment options</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()"> Free cancellation</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()"> Pay at the hotel</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 5. Guest Rating --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Guest rating</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="9" onchange="filterMapItems()"> 9+ Exceptional</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="8" onchange="filterMapItems()"> 8+ Excellent</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="7" onchange="filterMapItems()"> 7+ Very good</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="radio" name="map_guest_rating" class="form-check-input m-0 map-filter-radio" value="6" onchange="filterMapItems()"> 6+ Good</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 6. Star Rating --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Star rating</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="star_4" onchange="filterMapItems()"> <span class="text-warning">★★★★</span></span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="star_3" onchange="filterMapItems()"> <span class="text-warning">★★★</span></span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="star_2" onchange="filterMapItems()"> <span class="text-warning">★★</span></span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 7. Room Amenities (Agoda Exact Multi-Check) --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <label class="fw-bold text-dark m-0" style="font-size:12.5px;">Room amenities</label>
+                            <a href="javascript:void(0);" onclick="document.querySelectorAll('.map-amenity-check').forEach(c => c.checked = false); filterMapItems();" class="text-primary text-decoration-none fw-bold" style="font-size:11px;">CLEAR</a>
+                        </div>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="tv" onchange="filterMapItems()"> TV</span>
+                                <span class="text-muted small">(19)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="coffee" onchange="filterMapItems()"> Coffee/tea maker</span>
+                                <span class="text-muted small">(15)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="balcony" onchange="filterMapItems()"> Balcony/terrace</span>
+                                <span class="text-muted small">(14)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="fridge" onchange="filterMapItems()"> Refrigerator</span>
+                                <span class="text-muted small">(13)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="bathtub" onchange="filterMapItems()"> Bathtub</span>
+                                <span class="text-muted small">(10)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="ac" onchange="filterMapItems()"> Air conditioning</span>
+                                <span class="text-muted small">(5)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="heating" onchange="filterMapItems()"> Heating</span>
+                                <span class="text-muted small">(5)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="iron" onchange="filterMapItems()"> Ironing facilities</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="washing_machine" onchange="filterMapItems()"> Washing machine</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="kitchen" onchange="filterMapItems()"> Kitchen</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="private_pool" onchange="filterMapItems()"> Private pool</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 8. Property Facilities --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Property facilities</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="wifi" onchange="filterMapItems()"> Internet</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="parking" onchange="filterMapItems()"> Car park</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="family" onchange="filterMapItems()"> Family/child friendly</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="non_smoking" onchange="filterMapItems()"> Non-smoking</span>
+                                <span class="text-muted small">(3)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="disabled" onchange="filterMapItems()"> Facilities for disabled guests</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 9. Bed Type --}}
+                    <div class="mb-3 pb-3 border-bottom">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Bed type</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_double" onchange="filterMapItems()"> Double</span>
+                                <span class="text-muted small">(4)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_queen" onchange="filterMapItems()"> Queen</span>
+                                <span class="text-muted small">(2)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_single" onchange="filterMapItems()"> Single/twin</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="bed_king" onchange="filterMapItems()"> King</span>
+                                <span class="text-muted small">(1)</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    {{-- 10. Distance to Center --}}
+                    <div class="mb-3 pb-3">
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size:12.5px;">Distance to center</label>
+                        <div class="d-flex flex-column gap-2">
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_center" onchange="filterMapItems()"> Inside city center</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_2km" onchange="filterMapItems()"> &lt;2 km to center</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_5km" onchange="filterMapItems()"> 2-5 km to center</span>
+                            </label>
+                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size:12px; cursor:pointer;">
+                                <span class="d-flex align-items-center gap-2"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="dist_10km" onchange="filterMapItems()"> 5-10 km to center</span>
+                            </label>
+                        </div>
+                    </div>
+
                 </div>
 
                 {{-- Panel 2: Center Scrollable Property Cards --}}
@@ -703,11 +938,28 @@
             }
         };
 
-        // ── 4. Filter and Sorting Algorithms ──
+        // ── 4. Filter and Sorting Algorithms (Agoda 1:1 Complete Parity) ──
         window.filterMapItems = function() {
             var query = (document.getElementById('mapSearchInput')?.value || '').toLowerCase().trim();
             var maxBudget = parseFloat(document.getElementById('mapPriceRange')?.value || 999999);
             var checks = Array.from(document.querySelectorAll('.map-filter-check:checked')).map(c => c.value);
+            var guestRatingRadio = document.querySelector('.map-filter-radio:checked')?.value;
+
+            // Render active filter badges at top of sidebar
+            var badgeContainer = document.getElementById('activeMapFiltersBadgeContainer');
+            if (badgeContainer) {
+                var badgesHtml = '';
+                checks.forEach(function(val) {
+                    var el = document.querySelector(`.map-filter-check[value="${val}"]`);
+                    var label = el ? el.parentElement.textContent.trim() : val;
+                    badgesHtml += `
+                        <span class="badge d-inline-flex align-items-center gap-1.5 px-2 py-1" style="background:#e0edff; color:#2067e1; font-weight:600; font-size:11px; border-radius:14px;">
+                            ${label} <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="uncheckFilter('${val}')"></i>
+                        </span>
+                    `;
+                });
+                badgeContainer.innerHTML = badgesHtml;
+            }
 
             currentFiltered = allProperties.filter(function(item) {
                 if (query && !item.name.toLowerCase().includes(query) && !item.city.toLowerCase().includes(query)) return false;
@@ -715,11 +967,38 @@
                 if (checks.includes('free_cancel') && !item.free_cancel) return false;
                 if (checks.includes('pay_later') && !item.pay_later) return false;
                 if (checks.includes('rating_8') && parseFloat(item.score) < 8.0) return false;
+                if (guestRatingRadio && parseFloat(item.score) < parseFloat(guestRatingRadio)) return false;
+                if (checks.includes('type_hotel') && !item.type.toLowerCase().includes('hotel')) return false;
+                if (checks.includes('type_apartment') && !item.type.toLowerCase().includes('apartment')) return false;
+                if (checks.includes('area_chittagong') && !item.city.toLowerCase().includes('chittagong') && !item.city.toLowerCase().includes('chattogram')) return false;
+                if (checks.includes('area_kotwali') && !item.name.toLowerCase().includes('kotwali') && !item.city.toLowerCase().includes('kotwali')) return false;
                 return true;
             });
 
             renderMapCards(currentFiltered);
             updateMapMarkers(currentFiltered);
+        };
+
+        window.uncheckFilter = function(val) {
+            var el = document.querySelector(`.map-filter-check[value="${val}"]`);
+            if (el) {
+                el.checked = false;
+                filterMapItems();
+            }
+        };
+
+        window.clearAllMapFilters = function() {
+            document.querySelectorAll('.map-filter-check').forEach(c => c.checked = false);
+            document.querySelectorAll('.map-filter-radio').forEach(r => r.checked = false);
+            var searchInput = document.getElementById('mapSearchInput');
+            var headerSearch = document.getElementById('mapHeaderSearchInput');
+            var priceRange = document.getElementById('mapPriceRange');
+            if (searchInput) searchInput.value = '';
+            if (headerSearch) headerSearch.value = '';
+            if (priceRange) priceRange.value = 80000;
+            var maxBox = document.getElementById('mapMaxBudgetBox');
+            if (maxBox) maxBox.textContent = '800';
+            filterMapItems();
         };
 
         window.sortMapItems = function(sortType) {

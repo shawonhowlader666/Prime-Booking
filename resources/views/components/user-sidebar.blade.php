@@ -1,6 +1,9 @@
 @props(['activePage' => 'profile'])
 
 @php
+    $sidebarVipStats = auth()->check() ? app(\App\Services\VIPLoyaltyService::class)->getUserTier(auth()->user()) : null;
+    $sidebarBadgeColor = $sidebarVipStats['badge_color'] ?? '#ba6d4a';
+
     $menuItems = [
         [
             'key'   => 'trips',
@@ -44,10 +47,6 @@
             'icon'  => 'fa-solid fa-star',
             'route' => route('reviews'),
         ],
-        @php
-            $sidebarVipStats = auth()->check() ? app(\App\Services\VIPLoyaltyService::class)->getUserTier(auth()->user()) : null;
-            $sidebarBadgeColor = $sidebarVipStats['badge_color'] ?? '#ba6d4a';
-        @endphp
         [
             'key'   => 'vip',
             'label' => 'PrimeVIP',

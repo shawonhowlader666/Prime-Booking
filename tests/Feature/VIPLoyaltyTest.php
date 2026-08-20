@@ -9,6 +9,8 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class VIPLoyaltyTest extends TestCase
 {
+    use RefreshDatabase;
+
     /** @test */
     public function vip_loyalty_service_returns_correct_bronze_tier_for_guest()
     {

@@ -503,14 +503,14 @@
 </div>
 
 {{-- Interactive Leaflet OpenStreetMap Agoda-Exact Split-Screen Modal (100% Exact 1:1 Parity with Agoda.com) --}}
-<div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen m-0 p-0">
-        <div class="modal-content border-0 rounded-0 overflow-hidden" style="background:#ffffff;">
+<div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(4px); background: rgba(15, 23, 42, 0.65);">
+    <div class="modal-dialog modal-dialog-centered" style="max-width: 95vw; width: 1440px; height: 92vh; margin: 4vh auto;">
+        <div class="modal-content border-0 overflow-hidden" style="height: 100%; border-radius: 16px !important; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45); background: #ffffff;">
             
             {{-- Top Modal Bar: Hide filters & Close X (Agoda Exact) --}}
-            <div class="d-flex justify-content-between align-items-center px-4 py-2 bg-white border-bottom shadow-xs" style="z-index: 1050; height: 58px;">
+            <div class="d-flex justify-content-between align-items-center px-4 bg-white border-bottom" style="z-index: 1050; height: 56px; border-color: #eef2f6 !important;">
                 <div class="d-flex align-items-center gap-3">
-                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill px-3.5 py-1.5 fw-bold d-flex align-items-center gap-2" id="toggleMapFilterSidebarBtn" style="border-color: #2067e1; color: #2067e1; font-size: 13px; background: #ffffff;">
+                    <button type="button" class="btn btn-sm rounded-pill px-3.5 py-1.5 fw-bold d-flex align-items-center gap-2" id="toggleMapFilterSidebarBtn" style="border: 1px solid #bfdbfe; color: #2067e1; font-size: 13px; background: #f0f7ff;">
                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>
                         </svg>
@@ -518,40 +518,42 @@
                     </button>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-link p-0 text-primary fs-4 text-decoration-none" data-bs-dismiss="modal" aria-label="Close" style="color: #2067e1 !important; line-height: 1;">
+                    <button type="button" class="btn btn-link p-0 text-primary fs-3 text-decoration-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close" style="color: #2067e1 !important; line-height: 1; width: 32px; height: 32px;">
                         <i class="fa-solid fa-xmark"></i>
                     </button>
                 </div>
             </div>
 
             {{-- Main Split View Container (3 Panels) --}}
-            <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100vh - 58px);">
+            <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100% - 56px);">
                 
                 {{-- Panel 1: Left Filter Sidebar (Collapsible - Agoda 1:1 Complete Parity) --}}
-                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3.5" style="width: 280px; min-width: 280px; flex-shrink: 0; transition: all 0.3s ease;">
+                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto p-3.5" style="width: 270px; min-width: 270px; flex-shrink: 0; transition: all 0.3s ease; border-color: #eef2f6 !important;">
                     
                     {{-- Text Search --}}
-                    <div class="mb-4">
-                        <div class="d-flex align-items-center px-3 py-2 rounded-pill" style="background: #f0f3f8;">
+                    <div class="mb-3.5">
+                        <div class="d-flex align-items-center px-3 rounded-pill" style="background: #f1f5f9; height: 40px; border: 1px solid #e2e8f0;">
                             <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
                             <input type="text" id="mapSearchInput" class="border-0 bg-transparent w-100 shadow-none text-dark fw-medium" placeholder="Text search" style="font-size: 13.5px; outline: none;" onkeyup="filterMapItems()">
                         </div>
                     </div>
 
-                    {{-- Budget Slider with Dual Typeable Box Display (Agoda 1:1 Parity) --}}
-                    <div class="mb-4 pb-3 border-bottom">
+                    {{-- Budget Slider with Dual Stacked Box Display (Agoda 1:1 Parity) --}}
+                    <div class="mb-4 pb-3 border-bottom" style="border-color: #eef2f6 !important;">
                         <label class="fw-bold text-dark d-block mb-2" style="font-size: 13.5px;">Your budget (per night)</label>
                         <input type="range" id="mapPriceRange" class="form-range my-2" min="0" max="{{ $maxConvertedPrice ?? 1000 }}" step="{{ ($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5 }}" value="{{ $maxConvertedPrice ?? 1000 }}" oninput="onMapSliderChange(this.value);">
                         <div class="d-flex align-items-center gap-2 mt-2">
-                            <div class="border rounded-2 p-1 px-2 d-flex align-items-center gap-1.5" style="width: 110px; background: #ffffff; border-color: #cbd5e1 !important;">
-                                <span class="text-secondary fw-bold" style="font-size: 11px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="0" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
+                            <div class="d-flex flex-column gap-1.5" style="width: 100px;">
+                                <div class="border rounded-2 p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border-color: #cbd5e1 !important; height: 32px;">
+                                    <span class="text-secondary fw-semibold" style="font-size: 10.5px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                    <input type="number" id="mapMinBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-dark" value="0" min="0" max="1000000" style="font-size: 12px; width: 55px; background: transparent;" oninput="onMapTypedBudgetChange()">
+                                </div>
+                                <div class="border rounded-2 p-1 px-2 d-flex align-items-center justify-content-between" style="background: #ffffff; border-color: #cbd5e1 !important; height: 32px;">
+                                    <span class="text-secondary fw-semibold" style="font-size: 10.5px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
+                                    <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-end text-dark" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 12px; width: 55px; background: transparent;" oninput="onMapTypedBudgetChange()">
+                                </div>
                             </div>
-                            <span class="text-muted" style="letter-spacing: -1px;">---------</span>
-                            <div class="border rounded-2 p-1 px-2 d-flex align-items-center gap-1.5" style="width: 115px; background: #ffffff; border-color: #cbd5e1 !important;">
-                                <span class="text-secondary fw-bold" style="font-size: 11px;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                <input type="number" id="mapMaxBudgetInput" class="form-control border-0 p-0 shadow-none fw-bold text-dark" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 13px; width: 100%; background: transparent;" oninput="onMapTypedBudgetChange()">
-                            </div>
+                            <span class="text-muted" style="letter-spacing: -1px; font-size: 11px;">----------</span>
                         </div>
                     </div>
 
@@ -565,7 +567,7 @@
                     </div>
 
                     {{-- 1. Popular Filters --}}
-                    <div class="mb-4 pb-3 border-bottom">
+                    <div class="mb-4 pb-3 border-bottom" style="border-color: #eef2f6 !important;">
                         <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Popular filters for {{ $destination ?: 'Chittagong' }}</label>
                         <div class="d-flex flex-column gap-2.5">
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
@@ -588,7 +590,7 @@
                     </div>
 
                     {{-- 2. Property Type --}}
-                    <div class="mb-4 pb-3 border-bottom">
+                    <div class="mb-4 pb-3 border-bottom" style="border-color: #eef2f6 !important;">
                         <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Property type</label>
                         <div class="d-flex flex-column gap-2.5">
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
@@ -607,7 +609,7 @@
                     </div>
 
                     {{-- 3. Room Amenities --}}
-                    <div class="mb-4 pb-3 border-bottom">
+                    <div class="mb-4 pb-3 border-bottom" style="border-color: #eef2f6 !important;">
                         <label class="fw-bold text-dark d-block mb-2.5" style="font-size: 13px;">Room amenities</label>
                         <div class="d-flex flex-column gap-2.5">
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12.5px; cursor: pointer;">
@@ -632,19 +634,19 @@
                 </div>
 
                 {{-- Panel 2: Center Scrollable Horizontal Property Cards (Agoda 1:1 Parity) --}}
-                <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto p-3" style="width: 440px; min-width: 420px; flex-shrink: 0;">
+                <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto p-3" style="width: 440px; min-width: 420px; flex-shrink: 0; border-color: #eef2f6 !important;">
                     
                     {{-- Header with Result Count, Nights, and Floating Sort Box --}}
-                    <div class="mb-3 pb-2.5 border-bottom">
-                        <div class="fw-bold text-dark" style="font-size: 15px;">
+                    <div class="mb-3 pb-2.5 border-bottom" style="border-color: #eef2f6 !important;">
+                        <div class="fw-bold text-dark" style="font-size: 16px;">
                             <span id="visibleCardsCount">{{ count($searchResults['merged_results']) }}</span> properties available
                         </div>
-                        <div class="text-secondary small d-flex align-items-center gap-1.5 mb-2.5" style="font-size: 12px;">
-                            <i class="fa-regular fa-calendar" style="font-size: 11px;"></i> {{ $checkinCarbon->diffInDays($checkoutCarbon) }} nights ({{ $checkinCarbon->format('M j') }} – {{ $checkoutCarbon->format('M j') }})
+                        <div class="text-secondary small d-flex align-items-center gap-1.5 mb-2.5" style="font-size: 12.5px; color: #475569 !important;">
+                            <i class="fa-regular fa-calendar" style="font-size: 11.5px;"></i> {{ $checkinCarbon->diffInDays($checkoutCarbon) }} nights ({{ $checkinCarbon->format('M j') }} – {{ $checkoutCarbon->format('M j') }})
                         </div>
                         <div class="position-relative">
                             <label style="position: absolute; top: -8px; left: 10px; background: #ffffff; padding: 0 4px; font-size: 10.5px; font-weight: 600; color: #64748b; z-index: 1;">Sort by</label>
-                            <select id="mapSortSelect" class="form-select form-select-sm fw-bold text-dark shadow-none" style="height: 42px; border-radius: 8px; border-color: #cbd5e1; font-size: 13.5px;" onchange="sortMapItems(this.value)">
+                            <select id="mapSortSelect" class="form-select form-select-sm fw-bold text-dark shadow-none" style="height: 44px; border-radius: 8px; border-color: #cbd5e1; font-size: 13.5px;" onchange="sortMapItems(this.value)">
                                 <option value="recommended">Recommended</option>
                                 <option value="price_low">Lowest price first</option>
                                 <option value="rating_high">Guest rating</option>
@@ -664,9 +666,9 @@
                     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
                     {{-- Floating Map Search Pill (Agoda Exact UI Positioned at Top Left of Map Canvas) --}}
-                    <div class="position-absolute" style="top: 16px; left: 16px; z-index: 1000; width: 300px;">
-                        <div class="bg-white rounded-pill d-flex align-items-center gap-2 border px-3" style="background: #ffffff; height: 46px; box-shadow: 0 4px 14px rgba(0,0,0,0.12); border-color: #cbd5e1 !important;">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2067e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <div class="position-absolute" style="top: 20px; left: 24px; z-index: 1000; width: 300px;">
+                        <div class="bg-white rounded-pill d-flex align-items-center gap-2.5 border px-3" style="background: #ffffff; height: 48px; box-shadow: 0 4px 16px rgba(0,0,0,0.12); border-color: #cbd5e1 !important;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2067e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                             </svg>
                             <input type="text" id="mapHeaderSearchInput" class="border-0 bg-transparent w-100 text-dark fw-medium" placeholder="Search on map..." autocomplete="off" style="outline:none; font-size:14px;" onkeyup="handleMapSearchAutocomplete(this.value)">
@@ -814,35 +816,36 @@
             }
 
             var html = '';
-            items.forEach(function(item) {
+            items.forEach(function(item, idx) {
+                var isFirst = (idx === 0);
                 html += `
-                    <div class="card border rounded-3 overflow-hidden shadow-xs agoda-map-card" id="mapCard_${item.id}" style="border:1px solid #e2e8f0; border-radius:12px; cursor:pointer; background:#ffffff; display:flex; flex-direction:row; height:155px; margin-bottom:4px; transition:all 0.2s; position:relative;" onmouseenter="highlightMarker(${item.id})" onmouseleave="unhighlightMarker(${item.id})" onclick="window.open('${item.url}', '_blank')">
+                    <div class="card agoda-map-card" id="mapCard_${item.id}" style="border: 1.5px solid ${isFirst ? '#2067e1' : '#e2e8f0'}; border-radius: 12px; cursor: pointer; background: #ffffff; display: flex; flex-direction: row; height: 165px; margin-bottom: 12px; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; position: relative; ${isFirst ? 'box-shadow: 0 4px 18px rgba(32, 103, 225, 0.16);' : ''}" onmouseenter="highlightMarker(${item.id})" onmouseleave="unhighlightMarker(${item.id})" onclick="window.open('${item.url}', '_blank')">
                         <!-- Left Hotel Photo -->
-                        <div style="width:140px; min-width:140px; height:100%; position:relative; overflow:hidden; background:#f1f5f9;">
-                            <img src="${item.image}" alt="${item.name}" style="width:100%; height:100%; object-fit:cover;">
-                            <button type="button" class="btn position-absolute top-0 end-0 m-1.5 p-0 rounded-circle" style="background:rgba(255,255,255,0.88); border:none; width:26px; height:26px; display:flex; align-items:center; justify-content:center; z-index:5;" onclick="event.stopPropagation(); toggleMapCardWishlist(this, ${item.id})" title="Save to wishlist">
-                                <i class="fa-regular fa-heart text-danger" style="font-size:12px;"></i>
+                        <div style="width: 145px; min-width: 145px; height: 100%; position: relative; overflow: hidden; background: #f1f5f9;">
+                            <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
+                            <button type="button" class="btn position-absolute top-0 end-0 m-1.5 p-0 rounded-circle" style="background: rgba(255,255,255,0.92); border: none; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; z-index: 5;" onclick="event.stopPropagation(); toggleMapCardWishlist(this, ${item.id})" title="Save to wishlist">
+                                <i class="fa-regular fa-heart text-danger" style="font-size: 12px;"></i>
                             </button>
                         </div>
                         <!-- Right Info -->
-                        <div style="flex:1; padding:10px 14px; display:flex; flex-direction:column; justify-content:space-between; min-width:0;">
+                        <div style="flex: 1; padding: 12px 14px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
                             <div>
-                                <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-                                    <h6 style="font-size:13.5px; font-weight:700; color:#1e293b; margin:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.name}">${item.name}</h6>
-                                    <div style="text-align:right; flex-shrink:0;">
-                                        <div style="font-size:15px; font-weight:800; color:#1e293b; line-height:1;">${item.price}</div>
-                                        <div style="font-size:9.5px; color:#64748b; margin-top:2px;">Per night before taxes and fees</div>
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px;">
+                                    <h6 style="font-size: 14px; font-weight: 700; color: #1e293b; margin: 0; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${item.name}">${item.name}</h6>
+                                    <div style="text-align: right; flex-shrink: 0;">
+                                        <div style="font-size: 15.5px; font-weight: 800; color: #1e293b; line-height: 1;">${item.price}</div>
+                                        <div style="font-size: 9.5px; color: #64748b; margin-top: 2px; line-height: 1.1;">Per night before taxes<br>and fees</div>
                                     </div>
                                 </div>
-                                <div style="color:#f59e0b; font-size:11px; margin-top:2px;">★★★</div>
-                                <div style="display:flex; align-items:baseline; gap:4px; margin-top:4px;">
-                                    <strong style="color:#2067e1; font-size:13px; font-weight:800;">${item.score} ${item.rating_text}</strong>
+                                <div style="color: #f59e0b; font-size: 11px; margin-top: 2px; letter-spacing: 1px;">★★★</div>
+                                <div style="margin-top: 4px;">
+                                    <span style="color: #2067e1; font-size: 13.5px; font-weight: 800;">${item.score} ${item.rating_text}</span>
+                                    <div style="font-size: 11px; color: #64748b; margin-top: 1px;">${item.reviews} reviews</div>
                                 </div>
-                                <div style="font-size:11px; color:#64748b;">${item.reviews} reviews</div>
                             </div>
-                            <div style="margin-top:4px;">
-                                ${item.free_cancel ? '<div style="color:#15803d; font-size:11px; font-weight:600; display:flex; align-items:center; gap:5px;"><span style="display:inline-block; width:6px; height:6px; background:#15803d; border-radius:50%;"></span> Free cancellation</div>' : ''}
-                                <div style="color:#15803d; font-size:11px; font-weight:600; display:flex; align-items:center; gap:5px; margin-top:1px;"><span style="display:inline-block; width:6px; height:6px; background:#15803d; border-radius:50%;"></span> Breakfast</div>
+                            <div style="margin-top: 4px;">
+                                ${item.free_cancel ? '<div style="color: #15803d; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; gap: 6px;"><span style="display: inline-block; width: 6px; height: 6px; background: #15803d; border-radius: 50%;"></span> Free cancellation</div>' : ''}
+                                <div style="color: #15803d; font-size: 11.5px; font-weight: 600; display: flex; align-items: center; gap: 6px; margin-top: 1px;"><span style="display: inline-block; width: 6px; height: 6px; background: #15803d; border-radius: 50%;"></span> Breakfast</div>
                             </div>
                         </div>
                     </div>

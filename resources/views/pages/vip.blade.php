@@ -288,16 +288,25 @@
 }
 </style>
 
-<div class="vip-page-wrapper">
-    <div class="vip-container">
+<div class="py-4" style="background-color: #f4f6fa; min-height: 90vh;">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0 15px;">
+        <div class="row g-4">
+            
+            <!-- Left White Sidebar Navigation (1:1 Exact Match of Agoda Live) -->
+            <div class="col-lg-3 col-md-4" style="max-width: 260px;">
+                <x-user-sidebar activePage="vip" />
+            </div>
 
-        {{-- ── 1. MAIN USER STATUS HERO CARD (1:1 Agoda Exact) ── --}}
-        <div class="agoda-vip-status-card">
-            <div class="d-flex align-items-center gap-3 mb-4">
-                <div class="vip-avatar-circle">
-                    {{ strtoupper(substr($user->name ?? 'S', 0, 1)) }}
-                </div>
-                <div>
+            <!-- Right Column: AgodaVIP Loyalty Dashboard & Benefits Track -->
+            <div class="col-lg-9 col-md-8">
+
+                {{-- ── 1. MAIN USER STATUS HERO CARD (1:1 Agoda Exact) ── --}}
+                <div class="agoda-vip-status-card">
+                    <div class="d-flex align-items-center gap-3 mb-4">
+                        <div class="vip-avatar-circle">
+                            {{ strtoupper(substr($user->name ?? 'S', 0, 1)) }}
+                        </div>
+                        <div>
                     <h3 class="fw-bold mb-1" style="font-size: 21px; color: #1e293b;">Hi {{ $user->name ?? 'Shawon' }}</h3>
                     <div class="vip-badge-pill">
                         <div class="vip-tag"><span style="font-size: 7.5px;">★</span>VIP</div>
@@ -611,6 +620,8 @@
             </a>
         </div>
 
+            </div>
+        </div>
     </div>
 </div>
 @endsection

@@ -243,6 +243,11 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/content/destinations', [ContentController::class, 'destinations'])->name('content.destinations');
     Route::post('/content/destinations', [ContentController::class, 'updateDestinations'])->name('content.destinations.update');
 
+    // VIP Loyalty Program Management
+    Route::get('/vip/settings', [\App\Http\Controllers\Admin\VIPLoyaltyController::class, 'settings'])->name('vip.settings');
+    Route::post('/vip/settings', [\App\Http\Controllers\Admin\VIPLoyaltyController::class, 'updateSettings'])->name('vip.settings.update');
+    Route::get('/vip/members', [\App\Http\Controllers\Admin\VIPLoyaltyController::class, 'members'])->name('vip.members');
+
     // Amenities Catalog
     Route::get('/amenities', [AmenityController::class, 'index'])->name('amenities.index');
     Route::post('/amenities', [AmenityController::class, 'store'])->name('amenities.store');

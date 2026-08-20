@@ -1716,7 +1716,28 @@
                 </div>
             </div>
 
-            {{-- 5. Website CMS & Banners --}}
+            {{-- 5. VIP Loyalty Program (Agoda 1:1 Engine) --}}
+            @php $isVIPActive = request()->routeIs('admin.vip.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isVIPActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVIPLoyalty" aria-expanded="{{ $isVIPActive ? 'true' : 'false' }}" data-label="VIP Loyalty Program">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-crown text-warning" style="width:16px;text-align:center;"></i> <span>VIP Loyalty Program</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isVIPActive ? 'show' : '' }}" id="menuVIPLoyalty">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.vip.settings') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.settings') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Tier Rules &amp; Discounts
+                        </a>
+                        <a href="{{ route('admin.vip.members') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.members') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> VIP Member Roster
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 6. Website CMS & Banners --}}
             @php $isCMSActive = request()->routeIs('admin.cms.*', 'admin.content.hero', 'admin.destinations.*', 'admin.amenities.*'); @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isCMSActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuCMS" aria-expanded="{{ $isCMSActive ? 'true' : 'false' }}" data-label="CMS Pages">

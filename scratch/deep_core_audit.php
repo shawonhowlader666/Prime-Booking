@@ -22,7 +22,7 @@ echo "🔬 DEEP CORE END-TO-END AUTOMATED BENCHMARK & MULTI-LAYER HTTP AUDIT\n";
 echo "=======================================================================\n\n";
 
 $startTime = microtime(true);
-$prop = Property::first() ?: Property::create(['name' => 'Grand Palace Resort', 'city' => 'Cox\'s Bazar', 'slug' => 'grand-palace', 'status' => 'active']);
+$prop = Property::first() ?: Property::create(['name' => 'Grand Palace Resort', 'city' => 'Cox\'s Bazar', 'slug' => 'grand-palace-' . uniqid(), 'price_per_night' => 12500, 'status' => 'active']);
 $room = Room::first() ?: Room::create(['property_id' => $prop->id, 'name' => 'Deluxe Ocean View', 'price_per_night' => 100, 'capacity' => 2]);
 
 // ── TEST 1: User Simulation & Database Isolation ──

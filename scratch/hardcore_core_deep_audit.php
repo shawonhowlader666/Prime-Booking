@@ -96,7 +96,13 @@ deepAssert("Remaining wallet balance is 50 Pts", $wallet->points_balance === 50,
 // ─────────────────────────────────────────────────────────────────────────────
 echo "\n⚡ LEVEL 4: IDEMPOTENT BOOKING ACCRUAL (ZERO DOUBLE-SPENDING)\n";
 
-$property = Property::first();
+$property = Property::first() ?: Property::create([
+    'name'            => 'Grand Palace Resort',
+    'city'            => 'Cox\'s Bazar',
+    'slug'            => 'grand-palace-' . uniqid(),
+    'price_per_night' => 12500,
+    'status'          => 'active',
+]);
 $idempotentBooking = Booking::create([
     'booking_reference' => 'PRM-IDEMP-' . rand(1000, 9999),
     'property_id'       => $property->id,

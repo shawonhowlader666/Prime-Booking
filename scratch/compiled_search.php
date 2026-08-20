@@ -498,9 +498,25 @@
     </div>
 </div>
 
+<style>
+    #agodaMapFilterCol::-webkit-scrollbar, #agodaMapCardsCol::-webkit-scrollbar {
+        width: 5px;
+    }
+    #agodaMapFilterCol::-webkit-scrollbar-track, #agodaMapCardsCol::-webkit-scrollbar-track {
+        background: #f8fafc;
+    }
+    #agodaMapFilterCol::-webkit-scrollbar-thumb, #agodaMapCardsCol::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    #agodaMapFilterCol::-webkit-scrollbar-thumb:hover, #agodaMapCardsCol::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
+
 
 <div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(4px); background: rgba(0, 0, 0, 0.7);">
-    <div class="modal-dialog modal-dialog-centered" style="width: 94vw; max-width: 1420px; height: 92vh; margin: 4vh auto;">
+    <div class="modal-dialog modal-dialog-centered" style="width: 96vw; max-width: 1540px; height: 95vh; margin: 2.5vh auto;">
         <div class="modal-content border-0 overflow-hidden" style="height: 100%; border-radius: 0 !important; box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6); background: #ffffff;">
             
             
@@ -524,7 +540,7 @@
             <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100% - 48px);">
                 
                 
-                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto px-3.5 py-3" style="width: 250px; min-width: 250px; flex-shrink: 0; transition: all 0.3s ease; border-color: #e2e8f0 !important;">
+                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto" style="width: 280px; min-width: 280px; padding: 16px 20px !important; flex-shrink: 0; transition: all 0.3s ease; border-color: #e2e8f0 !important;">
                     
                     
                     <div class="mb-3">

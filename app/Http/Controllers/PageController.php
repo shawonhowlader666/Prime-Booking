@@ -295,10 +295,29 @@ class PageController extends Controller
 
     public function reviews()
     {
-        $userReviews = auth()->check()
-            ? \App\Models\Review::where('user_id', auth()->id())->with('property:id,name,city,primary_image')->latest()->paginate(10)
+        $user = auth()->user();
+        $userReviews = $user
+            ? \App\Models\Review::where('user_id', $user->id)->with('property:id,name,city,primary_image')->latest()->paginate(10)
             : collect();
-        return view('pages.reviews', ['company' => config('company'), 'userReviews' => $userReviews]);
+
+        // Completed bookings without reviews for instant review CTA
+        $pendingBookings = $user
+            ? \App\Models\Booking::where('user_id', $user->id)
+                ->whereIn('booking_status', ['completed', 'confirmed'])
+                ->whereDoesntHave('property.reviews', function($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                })
+                ->with('property:id,name,city,primary_image')
+                ->latest()
+                ->take(5)
+                ->get()
+            : collect();
+
+        return view('pages.reviews', [
+            'company'         => config('company'),
+            'userReviews'     => $userReviews,
+            'pendingBookings' => $pendingBookings,
+        ]);
     }
 
     public function homes()

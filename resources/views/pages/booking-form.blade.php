@@ -396,6 +396,13 @@
                     <span>- {{ CurrencyService::format($vipDiscountAmount) }}</span>
                 </div>
                 @endif
+
+                @if(isset($primaryPointsmax) && $earnedMiles > 0)
+                <div class="summary-row fw-bold" style="background:#eef2ff; color:#4338ca; padding:6px 8px; border-radius:6px; border:1px solid #c7d2fe;">
+                    <span><i class="fa-solid fa-plane-departure me-1"></i> PointsMAX ({{ $primaryPointsmax['program'] }})</span>
+                    <span>+{{ number_format($earnedMiles) }} Miles</span>
+                </div>
+                @endif
                 <div class="summary-row text-success" id="discount_row" style="{{ isset($appliedDiscount) && $appliedDiscount > 0 && !isset($vipDiscountAmount) ? '' : 'display:none;' }}">
                     <span><i class="fa-solid fa-tag me-1"></i> Promo (<span id="coupon_badge_text">{{ $activePromoCode ?? '' }}</span>)</span>
                     <span id="discount_amount_text">- {{ CurrencyService::format($appliedDiscount ?? 0) }}</span>

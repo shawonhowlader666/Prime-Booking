@@ -89,10 +89,17 @@ class BookingFlowController extends Controller
             $totalPrice = max(0, $totalPrice - $vipDiscountAmount);
         }
 
+        // PointsMAX Active Primary Program (Earn Miles with Booking)
+        $pointsmaxPrograms = $user && $user->pointsmax_programs
+            ? json_decode($user->pointsmax_programs, true)
+            : (session('pointsmax_programs_' . ($user?->id ?? 'guest')) ?: []);
+        $primaryPointsmax = collect($pointsmaxPrograms)->firstWhere('is_primary', true) ?: collect($pointsmaxPrograms)->first();
+        $earnedMiles = $primaryPointsmax ? min(6000, max(250, round($subtotal * 0.15))) : 0;
+
         return view('pages.booking-form', compact(
             'property', 'selectedRoom', 'checkIn', 'checkOut',
             'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user',
-            'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount'
+            'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount', 'primaryPointsmax', 'earnedMiles'
         ));
     }
 

@@ -26,11 +26,24 @@
             <input type="hidden" name="check_out" value="{{ request('check_out') }}">
             <input type="hidden" name="guests" value="{{ request('guests') }}">
 
-            {{-- 2. Text Search Input Box (Agoda Keyword Search) --}}
-            <div class="mb-3 pb-3 border-bottom">
-                <div class="input-group">
-                    <span class="input-group-text bg-white text-secondary border-end-0" style="font-size: 13px;"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" name="q" class="form-control form-control-sm border-start-0 ps-0" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13px; font-weight: 500;">
+            {{-- 2. Text Search Input Box (Agoda 1:1 Pill Style with Property Name Smart Popup) --}}
+            <div class="mb-3 pb-3 border-bottom position-relative" id="outerSearchWidgetContainer">
+                <div class="input-group input-group-sm rounded-pill border px-2 py-1 bg-white align-items-center" style="border: 1.5px solid #2067e1 !important; box-shadow: 0 2px 8px rgba(32,103,225,0.15);">
+                    <span class="bg-transparent border-0 pe-1 text-primary" style="font-size: 13px;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" id="outerSearchTextInput" class="form-control form-control-sm border-0 bg-transparent ps-1 shadow-none" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13px; font-weight: 500;" autocomplete="off" onkeyup="handleOuterPropertySearch(this.value)">
+                    <button type="button" class="btn btn-link p-0 text-muted {{ request('q') ? '' : 'd-none' }}" id="outerSearchClearBtn" onclick="clearOuterPropertySearch()" style="text-decoration:none; font-size:12px;">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                </div>
+
+                {{-- Agoda-Exact Floating "Property name" Tooltip Popup Dropdown --}}
+                <div id="outerPropertySuggestBox" class="position-absolute start-0 top-100 mt-1 bg-white rounded-3 shadow-lg border p-2 d-none" style="z-index: 1050; width: 100%; min-width: 250px; border-radius: 8px !important; box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;">
+                    <div class="text-dark fw-bold px-2 py-1 border-bottom mb-1" style="font-size: 12px; font-family:'Plus Jakarta Sans',sans-serif; color: #0f172a;">
+                        Property name
+                    </div>
+                    <div id="outerPropertySuggestList" class="d-flex flex-column gap-1" style="max-height: 220px; overflow-y: auto;">
+                        {{-- Populated dynamically via JS from searchResults / popular hotel names --}}
+                    </div>
                 </div>
             </div>
 
@@ -439,3 +452,88 @@
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var propertyNames = [
+            "Hotel Grand SunShine Chittagong",
+            "Iconic Suites",
+            "White Park Hotel & Suites",
+            "The Avenue Hotel & Suites",
+            "Hotel Aristos Boutique & Suites",
+            "Radisson Blu Chattogram Bay View",
+            "The Peninsula Chittagong",
+            "Hotel Agrabad",
+            "Well Park Residence",
+            "Sayeman Beach Resort",
+            "Long Beach Hotel Cox's Bazar",
+            "Ocean Paradise Hotel & Resort",
+            "InterContinental Dhaka",
+            "Pan Pacific Sonargaon",
+            "Grand Sultan Tea Resort & Golf",
+            "DuSai Resort & Spa"
+        ];
+
+        window.handleOuterPropertySearch = function(query) {
+            var clearBtn = document.getElementById('outerSearchClearBtn');
+            var suggestBox = document.getElementById('outerPropertySuggestBox');
+            var list = document.getElementById('outerPropertySuggestList');
+
+            if (!query || query.trim().length === 0) {
+                if (clearBtn) clearBtn.classList.add('d-none');
+                if (suggestBox) suggestBox.classList.add('d-none');
+                return;
+            }
+
+            if (clearBtn) clearBtn.classList.remove('d-none');
+
+            var q = query.toLowerCase().trim();
+            var matches = propertyNames.filter(function(name) {
+                return name.toLowerCase().includes(q);
+            });
+
+            if (matches.length === 0) {
+                if (suggestBox) suggestBox.classList.add('d-none');
+            } else {
+                var html = '';
+                matches.slice(0, 7).forEach(function(name) {
+                    html += `
+                        <div class="px-2 py-1.5 rounded" style="cursor:pointer; font-size:12.5px; color:#1e293b; font-weight:500; transition:all 0.15s;" onmouseenter="this.style.background='#f1f5f9'; this.style.color='#2067e1';" onmouseleave="this.style.background='transparent'; this.style.color='#1e293b';" onclick="selectOuterProperty('${name.replace(/'/g, "\\'")}')">
+                            ${name}
+                        </div>
+                    `;
+                });
+                if (list) list.innerHTML = html;
+                if (suggestBox) suggestBox.classList.remove('d-none');
+            }
+        };
+
+        window.selectOuterProperty = function(name) {
+            var input = document.getElementById('outerSearchTextInput');
+            var suggestBox = document.getElementById('outerPropertySuggestBox');
+            var form = document.getElementById('filterSidebarForm');
+
+            if (input) input.value = name;
+            if (suggestBox) suggestBox.classList.add('d-none');
+            if (form) form.submit();
+        };
+
+        window.clearOuterPropertySearch = function() {
+            var input = document.getElementById('outerSearchTextInput');
+            var clearBtn = document.getElementById('outerSearchClearBtn');
+            var suggestBox = document.getElementById('outerPropertySuggestBox');
+
+            if (input) input.value = '';
+            if (clearBtn) clearBtn.classList.add('d-none');
+            if (suggestBox) suggestBox.classList.add('d-none');
+        };
+
+        document.addEventListener('click', function(e) {
+            var container = document.getElementById('outerSearchWidgetContainer');
+            var suggestBox = document.getElementById('outerPropertySuggestBox');
+            if (container && suggestBox && !container.contains(e.target)) {
+                suggestBox.classList.add('d-none');
+            }
+        });
+    });
+</script>

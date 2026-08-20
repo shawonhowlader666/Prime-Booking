@@ -14,6 +14,7 @@ use App\Models\Booking;
 use App\Models\CmsContent;
 use App\Models\TourPackage;
 use App\Models\Deal;
+use App\Services\VIPLoyaltyService;
 
 class PageController extends Controller
 {
@@ -266,86 +267,13 @@ class PageController extends Controller
         return back()->with('success', 'Your personal profile & travel details have been updated successfully!');
     }
 
-    public function vip()
+    public function vip(VIPLoyaltyService $vipService)
     {
         $user = Auth::user();
-        $vipThresholds = Cache::remember('vip_thresholds_settings', 1800, function () {
-            return [
-                'silver'   => (int) SiteSetting::get('vip_silver_threshold', 2),
-                'gold'     => (int) SiteSetting::get('vip_gold_threshold', 5),
-                'platinum' => (int) SiteSetting::get('vip_platinum_threshold', 10),
-                'diamond'  => (int) SiteSetting::get('vip_diamond_threshold', 15),
-            ];
-        });
-
-        $vipDiscounts = Cache::remember('vip_discounts_settings', 1800, function () {
-            return [
-                'bronze'   => (float) SiteSetting::get('vip_bronze_discount', 0),
-                'silver'   => (float) SiteSetting::get('vip_silver_discount', 5),
-                'gold'     => (float) SiteSetting::get('vip_gold_discount', 10),
-                'platinum' => (float) SiteSetting::get('vip_platinum_discount', 15),
-                'diamond'  => (float) SiteSetting::get('vip_diamond_discount', 20),
-            ];
-        });
-
-        $userVipStats = [
-            'bookings_count' => 0,
-            'total_spend'    => 0,
-            'current_tier'   => 'Bronze',
-            'tier_name_full' => 'AgodaVIP Bronze',
-            'badge_color'    => '#ba6d4a',
-        ];
-
-        if ($user) {
-            $userVipStats = Cache::remember("user_vip_stats_{$user->id}", 600, function () use ($user, $vipThresholds) {
-                $stats = Booking::where(function ($q) use ($user) {
-                        $q->where('user_id', $user->id)
-                          ->orWhere('guest_email', $user->email);
-                    })
-                    ->where('created_at', '>=', now()->subYears(2))
-                    ->whereNotIn('booking_status', ['cancelled'])
-                    ->selectRaw("COUNT(*) as total_bookings, COALESCE(SUM(CASE WHEN payment_status IN ('paid', 'completed') THEN total_amount ELSE 0 END), 0) as total_spend")
-                    ->first();
-
-                $bookings = (int) ($stats->total_bookings ?? 0);
-                $spend    = (float) ($stats->total_spend ?? 0);
-
-                if ($bookings >= ($vipThresholds['diamond'] ?? 15) && $spend >= 1500) {
-                    $tier = 'Diamond';
-                    $fullName = 'AgodaVIP Diamond';
-                    $color = '#9333ea';
-                } elseif ($bookings >= ($vipThresholds['platinum'] ?? 10) || $spend >= 400) {
-                    $tier = 'Platinum';
-                    $fullName = 'AgodaVIP Platinum';
-                    $color = '#64748b';
-                } elseif ($bookings >= ($vipThresholds['gold'] ?? 5) || $spend >= 200) {
-                    $tier = 'Gold';
-                    $fullName = 'AgodaVIP Gold';
-                    $color = '#d97706';
-                } elseif ($bookings >= ($vipThresholds['silver'] ?? 2)) {
-                    $tier = 'Silver';
-                    $fullName = 'AgodaVIP Silver';
-                    $color = '#475569';
-                } else {
-                    $tier = 'Bronze';
-                    $fullName = 'AgodaVIP Bronze';
-                    $color = '#ba6d4a';
-                }
-
-                return [
-                    'bookings_count' => $bookings,
-                    'total_spend'    => $spend,
-                    'current_tier'   => $tier,
-                    'tier_name_full' => $fullName,
-                    'badge_color'    => $color,
-                ];
-            });
-        }
+        $userVipStats = $vipService->getUserTier($user);
 
         return view('pages.vip', [
             'company'       => config('company'),
-            'vipThresholds' => $vipThresholds,
-            'vipDiscounts'  => $vipDiscounts,
             'userVipStats'  => $userVipStats,
         ]);
     }

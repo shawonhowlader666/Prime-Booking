@@ -1716,28 +1716,70 @@
                 </div>
             </div>
 
-            {{-- 5. User Portals & Loyalty Engines (Dynamic Sync) --}}
-            @php $isPortalsActive = request()->routeIs('admin.vip.*', 'admin.rewards.*', 'admin.reviews.*'); @endphp
+            {{-- 5. User Portals, Trips & Experience Center (All User Portals & Dynamic Feeds in 1 Main Hub) --}}
+            @php $isPortalsActive = request()->routeIs('admin.vip.*', 'admin.rewards.*', 'admin.reviews.*', 'admin.bookings.*', 'admin.properties.*', 'admin.packages.*', 'admin.inquiries.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isPortalsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuUserPortals" aria-expanded="{{ $isPortalsActive ? 'true' : 'false' }}" data-label="User Portals &amp; Loyalty">
+                <button class="sb-nav-toggle {{ $isPortalsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuUserPortals" aria-expanded="{{ $isPortalsActive ? 'true' : 'false' }}" data-label="Portals &amp; Experience Hub">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-crown text-warning" style="width:16px;text-align:center;"></i> <span>Portals &amp; Loyalty</span>
+                        <i class="fa-solid fa-compass text-warning" style="width:16px;text-align:center;"></i> <span>Portals &amp; User Hub</span>
                     </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
                 <div class="collapse {{ $isPortalsActive ? 'show' : '' }}" id="menuUserPortals">
                     <div class="sb-sub-menu">
-                        <a href="{{ route('admin.vip.settings') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.settings') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> VIP Tier Rules &amp; Discounts
+                        {{-- 1. My Trips & Bookings Portal --}}
+                        <a href="{{ route('admin.bookings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}" title="Manage All Trips &amp; Bookings">
+                            <i class="fa-solid fa-suitcase-rolling me-1" style="font-size:11px; color:#1890ff;"></i> My Trips &amp; All Bookings
                         </a>
-                        <a href="{{ route('admin.vip.members') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.members') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> VIP Member Roster
+
+                        {{-- 2. Hotels & Inventory Feed --}}
+                        <a href="{{ route('admin.properties.index') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}" title="Hotels Search &amp; Discovery">
+                            <i class="fa-solid fa-hotel me-1" style="font-size:11px; color:#52c41a;"></i> Hotels &amp; Inventory Hub
                         </a>
-                        <a href="{{ route('admin.rewards.index') }}" class="sb-sub-item {{ request()->routeIs('admin.rewards.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rewards (1k=1pt) &amp; Payouts
+
+                        {{-- 3. Tour Packages & Activities --}}
+                        <a href="{{ route('admin.packages.index') }}" class="sb-sub-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}" title="Holiday Tours &amp; Activities">
+                            <i class="fa-solid fa-umbrella-beach me-1" style="font-size:11px; color:#fa8c16;"></i> Activities &amp; Tour Packages
                         </a>
-                        <a href="{{ route('admin.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property Reviews Moderation
+
+                        {{-- 4. Property Messages & Inquiries --}}
+                        <a href="{{ route('admin.inquiries.index') }}" class="sb-sub-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}" title="Property Messages &amp; Inquiries">
+                            <i class="fa-solid fa-comments me-1" style="font-size:11px; color:#13c2c2;"></i> Property Messages &amp; Inquiries
+                        </a>
+
+                        {{-- 5. Reviews Moderation --}}
+                        <a href="{{ route('admin.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}" title="Verified Reviews Moderation">
+                            <i class="fa-solid fa-star me-1" style="font-size:11px; color:#fadb14;"></i> Verified Reviews Moderation
+                        </a>
+
+                        {{-- 6. PrimeVIP Tier Rules & Discounts --}}
+                        <a href="{{ route('admin.vip.settings') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.settings') ? 'active' : '' }}" title="PrimeVIP Tier Rules">
+                            <i class="fa-solid fa-crown me-1" style="font-size:11px; color:#faad14;"></i> PrimeVIP Tier Rules &amp; Perks
+                        </a>
+
+                        {{-- 7. PrimeVIP Member Roster --}}
+                        <a href="{{ route('admin.vip.members') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.members') ? 'active' : '' }}" title="PrimeVIP Member Roster">
+                            <i class="fa-solid fa-id-card-clip me-1" style="font-size:11px; color:#722ed1;"></i> PrimeVIP Member Roster
+                        </a>
+
+                        {{-- 8. Prime Rewards (Cashback & 1k=1pt) --}}
+                        <a href="{{ route('admin.rewards.index') }}" class="sb-sub-item {{ request()->routeIs('admin.rewards.*') ? 'active' : '' }}" title="PrimeCash &amp; Rewards Engine">
+                            <i class="fa-solid fa-coins me-1" style="font-size:11px; color:#eb2f96;"></i> Prime Rewards (1k=1pt) &amp; Payouts
+                        </a>
+
+                        {{-- 9. PointsMAX Airline Programs --}}
+                        <a href="{{ route('pointsmax') }}" target="_blank" class="sb-sub-item" title="PointsMAX Airline Miles Program">
+                            <i class="fa-solid fa-plane-departure me-1" style="font-size:11px; color:#2f54eb;"></i> PointsMAX Airline Portal <i class="fa-solid fa-arrow-up-right-from-square ms-auto" style="font-size:9px; opacity:0.6;"></i>
+                        </a>
+
+                        {{-- 10. Payments and Subscriptions --}}
+                        <a href="{{ route('subscriptions') }}" target="_blank" class="sb-sub-item" title="Payments &amp; Subscriptions Settings">
+                            <i class="fa-solid fa-credit-card me-1" style="font-size:11px; color:#a0d911;"></i> Payments &amp; Subscriptions <i class="fa-solid fa-arrow-up-right-from-square ms-auto" style="font-size:9px; opacity:0.6;"></i>
+                        </a>
+
+                        {{-- 11. User Profiles & CRM --}}
+                        <a href="{{ route('admin.users.index') }}" class="sb-sub-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" title="User Profiles &amp; Omni-Channel CRM">
+                            <i class="fa-solid fa-user-gear me-1" style="font-size:11px; color:#1890ff;"></i> User Profiles &amp; CRM Directory
                         </a>
                     </div>
                 </div>

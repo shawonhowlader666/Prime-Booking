@@ -516,6 +516,12 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/users/{id}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/bulk-action', [UserManagementController::class, 'bulkAction'])->name('users.bulk-action');
 
+    // ── Master Financial Accounts & General Ledger ─────────────────────
+    Route::get('/accounts', [App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounts.index');
+    Route::get('/accounts/ledger', [App\Http\Controllers\Admin\AccountingController::class, 'ledger'])->name('accounts.ledger');
+    Route::get('/accounts/ledger/export', [App\Http\Controllers\Admin\AccountingController::class, 'exportLedger'])->name('accounts.ledger.export');
+    Route::get('/accounts/vendor-statements', [App\Http\Controllers\Admin\AccountingController::class, 'vendorStatements'])->name('accounts.vendor-statements');
+
     // ── Promotions Manager ───────────────────────────────────────────────
     Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');
     Route::get('/promotions/create', [PromotionController::class, 'create'])->name('promotions.create');
@@ -710,7 +716,8 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::post('/bookings/{reference}/status', [VendorDashboardController::class, 'updateBookingStatus'])->name('bookings.update-status');
     Route::post('/bookings/{id}/payment',       [VendorDashboardController::class, 'updatePaymentStatus'])->name('bookings.update-payment');
 
-    // ── Earnings ───────────────────────────────────────────────
+    // ── Earnings & Accounts ──────────────────────────────────────
+    Route::get('/accounts',        [App\Http\Controllers\Vendor\VendorAccountingController::class, 'index'])->name('accounts.index');
     Route::get('/earnings',        [VendorDashboardController::class, 'earnings'])->name('earnings');
     Route::get('/earnings/export', [App\Http\Controllers\Vendor\PayoutRequestController::class, 'exportCsv'])->name('earnings.export');
 

@@ -1728,6 +1728,33 @@
                 </div>
             </div>
 
+            {{-- 3.5 ACCOUNTS & FINANCIAL LEDGER MASTER --}}
+            @php $isFinanceActive = request()->routeIs('admin.accounts.*'); @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isFinanceActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuFinance" aria-expanded="{{ $isFinanceActive ? 'true' : 'false' }}" data-label="Accounts &amp; Finance">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-scale-balanced text-success" style="width:16px;text-align:center;"></i> <span>Accounts &amp; Finance</span>
+                    </div>
+                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                </button>
+                <div class="collapse {{ $isFinanceActive ? 'show' : '' }}" id="menuFinance">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.accounts.index') }}" class="sb-sub-item {{ request()->routeIs('admin.accounts.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Accounts Overview &amp; P&amp;L
+                        </a>
+                        <a href="{{ route('admin.accounts.ledger') }}" class="sb-sub-item {{ request()->routeIs('admin.accounts.ledger') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> General Ledger (Audit)
+                        </a>
+                        <a href="{{ route('admin.accounts.vendor-statements') }}" class="sb-sub-item {{ request()->routeIs('admin.accounts.vendor-statements') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Settlements
+                        </a>
+                        <a href="{{ route('admin.payouts.index') }}" class="sb-sub-item {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payout Approvals
+                        </a>
+                    </div>
+                </div>
+            </div>
+
             {{-- 4. Users, Vendors & Payouts --}}
             @php $isAccountsActive = request()->routeIs('admin.users.*', 'admin.tenants.*', 'admin.payouts.*'); @endphp
             <div class="sb-nav-group">

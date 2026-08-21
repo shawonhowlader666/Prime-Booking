@@ -1001,6 +1001,7 @@
                 </button>
                 <div class="collapse {{ $isFinActive ? 'show' : '' }}" id="menuVendorFin">
                     <div class="sb-sub-menu">
+                        <a href="{{ route('vendor.accounts.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.accounts.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Accounts &amp; Statements</a>
                         <a href="{{ route('vendor.earnings') }}" class="sb-sub-item {{ request()->routeIs('vendor.earnings') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Earnings Overview</a>
                         <a href="{{ route('vendor.payouts.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.payouts.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payouts</a>
                         <a href="{{ route('vendor.reports') }}" class="sb-sub-item {{ request()->routeIs('vendor.reports') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Financial Reports</a>

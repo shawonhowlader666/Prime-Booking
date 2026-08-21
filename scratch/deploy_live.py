@@ -109,6 +109,17 @@ files_to_sync = [
     "resources/views/admin/properties/index.blade.php",
     "resources/views/admin/users/index.blade.php",
     "resources/views/admin/users/show.blade.php",
+    "app/Http/Controllers/Admin/AccountingController.php",
+    "app/Http/Controllers/Vendor/VendorAccountingController.php",
+    "app/Services/AccountingService.php",
+    "app/Models/AccountingLedger.php",
+    "resources/views/admin/accounts/index.blade.php",
+    "resources/views/admin/accounts/ledger.blade.php",
+    "resources/views/admin/accounts/vendor-statements.blade.php",
+    "resources/views/vendor/accounts/index.blade.php",
+    "resources/views/layouts/admin.blade.php",
+    "resources/views/layouts/vendor.blade.php",
+    "database/migrations/2026_08_21_163500_create_accounting_ledgers_table.php",
 ]
 
 print("\n📦 Ensuring SFTP Direct Sync of Critical Files...", flush=True)
@@ -128,9 +139,10 @@ for rel_path in files_to_sync:
 
 sftp.close()
 
-# Step 3: Clear Laravel Cache on Server
-print("\n🧹 Clearing Laravel caches on live server...", flush=True)
+# Step 3: Run Migrations and Clear Laravel Cache on Server
+print("\n🧹 Running Migrations and clearing Laravel caches on live server...", flush=True)
 commands = [
+    f"cd {REMOTE_PATH} && php artisan migrate --force",
     f"cd {REMOTE_PATH} && php artisan view:clear",
     f"cd {REMOTE_PATH} && php artisan cache:clear",
     f"cd {REMOTE_PATH} && php artisan config:clear",

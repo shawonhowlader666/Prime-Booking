@@ -1608,6 +1608,21 @@
             background-color: var(--primary);
             font-weight: 600;
         }
+
+        .sb-sub-item i {
+            width: 14px;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        /* Universal Toolbar Button Gap & Padding Normalizer */
+        .btn-add-primary, .btn-tbl-copy, .btn-tbl-excel, .btn-export-csv, .btn-export-pdf, .btn-tbl-print, .btn-tbl-col {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            white-space: nowrap !important;
+        }
     </style>
     @yield('head')
 </head>

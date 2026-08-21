@@ -882,6 +882,7 @@
         }
         .sb-sub-item:hover { color: #ffffff; background-color: rgba(24,144,255,0.12); }
         .sb-sub-item.active { color: #ffffff; background-color: var(--primary); font-weight: 600; }
+        .sb-sub-item i { width: 14px; text-align: center; flex-shrink: 0; }
     </style>
     @yield('head')
 <body>
@@ -993,7 +994,7 @@
 
             {{-- FINANCE --}}
             <div class="sb-section-header">Finance & Billing</div>
-            @php $isFinActive = request()->routeIs('vendor.payouts.*', 'vendor.earnings', 'vendor.reports', 'vendor.plans.*'); @endphp
+            @php $isFinActive = request()->routeIs('vendor.accounts.*', 'vendor.payouts.*', 'vendor.earnings', 'vendor.reports', 'vendor.plans.*'); @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isFinActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorFin" aria-expanded="{{ $isFinActive ? 'true' : 'false' }}">
                     <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-wallet" style="width:16px;text-align:center;"></i> <span>Finance</span></div>

@@ -1,107 +1,120 @@
 @extends('layouts.admin')
 
-@section('title', 'Master Accounts & Financial Ledger Hub — Prime Booking')
+@section('title', 'Master Accounts & Financial Ledger Hub — PRIME BOOKING Admin')
 
 @section('content')
-<div class="container-fluid px-4 py-3" style="max-width: 1600px;">
 
-    {{-- HEADER CARD --}}
-    <div class="page-header-card mb-4" style="background:#ffffff; border:1px solid #e2e8f0; border-radius:4px; padding:20px 24px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
-            <div>
-                <nav aria-label="breadcrumb">
-                    <ol class="breadcrumb mb-1" style="font-size:12px;">
-                        <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-muted"><i class="fa-solid fa-house"></i> Dashboard</a></li>
-                        <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">Accounts &amp; Finance</li>
-                    </ol>
-                </nav>
-                <h4 class="mb-0 fw-bold" style="color:#0f172a; font-size:20px; letter-spacing:-0.3px;">
-                    <i class="fa-solid fa-scale-balanced text-primary me-2"></i> Master Accounts &amp; Financial Ledger Hub
-                </h4>
-                <p class="text-muted mb-0" style="font-size:12.5px;">Real-time OTA gross booking turnover, commission revenue, vendor payables &amp; liquid escrow vault.</p>
-            </div>
-
-            <div class="d-flex align-items-center gap-2 flex-wrap">
-                <a href="{{ route('admin.accounts.ledger') }}" class="btn btn-outline-primary fw-bold d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px;">
-                    <i class="fa-solid fa-book"></i> General Ledger
-                </a>
-                <a href="{{ route('admin.accounts.vendor-statements') }}" class="btn btn-outline-dark fw-bold d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px;">
-                    <i class="fa-solid fa-file-invoice-dollar"></i> Vendor Settlements
-                </a>
-                <a href="{{ route('admin.accounts.ledger.export') }}" class="btn btn-primary fw-bold text-white d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">
-                    <i class="fa-solid fa-file-excel"></i> Export CSV
-                </a>
-            </div>
+{{-- PAGE HEADER --}}
+<div class="page-header-card">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <h1 class="page-title m-0">Master Accounts &amp; Financial Ledger Hub</h1>
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <a href="{{ route('admin.accounts.ledger') }}" class="btn-tbl-copy" style="text-decoration:none;">
+                <i class="fa-solid fa-book-journal-whills me-1"></i> General Ledger
+            </a>
+            <a href="{{ route('admin.accounts.vendor-statements') }}" class="btn-tbl-col" style="text-decoration:none;">
+                <i class="fa-solid fa-file-invoice-dollar me-1"></i> Vendor Settlements
+            </a>
+            <a href="{{ route('admin.accounts.ledger.export') }}" class="btn-add-primary ms-1" style="text-decoration:none;">
+                <i class="fa-solid fa-file-excel me-1"></i> Export Ledger CSV
+            </a>
         </div>
     </div>
+    <div class="page-breadcrumb mt-2">
+        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+        <span class="sep">-</span><strong style="color:#333;">Accounts &amp; Finance Hub</strong>
+    </div>
+</div>
 
-    {{-- DATE RANGE FILTER --}}
-    <div class="card border-0 mb-4" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-        <div class="card-body p-3">
-            <form method="GET" action="{{ route('admin.accounts.index') }}" class="row g-2 align-items-end">
-                <div class="col-md-3 col-6">
-                    <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">From Date</label>
-                    <input type="date" name="start_date" class="form-control form-control-sm" value="{{ $startDate }}" style="font-size:12.5px; height:34px; border-radius:4px;">
-                </div>
-                <div class="col-md-3 col-6">
-                    <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">To Date</label>
-                    <input type="date" name="end_date" class="form-control form-control-sm" value="{{ $endDate }}" style="font-size:12.5px; height:34px; border-radius:4px;">
-                </div>
-                <div class="col-md-2 col-6">
-                    <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">Year (Chart)</label>
-                    <select name="year" class="form-select form-select-sm" style="font-size:12.5px; height:34px; border-radius:4px;">
-                        @for($y = date('Y'); $y >= 2024; $y--)
-                            <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
-                        @endfor
-                    </select>
-                </div>
-                <div class="col-md-4 col-6 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary btn-sm fw-bold w-100" style="font-size:12.5px; height:34px; border-radius:4px; background:var(--primary); border:none;">
-                        <i class="fa-solid fa-filter me-1"></i> Calculate Accounts
-                    </button>
-                    <a href="{{ route('admin.accounts.index') }}" class="btn btn-light border btn-sm text-secondary fw-bold" style="font-size:12.5px; height:34px; border-radius:4px;" title="Reset Filter">
-                        <i class="fa-solid fa-rotate-left"></i>
-                    </a>
-                </div>
-            </form>
+{{-- PAGE CONTENT AREA --}}
+<div class="page-content-area">
+
+    @if(session('success'))
+        <div class="admin-alert success mb-3">
+            <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
         </div>
+    @endif
+
+    {{-- STOCKIFLY FILTER BAR --}}
+    <div class="card border border-gray-200 rounded-3 mb-4 bg-white p-3 shadow-xs" style="border-radius: 8px !important;">
+        <form method="GET" action="{{ route('admin.accounts.index') }}" class="row g-2 align-items-end">
+            <div class="col-md-3 col-6">
+                <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">From Date</label>
+                <input type="date" name="start_date" class="form-control form-control-sm" value="{{ $startDate }}" style="font-size:12.5px; height:34px; border-radius:4px;">
+            </div>
+            <div class="col-md-3 col-6">
+                <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">To Date</label>
+                <input type="date" name="end_date" class="form-control form-control-sm" value="{{ $endDate }}" style="font-size:12.5px; height:34px; border-radius:4px;">
+            </div>
+            <div class="col-md-2 col-6">
+                <label class="form-label mb-1" style="font-size:11px; font-weight:700; color:#475569; text-transform:uppercase;">Year (Annual Curve)</label>
+                <select name="year" class="form-select form-select-sm" style="font-size:12.5px; height:34px; border-radius:4px;">
+                    @for($y = date('Y'); $y >= 2024; $y--)
+                        <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+            </div>
+            <div class="col-md-4 col-6 d-flex gap-2">
+                <button type="submit" class="btn btn-primary btn-sm fw-bold w-100 d-inline-flex align-items-center justify-content-center" style="font-size:12.5px; height:34px; border-radius:4px; background:var(--primary); border:none;">
+                    <i class="fa-solid fa-filter me-1"></i> Calculate Accounts
+                </button>
+                <a href="{{ route('admin.accounts.index') }}" class="btn btn-light border btn-sm text-secondary fw-bold d-inline-flex align-items-center justify-content-center" style="font-size:12.5px; height:34px; border-radius:4px;" title="Reset Filter">
+                    <i class="fa-solid fa-rotate-left"></i>
+                </a>
+            </div>
+        </form>
     </div>
 
     {{-- EXECUTIVE FINANCIAL KPIS ROW 1 --}}
     <div class="row g-3 mb-4">
         {{-- Gross Booking Value --}}
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 p-3 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; border-left:4px solid #1890ff !important;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span style="font-size:11px; font-weight:700; color:#64748b; text-transform:uppercase;">Gross Turnover (GBV)</span>
-                    <i class="fa-solid fa-chart-line" style="color:#1890ff; font-size:16px;"></i>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#1890ff; font-size:10.5px; font-weight:700;">GROSS TURNOVER (GBV)</p>
+                        <p class="kpi-value" style="font-size:22px; font-weight:800; color:#0f172a; margin:0;">৳ {{ number_format($kpis['gross_booking_value'], 2) }}</p>
+                        <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-receipt me-1"></i> {{ number_format($kpis['total_orders']) }} Completed Orders</span>
+                    </div>
+                    <div style="width:38px; height:38px; border-radius:50%; background:#e6f7ff; color:#1890ff; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size:22px; color:#0f172a;">৳{{ number_format($kpis['gross_booking_value'], 2) }}</h3>
-                <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-receipt me-1"></i> {{ number_format($kpis['total_orders']) }} Completed Orders</span>
+                <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
 
         {{-- Platform Commission / Net Revenue --}}
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 p-3 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; border-left:4px solid #28c76f !important;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span style="font-size:11px; font-weight:700; color:#28c76f; text-transform:uppercase;">Platform Commission</span>
-                    <i class="fa-solid fa-hand-holding-dollar" style="color:#28c76f; font-size:16px;"></i>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">PLATFORM COMMISSION (12%)</p>
+                        <p class="kpi-value" style="font-size:22px; font-weight:800; color:#28c76f; margin:0;">৳ {{ number_format($kpis['platform_commission'], 2) }}</p>
+                        <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-percentage me-1"></i> 12.00% Standard Service Fee</span>
+                    </div>
+                    <div style="width:38px; height:38px; border-radius:50%; background:#f6ffed; color:#28c76f; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size:22px; color:#28c76f;">৳{{ number_format($kpis['platform_commission'], 2) }}</h3>
-                <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-percentage me-1"></i> ~12% Standard Platform Service Fee</span>
+                <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
         </div>
 
         {{-- Net Company Profit --}}
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 p-3 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; border-left:4px solid #7367f0 !important;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span style="font-size:11px; font-weight:700; color:#7367f0; text-transform:uppercase;">Net Profit (After Gateway Fees)</span>
-                    <i class="fa-solid fa-wallet" style="color:#7367f0; font-size:16px;"></i>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">NET COMPANY PROFIT</p>
+                        <p class="kpi-value" style="font-size:22px; font-weight:800; color:#7367f0; margin:0;">৳ {{ number_format($kpis['net_profit'], 2) }}</p>
+                        <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-credit-card me-1"></i> Gateway Fees: ৳ {{ number_format($kpis['gateway_fees'], 2) }}</span>
+                    </div>
+                    <div style="width:38px; height:38px; border-radius:50%; background:#f0eefc; color:#7367f0; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;">
+                        <i class="fa-solid fa-wallet"></i>
+                    </div>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size:22px; color:#7367f0;">৳{{ number_format($kpis['net_profit'], 2) }}</h3>
-                <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-credit-card me-1"></i> Deducted Gateway Fees: ৳{{ number_format($kpis['gateway_fees'], 2) }}</span>
+                <div class="kpi-accent-bar" style="background:#7367f0;"></div>
             </div>
         </div>
     </div>
@@ -109,93 +122,109 @@
     {{-- EXECUTIVE FINANCIAL KPIS ROW 2 --}}
     <div class="row g-3 mb-4">
         {{-- Total Vendor Payable --}}
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 p-3 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; border-left:4px solid #ff9f43 !important;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span style="font-size:11px; font-weight:700; color:#ff9f43; text-transform:uppercase;">Vendor Net Share (88%)</span>
-                    <i class="fa-solid fa-hotel" style="color:#ff9f43; font-size:16px;"></i>
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">VENDOR NET SHARE (88%)</p>
+                        <p class="kpi-value" style="font-size:22px; font-weight:800; color:#ff9f43; margin:0;">৳ {{ number_format($kpis['vendor_payable'], 2) }}</p>
+                        <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-money-bill-transfer me-1"></i> Settled: ৳{{ number_format($kpis['total_settled_payouts'], 2) }}</span>
+                    </div>
+                    <div style="width:38px; height:38px; border-radius:50%; background:#fff7e6; color:#ff9f43; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;">
+                        <i class="fa-solid fa-hotel"></i>
+                    </div>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size:22px; color:#ff9f43;">৳{{ number_format($kpis['vendor_payable'], 2) }}</h3>
-                <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-money-bill-transfer me-1"></i> Settled: ৳{{ number_format($kpis['total_settled_payouts'], 2) }} | Pending: ৳{{ number_format($kpis['pending_payouts'], 2) }}</span>
+                <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
 
-        {{-- Escrow Liquid Vault --}}
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 p-3 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; border-left:4px solid #00cfe8 !important;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span style="font-size:11px; font-weight:700; color:#00cfe8; text-transform:uppercase;">Escrow Cash Flow in Hand</span>
-                    <i class="fa-solid fa-vault" style="color:#00cfe8; font-size:16px;"></i>
+        {{-- Pending Vendor Payouts --}}
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">PENDING PAYOUT QUEUE</p>
+                        <p class="kpi-value" style="font-size:22px; font-weight:800; color:#ea5455; margin:0;">৳ {{ number_format($kpis['pending_payouts'], 2) }}</p>
+                        <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-clock-rotate-left me-1"></i> Awaiting Disbursement Approval</span>
+                    </div>
+                    <div style="width:38px; height:38px; border-radius:50%; background:#fff2f0; color:#ea5455; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size:22px; color:#00cfe8;">৳{{ number_format($kpis['escrow_vault_balance'], 2) }}</h3>
-                <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-shield-halved me-1"></i> Undisbursed Liquid Holding Balance</span>
+                <div class="kpi-accent-bar" style="background:#ea5455;"></div>
             </div>
         </div>
 
-        {{-- Total Refunded --}}
-        <div class="col-md-4 col-sm-6">
-            <div class="card border-0 p-3 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; border-left:4px solid #ea5455 !important;">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span style="font-size:11px; font-weight:700; color:#ea5455; text-transform:uppercase;">Refunds &amp; Cancellations</span>
-                    <i class="fa-solid fa-rotate-left" style="color:#ea5455; font-size:16px;"></i>
+        {{-- Liquid Escrow Pool --}}
+        <div class="col-12 col-sm-6 col-xl-4">
+            <div class="kpi-card">
+                <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
+                    <div>
+                        <p class="kpi-label mb-1" style="color:#00cfe8; font-size:10.5px; font-weight:700;">LIQUID ESCROW HOLDING POOL</p>
+                        <p class="kpi-value" style="font-size:22px; font-weight:800; color:#00cfe8; margin:0;">৳ {{ number_format($kpis['escrow_holding_pool'], 2) }}</p>
+                        <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-shield-halved me-1"></i> Secure Capital Pool</span>
+                    </div>
+                    <div style="width:38px; height:38px; border-radius:50%; background:#e6fffb; color:#00cfe8; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0;">
+                        <i class="fa-solid fa-vault"></i>
+                    </div>
                 </div>
-                <h3 class="fw-bold mb-1" style="font-size:22px; color:#ea5455;">৳{{ number_format($kpis['total_refunded'], 2) }}</h3>
-                <span class="text-muted" style="font-size:11.5px;"><i class="fa-solid fa-circle-xmark me-1"></i> Customer Returned Funds</span>
+                <div class="kpi-accent-bar" style="background:#00cfe8;"></div>
             </div>
         </div>
     </div>
 
-    {{-- CHART & LEDGER PREVIEW ROW --}}
+    {{-- CHART & RECENT TRANSACTIONS --}}
     <div class="row g-3 mb-4">
-        {{-- Interactive 12-Month P&L Curve --}}
+        {{-- Annual P&L Bar Chart --}}
         <div class="col-lg-7">
-            <div class="card border-0 p-4 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-                <div class="d-flex justify-content-between align-items-center mb-3">
-                    <h6 class="fw-bold mb-0" style="font-size:14.5px; color:#0f172a;">
-                        <i class="fa-solid fa-chart-area text-primary me-2"></i> {{ $year }} Monthly P&amp;L Financial Curve
-                    </h6>
-                    <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" style="font-size:11px; border-radius:4px;">Real-Time Financial Engine</span>
+            <div class="data-table-card p-0 h-100">
+                <div class="saas-table-toolbar d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-chart-simple text-primary me-2"></i> Annual Financial Revenue Curve ({{ $year }})</h6>
+                    <span style="font-size:11px; color:#64748b;"><span class="live-feed-badge me-1"></span> Live Aggregation</span>
                 </div>
-                <div style="height: 300px; position:relative;">
+                <div class="p-3" style="height:320px;">
                     <canvas id="pnlChart"></canvas>
                 </div>
             </div>
         </div>
 
-        {{-- Quick Transaction Ledger --}}
+        {{-- Gateway Share & Recent Transactions --}}
         <div class="col-lg-5">
-            <div class="card border-0 p-0 h-100" style="background:#ffffff; border:1px solid #e2e8f0 !important; border-radius:4px; box-shadow:0 1px 3px rgba(0,0,0,0.04);">
-                <div class="p-3 border-bottom d-flex justify-content-between align-items-center" style="border-color:#e2e8f0 !important;">
-                    <h6 class="fw-bold mb-0" style="font-size:14px; color:#0f172a;">
-                        <i class="fa-solid fa-clock-rotate-left text-success me-2"></i> Recent Double-Entry Txns
-                    </h6>
-                    <a href="{{ route('admin.accounts.ledger') }}" class="text-primary text-decoration-none fw-bold" style="font-size:12px;">View All &rarr;</a>
+            <div class="data-table-card p-0 h-100">
+                <div class="saas-table-toolbar d-flex align-items-center justify-content-between flex-wrap gap-2">
+                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-list-check text-primary me-2"></i> Recent Audit Entries</h6>
+                    <a href="{{ route('admin.accounts.ledger') }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size:11.5px; height:28px; padding:0 8px; border-radius:4px;">
+                        View All <i class="fa-solid fa-chevron-right ms-1"></i>
+                    </a>
                 </div>
+
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0" style="font-size:12.5px;">
-                        <thead class="bg-light">
+                    <table class="table stockifly-data-table align-middle mb-0">
+                        <thead>
                             <tr>
-                                <th style="padding:10px 14px; font-weight:700; color:#475569;">TXN REF</th>
-                                <th style="padding:10px 14px; font-weight:700; color:#475569;">METHOD</th>
-                                <th style="padding:10px 14px; font-weight:700; color:#475569; text-align:right;">GROSS</th>
-                                <th style="padding:10px 14px; font-weight:700; color:#475569; text-align:right;">COMM</th>
+                                <th style="padding:10px 14px; font-weight:700;">REFERENCE</th>
+                                <th style="padding:10px 14px; font-weight:700;">TYPE</th>
+                                <th style="padding:10px 14px; font-weight:700; text-align:right;">GROSS</th>
+                                <th style="padding:10px 14px; font-weight:700; text-align:right;">COMMISSION</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @forelse($recentTxns as $t)
+                            @forelse($recentLedgers as $r)
                             <tr>
                                 <td style="padding:10px 14px;">
-                                    <span class="fw-bold text-dark d-block">{{ $t->txn_reference }}</span>
-                                    <small class="text-muted">{{ $t->created_at ? $t->created_at->format('d M, H:i') : 'N/A' }}</small>
+                                    <strong style="font-size:12px; color:#1e293b; display:block;">{{ $r->txn_reference }}</strong>
+                                    <span class="order-date" style="font-size:10px;">{{ $r->created_at ? $r->created_at->format('d M, h:i A') : '' }}</span>
                                 </td>
                                 <td style="padding:10px 14px;">
-                                    <span class="badge bg-light text-dark border fw-semibold" style="font-size:10px; border-radius:3px; text-transform:uppercase;">{{ $t->payment_method ?? 'N/A' }}</span>
+                                    <span class="badge-status {{ $r->type === 'credit' ? 'active' : 'pending' }}" style="font-size:10px; font-weight:700;">
+                                        {{ strtoupper($r->type) }}
+                                    </span>
                                 </td>
-                                <td style="padding:10px 14px; text-align:right; font-weight:700; color:#0f172a;">
-                                    ৳{{ number_format($t->gross_amount, 2) }}
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; color:#0f172a; font-size:12px;">
+                                    ৳ {{ number_format($r->gross_amount) }}
                                 </td>
-                                <td style="padding:10px 14px; text-align:right; font-weight:700; color:#28c76f;">
-                                    ৳{{ number_format($t->commission_amount, 2) }}
+                                <td style="padding:10px 14px; text-align:right; font-weight:700; color:#28c76f; font-size:12px;">
+                                    +৳ {{ number_format($r->commission_amount) }}
                                 </td>
                             </tr>
                             @empty

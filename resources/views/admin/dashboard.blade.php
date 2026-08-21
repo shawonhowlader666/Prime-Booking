@@ -142,6 +142,26 @@
         </div>
     </div>
 
+    {{-- ═══ LIVE ALERTS BAR ═══ --}}
+    @php $alerts = $stats['pending_alerts'] ?? 0; @endphp
+    @if($alerts > 0)
+    <div style="background:linear-gradient(90deg,#fff7e6,#fffbe6); border:1px solid #ffd666; border-radius:10px; padding:10px 18px; margin-bottom:14px; display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <span style="font-weight:700; color:#d46b08; font-size:13px;"><i class="fa-solid fa-triangle-exclamation me-1"></i>{{ $alerts }} Item{{ $alerts !== 1 ? 's' : '' }} Need Your Attention</span>
+        @if(($stats['pending_bookings'] ?? 0) > 0)
+        <a href="{{ route('admin.bookings.index', ['status'=>'pending']) }}" style="background:#faad14; color:#fff; border-radius:5px; padding:3px 10px; font-size:12px; font-weight:600; text-decoration:none;"><i class="fa-solid fa-calendar-check me-1"></i>{{ $stats['pending_bookings'] }} Bookings</a>
+        @endif
+        @if(($stats['pending_payouts'] ?? 0) > 0)
+        <a href="{{ route('admin.payouts.index') }}" style="background:#52c41a; color:#fff; border-radius:5px; padding:3px 10px; font-size:12px; font-weight:600; text-decoration:none;"><i class="fa-solid fa-money-bill-transfer me-1"></i>{{ $stats['pending_payouts'] }} Payouts</a>
+        @endif
+        @if(($stats['pending_properties'] ?? 0) > 0)
+        <a href="{{ route('admin.properties.index', ['status'=>'pending']) }}" style="background:#1890ff; color:#fff; border-radius:5px; padding:3px 10px; font-size:12px; font-weight:600; text-decoration:none;"><i class="fa-solid fa-building me-1"></i>{{ $stats['pending_properties'] }} Properties</a>
+        @endif
+        @if(($stats['open_inquiries'] ?? 0) > 0)
+        <a href="{{ route('admin.inquiries.index') }}" style="background:#722ed1; color:#fff; border-radius:5px; padding:3px 10px; font-size:12px; font-weight:600; text-decoration:none;"><i class="fa-solid fa-envelope me-1"></i>{{ $stats['open_inquiries'] }} Inquiries</a>
+        @endif
+    </div>
+    @endif
+
     {{-- Financial KPI Cards --}}
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3">
@@ -149,9 +169,14 @@
                 <div style="display:flex; align-items:flex-start; gap:14px;">
                     <div class="kpi-icon" style="background:#7367f0;"><i class="fa-solid fa-chart-line"></i></div>
                     <div>
-                        <p class="kpi-value">BDT {{ number_format($stats['total_revenue'] ?? $stats['monthly_revenue'] ?? 4850000) }}</p>
+                        <p class="kpi-value">BDT {{ number_format($stats['total_revenue'] ?? 0) }}</p>
                         <p class="kpi-label">Total Sales Volume (GBV)</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-arrow-up"></i> +18.4% vs last month</p>
+                        @php $growth = $stats['mom_growth'] ?? 0; @endphp
+                        @if($growth >= 0)
+                        <p class="kpi-growth-up"><i class="fa-solid fa-arrow-up"></i> +{{ $growth }}% vs last month</p>
+                        @else
+                        <p class="kpi-growth-down"><i class="fa-solid fa-arrow-down"></i> {{ $growth }}% vs last month</p>
+                        @endif
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#7367f0;"></div>
@@ -162,9 +187,9 @@
                 <div style="display:flex; align-items:flex-start; gap:14px;">
                     <div class="kpi-icon" style="background:#28c76f;"><i class="fa-solid fa-percent"></i></div>
                     <div>
-                        <p class="kpi-value">BDT {{ number_format(($stats['monthly_revenue'] ?? 4850000) * 0.12) }}</p>
+                        <p class="kpi-value">BDT {{ number_format($stats['commission'] ?? 0) }}</p>
                         <p class="kpi-label">Platform Commission (12%)</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-check-circle"></i> Net Platform Income</p>
+                        <p class="kpi-growth-up"><i class="fa-solid fa-check-circle"></i> Vendor Payable: BDT {{ number_format($stats['vendor_payout'] ?? 0) }}</p>
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
@@ -175,9 +200,9 @@
                 <div style="display:flex; align-items:flex-start; gap:14px;">
                     <div class="kpi-icon" style="background:#00cfe8;"><i class="fa-solid fa-cart-shopping"></i></div>
                     <div>
-                        <p class="kpi-value">{{ $stats['total_bookings'] ?? 142 }} Stays</p>
+                        <p class="kpi-value">{{ $stats['total_bookings'] ?? 0 }} Stays</p>
                         <p class="kpi-label">Total Sales Orders</p>
-                        <p class="kpi-growth-down"><i class="fa-solid fa-clock"></i> {{ $stats['pending_bookings'] ?? 12 }} Pending Action</p>
+                        <p class="kpi-growth-down"><i class="fa-solid fa-clock"></i> {{ $stats['pending_bookings'] ?? 0 }} Pending &middot; Today: {{ $stats['today_bookings'] ?? 0 }}</p>
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#00cfe8;"></div>
@@ -186,11 +211,11 @@
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
                 <div style="display:flex; align-items:flex-start; gap:14px;">
-                    <div class="kpi-icon" style="background:#ff9f43;"><i class="fa-solid fa-users"></i></div>
+                    <div class="kpi-icon" style="background:#ff9f43;"><i class="fa-solid fa-bolt"></i></div>
                     <div>
-                        <p class="kpi-value">{{ $stats['total_vendors'] ?? 24 }} Partners</p>
-                        <p class="kpi-label">Onboarded Vendors</p>
-                        <p class="kpi-growth-up"><i class="fa-solid fa-user-check"></i> {{ $stats['active_users'] ?? 150 }} Total Registered</p>
+                        <p class="kpi-value">BDT {{ number_format($stats['today_revenue'] ?? 0) }}</p>
+                        <p class="kpi-label">Today's Revenue</p>
+                        <p class="kpi-growth-up"><i class="fa-solid fa-users"></i> {{ $stats['total_vendors'] ?? 0 }} Partners &middot; {{ $stats['active_users'] ?? 0 }} Users</p>
                     </div>
                 </div>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>

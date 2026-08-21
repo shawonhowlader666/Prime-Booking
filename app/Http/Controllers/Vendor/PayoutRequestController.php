@@ -26,8 +26,8 @@ class PayoutRequestController extends Controller
             ->whereIn('booking_status', ['confirmed', 'completed'])
             ->sum('total_price');
 
-        // Platform commission 10%
-        $commissionRate = 0.10;
+        // Platform commission 12% (OTA standard rate)
+        $commissionRate = 0.12;
         $platformCommission = round($totalRevenue * $commissionRate, 2);
         $netEarnings = $totalRevenue - $platformCommission;
 
@@ -77,7 +77,7 @@ class PayoutRequestController extends Controller
             ->whereIn('booking_status', ['confirmed', 'completed'])
             ->sum('total_price');
 
-        $netEarnings = $totalRevenue * 0.90;
+        $netEarnings = $totalRevenue * 0.88; // 12% platform commission
         $totalPaidOut = Payout::where('vendor_id', $vendorId)->where('status', 'paid')->sum('amount');
         $totalPending = Payout::where('vendor_id', $vendorId)->where('status', 'pending')->sum('amount');
         $availableBalance = max(0, $netEarnings - $totalPaidOut - $totalPending);

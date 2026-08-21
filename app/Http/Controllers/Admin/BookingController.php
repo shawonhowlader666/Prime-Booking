@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\ActivityLog;
 use App\Models\Booking;
 use App\Models\Property;
 use Illuminate\Http\Request;
@@ -106,6 +107,19 @@ class BookingController extends Controller
             \App\Services\AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
         }
 
+        // Activity audit log
+        try {
+            ActivityLog::create([
+                'user_id'     => auth()->id(),
+                'user_name'   => auth()->user()?->name ?? 'Admin',
+                'action'      => 'booking_status_changed',
+                'model_type'  => 'Booking',
+                'model_id'    => $booking->id,
+                'description' => "Booking #{$booking->booking_reference} status changed: {$oldStatus} → {$request->status}",
+                'ip_address'  => request()->ip(),
+            ]);
+        } catch (\Exception $e) {}
+
         return back()->with('success', 'Reservation status updated to ' . ucfirst($request->status) . ' and ledger synced successfully.');
     }
 
@@ -125,6 +139,19 @@ class BookingController extends Controller
         } elseif ($request->payment_status === 'refunded' && $oldPayment !== 'refunded') {
             \App\Services\AccountingService::recordRefundLedger($booking, null, 'Payment marked as Refunded');
         }
+
+        // Activity audit log
+        try {
+            ActivityLog::create([
+                'user_id'     => auth()->id(),
+                'user_name'   => auth()->user()?->name ?? 'Admin',
+                'action'      => 'payment_status_changed',
+                'model_type'  => 'Booking',
+                'model_id'    => $booking->id,
+                'description' => "Booking #{$booking->booking_reference} payment: {$oldPayment} → {$request->payment_status}",
+                'ip_address'  => request()->ip(),
+            ]);
+        } catch (\Exception $e) {}
 
         return back()->with('success', 'Payment status updated to ' . ucfirst($request->payment_status) . ' and ledger synced successfully.');
     }

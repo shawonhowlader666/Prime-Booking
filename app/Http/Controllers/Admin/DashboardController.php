@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
+use App\Models\Inquiry;
 use App\Models\Property;
+use App\Models\Payout;
 use App\Models\User;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -38,9 +41,37 @@ class DashboardController extends Controller
         $totalUsers          = User::count();
         $pendingProperties   = Property::where('status', 'pending')->count();
 
+        // ── Month-over-Month Revenue Trend ──
+        $thisMonthRevenue = Booking::where('status', '!=', 'cancelled')
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
+            ->sum('total_price');
+        $lastMonthRevenue = Booking::where('status', '!=', 'cancelled')
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
+            ->sum('total_price');
+        $momGrowth = $lastMonthRevenue > 0
+            ? round((($thisMonthRevenue - $lastMonthRevenue) / $lastMonthRevenue) * 100, 1)
+            : ($thisMonthRevenue > 0 ? 100.0 : 0.0);
+
+        // ── Today's Live Metrics ──
+        $todayRevenue   = Booking::where('status', '!=', 'cancelled')->whereDate('created_at', today())->sum('total_price');
+        $todayBookings  = Booking::whereDate('created_at', today())->count();
+
+        // ── Pending Alerts for Admin Action Bar ──
+        $pendingPayouts     = Payout::where('status', 'pending')->count();
+        $pendingProperties  = Property::where('status', 'pending')->count();
+        $openInquiries      = 0;
+        try { $openInquiries = Inquiry::where('status', 'open')->count(); } catch (\Exception $e) {}
+        $pendingAlerts = $pendingPayouts + Property::where('status', 'pending')->count() + $openInquiries;
+
         $stats = [
             'total_revenue'       => $totalRevenue,
-            'monthly_revenue'     => $totalRevenue,
+            'monthly_revenue'     => $thisMonthRevenue,
+            'last_month_revenue'  => $lastMonthRevenue,
+            'mom_growth'          => $momGrowth,
+            'today_revenue'       => $todayRevenue,
+            'today_bookings'      => $todayBookings,
             'total_bookings'      => $totalBookings,
             'pending_bookings'    => $pendingBookings,
             'total_db_inventory'  => $totalDbProperties,
@@ -52,6 +83,9 @@ class DashboardController extends Controller
             'active_users'        => $totalUsers,
             'commission'          => round($customCommission),
             'vendor_payout'       => round($vendorPayout),
+            'pending_payouts'     => $pendingPayouts,
+            'open_inquiries'      => $openInquiries,
+            'pending_alerts'      => $pendingAlerts,
         ];
 
         // ── Revenue Chart — last 7 months from DB ──

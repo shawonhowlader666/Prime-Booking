@@ -229,41 +229,52 @@ class AccountingService
     }
 
     /**
-     * Ensure historical bookings are mirrored in the double-entry accounting ledger
+     * Real-time double-entry ledger entry generator for newly created or completed bookings
      */
-    public function ensureLedgerPopulated(): void
+    public static function recordBookingLedger(Booking $b, string $paymentMethod = 'bkash'): AccountingLedger
     {
-        $count = AccountingLedger::count();
-        if ($count > 0) {
-            return;
-        }
+        $gross = (float) ($b->total_price ?? $b->amount ?? 0);
+        $comm  = round($gross * 0.12, 2);
+        $fee   = in_array($paymentMethod, ['bkash', 'nagad']) ? round($gross * 0.015, 2) : round($gross * 0.02, 2);
+        $net   = round($gross - $comm - $fee, 2);
 
-        $bookings = Booking::with('property')->get();
-        foreach ($bookings as $b) {
-            $gross = (float) $b->total_price;
-            $comm  = round($gross * 0.12, 2);
-            $fee   = in_array($b->payment_method, ['bkash', 'nagad']) ? round($gross * 0.015, 2) : round($gross * 0.02, 2);
-            $net   = max(0, $gross - $comm);
+        return AccountingLedger::create([
+            'txn_reference'     => 'TXN-BK-' . strtoupper(\Illuminate\Support\Str::random(8)),
+            'type'              => 'credit',
+            'category'          => 'hotel_booking',
+            'booking_id'        => $b->id,
+            'vendor_id'         => $b->property?->vendor_id,
+            'property_id'       => $b->property_id,
+            'user_id'           => $b->user_id,
+            'gross_amount'      => $gross,
+            'commission_amount' => $comm,
+            'gateway_fee'       => $fee,
+            'net_amount'        => $net,
+            'payment_method'    => $paymentMethod,
+            'currency'          => 'BDT',
+            'status'            => $b->status === 'cancelled' ? 'cancelled' : 'completed',
+            'description'       => "Booking Reference #{$b->booking_reference} for {$b->property?->name}",
+            'created_at'        => now(),
+            'updated_at'        => now(),
+        ]);
+    }
 
-            AccountingLedger::create([
-                'txn_reference'     => 'TXN-BK-' . str_pad((string)$b->id, 6, '0', STR_PAD_LEFT),
-                'type'              => 'credit',
-                'category'          => 'hotel_booking',
-                'booking_id'        => $b->id,
-                'vendor_id'         => $b->property?->vendor_id,
-                'property_id'       => $b->property_id,
-                'user_id'           => $b->user_id,
-                'gross_amount'      => $gross,
-                'commission_amount' => $comm,
-                'gateway_fee'       => $fee,
-                'net_amount'        => $net,
-                'payment_method'    => $b->payment_method ?? 'bkash',
-                'currency'          => 'BDT',
-                'status'            => $b->status === 'cancelled' ? 'cancelled' : 'completed',
-                'description'       => "Booking Reference #{$b->reference_number} for {$b->property?->name}",
-                'created_at'        => $b->created_at ?? now(),
-                'updated_at'        => $b->updated_at ?? now(),
-            ]);
-        }
+    /**
+     * Static helper for vendor finance summary
+     */
+    public static function getVendorFinanceSummary(int $vendorId): array
+    {
+        $service = new self();
+        $data = $service->getSingleVendorAccounting($vendorId);
+        return [
+            'total_bookings'      => $data['total_bookings'] ?? 0,
+            'gross_sales'         => $data['gross_revenue'] ?? 0,
+            'commission_deducted' => $data['commission_paid'] ?? 0,
+            'net_payable'         => $data['net_earnings'] ?? 0,
+            'payouts_paid'        => $data['payouts_paid'] ?? 0,
+            'payouts_pending'     => $data['payouts_pending'] ?? 0,
+            'available_balance'   => $data['withdrawable_balance'] ?? 0,
+        ];
     }
 }
+

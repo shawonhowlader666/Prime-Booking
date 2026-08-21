@@ -13,11 +13,13 @@ class Inquiry extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'property_id',
         'vendor_id',
         'name',
         'phone',
         'email',
+        'subject',
         'service_type',
         'destination',
         'travel_date',

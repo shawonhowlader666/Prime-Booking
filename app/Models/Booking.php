@@ -12,10 +12,10 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'booking_reference', 'user_id', 'property_id', 'room_id',
+        'booking_reference', 'booking_code', 'user_id', 'property_id', 'room_id',
         'guest_name', 'guest_email', 'guest_phone',
-        'check_in', 'check_out', 'check_in_date', 'check_out_date', 'nights', 'guests', 'adults', 'children', 'adults_count', 'children_count',
-        'price_per_night', 'subtotal', 'tax_amount', 'total_price',
+        'check_in', 'check_out', 'check_in_date', 'check_out_date', 'nights', 'nights_count', 'guests', 'rooms', 'rooms_count', 'adults', 'children', 'adults_count', 'children_count',
+        'price_per_night', 'subtotal', 'tax_amount', 'total_price', 'amount',
         'total_amount',   // legacy compat
         'currency', 'payment_status', 'payment_method',
         'status', 'booking_status', // both supported

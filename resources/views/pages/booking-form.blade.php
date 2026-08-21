@@ -27,11 +27,44 @@
 .form-control-pro { border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: 14px; transition: border-color 0.2s; }
 .form-control-pro:focus { border-color: #2067e1; box-shadow: 0 0 0 3px rgba(32,103,225,0.1); outline: none; }
 
-/* Payment method selector */
-.pay-option { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; gap: 14px; user-select: none; position: relative; }
-.pay-option:hover { border-color: #93c5fd; background: #f8faff; transform: translateY(-1px); }
-.pay-option.selected { border-color: #2067e1 !important; background: #f0f7ff !important; box-shadow: 0 0 0 3px rgba(32, 103, 225, 0.18), 0 4px 12px rgba(32, 103, 225, 0.08) !important; }
-.pay-option input[type=radio] { accent-color: #2067e1; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
+/* Payment method selector - Modern 3D Card Depth & Shadow */
+.pay-option { 
+    border: 2px solid #e2e8f0; 
+    background: #ffffff; 
+    border-radius: 14px; 
+    padding: 15px 18px; 
+    cursor: pointer; 
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); 
+    display: flex; 
+    align-items: center; 
+    gap: 14px; 
+    user-select: none; 
+    position: relative; 
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.02);
+}
+.pay-option:hover { 
+    border-color: #60a5fa; 
+    background: #f8faff; 
+    transform: translateY(-2px); 
+    box-shadow: 0 8px 22px rgba(32, 103, 225, 0.14), 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+.pay-option.selected { 
+    border-color: #2067e1 !important; 
+    background: linear-gradient(180deg, #f0f7ff 0%, #e6f0fd 100%) !important; 
+    transform: translateY(-2px) scale(1.006); 
+    box-shadow: 0 12px 28px rgba(32, 103, 225, 0.24), 0 4px 10px rgba(32, 103, 225, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.9) !important; 
+}
+.pay-option:active {
+    transform: translateY(0px) scale(0.995);
+    box-shadow: 0 3px 8px rgba(32, 103, 225, 0.15) !important;
+}
+.pay-option input[type=radio] { 
+    accent-color: #2067e1; 
+    width: 19px; 
+    height: 19px; 
+    cursor: pointer; 
+    flex-shrink: 0; 
+}
 .pay-logo { width: 44px; height: 28px; object-fit: contain; border-radius: 4px; }
 
 /* Order summary box */

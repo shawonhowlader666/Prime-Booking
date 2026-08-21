@@ -850,8 +850,31 @@
             </div>
 
             {{-- Red Urgency Callout (Agoda 1:1 Parity) --}}
-            <div class="p-2.5 px-3 mb-3 text-white rounded d-flex align-items-center gap-2 shadow-xs" style="background:#d93025; font-size:12.5px; font-weight:700; border-radius:6px;">
-                <i class="fa-solid fa-clock"></i> <span>Hurry up! 3 room types have already sold out for your dates!</span>
+            <div class="p-2.5 px-3 mb-2.5 text-white rounded d-flex align-items-center gap-2 shadow-xs" style="background:#d93025; font-size:12.5px; font-weight:700; border-radius:6px;">
+                <i class="fa-solid fa-clock"></i> <span>Hurry up! High demand — 3 room types have already sold out for your dates!</span>
+            </div>
+
+            {{-- Agoda Signature Value & Trust Banner (Price Match Guarantee) --}}
+            <div class="card border-0 rounded-3 mb-3.5 p-3 shadow-xs" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-left: 4px solid #16a34a !important; border-radius: 8px !important;">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+                    <div class="d-flex align-items-center gap-2.5">
+                        <div style="width: 34px; height: 34px; background: #ffffff; color: #16a34a; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; box-shadow: 0 2px 6px rgba(22,163,74,0.2); flex-shrink: 0;">
+                            <i class="fa-solid fa-shield-halved"></i>
+                        </div>
+                        <div>
+                            <strong class="text-dark d-block" style="font-size: 13.5px; font-weight: 800;">We Price Match Guarantee</strong>
+                            <span class="text-secondary" style="font-size: 12px;">Found a lower rate elsewhere? We will match it and refund the difference!</span>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <span class="badge bg-white text-success border border-success-subtle px-2.5 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
+                            <i class="fa-solid fa-check-circle me-1"></i> Lowest Rate Guaranteed
+                        </span>
+                        <span class="badge bg-white text-primary border border-primary-subtle px-2.5 py-1.5 rounded-pill fw-bold" style="font-size: 11px;">
+                            <i class="fa-solid fa-bolt me-1"></i> Instant Confirmation
+                        </span>
+                    </div>
+                </div>
             </div>
 
             {{-- Available Rooms List (100% Dynamic from Database) --}}

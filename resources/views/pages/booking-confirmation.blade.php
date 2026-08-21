@@ -163,24 +163,39 @@
 
         {{-- Action Buttons --}}
         <div style="padding:24px 20px; display:flex; flex-wrap:wrap; gap:12px; align-items:center; justify-content:center;">
-            <a href="{{ route('booking.voucher', $booking->booking_reference) }}" target="_blank" class="action-btn btn-primary-action">
+            <a href="{{ route('booking.voucher', $booking->booking_reference) }}" target="_blank" class="action-btn btn-primary-action shadow-sm">
                 <i class="fa-solid fa-ticket"></i> View &amp; Print Voucher
             </a>
-            @php
-                $hPhone = preg_replace('/[^0-9]/', '', $booking->property?->contact_phone ?? '8801700000000');
-                if (str_starts_with($hPhone, '01')) { $hPhone = '88' . $hPhone; }
-                $waBookingText = urlencode("Hello " . ($booking->property?->name ?? 'Hotel') . "! My Booking Reference is #" . $booking->booking_reference . " for " . $booking->guest_name . " (Check-in: " . $booking->check_in . ").");
-            @endphp
-            @if(!empty($booking->property?->contact_phone))
-            <a href="https://wa.me/{{ $hPhone }}?text={{ $waBookingText }}" target="_blank" class="action-btn" style="background:#25D366; color:#fff; border:none;">
-                <i class="fa-brands fa-whatsapp"></i> WhatsApp Hotel
+
+            <a href="{{ route('booking.invoice', $booking->booking_reference) }}" target="_blank" class="action-btn" style="background:#0f172a; color:#fff; border:none;">
+                <i class="fa-solid fa-file-invoice"></i> Tax Invoice (PDF)
             </a>
-            @endif
+
+            @php
+                $voucherUrl = route('booking.voucher', $booking->booking_reference);
+                $waShareText = urlencode("🎉 *Prime Booking Reservation Confirmed!*" . "\n\n" .
+                    "🏨 *Hotel:* " . ($booking->property?->name ?? 'Hotel') . "\n" .
+                    "🔖 *Booking Ref:* #" . $booking->booking_reference . "\n" .
+                    "👤 *Guest:* " . $booking->guest_name . "\n" .
+                    "📅 *Check-in:* " . \Carbon\Carbon::parse($booking->check_in)->format('d M Y') . "\n" .
+                    "📅 *Check-out:* " . \Carbon\Carbon::parse($booking->check_out)->format('d M Y') . "\n" .
+                    "💳 *Total Fare:* " . CurrencyService::format($cTotal) . "\n\n" .
+                    "📄 *Official E-Voucher:* " . $voucherUrl);
+                
+                $hPhone = preg_replace('/[^0-9]/', '', $booking->property?->contact_phone ?? '8801770887733');
+                if (str_starts_with($hPhone, '01')) { $hPhone = '88' . $hPhone; }
+            @endphp
+
+            <a href="https://api.whatsapp.com/send?text={{ $waShareText }}" target="_blank" class="action-btn shadow-sm" style="background:#25D366; color:#fff; border:none;">
+                <i class="fa-brands fa-whatsapp fs-5"></i> Share Voucher on WhatsApp
+            </a>
+
             <a href="{{ route('hotels.show', $booking->property_id) }}" class="action-btn btn-outline-action">
                 <i class="fa-solid fa-hotel"></i> View Property
             </a>
+
             <a href="{{ route('home') }}" class="action-btn" style="background:#f8fafc; color:#475569; border:2px solid #e2e8f0;">
-                <i class="fa-solid fa-house"></i> Back to Home
+                <i class="fa-solid fa-house"></i> Home
             </a>
         </div>
 

@@ -27,6 +27,14 @@
     <meta name="geo.position" content="23.8103;90.4125">
     <meta name="ICBM" content="23.8103, 90.4125">
 
+    <!-- PWA & Mobile Web App Meta -->
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#2067e1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Prime Booking">
+    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
+
     <!-- Open Graph (OG) / Social Media Sharing Tags -->
     <meta property="og:locale" content="en_US">
     <meta property="og:locale:alternate" content="bn_BD">
@@ -218,6 +226,19 @@
     <!-- Agoda Recently Viewed Properties Floating Dock & Drawer -->
     @include('components.recently-viewed-drawer')
 
+    {{-- Mobile PWA Install Floating Prompt (Agoda 1:1 Parity) --}}
+    <div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 75px; left: 16px; right: 16px; z-index: 99999; background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 16px; box-shadow: 0 12px 36px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);">
+        <div class="d-flex align-items-center justify-content-between gap-3">
+            <img src="{{ asset('images/logo.png') }}" style="width: 38px; height: 38px; border-radius: 10px; background: #fff; padding: 2px; flex-shrink: 0;" alt="Prime Booking">
+            <div class="flex-grow-1" style="min-width: 0;">
+                <div style="font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2;">Install Prime Booking App</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Faster booking &amp; exclusive VIP deals</div>
+            </div>
+            <button id="pwaInstallBtn" class="btn btn-primary btn-sm fw-bold rounded-pill px-3 py-1.5" style="font-size: 11.5px; background: #2067e1; border: none; flex-shrink: 0;">INSTALL</button>
+            <button onclick="dismissPwaPrompt()" class="btn-close btn-close-white p-1" style="font-size: 10px; flex-shrink: 0;" title="Dismiss"></button>
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
@@ -238,6 +259,38 @@
                 img.setAttribute('loading', 'lazy');
                 img.setAttribute('decoding', 'async');
             });
+
+            // 3. Service Worker & PWA Installation Logic
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js').catch(function(){});
+            }
+
+            let deferredPrompt;
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                if (!localStorage.getItem('pwa_prompt_dismissed') && window.innerWidth <= 768) {
+                    const banner = document.getElementById('pwaInstallBanner');
+                    if (banner) banner.style.display = 'block';
+                }
+            });
+
+            const installBtn = document.getElementById('pwaInstallBtn');
+            if (installBtn) {
+                installBtn.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        deferredPrompt.prompt();
+                        const { outcome } = await deferredPrompt.userChoice;
+                        deferredPrompt = null;
+                        document.getElementById('pwaInstallBanner').style.display = 'none';
+                    }
+                });
+            }
+
+            window.dismissPwaPrompt = function() {
+                document.getElementById('pwaInstallBanner').style.display = 'none';
+                localStorage.setItem('pwa_prompt_dismissed', 'true');
+            };
         });
     </script>
     @stack('scripts')

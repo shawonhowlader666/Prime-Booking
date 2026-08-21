@@ -30,7 +30,7 @@
             <div class="bkash-merchant-info">
                 <div style="font-size: 12px; color: #64748b; font-weight: 600;">MERCHANT: PRIME BOOKING</div>
                 <div style="font-size: 13px; font-weight: 700; color: #0f172a; margin-top: 2px;">Ref: {{ $booking->booking_reference }}</div>
-                <div class="bkash-amount mt-2">{{ CurrencyService::format($booking->amount) }}</div>
+                <div class="bkash-amount mt-2">{{ CurrencyService::format($booking->total_amount ?? $booking->total_price ?? $booking->amount ?? 0) }}</div>
             </div>
 
             <form action="{{ route('payment.bkash.sandbox-execute', $booking->booking_reference) }}" method="POST">

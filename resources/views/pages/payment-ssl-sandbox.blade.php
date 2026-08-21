@@ -27,7 +27,7 @@
             </div>
             <div class="text-end">
                 <div style="font-size: 11px; opacity: 0.85;">PAYABLE AMOUNT</div>
-                <div style="font-size: 20px; font-weight: 800;">{{ CurrencyService::format($booking->amount) }}</div>
+                <div style="font-size: 20px; font-weight: 800;">{{ CurrencyService::format($booking->total_amount ?? $booking->total_price ?? $booking->amount ?? 0) }}</div>
             </div>
         </div>
 

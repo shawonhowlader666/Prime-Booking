@@ -146,6 +146,27 @@ Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('
 Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->name('booking.cancel');
 Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->name('coupon.validate');
 
+// Legacy WooCommerce / WordPress Product URL Auto-Redirect to Prime Booking Checkout
+Route::any('/product/{slug?}', function (\Illuminate\Http\Request $request, $slug = null) {
+    $roomId = $request->query('room_id');
+    $propertyId = $request->query('property_id');
+
+    if (!$propertyId && $roomId) {
+        $room = \App\Models\Room::find($roomId);
+        if ($room) {
+            $propertyId = $room->property_id;
+        }
+    }
+
+    if (!$propertyId) {
+        $firstProp = \App\Models\Property::first();
+        $propertyId = $firstProp ? $firstProp->id : 1;
+    }
+
+    $queryParams = $request->query();
+    return redirect()->route('booking.form', array_merge(['propertyId' => $propertyId], $queryParams));
+})->where('slug', '.*');
+
 // Public High-Speed VIP & Rewards Loyalty API Endpoints (Agoda Enterprise API Parity)
 Route::prefix('api/v1')->name('api.v1.')->group(function () {
     Route::get('/vip/status', function (\App\Services\VIPLoyaltyService $vipService) {

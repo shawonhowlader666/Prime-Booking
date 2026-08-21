@@ -13,6 +13,9 @@
             <button class="btn-export-csv" onclick="exportTableCSV('ledgerTable', 'general_ledger')"><i class="fa-solid fa-file-csv me-1"></i> CSV</button>
             <button class="btn-export-pdf" onclick="exportTablePDF('ledgerTable', 'general_ledger')"><i class="fa-solid fa-file-pdf me-1"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('ledgerTable')"><i class="fa-solid fa-print me-1"></i> Print</button>
+            <button type="button" class="btn btn-primary fw-bold" style="height:36px; font-size:12.5px; border-radius:4px; padding:0 16px; display:inline-flex; align-items:center; gap:6px;" data-bs-toggle="modal" data-bs-target="#recordTxnModal">
+                <i class="fa-solid fa-plus-circle"></i> <span>Record Transaction</span>
+            </button>
             <a href="{{ route('admin.accounts.index') }}" class="btn btn-light border fw-bold text-secondary" style="height:36px; font-size:12.5px; border-radius:4px; padding:0 14px; display:inline-flex; align-items:center; gap:6px; text-decoration:none;">
                 <i class="fa-solid fa-chart-pie"></i> <span>Accounts Hub</span>
             </a>
@@ -210,4 +213,131 @@
     </div>
 
 </div>
+
+{{-- RECORD TRANSACTION MODAL --}}
+<div class="modal fade" id="recordTxnModal" tabindex="-1" aria-labelledby="recordTxnModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content" style="border-radius:8px; border:1px solid #e2e8f0; overflow:hidden;">
+            <div class="modal-header bg-dark text-white px-4 py-3" style="background:#0f172a !important;">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="fa-solid fa-scale-balanced text-warning fs-5"></i>
+                    <h5 class="modal-title fw-bold m-0 text-white" id="recordTxnModalLabel" style="font-size:16px;">Record Manual Ledger Entry / Commission Adjustment</h5>
+                </div>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form action="{{ route('admin.accounts.manual-entry') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4" style="background:#f8fafc;">
+                    
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Transaction Flow / Type <span class="text-danger">*</span></label>
+                            <select name="type" class="form-select" required style="font-size:13px; height:38px;" id="txnTypeSelect">
+                                <option value="credit">Credit (Inflow / Money Received)</option>
+                                <option value="debit">Debit (Outflow / Money Disbursed)</option>
+                                <option value="commission">Commission Settlement (Platform Fee)</option>
+                                <option value="payout">Vendor Payout Disbursement</option>
+                                <option value="refund">Refund to Guest</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Accounting Category <span class="text-danger">*</span></label>
+                            <select name="category" class="form-select" required style="font-size:13px; height:38px;">
+                                <option value="manual_adjustment">Manual Adjustment</option>
+                                <option value="vendor_commission_collected">Vendor Direct Commission Paid</option>
+                                <option value="direct_bank_deposit">Direct Bank Deposit / Offline Booking</option>
+                                <option value="cash_counter_payment">Cash Counter Payment</option>
+                                <option value="vendor_settlement">Vendor Payout Settlement</option>
+                                <option value="chargeback_fee">Fee / Penalty / Chargeback</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Vendor / Hotel Partner (Optional)</label>
+                            <select name="vendor_id" class="form-select" style="font-size:13px; height:38px;">
+                                <option value="">-- Platform Master / Direct Guest --</option>
+                                @foreach($vendorsList as $vnd)
+                                <option value="{{ $vnd->id }}">{{ $vnd->name }} ({{ $vnd->email }})</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted" style="font-size:11px;">Select vendor if this transaction credits/debits a specific hotel partner.</small>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Payment Method / Channel <span class="text-danger">*</span></label>
+                            <select name="payment_method" class="form-select" required style="font-size:13px; height:38px;">
+                                <option value="bkash">bKash Manual / Merchant</option>
+                                <option value="nagad">Nagad Manual</option>
+                                <option value="bank_transfer">Direct Bank Transfer / BEFTN / RTGS</option>
+                                <option value="cash">Cash in Hand / Counter</option>
+                                <option value="pos_card">POS Terminal / Card Swiped</option>
+                                <option value="cheque">Bank Cheque / Pay Order</option>
+                                <option value="adjustment">System Credit Adjustment</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Gross Amount (BDT) <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white fw-bold">৳</span>
+                                <input type="number" step="0.01" name="gross_amount" id="modalGrossAmount" class="form-control fw-bold" required placeholder="0.00" oninput="calcCommission()" style="font-size:13px; height:38px;">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">OTA Commission (12%)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">৳</span>
+                                <input type="number" step="0.01" name="commission_amount" id="modalCommAmount" class="form-control" placeholder="0.00" style="font-size:13px; height:38px;">
+                            </div>
+                            <small class="text-muted" style="font-size:11px;">Auto-calculated or custom</small>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Transaction Date</label>
+                            <input type="datetime-local" name="created_at" class="form-control" value="{{ now()->format('Y-m-d\TH:i') }}" style="font-size:13px; height:38px;">
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Transaction Reference / TrxID / Cheque No</label>
+                        <input type="text" name="txn_reference" class="form-control mono" placeholder="e.g. TXN-BK-984218 / BEFTN-00129 / CHQ-8821" style="font-size:13px; height:38px;">
+                        <small class="text-muted" style="font-size:11px;">Leave blank to auto-generate a unique system reference.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Description / Purpose <span class="text-danger">*</span></label>
+                        <input type="text" name="description" class="form-control" required placeholder="e.g. Direct cash payment for Cox's Bazar booking / 12% Monthly commission received" style="font-size:13px; height:38px;">
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label fw-bold" style="font-size:12px; color:#334155;">Internal Admin Audit Notes (Optional)</label>
+                        <textarea name="notes" class="form-control" rows="2" placeholder="Audit remarks, approved by accounts team, deposit slip reference..." style="font-size:12.5px;"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer bg-white px-4 py-3 d-flex justify-content-between border-top">
+                    <button type="button" class="btn btn-outline-secondary btn-sm px-4 fw-bold" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary btn-sm px-4 fw-bold">
+                        <i class="fa-solid fa-save me-1"></i> Save to General Ledger
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function calcCommission() {
+    let gross = parseFloat(document.getElementById('modalGrossAmount').value) || 0;
+    let commField = document.getElementById('modalCommAmount');
+    let type = document.getElementById('txnTypeSelect').value;
+    if (type === 'commission') {
+        commField.value = gross.toFixed(2);
+    } else {
+        commField.value = (gross * 0.12).toFixed(2);
+    }
+}
+</script>
 @endsection

@@ -583,6 +583,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // ── Master Financial Accounts & General Ledger ─────────────────────
     Route::get('/accounts', [App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounts.index');
     Route::get('/accounts/ledger', [App\Http\Controllers\Admin\AccountingController::class, 'ledger'])->name('accounts.ledger');
+    Route::post('/accounts/manual-entry', [App\Http\Controllers\Admin\AccountingController::class, 'storeManualEntry'])->name('accounts.manual-entry');
     Route::get('/accounts/ledger/export', [App\Http\Controllers\Admin\AccountingController::class, 'exportLedger'])->name('accounts.ledger.export');
     Route::get('/accounts/vendor-statements', [App\Http\Controllers\Admin\AccountingController::class, 'vendorStatements'])->name('accounts.vendor-statements');
     Route::get('/accounts/vendor-statements/{vendorId}/print', [App\Http\Controllers\Admin\AccountingController::class, 'printVendorStatement'])->name('accounts.vendor-statements.print');

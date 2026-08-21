@@ -261,6 +261,51 @@ class AccountingService
     }
 
     /**
+     * Record Manual Transaction / Commission Adjustment / Direct Bank or Cash Deposit
+     */
+    public function recordManualEntry(array $data): AccountingLedger
+    {
+        $gross = (float) ($data['gross_amount'] ?? 0);
+        $comm  = (float) ($data['commission_amount'] ?? 0);
+        $fee   = (float) ($data['gateway_fee'] ?? 0);
+        $net   = (float) ($data['net_amount'] ?? ($gross - $comm - $fee));
+        
+        $type = $data['type'] ?? 'credit';
+        $category = $data['category'] ?? 'manual_adjustment';
+        $vendorId = !empty($data['vendor_id']) ? (int) $data['vendor_id'] : null;
+
+        // Clear dashboard finance caches
+        \Illuminate\Support\Facades\Cache::forget('finance_overview_kpis_all');
+        if ($vendorId) {
+            \Illuminate\Support\Facades\Cache::forget("vendor_finance_{$vendorId}");
+        }
+
+        return AccountingLedger::create([
+            'txn_reference'     => !empty($data['txn_reference']) ? $data['txn_reference'] : ('TXN-MAN-' . strtoupper(\Illuminate\Support\Str::random(8))),
+            'type'              => $type,
+            'category'          => $category,
+            'booking_id'        => !empty($data['booking_id']) ? (int) $data['booking_id'] : null,
+            'vendor_id'         => $vendorId,
+            'property_id'       => !empty($data['property_id']) ? (int) $data['property_id'] : null,
+            'user_id'           => !empty($data['user_id']) ? (int) $data['user_id'] : auth()->id(),
+            'gross_amount'      => $gross,
+            'commission_amount' => $comm,
+            'gateway_fee'       => $fee,
+            'net_amount'        => $net,
+            'payment_method'    => $data['payment_method'] ?? 'cash',
+            'currency'          => 'BDT',
+            'status'            => $data['status'] ?? 'completed',
+            'description'       => $data['description'] ?? 'Manual ledger adjustment entry',
+            'metadata'          => [
+                'recorded_by' => auth()->user()?->name ?? 'Administrator',
+                'notes'       => $data['notes'] ?? null,
+            ],
+            'created_at'        => !empty($data['created_at']) ? \Carbon\Carbon::parse($data['created_at']) : now(),
+            'updated_at'        => now(),
+        ]);
+    }
+
+    /**
      * Static helper for vendor finance summary
      */
     public static function getVendorFinanceSummary(int $vendorId): array

@@ -28,8 +28,9 @@ class AccountingController extends Controller
         $kpis      = $this->accountingService->getOverviewKPIs($startDate, $endDate);
         $chartData = $this->accountingService->getMonthlyPnLChartData($year);
         $recentLedgers = $this->accountingService->getGeneralLedger([], 8);
+        $vendorsList   = \App\Models\User::where('role', 'vendor')->select('id', 'name', 'email')->get();
 
-        return view('admin.accounts.index', compact('kpis', 'chartData', 'recentLedgers', 'startDate', 'endDate', 'year'));
+        return view('admin.accounts.index', compact('kpis', 'chartData', 'recentLedgers', 'startDate', 'endDate', 'year', 'vendorsList'));
     }
 
     /**
@@ -45,9 +46,33 @@ class AccountingController extends Controller
             'search'         => $request->query('search'),
         ];
 
-        $ledgers = $this->accountingService->getGeneralLedger($filters, 25);
+        $ledgers     = $this->accountingService->getGeneralLedger($filters, 25);
+        $vendorsList = \App\Models\User::where('role', 'vendor')->select('id', 'name', 'email')->get();
 
-        return view('admin.accounts.ledger', compact('ledgers', 'filters'));
+        return view('admin.accounts.ledger', compact('ledgers', 'filters', 'vendorsList'));
+    }
+
+    /**
+     * Store Manual Ledger Transaction / Commission Adjustment / Offline Payment
+     */
+    public function storeManualEntry(Request $request): \Illuminate\Http\RedirectResponse
+    {
+        $validated = $request->validate([
+            'txn_reference'     => 'nullable|string|max:64|unique:accounting_ledgers,txn_reference',
+            'type'              => 'required|in:credit,debit,commission,payout,refund,gateway_fee',
+            'category'          => 'required|string|max:64',
+            'vendor_id'         => 'nullable|exists:users,id',
+            'gross_amount'      => 'required|numeric|min:0',
+            'commission_amount' => 'nullable|numeric|min:0',
+            'gateway_fee'       => 'nullable|numeric|min:0',
+            'payment_method'    => 'required|string|max:32',
+            'description'       => 'required|string|max:255',
+            'notes'             => 'nullable|string|max:500',
+        ]);
+
+        $this->accountingService->recordManualEntry($validated);
+
+        return redirect()->back()->with('success', 'Manual transaction recorded successfully in Accounting General Ledger.');
     }
 
     /**

@@ -51,6 +51,25 @@ print("STDOUT:", stdout.read().decode('utf-8', errors='ignore'), flush=True)
 err = stderr.read().decode('utf-8', errors='ignore')
 if err: print("STDERR:", err, flush=True)
 
+# Ensure public_html/index.php bootstraps Laravel
+ensure_index_cmd = """
+cat << 'EOF' > /home/master/applications/yayxamnaue/public_html/index.php
+<?php
+use Illuminate\\Contracts\\Http\\Kernel;
+use Illuminate\\Http\\Request;
+define('LARAVEL_START', microtime(true));
+if (file_exists($maintenance = __DIR__.'/laravel/storage/framework/maintenance.php')) {
+    require $maintenance;
+}
+require __DIR__.'/laravel/vendor/autoload.php';
+$app = require_once __DIR__.'/laravel/bootstrap/app.php';
+$kernel = $app->make(Kernel::class);
+$response = $kernel->handle($request = Request::capture())->send();
+$kernel->terminate($request, $response);
+EOF
+"""
+ssh.exec_command(ensure_index_cmd)
+
 # Step 2: SFTP Direct Sync for all updated files to ensure 100% synchronization
 sftp = ssh.open_sftp()
 local_root = r"c:\Users\Shawon\Desktop\Prime Booking"

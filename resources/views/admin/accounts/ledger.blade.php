@@ -171,15 +171,15 @@
                             @endif
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            <div class="d-inline-flex align-items-center gap-1.5 justify-content-end">
+                            <div class="table-action-group justify-content-end">
                                 @if($l->booking_id)
-                                    <a href="{{ route('admin.bookings.show', $l->booking_id) }}" class="btn btn-sm btn-outline-primary fw-bold d-inline-flex align-items-center gap-1" style="height:30px; font-size:11.5px; border-radius:4px; padding:0 10px; text-decoration:none;" title="View Booking">
-                                        <i class="fa-solid fa-eye"></i> <span>Booking</span>
+                                    <a href="{{ route('admin.bookings.show', $l->booking_id) }}" class="table-action-btn primary" title="View Booking Details">
+                                        <i class="fa-solid fa-eye"></i>
                                     </a>
                                 @endif
                                 @if($l->vendor_id)
-                                    <a href="{{ route('admin.accounts.vendor-statements.print', $l->vendor_id) }}" target="_blank" class="btn btn-sm btn-light border text-secondary fw-bold d-inline-flex align-items-center gap-1" style="height:30px; font-size:11.5px; border-radius:4px; padding:0 10px; text-decoration:none;" title="Print Statement">
-                                        <i class="fa-solid fa-print"></i> <span>Statement</span>
+                                    <a href="{{ route('admin.accounts.vendor-statements.print', $l->vendor_id) }}" target="_blank" class="table-action-btn dark" title="Print Partner Tax Statement">
+                                        <i class="fa-solid fa-print"></i>
                                     </a>
                                 @endif
                             </div>

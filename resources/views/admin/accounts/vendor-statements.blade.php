@@ -158,12 +158,12 @@
                             @endif
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            <div class="d-inline-flex align-items-center gap-1.5 justify-content-end">
-                                <a href="{{ route('admin.accounts.ledger', ['vendor_id' => $v->id]) }}" class="btn btn-sm btn-outline-primary fw-bold d-inline-flex align-items-center gap-1.5" style="height:32px; font-size:12px; border-radius:4px; padding:0 12px; text-decoration:none;" title="View Vendor Audit Ledger">
-                                    <i class="fa-solid fa-list"></i> <span>Ledger</span>
+                            <div class="table-action-group justify-content-end">
+                                <a href="{{ route('admin.accounts.ledger', ['vendor_id' => $v->id]) }}" class="table-action-btn primary" title="View Audit Ledger">
+                                    <i class="fa-solid fa-list-check"></i>
                                 </a>
-                                <a href="{{ route('admin.accounts.vendor-statements.print', $v->id) }}" target="_blank" class="btn btn-sm btn-dark fw-bold d-inline-flex align-items-center gap-1.5" style="height:32px; font-size:12px; border-radius:4px; padding:0 12px; text-decoration:none;" title="Print Official Tax Statement">
-                                    <i class="fa-solid fa-print"></i> <span>Statement</span>
+                                <a href="{{ route('admin.accounts.vendor-statements.print', $v->id) }}" target="_blank" class="table-action-btn dark" title="Print Official Statement">
+                                    <i class="fa-solid fa-print"></i>
                                 </a>
                             </div>
                         </td>

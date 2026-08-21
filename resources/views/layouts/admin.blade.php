@@ -1613,6 +1613,8 @@
             width: 14px;
             text-align: center;
             flex-shrink: 0;
+            font-size: 11px;
+            margin-right: 4px;
         }
 
         /* Universal Toolbar Button Gap & Padding Normalizer */
@@ -1622,6 +1624,63 @@
             justify-content: center !important;
             gap: 6px !important;
             white-space: nowrap !important;
+        }
+
+        .btn i, .btn-add-primary i, .btn-tbl-copy i, .btn-tbl-excel i, .btn-export-csv i, .btn-export-pdf i, .btn-tbl-print i {
+            font-size: 11.5px;
+        }
+
+        /* Compact Table Action Icon Buttons */
+        .table-action-group {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 6px !important;
+        }
+
+        .table-action-btn {
+            width: 32px !important;
+            height: 32px !important;
+            padding: 0 !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            border-radius: 4px !important;
+            border: 1px solid #cbd5e1 !important;
+            background: #f8fafc !important;
+            color: #475569 !important;
+            transition: all 0.15s ease !important;
+            text-decoration: none !important;
+            font-size: 12px !important;
+        }
+
+        .table-action-btn:hover {
+            background: #e2e8f0 !important;
+            color: #0f172a !important;
+            border-color: #94a3b8 !important;
+        }
+
+        .table-action-btn.primary {
+            color: #2067e1 !important;
+            border-color: rgba(32, 103, 225, 0.3) !important;
+            background: #eff6ff !important;
+        }
+
+        .table-action-btn.primary:hover {
+            background: #2067e1 !important;
+            color: #ffffff !important;
+            border-color: #2067e1 !important;
+        }
+
+        .table-action-btn.dark {
+            color: #1e293b !important;
+            border-color: #cbd5e1 !important;
+            background: #f8fafc !important;
+        }
+
+        .table-action-btn.dark:hover {
+            background: #1e293b !important;
+            color: #ffffff !important;
+            border-color: #1e293b !important;
         }
     </style>
     @yield('head')

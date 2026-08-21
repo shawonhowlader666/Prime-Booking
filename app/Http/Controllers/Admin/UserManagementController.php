@@ -217,6 +217,77 @@ class UserManagementController extends Controller
         return back()->with('success', "User \"{$name}\" deleted.");
     }
 
+    // ─── Bulk Actions ─────────────────────────────────────────────────────
+
+    public function bulkAction(Request $request)
+    {
+        $action  = $request->input('action');
+        $userIds = $request->input('user_ids', []);
+
+        if (empty($userIds) || !is_array($userIds)) {
+            return back()->with('error', 'Please select at least one user to perform bulk action.');
+        }
+
+        // Exclude current logged in admin and super_admins from destructive actions
+        $targetUsers = User::whereIn('id', $userIds)
+            ->where('id', '!=', auth()->id())
+            ->where('role', '!=', 'super_admin')
+            ->get();
+
+        $count = $targetUsers->count();
+
+        if ($count === 0) {
+            return back()->with('error', 'No eligible users found for bulk action (super admins and your own account are protected).');
+        }
+
+        switch ($action) {
+            case 'ban':
+                foreach ($targetUsers as $user) {
+                    $user->update(['status' => 'banned']);
+                    $user->tokens()->delete();
+                }
+                $this->log('bulk_banned', null, "Bulk banned {$count} users");
+                return back()->with('success', "{$count} users have been banned and blocked successfully.");
+
+            case 'activate':
+                foreach ($targetUsers as $user) {
+                    $user->update(['status' => 'active']);
+                    \App\Models\BannedIp::where('user_id', $user->id)->delete();
+                }
+                $this->log('bulk_activated', null, "Bulk activated {$count} users");
+                return back()->with('success', "{$count} users have been activated successfully.");
+
+            case 'make_vendor':
+                foreach ($targetUsers as $user) {
+                    $user->update(['role' => 'vendor']);
+                }
+                $this->log('bulk_promoted_vendor', null, "Bulk promoted {$count} users to Vendor");
+                return back()->with('success', "{$count} users have been promoted to Vendor role.");
+
+            case 'make_customer':
+                foreach ($targetUsers as $user) {
+                    if ($user->role !== 'admin') {
+                        $user->update(['role' => 'customer']);
+                    }
+                }
+                $this->log('bulk_demoted_customer', null, "Bulk changed {$count} users to Customer");
+                return back()->with('success', "{$count} users have been set to Customer role.");
+
+            case 'delete':
+                foreach ($targetUsers as $user) {
+                    if ($user->role !== 'admin') {
+                        $user->tokens()->delete();
+                        $user->delete();
+                    }
+                }
+                $this->log('bulk_deleted', null, "Bulk deleted {$count} user accounts");
+                return back()->with('success', "{$count} user accounts deleted successfully.");
+
+            default:
+                return back()->with('error', 'Invalid bulk action specified.');
+        }
+    }
+
     // ─── Audit Helper ─────────────────────────────────────────────────────
 
     private function log(string $action, ?User $target, string $description): void

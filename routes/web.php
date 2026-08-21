@@ -514,6 +514,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/users/{id}/promote-vendor', [UserManagementController::class, 'promoteVendor'])->name('users.promote-vendor');
     Route::post('/users/{id}/demote', [UserManagementController::class, 'demote'])->name('users.demote');
     Route::delete('/users/{id}', [UserManagementController::class, 'destroy'])->name('users.destroy');
+    Route::post('/users/bulk-action', [UserManagementController::class, 'bulkAction'])->name('users.bulk-action');
 
     // ── Promotions Manager ───────────────────────────────────────────────
     Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');

@@ -106,6 +106,44 @@
         </div>
     </div>
 
+    {{-- ENTERPRISE BULK ACTIONS BAR (Appears dynamically when 1+ users checked) --}}
+    <div id="bulkActionBar" class="card shadow-sm border-0 mb-3" style="display:none; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color:#ffffff; border-radius:6px; box-shadow:0 4px 16px rgba(15,23,42,0.18);">
+        <div class="card-body py-2.5 px-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-primary text-white px-2.5 py-1.5" id="bulkSelectedCountBadge" style="font-size:12px; font-weight:700; border-radius:4px;">0 Selected</span>
+                <span style="font-size:13px; font-weight:600; color:#e2e8f0;">Bulk Actions:</span>
+            </div>
+            
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <button type="button" class="btn btn-sm btn-success fw-bold text-white px-3 shadow-sm d-inline-flex align-items-center gap-1.5" onclick="submitBulkAction('activate')" style="height:32px; font-size:12px; border-radius:4px;">
+                    <i class="fa-solid fa-user-check"></i> Activate Selected
+                </button>
+                <button type="button" class="btn btn-sm btn-danger fw-bold text-white px-3 shadow-sm d-inline-flex align-items-center gap-1.5" onclick="submitBulkAction('ban')" style="height:32px; font-size:12px; border-radius:4px;">
+                    <i class="fa-solid fa-ban"></i> Ban Selected
+                </button>
+                <button type="button" class="btn btn-sm btn-info fw-bold text-white px-3 shadow-sm d-inline-flex align-items-center gap-1.5" onclick="submitBulkAction('make_vendor')" style="height:32px; font-size:12px; border-radius:4px;">
+                    <i class="fa-solid fa-user-gear"></i> Make Vendor
+                </button>
+                <button type="button" class="btn btn-sm btn-light fw-bold text-dark px-3 shadow-sm d-inline-flex align-items-center gap-1.5" onclick="submitBulkAction('make_customer')" style="height:32px; font-size:12px; border-radius:4px;">
+                    <i class="fa-solid fa-user"></i> Make Customer
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-danger fw-bold px-3 shadow-sm d-inline-flex align-items-center gap-1.5" onclick="submitBulkAction('delete')" style="height:32px; font-size:12px; border-radius:4px; border-color:#f87171; color:#fca5a5;">
+                    <i class="fa-solid fa-trash-can"></i> Delete
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-light text-white px-2.5" onclick="clearAllSelections()" style="height:32px; font-size:12px; border-radius:4px;" title="Cancel Selection">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {{-- Hidden form for Bulk Actions submission --}}
+    <form id="bulkActionForm" method="POST" action="{{ route('admin.users.bulk-action') }}" style="display:none;">
+        @csrf
+        <input type="hidden" name="action" id="bulkActionInput">
+        <div id="bulkUserIdsContainer"></div>
+    </form>
+
     {{-- SAAS DATA TABLE CARD --}}
     <div class="data-table-card p-0" style="border-radius:4px; border:1px solid #e2e8f0; background:#ffffff;">
         <div class="saas-table-toolbar" style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
@@ -132,7 +170,7 @@
                 <tbody>
                 @forelse($users as $u)
                     <tr>
-                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
+                        <td style="text-align:center;"><input type="checkbox" class="tbl-row-check tbl-select-checkbox" value="{{ $u->id }}" onchange="updateRowHighlight(this)"></td>
                         <td>
                             <div class="d-flex align-items-center gap-2.5">
                                 @if($u->avatar)
@@ -407,6 +445,98 @@ function openEditUserModal(id, name, email, phone, role, status) {
     document.getElementById('editUserRole').value  = role;
     document.getElementById('editUserStatus').value= status || 'active';
     new bootstrap.Modal(document.getElementById('editUserModal')).show();
+}
+
+function updateBulkBar() {
+    const checkedBoxes = document.querySelectorAll('.tbl-row-check:checked');
+    const count = checkedBoxes.length;
+    const bar = document.getElementById('bulkActionBar');
+    const badge = document.getElementById('bulkSelectedCountBadge');
+    
+    if (bar && badge) {
+        if (count > 0) {
+            bar.style.display = 'block';
+            badge.textContent = count + ' Selected';
+        } else {
+            bar.style.display = 'none';
+            const masterCheck = document.querySelector('.tbl-master-check');
+            if (masterCheck) masterCheck.checked = false;
+        }
+    }
+}
+
+function toggleAllRows(tableId, masterCheck) {
+    const checkboxes = document.querySelectorAll('#' + tableId + ' .tbl-row-check');
+    checkboxes.forEach(cb => {
+        cb.checked = masterCheck.checked;
+        const tr = cb.closest('tr');
+        if (tr) {
+            tr.style.backgroundColor = masterCheck.checked ? 'rgba(32, 103, 225, 0.06)' : '';
+        }
+    });
+    updateBulkBar();
+}
+
+function updateRowHighlight(cb) {
+    const tr = cb.closest('tr');
+    if (tr) {
+        tr.style.backgroundColor = cb.checked ? 'rgba(32, 103, 225, 0.06)' : '';
+    }
+    updateBulkBar();
+}
+
+function clearAllSelections() {
+    document.querySelectorAll('.tbl-row-check').forEach(cb => {
+        cb.checked = false;
+        const tr = cb.closest('tr');
+        if (tr) tr.style.backgroundColor = '';
+    });
+    const masterCheck = document.querySelector('.tbl-master-check');
+    if (masterCheck) masterCheck.checked = false;
+    updateBulkBar();
+}
+
+function submitBulkAction(actionType) {
+    const checkedBoxes = document.querySelectorAll('.tbl-row-check:checked');
+    if (checkedBoxes.length === 0) {
+        alert('Please select at least one user.');
+        return;
+    }
+
+    let confirmMsg = 'Are you sure you want to perform this action on ' + checkedBoxes.length + ' selected user(s)?';
+    if (actionType === 'ban') {
+        confirmMsg = 'Are you sure you want to BAN and BLOCK ' + checkedBoxes.length + ' selected user account(s)?';
+    } else if (actionType === 'delete') {
+        confirmMsg = 'WARNING: Are you sure you want to PERMANENTLY DELETE ' + checkedBoxes.length + ' selected user account(s)? This cannot be undone.';
+    }
+
+    if (!confirm(confirmMsg)) {
+        return;
+    }
+
+    const form = document.getElementById('bulkActionForm');
+    document.getElementById('bulkActionInput').value = actionType;
+    const container = document.getElementById('bulkUserIdsContainer');
+    container.innerHTML = '';
+
+    checkedBoxes.forEach(cb => {
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'user_ids[]';
+        hidden.value = cb.value;
+        container.appendChild(hidden);
+    });
+
+    form.submit();
+}
+
+function filterTableSearch(tableId, query) {
+    const term = query.toLowerCase().trim();
+    const rows = document.querySelectorAll('#' + tableId + ' tbody tr');
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(term) ? '' : 'none';
+    });
 }
 </script>
 @endsection

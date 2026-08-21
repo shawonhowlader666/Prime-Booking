@@ -11,24 +11,7 @@ class AccountingLedger extends Model
 {
     protected $table = 'accounting_ledgers';
 
-    protected $fillable = [
-        'txn_reference',
-        'type',
-        'category',
-        'booking_id',
-        'vendor_id',
-        'property_id',
-        'user_id',
-        'gross_amount',
-        'commission_amount',
-        'gateway_fee',
-        'net_amount',
-        'payment_method',
-        'currency',
-        'status',
-        'description',
-        'metadata',
-    ];
+    protected $guarded = ['id'];
 
     protected $casts = [
         'gross_amount'      => 'decimal:2',

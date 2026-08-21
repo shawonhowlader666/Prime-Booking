@@ -992,21 +992,21 @@
                 <div class="collapse {{ $isPropActive ? 'show' : '' }}" id="menuVendorProps">
                     <div class="sb-sub-menu">
                         <a href="{{ route('vendor.properties.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.index') ? 'active' : '' }}">
-                            <i class="fa-solid fa-list me-1" style="font-size:11px;"></i> Property List
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property List
                             @if($vendorPropsCount > 0)
                                 <span style="margin-left:auto; background:rgba(24,144,255,0.25); color:#91caff; font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px;">{{ $vendorPropsCount }}</span>
                             @endif
                         </a>
                         <a href="{{ route('vendor.properties.create') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.create','vendor.property.create') ? 'active' : '' }}">
-                            <i class="fa-solid fa-plus me-1" style="font-size:11px;"></i> Add Property
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Add Property
                         </a>
                         @if($firstVendorProp)
                         <a href="{{ route('vendor.rooms.index', $firstVendorProp->id) }}" class="sb-sub-item {{ request()->routeIs('vendor.rooms.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-bed me-1" style="font-size:11px;"></i> Room Categories
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Room Categories
                         </a>
                         @endif
                         <a href="{{ route('vendor.availability.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.availability.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-calendar-days me-1" style="font-size:11px;"></i> Rates &amp; Availability
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rates &amp; Availability
                         </a>
                     </div>
                 </div>

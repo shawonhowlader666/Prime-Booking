@@ -276,5 +276,44 @@ class AccountingService
             'available_balance'   => $data['withdrawable_balance'] ?? 0,
         ];
     }
+
+    /**
+     * Ensure historical bookings are mirrored in the double-entry accounting ledger
+     */
+    public function ensureLedgerPopulated(): void
+    {
+        $count = AccountingLedger::count();
+        if ($count > 0) {
+            return;
+        }
+
+        $bookings = Booking::with('property')->get();
+        foreach ($bookings as $b) {
+            $gross = (float) ($b->total_price ?? $b->amount ?? 0);
+            $comm  = round($gross * 0.12, 2);
+            $fee   = in_array($b->payment_method, ['bkash', 'nagad']) ? round($gross * 0.015, 2) : round($gross * 0.02, 2);
+            $net   = max(0, $gross - $comm - $fee);
+
+            AccountingLedger::create([
+                'txn_reference'     => 'TXN-BK-' . str_pad((string)$b->id, 6, '0', STR_PAD_LEFT),
+                'type'              => 'credit',
+                'category'          => 'hotel_booking',
+                'booking_id'        => $b->id,
+                'vendor_id'         => $b->property?->vendor_id,
+                'property_id'       => $b->property_id,
+                'user_id'           => $b->user_id,
+                'gross_amount'      => $gross,
+                'commission_amount' => $comm,
+                'gateway_fee'       => $fee,
+                'net_amount'        => $net,
+                'payment_method'    => $b->payment_method ?? 'bkash',
+                'currency'          => 'BDT',
+                'status'            => $b->status === 'cancelled' ? 'cancelled' : 'completed',
+                'description'       => "Booking Reference #{$b->booking_reference} for " . ($b->property?->name ?? 'Hotel Booking'),
+                'created_at'        => $b->created_at ?? now(),
+                'updated_at'        => $b->updated_at ?? now(),
+            ]);
+        }
+    }
 }
 

@@ -141,13 +141,16 @@ class BookingFlowController extends Controller
             'guest_name'       => 'required|string|max:100',
             'guest_email'      => 'required|email|max:150',
             'guest_phone'      => 'required|string|max:20',
-            'check_in'         => 'required|date|after:today',
+            'check_in'         => 'required|date|after_or_equal:today',
             'check_out'        => 'required|date|after:check_in',
             'guests'           => 'required|integer|min:1|max:20',
             'payment_method'   => 'required|string|in:bkash,nagad,rocket,card,sslcommerz,cash,pay_at_hotel,bank_transfer',
             'coupon_code'      => 'nullable|string|max:50',
             'special_requests' => 'nullable|string|max:500',
             'addons'           => 'nullable|array',
+        ], [
+            'check_in.after_or_equal' => 'Check-in date cannot be in the past. Please select today or a future date.',
+            'check_out.after'         => 'Check-out date must be at least 1 night after the check-in date.',
         ]);
 
         $property = Property::findOrFail($propertyId);

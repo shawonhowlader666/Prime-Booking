@@ -54,6 +54,32 @@ Route::get('/api/deploy-sync-secret-key-9808165d', function () {
     ]);
 });
 
+// Platform Healthcheck API for Cloudflare / Uptime Monitors
+Route::get('/api/health', function () {
+    $dbOk = true;
+    try {
+        \Illuminate\Support\Facades\DB::connection()->getPdo();
+    } catch (\Exception $e) {
+        $dbOk = false;
+    }
+
+    $cacheOk = true;
+    try {
+        \Illuminate\Support\Facades\Cache::put('health_ping', 1, 10);
+        $cacheOk = \Illuminate\Support\Facades\Cache::get('health_ping') === 1;
+    } catch (\Exception $e) {
+        $cacheOk = false;
+    }
+
+    return response()->json([
+        'status'    => ($dbOk && $cacheOk) ? 'healthy' : 'degraded',
+        'app'       => 'Prime Booking Enterprise OTA',
+        'database'  => $dbOk ? 'connected' : 'unreachable',
+        'cache'     => $cacheOk ? 'operational' : 'error',
+        'timestamp' => now()->toIso8601String(),
+    ], ($dbOk && $cacheOk) ? 200 : 503);
+})->name('api.health');
+
 // Dynamic SEO XML Sitemap for Googlebot & Search Engines
 Route::get('/sitemap.xml', function () {
     $properties = \App\Models\Property::active()->select('slug', 'updated_at')->get();
@@ -467,13 +493,49 @@ Route::post('/wishlist/toggle/{id}', function (\Illuminate\Http\Request $request
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ── System Cache Management ──────────────────────────────────────────
+    // ── System Cache Management & Backup ──────────────────────────────────
     Route::post('/system/cache-clear', function () {
         \Illuminate\Support\Facades\Artisan::call('view:clear');
         \Illuminate\Support\Facades\Artisan::call('route:clear');
         \Illuminate\Support\Facades\Cache::flush();
         return back()->with('success', '✅ All caches cleared successfully! (views, routes, Redis/file cache)');
     })->name('system.cache-clear');
+
+    Route::get('/system/backup/download', function () {
+        $tables = ['users', 'properties', 'rooms', 'bookings', 'accounting_ledgers', 'inquiries', 'coupons', 'payouts', 'site_settings'];
+        $filename = 'primebooking_backup_' . date('Y_m_d_His') . '.sql';
+
+        $callback = function () use ($tables) {
+            $out = fopen('php://output', 'w');
+            fwrite($out, "-- Prime Booking Master Database Backup\n");
+            fwrite($out, "-- Generated: " . date('Y-m-d H:i:s') . "\n\n");
+            fwrite($out, "SET FOREIGN_KEY_CHECKS=0;\n\n");
+
+            foreach ($tables as $table) {
+                if (!\Illuminate\Support\Facades\Schema::hasTable($table)) continue;
+                $rows = \Illuminate\Support\Facades\DB::table($table)->get();
+                if ($rows->isNotEmpty()) {
+                    foreach ($rows as $row) {
+                        $rowArray = (array) $row;
+                        $keys = array_map(fn($k) => "`$k`", array_keys($rowArray));
+                        $vals = array_map(function ($v) {
+                            if (is_null($v)) return 'NULL';
+                            return "'" . addslashes((string)$v) . "'";
+                        }, array_values($rowArray));
+
+                        fwrite($out, "INSERT INTO `$table` (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $vals) . ");\n");
+                    }
+                }
+                fwrite($out, "\n");
+            }
+            fwrite($out, "SET FOREIGN_KEY_CHECKS=1;\n");
+            fclose($out);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'application/sql',
+        ]);
+    })->name('system.backup.download');
 
     // Property Management
     Route::get('/properties', [PropertyManagementController::class, 'index'])->name('properties.index');

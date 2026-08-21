@@ -1883,13 +1883,16 @@
                 <i class="fa-solid fa-shield-halved"></i> <span>Activity Audit Logs</span>
             </a>
 
-            <div class="pt-3 pb-1">
-                <form action="/admin/system/cache-clear" method="POST" style="padding:0 12px;">
+            <div class="pt-3 pb-1" style="padding:0 12px;">
+                <form action="/admin/system/cache-clear" method="POST" class="mb-1">
                     @csrf
                     <button type="submit" class="sb-nav-item border-0 w-100" style="background:rgba(255,255,255,0.04); border-radius:4px; font-size:12px; cursor:pointer;" onclick="return confirm('Clear all Redis/file caches?')">
                         <i class="fa-solid fa-rotate text-warning me-2"></i> <span>Flush System Cache</span>
                     </button>
                 </form>
+                <a href="{{ route('admin.system.backup.download') }}" class="sb-nav-item border-0 w-100 d-flex align-items-center" style="background:rgba(255,255,255,0.04); border-radius:4px; font-size:12px; text-decoration:none; color:rgba(255,255,255,0.75);">
+                    <i class="fa-solid fa-download text-success me-2"></i> <span>Download DB Backup</span>
+                </a>
             </div>
 
             <div class="sb-section-header">Live Site</div>

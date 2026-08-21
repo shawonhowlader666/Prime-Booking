@@ -28,10 +28,10 @@
 .form-control-pro:focus { border-color: #2067e1; box-shadow: 0 0 0 3px rgba(32,103,225,0.1); outline: none; }
 
 /* Payment method selector */
-.pay-option { border: 2px solid #e2e8f0; border-radius: 12px; padding: 14px 16px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; gap: 12px; }
-.pay-option:hover { border-color: #2067e1; background: #f0f6ff; }
-.pay-option.selected { border-color: #2067e1; background: #f0f6ff; }
-.pay-option input[type=radio] { display: none; }
+.pay-option { border: 2px solid #e2e8f0; background: #ffffff; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); display: flex; align-items: center; gap: 14px; user-select: none; position: relative; }
+.pay-option:hover { border-color: #93c5fd; background: #f8faff; transform: translateY(-1px); }
+.pay-option.selected { border-color: #2067e1 !important; background: #f0f7ff !important; box-shadow: 0 0 0 3px rgba(32, 103, 225, 0.18), 0 4px 12px rgba(32, 103, 225, 0.08) !important; }
+.pay-option input[type=radio] { accent-color: #2067e1; width: 18px; height: 18px; cursor: pointer; flex-shrink: 0; }
 .pay-logo { width: 44px; height: 28px; object-fit: contain; border-radius: 4px; }
 
 /* Order summary box */
@@ -250,8 +250,8 @@
                 <div class="d-flex flex-column gap-3" id="paymentOptions">
                     
                     {{-- 1. bKash Mobile Banking --}}
-                    <label class="pay-option selected position-relative d-flex align-items-center gap-3" id="pay_label_bkash" style="border: 2px solid #2067e1; background: #f8faff; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s;">
-                        <input type="radio" name="payment_method" value="bkash" id="pay_bkash" checked style="width:18px; height:18px; accent-color:#e2136e; flex-shrink:0;">
+                    <label class="pay-option selected" id="pay_label_bkash" onclick="setPaymentMethod('bkash')">
+                        <input type="radio" name="payment_method" value="bkash" id="pay_bkash" checked>
                         {{-- Authentic Official bKash Vector Logo Badge --}}
                         <div style="width:72px; height:40px; background:#e2136e; border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(226,19,110,0.28); padding:4px;">
                             <svg viewBox="0 0 110 60" width="58" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -275,8 +275,8 @@
                     </label>
 
                     {{-- 2. Nagad Digital Financial Service --}}
-                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_nagad" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
-                        <input type="radio" name="payment_method" value="nagad" id="pay_nagad" style="width:18px; height:18px; accent-color:#f7941d; flex-shrink:0;">
+                    <label class="pay-option" id="pay_label_nagad" onclick="setPaymentMethod('nagad')">
+                        <input type="radio" name="payment_method" value="nagad" id="pay_nagad">
                         {{-- Authentic Official Nagad Vector Logo Badge --}}
                         <div style="width:72px; height:40px; background:linear-gradient(135deg, #f7941d 0%, #ed1c24 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(247,148,29,0.28); padding:4px;">
                             <svg viewBox="0 0 120 60" width="58" height="32" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -299,8 +299,8 @@
                     </label>
 
                     {{-- 3. Debit & Credit Cards (Visa, Mastercard, Amex, UnionPay) --}}
-                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_card" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
-                        <input type="radio" name="payment_method" value="card" id="pay_card" style="width:18px; height:18px; accent-color:#1a1f36; flex-shrink:0;">
+                    <label class="pay-option" id="pay_label_card" onclick="setPaymentMethod('card')">
+                        <input type="radio" name="payment_method" value="card" id="pay_card">
                         {{-- Authentic Combined Cards Vector Badge --}}
                         <div style="width:72px; height:40px; background:#0f172a; border-radius:8px; display:flex; align-items:center; justify-content:center; gap:4px; flex-shrink:0; box-shadow:0 3px 8px rgba(15,23,42,0.25); padding:3px 6px;">
                             <svg viewBox="0 0 36 22" width="28" height="17" fill="none">
@@ -333,8 +333,8 @@
                     </label>
 
                     {{-- 4. SSLCommerz Internet Banking & Multi-Bank --}}
-                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_ssl" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
-                        <input type="radio" name="payment_method" value="sslcommerz" id="pay_ssl" style="width:18px; height:18px; accent-color:#006eb4; flex-shrink:0;">
+                    <label class="pay-option" id="pay_label_ssl" onclick="setPaymentMethod('sslcommerz')">
+                        <input type="radio" name="payment_method" value="sslcommerz" id="pay_ssl">
                         {{-- Authentic Official SSLCommerz Logo Badge --}}
                         <div style="width:72px; height:40px; background:linear-gradient(135deg, #005691 0%, #0077b6 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(0,110,180,0.28); padding:4px;">
                             <div class="d-flex align-items-center gap-1">
@@ -355,8 +355,8 @@
                     </label>
 
                     {{-- 5. Pay at Hotel / Cash on Arrival --}}
-                    <label class="pay-option position-relative d-flex align-items-center gap-3" id="pay_label_cash" style="border: 1.5px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; cursor: pointer; transition: all 0.2s; background:#ffffff;">
-                        <input type="radio" name="payment_method" value="cash" id="pay_cash" style="width:18px; height:18px; accent-color:#16a34a; flex-shrink:0;">
+                    <label class="pay-option" id="pay_label_cash" onclick="setPaymentMethod('cash')">
+                        <input type="radio" name="payment_method" value="cash" id="pay_cash">
                         {{-- Emerald Hotel Reception Badge --}}
                         <div style="width:72px; height:40px; background:linear-gradient(135deg, #059669 0%, #10b981 100%); border-radius:8px; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 3px 8px rgba(16,185,129,0.28);">
                             <i class="fa-solid fa-hotel text-white fs-5"></i>
@@ -653,13 +653,60 @@
         useRewardsToggle.addEventListener('change', recalculate);
     }
 
-    // Payment Option Card Selection
+    // ── Payment Option Card Selection ────────────────────────────────────
+    window.setPaymentMethod = function(methodCode) {
+        document.querySelectorAll('.pay-option').forEach(function(card) {
+            card.classList.remove('selected');
+            const radio = card.querySelector('input[type="radio"]');
+            if (radio) {
+                if (radio.value === methodCode) {
+                    radio.checked = true;
+                    card.classList.add('selected');
+                } else {
+                    radio.checked = false;
+                }
+            }
+        });
+
+        const submitBtn = document.getElementById('placeOrderBtn');
+        if (submitBtn) {
+            if (methodCode === 'cash') {
+                submitBtn.innerHTML = '<i class="fa-solid fa-hotel me-2"></i> Confirm Booking — Pay at Hotel (0% Advance)';
+                submitBtn.style.backgroundColor = '#16a34a';
+            } else if (methodCode === 'bkash') {
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock me-2"></i> Proceed with bKash Checkout';
+                submitBtn.style.backgroundColor = '#e2136e';
+            } else if (methodCode === 'nagad') {
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock me-2"></i> Proceed with Nagad Checkout';
+                submitBtn.style.backgroundColor = '#f7941d';
+            } else if (methodCode === 'card') {
+                submitBtn.innerHTML = '<i class="fa-solid fa-credit-card me-2"></i> Pay with Debit / Credit Card';
+                submitBtn.style.backgroundColor = '#2067e1';
+            } else if (methodCode === 'sslcommerz') {
+                submitBtn.innerHTML = '<i class="fa-solid fa-building-columns me-2"></i> Pay with Internet Banking (SSLCommerz)';
+                submitBtn.style.backgroundColor = '#006eb4';
+            } else {
+                submitBtn.innerHTML = '<i class="fa-solid fa-lock me-2"></i> Confirm &amp; Complete Booking';
+                submitBtn.style.backgroundColor = '#2067e1';
+            }
+        }
+    };
+
+    // Attach click listener to all cards
     document.querySelectorAll('.pay-option').forEach(function(card) {
-        card.addEventListener('change', function() {
-            document.querySelectorAll('.pay-option').forEach(el => el.classList.remove('selected'));
-            this.closest('.pay-option').classList.add('selected');
+        card.addEventListener('click', function(e) {
+            const radio = this.querySelector('input[type="radio"]');
+            if (radio) {
+                setPaymentMethod(radio.value);
+            }
         });
     });
+
+    // Auto-init state on load
+    const checkedInit = document.querySelector('input[name="payment_method"]:checked');
+    if (checkedInit) {
+        setPaymentMethod(checkedInit.value);
+    }
 
     document.querySelectorAll('.addon-check').forEach(function(cb) {
         cb.addEventListener('change', function() {

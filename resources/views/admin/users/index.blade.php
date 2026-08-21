@@ -180,69 +180,86 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            {{-- Omni-Channel Quick Action Hub --}}
-                            <div class="d-inline-flex align-items-center gap-1 me-1">
+                            <div class="d-inline-flex align-items-center gap-1.5">
+                                {{-- Only Direct Call button outside if phone exists --}}
                                 @if($u->phone)
-                                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', $u->phone) }}" class="btn btn-sm btn-light border text-success shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px;" title="Direct Call ({{ $u->phone }})">
-                                        <i class="fa-solid fa-phone" style="font-size:12px;"></i>
-                                    </a>
-                                    <a href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $u->phone) }}?text=Hello%20{{ urlencode($u->name) }},%20greetings%20from%20Prime%20Booking!" target="_blank" class="btn btn-sm btn-light border text-success shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px; color:#25D366 !important;" title="WhatsApp Chat">
-                                        <i class="fa-brands fa-whatsapp" style="font-size:13.5px;"></i>
-                                    </a>
-                                    <a href="sms:{{ preg_replace('/[^0-9+]/', '', $u->phone) }}?body=Hello%20{{ urlencode($u->name) }},%20Prime%20Booking%20update:" class="btn btn-sm btn-light border text-primary shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px;" title="SIM SMS">
-                                        <i class="fa-solid fa-comment-sms" style="font-size:12px;"></i>
+                                    <a href="tel:{{ preg_replace('/[^0-9+]/', '', $u->phone) }}" class="btn btn-sm btn-light border text-success shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:32px; height:32px; border-radius:6px; background:#f0fdf4; border-color:#bbf7d0 !important;" title="Direct Call ({{ $u->phone }})">
+                                        <i class="fa-solid fa-phone" style="font-size:12.5px; color:#16a34a;"></i>
                                     </a>
                                 @endif
-                                <a href="mailto:{{ $u->email }}?subject=Prime%20Booking%20Support&body=Dear%20{{ urlencode($u->name) }}," class="btn btn-sm btn-light border text-danger shadow-none p-0 d-inline-flex align-items-center justify-content-center" style="width:30px; height:30px; border-radius:4px;" title="Send Email / Gmail">
-                                    <i class="fa-solid fa-envelope" style="font-size:12px;"></i>
-                                </a>
-                            </div>
 
-                            <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
-                                    <i class="fa-solid fa-gear"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.users.show', $u->id) }}">
-                                            <i class="fa-solid fa-eye text-primary me-2"></i> View Profile &amp; History
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <button type="button" class="dropdown-item py-1.5 px-3 text-dark"
-                                            onclick="openEditUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->email) }}', '{{ addslashes($u->phone ?? '') }}', '{{ $u->role }}', '{{ $u->status ?? 'active' }}')">
-                                            <i class="fa-solid fa-user-pen text-warning me-2"></i> Quick Edit Account
-                                        </button>
-                                    </li>
-                                    @if($u->role === 'customer')
-                                    <li>
-                                        <form action="{{ route('admin.users.promote-vendor', $u->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-info">
-                                                <i class="fa-solid fa-user-gear me-2"></i> Promote to Vendor
+                                {{-- Settings Gear Dropdown containing All Options & Ban Button --}}
+                                <div class="dropdown action-gear-dropdown d-inline-block">
+                                    <button class="btn btn-light btn-sm action-gear-btn shadow-none border" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:6px; background:#f8fafc; color:#475569; border-color:#e2e8f0 !important;" title="Settings &amp; Actions">
+                                        <i class="fa-solid fa-gear"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="min-width:215px; border-radius:8px; font-size:12.5px; border:1px solid #e2e8f0; padding:6px 0; z-index:1050;">
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3" href="{{ route('admin.users.show', $u->id) }}">
+                                                <i class="fa-solid fa-eye text-primary me-2"></i> View Profile &amp; History
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item py-1.5 px-3 text-dark"
+                                                onclick="openEditUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->email) }}', '{{ addslashes($u->phone ?? '') }}', '{{ $u->role }}', '{{ $u->status ?? 'active' }}')">
+                                                <i class="fa-solid fa-user-pen text-warning me-2"></i> Quick Edit Account
                                             </button>
-                                        </form>
-                                    </li>
-                                    @endif
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    <li>
-                                        @if($u->status == 'banned')
-                                        <form action="{{ route('admin.users.activate', $u->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-success">
-                                                <i class="fa-solid fa-user-check me-2"></i> Activate Account
-                                            </button>
-                                        </form>
-                                        @else
-                                        <form action="{{ route('admin.users.ban', $u->id) }}" method="POST" class="m-0" onsubmit="return confirm('Ban user {{ $u->name }}?')">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
-                                                <i class="fa-solid fa-ban me-2"></i> Ban Account
-                                            </button>
-                                        </form>
+                                        </li>
+
+                                        {{-- Contact Channels inside Settings --}}
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li class="dropdown-header text-uppercase text-muted" style="font-size:10px; font-weight:700; letter-spacing:0.5px; padding:4px 16px 2px;">Messaging &amp; Contact</li>
+                                        @if($u->phone)
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-success" href="https://wa.me/{{ preg_replace('/[^0-9]/', '', $u->phone) }}?text=Hello%20{{ urlencode($u->name) }},%20greetings%20from%20Prime%20Booking!" target="_blank">
+                                                <i class="fa-brands fa-whatsapp me-2" style="color:#25D366;"></i> WhatsApp Chat
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-info" href="sms:{{ preg_replace('/[^0-9+]/', '', $u->phone) }}?body=Hello%20{{ urlencode($u->name) }},%20Prime%20Booking%20update:">
+                                                <i class="fa-solid fa-comment-sms me-2"></i> Send Mobile SMS
+                                            </a>
+                                        </li>
                                         @endif
-                                    </li>
-                                </ul>
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-secondary" href="mailto:{{ $u->email }}?subject=Prime%20Booking%20Support&body=Dear%20{{ urlencode($u->name) }},">
+                                                <i class="fa-solid fa-envelope me-2 text-danger"></i> Send Email ({{ $u->email }})
+                                            </a>
+                                        </li>
+
+                                        @if($u->role === 'customer')
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <form action="{{ route('admin.users.promote-vendor', $u->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-info">
+                                                    <i class="fa-solid fa-user-gear me-2"></i> Promote to Vendor
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @endif
+
+                                        {{-- 100% Functional Ban / Unban Button --}}
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            @if($u->status == 'banned')
+                                            <form action="{{ route('admin.users.activate', $u->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-success fw-bold">
+                                                    <i class="fa-solid fa-user-check me-2"></i> Unban &amp; Activate Account
+                                                </button>
+                                            </form>
+                                            @else
+                                            <form action="{{ route('admin.users.ban', $u->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to BAN user {{ addslashes($u->name) }} ({{ $u->email }})?')">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-danger fw-bold">
+                                                    <i class="fa-solid fa-ban me-2"></i> Ban &amp; Block Account
+                                                </button>
+                                            </form>
+                                            @endif
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </td>
                     </tr>

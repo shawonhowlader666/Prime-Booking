@@ -107,6 +107,8 @@ files_to_sync = [
     "resources/views/admin/properties/create.blade.php",
     "resources/views/admin/properties/edit.blade.php",
     "resources/views/admin/properties/index.blade.php",
+    "resources/views/admin/users/index.blade.php",
+    "resources/views/admin/users/show.blade.php",
 ]
 
 print("\n📦 Ensuring SFTP Direct Sync of Critical Files...", flush=True)

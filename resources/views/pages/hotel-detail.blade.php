@@ -515,6 +515,9 @@
                             <i class="fa-brands fa-whatsapp fs-6"></i> <span>WhatsApp Front Desk</span>
                         </a>
                         @endif
+                        <button type="button" class="btn btn-sm btn-outline-primary fw-bold d-inline-flex align-items-center gap-1.5 px-3 py-1 shadow-xs" data-bs-toggle="modal" data-bs-target="#hotelInquiryModal" style="font-size:12px; border-radius:4px;" title="Send direct question or special request to property">
+                            <i class="fa-solid fa-comments"></i> <span>Message Hotel Front Desk</span>
+                        </button>
                         <span class="badge bg-light text-dark border px-2.5 py-1.5 d-inline-flex align-items-center gap-1" style="font-size:11px; font-weight:600;">
                             <i class="fa-solid fa-mobile-screen text-danger"></i> bKash &amp; Nagad Instant
                         </span>
@@ -3759,5 +3762,87 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 </div>
+
+{{-- HOTEL FRONT DESK INQUIRY MODAL (Agoda-Style Direct Messaging) --}}
+<div class="modal fade" id="hotelInquiryModal" tabindex="-1" aria-labelledby="hotelInquiryModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:6px; border:1px solid #cbd5e1; box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px; background:#f8fafc;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width:36px; height:36px; font-size:15px;">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                    <div>
+                        <h6 class="modal-title fw-bold text-dark mb-0" id="hotelInquiryModalLabel" style="font-size:15px;">
+                            Message {{ $property->name }} Front Desk
+                        </h6>
+                        <small class="text-muted" style="font-size:11.5px;">Direct communication with property manager</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form action="{{ route('hotels.inquire', $property->id) }}" method="POST">
+                @csrf
+                <div class="modal-body" style="padding:20px;">
+                    {{-- Quick Prompt Chips --}}
+                    <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">Quick Questions / Topics</label>
+                    <div class="d-flex flex-wrap gap-1.5 mb-3">
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setInquiryText('Is early check-in or late check-out available for my booking dates?')" style="font-size:11px; border-radius:4px; padding:3px 8px;">
+                            🕒 Early Check-In
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setInquiryText('Do you provide airport shuttle / transfer pickup service and what is the fee?')" style="font-size:11px; border-radius:4px; padding:3px 8px;">
+                            🚗 Airport Shuttle
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setInquiryText('What is your married couple policy and what ID documents are required at check-in?')" style="font-size:11px; border-radius:4px; padding:3px 8px;">
+                            💍 Couple &amp; Family Policy
+                        </button>
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setInquiryText('Is complimentary breakfast included in the room rate?')" style="font-size:11px; border-radius:4px; padding:3px 8px;">
+                            🍳 Free Breakfast Info
+                        </button>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">Your Message / Question <span class="text-danger">*</span></label>
+                        <textarea name="message" id="inquiryMessageField" class="form-control" rows="3" required placeholder="Type your question for the hotel front desk..." style="font-size:13px; border-radius:4px;"></textarea>
+                    </div>
+
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-6">
+                            <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">Your Full Name <span class="text-danger">*</span></label>
+                            <input type="text" name="name" class="form-control" value="{{ auth()->user()?->name ?? '' }}" required placeholder="e.g. Rahim Ahmed" style="font-size:12.5px; height:36px; border-radius:4px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">Mobile Phone <span class="text-danger">*</span></label>
+                            <input type="text" name="phone" class="form-control" value="{{ auth()->user()?->phone ?? '' }}" required placeholder="017XXXXXXXX" style="font-size:12.5px; height:36px; border-radius:4px;">
+                        </div>
+                    </div>
+
+                    <div class="mb-2">
+                        <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">Email Address (Optional)</label>
+                        <input type="email" name="email" class="form-control" value="{{ auth()->user()?->email ?? '' }}" placeholder="your-email@example.com" style="font-size:12.5px; height:36px; border-radius:4px;">
+                    </div>
+                </div>
+
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px; background:#f8fafc;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:12.5px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold text-white d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">
+                        <i class="fa-solid fa-paper-plane"></i> Send to Hotel Desk
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function setInquiryText(text) {
+    const el = document.getElementById('inquiryMessageField');
+    if (el) {
+        el.value = text;
+        el.focus();
+    }
+}
+</script>
 @endsection
 

@@ -393,11 +393,12 @@ class VendorController extends Controller
         $vendorId    = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
-        // Inquiries from recent bookings — use booking contact info as inquiry proxy
-        $inquiries = Booking::whereIn('property_id', $propertyIds)
+        $inquiries = \App\Models\Inquiry::where(function($q) use ($vendorId, $propertyIds) {
+                $q->where('vendor_id', $vendorId)
+                  ->orWhereIn('property_id', $propertyIds);
+            })
             ->with('property:id,name,city')
-            ->where(fn($q) => $q->where('status', 'pending')->orWhere('booking_status', 'pending'))
-            ->latest()
+            ->latest('id')
             ->paginate(20);
 
         return view('vendor.inquiries', compact('inquiries'));
@@ -405,7 +406,18 @@ class VendorController extends Controller
 
     public function replyInquiry(Request $request, $id)
     {
-        return back()->with('success', 'Reply sent to guest successfully.');
+        $request->validate([
+            'reply' => 'required|string|max:1000',
+        ]);
+
+        $inquiry = \App\Models\Inquiry::findOrFail($id);
+        $inquiry->update([
+            'reply'      => $request->reply,
+            'status'     => 'answered',
+            'replied_at' => now(),
+        ]);
+
+        return back()->with('success', 'Reply transmitted to guest (' . $inquiry->name . ' - ' . $inquiry->phone . ') successfully.');
     }
 
     // ── My Profile & Settings ──────────────────────────────────

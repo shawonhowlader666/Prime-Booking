@@ -60,6 +60,19 @@ class AccountingController extends Controller
     }
 
     /**
+     * Official Printable Statement with QR Code
+     */
+    public function printVendorStatement($vendorId): View
+    {
+        $vendor     = \App\Models\User::where('role', 'vendor')->findOrFail($vendorId);
+        $properties = \App\Models\Property::where('vendor_id', $vendorId)->get();
+        $finance    = $this->accountingService->getSingleVendorAccounting((int)$vendorId);
+        $ledgers    = \App\Models\AccountingLedger::where('vendor_id', $vendorId)->latest('id')->get();
+
+        return view('pages.vendor-statement-print', compact('vendor', 'properties', 'finance', 'ledgers'));
+    }
+
+    /**
      * High-Speed CSV Stream Export for General Ledger
      */
     public function exportLedger(Request $request): StreamedResponse

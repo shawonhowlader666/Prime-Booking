@@ -36,4 +36,18 @@ class VendorAccountingController extends Controller
 
         return view('vendor.accounts.index', compact('finance', 'ledgers', 'recentPayouts'));
     }
+
+    /**
+     * Official Printable Statement with QR Code for Vendor
+     */
+    public function printStatement(): View
+    {
+        $vendorId   = (int) auth()->id();
+        $vendor     = auth()->user();
+        $properties = \App\Models\Property::where('vendor_id', $vendorId)->get();
+        $finance    = $this->accountingService->getSingleVendorAccounting($vendorId);
+        $ledgers    = \App\Models\AccountingLedger::where('vendor_id', $vendorId)->latest('id')->get();
+
+        return view('pages.vendor-statement-print', compact('vendor', 'properties', 'finance', 'ledgers'));
+    }
 }

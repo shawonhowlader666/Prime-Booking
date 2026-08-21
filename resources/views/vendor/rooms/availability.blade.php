@@ -35,8 +35,8 @@
                 <i class="fa-solid fa-print me-1"></i> Print
             </button>
             @if($selectedRoom)
-                <button type="button" class="btn-add-primary ms-1" data-bs-toggle="modal" data-bs-target="#batchUpdateModal">
-                    <i class="fa-solid fa-sliders me-1"></i> Bulk Range Update
+                <button type="button" class="btn btn-warning fw-bold text-dark d-inline-flex align-items-center gap-1 ms-1" data-bs-toggle="modal" data-bs-target="#weekendSurgeModal" style="font-size:12px; height:32px; border-radius:4px; padding:0 12px; border:none; box-shadow:0 1px 3px rgba(0,0,0,0.1);">
+                    <i class="fa-solid fa-bolt text-dark"></i> Weekend Surge (+15%)
                 </button>
             @endif
         </div>
@@ -1276,5 +1276,100 @@ function showLiveToast(message) {
         toast.style.transform = 'translateY(10px)';
     }, 3500);
 }
+
+function updateSurgeCalc() {
+    const base = {{ (float)($selectedRoom->price_per_night ?? 0) }};
+    const pct = parseFloat(document.getElementById('surgePctInput')?.value || 15);
+    const calculated = Math.round(base * (1 + (pct / 100)));
+    const target = document.getElementById('surgeCalculatedPrice');
+    if (target) {
+        target.innerText = '৳ ' + calculated.toLocaleString();
+    }
+}
+function setSurgeChip(val) {
+    const inp = document.getElementById('surgePctInput');
+    if (inp) {
+        inp.value = val;
+        updateSurgeCalc();
+    }
+}
 </script>
+
+@if($selectedRoom)
+{{-- DYNAMIC WEEKEND SURGE PRICING MODAL --}}
+<div class="modal fade" id="weekendSurgeModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:6px; border:1px solid #cbd5e1; box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px; background:#fffdf5;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="rounded-circle bg-warning text-dark d-flex align-items-center justify-content-center" style="width:36px; height:36px; font-size:15px;">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div>
+                        <h6 class="modal-title fw-bold text-dark mb-0" style="font-size:15px;">
+                            Dynamic Weekend Surge Yield Engine
+                        </h6>
+                        <small class="text-muted" style="font-size:11.5px;">Auto-boost room rates on peak Fridays &amp; Saturdays</small>
+                    </div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <form action="{{ route('vendor.availability.weekend-surge') }}" method="POST">
+                @csrf
+                <input type="hidden" name="room_id" value="{{ $selectedRoom->id }}">
+
+                <div class="modal-body" style="padding:20px;">
+                    <div class="p-2.5 bg-light rounded border mb-3 d-flex align-items-center justify-content-between">
+                        <div>
+                            <strong class="text-dark d-block" style="font-size:13px;">{{ $selectedRoom->name }}</strong>
+                            <small class="text-muted">Standard Base Rate: <strong>৳ {{ number_format($selectedRoom->price_per_night) }}</strong> / night</small>
+                        </div>
+                        <div class="text-end">
+                            <span class="text-muted d-block" style="font-size:11px;">NEW WEEKEND RATE:</span>
+                            <strong id="surgeCalculatedPrice" class="text-warning text-dark fw-bold" style="font-size:15px; color:#d97706 !important;">
+                                ৳ {{ number_format(round($selectedRoom->price_per_night * 1.15)) }}
+                            </strong>
+                        </div>
+                    </div>
+
+                    {{-- Quick Surge Chips --}}
+                    <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">Surge Multiplier</label>
+                    <div class="d-flex flex-wrap gap-1.5 mb-3">
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setSurgeChip(10)" style="font-size:11px; border-radius:4px; padding:3px 10px;">+10%</button>
+                        <button type="button" class="btn btn-sm btn-warning text-dark fw-bold" onclick="setSurgeChip(15)" style="font-size:11px; border-radius:4px; padding:3px 10px;">+15% (Recommended)</button>
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setSurgeChip(20)" style="font-size:11px; border-radius:4px; padding:3px 10px;">+20%</button>
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setSurgeChip(25)" style="font-size:11px; border-radius:4px; padding:3px 10px;">+25%</button>
+                        <button type="button" class="btn btn-sm btn-light border text-dark fw-semibold" onclick="setSurgeChip(30)" style="font-size:11px; border-radius:4px; padding:3px 10px;">+30% Peak</button>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">Surge Percentage (%) <span class="text-danger">*</span></label>
+                        <input type="number" name="surge_percentage" id="surgePctInput" class="form-control" value="15" min="1" max="100" required oninput="updateSurgeCalc()" style="font-size:13px; height:36px; border-radius:4px;">
+                    </div>
+
+                    <div class="row g-2.5 mb-2">
+                        <div class="col-6">
+                            <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">Start Date <span class="text-danger">*</span></label>
+                            <input type="date" name="start_date" class="form-control" value="{{ now()->format('Y-m-d') }}" required style="font-size:12.5px; height:36px; border-radius:4px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label mb-1" style="font-size:12px; font-weight:700; color:#1e293b;">End Date <span class="text-danger">*</span></label>
+                            <input type="date" name="end_date" class="form-control" value="{{ now()->addDays(30)->format('Y-m-d') }}" required style="font-size:12.5px; height:36px; border-radius:4px;">
+                        </div>
+                    </div>
+                    <small class="text-muted" style="font-size:11px;"><i class="fa-solid fa-info-circle me-1"></i> Will only modify Fridays and Saturdays in the selected date range.</small>
+                </div>
+
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px; background:#f8fafc;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:12.5px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-warning fw-bold text-dark d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px;">
+                        <i class="fa-solid fa-bolt"></i> Apply Weekend Surge Now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
 @endsection

@@ -94,6 +94,8 @@ Route::get('/property/{slug}/preview', [\App\Http\Controllers\Web\PropertyPrevie
 Route::get('/property/{slug}/brochure', [PropertyDetailController::class, 'brochure'])->name('property.brochure');
 Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store');
 Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store');
+Route::post('/hotels/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('hotels.inquire');
+Route::post('/property/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('property.inquire');
 
 // Informational & Marketing Static Routes
 Route::get('/about', fn() => view('pages.about'))->name('about');
@@ -521,6 +523,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::get('/accounts/ledger', [App\Http\Controllers\Admin\AccountingController::class, 'ledger'])->name('accounts.ledger');
     Route::get('/accounts/ledger/export', [App\Http\Controllers\Admin\AccountingController::class, 'exportLedger'])->name('accounts.ledger.export');
     Route::get('/accounts/vendor-statements', [App\Http\Controllers\Admin\AccountingController::class, 'vendorStatements'])->name('accounts.vendor-statements');
+    Route::get('/accounts/vendor-statements/{vendorId}/print', [App\Http\Controllers\Admin\AccountingController::class, 'printVendorStatement'])->name('accounts.vendor-statements.print');
 
     // ── Promotions Manager ───────────────────────────────────────────────
     Route::get('/promotions', [PromotionController::class, 'index'])->name('promotions.index');
@@ -717,8 +720,9 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::post('/bookings/{id}/payment',       [VendorDashboardController::class, 'updatePaymentStatus'])->name('bookings.update-payment');
 
     // ── Earnings & Accounts ──────────────────────────────────────
-    Route::get('/accounts',        [App\Http\Controllers\Vendor\VendorAccountingController::class, 'index'])->name('accounts.index');
-    Route::get('/earnings',        [VendorDashboardController::class, 'earnings'])->name('earnings');
+    Route::get('/accounts',                 [App\Http\Controllers\Vendor\VendorAccountingController::class, 'index'])->name('accounts.index');
+    Route::get('/accounts/statement/print', [App\Http\Controllers\Vendor\VendorAccountingController::class, 'printStatement'])->name('accounts.statement.print');
+    Route::get('/earnings',                 [VendorDashboardController::class, 'earnings'])->name('earnings');
     Route::get('/earnings/export', [App\Http\Controllers\Vendor\PayoutRequestController::class, 'exportCsv'])->name('earnings.export');
 
     // ── Property CRUD ──────────────────────────────────────────
@@ -741,6 +745,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     // ── Rates & Calendar ───────────────────────────────────────
     Route::get('/availability',                  [RoomAvailabilityController::class, 'index'])->name('availability.index');
     Route::post('/availability/update-range',    [RoomAvailabilityController::class, 'updateRange'])->name('availability.update-range');
+    Route::post('/availability/weekend-surge',   [RoomAvailabilityController::class, 'applyWeekendSurge'])->name('availability.weekend-surge');
 
     // ── Promotions ─────────────────────────────────────────────
     Route::get('/promotions',                 [VendorPromotionController::class, 'index'])->name('promotions.index');

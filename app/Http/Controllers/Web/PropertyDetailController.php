@@ -184,5 +184,36 @@ class PropertyDetailController extends Controller
 
         return view('pages.hotel-brochure-print', compact('property'));
     }
+
+    /**
+     * Submit Guest Inquiry to Hotel Front Desk
+     */
+    public function submitInquiry(Request $request, int|string $id): RedirectResponse
+    {
+        $request->validate([
+            'name'    => 'required|string|max:100',
+            'phone'   => 'required|string|max:20',
+            'email'   => 'nullable|email|max:100',
+            'message' => 'required|string|max:1000',
+        ]);
+
+        $property = is_numeric($id) ? Property::find($id) : Property::where('slug', $id)->first();
+
+        \App\Models\Inquiry::create([
+            'property_id'  => $property?->id,
+            'vendor_id'    => $property?->vendor_id,
+            'name'         => $request->name,
+            'phone'        => $request->phone,
+            'email'        => $request->email,
+            'service_type' => $request->input('service_type', 'Hotel Question & Policy'),
+            'destination'  => $property?->city ?? 'Dhaka',
+            'travel_date'  => $request->input('travel_date', date('Y-m-d')),
+            'passengers'   => (int) $request->input('passengers', 1),
+            'message'      => $request->message,
+            'status'       => 'pending',
+        ]);
+
+        return back()->with('success', 'Your inquiry has been directly sent to ' . ($property?->name ?? 'the hotel front desk') . '. You will receive a quick reply.');
+    }
 }
 

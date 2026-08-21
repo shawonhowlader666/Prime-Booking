@@ -22,6 +22,9 @@
             </div>
 
             <div class="d-flex align-items-center gap-2 flex-wrap">
+                <a href="{{ route('vendor.accounts.statement.print') }}" target="_blank" class="btn btn-outline-dark fw-bold d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px;">
+                    <i class="fa-solid fa-print"></i> Print Official Statement
+                </a>
                 <a href="{{ route('vendor.payouts.index') }}" class="btn btn-primary fw-bold text-white d-inline-flex align-items-center gap-1.5" style="font-size:12.5px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">
                     <i class="fa-solid fa-money-bill-transfer"></i> Request Withdrawal Payout
                 </a>

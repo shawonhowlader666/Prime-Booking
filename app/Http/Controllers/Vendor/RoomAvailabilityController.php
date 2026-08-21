@@ -155,4 +155,62 @@ class RoomAvailabilityController extends Controller
 
         return back()->with('success', '✅ Room rates & availability updated successfully for selected date range!');
     }
+
+    /**
+     * Apply Dynamic Weekend Surge Pricing (Fri & Sat +X%)
+     */
+    public function applyWeekendSurge(Request $request)
+    {
+        $vendorId = auth()->id();
+        abort_unless($vendorId, 403, 'Unauthorized vendor access.');
+
+        $validated = $request->validate([
+            'room_id'          => 'required|exists:rooms,id',
+            'start_date'       => 'required|date',
+            'end_date'         => 'required|date|after_or_equal:start_date',
+            'surge_percentage' => 'required|numeric|min:1|max:100',
+        ]);
+
+        $room = Room::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
+            ->where('id', $validated['room_id'])
+            ->firstOrFail();
+
+        $start      = Carbon::parse($validated['start_date']);
+        $end        = Carbon::parse($validated['end_date']);
+        $basePrice  = (float) $room->price_per_night;
+        $surgePct   = (float) $validated['surge_percentage'];
+        $surgePrice = round($basePrice * (1 + ($surgePct / 100)));
+
+        $records = [];
+        $now = now();
+        for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
+            // In Bangladesh / International Hospitality, Friday (5) & Saturday (6) are peak weekends
+            if ($date->isFriday() || $date->isSaturday()) {
+                $records[] = [
+                    'room_id'       => $room->id,
+                    'date'          => $date->format('Y-m-d'),
+                    'price'         => $surgePrice,
+                    'is_blocked'    => false,
+                    'created_at'    => $now,
+                    'updated_at'    => $now,
+                ];
+            }
+        }
+
+        if (!empty($records)) {
+            RoomAvailability::upsert(
+                $records,
+                ['room_id', 'date'],
+                ['price', 'is_blocked', 'updated_at']
+            );
+        }
+
+        // Invalidate cache
+        for ($d = 0; $d <= 30; $d++) {
+            $dayKey = Carbon::now()->subDays($d)->format('Ymd');
+            Cache::forget("vendor:{$vendorId}:room:{$room->id}:{$dayKey}:30");
+        }
+
+        return back()->with('success', "⚡ Applied +{$surgePct}% Weekend Surge Rate (৳" . number_format($surgePrice) . "/night) on " . count($records) . " weekend days!");
+    }
 }

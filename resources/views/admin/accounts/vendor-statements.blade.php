@@ -93,9 +93,14 @@
                             @endif
                         </td>
                         <td style="padding:12px 16px; text-align:center;">
-                            <a href="{{ route('admin.accounts.ledger', ['vendor_id' => $v->id]) }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size:11.5px; border-radius:3px; height:28px; padding:2px 10px;" title="View Vendor Ledger">
-                                <i class="fa-solid fa-list me-1"></i> Ledger
-                            </a>
+                            <div class="d-flex align-items-center justify-content-center gap-1">
+                                <a href="{{ route('admin.accounts.ledger', ['vendor_id' => $v->id]) }}" class="btn btn-sm btn-outline-primary fw-bold" style="font-size:11.5px; border-radius:3px; height:28px; padding:2px 8px;" title="View Vendor Ledger">
+                                    <i class="fa-solid fa-list me-1"></i> Ledger
+                                </a>
+                                <a href="{{ route('admin.accounts.vendor-statements.print', $v->id) }}" target="_blank" class="btn btn-sm btn-outline-dark fw-bold" style="font-size:11.5px; border-radius:3px; height:28px; padding:2px 8px;" title="Print Official Statement">
+                                    <i class="fa-solid fa-print me-1"></i> Statement
+                                </a>
+                            </div>
                         </td>
                     </tr>
                     @empty

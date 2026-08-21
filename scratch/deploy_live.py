@@ -117,9 +117,15 @@ files_to_sync = [
     "resources/views/admin/accounts/ledger.blade.php",
     "resources/views/admin/accounts/vendor-statements.blade.php",
     "resources/views/vendor/accounts/index.blade.php",
+    "resources/views/pages/vendor-statement-print.blade.php",
+    "resources/views/vendor/inquiries.blade.php",
+    "resources/views/vendor/rooms/availability.blade.php",
+    "app/Http/Controllers/Vendor/RoomAvailabilityController.php",
+    "app/Models/Inquiry.php",
     "resources/views/layouts/admin.blade.php",
     "resources/views/layouts/vendor.blade.php",
     "database/migrations/2026_08_21_163500_create_accounting_ledgers_table.php",
+    "database/migrations/2026_08_21_165500_add_property_and_reply_to_inquiries_table.php",
 ]
 
 print("\n📦 Ensuring SFTP Direct Sync of Critical Files...", flush=True)

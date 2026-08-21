@@ -261,6 +261,45 @@ class AccountingService
     }
 
     /**
+     * Record Refund / Cancellation in Double-Entry General Ledger
+     */
+    public static function recordRefundLedger(Booking $b, ?float $amount = null, string $reason = 'Booking Cancelled / Refunded'): AccountingLedger
+    {
+        $refundAmount = $amount ?? (float) ($b->total_price ?? $b->amount ?? 0);
+        $vendorId = $b->property?->vendor_id;
+
+        // Invalidate finance caches
+        \Illuminate\Support\Facades\Cache::forget('finance_overview_kpis_all');
+        if ($vendorId) {
+            \Illuminate\Support\Facades\Cache::forget("vendor_finance_{$vendorId}");
+        }
+
+        return AccountingLedger::create([
+            'txn_reference'     => 'TXN-RF-' . strtoupper(\Illuminate\Support\Str::random(8)),
+            'type'              => 'refund',
+            'category'          => 'booking_refund',
+            'booking_id'        => $b->id,
+            'vendor_id'         => $vendorId,
+            'property_id'       => $b->property_id,
+            'user_id'           => $b->user_id,
+            'gross_amount'      => $refundAmount,
+            'commission_amount' => round($refundAmount * 0.12, 2),
+            'gateway_fee'       => 0.00,
+            'net_amount'        => round($refundAmount * 0.88, 2),
+            'payment_method'    => $b->payment_method ?? 'bkash',
+            'currency'          => 'BDT',
+            'status'            => 'completed',
+            'description'       => "Refund: {$reason} (Ref #{$b->booking_reference})",
+            'metadata'          => [
+                'refund_reason' => $reason,
+                'initiated_by'  => auth()->user()?->name ?? 'Administrator',
+            ],
+            'created_at'        => now(),
+            'updated_at'        => now(),
+        ]);
+    }
+
+    /**
      * Record Manual Transaction / Commission Adjustment / Direct Bank or Cash Deposit
      */
     public function recordManualEntry(array $data): AccountingLedger

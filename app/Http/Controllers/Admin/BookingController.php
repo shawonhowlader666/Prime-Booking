@@ -90,7 +90,8 @@ class BookingController extends Controller
             'status' => 'required|string|in:pending,confirmed,cancelled,completed,refunded',
         ]);
 
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with('property')->findOrFail($id);
+        $oldStatus = $booking->status;
         
         // Synchronize both column aliases to prevent legacy view mismatches
         $booking->update([
@@ -98,7 +99,14 @@ class BookingController extends Controller
             'status'         => $request->status,
         ]);
 
-        return back()->with('success', 'Reservation status updated to ' . ucfirst($request->status) . ' successfully.');
+        // Auto-sync accounting ledger
+        if (in_array($request->status, ['cancelled', 'refunded']) && !in_array($oldStatus, ['cancelled', 'refunded'])) {
+            \App\Services\AccountingService::recordRefundLedger($booking, null, 'Status updated to ' . $request->status);
+        } elseif (in_array($request->status, ['confirmed', 'completed']) && in_array($booking->payment_status, ['paid', 'completed'])) {
+            \App\Services\AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
+        }
+
+        return back()->with('success', 'Reservation status updated to ' . ucfirst($request->status) . ' and ledger synced successfully.');
     }
 
     public function updatePayment(Request $request, $id)
@@ -107,10 +115,18 @@ class BookingController extends Controller
             'payment_status' => 'required|string|in:pending,paid,refunded,failed,unpaid',
         ]);
 
-        $booking = Booking::findOrFail($id);
+        $booking = Booking::with('property')->findOrFail($id);
+        $oldPayment = $booking->payment_status;
         $booking->update(['payment_status' => $request->payment_status]);
 
-        return back()->with('success', 'Payment status updated to ' . ucfirst($request->payment_status) . ' successfully.');
+        // Auto-sync accounting ledger
+        if ($request->payment_status === 'paid' && $oldPayment !== 'paid') {
+            \App\Services\AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
+        } elseif ($request->payment_status === 'refunded' && $oldPayment !== 'refunded') {
+            \App\Services\AccountingService::recordRefundLedger($booking, null, 'Payment marked as Refunded');
+        }
+
+        return back()->with('success', 'Payment status updated to ' . ucfirst($request->payment_status) . ' and ledger synced successfully.');
     }
 
     public function exportCsv(Request $request)

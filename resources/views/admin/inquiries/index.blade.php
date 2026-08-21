@@ -157,8 +157,13 @@
                             </span>
                         </td>
                         <td>
+                            @if(!empty($inq->property))
+                                <span class="badge bg-light text-success border d-block mb-1" style="font-weight:700; font-size:11px; text-align:left;">
+                                    <i class="fa-solid fa-hotel me-1"></i>{{ $inq->property->name }}
+                                </span>
+                            @endif
                             <span class="badge bg-light text-primary border" style="font-weight:700; font-size:11px;">
-                                <i class="fa-solid fa-plane-departure me-1"></i>{{ $inq->service_type ?? 'General' }}
+                                <i class="fa-solid fa-tag me-1"></i>{{ $inq->service_type ?? 'General' }}
                             </span>
                         </td>
                         <td style="font-size:12.5px; color:#334155; font-weight:600;">

@@ -11,7 +11,7 @@ class InquiryManagementController extends Controller
     public function index(Request $request)
     {
         try {
-            $query = Inquiry::latest();
+            $query = Inquiry::with(['property:id,name,city', 'vendor:id,name,email'])->latest('id');
 
             if ($request->filled('service_type') && $request->service_type !== 'all') {
                 $query->where('service_type', $request->service_type);

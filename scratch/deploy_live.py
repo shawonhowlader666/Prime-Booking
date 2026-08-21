@@ -124,6 +124,8 @@ files_to_sync = [
     "app/Models/Inquiry.php",
     "resources/views/layouts/admin.blade.php",
     "resources/views/layouts/vendor.blade.php",
+    "resources/views/admin/inquiries/index.blade.php",
+    "app/Http/Controllers/Admin/InquiryManagementController.php",
     "database/migrations/2026_08_21_163500_create_accounting_ledgers_table.php",
     "database/migrations/2026_08_21_165500_add_property_and_reply_to_inquiries_table.php",
 ]

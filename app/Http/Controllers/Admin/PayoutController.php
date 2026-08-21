@@ -83,17 +83,34 @@ class PayoutController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $request->validate([
-            'status'           => 'required|in:pending,paid,rejected',
-            'reference_number' => 'nullable|string|max:100',
-        ]);
+        $rules = [
+            'status' => 'required|in:pending,paid,rejected',
+        ];
+
+        // Reference number is MANDATORY when approving a payout — prevents undocumented transfers
+        if ($request->status === 'paid') {
+            $rules['reference_number'] = 'required|string|min:5|max:100';
+        } else {
+            $rules['reference_number'] = 'nullable|string|max:100';
+        }
+
+        $request->validate($rules);
 
         $payout = Payout::findOrFail($id);
         $oldStatus = $payout->status;
-        $payout->update([
+
+        $updateData = [
             'status'           => $request->status,
             'reference_number' => $request->reference_number ?? $payout->reference_number,
-        ]);
+        ];
+
+        // Track who processed this and when
+        if ($request->status === 'paid' && $oldStatus !== 'paid') {
+            $updateData['processed_by'] = auth()->user()->name ?? 'Administrator';
+            $updateData['processed_at'] = now();
+        }
+
+        $payout->update($updateData);
 
         // Auto-record payout debit transaction in general ledger
         if ($request->status === 'paid' && $oldStatus !== 'paid') {

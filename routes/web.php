@@ -164,7 +164,7 @@ Route::post('/inquiries/store', [InquiryController::class, 'store'])->name('inqu
 Route::get('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
 Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->name('booking.form');
-Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->name('booking.store');
+Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->middleware('throttle:30,1')->name('booking.store');
 Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.confirmation');
 Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher');
 Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher.download');
@@ -172,7 +172,7 @@ Route::get('/booking/invoice/{reference}', [BookingFlowController::class, 'downl
 Route::get('/booking/invoice/{reference}/download', [BookingFlowController::class, 'downloadInvoice'])->name('booking.invoice.download');
 Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('booking.history');
 Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->name('booking.cancel');
-Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->name('coupon.validate');
+Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->middleware('throttle:60,1')->name('coupon.validate');
 
 // Legacy WooCommerce / WordPress Product URL Auto-Redirect to Prime Booking Checkout
 Route::any('/product/{slug?}', function (\Illuminate\Http\Request $request, $slug = null) {
@@ -465,17 +465,19 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
     })->name('reviews.vote');
 });
 
-// Payment Gateway Routes (bKash & SSLCommerz Sandbox/Live)
-Route::get('/payment/bkash/sandbox/{reference}', [PaymentCallbackController::class, 'bkashSandboxRedirect'])->name('payment.bkash.sandbox-redirect');
-Route::post('/payment/bkash/sandbox-execute/{reference}', [PaymentCallbackController::class, 'bkashSandboxExecute'])->name('payment.bkash.sandbox-execute');
-Route::match(['get', 'post'], '/payment/bkash/callback', [PaymentCallbackController::class, 'bkashCallback'])->name('payment.bkash.callback');
+// Payment Gateway Routes (bKash & SSLCommerz Sandbox/Live - Rate-Limited)
+Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('/payment/bkash/sandbox/{reference}', [PaymentCallbackController::class, 'bkashSandboxRedirect'])->name('payment.bkash.sandbox-redirect');
+    Route::post('/payment/bkash/sandbox-execute/{reference}', [PaymentCallbackController::class, 'bkashSandboxExecute'])->name('payment.bkash.sandbox-execute');
+    Route::match(['get', 'post'], '/payment/bkash/callback', [PaymentCallbackController::class, 'bkashCallback'])->name('payment.bkash.callback');
 
-Route::get('/payment/ssl/sandbox/{reference}', [PaymentCallbackController::class, 'sslSandboxRedirect'])->name('payment.ssl.sandbox-redirect');
-Route::post('/payment/ssl/sandbox-execute/{reference}', [PaymentCallbackController::class, 'sslSandboxExecute'])->name('payment.ssl.sandbox-execute');
-Route::post('/payment/ssl/success', [PaymentCallbackController::class, 'sslSuccess'])->name('payment.ssl.success');
-Route::post('/payment/ssl/fail', [PaymentCallbackController::class, 'sslFail'])->name('payment.ssl.fail');
-Route::post('/payment/ssl/cancel', [PaymentCallbackController::class, 'sslCancel'])->name('payment.ssl.cancel');
-Route::post('/payment/ssl/ipn', [PaymentCallbackController::class, 'sslIpn'])->name('payment.ssl.ipn');
+    Route::get('/payment/ssl/sandbox/{reference}', [PaymentCallbackController::class, 'sslSandboxRedirect'])->name('payment.ssl.sandbox-redirect');
+    Route::post('/payment/ssl/sandbox-execute/{reference}', [PaymentCallbackController::class, 'sslSandboxExecute'])->name('payment.ssl.sandbox-execute');
+    Route::post('/payment/ssl/success', [PaymentCallbackController::class, 'sslSuccess'])->name('payment.ssl.success');
+    Route::post('/payment/ssl/fail', [PaymentCallbackController::class, 'sslFail'])->name('payment.ssl.fail');
+    Route::post('/payment/ssl/cancel', [PaymentCallbackController::class, 'sslCancel'])->name('payment.ssl.cancel');
+    Route::post('/payment/ssl/ipn', [PaymentCallbackController::class, 'sslIpn'])->name('payment.ssl.ipn');
+});
 
 // Wishlist & Favorites Routes
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
@@ -583,7 +585,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     // ── Master Financial Accounts & General Ledger ─────────────────────
     Route::get('/accounts', [App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounts.index');
     Route::get('/accounts/ledger', [App\Http\Controllers\Admin\AccountingController::class, 'ledger'])->name('accounts.ledger');
-    Route::post('/accounts/manual-entry', [App\Http\Controllers\Admin\AccountingController::class, 'storeManualEntry'])->name('accounts.manual-entry');
+    Route::post('/accounts/manual-entry', [App\Http\Controllers\Admin\AccountingController::class, 'storeManualEntry'])->middleware('throttle:30,1')->name('accounts.manual-entry');
     Route::get('/accounts/ledger/export', [App\Http\Controllers\Admin\AccountingController::class, 'exportLedger'])->name('accounts.ledger.export');
     Route::get('/accounts/vendor-statements', [App\Http\Controllers\Admin\AccountingController::class, 'vendorStatements'])->name('accounts.vendor-statements');
     Route::get('/accounts/vendor-statements/{vendorId}/print', [App\Http\Controllers\Admin\AccountingController::class, 'printVendorStatement'])->name('accounts.vendor-statements.print');
@@ -832,7 +834,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
 
     // ── Payouts ────────────────────────────────────────────────
     Route::get('/payouts',    [App\Http\Controllers\Vendor\PayoutRequestController::class, 'index'])->name('payouts.index');
-    Route::post('/payouts',   [App\Http\Controllers\Vendor\PayoutRequestController::class, 'store'])->name('payouts.store');
+    Route::post('/payouts',   [App\Http\Controllers\Vendor\PayoutRequestController::class, 'store'])->middleware('throttle:15,1')->name('payouts.store');
 
     // ── SaaS Plans ─────────────────────────────────────────────
     Route::get('/plans',           [SubscriptionController::class, 'index'])->name('plans.index');

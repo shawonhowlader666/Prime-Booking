@@ -111,17 +111,19 @@ try {
     echo "  ✅ Gateway Processing Fee (1.5%): BDT " . number_format($ledger->gateway_fee, 2) . " (Expected: 236.25)\n";
     echo "  ✅ 88% Vendor Net Earning: BDT " . number_format($ledger->net_amount, 2) . " (Expected: 13,623.75)\n\n";
 
-    // Assertions
-    $expectedCommission = round($total * 0.12, 2);
+    // Assertions — use the property's actual commission_rate (dynamic, not hardcoded 12%)
+    $propertyCommissionRate = (float) ($property->commission_rate ?? 12.0);
+    $expectedCommission = round($total * ($propertyCommissionRate / 100), 2);
     $expectedGatewayFee = round($total * 0.015, 2);
-    $expectedVendorNet = round($total - $expectedCommission - $expectedGatewayFee, 2);
+    $expectedVendorNet  = round($total - $expectedCommission - $expectedGatewayFee, 2);
 
     if (abs($ledger->commission_amount - $expectedCommission) > 0.05) {
-        throw new Exception("Commission mismatch! Expected {$expectedCommission}, got {$ledger->commission_amount}");
+        throw new Exception("Commission mismatch! Expected {$expectedCommission} ({$propertyCommissionRate}%), got {$ledger->commission_amount}");
     }
     if (abs($ledger->net_amount - $expectedVendorNet) > 0.05) {
         throw new Exception("Net vendor earnings mismatch! Expected {$expectedVendorNet}, got {$ledger->net_amount}");
     }
+    echo "  ✅ Commission rate: {$propertyCommissionRate}% (property-specific dynamic rate confirmed)\n\n";
 
     // 5. Vendor Financial Statement & Settlement Verification
     echo "[TEST 5] Verifying Vendor Financial Statement & Available Balance...\n";

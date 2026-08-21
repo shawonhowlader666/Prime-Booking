@@ -68,6 +68,7 @@ class AccountingController extends Controller
             'payment_method'    => 'required|string|max:32',
             'description'       => 'required|string|max:255',
             'notes'             => 'nullable|string|max:500',
+            'created_at'        => 'nullable|date',
         ]);
 
         $this->accountingService->recordManualEntry($validated);
@@ -98,7 +99,7 @@ class AccountingController extends Controller
     }
 
     /**
-     * High-Speed CSV Stream Export for General Ledger
+     * High-Speed CSV Stream Export for General Ledger (Zero-Memory O(1) Cursor Streaming)
      */
     public function exportLedger(Request $request): StreamedResponse
     {
@@ -109,33 +110,17 @@ class AccountingController extends Controller
             'end_date'       => $request->query('end_date'),
         ];
 
-        $ledgers = $this->accountingService->getGeneralLedger($filters, 5000);
-
         $headers = [
             'Content-Type'        => 'text/csv',
             'Content-Disposition' => 'attachment; filename="prime_booking_general_ledger_' . date('Y-m-d') . '.csv"',
+            'Pragma'              => 'no-cache',
+            'Cache-Control'       => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires'             => '0',
         ];
 
-        return response()->stream(function () use ($ledgers) {
+        return response()->stream(function () use ($filters) {
             $handle = fopen('php://output', 'w');
-            fputcsv($handle, ['TXN Ref', 'Type', 'Category', 'Gross (BDT)', 'Commission (BDT)', 'Gateway Fee', 'Net (BDT)', 'Method', 'Status', 'Date', 'Description']);
-
-            foreach ($ledgers as $l) {
-                fputcsv($handle, [
-                    $l->txn_reference,
-                    strtoupper($l->type),
-                    $l->category,
-                    $l->gross_amount,
-                    $l->commission_amount,
-                    $l->gateway_fee,
-                    $l->net_amount,
-                    strtoupper($l->payment_method ?? 'N/A'),
-                    ucfirst($l->status),
-                    $l->created_at ? $l->created_at->format('Y-m-d H:i:s') : '',
-                    $l->description,
-                ]);
-            }
-
+            $this->accountingService->streamLedgerCsv($filters, $handle);
             fclose($handle);
         }, 200, $headers);
     }

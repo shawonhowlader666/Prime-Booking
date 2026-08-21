@@ -110,12 +110,18 @@ files_to_sync = [
     "resources/views/admin/users/index.blade.php",
     "resources/views/admin/users/show.blade.php",
     "app/Http/Controllers/Admin/AccountingController.php",
+    "app/Http/Controllers/Admin/PayoutController.php",
     "app/Http/Controllers/Vendor/VendorAccountingController.php",
     "app/Services/AccountingService.php",
+    "app/Services/PaymentVerificationService.php",
+    "app/Console/Commands/ReEncryptGatewayKeys.php",
     "app/Models/AccountingLedger.php",
+    "app/Models/PaymentGateway.php",
+    "app/Models/PaymentTransaction.php",
     "resources/views/admin/accounts/index.blade.php",
     "resources/views/admin/accounts/ledger.blade.php",
     "resources/views/admin/accounts/vendor-statements.blade.php",
+    "resources/views/admin/payouts/index.blade.php",
     "resources/views/vendor/accounts/index.blade.php",
     "resources/views/pages/vendor-statement-print.blade.php",
     "resources/views/vendor/inquiries.blade.php",
@@ -128,6 +134,9 @@ files_to_sync = [
     "app/Http/Controllers/Admin/InquiryManagementController.php",
     "database/migrations/2026_08_21_163500_create_accounting_ledgers_table.php",
     "database/migrations/2026_08_21_165500_add_property_and_reply_to_inquiries_table.php",
+    "database/migrations/2026_08_21_123601_create_payment_transactions_table.php",
+    "database/migrations/2026_08_21_123639_add_enterprise_columns_to_payouts_table.php",
+    "database/migrations/2026_08_21_134206_add_performance_composite_indexes_to_financial_tables.php",
 ]
 
 print("\n📦 Ensuring SFTP Direct Sync of Critical Files...", flush=True)
@@ -151,6 +160,7 @@ sftp.close()
 print("\n🧹 Running Migrations and clearing Laravel caches on live server...", flush=True)
 commands = [
     f"cd {REMOTE_PATH} && php artisan migrate --force",
+    f"cd {REMOTE_PATH} && php artisan gateways:reencrypt",
     f"cd {REMOTE_PATH} && php artisan view:clear",
     f"cd {REMOTE_PATH} && php artisan cache:clear",
     f"cd {REMOTE_PATH} && php artisan config:clear",

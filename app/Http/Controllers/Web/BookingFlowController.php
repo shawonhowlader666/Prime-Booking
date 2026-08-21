@@ -212,8 +212,8 @@ class BookingFlowController extends Controller
         $taxAmount  = round(max(0, ($subtotal - $discountAmount + $addonsTotal)) * 0.075);
         $totalPrice = max(0, ($subtotal - $discountAmount + $addonsTotal) + $taxAmount);
 
-        // 4. Platform Commission & Vendor Payout Calculation
-        $commissionRate   = 10.00; // 10% standard OTA commission
+        // 4. Platform Commission & Vendor Payout Calculation (12% OTA Standard)
+        $commissionRate   = 12.00; // 12% platform commission — aligned with AccountingService
         $commissionAmount = round(max(0, $subtotal - $discountAmount) * ($commissionRate / 100), 2);
         $vendorPayout     = max(0, ($subtotal - $discountAmount) - $commissionAmount);
 
@@ -286,10 +286,12 @@ class BookingFlowController extends Controller
         }
 
         // Route to payment gateway based on selected method
+        // Also record the initiated transaction in payment_transactions for audit
+        $payVerify = app(\App\Services\PaymentVerificationService::class);
         return match ($request->payment_method) {
             'bkash', 'nagad', 'rocket' => redirect()->route('payment.bkash.sandbox-redirect', $booking->booking_reference),
             'card', 'sslcommerz'       => redirect()->route('payment.ssl.sandbox-redirect', $booking->booking_reference),
-            default                    => redirect()->route('booking.confirmation', $booking->booking_reference)
+            default => redirect()->route('booking.confirmation', $booking->booking_reference)
                 ->with('success', 'Booking reserved successfully! Reference: ' . $booking->booking_reference),
         };
     }

@@ -118,13 +118,13 @@
             <table class="table stockifly-data-table align-middle mb-0" id="vendorLedgerTable">
                 <thead>
                     <tr>
-                        <th style="padding:12px 16px; font-weight:700;">TXN REF</th>
-                        <th style="padding:12px 16px; font-weight:700;">PROPERTY / SOURCE</th>
-                        <th style="padding:12px 16px; font-weight:700; text-align:right;">GROSS SALE</th>
-                        <th style="padding:12px 16px; font-weight:700; text-align:right;">COMMISSION (12%)</th>
-                        <th style="padding:12px 16px; font-weight:700; text-align:right;">NET PAYABLE</th>
-                        <th style="padding:12px 16px; font-weight:700; text-align:center;">METHOD</th>
-                        <th style="padding:12px 16px; font-weight:700; text-align:center;">STATUS</th>
+                        <th>TXN Ref</th>
+                        <th>Hotel / Booking</th>
+                        <th style="text-align:right;">Gross (BDT)</th>
+                        <th style="text-align:right;">Commission (12%)</th>
+                        <th style="text-align:right;">Net Earnings</th>
+                        <th style="text-align:center;">Method</th>
+                        <th style="text-align:center;">Status</th>
                     </tr>
                 </thead>
                 <tbody>

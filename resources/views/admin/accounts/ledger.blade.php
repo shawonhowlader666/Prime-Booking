@@ -99,16 +99,16 @@
             <table class="table table-stockifly mb-0" id="ledgerTable">
                 <thead>
                     <tr>
-                        <th>TXN REFERENCE</th>
-                        <th>TYPE &amp; CATEGORY</th>
-                        <th>SOURCE / VENDOR</th>
-                        <th style="text-align:right;">GROSS (BDT)</th>
-                        <th style="text-align:right;">COMMISSION</th>
-                        <th style="text-align:right;">GATEWAY FEE</th>
-                        <th style="text-align:right;">NET PAYABLE</th>
-                        <th style="text-align:center;">METHOD</th>
-                        <th style="text-align:center;">STATUS</th>
-                        <th style="text-align:right;">ACTIONS</th>
+                        <th>TXN Ref</th>
+                        <th>Type</th>
+                        <th>Hotel / Source</th>
+                        <th style="text-align:right;">Gross (BDT)</th>
+                        <th style="text-align:right;">Commission</th>
+                        <th style="text-align:right;">Fee</th>
+                        <th style="text-align:right;">Net Pay</th>
+                        <th style="text-align:center;">Method</th>
+                        <th style="text-align:center;">Status</th>
+                        <th style="text-align:right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

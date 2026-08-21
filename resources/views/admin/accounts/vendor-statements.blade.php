@@ -103,15 +103,15 @@
             <table class="table table-stockifly mb-0" id="statementsTable">
                 <thead>
                     <tr>
-                        <th>VENDOR PARTNER</th>
-                        <th style="text-align:center;">PROPERTIES</th>
-                        <th style="text-align:center;">BOOKINGS</th>
-                        <th style="text-align:right;">GROSS SALES</th>
-                        <th style="text-align:right;">COMMISSION (12%)</th>
-                        <th style="text-align:right;">NET EARNINGS</th>
-                        <th style="text-align:right;">SETTLED PAID</th>
-                        <th style="text-align:right;">AVAILABLE BALANCE</th>
-                        <th style="text-align:right;">ACTIONS</th>
+                        <th>Vendor</th>
+                        <th style="text-align:center;">Hotels</th>
+                        <th style="text-align:center;">Bookings</th>
+                        <th style="text-align:right;">Gross Sales</th>
+                        <th style="text-align:right;">Commission (12%)</th>
+                        <th style="text-align:right;">Net Pay</th>
+                        <th style="text-align:right;">Paid Out</th>
+                        <th style="text-align:right;">Balance</th>
+                        <th style="text-align:right;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>

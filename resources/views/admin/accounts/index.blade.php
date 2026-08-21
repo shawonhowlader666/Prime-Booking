@@ -151,10 +151,10 @@
                     <table class="table table-stockifly mb-0">
                         <thead>
                             <tr>
-                                <th>REFERENCE</th>
-                                <th>TYPE</th>
-                                <th style="text-align:right;">GROSS</th>
-                                <th style="text-align:right;">COMMISSION</th>
+                                <th>TXN Ref</th>
+                                <th>Type</th>
+                                <th style="text-align:right;">Gross</th>
+                                <th style="text-align:right;">Commission</th>
                             </tr>
                         </thead>
                         <tbody>

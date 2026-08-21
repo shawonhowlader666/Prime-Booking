@@ -27,9 +27,9 @@ class AccountingController extends Controller
 
         $kpis      = $this->accountingService->getOverviewKPIs($startDate, $endDate);
         $chartData = $this->accountingService->getMonthlyPnLChartData($year);
-        $recentTxns= $this->accountingService->getGeneralLedger([], 8);
+        $recentLedgers = $this->accountingService->getGeneralLedger([], 8);
 
-        return view('admin.accounts.index', compact('kpis', 'chartData', 'recentTxns', 'startDate', 'endDate', 'year'));
+        return view('admin.accounts.index', compact('kpis', 'chartData', 'recentLedgers', 'startDate', 'endDate', 'year'));
     }
 
     /**

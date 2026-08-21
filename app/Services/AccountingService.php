@@ -67,6 +67,7 @@ class AccountingService
                 'total_settled_payouts'  => $totalSettledPayouts,
                 'pending_payouts'        => $pendingPayouts,
                 'escrow_vault_balance'   => $escrowVault,
+                'escrow_holding_pool'    => $escrowVault,
             ];
         });
     }

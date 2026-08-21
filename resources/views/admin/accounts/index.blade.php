@@ -71,15 +71,15 @@
         <div class="col-6 col-md-4">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#8c8c8c; font-size:10.5px; font-weight:700;">GROSS TURNOVER (GBV)</p>
-                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#0f172a; margin:0;">৳ {{ number_format($kpis['gross_booking_value'], 2) }}</p>
-                <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-receipt me-1"></i> {{ number_format($kpis['total_orders']) }} Completed Orders</small>
+                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#0f172a; margin:0;">৳ {{ number_format($kpis['gross_booking_value'] ?? 0, 2) }}</p>
+                <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-receipt me-1"></i> {{ number_format($kpis['total_orders'] ?? 0) }} Completed Orders</small>
                 <div class="kpi-accent-bar" style="background:#1890ff;"></div>
             </div>
         </div>
         <div class="col-6 col-md-4">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#28c76f; font-size:10.5px; font-weight:700;">PLATFORM COMMISSION (12%)</p>
-                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#28c76f; margin:0;">৳ {{ number_format($kpis['platform_commission'], 2) }}</p>
+                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#28c76f; margin:0;">৳ {{ number_format($kpis['platform_commission'] ?? 0, 2) }}</p>
                 <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-percentage me-1"></i> 12.00% Standard Service Fee</small>
                 <div class="kpi-accent-bar" style="background:#28c76f;"></div>
             </div>
@@ -87,8 +87,8 @@
         <div class="col-6 col-md-4">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#7367f0; font-size:10.5px; font-weight:700;">NET COMPANY PROFIT</p>
-                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#7367f0; margin:0;">৳ {{ number_format($kpis['net_profit'], 2) }}</p>
-                <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-credit-card me-1"></i> Gateway Fees: ৳ {{ number_format($kpis['gateway_fees'], 2) }}</small>
+                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#7367f0; margin:0;">৳ {{ number_format($kpis['net_profit'] ?? 0, 2) }}</p>
+                <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-credit-card me-1"></i> Gateway Fees: ৳ {{ number_format($kpis['gateway_fees'] ?? 0, 2) }}</small>
                 <div class="kpi-accent-bar" style="background:#7367f0;"></div>
             </div>
         </div>
@@ -99,15 +99,15 @@
         <div class="col-6 col-md-4">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#ff9f43; font-size:10.5px; font-weight:700;">VENDOR NET SHARE (88%)</p>
-                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#ff9f43; margin:0;">৳ {{ number_format($kpis['vendor_payable'], 2) }}</p>
-                <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-money-bill-transfer me-1"></i> Settled: ৳ {{ number_format($kpis['total_settled_payouts'], 2) }}</small>
+                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#ff9f43; margin:0;">৳ {{ number_format($kpis['vendor_payable'] ?? 0, 2) }}</p>
+                <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-money-bill-transfer me-1"></i> Settled: ৳ {{ number_format($kpis['total_settled_payouts'] ?? 0, 2) }}</small>
                 <div class="kpi-accent-bar" style="background:#ff9f43;"></div>
             </div>
         </div>
         <div class="col-6 col-md-4">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#ea5455; font-size:10.5px; font-weight:700;">PENDING PAYOUT QUEUE</p>
-                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#ea5455; margin:0;">৳ {{ number_format($kpis['pending_payouts'], 2) }}</p>
+                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#ea5455; margin:0;">৳ {{ number_format($kpis['pending_payouts'] ?? 0, 2) }}</p>
                 <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-clock-rotate-left me-1"></i> Awaiting Disbursement</small>
                 <div class="kpi-accent-bar" style="background:#ea5455;"></div>
             </div>
@@ -115,7 +115,7 @@
         <div class="col-6 col-md-4">
             <div class="kpi-card" style="padding:16px 20px;">
                 <p class="kpi-label mb-1" style="color:#00cfe8; font-size:10.5px; font-weight:700;">LIQUID ESCROW POOL</p>
-                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#00cfe8; margin:0;">৳ {{ number_format($kpis['escrow_holding_pool'], 2) }}</p>
+                <p class="kpi-value" style="font-size:22px; font-weight:800; color:#00cfe8; margin:0;">৳ {{ number_format($kpis['escrow_holding_pool'] ?? $kpis['escrow_vault_balance'] ?? 0, 2) }}</p>
                 <small class="text-muted d-block mt-1" style="font-size:11px;"><i class="fa-solid fa-shield-halved me-1"></i> Liquid Escrow Balance</small>
                 <div class="kpi-accent-bar" style="background:#00cfe8;"></div>
             </div>

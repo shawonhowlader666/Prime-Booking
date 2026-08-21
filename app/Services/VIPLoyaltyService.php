@@ -30,7 +30,7 @@ class VIPLoyaltyService
         if (!$user) {
             return [
                 'tier' => 'Bronze',
-                'tier_name_full' => 'AgodaVIP Bronze',
+                'tier_name_full' => 'PrimeVIP Bronze',
                 'badge_color' => '#ba6d4a',
                 'discount_percent' => 0.0,
                 'bookings_count' => 0,
@@ -79,35 +79,35 @@ class VIPLoyaltyService
             // Evaluate Tier
             if ($bookingsCount >= $diamondReq && $totalSpend >= $diamondSpend) {
                 $tier = 'Diamond';
-                $tierNameFull = 'AgodaVIP Diamond';
+                $tierNameFull = 'PrimeVIP Diamond';
                 $badgeColor = '#9333ea';
                 $nextTier = null;
                 $bookingsNeeded = 0;
                 $spendNeeded = 0.0;
             } elseif ($bookingsCount >= $platReq || $totalSpend >= $platSpend) {
                 $tier = 'Platinum';
-                $tierNameFull = 'AgodaVIP Platinum';
+                $tierNameFull = 'PrimeVIP Platinum';
                 $badgeColor = '#64748b';
                 $nextTier = 'Diamond';
                 $bookingsNeeded = max(0, $diamondReq - $bookingsCount);
                 $spendNeeded = max(0.0, $diamondSpend - $totalSpend);
             } elseif ($bookingsCount >= $goldReq || $totalSpend >= $goldSpend) {
                 $tier = 'Gold';
-                $tierNameFull = 'AgodaVIP Gold';
+                $tierNameFull = 'PrimeVIP Gold';
                 $badgeColor = '#d97706';
                 $nextTier = 'Platinum';
                 $bookingsNeeded = max(0, $platReq - $bookingsCount);
                 $spendNeeded = max(0.0, $platSpend - $totalSpend);
             } elseif ($bookingsCount >= $silverReq) {
                 $tier = 'Silver';
-                $tierNameFull = 'AgodaVIP Silver';
+                $tierNameFull = 'PrimeVIP Silver';
                 $badgeColor = '#475569';
                 $nextTier = 'Gold';
                 $bookingsNeeded = max(0, $goldReq - $bookingsCount);
                 $spendNeeded = max(0.0, $goldSpend - $totalSpend);
             } else {
                 $tier = 'Bronze';
-                $tierNameFull = 'AgodaVIP Bronze';
+                $tierNameFull = 'PrimeVIP Bronze';
                 $badgeColor = '#ba6d4a';
                 $nextTier = 'Silver';
                 $bookingsNeeded = max(0, $silverReq - $bookingsCount);

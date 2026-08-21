@@ -405,7 +405,7 @@
                 </div>
                 @if(isset($vipDiscountAmount) && $vipDiscountAmount > 0)
                 <div class="summary-row text-success fw-bold" style="background:#f0fdf4; padding:6px 8px; border-radius:6px; border:1px solid #bbf7d0;">
-                    <span><i class="fa-solid fa-crown text-warning me-1"></i> {{ $vipStats['tier_name_full'] ?? 'AgodaVIP' }} ({{ $vipStats['discount_percent'] }}% OFF)</span>
+                    <span><i class="fa-solid fa-crown text-warning me-1"></i> {{ $vipStats['tier_name_full'] ?? 'PrimeVIP' }} ({{ $vipStats['discount_percent'] }}% OFF)</span>
                     <span>- {{ CurrencyService::format($vipDiscountAmount) }}</span>
                 </div>
                 @endif

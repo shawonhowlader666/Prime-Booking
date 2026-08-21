@@ -317,7 +317,7 @@
 
             {{-- Progress Title & Booking Count --}}
             <div class="d-flex align-items-center justify-content-between mb-2">
-                <div class="fw-semibold" style="font-size: 13.5px; color: #475569;">Progress to AgodaVIP Status</div>
+                <div class="fw-semibold" style="font-size: 13.5px; color: #475569;">Progress to PrimeVIP Status</div>
                 <div style="font-size: 13px; color: #1e293b; font-weight: 700;">
                     {{ $userBookings }}/15 bookings completed in last 2 years 
                     <i class="fa-solid fa-circle-info text-secondary ms-1" style="font-size: 12px; cursor: pointer;" title="Completed bookings within the last 24 months count towards VIP tier progression."></i>
@@ -419,9 +419,9 @@
             {{-- Top Content Row --}}
             <div class="row align-items-center p-4 pb-0" style="position: relative; z-index: 2;">
                 <div class="col-md-6 pt-3 ps-4">
-                    <h2 class="fw-bold mb-3" style="font-size: 28px; color: #ffffff !important; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">What is AgodaVIP?</h2>
+                    <h2 class="fw-bold mb-3" style="font-size: 28px; color: #ffffff !important; letter-spacing: -0.3px; text-shadow: 0 1px 2px rgba(0,0,0,0.2);">What is PrimeVIP?</h2>
                     <p style="font-size: 15px; line-height: 1.6; color: #ffffff !important; margin-bottom: 0; max-width: 420px; font-weight: 400; opacity: 0.95;">
-                        AgodaVIP is our loyalty program for rewarding our most loyal customers with amazing deals. Once you qualify, you'll join automatically.
+                        PrimeVIP is our loyalty program for rewarding our most loyal customers with amazing deals. Once you qualify, you'll join automatically.
                     </p>
                 </div>
                 
@@ -499,7 +499,7 @@
         {{-- ── 4. BENEFITS COMPARISON TABLE ── --}}
         <div class="vip-comparison-card">
             <div class="text-center mb-4">
-                <h3 class="fw-bold text-dark mb-2" style="font-size: 22px;">What are the benefits of AgodaVIP?</h3>
+                <h3 class="fw-bold text-dark mb-2" style="font-size: 22px;">What are the benefits of PrimeVIP?</h3>
                 <p class="text-secondary mx-auto mb-0" style="max-width: 700px; font-size: 14.5px; line-height: 1.6;">
                     You get access to exclusive deals, which are highlighted by the 
                     <span class="vip-badge-pill" style="vertical-align: middle; margin: 0 4px;">
@@ -663,7 +663,7 @@
                 {{-- Magnified Deal Card --}}
                 <div class="border rounded-3 p-3 bg-white text-start shadow-sm" style="flex: 1; border-color: #e2e8f0 !important;">
                     <div class="d-flex align-items-center justify-content-between mb-1.5">
-                        <strong style="font-size: 13.5px; color: #1e293b;">Agoda Hotel</strong>
+                        <strong style="font-size: 13.5px; color: #1e293b;">Prime Partner Hotel</strong>
                         <div>
                             <span style="text-decoration: line-through; color: #94a3b8; font-size: 11px;">100</span>
                             <strong style="color: #dc2626; font-size: 16px; margin-left: 4px;">85</strong>
@@ -671,7 +671,7 @@
                     </div>
                     <div class="d-flex align-items-center justify-content-between">
                         <div class="vip-badge-pill" style="height: 16px; font-size: 9.5px;">
-                            <div class="vip-tag" style="padding: 0 4px;">AgodaVIP★</div>
+                            <div class="vip-tag" style="padding: 0 4px;">PrimeVIP★</div>
                         </div>
                         <span class="badge" style="background: #fef2f2; color: #dc2626; border: 1px solid #fee2e2; font-size: 10px; font-weight: 700;">15% OFF</span>
                     </div>
@@ -681,7 +681,7 @@
 
         </div>
 
-        {{-- ── 6. VIP PROGRAM DISCLAIMER ACCORDION (1:1 Agoda Closed by Default) ── --}}
+        {{-- ── 6. VIP PROGRAM DISCLAIMER ACCORDION (1:1 Closed by Default) ── --}}
         <div class="vip-disclaimer-box" style="padding: 14px 20px; border-radius: 8px; background: #ffffff; border: 1px solid #e2e8f0; margin-bottom: 28px;">
             <details class="vip-disclaimer-details">
                 <summary class="d-flex align-items-center justify-content-between fw-bold text-dark" style="cursor: pointer; font-size: 13.5px; outline: none; list-style: none;">
@@ -690,9 +690,9 @@
                 </summary>
                 <div class="mt-2.5 pt-2.5 border-top text-secondary" style="font-size: 12.5px; line-height: 1.6; color: #64748b;">
                     <p class="mb-1.5">The discounts shown in the VIP Program table represent the maximum discount that may be offered to VIP members. The maximum discount possible is not necessarily always offered.</p>
-                    <p class="mb-1.5">VIP discounts apply only to room offers marked with a “VIP” badge. The discount stated represents the final price (after applying any applicable Cashback) to VIP members against the final price (after applying any applicable Cashback) to non-Agoda members by hotels under identical conditions. Cashback refers to the cashback rewards provided by Agoda to bookers as a loyalty gift under the separate Agoda Cashback Rewards Program.</p>
-                    <p class="mb-1.5">Different VIP tiers may receive the same discount for the same room offer. The level of discount will be decided by the participating hotel and/or Agoda.</p>
-                    <p class="mb-0">Please note that the discount available to VIP members under the same booking conditions may also be subject to other applicable promotion offered by Agoda, participating hotels and/or third parties, and other relevant factors as determined by Agoda.</p>
+                    <p class="mb-1.5">VIP discounts apply only to room offers marked with a “VIP” badge. The discount stated represents the final price (after applying any applicable Cashback) to VIP members against the final price to non-VIP members under identical conditions. Cashback refers to the cashback rewards provided by Prime Booking to bookers as a loyalty gift under the Prime Cashback Rewards Program.</p>
+                    <p class="mb-1.5">Different VIP tiers may receive the same discount for the same room offer. The level of discount will be decided by the participating hotel and/or Prime Booking.</p>
+                    <p class="mb-0">Please note that the discount available to VIP members under the same booking conditions may also be subject to other applicable promotion offered by Prime Booking, participating hotels and/or third parties, and other relevant factors as determined by Prime Booking.</p>
                 </div>
             </details>
         </div>

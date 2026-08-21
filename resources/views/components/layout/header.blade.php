@@ -143,17 +143,17 @@
                             <a href="{{ route('trips') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Trips') }}</a>
                             <a href="{{ route('messages') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Property messages') }}</a>
                             
-                            {{-- AgodaCash row with blue pill badge --}}
+                            {{-- PrimeCash row with blue pill badge --}}
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <a href="{{ route('cashback') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('AgodaCash') }}</a>
+                                <a href="{{ route('cashback') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PrimeCash') }}</a>
                                 <span style="background-color: #6366f1; color: #ffffff; font-size: 12px; font-weight: 700; border-radius: 4px; padding: 2px 8px;">{{ $currentCurrency }} 0</span>
                             </div>
 
                             <a href="{{ route('cashback') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Cashback Rewards') }}</a>
 
-                            {{-- AgodaVIP row with dynamic VIP badge --}}
+                            {{-- PrimeVIP row with dynamic VIP badge --}}
                             <div class="d-flex align-items-center justify-content-between mb-3">
-                                <a href="{{ route('vip') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('AgodaVIP') }}</a>
+                                <a href="{{ route('vip') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PrimeVIP') }}</a>
                                 <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 18px; font-size: 10.5px; line-height: 1;">
                                     <div style="background-color: #1e2430; color: #ffffff; padding: 0 6px 0 5px; height: 100%; display: flex; align-items: center; gap: 3px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); padding-right: 9px;">
                                         ★VIP
@@ -198,9 +198,9 @@
                                     <span style="font-size: 13px; font-weight: 500; color: #475569;">{{ $currentCurrency }} &nbsp; <strong>{{ $currentCurrency === 'BDT' ? 'Bangladeshi Taka' : ($currentCurrency === 'USD' ? 'US Dollar' : $currentCurrency) }}</strong></span>
                                 </div>
 
-                                {{-- List your place on Agoda --}}
+                                {{-- List your place on Prime Booking --}}
                                 <div style="background: #fafafa; border-radius: 8px; padding: 10px 12px; margin-top: 12px;">
-                                    <div style="font-size: 13.5px; font-weight: 700; color: #2d2d2d;">List your place on Agoda</div>
+                                    <div style="font-size: 13.5px; font-weight: 700; color: #2d2d2d;">List your place on Prime Booking</div>
                                     <div style="font-size: 11.5px; color: #64748b; margin-bottom: 4px;">Earn money to pay for your travel!</div>
                                     <a href="{{ Route::has('admin.properties.create') ? route('admin.properties.create') : '#' }}" style="font-size: 13px; font-weight: 700; color: #2067e1; text-decoration: none;">List your place</a>
                                 </div>

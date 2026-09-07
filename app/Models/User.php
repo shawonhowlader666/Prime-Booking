@@ -2,157 +2,119 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
+use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
+    /** @use HasFactory<UserFactory> */
+    use HasApiTokens, HasFactory, Notifiable, BelongsToTenant;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
     protected $fillable = [
-        'name', 'email', 'password', 'role', 'status',
-        'phone', 'avatar', 'country', 'city', 'dob', 'gender',
-        'passport_number', 'passport_expiry',
-        'google_id', 'currency_preference', 'prime_miles', 'pointsmax_programs', 'remember_token',
-        'email_verified_at',
-        'last_login_at', 'last_login_ip',
-        'total_bookings', 'total_spent',
+        'hotel_id',
+        'department_id',
+        'name',
+        'email',
+        'role',
+        'designation',
+        'salary',
+        'joining_date',
+        'avatar',
+        'phone',
+        'about_me',
+        'is_active',
+        'password',
     ];
 
-    protected $hidden = ['password', 'remember_token'];
+    /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var list<string>
+     */
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
 
+    /**
+     * Get the attributes that should be cast.
+     *
+     * @return array<string, string>
+     */
     protected function casts(): array
     {
         return [
-            'email_verified_at'  => 'datetime',
-            'last_login_at'      => 'datetime',
-            'password'           => 'hashed',
-            'total_spent'        => 'decimal:2',
-            'pointsmax_programs' => 'array',
+            'email_verified_at' => 'datetime',
+            'joining_date' => 'date',
+            'salary' => 'decimal:2',
+            'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
     }
 
-    // ─── Role Helpers ────────────────────────────────────────────────────
-
-    public function isAdmin(): bool
+    public function hotel(): BelongsTo
     {
-        return in_array($this->role, ['admin', 'super_admin']);
+        return $this->belongsTo(Hotel::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
+    public function rosters(): HasMany
+    {
+        return $this->hasMany(DutyRoster::class);
+    }
+
+    public function attendances(): HasMany
+    {
+        return $this->hasMany(Attendance::class);
+    }
+
+    public function leaves(): HasMany
+    {
+        return $this->hasMany(EmployeeLeave::class);
+    }
+
+    public function payrolls(): HasMany
+    {
+        return $this->hasMany(Payroll::class);
     }
 
     public function isSuperAdmin(): bool
     {
-        return $this->role === 'super_admin';
+        return $this->role === 'SUPERADMIN';
     }
 
-    public function isVendor(): bool
+    public function isHotelOwner(): bool
     {
-        return $this->role === 'vendor';
+        return in_array($this->role, ['SUPERADMIN', 'HOTEL_OWNER'], true);
     }
 
-    public function isCustomer(): bool
+    public function isManager(): bool
     {
-        return $this->role === 'customer';
+        return in_array($this->role, ['SUPERADMIN', 'HOTEL_OWNER', 'MANAGER'], true);
     }
 
-    public function isActive(): bool
+    public function isReceptionist(): bool
     {
-        return $this->status === 'active';
+        return in_array($this->role, ['SUPERADMIN', 'HOTEL_OWNER', 'MANAGER', 'RECEPTIONIST'], true);
     }
 
-    public function isBanned(): bool
+    public function isHousekeeper(): bool
     {
-        return $this->status === 'banned';
-    }
-
-    // ─── Accessors ────────────────────────────────────────────────────────
-
-    /** Role badge color for admin UI */
-    public function getRoleBadgeColorAttribute(): string
-    {
-        return match($this->role) {
-            'super_admin' => '#7367f0',
-            'admin'       => '#1890ff',
-            'vendor'      => '#28c76f',
-            default       => '#8c8c8c',
-        };
-    }
-
-    /** Status badge class */
-    public function getStatusBadgeClassAttribute(): string
-    {
-        return match($this->status) {
-            'active'   => 'confirmed',
-            'inactive' => 'pending',
-            'banned'   => 'cancelled',
-            default    => 'pending',
-        };
-    }
-
-    /** Avatar URL with fallback to UI Avatars */
-    public function getAvatarUrlAttribute(): string
-    {
-        if ($this->avatar) {
-            return str_starts_with($this->avatar, 'http') ? $this->avatar
-                : asset('storage/' . $this->avatar);
-        }
-        $initial = urlencode(substr($this->name, 0, 2));
-        return "https://ui-avatars.com/api/?name={$initial}&background=1890ff&color=fff&size=40&rounded=true";
-    }
-
-    // ─── Relationships ────────────────────────────────────────────────────
-
-    public function bookings(): HasMany
-    {
-        return $this->hasMany(Booking::class);
-    }
-
-    public function properties(): HasMany
-    {
-        return $this->hasMany(Property::class, 'vendor_id');
-    }
-
-    public function activityLogs(): HasMany
-    {
-        return $this->hasMany(ActivityLog::class);
-    }
-
-    public function socialAccounts(): HasMany
-    {
-        return $this->hasMany(SocialAccount::class);
-    }
-
-    // ─── Scopes ───────────────────────────────────────────────────────────
-
-    public function scopeActive($query)
-    {
-        return $query->where('status', 'active');
-    }
-
-    public function scopeVendors($query)
-    {
-        return $query->where('role', 'vendor');
-    }
-
-    public function scopeCustomers($query)
-    {
-        return $query->where('role', 'customer');
-    }
-
-    public function scopeAdmins($query)
-    {
-        return $query->whereIn('role', ['admin', 'super_admin']);
-    }
-
-    // ─── Track Login ──────────────────────────────────────────────────────
-
-    public function recordLogin(string $ip): void
-    {
-        $this->update([
-            'last_login_at' => now(),
-            'last_login_ip' => $ip,
-        ]);
+        return $this->role === 'HOUSEKEEPER';
     }
 }

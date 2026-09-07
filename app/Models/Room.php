@@ -2,110 +2,58 @@
 
 namespace App\Models;
 
+use App\Traits\BelongsToTenant;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Room extends Model
 {
-    use HasFactory;
-
-    public const TYPE_STANDARD     = 'standard';
-    public const TYPE_DELUXE       = 'deluxe';
-    public const TYPE_SUPER_DELUXE = 'super_deluxe';
-    public const TYPE_SUITE        = 'suite';
+    use HasFactory, BelongsToTenant;
 
     protected $fillable = [
-        'property_id',
-        'name',
-        'room_type',
-        'capacity',
-        'max_guests',
-        'max_adults',
-        'max_children',
-        'room_size_sqm',
-        'bed_type',
-        'price_per_night',
-        'total_rooms',
-        'available_rooms',
-        'breakfast_included',
-        'free_cancellation',
-        'facilities',
-        'amenities',
-        'images',
-        'view_type',
-        'has_ocean_view',
-        'bathroom_count',
-        'bathroom_features',
-        'smoking_policy',
-        'balcony_type',
-        'extra_bed_allowed',
+        'hotel_id',
+        'room_type_id',
+        'room_number',
+        'floor',
         'status',
+        'cleanliness',
+        'qr_token',
+        'is_active',
     ];
-
-    public function setCapacityAttribute($value): void
-    {
-        $this->attributes['max_guests'] = (int)$value;
-        $this->attributes['max_adults'] = (int)$value;
-    }
-
-    public function setRoomTypeAttribute($value): void
-    {
-        if (empty($this->attributes['name'])) {
-            $this->attributes['name'] = $value;
-        }
-    }
-
-    public function setAvailableRoomsAttribute($value): void
-    {
-        $this->attributes['total_rooms'] = (int)$value;
-    }
-
-    public function setAmenitiesAttribute($value): void
-    {
-        $this->attributes['facilities'] = is_array($value) ? json_encode($value) : $value;
-    }
-
-    public function setHasOceanViewAttribute($value): void
-    {
-        if ($value) {
-            $this->attributes['view_type'] = 'ocean_view';
-        }
-    }
 
     protected $casts = [
-        'facilities' => 'array',
-        'images' => 'array',
-        'bathroom_features' => 'array',
-        'breakfast_included' => 'boolean',
-        'free_cancellation' => 'boolean',
-        'extra_bed_allowed' => 'boolean',
+        'is_active' => 'boolean',
     ];
 
-    public function property()
+    public function hotel(): BelongsTo
     {
-        return $this->belongsTo(Property::class);
+        return $this->belongsTo(Hotel::class);
     }
 
-    public function availabilities()
+    public function roomType(): BelongsTo
     {
-        return $this->hasMany(RoomAvailability::class);
+        return $this->belongsTo(RoomType::class);
     }
 
-    /**
-     * Scope for active rooms only
-     */
-    public function scopeActive($query)
+    public function reservations(): HasMany
     {
-        return $query->where('status', 'active');
+        return $this->hasMany(Reservation::class);
     }
 
-    /**
-     * Formatted Size in Square Meters & Feet
-     */
-    public function getFormattedSizeAttribute(): string
+    public function currentReservation(): \Illuminate\Database\Eloquent\Relations\HasOne
     {
-        $sqm = $this->room_size_sqm ?: 46;
-        $sqft = round($sqm * 10.764);
-        return "{$sqm} m²/{$sqft} ft²";
+        return $this->hasOne(Reservation::class)->whereIn('status', ['CHECKED_IN', 'CONFIRMED'])->latestOfMany();
+    }
+
+    public function housekeepingTasks(): HasMany
+    {
+        return $this->hasMany(HousekeepingTask::class);
+    }
+
+    public function isAvailable(): bool
+    {
+        return $this->status === 'AVAILABLE' && $this->is_active;
     }
 }

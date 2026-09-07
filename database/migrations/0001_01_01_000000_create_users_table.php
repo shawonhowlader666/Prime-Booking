@@ -13,19 +13,23 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('hotel_id')->nullable()->index();
             $table->string('name');
             $table->string('email')->unique();
+            $table->string('role', 30)->default('HOTEL_OWNER');
+            $table->string('phone', 30)->nullable();
+            $table->unsignedBigInteger('department_id')->nullable()->index();
+            $table->string('designation', 100)->nullable();
+            $table->decimal('salary', 12, 2)->default(0.00);
+            $table->date('joining_date')->nullable();
+            $table->string('avatar')->nullable();
+            $table->boolean('is_active')->default(true);
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->string('role')->default('customer'); // customer, vendor, admin
-            $table->string('phone')->nullable();
-            $table->string('avatar')->nullable();
-            $table->string('passport_number')->nullable();
-            $table->string('currency_preference', 3)->default('BDT');
-            $table->integer('prime_miles')->default(0); // loyalty points
-            $table->string('status')->default('active'); // active, suspended
             $table->rememberToken();
             $table->timestamps();
+
+            $table->index(['hotel_id', 'role']);
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -1,105 +1,103 @@
-﻿@extends('layouts.main')
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="Responsive Bootstrap 5 admin dashboard template & web App ui kit.">
+    <meta name="keyword" content="bootstrap admin template">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>: HotelAir : Hotel Management Admin Dashboard</title>
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('assets/images/favicon.ico') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('assets/images/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('assets/images/favicon-32x32.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('assets/images/apple-touch-icon.png') }}">
 
-@section('title', 'Sign In to PRIME BOOKING | Admin, Vendor & User Login')
+    <!-- Template main css file -->
+    <link rel="stylesheet" href="{{ asset('assets/css/style.min.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
 
-@section('content')
-<div class="py-5" style="background-color: #f8fafc; min-height: 82vh; display: flex; align-items: center; justify-content: center;">
-    <div class="container d-flex justify-content-center">
-        <div class="card border-0 shadow-lg" style="width: 100%; max-width: 460px; border-radius: 16px; overflow: hidden; background: #ffffff;">
-            <div class="card-body p-4 p-md-4">
-                
-                {{-- Brand Logo & Title --}}
-                <div class="text-center mb-4">
-                    <div class="mb-3">
-                        <x-logo height="44" />
-                    </div>
-                    <h4 class="fw-bold text-dark mb-1" style="font-size: 20px; letter-spacing: -0.3px;">Sign in to your account</h4>
-                    <p class="text-secondary mb-0" style="font-size: 13px; line-height: 1.4;">Access Super Admin Control, Vendor Hotel Management, or Guest Bookings.</p>
-                </div>
+<body data-theme="theme-PurpleHeart" class="svgstroke-a auth bg-gradient">
 
-                @if(session('success'))
-                    <div class="alert alert-success alert-dismissible fade show rounded-3 mb-3 small" role="alert">
-                        <i class="fa-solid fa-check-circle me-1"></i> {{ session('success') }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
+    <!-- start: main grid layout -->
+    <main class="container-fluid px-0">
 
-                @if($errors->any())
-                    <div class="alert alert-danger alert-dismissible fade show rounded-3 mb-3 small" role="alert">
-                        <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $errors->first() }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                    </div>
-                @endif
-
-                {{-- Role Quick Demo Buttons --}}
-                <div class="mb-4 p-3 bg-light rounded-3 text-center border">
-                    <small class="text-muted fw-bold d-block mb-2 uppercase" style="font-size: 11px;">QUICK ROLE DEMO SIGN-IN</small>
-                    <div class="d-flex flex-wrap gap-2 justify-content-center">
-                        <button type="button" class="btn btn-sm btn-primary fw-bold" onclick="quickFill('admin@primeavn.com', 'admin123')">
-                            👑 Super Admin
-                        </button>
-                        <button type="button" class="btn btn-sm btn-warning text-dark fw-bold" onclick="quickFill('vendor@primeavn.com', 'vendor123')">
-                            🏨 Hotel Vendor
-                        </button>
-                        <button type="button" class="btn btn-sm btn-outline-secondary fw-bold" onclick="quickFill('01770887733', '123456')">
-                            👤 Guest User
-                        </button>
-                    </div>
-                </div>
-
-                {{-- Email/Phone Login Form --}}
-                <form action="{{ route('login.post') }}" method="POST">
-                    @csrf
-                    
-                    {{-- Email or Phone Input --}}
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark mb-1">Email Address or Mobile Phone Number <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white text-secondary border-end-0"><i class="fa-solid fa-user" style="color: #2067e1;"></i></span>
-                            <input type="text" name="login_credential" id="inputCredential" class="form-control border-start-0 rounded-end-2" placeholder="gmail (e.g. admin@primeavn.com) or phone" required style="font-size: 14px; height: 44px;">
-                        </div>
-                    </div>
-
-                    {{-- Password Input --}}
-                    <div class="mb-3">
-                        <label class="form-label small fw-bold text-dark mb-1">Password <span class="text-danger">*</span></label>
-                        <div class="input-group">
-                            <span class="input-group-text bg-white text-secondary border-end-0"><i class="fa-solid fa-lock" style="color: #2067e1;"></i></span>
-                            <input type="password" name="password" id="inputPassword" class="form-control border-start-0 rounded-end-2" placeholder="Enter password" required style="font-size: 14px; height: 44px;">
-                        </div>
-                    </div>
-
-                    <div class="d-flex align-items-center justify-content-between mb-3" style="font-size: 12.5px;">
-                        <div class="form-check mb-0">
-                            <input class="form-check-input" type="checkbox" name="remember" id="rememberMe" checked>
-                            <label class="form-check-label text-secondary" for="rememberMe">Remember me</label>
-                        </div>
-                        <a href="#" class="text-decoration-none fw-semibold" style="color: #2067e1;">Forgot password?</a>
-                    </div>
-
-                    <button type="submit" class="btn text-white w-100 fw-bold py-2.5 shadow-xs mb-3" style="background-color: #2067e1; border-radius: 24px; font-size: 15px; height: 46px; border: none;">
-                        Sign In <i class="fa-solid fa-arrow-right ms-1"></i>
-                    </button>
-                </form>
-
-                {{-- Footer Disclaimer --}}
-                <div class="text-center mt-3 text-secondary" style="font-size: 11.5px; line-height: 1.5; color: #64748b !important;">
-                    By signing in, you agree to PRIME BOOKING's 
-                    <a href="{{ route('terms') }}" class="text-decoration-none fw-semibold" style="color: #2067e1;">Terms of Use</a> 
-                    and 
-                    <a href="{{ route('privacy') }}" class="text-decoration-none fw-semibold" style="color: #2067e1;">Privacy Policy</a>.
-                </div>
-
-            </div>
+        <!-- start: project logo -->
+        <div class="px-md-5 px-4 auth-header" data-bs-theme="none">
+            <a href="/" class="brand-icon text-decoration-none d-flex align-items-center" title="HotelAir Admin Template">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path>
+                    <path d="M9 8l0 8"></path>
+                    <path d="M9 12l6 0"></path>
+                    <path d="M15 8l0 8"></path>
+                </svg>
+                <span class="fw-bold ps-2 fs-5 text-gradient">HotelAir</span>
+            </a>
         </div>
-    </div>
-</div>
 
-<script>
-function quickFill(cred, pass) {
-    document.getElementById('inputCredential').value = cred;
-    document.getElementById('inputPassword').value = pass;
-}
-</script>
-@endsection
+        <!-- start: page body area -->
+        <div class="px-md-5 px-4 auth-body">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show small py-2 mb-3" role="alert">
+                    <i class="fa-solid fa-check-circle me-1"></i> {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
 
+            @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show small py-2 mb-3" role="alert">
+                    <i class="fa-solid fa-triangle-exclamation me-1"></i> {{ $errors->first() }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+
+            <form method="POST" action="{{ route('login.post') }}">
+                @csrf
+                <ul class="row g-3 list-unstyled li_animate">
+                    <li class="col-12">
+                        <label class="form-label">Email</label>
+                        <input type="email" name="email" class="form-control form-control-lg @error('email') is-invalid @enderror" placeholder="admin@primepms.com" value="{{ old('email', 'admin@primepms.com') }}" required autofocus>
+                    </li>
+                    <li class="col-12">
+                        <div class="form-label">
+                            <span class="d-flex justify-content-between align-items-center">
+                                Password
+                                <a class="text-primary" href="/password-reset.html">Forgot Password?</a>
+                            </span>
+                        </div>
+                        <input type="password" name="password" class="form-control form-control-lg @error('password') is-invalid @enderror" placeholder="••••••••" value="password" required>
+                    </li>
+                    <li class="col-12">
+                        <div class="form-check fs-5">
+                            <input class="form-check-input" type="checkbox" name="remember" id="Rememberme" checked>
+                            <label class="form-check-label fs-6" for="Rememberme">Remember this Device</label>
+                        </div>
+                    </li>
+                    <li class="col-12 my-lg-4">
+                        <button type="submit" class="btn btn-lg w-100 btn-primary text-uppercase mb-2 shadow-sm">SIGN IN</button>
+                    </li>
+                    <li class="col-12 text-center">
+                        <span class="text-muted d-flex d-sm-inline-flex">New to HotelAir <a class="ms-2 text-primary" href="/signup.html" title="Sign up">Sign up here</a></span>
+                    </li>
+                </ul><!--[ ul.row end ]-->
+            </form>
+        </div>
+
+        <!-- start: page footer -->
+        <footer class="px-xl-5 px-4">
+            <p class="mb-0 text-muted">&copy; {{ date('Y') }} <a href="#" target="_blank" title="hotelair">HotelAir</a>, All Rights Reserved.</p>
+        </footer>
+        
+    </main>
+
+    <!-- Vendor Scripts -->
+    <script src="{{ asset('assets/bundles/libscripts.bundle.js') }}"></script>
+
+    <!-- Ultra-Smooth Top-Right Toast Notification System -->
+    @include('partials.toast-notifications')
+</body>
+</html>

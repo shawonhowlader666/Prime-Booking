@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>: HotelAir : Hotel Management Admin Dashboard Template</title>
+    <meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=Edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="Responsive Bootstrap 5 admin dashboard template & web App ui kit.">
+	<meta name="keyword" content="bootstrap admin template">
+
+	<!--[ Favicon]-->
+	<link rel="icon" type="image/x-icon" href="assets/images/favicon.ico">
+	<link rel="icon" type="image/png" sizes="16x16" href="assets/images/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="assets/images/favicon-32x32.png">
+	<link rel="apple-touch-icon" sizes="180x180" href="assets/images/apple-touch-icon.png">
+
+	<link rel="stylesheet" href="assets/css/summernote.min.css">
+	<style>
+		@font-face {
+			font-family: "summernote";
+			src: url("assets/fonts/summernote.eot?#iefix") format("embedded-opentype"),
+			url("assets/fonts/summernote.woff2") format("woff2"),
+			url("assets/fonts/summernote.woff") format("woff"),
+			url("assets/fonts/summernote.ttf") format("truetype");
+		}
+	</style>
+	
+	<!--[ Template main css file ]-->
+	<link rel="stylesheet" href="assets/css/style.min.css">
+
+</head>
+
+<body data-theme="theme-PurpleHeart" class="svgstroke-a bg-gradient"> 
+	  
+	<main class="container-fluid px-0">
+
+		<!-- start: page menu link -->
+		<aside class="ps-xl-5 ps-lg-4 ps-3 pe-2 py-3 sidebar sticky-top" data-bs-theme="none">
+			<nav class="navbar navbar-expand-xl py-0">
+				<div class="offcanvas offcanvas-start" data-bs-scroll="true" tabindex="-1" id="offcanvas_Navbar">
+					<div class="offcanvas-header">
+						<span class="fw-bold fs-5 text-gradient">HotelAir</span>
+						<button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+					</div>
+					<div class="offcanvas-body flex-column custom_scroll ps-4 ps-xl-0">
+						<div class="d-flex align-items-start mb-4">
+							<img class="avatar lg rounded-circle border border-3" src="assets/images/profile_av.png" alt="avatar">
+							<div class="ms-3 mt-1">
+								<h4 class="mb-0 text-gradient title-font">Anny glover</h4>
+								<span class="text-muted">Super Admin</span>
+							</div>
+						</div>
+						<!-- start: Menu tab -->
+						<ul class="nav nav-tabs tab-dynamic px-0 mb-4" role="tablist" style="--dynamic-color: var(--accent-color)">
+							<li class="nav-item" role="presentation"><a class="ps-2 pe-3 nav-link" data-bs-toggle="tab" href="#tab_hotels" role="tab" aria-selected="false" tabindex="-1">HOTELS</a></li>
+                            <li class="nav-item" role="presentation"><a class="ps-2 pe-3 nav-link" data-bs-toggle="tab" href="#tab_hrms" role="tab" aria-selected="true">HRMS</a></li>
+							<li class="nav-item" role="presentation"><a class="ps-2 pe-3 nav-link active" data-bs-toggle="tab" href="#tab_settings" role="tab" aria-selected="false" tabindex="-1">TUNING</a></li>
+                        </ul>
+						<!-- start: Menu content -->
+						<div class="tab-content">
+							<!-- start: Hotel tab-->
+							<div class="tab-pane fade" id="tab_hotels" role="tabpanel">
+								<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Universal</h6>
+								<ul class="list-unstyled mb-4 menu-list">
+									<li>
+										<a href="index.html" aria-label="Hotel Dashboard">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+												<path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+												<path d="M10 12h4v4h-4z"></path>
+											</svg>
+											<span class="mx-3">Dashboard</span>
+										</a>
+									</li>
+									<li>
+                                        <a href="index-two.html" aria-label="Hotel Dashboard">
+                                            <svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24"
+                                                viewBox="0 0 24 24" stroke="currentColor" fill="none"
+                                                stroke-linecap="round" stroke-linejoin="round">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                                                <path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+                                                <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+                                                <path d="M10 12h4v4h-4z"></path>
+                                            </svg>
+                                            <span class="mx-3">Hotel Activity</span>
+                                        </a>
+                                    </li>
+									<li>
+										<a href="hotels.html" aria-label="Hotel Front">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24"  viewBox="0 0 24 24"  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M3 21l18 0" />
+												<path d="M4 21v-11l2.5 -4.5l5.5 -2.5l5.5 2.5l2.5 4.5v11" />
+												<path d="M12 9m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+												<path d="M9 21v-5a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v5" />
+											</svg>
+											<span class="mx-3">Hotels</span>
+										</a>
+									</li>
+									<li>
+										<a href="transaction.html" aria-label="Transaction list">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M17 8v-3a1 1 0 0 0 -1 -1h-10a2 2 0 0 0 0 4h12a1 1 0 0 1 1 1v3m0 4v3a1 1 0 0 1 -1 1h-12a2 2 0 0 1 -2 -2v-12"></path>
+												<path d="M20 12v4h-4a2 2 0 0 1 0 -4h4"></path>
+											</svg>
+											<span class="mx-3">Transaction</span>
+										</a>
+									</li>
+									<li>
+										<a href="#RoomMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M14 12v.01" />
+												<path d="M3 21h18" />
+												<path d="M6 21v-16a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v16" />
+											</svg>
+											<span class="mx-3">Room Book</span>
+										</a>
+										<ul class="collapse list-unstyled" id="RoomMenu">
+											<li><a href="room-booking-list.html" aria-label="Booking List">Booking List</a></li>
+										    <li><a href="checkin-out.html" aria-label="Room Checkout">Room Checkout</a></li>
+											<li><a href="room-status.html" aria-label="Room Status">Room Status</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#RoomFacilitesMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M12 10m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+												<path d="M7 3m0 2a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2z" />
+												<path d="M12 3v2" />
+												<path d="M10 15v.01" />
+												<path d="M10 18v.01" />
+												<path d="M14 18v.01" />
+												<path d="M14 15v.01" />
+											</svg>
+											<span class="mx-3">Room Facilites</span>
+										</a>
+										<ul class="collapse list-unstyled" id="RoomFacilitesMenu">
+											<li><a href="room-facilites-list.html" aria-label="Facilites List">Facilites List</a></li>
+											<li><a href="facilites-details.html" aria-label="Facilites Details">Facilites Details</a></li>
+											<li><a href="room-size.html" aria-label="Room Size">Room Size</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#HousekeepingMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M8.5 10a1.5 1.5 0 0 1 -1.5 -1.5a5.5 5.5 0 0 1 11 0v10.5a2 2 0 0 1 -2 2h-7a2 2 0 0 1 -2 -2v-2c0 -1.38 .71 -2.444 1.88 -3.175l4.424 -2.765c1.055 -.66 1.696 -1.316 1.696 -2.56a2.5 2.5 0 1 0 -5 0a1.5 1.5 0 0 1 -1.5 1.5z" />
+											</svg>
+											<span class="mx-3">House keeping</span>
+										</a>
+										<ul class="collapse list-unstyled" id="HousekeepingMenu">
+											<li><a href="housekeeping-assign-room.html" aria-label="Housekeeping All">Assign Room</a></li>
+											
+											<li><a href="housekeeping-roomcleaning.html" aria-label="Housekeeping Cleaning">Room Cleaning</a></li>
+											<li><a href="housekeeping-Checklist.html" aria-label="Housekeeping Checklist">Checklist</a></li>
+											<li><a href="housekeeping-qrlist.html" aria-label="Housekeeping QR">QR List</a></li>
+											<li><a href="housekeeping-report.html" aria-label="Housekeeping Reports">Cleaning Report</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#CarbookingMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M7 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+												<path d="M17 17m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+												<path d="M5 17h-2v-6l2 -5h9l4 5h1a2 2 0 0 1 2 2v4h-2m-4 0h-6m-6 -6h15m-6 0v-5" />
+											</svg>
+											<span class="mx-3">Cab Facility</span>
+										</a>
+										<ul class="collapse list-unstyled" id="CarbookingMenu">
+											
+											<li><a href="cab-list.html" aria-label="Cab Details">Cab List</a></li>
+											<li><a href="cab-booking.html" aria-label="Cab Booking">Cab Booking</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#ItemsManageMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M13 5h8" />
+												<path d="M13 9h5" />
+												<path d="M13 15h8" />
+												<path d="M13 19h5" />
+												<path d="M3 4m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+												<path d="M3 14m0 1a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4a1 1 0 0 1 -1 1h-4a1 1 0 0 1 -1 -1z" />
+											</svg>
+											<span class="mx-3">Items Manage</span>
+										</a>
+										<ul class="collapse list-unstyled" id="ItemsManageMenu">
+											<li><a href="items-unit-list.html" aria-label="Items Unit List">Items Unit List</a></li>
+											<li><a href="items-list.html" aria-label="Items List">Items List</a></li>
+											<li><a href="items-destroyed-list.html" aria-label="Items Destroyed">Items Destroyed</a></li>
+											<li><a href="items-category-list.html" aria-label="Items Category">Items Category</a></li>
+											<li><a href="items-suppliers-list.html" aria-label="Items Suppliers">Items Suppliers</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="#PersonalisedMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24"  viewBox="0 0 24 24"  stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M12 8m-5 0a5 5 0 1 0 10 0a5 5 0 1 0 -10 0" />
+												<path d="M8 11a5 5 0 1 0 3.998 1.997" />
+												<path d="M12.002 19.003a5 5 0 1 0 3.998 -8.003" />
+											</svg>
+											<span class="mx-3">Personalised</span>
+										</a>
+										<ul class="collapse list-unstyled" id="PersonalisedMenu">
+											<li><a href="personalised-jacuzzi.html" aria-label="">Jacuzzi</a></li>
+											<li><a href="personalised-swimmingpool.html" aria-label="">Swimming pool</a></li>
+											<li><a href="personalised-spa.html" aria-label="">Spa</a></li>
+											<li><a href="personalised-pedicure.html" aria-label="">Pedicure</a></li>
+											<li><a href="personalised-theater.html" aria-label="">Theater</a></li>
+											<li><a href="personalised-banquet.html" aria-label="">Banquet</a></li>
+											<li><a href="personalised-settings.html" aria-label="">All Settings</a></li>
+										</ul>
+									</li>
+									<li class="py-2 mt-2">
+										<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Reports</h6>
+										<ul class="list-unstyled">
+											<li><a href="booking-report.html" aria-label="Booking Reports">Booking Reports</a></li>
+											<li><a href="purchase-report.html" aria-label="Purchase Report">Purchase Reports</a></li>
+											<li><a href="stock-report.html" aria-label="Stock Report">Stock Reports</a></li>
+										</ul>
+									</li>
+									<li class="py-2 mt-2">
+										<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Rooms Settings</h6>
+										<ul class="list-unstyled">
+											<li><a href="bed-list.html" aria-label="Bed List">Bed List</a></li>
+											<li><a href="booking-type-list.html" aria-label="Booking Type List">Booking Type List</a></li>
+											<li><a href="commission-list.html" aria-label="Booking Commission ">Booking Commission </a></li>
+											<li><a href="complementary-list.html" aria-label="Complementary">Complementary List</a></li><li><a href="floor-plan-list.html" aria-label="Floor Plan List">Floor Plan List</a></li>
+											<li><a href="room-list.html" aria-label="Room List">Room List</a></li>
+											<li><a href="room-image.html" aria-label="Room Images">Room Images</a></li>
+											<li><a href="promocode-list.html" aria-label="Promocode List">Promocode List</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<!-- start: HR tab -->
+							<div class="tab-pane fade" id="tab_hrms" role="tabpanel">
+								<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Usual</h6>
+								<ul class="list-unstyled mb-4 menu-list">
+									<li>
+										<a href="index-hr.html" aria-label="HRMS Dashboard">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M5 12l-2 0l9 -9l9 9l-2 0"></path>
+												<path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7"></path>
+												<path d="M10 12h4v4h-4z"></path>
+											</svg>
+											<span class="mx-3">HR Dashboard</span>
+										</a>
+									</li>
+									<li>
+										<a href="hrms.html" aria-label="hrms">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg"  width="24"  viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M7 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+												<path d="M5 22v-5l-1 -1v-4a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v4l-1 1v5" />
+												<path d="M17 5m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0" />
+												<path d="M15 22v-4h-2l2 -6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1l2 6h-2v4" />
+											</svg>
+											<span class="mx-3">HRMS</span>
+										</a>
+									</li>
+									<li>
+										<a href="#DutyMenu" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Users">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M3 12a9 9 0 0 0 5.998 8.485m12.002 -8.485a9 9 0 1 0 -18 0" />
+												<path d="M12 7v5" /><path d="M12 15h2a1 1 0 0 1 1 1v1a1 1 0 0 1 -1 1h-1a1 1 0 0 0 -1 1v1a1 1 0 0 0 1 1h2" />
+												<path d="M18 15v2a1 1 0 0 0 1 1h1" />
+												<path d="M21 15v6" />
+											</svg>
+											<span class="mx-3">Duty Changes</span>
+										</a>
+										<ul class="collapse list-unstyled" id="DutyMenu">
+											<li><a href="duty-assigned-list.html" aria-label="Assigned List">Assigned List</a></li>
+											<li><a href="duty-shift-list.html" aria-label="Hotel Images">Shift List</a></li>
+											<li><a href="duty-roster-list.html" aria-label="Hotel Images">Roster List</a></li>
+										</ul>
+									</li>
+									<li class="py-2 mt-2">
+										<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Employees [ <strong>58</strong> ]</h6>
+										<ul class="list-unstyled">
+											<li><a href="employees-all.html" aria-label="All Employees">All Employees</a></li>
+											<li><a href="employees-leave.html" aria-label="Leave Tracking">Leave Tracking</a></li>
+											<li><a href="employees-attendance.html" aria-label="Employees Attendance">Attendance</a></li>
+											<li><a href="employees-departments.html" aria-label="Departments">Departments</a></li>
+											<li><a href="employees-loan.html" aria-label="Employees Loan">Employees Loan</a></li>
+											<li><a href="employees-appraisal.html" aria-label="Appraisal">Appraisal</a></li>
+											<li><a href="employees-add.html" class="fw-bold" aria-label="New Project">Add Employees</a></li>
+										</ul>
+									</li>
+									<li class="py-2 mt-2">
+										<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Payroll</h6>
+										<ul class="list-unstyled">
+											<li><a href="payroll-employee-salary.html" aria-label="Employee Salary">Employee Salary</a></li>
+											<li><a href="payroll-payslip.html" aria-label="payslip">Payslip</a></li>
+											<li><a href="payroll-report.html" aria-label="General Settings">Report</a></li>
+										</ul>
+									</li>
+								</ul>
+							</div>
+							<!-- start: Setting tab-->
+							<div class="tab-pane fade active show" id="tab_settings" role="tabpanel">
+								<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Configuration</h6>
+								<ul class="list-unstyled mb-4 menu-list">
+									<li>
+										<a href="tuning.html" aria-label="tuning">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M19.875 6.27a2.225 2.225 0 0 1 1.125 1.948v7.284c0 .809 -.443 1.555 -1.158 1.948l-6.75 4.27a2.269 2.269 0 0 1 -2.184 0l-6.75 -4.27a2.225 2.225 0 0 1 -1.158 -1.948v-7.285c0 -.809 .443 -1.554 1.158 -1.947l6.75 -3.98a2.33 2.33 0 0 1 2.25 0l6.75 3.98h-.033z" />
+												<path d="M12 12m-3 0a3 3 0 1 0 6 0a3 3 0 1 0 -6 0" />
+											</svg>
+											<span class="mx-3">Tuning</span>
+										</a>
+									</li>
+									<li>
+										<a href="common-settings.html" aria-label="payment set">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M3 21l18 0" />
+												<path d="M5 21v-14l8 -4v18" />
+												<path d="M19 21v-10l-6 -4" />
+												<path d="M9 9l0 .01" />
+												<path d="M9 12l0 .01" />
+												<path d="M9 15l0 .01" />
+												<path d="M9 18l0 .01" />
+											</svg>
+											<span class="mx-3">Common</span>
+										</a>
+									</li>
+									<li>
+										<a href="payment-set.html" aria-label="payment set">
+											<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+												<path d="M12 19h-6a3 3 0 0 1 -3 -3v-8a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v4.5" />
+												<path d="M3 10h18" />
+												<path d="M16 19h6" />
+												<path d="M19 16l3 3l-3 3" />
+												<path d="M7.005 15h.005" />
+												<path d="M11 15h2" />
+											</svg>
+											<span class="mx-3">Payment Set</span>
+										</a>
+									</li>
+									<li>
+										<a href="accounts-setting.html" aria-label="Accounts Setting">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M14 3v4a1 1 0 0 0 1 1h4"></path>
+												<path d="M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2z"></path>
+												<path d="M9 7l1 0"></path>
+												<path d="M9 13l6 0"></path>
+												<path d="M13 17l2 0"></path>
+											</svg>
+											<span class="mx-3">Accounts</span>
+										</a>
+									</li>
+									<li class="py-2 mt-2">
+										<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Role Managment</h6>
+										<ul class="list-unstyled">
+											<li><a href="role-add.html" aria-label="Role Add">Role Add</a></li>
+											<li><a href="role-list.html" aria-label="Role List">Role List</a></li>
+											<li><a href="role-permission.html" aria-label="Role Permission">Role Permission</a></li>
+											<li><a href="role-create-list.html" aria-label="Role Create List">Role Create</a></li>
+											<li><a href="role-assign.html" aria-label="Role Assign">Role Assign</a></li>
+											<li><a href="role-access-list.html" aria-label="Role Access">Role Access</a></li>
+										</ul>
+									</li>
+									<li class="py-2 mt-2">
+                                       <h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Front Pages</h6>
+										<ul class="list-unstyled">
+											<li><a href="about-us.html" aria-label="About Us">About Us</a></li>
+											<li><a href="contact-us.html" aria-label="Contact Us">Contact Us</a></li>
+											<li><a class="active" href="privacy-policy.html" aria-label="Privacy Policy">Privacy Policy</a></li>
+											<li><a href="terms-conditions.html" aria-label="Terms Conditions">Terms Conditions</a></li>
+										</ul>
+									</li>
+									<li class="py-2 mt-2">
+										<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color1)">Application</h6>
+										<ul class="list-unstyled">
+											<li><a href="calendar.html" aria-label="Calendar">My Calendar</a></li>
+											<li><a href="inbox.html" aria-label="Inbox">Inbox (98)</a></li>
+											<li><a href="chat.html" aria-label="Chat">Chat (2)</a></li>
+											<li><a href="blog.html" aria-label="Blog">Blog Article</a></li>
+											<li><a href="filemanager.html" aria-label="File Manager">File Manager</a></li>
+										</ul>
+									</li>
+								</ul>
+								<!-- start: More Pages -->
+								<h6 class="fl-title title-font ps-2 small text-uppercase text-muted" style="--dynamic-color: var(--theme-color4)">Pages</h6>
+								<ul class="list-unstyled mb-4 menu-list">
+									<li>
+										<a href="#Authentication" data-bs-toggle="collapse" aria-expanded="false" class="dropdown-toggle" aria-label="Authentication">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M11.5 21h-4.5a2 2 0 0 1 -2 -2v-6a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2"></path>
+												<path d="M11 16a1 1 0 1 0 2 0a1 1 0 0 0 -2 0"></path>
+												<path d="M8 11v-4a4 4 0 1 1 8 0v4"></path>
+												<path d="M20 21l2 -2l-2 -2"></path>
+												<path d="M17 17l-2 2l2 2"></path>
+											</svg>
+											<span class="mx-3">Authentication</span>
+										</a>
+										<ul class="collapse list-unstyled" id="Authentication">
+											<li><a href="signin.html">Sign in</a></li>
+											<li><a href="signup.html">Sign up</a></li>
+											<li><a href="password-reset.html">Password reset</a></li>
+											<li><a href="two-step.html">2-Step Authentication</a></li>
+											<li><a href="lockscreen.html">Lockscreen</a></li>
+											<li><a href="maintenance.html">Maintenance</a></li>
+											<li><a href="404.html">404</a></li>
+										</ul>
+									</li>
+									<li>
+										<a href="search.html" aria-label="Search page">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+												<path d="M21 21l-6 -6"></path>
+											</svg>
+											<span class="mx-3">Search page</span>
+										</a>
+									</li>
+									<li>
+										<a href="docs/index.html" aria-label="Template documentation">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M4 7h3a1 1 0 0 0 1 -1v-1a2 2 0 0 1 4 0v1a1 1 0 0 0 1 1h3a1 1 0 0 1 1 1v3a1 1 0 0 0 1 1h1a2 2 0 0 1 0 4h-1a1 1 0 0 0 -1 1v3a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-1a2 2 0 0 0 -4 0v1a1 1 0 0 1 -1 1h-3a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h1a2 2 0 0 0 0 -4h-1a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1"></path>
+											</svg>
+											<span class="mx-3">Documentation</span>
+										</a>
+									</li>
+									<li>
+										<a href="changelog.html" title="Template Changelog" aria-label="Template Changelog">
+											<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+												<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+												<path d="M10.09 4.01l.496 -.495a2 2 0 0 1 2.828 0l7.071 7.07a2 2 0 0 1 0 2.83l-7.07 7.07a2 2 0 0 1 -2.83 0l-7.07 -7.07a2 2 0 0 1 0 -2.83l3.535 -3.535h-3.988"></path>
+												<path d="M7.05 11.038v-3.988"></path>
+											</svg>
+											<span class="mx-3">Changelog: <b>v1.0</b></span>
+										</a>
+									</li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</div>
+			</nav>
+		</aside>
+
+		<div class="content">
+			<!-- start: page header -->
+			<header class="px-xl-5 px-lg-4 px-3 sticky-top" data-bs-theme="none">
+				<div class="d-flex justify-content-between align-items-center py-2 w-100">
+					<div class="d-flex align-items-center pe-4">
+						<button class="btn d-inline-flex d-xl-none border-0 p-0 pe-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvas_Navbar">
+							<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 21a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3" /><path d="M21 6v12a3 3 0 0 1 -6 0v-12a3 3 0 0 1 6 0z" fill="var(--accent-color)" /><path d="M15 12h-8" /><path d="M10 9l-3 3l3 3" /></svg>
+						</button>
+						<button class="btn d-xl-inline-flex d-none border-0 p-0 pe-2 sidebar-toggle-btn" type="button">
+							<svg xmlns="http://www.w3.org/2000/svg" class="svg-stroke" width="24" height="24" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"/><path d="M6 21a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3" /><path d="M21 6v12a3 3 0 0 1 -6 0v-12a3 3 0 0 1 6 0z" fill="var(--accent-color)" /><path d="M15 12h-8" /><path d="M10 9l-3 3l3 3" /></svg>
+						</button>
+						<!--[ Start:: Brand Logo icon ]-->
+						<a href="index.html" class="brand-icon text-decoration-none d-flex align-items-center" title="HotelAir Admin Template">
+							<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+								<path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+								<path d="M9 8l0 8" />
+								<path d="M9 12l6 0" />
+								<path d="M15 8l0 8" />
+							</svg>
+							<span class="fw-bold ps-2 fs-5 d-none d-xl-inline-flex text-gradient">HotelAir</span>
+						</a>
+					</div>
+					<form class="dropdown main-search me-md-4 w-100 d-none d-md-inline-flex">
+						<div class="w-100" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+							<svg class="svg-stroke search-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								<path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
+								<path d="M21 21l-6 -6"></path>
+							</svg>
+							<input type="text" class="form-control" placeholder="Search..." aria-label="Search...">
+						</div>
+						<div class="dropdown-menu shadow rounded-4 p-3 p-xl-4 w-100">
+							<h6 class="fl-title" style="--dynamic-color: var(--theme-color1)">Recent Search</h6>
+							<div class="tagcloud mb-4">
+								<a href="hotels.html" class="tag-link rounded-pill border px-3" style="--hover-color: var(--theme-color1)">Hotel</a>
+								<a href="room-booking.html" class="tag-link rounded-pill border px-3" style="--hover-color: var(--theme-color2)">Room Booking</a>
+								<a href="cab-booking.html" class="tag-link rounded-pill border px-3" style="--hover-color: var(--theme-color1)">Cab Booking</a>
+							</div>
+							<h6 class="fl-title" style="--dynamic-color: var(--theme-color2)">Help</h6>
+							<div class="d-flex flex-column mb-4">
+								<a class="mb-1" href="signup.html">
+									<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+										<path d="M11 13l9 -9"></path>
+										<path d="M15 4h5v5"></path>
+									</svg>
+									<span>New around here? Sign up</span>
+								</a>
+								<a class="mb-1" href="docs/index.html">
+									<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+										<path d="M11 13l9 -9"></path>
+										<path d="M15 4h5v5"></path>
+									</svg>
+									<span>How to setup theme?</span>
+								</a>
+								<a class="mb-1" href="docs/index.html">
+									<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+										<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+										<path d="M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6"></path>
+										<path d="M11 13l9 -9"></path>
+										<path d="M15 4h5v5"></path>
+									</svg>
+									<span>View detail documentation</span>
+								</a>
+							</div>
+							<h6 class="fl-title" style="--dynamic-color: var(--theme-color3)">New users</h6>
+							<div class="d-flex flex-column">
+								<a href="my-profile.html" class="d-flex align-items-center mb-2">
+									<img class="avatar rounded-circle border border-3 me-2" src="assets/images/xs/avatar1.jpg" alt="avatar">
+									Kevin Gill
+								</a>
+								<a href="my-profile.html" class="d-flex align-items-center mb-2">
+									<img class="avatar rounded-circle border border-3 me-2" src="assets/images/xs/avatar2.jpg" alt="avatar">
+									Michelle Glover
+								</a>
+								<a href="my-profile.html" class="d-flex align-items-center mb-2">
+									<img class="avatar rounded-circle border border-3 me-2" src="assets/images/xs/avatar3.jpg" alt="avatar">
+									Jony Doe
+								</a>
+							</div>
+						</div>
+					</form>
+					<ul class="header-menu flex-grow-1">
+						<!--[ Start:: notification ]-->
+						<li class="nav-item dropdown px-md-1 d-none d-md-inline-flex">
+							<a class="dropdown-toggle gray-6" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="notification">
+								<span class="bullet-dot bg-primary animation-blink"></span>
+								<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+									<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+									<path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 6v3a4 4 0 0 0 2 3h-16a4 4 0 0 0 2 -3v-3a7 7 0 0 1 4 -6"></path>
+									<path d="M9 17v1a3 3 0 0 0 6 0v-1"></path>
+									<path d="M21 6.727a11.05 11.05 0 0 0 -2.794 -3.727"></path>
+									<path d="M3 6.727a11.05 11.05 0 0 1 2.792 -3.727"></path>
+								</svg>
+							</a>
+							<div class="dropdown-menu shadow rounded-4 notification" id="NotificationsDiv">
+								<div class="card border-0">
+									<div class="card-header d-flex justify-content-between align-items-center py-3">
+										<h4 class="mb-0 text-gradient title-font">Notifications</h4>
+										<a href="#" class="btn btn-link" title="view all">View all</a>
+									</div>
+									<ul class="card-body p-0 list-unstyled mb-0 custom_scroll ps-2" style="height: 400px;">
+										<li class="pe-2">
+											<a class="d-flex p-lg-3 p-2 rounded-3" href="javascript:void(0);">
+												<div class="avatar sm">
+													<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+														<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+														<path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3"></path>
+													</svg>
+												</div>
+												<div class="flex-fill ms-3">
+													<span class="d-flex justify-content-between"><small class="text-primary">Holiday Sale</small><small class="text-muted">11:30 AM Today</small></span>
+													<p class="mb-0 mt-1">Your New Campaign sale live on themeforest and our store is approved.</p>
+												</div>
+											</a>
+										</li>
+										<li class="pe-2">
+											<a class="d-flex p-lg-3 p-2 rounded-3" href="javascript:void(0);">
+												<div class="avatar sm">
+													<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+														<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+														<path d="M8 5h-2a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h5.697"></path>
+														<path d="M18 14v4h4"></path>
+														<path d="M18 11v-4a2 2 0 0 0 -2 -2h-2"></path>
+														<path d="M8 3m0 2a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v0a2 2 0 0 1 -2 2h-2a2 2 0 0 1 -2 -2z"></path>
+														<path d="M18 18m-4 0a4 4 0 1 0 8 0a4 4 0 1 0 -8 0"></path>
+														<path d="M8 11h4"></path>
+														<path d="M8 15h3"></path>
+													</svg>
+												</div>
+												<div class="flex-fill ms-3">
+													<span class="d-flex justify-content-between"><small class="text-info">Reports</small><small class="text-muted">04:00 PM Today</small></span>
+													<p class="mb-0 mt-1">Website visits from Twitter is 27% higher than last week.</p>
+												</div>
+											</a>
+										</li>
+										<li class="pe-2">
+											<a class="d-flex p-lg-3 p-2 rounded-3 align-items-start" href="javascript:void(0);">
+												<img class="avatar sm rounded-circle" src="assets/images/xs/avatar4.jpg" alt="avatar">
+												<div class="flex-fill ms-3">
+													<span class="d-flex justify-content-between"><small class="text-warning">HTML Code</small><small class="text-muted">1day</small></span>
+													<p class="mb-0 mt-1">Update new code in github and share deteail</p>
+												</div>
+											</a>
+										</li>
+										<li class="pe-2">
+											<div class="d-flex p-lg-3 p-2 rounded-3">
+												<img class="avatar sm rounded-circle" src="assets/images/xs/avatar1.jpg" alt="avatar">
+												<div class="flex-fill ms-3">
+													<span class="d-flex justify-content-between"><small class="text-success">New Request</small><small class="text-muted">1day</small></span>
+													<p class="mb-0 mt-1"><strong>Tina Harris</strong> is requesting to upgrade Plan</p>
+													<div class="mt-2">
+														<a href="#" class="btn btn-sm bg-accent text-white">Accept</a>
+														<a href="#" class="btn btn-sm btn-dark text-white">Decline</a>
+													</div>
+												</div>
+											</div>
+										</li>
+										<li class="pe-2">
+											<a class="d-flex p-lg-3 p-2 rounded-3" href="javascript:void(0);">
+												<div class="avatar sm">
+													<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+														<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+														<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+														<path d="M12 8v4"></path>
+														<path d="M12 16h.01"></path>
+													</svg>
+												</div>
+												<div class="flex-fill ms-3">
+													<span class="d-flex justify-content-between"><small class="text-danger">Error 404</small><small class="text-muted">Yesterday</small></span>
+													<p class="mb-0 mt-1">HotelAir admin template on website analytics configurations</p>
+												</div>
+											</a>
+										</li>
+									</ul>
+								</div>
+							</div>
+						</li>
+						<li class="nav-item py-2 py-md-1 col-auto">
+							<div class="vr d-none d-sm-flex h-100 mx-sm-2"></div>
+						</li>
+						<!--[ Start:: language ]-->
+						<li class="nav-item dropdown px-md-1 d-none d-md-inline-flex">
+							<a class="dropdown-toggle gray-6" href="#" data-bs-toggle="dropdown" role="button" title="language">
+								<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+									<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+									<path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path>
+									<path d="M3.6 9h16.8"></path>
+									<path d="M3.6 15h16.8"></path>
+									<path d="M11.5 3a17 17 0 0 0 0 18"></path>
+									<path d="M12.5 3a17 17 0 0 1 0 18"></path>
+								</svg>
+							</a>
+							<ul class="dropdown-menu shadow rounded-4 p-2 p-xl-3 li_animate">
+								<li class="mb-1"><a class="dropdown-item rounded-pill active" href="#" title="language">English</a></li>
+								<li class="mb-1"><a class="dropdown-item rounded-pill" href="#" title="language">Hindi</a></li>
+								<li class="mb-1"><a class="dropdown-item rounded-pill" href="#" title="language">Spanish</a></li>
+								<li class="mb-1"><a class="dropdown-item rounded-pill" href="#" title="language">Arabic</a></li>
+								<li class="mb-1"><a class="dropdown-item rounded-pill" href="#" title="language">French</a></li>
+							</ul>
+						</li>
+						<!--[ Start:: theme light/dark ]-->
+						<li class="nav-item dropdown px-md-1">
+							<a class="dropdown-toggle gray-6" href="#" id="bd-theme" data-bs-toggle="dropdown" aria-expanded="false">
+								<svg width="20" height="20" fill="currentColor" viewBox="0 0 24 24" class="theme-icon-active"><use href="#sun-fill"></use></svg>
+							</a>
+							<ul class="dropdown-menu dropdown-menu-end p-2 p-xl-3 shadow rounded-4" aria-labelledby="bd-theme">
+								<li class="mb-1"><a class="dropdown-item rounded-pill" href="#" data-bs-theme-value="light"><svg class="avatar xs me-2 opacity-50 theme-icon" fill="currentColor"><use href="#sun-fill"></use></svg> Light</a></li>
+								<li class="mb-1"><a class="dropdown-item rounded-pill active" href="#" data-bs-theme-value="dark"><svg class="avatar xs me-2 opacity-50 theme-icon" fill="currentColor"><use href="#moon-stars-fill"></use></svg> Dark</a></li>
+								<li class="mb-1"><a class="dropdown-item rounded-pill" href="#" data-bs-theme-value="auto"><svg class="avatar xs me-2 opacity-50 theme-icon" fill="currentColor"><use href="#circle-half"></use></svg> Auto</a></li>
+							</ul>
+							<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" style="display: none;">
+								<symbol id="sun-fill" viewBox="0 0 16 16">
+									<path d="M12 8a4 4 0 1 1-8 0 4 4 0 0 1 8 0zM8 0a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 0zm0 13a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-1 0v-2A.5.5 0 0 1 8 13zm8-5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2a.5.5 0 0 1 .5.5zM3 8a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1 0-1h2A.5.5 0 0 1 3 8zm10.657-5.657a.5.5 0 0 1 0 .707l-1.414 1.415a.5.5 0 1 1-.707-.708l1.414-1.414a.5.5 0 0 1 .707 0zm-9.193 9.193a.5.5 0 0 1 0 .707L3.05 13.657a.5.5 0 0 1-.707-.707l1.414-1.414a.5.5 0 0 1 .707 0zm9.193 2.121a.5.5 0 0 1-.707 0l-1.414-1.414a.5.5 0 0 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .707zM4.464 4.465a.5.5 0 0 1-.707 0L2.343 3.05a.5.5 0 1 1 .707-.707l1.414 1.414a.5.5 0 0 1 0 .708z"/>
+								</symbol>
+								<symbol id="moon-stars-fill" viewBox="0 0 16 16">
+									<path d="M6 .278a.768.768 0 0 1 .08.858 7.208 7.208 0 0 0-.878 3.46c0 4.021 3.278 7.277 7.318 7.277.527 0 1.04-.055 1.533-.16a.787.787 0 0 1 .81.316.733.733 0 0 1-.031.893A8.349 8.349 0 0 1 8.344 16C3.734 16 0 12.286 0 7.71 0 4.266 2.114 1.312 5.124.06A.752.752 0 0 1 6 .278z"/>
+									<path d="M10.794 3.148a.217.217 0 0 1 .412 0l.387 1.162c.173.518.579.924 1.097 1.097l1.162.387a.217.217 0 0 1 0 .412l-1.162.387a1.734 1.734 0 0 0-1.097 1.097l-.387 1.162a.217.217 0 0 1-.412 0l-.387-1.162A1.734 1.734 0 0 0 9.31 6.593l-1.162-.387a.217.217 0 0 1 0-.412l1.162-.387a1.734 1.734 0 0 0 1.097-1.097l.387-1.162zM13.863.099a.145.145 0 0 1 .274 0l.258.774c.115.346.386.617.732.732l.774.258a.145.145 0 0 1 0 .274l-.774.258a1.156 1.156 0 0 0-.732.732l-.258.774a.145.145 0 0 1-.274 0l-.258-.774a1.156 1.156 0 0 0-.732-.732l-.774-.258a.145.145 0 0 1 0-.274l.774-.258c.346-.115.617-.386.732-.732L13.863.1z"/>
+								</symbol>
+								<symbol id="circle-half" viewBox="0 0 16 16">
+									<path d="M8 15A7 7 0 1 0 8 1v14zm0 1A8 8 0 1 1 8 0a8 8 0 0 1 0 16z"/>
+								</symbol>
+							</svg>
+						</li>
+						<!--[ Start:: theme setting ]-->
+						<li class="nav-item dropdown px-md-1">
+							<a class="dropdown-toggle gray-6" href="#offcanvas_setting" data-bs-toggle="offcanvas" aria-expanded="false" title="template setting">
+								<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+									<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+									<path d="M10.325 4.317c.426 -1.756 2.924 -1.756 3.35 0a1.724 1.724 0 0 0 2.573 1.066c1.543 -.94 3.31 .826 2.37 2.37a1.724 1.724 0 0 0 1.065 2.572c1.756 .426 1.756 2.924 0 3.35a1.724 1.724 0 0 0 -1.066 2.573c.94 1.543 -.826 3.31 -2.37 2.37a1.724 1.724 0 0 0 -2.572 1.065c-.426 1.756 -2.924 1.756 -3.35 0a1.724 1.724 0 0 0 -2.573 -1.066c-1.543 .94 -3.31 -.826 -2.37 -2.37a1.724 1.724 0 0 0 -1.065 -2.572c-1.756 -.426 -1.756 -2.924 0 -3.35a1.724 1.724 0 0 0 1.066 -2.573c-.94 -1.543 .826 -3.31 2.37 -2.37c1 .608 2.296 .07 2.572 -1.065z"></path>
+									<path d="M9 12a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path>
+								</svg>
+							</a>
+						</li>
+						<li class="nav-item py-2 py-md-1 col-auto">
+							<div class="vr d-none d-sm-flex h-100 mx-sm-2"></div>
+						</li>
+						<!--[ Start:: user detail ]-->
+						<li class="nav-item user ms-3">
+							<a class="dropdown-toggle gray-6 d-flex text-decoration-none align-items-center lh-sm p-0" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" title="User" data-bs-auto-close="outside">
+								<img class="avatar rounded-circle border border-3" src="assets/images/profile_av.png" alt="avatar">
+								<span class="ms-2 fs-6 d-none d-sm-inline-flex">Michelle</span>
+							</a>
+							<div class="dropdown-menu dropdown-menu-end shadow p-2 p-xl-3 rounded-4">
+								<div class="bg-body p-3 rounded-3">
+									<h4 class="mb-1 title-font text-gradient">Michelle Glover</h4>
+									<p class="small text-muted">michelle.glover@gmail.com</p>
+									<input type="text" class="form-control form-control-sm" placeholder="Update my status">
+								</div>
+								<ul class="list-unstyled mt-3">
+									
+									<li><a class="dropdown-item rounded-pill" aria-label="my profile" href="my-profile.html">My Profile</a></li>
+									<li><a class="dropdown-item rounded-pill" aria-label="common settings" href="common-settings.html">Common Settings</a></li>
+									<li><a class="dropdown-item rounded-pill" aria-label="account settings" href="accounts-setting.html">Settings</a></li>
+									
+								</ul>
+								<a class="btn py-2 btn-primary w-100 mt-3 rounded-pill" href="signin.html" role="button">Logout</a>
+								<div class="mt-3 text-center small">
+									<a class="text-muted me-1" href="#!">Privacy policy</a>•<a class="text-muted mx-1" href="#!">Terms</a>•<a class="text-muted ms-1" href="#!">Cookies</a>
+								</div>
+							</div>
+						</li>
+					</ul>
+				</div>
+			</header>
+			<!-- start: page header area -->
+			<div class="px-xl-5 px-lg-4 px-3 py-2 page-header">
+				<ol class="breadcrumb mb-0 bg-transparent">
+					<li class="breadcrumb-item"><a href="tuning.html" title="tuning">Home</a></li>
+					<li class="breadcrumb-item active">Privacy Policy</li>
+				</ol>
+				<ul class="list-unstyled action d-flex align-items-center mb-0">
+					<li class="dropdown">
+						<a href="#" data-bs-toggle="dropdown" aria-expanded="false">
+							<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="22" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								<path d="M3 3m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v14a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z"></path>
+								<path d="M9 12l6 0"></path>
+								<path d="M12 9l0 6"></path>
+							</svg>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-end p-2 p-xl-3 shadow rounded-4">
+							<li><a class="dropdown-item rounded-pill" href="#">New folder</a></li>
+							<li><a class="dropdown-item rounded-pill" href="#">File upload</a></li>
+							<li><a class="dropdown-item rounded-pill" href="#">Google docs</a></li>
+							<li><a class="dropdown-item rounded-pill" href="#">Google sheets</a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li><a class="dropdown-item rounded-pill" href="#">+ Invite</a></li>
+							<li><a class="dropdown-item rounded-pill" href="#">Generate report</a></li>
+							<li><a class="dropdown-item rounded-pill" href="#">New Reports</a></li>
+						</ul>
+					</li>
+					<li class="dropdown ms-3">
+						<a href="#" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+							<svg class="svg-stroke" xmlns="http://www.w3.org/2000/svg" width="22" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+								<path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+								<path d="M4 4h16v2.172a2 2 0 0 1 -.586 1.414l-4.414 4.414v7l-6 2v-8.5l-4.48 -4.928a2 2 0 0 1 -.52 -1.345v-2.227z"></path>
+							</svg>
+						</a>
+						<div class="dropdown-menu dropdown-menu-end p-2 p-xl-3 shadow rounded-4" style="width: 300px;">
+							<h6>Filter Options</h6>
+							<div class="row g-3 mt-3">
+								<div class="col-12">
+									<label class="form-label small text-muted">Sorted by:</label>
+									<input type="search" class="form-control" placeholder="Search">
+								</div>
+								<div class="col-12">
+									<label class="form-label small text-muted">Status:</label>
+									<select class="form-select">
+										<option selected>Choose...</option>
+										<option>...</option>
+									</select>
+								</div>
+								<div class="col-12">
+									<label class="form-label small text-muted">Notifications:</label>
+									<div class="form-check form-switch">
+										<input class="form-check-input" type="checkbox" role="switch">
+										<label class="form-check-label">Enabled</label>
+									</div>
+								</div>
+								<div class="col-12 text-end mt-4">
+									<button type="reset" class="btn btn-sm btn-light me-1">Reset</button>
+									<button type="submit" class="btn btn-sm btn-primary">Apply</button>
+								</div>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+			<!-- start: page body area -->
+			<div class="px-xl-5 px-lg-4 px-3 py-3 page-body">
+				<div class="row mb-3">
+					<div class="col-sm-12">
+						<div class="d-flex align-items-center justify-content-between flex-wrap">
+							<h3 class="fw-bold mb-0">Privacy Policy</h3>
+						</div>
+					</div>
+				</div>
+				<div class="card-body">
+					<div class="card border-0 mb-3">
+						<div class="card-header">
+							<h6 class="card-title mb-0">Privacy Policy</h6>  
+						</div>
+						<div class="card-body pt-0">
+							<form class="product-add">
+								<div class="row g-3">
+									<div class="col-md-12">
+										<label class="col-form-label">Write Description</label>
+										<div class="summernote"></div>
+									</div>
+									<div class="col-md-12">
+										<button type="submit" class="btn btn-primary mt-2">Submit</button>
+									</div>
+								</div>
+							</form>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</main>
+
+	<!-- start: template setting, and more. -->
+	<div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvas_setting" aria-labelledby="offcanvas_setting">
+		<div class="offcanvas-header">
+			<h5 class="offcanvas-title">Template Setting</h5>
+			<button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+		</div>
+		<div class="offcanvas-body">
+			<div class="mb-4">
+				<h6>Set Theme Color</h6>
+				<ul class="choose-skin list-unstyled mb-0">
+					<li data-theme="ValenciaRed"><div style="--hotelair-theme-color: #D63B38;"></div></li>
+					<li data-theme="SunOrange"><div style="--hotelair-theme-color: #F7A614;"></div></li>
+					<li data-theme="AppleGreen"><div style="--hotelair-theme-color: #5BC43A;"></div></li>
+					<li data-theme="CeruleanBlue"><div style="--hotelair-theme-color: #00B8D6;"></div></li>
+					<li data-theme="Mariner"><div style="--hotelair-theme-color: #0066FE;"></div></li>
+					<li data-theme="PurpleHeart" class="active"><div style="--hotelair-theme-color: #6238B3;"></div></li>
+					<li data-theme="FrenchRose"><div style="--hotelair-theme-color: #EB5393;"></div></li>
+				</ul>
+			</div>
+			<div class="svg-stroke mb-4">
+				<h6>Icon Border Stroke</h6>
+				<div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+					<input type="radio" class="btn-check" name="stroke" id="Stroke_A" value="svgstroke-a" checked>
+					<label class="btn btn-outline-primary" for="Stroke_A">Stroke 1</label>
+				  
+					<input type="radio" class="btn-check" name="stroke" id="Stroke_B" value="svgstroke-b">
+					<label class="btn btn-outline-primary" for="Stroke_B">Stroke 2</label>
+				  
+					<input type="radio" class="btn-check" name="stroke" id="Stroke_C" value="svgstroke-c">
+					<label class="btn btn-outline-primary" for="Stroke_C">Stroke 3</label>
+				</div>
+			</div>
+			<div class="mb-4">
+				<h6>Layout Section Ligh/Dark</h6>
+				<ul class="list-unstyled d-flex flex-wrap">
+					<li class="me-2 mb-2 sidebar-toggle">
+						<input type="checkbox" class="btn-check" id="Sidebar_dark">
+						<label class="btn btn-outline-primary" for="Sidebar_dark">Sidebar</label>
+					</li>
+					<li class="me-2 mb-2 header-toggle">
+						<input type="checkbox" class="btn-check" id="Header_dark">
+						<label class="btn btn-outline-primary" for="Header_dark">Header</label>
+					</li>
+				</ul>
+			</div>
+			<div class="mb-4">
+				<h6>More App Setting</h6>
+				<div class="form-check form-switch bodygradient-toggle">
+					<input class="form-check-input" type="checkbox" role="switch" id="bodyGradient" checked>
+					<label class="form-check-label" for="bodyGradient">Body Gradient Background</label>
+				</div>
+				
+				<div class="form-check form-switch monochrome-toggle">
+					<input class="form-check-input fs-6" type="checkbox" role="switch" id="monochrome">
+					<label class="form-check-label" for="monochrome">Monochrome Mode</label>
+				</div>
+				<!-- <div class="form-check form-switch gradient-active">
+					<input class="form-check-input fs-6" type="checkbox" role="switch" id="gradient-active">
+					<label class="form-check-label" for="gradient-active">Gradient Active</label>
+				</div> -->
+				<div class="form-check form-switch radius-toggle">
+					<input class="form-check-input fs-6" type="checkbox" role="switch" id="radius0">
+					<label class="form-check-label" for="radius0">Border Radius none</label>
+				</div>
+				<div class="form-check form-switch svg-icon-color">
+					<input class="form-check-input fs-6" type="checkbox" role="switch" id="IconColor">
+					<label class="form-check-label" for="IconColor">Sidebar Icon color</label>
+				</div>
+				<div class="form-check form-switch cb-shadow">
+					<input class="form-check-input fs-6" type="checkbox" role="switch" id="BoxShadow">
+					<label class="form-check-label" for="BoxShadow">Card box shadow active</label>
+				</div>
+			</div>
+			<div class="d-flex">
+				<button type="button" class="btn w-100 me-1 py-2 btn-primary">Buy Now</button>
+				<button type="button" class="btn w-100 ms-1 py-2 btn-dark">View Portfolio</button>
+			</div>
+		</div>
+	</div>
+
+	<!--[ hotelair template vender js ]-->
+	<script src="assets/bundles/libscripts.bundle.js"></script>
+	<script src="assets/bundles/summernote.bundle.js"></script>
+
+	<!-- Template page js -->
+	<script src="assets/js/main.js"></script>
+	<script>
+		
+		$(document).ready(function() {
+			$('.summernote').summernote();
+			var noteBar = $('.note-toolbar');
+			noteBar.find('[data-toggle]').each(function() {
+				$(this).attr('data-bs-toggle', $(this).attr('data-toggle')).removeAttr('data-toggle');
+			});
+		});
+
+    </script>
+
+</body>
+</html>

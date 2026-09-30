@@ -32,6 +32,7 @@ return new class extends Migration
                 // High-Speed Big Data Composite Indexes
                 $table->index(['created_at', 'type', 'status'], 'idx_ledger_analytics');
                 $table->index(['vendor_id', 'status', 'created_at'], 'idx_ledger_vendor');
+                $table->index(['booking_id', 'type', 'category'], 'idx_ledger_idempotency');
             });
         }
     }

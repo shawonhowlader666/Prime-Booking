@@ -20,10 +20,6 @@ return new class extends Migration
             $table->index(['status', 'created_at'], 'idx_payouts_status_created');
             $table->index(['vendor_id', 'status', 'created_at'], 'idx_payouts_vendor_status_created');
         });
-
-        Schema::table('accounting_ledgers', function (Blueprint $table) {
-            $table->index(['booking_id', 'type', 'category'], 'idx_ledger_idempotency');
-        });
     }
 
     /**
@@ -39,10 +35,6 @@ return new class extends Migration
         Schema::table('payouts', function (Blueprint $table) {
             $table->dropIndex('idx_payouts_status_created');
             $table->dropIndex('idx_payouts_vendor_status_created');
-        });
-
-        Schema::table('accounting_ledgers', function (Blueprint $table) {
-            $table->dropIndex('idx_ledger_idempotency');
         });
     }
 };

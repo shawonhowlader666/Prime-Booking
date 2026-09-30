@@ -80,17 +80,17 @@
             </div>
         </div>
 
-        <div class="table-responsive">
-            <table class="table table-stockifly mb-0" id="tenantsTable">
+        <div class="table-responsive" style="min-height: 280px; overflow-x: auto; padding-bottom: 30px;">
+            <table class="table table-stockifly mb-0 align-middle" id="tenantsTable">
                 <thead>
                     <tr>
-                        <th>Vendor / Business</th>
-                        <th>Owner &amp; Contact</th>
-                        <th>SaaS Plan</th>
-                        <th>Commission Rate</th>
-                        <th>Properties &amp; Rooms Capacity</th>
-                        <th>Status</th>
-                        <th style="text-align:right;">Actions</th>
+                        <th style="min-width: 170px;">Vendor / Business</th>
+                        <th style="min-width: 190px;">Owner &amp; Contact</th>
+                        <th style="min-width: 110px;">SaaS Plan</th>
+                        <th style="min-width: 120px;">Commission Rate</th>
+                        <th style="min-width: 180px;">Properties &amp; Rooms</th>
+                        <th style="min-width: 90px;">Status</th>
+                        <th style="text-align:right; min-width: 170px;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -111,8 +111,11 @@
                         </td>
                         <td><strong style="color:#28c76f; font-size:13.5px;">{{ $tenant->commission_rate }}%</strong></td>
                         <td>
+                            @php
+                                $hotelSearchParam = $tenant->user ? ['source' => $tenant->user->id] : ['search' => $tenant->name];
+                            @endphp
                             <div class="d-flex flex-column gap-1">
-                                <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="badge bg-primary bg-opacity-10 text-primary fw-bold text-decoration-none" style="font-size:11px; padding:3px 7px; border-radius:4px; text-align:left;">
+                                <a href="{{ route('admin.properties.index', $hotelSearchParam) }}" class="badge bg-primary bg-opacity-10 text-primary fw-bold text-decoration-none" style="font-size:11px; padding:3px 7px; border-radius:4px; text-align:left;" title="Filter hotels for this tenant">
                                     <i class="fa-solid fa-hotel me-1"></i> {{ $tenant->properties_count ?? 0 }} Hotels Listed
                                 </a>
                                 <span class="badge bg-success bg-opacity-10 text-success fw-bold" style="font-size:11px; padding:3px 7px; border-radius:4px; text-align:left;">
@@ -126,40 +129,78 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
-                            <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
-                                    <i class="fa-solid fa-gear"></i>
+                            <div class="d-inline-flex align-items-center gap-1.5 justify-content-end">
+                                {{-- 1. Direct View Button --}}
+                                <button type="button" class="btn btn-sm btn-light border text-primary" data-bs-toggle="modal" data-bs-target="#viewTenantModal{{ $tenant->id }}" title="View Full Profile" style="width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12.5px;">
+                                    <i class="fa-solid fa-eye"></i>
                                 </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
-                                    <li>
-                                        <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#viewTenantModal{{ $tenant->id }}">
-                                            <i class="fa-solid fa-eye text-primary me-2"></i> View Profile &amp; Properties
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#editTenantModal{{ $tenant->id }}">
-                                            <i class="fa-solid fa-pen-to-square text-warning me-2"></i> Edit Business Tenant
-                                        </button>
-                                    </li>
-                                    <li>
-                                        <form action="{{ route('admin.tenants.toggle', $tenant->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-info">
-                                                <i class="fa-solid fa-ban me-2"></i> {{ $tenant->status === 'active' ? 'Suspend Tenant' : 'Activate Tenant' }}
+
+                                {{-- 2. Direct Edit Button --}}
+                                <button type="button" class="btn btn-sm btn-light border text-warning" data-bs-toggle="modal" data-bs-target="#editTenantModal{{ $tenant->id }}" title="Edit Business Tenant" style="width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12.5px;">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+
+                                {{-- 3. Direct Properties Link --}}
+                                <a href="{{ route('admin.properties.index', $hotelSearchParam) }}" class="btn btn-sm btn-light border text-info" title="Manage Listed Hotels ({{ $tenant->properties_count ?? 0 }})" style="width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12.5px;">
+                                    <i class="fa-solid fa-hotel"></i>
+                                </a>
+
+                                {{-- 4. Full Action Dropdown --}}
+                                <div class="dropdown d-inline-block position-relative">
+                                    <button class="btn btn-sm btn-light border text-secondary shadow-none" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" title="More Options" style="width:32px; height:32px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12.5px;">
+                                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                                    </button>
+                                        <li>
+                                            <a href="http://127.0.0.1:8080/" target="_blank" class="dropdown-item py-1.5 px-3 text-primary fw-bold">
+                                                <i class="fa-solid fa-desktop text-primary me-2"></i> 🚀 Launch HotelAir PMS
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="http://127.0.0.1:8080/sync-hub" target="_blank" class="dropdown-item py-1.5 px-3 text-danger">
+                                                <i class="fa-solid fa-rotate text-danger me-2"></i> Prime OTA Sync Hub
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <button type="button" class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#viewTenantModal{{ $tenant->id }}">
+                                                <i class="fa-solid fa-id-card text-primary me-2"></i> Profile &amp; Inventory Details
                                             </button>
-                                        </form>
-                                    </li>
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    <li>
-                                        <form action="{{ route('admin.tenants.destroy', $tenant->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this tenant?');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
-                                                <i class="fa-solid fa-trash me-2"></i> Delete Tenant
+                                        </li>
+                                        <li>
+                                            <button type="button" class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#editTenantModal{{ $tenant->id }}">
+                                                <i class="fa-solid fa-sliders text-warning me-2"></i> Edit Plan &amp; Commission
                                             </button>
-                                        </form>
-                                    </li>
-                                </ul>
+                                        </li>
+                                        <li>
+                                            <a href="{{ $tenant->user ? route('admin.accounts.ledger', ['vendor_id' => $tenant->user->id]) : route('admin.accounts.vendor-statements') }}" class="dropdown-item py-1.5 px-3 text-secondary">
+                                                <i class="fa-solid fa-file-invoice-dollar text-success me-2"></i> Financial Statement &amp; Ledger
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="{{ route('admin.properties.index', $hotelSearchParam) }}" class="dropdown-item py-1.5 px-3 text-secondary">
+                                                <i class="fa-solid fa-hotel text-info me-2"></i> Manage Hotels ({{ $tenant->properties_count ?? 0 }})
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        <li>
+                                            <form action="{{ route('admin.tenants.toggle', $tenant->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 {{ $tenant->status === 'active' ? 'text-warning' : 'text-success' }}">
+                                                    <i class="fa-solid {{ $tenant->status === 'active' ? 'fa-pause' : 'fa-play' }} me-2"></i> {{ $tenant->status === 'active' ? 'Suspend Tenant Access' : 'Activate Tenant' }}
+                                                </button>
+                                            </form>
+                                        </li>
+                                        <li>
+                                            <form action="{{ route('admin.tenants.destroy', $tenant->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete tenant {{ $tenant->name }} permanently?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                    <i class="fa-solid fa-trash me-2"></i> Delete Tenant
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </td>
                     </tr>
@@ -217,7 +258,7 @@
                                     @endif
                                 </div>
                                 <div class="modal-footer d-flex justify-content-between" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
-                                    <a href="{{ route('admin.properties.index', ['search' => $tenant->name]) }}" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius:4px;">
+                                    <a href="{{ route('admin.properties.index', $hotelSearchParam) }}" class="btn btn-outline-primary btn-sm fw-bold" style="border-radius:4px;">
                                         <i class="fa-solid fa-hotel me-1"></i> View Listed Hotels ({{ $tenant->properties_count ?? 0 }})
                                     </a>
                                     <button type="button" class="btn btn-secondary btn-sm fw-bold" data-bs-dismiss="modal" style="border-radius:4px;">Close</button>

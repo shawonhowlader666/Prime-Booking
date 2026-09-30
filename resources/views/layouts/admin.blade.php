@@ -1751,25 +1751,28 @@
                 </div>
             </div>
 
-            {{-- 2. Properties & Inventory --}}
-            @php $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*'); @endphp
+            {{-- 2. Hotels & Resorts --}}
+            @php $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*', 'admin.rooms.availability*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}" data-label="Properties &amp; APIs">
+                <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}" data-label="Hotels &amp; Resorts">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Properties &amp; APIs</span>
+                        <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Hotels &amp; Resorts</span>
                     </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
                 <div class="collapse {{ $isPropertiesActive ? 'show' : '' }}" id="menuProperties">
                     <div class="sb-sub-menu">
                         <a href="{{ route('admin.properties.index') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Hotels (Vendor + API)
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Hotels &amp; Resorts
+                        </a>
+                        <a href="{{ route('admin.rooms.availability') }}" class="sb-sub-item {{ request()->routeIs('admin.rooms.availability*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Extranet Room Calendar
                         </a>
                         <a href="{{ route('admin.import-hotels.index') }}" class="sb-sub-item {{ request()->routeIs('admin.import-hotels.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> OTA API Feeds &amp; Importer
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> OTA API Feeds
                         </a>
                         <a href="{{ route('admin.properties.create') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.create') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> + Add New Hotel Listing
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> + Add Hotel / Resort
                         </a>
                     </div>
                 </div>
@@ -1802,8 +1805,8 @@
                 </div>
             </div>
 
-            {{-- 3.5 ACCOUNTS & FINANCIAL LEDGER MASTER --}}
-            @php $isFinanceActive = request()->routeIs('admin.accounts.*'); @endphp
+            {{-- 4. Accounts & Finance --}}
+            @php $isFinanceActive = request()->routeIs('admin.accounts.*', 'admin.payouts.*'); @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isFinanceActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuFinance" aria-expanded="{{ $isFinanceActive ? 'true' : 'false' }}" data-label="Accounts &amp; Finance">
                     <div class="d-flex align-items-center gap-2">
@@ -1814,7 +1817,7 @@
                 <div class="collapse {{ $isFinanceActive ? 'show' : '' }}" id="menuFinance">
                     <div class="sb-sub-menu">
                         <a href="{{ route('admin.accounts.index') }}" class="sb-sub-item {{ request()->routeIs('admin.accounts.index') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Accounts Overview &amp; P&amp;L
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Financial Overview
                         </a>
                         <a href="{{ route('admin.accounts.ledger') }}" class="sb-sub-item {{ request()->routeIs('admin.accounts.ledger') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> General Ledger (Audit)
@@ -1829,8 +1832,8 @@
                 </div>
             </div>
 
-            {{-- 4. Users, Vendors & Payouts --}}
-            @php $isAccountsActive = request()->routeIs('admin.users.*', 'admin.tenants.*', 'admin.payouts.*'); @endphp
+            {{-- 5. Users & Vendors --}}
+            @php $isAccountsActive = request()->routeIs('admin.users.*', 'admin.tenants.*'); @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isAccountsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuAccounts" aria-expanded="{{ $isAccountsActive ? 'true' : 'false' }}" data-label="Users &amp; Vendors">
                     <div class="d-flex align-items-center gap-2">
@@ -1841,109 +1844,67 @@
                 <div class="collapse {{ $isAccountsActive ? 'show' : '' }}" id="menuAccounts">
                     <div class="sb-sub-menu">
                         <a href="{{ route('admin.users.index') }}" class="sb-sub-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> User Accounts
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> User Directory
                         </a>
                         <a href="{{ route('admin.tenants.index') }}" class="sb-sub-item {{ request()->routeIs('admin.tenants.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Tenants
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Tenants &amp; PMS
                         </a>
-                        <a href="{{ route('admin.payouts.index') }}" class="sb-sub-item {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Payouts
+                        <a href="http://127.0.0.1:8080/" target="_blank" class="sb-sub-item text-warning fw-bold">
+                            <i class="fa-solid fa-desktop me-1" style="font-size:10px;"></i> 🚀 Launch HotelAir PMS
+                        </a>
+                        <a href="http://127.0.0.1:8080/sync-hub" target="_blank" class="sb-sub-item text-danger">
+                            <i class="fa-solid fa-rotate me-1" style="font-size:10px;"></i> Prime OTA Sync Hub
                         </a>
                     </div>
                 </div>
             </div>
 
-            {{-- 5. User Portals, Trips & Experience Center (All User Portals & Dynamic Feeds in 1 Main Hub) --}}
-            @php $isPortalsActive = request()->routeIs('admin.vip.*', 'admin.rewards.*', 'admin.reviews.*', 'admin.bookings.*', 'admin.properties.*', 'admin.packages.*', 'admin.inquiries.*'); @endphp
+            {{-- 6. VIP & Loyalty Rewards --}}
+            @php $isPortalsActive = request()->routeIs('admin.vip.*', 'admin.rewards.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isPortalsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuUserPortals" aria-expanded="{{ $isPortalsActive ? 'true' : 'false' }}" data-label="Portals &amp; Experience Hub">
+                <button class="sb-nav-toggle {{ $isPortalsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuUserPortals" aria-expanded="{{ $isPortalsActive ? 'true' : 'false' }}" data-label="VIP &amp; Loyalty">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-compass" style="width:16px;text-align:center;"></i> <span>Portals &amp; User Hub</span>
+                        <i class="fa-solid fa-crown" style="width:16px;text-align:center;"></i> <span>VIP &amp; Loyalty</span>
                     </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
                 <div class="collapse {{ $isPortalsActive ? 'show' : '' }}" id="menuUserPortals">
                     <div class="sb-sub-menu">
-                        {{-- 1. My Trips & Bookings Portal --}}
-                        <a href="{{ route('admin.bookings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}" title="Manage All Trips &amp; Bookings">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> My Trips &amp; All Bookings
+                        <a href="{{ route('admin.vip.settings') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.settings') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> PrimeVIP Tier Rules
                         </a>
-
-                        {{-- 2. Hotels & Inventory Feed --}}
-                        <a href="{{ route('admin.properties.index') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.*') ? 'active' : '' }}" title="Hotels Search &amp; Discovery">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Hotels &amp; Inventory Hub
+                        <a href="{{ route('admin.vip.members') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.members') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> PrimeVIP Members
                         </a>
-
-                        {{-- 3. Tour Packages & Activities --}}
-                        <a href="{{ route('admin.packages.index') }}" class="sb-sub-item {{ request()->routeIs('admin.packages.*') ? 'active' : '' }}" title="Holiday Tours &amp; Activities">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Activities &amp; Tour Packages
-                        </a>
-
-                        {{-- 4. Property Messages & Inquiries --}}
-                        <a href="{{ route('admin.inquiries.index') }}" class="sb-sub-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}" title="Property Messages &amp; Inquiries">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property Messages &amp; Inquiries
-                        </a>
-
-                        {{-- 5. Reviews Moderation --}}
-                        <a href="{{ route('admin.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}" title="Verified Reviews Moderation">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Verified Reviews Moderation
-                        </a>
-
-                        {{-- 6. PrimeVIP Tier Rules & Discounts --}}
-                        <a href="{{ route('admin.vip.settings') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.settings') ? 'active' : '' }}" title="PrimeVIP Tier Rules">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> PrimeVIP Tier Rules &amp; Perks
-                        </a>
-
-                        {{-- 7. PrimeVIP Member Roster --}}
-                        <a href="{{ route('admin.vip.members') }}" class="sb-sub-item {{ request()->routeIs('admin.vip.members') ? 'active' : '' }}" title="PrimeVIP Member Roster">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> PrimeVIP Member Roster
-                        </a>
-
-                        {{-- 8. Prime Rewards (Cashback & 1k=1pt) --}}
-                        <a href="{{ route('admin.rewards.index') }}" class="sb-sub-item {{ request()->routeIs('admin.rewards.*') ? 'active' : '' }}" title="PrimeCash &amp; Rewards Engine">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Prime Rewards (1k=1pt) &amp; Payouts
-                        </a>
-
-                        {{-- 9. PointsMAX Airline Programs --}}
-                        <a href="{{ route('pointsmax') }}" target="_blank" class="sb-sub-item" title="PointsMAX Airline Miles Program">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> PointsMAX Airline Portal <i class="fa-solid fa-arrow-up-right-from-square ms-auto" style="font-size:9px; opacity:0.6;"></i>
-                        </a>
-
-                        {{-- 10. Payments and Subscriptions --}}
-                        <a href="{{ route('subscriptions') }}" target="_blank" class="sb-sub-item" title="Payments &amp; Subscriptions Settings">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payments &amp; Subscriptions <i class="fa-solid fa-arrow-up-right-from-square ms-auto" style="font-size:9px; opacity:0.6;"></i>
-                        </a>
-
-                        {{-- 11. User Profiles & CRM --}}
-                        <a href="{{ route('admin.users.index') }}" class="sb-sub-item {{ request()->routeIs('admin.users.*') ? 'active' : '' }}" title="User Profiles &amp; Omni-Channel CRM">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> User Profiles &amp; CRM Directory
+                        <a href="{{ route('admin.rewards.index') }}" class="sb-sub-item {{ request()->routeIs('admin.rewards.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Rewards Engine
                         </a>
                     </div>
                 </div>
             </div>
 
-            {{-- 6. Website CMS & Banners --}}
+            {{-- 7. Website CMS & Content --}}
             @php $isCMSActive = request()->routeIs('admin.cms.*', 'admin.content.hero', 'admin.destinations.*', 'admin.amenities.*'); @endphp
             <div class="sb-nav-group">
-                <button class="sb-nav-toggle {{ $isCMSActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuCMS" aria-expanded="{{ $isCMSActive ? 'true' : 'false' }}" data-label="CMS Pages">
+                <button class="sb-nav-toggle {{ $isCMSActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuCMS" aria-expanded="{{ $isCMSActive ? 'true' : 'false' }}" data-label="CMS &amp; Content">
                     <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-file-lines" style="width:16px;text-align:center;"></i> <span>CMS Pages</span>
+                        <i class="fa-solid fa-file-lines" style="width:16px;text-align:center;"></i> <span>CMS &amp; Content</span>
                     </div>
                     <i class="fa-solid fa-chevron-right chevron-icon"></i>
                 </button>
                 <div class="collapse {{ $isCMSActive ? 'show' : '' }}" id="menuCMS">
                     <div class="sb-sub-menu">
                         <a href="{{ route('admin.cms.index') }}" class="sb-sub-item {{ request()->routeIs('admin.cms.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Website Pages CMS
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Web Pages
                         </a>
                         <a href="{{ route('admin.content.hero') }}" class="sb-sub-item {{ request()->routeIs('admin.content.hero') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Hero Banner Slider
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Hero Slider
                         </a>
                         <a href="{{ route('admin.destinations.index') }}" class="sb-sub-item {{ request()->routeIs('admin.destinations.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Featured Destinations
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Destinations
                         </a>
                         <a href="{{ route('admin.amenities.index') }}" class="sb-sub-item {{ request()->routeIs('admin.amenities.*') ? 'active' : '' }}">
-                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Amenities Catalog
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Amenities
                         </a>
                     </div>
                 </div>
@@ -1956,18 +1917,6 @@
             <a href="{{ route('admin.activity.index') }}" class="sb-nav-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}" data-label="Audit Logs">
                 <i class="fa-solid fa-shield-halved"></i> <span>Activity Audit Logs</span>
             </a>
-
-            <div class="pt-3 pb-1" style="padding:0 12px;">
-                <form action="/admin/system/cache-clear" method="POST" class="mb-1">
-                    @csrf
-                    <button type="submit" class="sb-nav-item border-0 w-100" style="background:rgba(255,255,255,0.04); border-radius:4px; font-size:12px; cursor:pointer;" onclick="return confirm('Clear all Redis/file caches?')">
-                        <i class="fa-solid fa-rotate text-warning me-2"></i> <span>Flush System Cache</span>
-                    </button>
-                </form>
-                <a href="{{ route('admin.system.backup.download') }}" class="sb-nav-item border-0 w-100 d-flex align-items-center" style="background:rgba(255,255,255,0.04); border-radius:4px; font-size:12px; text-decoration:none; color:rgba(255,255,255,0.75);">
-                    <i class="fa-solid fa-download text-success me-2"></i> <span>Download DB Backup</span>
-                </a>
-            </div>
 
             <div class="sb-section-header">Live Site</div>
             <a href="{{ route('home') }}" target="_blank" class="sb-nav-item" style="color: rgba(80,210,255,0.8);" data-label="Public Website">
@@ -2327,8 +2276,82 @@
             document.querySelectorAll('.btn-tbl-gear, .btn-tbl-col').forEach(b => b.classList.remove('active-col'));
         }
     });
+
+    // ── Live Real-Time Audio Bell Alert & System Notification Poller ──
+    let lastCheckedTime = new Date().toISOString();
+    
+    function playBookingChime() {
+        try {
+            const AudioCtx = window.AudioContext || window.webkitAudioContext;
+            if (!AudioCtx) return;
+            const ctx = new AudioCtx();
+            
+            // Oscillator 1: High Bell Note (880 Hz - A5)
+            const osc1 = ctx.createOscillator();
+            const gain1 = ctx.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(880, ctx.currentTime);
+            gain1.gain.setValueAtTime(0.35, ctx.currentTime);
+            gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+            osc1.connect(gain1);
+            gain1.connect(ctx.destination);
+            osc1.start();
+            osc1.stop(ctx.currentTime + 0.8);
+
+            // Oscillator 2: Crystal Harmonic Tone (1320 Hz - E6)
+            const osc2 = ctx.createOscillator();
+            const gain2 = ctx.createGain();
+            osc2.type = 'triangle';
+            osc2.frequency.setValueAtTime(1320, ctx.currentTime + 0.1);
+            gain2.gain.setValueAtTime(0.25, ctx.currentTime + 0.1);
+            gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.2);
+            osc2.connect(gain2);
+            gain2.connect(ctx.destination);
+            osc2.start(ctx.currentTime + 0.1);
+            osc2.stop(ctx.currentTime + 1.2);
+        } catch (e) {
+            console.log('Audio chime info:', e);
+        }
+    }
+
+    function checkLiveAlerts() {
+        fetch(`{{ route('admin.api.live-alerts') }}?last_checked=${encodeURIComponent(lastCheckedTime)}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data && data.status === 'success') {
+                    lastCheckedTime = data.timestamp;
+
+                    // Trigger sound chime & visual toast if new reservation arrived
+                    if (data.play_chime) {
+                        playBookingChime();
+                        if (data.latest_booking) {
+                            showToast(`🔔 New Reservation #${data.latest_booking.ref} received from ${data.latest_booking.guest} (৳${data.latest_booking.amount})`);
+                        }
+                    }
+                }
+            })
+            .catch(err => console.log('Poll check:', err));
+    }
+
+    // Poll every 25 seconds
+    setInterval(checkLiveAlerts, 25000);
+
+    // Universal auto-dismiss for success alerts after 3 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+            document.querySelectorAll('.admin-alert.success, #adminWelcomeAlert').forEach(function(el) {
+                el.style.transition = 'opacity 0.6s ease, transform 0.6s ease, max-height 0.6s ease';
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px)';
+                setTimeout(function() {
+                    el.style.display = 'none';
+                }, 600);
+            });
+        }, 3000);
+    });
     </script>
 
+    @include('partials.prime_toast')
     @include('admin.import.modal-partial')
 
     @yield('scripts')

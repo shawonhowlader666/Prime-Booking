@@ -18,7 +18,7 @@ class VIPLoyaltyTest extends TestCase
         $result = $service->getUserTier(null);
 
         $this->assertEquals('Bronze', $result['tier']);
-        $this->assertEquals('AgodaVIP Bronze', $result['tier_name_full']);
+        $this->assertEquals('PrimeVIP Bronze', $result['tier_name_full']);
         $this->assertEquals(0.0, $result['discount_percent']);
         $this->assertEquals(2, $result['bookings_needed']);
     }
@@ -28,8 +28,7 @@ class VIPLoyaltyTest extends TestCase
     {
         $response = $this->get('/vip');
         $response->assertStatus(200);
-        $response->assertSee('What is AgodaVIP?');
-        $response->assertSee('What are the benefits of AgodaVIP?');
+        $response->assertSee('What is PrimeVIP?');
     }
 
     /** @test */

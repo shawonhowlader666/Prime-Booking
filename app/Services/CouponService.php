@@ -29,27 +29,24 @@ class CouponService
                 $coupon = Coupon::firstOrCreate(
                     ['code' => $cleanCode],
                     [
-                        'name' => $cleanCode === 'PRIMECASH8' ? 'PrimeCash 8% Cashback Rewards' : 'App First Booking 10% Instant Savings',
-                        'type' => 'percentage',
-                        'amount' => $cleanCode === 'PRIMECASH8' ? 8.0 : 10.0,
-                        'min_spend' => 500.0,
-                        'status' => 'active',
-                        'starts_at' => now()->subDay(),
-                        'expires_at' => now()->addYears(2),
+                        'type'       => 'percentage',
+                        'amount'     => $cleanCode === 'PRIMECASH8' ? 8.0 : 10.0,
+                        'min_spend'  => 500.0,
+                        'status'     => 'active',
+                        'expires_at' => now()->addYears(2)->toDateString(),
                     ]
                 );
             } catch (\Exception $e) {
                 // Fallback mock
                 $coupon = (object)[
-                    'code' => $cleanCode,
-                    'name' => 'Promotional Discount',
-                    'type' => 'percentage',
-                    'amount' => $cleanCode === 'PRIMECASH8' ? 8.0 : 10.0,
-                    'status' => 'active',
-                    'min_spend' => 0,
-                    'expires_at' => null,
+                    'code'        => $cleanCode,
+                    'type'        => 'percentage',
+                    'amount'      => $cleanCode === 'PRIMECASH8' ? 8.0 : 10.0,
+                    'status'      => 'active',
+                    'min_spend'   => 500.0,
+                    'expires_at'  => null,
                     'usage_limit' => null,
-                    'used_count' => 0
+                    'used_count'  => 0
                 ];
             }
         }
@@ -80,7 +77,7 @@ class CouponService
 
         // Calculate discount
         $discount = 0.0;
-        if ($coupon->type === 'percentage') {
+        if (in_array(strtolower((string)$coupon->type), ['percentage', 'percent'])) {
             $discount = round(($subtotal * (float)$coupon->amount) / 100, 2);
         } else {
             $discount = min($subtotal, (float)$coupon->amount);

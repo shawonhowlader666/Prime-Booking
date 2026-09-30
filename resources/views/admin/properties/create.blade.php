@@ -134,6 +134,10 @@
                                 💡 Click on map or drag pin to auto-fill coordinates
                             </small>
                         </div>
+                        <div class="input-group input-group-sm mb-2" style="max-width: 480px;">
+                            <input type="text" id="adminMapAddressSearch" class="form-control" placeholder="Search area, road or landmark (e.g. Kolatoli Road, Cox's Bazar)..." style="font-size:12px; height:34px;" onkeydown="if(event.key==='Enter'){event.preventDefault();searchAddressOnAdminMap();}">
+                            <button type="button" class="btn btn-primary text-white px-3 fw-bold" onclick="searchAddressOnAdminMap()" style="font-size:12px;"><i class="fa-solid fa-magnifying-glass me-1"></i> Locate on Map</button>
+                        </div>
                         <div id="adminMapPicker" style="height: 220px; width: 100%; border-radius: 4px; border: 1px solid #cbd5e1; z-index: 1;"></div>
                     </div>
                 </div>
@@ -471,6 +475,49 @@ document.addEventListener("DOMContentLoaded", function () {
 
     setupAdminGalleryDropzone();
 });
+
+function searchAddressOnAdminMap() {
+    const searchInput = document.getElementById('adminMapAddressSearch');
+    const q = searchInput ? searchInput.value.trim() : '';
+    if (!q) return;
+
+    // Call REST API Autocomplete/Suggestions first for instant local matching
+    fetch(`/api/v1/suggestions?q=${encodeURIComponent(q)}`)
+        .then(r => r.json())
+        .then(res => {
+            const list = res?.data || res || [];
+            const item = Array.isArray(list) ? list.find(i => i.latitude && i.longitude) : null;
+            if (item && item.latitude && item.longitude) {
+                const lat = parseFloat(item.latitude);
+                const lng = parseFloat(item.longitude);
+                document.getElementById('adminLatitudeInput').value = lat.toFixed(6);
+                document.getElementById('adminLongitudeInput').value = lng.toFixed(6);
+                if (adminPropertyMap && adminPropertyMarker) {
+                    adminPropertyMarker.setLatLng([lat, lng]);
+                    adminPropertyMap.setView([lat, lng], 15);
+                }
+            } else {
+                // Fallback to OpenStreetMap Geocoder
+                fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q + ', Bangladesh')}&limit=1`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data && data.length > 0) {
+                            const lat = parseFloat(data[0].lat);
+                            const lng = parseFloat(data[0].lon);
+                            document.getElementById('adminLatitudeInput').value = lat.toFixed(6);
+                            document.getElementById('adminLongitudeInput').value = lng.toFixed(6);
+                            if (adminPropertyMap && adminPropertyMarker) {
+                                adminPropertyMarker.setLatLng([lat, lng]);
+                                adminPropertyMap.setView([lat, lng], 15);
+                            }
+                        } else {
+                            alert('Location not found. You can drag the pin manually on the map.');
+                        }
+                    });
+            }
+        })
+        .catch(() => {});
+}
 
 function updateAdminMarkerFromInputs() {
     const lat = parseFloat(document.getElementById('adminLatitudeInput').value);

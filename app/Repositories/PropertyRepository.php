@@ -100,10 +100,13 @@ class PropertyRepository
     public function getSiteStats(): array
     {
         return Cache::remember('properties:site_stats', self::TTL_FEATURED, function (): array {
+            $total = Property::active()->count();
             return [
-                'total_properties' => Property::active()->count(),
+                'total'            => $total,
+                'total_properties' => $total,
                 'total_bookings'   => \App\Models\Booking::count(),
                 'destinations'     => Property::active()->distinct()->count('city'),
+                'avg_rating'       => round((float) (Property::active()->avg('rating_score') ?: 4.8), 1),
             ];
         });
     }
@@ -147,6 +150,29 @@ class PropertyRepository
 
             $paginator = $query->paginate($perPage, ['*'], 'page', $page);
             $items     = $paginator->items();
+            $lat       = isset($params['lat']) && is_numeric($params['lat']) ? (float) $params['lat'] : null;
+            $lng       = isset($params['lng']) && is_numeric($params['lng']) ? (float) $params['lng'] : null;
+            $radiusKm  = (float) ($params['radius_km'] ?? 30.0);
+            $radiusExpanded = false;
+            $expandedRadius = $radiusKm;
+
+            // Auto-Radius Expander: If 0 results within initial radius, expand gracefully across BD
+            if ($paginator->isEmpty() && $lat !== null && $lng !== null) {
+                foreach ([60.0, 120.0, 250.0, 500.0] as $candidateRadius) {
+                    if ($candidateRadius > $radiusKm) {
+                        $expandedParams = array_merge($params, ['radius_km' => $candidateRadius]);
+                        $expandedQuery = $this->buildSearchQuery($expandedParams);
+                        $expandedPaginator = $expandedQuery->paginate($perPage, ['*'], 'page', $page);
+                        if (!$expandedPaginator->isEmpty()) {
+                            $paginator = $expandedPaginator;
+                            $items = $paginator->items();
+                            $radiusExpanded = true;
+                            $expandedRadius = $candidateRadius;
+                            break;
+                        }
+                    }
+                }
+            }
 
             $apiProperties = [];
             if ($paginator->isEmpty() && !empty($params['destination'])) {
@@ -166,6 +192,9 @@ class PropertyRepository
                 'merged_results'      => $items,
                 'database_properties' => $paginator->items(),
                 'api_properties'      => $apiProperties,
+                'radius_expanded'     => $radiusExpanded,
+                'original_radius_km'  => $radiusKm,
+                'expanded_radius_km'  => $expandedRadius,
             ];
         });
     }
@@ -226,10 +255,11 @@ class PropertyRepository
         $lat      = isset($params['lat']) && is_numeric($params['lat']) ? (float) $params['lat'] : null;
         $lng      = isset($params['lng']) && is_numeric($params['lng']) ? (float) $params['lng'] : null;
         $radiusKm = (float) ($params['radius_km'] ?? 30.0);
+        $isNearLocationText = in_array(strtolower($destination), ['near my location', 'near me', 'current location', 'near_my_location', 'my location'], true);
 
         if ($lat !== null && $lng !== null) {
             $query->nearCoordinate($lat, $lng, $radiusKm);
-        } elseif ($destination !== '') {
+        } elseif ($destination !== '' && !$isNearLocationText) {
             $normalizer = new \App\Services\Search\LocationNormalizerService();
             $resolved   = $normalizer->resolve($destination);
             $canonical  = $resolved['canonical'] ?: $destination;
@@ -244,11 +274,23 @@ class PropertyRepository
             });
         }
 
-        // ── Property type filter ───────────────────────────────────────
-        if ($searchType !== '' && $searchType !== 'all') {
+        // ── Property type filter (Top Tabs: 'hotel'/'hotels'/'all' represents general stays search across all properties) ──
+        if ($searchType !== '' && !in_array($searchType, ['all', 'hotel', 'hotels', 'stays'], true)) {
             $types = $this->resolveTypeAliases($searchType);
             if (!empty($types)) {
                 $query->whereIn('type', $types);
+            }
+        }
+
+        // ── Sidebar Property type multi-filter ──────────────────────────
+        $sidebarPropertyTypes = array_filter((array) ($params['property_type'] ?? []));
+        if (!empty($sidebarPropertyTypes)) {
+            $expandedTypes = [];
+            foreach ($sidebarPropertyTypes as $pt) {
+                $expandedTypes = array_merge($expandedTypes, $this->resolveTypeAliases((string)$pt));
+            }
+            if (!empty($expandedTypes)) {
+                $query->whereIn('type', array_unique($expandedTypes));
             }
         }
 
@@ -277,9 +319,31 @@ class PropertyRepository
             $query->starRatings($starRatings);
         }
 
-        // ── Amenity filters ─────────────────────────────────────────────
+        // ── Amenity filters with synonyms/aliases support ───────────────
+        $amenitySynonyms = [
+            'free wifi'          => ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi'],
+            'wifi'               => ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi'],
+            'swimming pool'      => ['Pool', 'Swimming pool', 'Swimming Pool', 'pool'],
+            'pool'               => ['Pool', 'Swimming pool', 'Swimming Pool', 'pool'],
+            'parking'            => ['Parking', 'Free parking', 'Free Parking', 'parking'],
+            'free parking'       => ['Parking', 'Free parking', 'Free Parking', 'parking'],
+            'gym'                => ['Gym', 'Fitness center', 'Fitness Center', 'gym'],
+            'fitness center'     => ['Gym', 'Fitness center', 'Fitness Center', 'gym'],
+            'spa'                => ['Spa', 'spa'],
+            'restaurant'         => ['Restaurant', 'restaurant'],
+            'airport transfer'   => ['Airport Transfer', 'Airport transfer'],
+            'breakfast included' => ['Breakfast Included', 'Breakfast included', 'Breakfast'],
+            'beach access'       => ['Beach Access', 'beach access'],
+        ];
+
         foreach ($amenities as $amenity) {
-            $query->hasAmenity($amenity);
+            $cleanedKey = strtolower(trim((string)$amenity));
+            $syns = $amenitySynonyms[$cleanedKey] ?? [$amenity];
+            $query->where(function ($aq) use ($syns, $amenity) {
+                foreach ($syns as $syn) {
+                    $aq->orWhereJsonContains('amenities', $syn);
+                }
+            });
         }
 
         // ── Payment options filters ─────────────────────────────────────
@@ -317,7 +381,11 @@ class PropertyRepository
         }
 
         // ── Sorting (uses composite indexes) ────────────────────────────
-        $query->sortBy($sortBy);
+        if ($lat !== null && $lng !== null && ($sortBy === 'featured' || $sortBy === 'distance')) {
+            // Preserves Haversine nearest distance order from scopeNearCoordinate
+        } else {
+            $query->sortBy($sortBy);
+        }
 
         return $query;
     }
@@ -330,10 +398,10 @@ class PropertyRepository
      */
     private function resolveTypeAliases(string $searchType): array
     {
-        return match ($searchType) {
-            'hotel'                => ['hotel', 'Hotel'],
-            'resort'               => ['resort', 'Resort'],
-            'home', 'homes'        => ['homestay', 'Homestay', 'apartment', 'Apartment', 'home', 'Home'],
+        return match (strtolower(trim($searchType))) {
+            'hotel', 'hotels'      => ['hotel', 'Hotel', 'resort', 'Resort'],
+            'resort', 'resorts'    => ['resort', 'Resort'],
+            'home', 'homes'        => ['homestay', 'Homestay', 'apartment', 'Apartment', 'home', 'Home', 'villa', 'Villa'],
             'long_stay','longstays'=> ['long_stay', 'apartment', 'Apartment', 'villa', 'Villa'],
             'villa'                => ['villa', 'Villa'],
             'apartment'            => ['apartment', 'Apartment'],
@@ -364,26 +432,36 @@ class PropertyRepository
                     $base->keyword($destination);
                 }
 
+                $amenityCount = function ($baseQ, array $candidates): int {
+                    return (clone $baseQ)->where(function ($q) use ($candidates) {
+                        foreach ($candidates as $cand) {
+                            $q->orWhereJsonContains('amenities', $cand);
+                        }
+                    })->count();
+                };
+
                 return [
-                    'score_9'   => (clone $base)->minRating(9.0)->count(),
-                    'score_8'   => (clone $base)->minRating(8.0)->count(),
-                    'score_7'   => (clone $base)->minRating(7.0)->count(),
-                    'star_5'    => (clone $base)->starRatings([5])->count(),
-                    'star_4'    => (clone $base)->starRatings([4])->count(),
-                    'star_3'    => (clone $base)->starRatings([3])->count(),
-                    'wifi'      => (clone $base)->hasAmenity('Free WiFi')->count(),
-                    'pool'      => (clone $base)->hasAmenity('Swimming pool')->count(),
-                    'breakfast' => (clone $base)->hasAmenity('Breakfast included')->count(),
-                    'shuttle'   => (clone $base)->hasAmenity('Airport transfer')->count(),
-                    'parking'   => (clone $base)->hasAmenity('Free parking')->count(),
-                    'gym'       => (clone $base)->hasAmenity('Fitness center')->count(),
+                    'score_9'    => (clone $base)->minRating(9.0)->count(),
+                    'score_8'    => (clone $base)->minRating(8.0)->count(),
+                    'score_7'    => (clone $base)->minRating(7.0)->count(),
+                    'star_5'     => (clone $base)->starRatings([5])->count(),
+                    'star_4'     => (clone $base)->starRatings([4])->count(),
+                    'star_3'     => (clone $base)->starRatings([3])->count(),
+                    'wifi'       => $amenityCount($base, ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi']),
+                    'pool'       => $amenityCount($base, ['Pool', 'Swimming pool', 'Swimming Pool', 'pool']),
+                    'breakfast'  => $amenityCount($base, ['Breakfast included', 'Breakfast Included', 'Breakfast']),
+                    'shuttle'    => $amenityCount($base, ['Airport Transfer', 'Airport transfer']),
+                    'parking'    => $amenityCount($base, ['Parking', 'Free parking', 'Free Parking']),
+                    'gym'        => $amenityCount($base, ['Gym', 'Fitness center', 'Fitness Center']),
+                    'restaurant' => $amenityCount($base, ['Restaurant']),
+                    'spa'        => $amenityCount($base, ['Spa']),
                 ];
             } catch (\Throwable $e) {
                 return [
-                    'score_9' => 12, 'score_8' => 25, 'score_7' => 38,
-                    'star_5'  => 10, 'star_4'  => 18, 'star_3'  => 15,
-                    'wifi'    => 42, 'pool'    => 20, 'breakfast' => 35,
-                    'shuttle' => 15, 'parking' => 30, 'gym'       => 12,
+                    'score_9' => 0, 'score_8' => 0, 'score_7' => 0,
+                    'star_5'  => 0, 'star_4'  => 0, 'star_3'  => 0,
+                    'wifi'    => 0, 'pool'    => 0, 'breakfast' => 0,
+                    'shuttle' => 0, 'parking' => 0, 'gym'       => 0,
                 ];
             }
         });
@@ -412,43 +490,57 @@ class PropertyRepository
         $matched = collect($apiHotels)->firstWhere('id', $id);
 
         if ($matched) {
+            $isObj = is_object($matched);
+            $getId = $isObj ? $matched->id : $matched['id'];
+            $getName = $isObj ? $matched->name : $matched['name'];
+            $getCity = $isObj ? $matched->city : $matched['city'];
+            $getAddress = $isObj ? ($matched->address ?? ($getCity . ', Bangladesh')) : ($matched['address'] ?? ($getCity . ', Bangladesh'));
+            $getPrice = $isObj ? ($matched->price_per_night ?? $matched->price ?? 5000) : ($matched['price_per_night'] ?? $matched['price'] ?? 5000);
+            $getRating = $isObj ? ($matched->rating_score ?? $matched->rating ?? 9.0) : ($matched['rating_score'] ?? $matched['rating'] ?? 9.0);
+            $getReviews = $isObj ? ($matched->total_reviews ?? $matched->reviews_count ?? 100) : ($matched['total_reviews'] ?? $matched['reviews_count'] ?? 100);
+            $getStar = $isObj ? ($matched->star_rating ?? 5) : ($matched['star_rating'] ?? 5);
+            $getDesc = $isObj ? ($matched->description ?? 'Ultra-luxury accommodation offering premier amenities, scenic ocean/city views, and world-class hospitality.') : ($matched['description'] ?? 'Ultra-luxury accommodation offering premier amenities, scenic ocean/city views, and world-class hospitality.');
+            $getPrimaryImg = $isObj ? ($matched->primary_image ?? '') : ($matched['primary_image'] ?? '');
+            $getImages = $isObj ? ($matched->images ?? []) : ($matched['images'] ?? []);
+            $getAmenities = $isObj ? ($matched->amenities ?? $matched->facilities ?? ['Free Wi-Fi', 'Free parking', 'Swimming pool', 'Air conditioning', 'Restaurant', 'Spa']) : ($matched['facilities'] ?? $matched['amenities'] ?? ['Free Wi-Fi', 'Free parking', 'Swimming pool', 'Air conditioning', 'Restaurant', 'Spa']);
+
             $p = new Property([
-                'id' => $matched['id'],
-                'name' => $matched['name'],
-                'slug' => \Illuminate\Support\Str::slug($matched['name']),
-                'city' => $matched['city'],
-                'address' => $matched['address'] ?? ($matched['city'] . ', Bangladesh'),
-                'price_per_night' => $matched['price_per_night'],
-                'rating_score' => $matched['rating_score'],
-                'total_reviews' => $matched['total_reviews'],
-                'star_rating' => $matched['star_rating'],
-                'description' => $matched['description'] ?? 'Ultra-luxury accommodation offering premier amenities, scenic ocean/city views, and world-class hospitality.',
-                'primary_image' => $matched['primary_image'],
-                'images' => $matched['images'] ?? [],
-                'amenities' => $matched['facilities'] ?? ['Free Wi-Fi', 'Free parking', 'Swimming pool', 'Air conditioning', 'Restaurant', 'Spa'],
+                'id' => $getId,
+                'name' => $getName,
+                'slug' => \Illuminate\Support\Str::slug($getName),
+                'city' => $getCity,
+                'address' => $getAddress,
+                'price_per_night' => $getPrice,
+                'rating_score' => $getRating,
+                'total_reviews' => $getReviews,
+                'star_rating' => $getStar,
+                'description' => $getDesc,
+                'primary_image' => $getPrimaryImg,
+                'images' => $getImages,
+                'amenities' => $getAmenities,
             ]);
 
             $r1 = new \App\Models\Room([
-                'id' => $id * 10 + 1,
-                'property_id' => $id,
+                'id' => $getId * 10 + 1,
+                'property_id' => $getId,
                 'name' => 'Deluxe King Room',
                 'bed_type' => '1 King Bed',
                 'max_adults' => 2,
                 'max_children' => 1,
                 'room_size_sqm' => 42,
-                'price_per_night' => $matched['price_per_night'],
+                'price_per_night' => $getPrice,
                 'breakfast_included' => true,
                 'free_cancellation' => true,
             ]);
             $r2 = new \App\Models\Room([
-                'id' => $id * 10 + 2,
-                'property_id' => $id,
+                'id' => $getId * 10 + 2,
+                'property_id' => $getId,
                 'name' => 'Executive Suite with Sea/City View',
                 'bed_type' => '1 Super King Bed',
                 'max_adults' => 3,
                 'max_children' => 2,
                 'room_size_sqm' => 68,
-                'price_per_night' => round($matched['price_per_night'] * 1.35),
+                'price_per_night' => round($getPrice * 1.35),
                 'breakfast_included' => true,
                 'free_cancellation' => true,
             ]);

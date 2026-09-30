@@ -13,7 +13,7 @@
     $roomsCount = intval(request('rooms', 1));
 @endphp
 <div style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155;">
-    <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">
+    <div style="max-width: 1180px; margin: 0 auto; padding: 0 24px;">
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
@@ -152,38 +152,82 @@
         }
         const destInput = document.getElementById('mainDestInput');
         const icon = document.getElementById('gpsCrosshairIcon');
-        const origPlaceholder = destInput.placeholder;
-        destInput.placeholder = "Detecting your GPS location...";
+        const origPlaceholder = destInput ? destInput.placeholder : '';
+        if (destInput) destInput.placeholder = "Detecting your GPS location...";
         if (icon) icon.className = "fa-solid fa-spinner fa-spin";
 
         navigator.geolocation.getCurrentPosition(function(pos) {
-            document.getElementById('gpsLatInput').value = pos.coords.latitude;
-            document.getElementById('gpsLngInput').value = pos.coords.longitude;
-            destInput.value = "Near My Location";
-            if (icon) icon.className = "fa-solid fa-location-crosshairs";
-            document.getElementById('searchHeaderForm').submit();
+            const lat = pos.coords.latitude;
+            const lng = pos.coords.longitude;
+            const latInput = document.getElementById('gpsLatInput');
+            const lngInput = document.getElementById('gpsLngInput');
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+            if (destInput) destInput.value = "Near My Location";
+
+            // Instant client-side reverse geocoding with fast 650ms timeout
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 650);
+
+            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`, { signal: controller.signal })
+                .then(r => r.json())
+                .then(data => {
+                    clearTimeout(timeoutId);
+                    const area = data.locality || data.city || data.principalSubdivision;
+                    if (area && destInput) {
+                        destInput.value = area;
+                    }
+                })
+                .catch(() => {})
+                .finally(() => {
+                    if (icon) icon.className = "fa-solid fa-location-crosshairs";
+                    const form = document.getElementById('searchHeaderForm');
+                    if (form) form.submit();
+                });
         }, function(err) {
-            destInput.placeholder = origPlaceholder;
-            if (icon) icon.className = "fa-solid fa-location-crosshairs";
-            alert("Could not access your location. Please ensure location permissions are enabled.");
-        }, { timeout: 10000 });
+            // Silent IP Geolocation Fallback if GPS is blocked or denied
+            fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=en')
+                .then(r => r.json())
+                .then(data => {
+                    const city = data.city || data.principalSubdivision || "Dhaka";
+                    if (destInput) destInput.value = city;
+                    const form = document.getElementById('searchHeaderForm');
+                    if (form) form.submit();
+                })
+                .catch(() => {
+                    if (destInput) destInput.placeholder = origPlaceholder;
+                    if (icon) icon.className = "fa-solid fa-location-crosshairs";
+                    alert("Location access denied. Please type your destination city.");
+                });
+        }, { timeout: 10000, enableHighAccuracy: true });
     }
 </script>
 
-{{-- 3. Agoda Coupon Deals Strip Banner (Image 2 Parity) --}}
-<div style="background: #fff0f3; border-bottom: 1px solid #fecdd3; padding: 10px 0;">
-    <div class="d-flex align-items-center justify-content-between" style="max-width: 1240px; margin: 0 auto; padding: 0 16px; font-size: 13px;">
-        <div class="d-flex align-items-center gap-2">
-            <span class="badge bg-danger rounded-pill px-2 py-1"><i class="fa-solid fa-tag"></i></span>
-            <strong class="text-dark">Looking for instant coupons?</strong>
-            <span class="text-secondary d-none d-md-inline">Check out our Coupons &amp; Deals page for today's BDT discounts</span>
+{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Screenshot) --}}
+<div class="agoda-coupon-strip" style="background: #ffebe6; border-bottom: 1px solid #ffd5cc; padding: 12px 0;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1180px; margin: 0 auto; padding: 0 24px;">
+        <div class="d-flex align-items-center gap-3">
+            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg);">
+                <i class="fa-solid fa-tags fs-5"></i>
+            </div>
+            <div>
+                <strong class="text-dark d-block" style="font-size: 15px; font-weight: 700; line-height: 1.2;">Looking for instant coupons?</strong>
+                <span class="text-secondary" style="font-size: 13px;">Check out our Coupons &amp; Deals page for today's discounts</span>
+            </div>
         </div>
-        <a href="{{ route('deals') }}" class="btn btn-sm btn-outline-danger bg-white rounded-pill px-3 py-1 fw-bold" style="font-size: 12px;">See all coupons</a>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-2 fw-bold text-primary shadow-xs" style="font-size: 13px; color: #2067e1 !important; border: 1px solid #cbd5e1;">
+                See all coupons
+            </a>
+            <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px;" title="Dismiss">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
     </div>
 </div>
 
 {{-- 4. Main Search Results Layout --}}
-<div style="max-width: 1240px; margin: 0 auto; padding: 24px 16px;">
+<div style="max-width: 1180px; margin: 0 auto; padding: 24px 24px;">
     <div class="row g-4">
         
         {{-- Left Filter Sidebar --}}
@@ -193,57 +237,16 @@
 
         {{-- Right Results Feed --}}
         <div class="col-lg-9" id="searchResultsContainer">
-            
-            {{-- Green Prime Homes Promo Banner (Agoda Standard 1:1 Parity) --}}
-            <div class="mb-4 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3" style="background: #e8f5e9; border: 1px solid #c8e6c9; border-radius: 12px !important; padding: 16px 20px;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 44px; height: 44px; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border-radius: 50%; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.25);">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-                            <polyline points="9 22 9 12 15 12 15 22"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h6 class="fw-bold mb-1 text-dark" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1.2;">Additional discounts up to 12% on Prime Homes</h6>
-                        <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.3;">More spacious. More local. More of why you travel.</small>
-                    </div>
-                </div>
-                <div>
-                    <a href="{{ route('search.index', array_merge(request()->query(), ['search_type' => 'homes'])) }}" class="btn text-white fw-bold shadow-xs" style="background-color: #2067e1; border-radius: 8px; font-size: 13px; padding: 8px 18px;">
-                        Show more Homes
-                    </a>
-                </div>
-            </div>
 
-            {{-- 3.5 Smart Destination Weather & Seasonal Guidance Card --}}
-            @if(!empty($destination))
-            @php
-                $cityInsight = \App\Services\Search\CityInsightService::getInsights($destination);
-            @endphp
-            <div class="mb-3 p-3 rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-3 shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0;">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="rounded-circle d-flex align-items-center justify-content-center shadow-xs flex-shrink-0" style="width: 42px; height: 42px; background: #ffffff; border: 1px solid #86efac;">
-                        <i class="{{ $cityInsight['icon'] }} fs-5"></i>
-                    </div>
-                    <div>
-                        <div class="d-flex align-items-center gap-2 flex-wrap mb-1">
-                            <strong class="text-dark fw-bold" style="font-size: 14px;">{{ $destination }}</strong>
-                            <span class="badge fw-semibold px-2.5 py-1" style="font-size: 11px; background: #dcfce7; color: #15803d; border: 1px solid #86efac; border-radius: 20px;">
-                                <i class="fa-solid fa-sparkles me-1 text-success" style="font-size: 10px;"></i>{{ $cityInsight['season_badge'] }}
-                            </span>
-                            <span class="text-secondary fw-semibold" style="font-size: 12.5px;">
-                                <i class="fa-solid fa-cloud-sun text-warning me-1"></i>{{ $cityInsight['temp'] }} · {{ $cityInsight['condition'] }}
-                            </span>
-                        </div>
-                        <div class="text-secondary" style="font-size: 12px; line-height: 1.35; color: #475569;">
-                            <i class="fa-solid fa-circle-info text-success me-1 opacity-75"></i>{{ $cityInsight['tip'] }}
-                        </div>
-                    </div>
+            {{-- 3.6 Auto-Radius Expander Notice Banner --}}
+            @if(!empty($searchResults['radius_expanded']))
+            <div class="alert d-flex align-items-center gap-3 rounded-3 mb-3 p-3 shadow-xs border-0" style="background: #eff6ff; border: 1px solid #bfdbfe !important;">
+                <div class="d-flex align-items-center justify-content-center flex-shrink-0 text-white rounded-circle" style="width: 38px; height: 38px; font-size: 15px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">
+                    <i class="fa-solid fa-location-crosshairs"></i>
                 </div>
-                <div>
-                    <span class="badge bg-white text-dark border px-3 py-1.5 shadow-xs fw-semibold d-inline-flex align-items-center gap-1.5" style="font-size: 11.5px; border-color: #cbd5e1 !important; border-radius: 20px;">
-                        <i class="fa-solid fa-bolt text-warning"></i> Best Rates Guaranteed
-                    </span>
+                <div style="font-size: 12.5px; line-height: 1.35;">
+                    <strong class="text-dark d-block mb-0.5" style="font-size: 13px;">Search radius expanded to {{ (int)$searchResults['expanded_radius_km'] }} km</strong>
+                    <span class="text-secondary">No direct hotels were found within {{ (int)$searchResults['original_radius_km'] }} km of your location. We automatically expanded your search to find the closest available stays.</span>
                 </div>
             </div>
             @endif
@@ -272,12 +275,18 @@
 
             {{-- Applied Active Filter Removable Tags Strip (ALL filter types) --}}
             @php
-                $hasFilters = request()->hasAny(['q','min_price','max_price','guest_rating','star_rating','amenities','bed_type','room_feature','pay_later','free_cancel','property_type']);
+                $hasFilters = request()->hasAny(['q','min_price','max_price','guest_rating','star_rating','amenities','bed_type','room_feature','pay_later','free_cancel','property_type','entire_home']);
                 $clearBaseParams = array_filter(['destination'=>request('destination'),'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests'),'rooms'=>request('rooms')]);
             @endphp
             @if($hasFilters)
             <div class="d-flex align-items-center gap-1 mb-3 pb-2 border-bottom flex-wrap">
                 <span class="small text-muted fw-bold me-1" style="font-size: 11.5px;">Active filters:</span>
+
+                @if(request('entire_home'))
+                    <a href="{{ route('search.index', request()->except('entire_home')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
+                        Entire home / apt <i class="fa-solid fa-xmark text-danger ms-1"></i>
+                    </a>
+                @endif
 
                 @if(request('q'))
                     <a href="{{ route('search.index', request()->except('q')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
@@ -352,10 +361,25 @@
             @endif
 
             {{-- Results Header & AJAX Sort Dropdown (no full page reload) --}}
+            @php
+                // Accurate live count: use paginator total (true DB count),
+                // fall back to merged_results count (for API fallback mode).
+                $liveTotal = $searchResults['paginator']->total() > 0
+                    ? $searchResults['paginator']->total()
+                    : count($searchResults['merged_results'] ?? []);
+
+                // Smart destination label:
+                // If no destination typed, show "Bangladesh" (all active props).
+                // If destination typed, show it exactly as searched.
+                $destLabel = !empty(trim($destination ?? ''))
+                    ? trim($destination)
+                    : 'Bangladesh';
+            @endphp
             <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                 <div>
                     <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">
-                        <span id="resultsCount">{{ $searchResults['total_count'] }}</span> properties in {{ $destination ?: 'Bangladesh' }}
+                        <span id="resultsCount">{{ $liveTotal }}</span>
+                        stays available in {{ $destLabel }}
                     </h4>
                 </div>
                 <div class="d-flex align-items-center gap-2">
@@ -363,16 +387,66 @@
                     <button class="btn btn-outline-secondary btn-sm rounded-pill fw-bold d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas" aria-controls="mobileFilterOffcanvas" style="font-size:12px;">
                         <i class="fa-solid fa-sliders me-1"></i> Filters
                     </button>
-                    <label class="small text-muted fw-semibold mb-0 d-none d-sm-inline">Sort by:</label>
-                    <select id="sortBySelect" class="form-select form-select-sm rounded-3 fw-semibold" style="width: 190px; font-size: 13px; border-color: #cbd5e1;">
-                        <option value="featured" {{ request('sort_by','featured') == 'featured' ? 'selected' : '' }}>Best match</option>
-                        <option value="price_low" {{ request('sort_by') == 'price_low' ? 'selected' : '' }}>Lowest price first</option>
-                        <option value="price_high" {{ request('sort_by') == 'price_high' ? 'selected' : '' }}>Highest price first</option>
-                        <option value="rating" {{ request('sort_by') == 'rating' ? 'selected' : '' }}>Highest guest rating</option>
-                        <option value="newest" {{ request('sort_by') == 'newest' ? 'selected' : '' }}>Newest listings</option>
-                    </select>
+                    
+                    {{-- Exact Agoda Custom Sort Dropdown --}}
+                    @php
+                        $curSort = request('sort_by', 'featured');
+                        $sortLabels = [
+                            'featured'   => 'Best match',
+                            'price_low'  => 'Lowest price',
+                            'price_high' => 'Highest price',
+                            'rating'     => 'Top guest ratings',
+                            'newest'     => 'Newest listings',
+                        ];
+                        $curLabel = $sortLabels[$curSort] ?? 'Best match';
+                    @endphp
+                    <div class="dropdown position-relative" id="agodaSortDropdownWrap">
+                        <button class="btn bg-white rounded-3 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle text-dark fw-semibold" 
+                                type="button" 
+                                id="agodaSortDropdownBtn" 
+                                data-bs-toggle="dropdown" 
+                                aria-expanded="false" 
+                                style="width: 220px; height: 42px; border: 1.5px solid #cbd5e1; font-size: 13.5px; padding: 0 14px;">
+                            <span>Sort: <strong class="fw-bold">{{ $curLabel }}</strong></span>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 py-2 mt-1" aria-labelledby="agodaSortDropdownBtn" style="width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;">
+                            @foreach($sortLabels as $sKey => $sTitle)
+                            <li>
+                                <a class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between text-dark fw-semibold {{ $curSort === $sKey ? 'active bg-light' : '' }}" 
+                                   href="javascript:void(0)" 
+                                   onclick="applyAgodaSort('{{ $sKey }}')" 
+                                   style="font-size: 13.5px; {{ $curSort === $sKey ? 'color: #2067e1 !important; font-weight: 700;' : '' }}">
+                                    <span>{{ $sTitle }}</span>
+                                    @if($curSort === $sKey)
+                                        <i class="fa-solid fa-check text-primary" style="font-size: 13px;"></i>
+                                    @endif
+                                </a>
+                            </li>
+                            @endforeach
+                        </ul>
+                        <input type="hidden" name="sort_by" id="sortByHiddenInput" value="{{ $curSort }}">
+                    </div>
                 </div>
             </div>
+
+            <script>
+                function applyAgodaSort(val) {
+                    const form = document.getElementById('searchHeaderForm') || document.querySelector('form[action*="search"]');
+                    let sortInput = document.getElementById('sortByHiddenInput');
+                    if (!sortInput) {
+                        sortInput = document.createElement('input');
+                        sortInput.type = 'hidden';
+                        sortInput.name = 'sort_by';
+                        sortInput.id = 'sortByHiddenInput';
+                        if (form) form.appendChild(sortInput);
+                    }
+                    sortInput.value = val;
+                    
+                    const url = new URL(window.location.href);
+                    url.searchParams.set('sort_by', val);
+                    window.location.href = url.toString();
+                }
+            </script>
 
             {{-- Agoda Popular Quick Filter Chips Bar --}}
             <div class="d-flex align-items-center gap-2 overflow-x-auto pb-2 mb-2" style="scrollbar-width: none;">
@@ -509,46 +583,108 @@
 </div>
 
 @php
-    $defaultLat = 22.3569; // Chattogram / Bangladesh Default Center
-    $defaultLng = 91.7832;
     $currCode = \App\Helpers\CurrencyHelper::current();
+    $userLat = (isset($lat) && is_numeric($lat)) ? (float)$lat : ((request('lat') && is_numeric(request('lat'))) ? (float)request('lat') : null);
+    $userLng = (isset($lng) && is_numeric($lng)) ? (float)$lng : ((request('lng') && is_numeric(request('lng'))) ? (float)request('lng') : null);
 
-    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng, $currCode) {
+    // City coordinate mappings for Bangladesh
+    $cityCoords = [
+        'dhaka'         => [23.8103, 90.4125],
+        'chattogram'    => [22.3569, 91.7832],
+        'chittagong'    => [22.3569, 91.7832],
+        "cox's bazar"   => [21.4272, 91.9782],
+        'sylhet'        => [24.8949, 91.8687],
+        'khulna'        => [22.8456, 89.5403],
+        'rajshahi'      => [24.3745, 88.6042],
+        'barishal'      => [22.7010, 90.3535],
+        'barisal'       => [22.7010, 90.3535],
+        'rangpur'       => [25.7439, 89.2752],
+        'mymensingh'    => [24.7471, 90.4203],
+        'sreemangal'    => [24.3065, 91.7296],
+        'sajek'         => [23.3820, 92.2938],
+        'sajek valley'  => [23.3820, 92.2938],
+        'sundarban'     => [22.4833, 89.6000],
+        'sundarbans'    => [22.4833, 89.6000],
+        'mongla'        => [22.4833, 89.6000],
+        'kuakata'       => [21.8167, 90.1167],
+        'bandarban'     => [22.1953, 92.2184],
+    ];
+
+    $destKey = strtolower(trim((string)($destination ?? '')));
+    $destCoords = $cityCoords[$destKey] ?? null;
+
+    // National default center: Dhaka, Bangladesh
+    $defaultLat = $destCoords ? $destCoords[0] : 23.8103;
+    $defaultLng = $destCoords ? $destCoords[1] : 90.4125;
+
+    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng, $currCode, $userLat, $userLng, $cityCoords) {
         $isObj       = is_object($p);
         $id          = $isObj ? ($p->id ?? $idx + 1) : ($p['id'] ?? $idx + 1);
         $name        = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
         $slug        = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
         $rawPriceBDT = (float)($isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0));
         if ($rawPriceBDT <= 0) $rawPriceBDT = 3500;
-        $convertedPrice = round(\App\Services\CurrencyService::convert($rawPriceBDT, 'BDT', $currCode), 2);
+        $convertedPrice = round(\App\Services\CurrencyService::convert($rawPriceBDT, $currCode), 2);
         $formattedPrice = \App\Services\CurrencyService::format($rawPriceBDT);
-        $city        = $isObj ? ($p->city ?? $p->address ?? 'Chattogram') : ($p['city'] ?? $p['address'] ?? 'Chattogram');
+        $city        = $isObj ? ($p->city ?? $p->address ?? 'Bangladesh') : ($p['city'] ?? $p['address'] ?? 'Bangladesh');
         $image       = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
         $score       = (float)($isObj ? ($p->rating_score ?? 8.5) : ($p['rating_score'] ?? 8.5));
         $reviews     = (int)($isObj ? ($p->total_reviews ?? 4) : ($p['total_reviews'] ?? 4));
         $lat         = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
         $lng         = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
+        $hasGps      = ($lat !== 0.0 && $lng !== 0.0);
+
+        // Fallback: If property has no GPS coordinates, resolve accurately from its city name
+        if (!$hasGps) {
+            $cKey = strtolower(trim((string)$city));
+            if (isset($cityCoords[$cKey])) {
+                $lat = $cityCoords[$cKey][0];
+                $lng = $cityCoords[$cKey][1];
+                $hasGps = true;
+            } else {
+                foreach ($cityCoords as $k => $cPoint) {
+                    if (str_contains($cKey, $k)) {
+                        $lat = $cPoint[0];
+                        $lng = $cPoint[1];
+                        $hasGps = true;
+                        break;
+                    }
+                }
+            }
+        }
+
         $type        = $isObj ? ($p->type ?? 'hotel') : ($p['type'] ?? 'hotel');
         $freeCancel  = (bool)($isObj ? ($p->free_cancellation ?? true) : ($p['free_cancellation'] ?? true));
         $payLater    = (bool)($isObj ? ($p->no_credit_card_required ?? true) : ($p['no_credit_card_required'] ?? true));
+        
+        $distanceKm  = $isObj ? ($p->distance_km ?? null) : ($p['distance_km'] ?? null);
+        if ($distanceKm === null && $userLat && $userLng && $lat != 0 && $lng != 0) {
+            $dLat = deg2rad($userLat - $lat);
+            $dLng = deg2rad($userLng - $lng);
+            $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat)) * cos(deg2rad($userLat)) * sin($dLng / 2) * sin($dLng / 2);
+            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+            $distanceKm = round(6371 * $c, 1);
+        }
 
         return [
-            'id'          => $id,
-            'name'        => $name,
-            'price_raw'   => $convertedPrice,
-            'price'       => $formattedPrice,
-            'city'        => $city,
-            'image'       => $image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
-            'score'       => $score > 0 ? number_format($score, 1) : '8.8',
-            'rating_text' => $score >= 9 ? 'Exceptional' : ($score >= 8 ? 'Excellent' : 'Very Good'),
-            'reviews'     => $reviews,
-            'url'         => route('property.show', $slug),
-            'lat'         => $lat,
-            'lng'         => $lng,
-            'has_gps'     => ($lat !== 0.0 && $lng !== 0.0),
-            'type'        => ucfirst($type),
-            'free_cancel' => $freeCancel,
-            'pay_later'   => $payLater,
+            'id'            => $id,
+            'name'          => $name,
+            'price_raw'     => $convertedPrice,
+            'price'         => $formattedPrice,
+            'city'          => $city,
+            'image'         => $image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
+            'score'         => $score > 0 ? number_format($score, 1) : '8.8',
+            'rating_text'   => $score >= 9 ? 'Exceptional' : ($score >= 8 ? 'Excellent' : 'Very Good'),
+            'reviews'       => $reviews,
+            'url'           => route('property.show', $slug),
+            'lat'           => $lat,
+            'lng'           => $lng,
+            'has_gps'       => $hasGps,
+            'distance_km'   => $distanceKm !== null ? round((float)$distanceKm, 1) : null,
+            'distance_text' => $distanceKm !== null ? round((float)$distanceKm, 1) . ' km from your location' : null,
+            'type'          => ucfirst($type),
+            'free_cancel'   => $freeCancel,
+            'pay_later'     => $payLater,
         ];
     });
 
@@ -558,10 +694,16 @@
     }
 
     $gpsProps = $mapProperties->where('has_gps', true);
-    if ($gpsProps->count() > 0) {
+    if ($userLat && $userLng) {
+        // Priority 1: User's GPS location
+        $centerLat = $userLat;
+        $centerLng = $userLng;
+    } elseif ($gpsProps->count() > 0) {
+        // Priority 2: Centroid of results
         $centerLat = $gpsProps->avg('lat');
         $centerLng = $gpsProps->avg('lng');
     } else {
+        // Priority 3 / 4: Destination city or National capital (Dhaka)
         $centerLat = $defaultLat;
         $centerLng = $defaultLng;
     }
@@ -667,7 +809,7 @@
 
                     {{-- 1. Popular Filters --}}
                     <div class="mb-3 pb-2.5 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size: 12.5px;">Popular filters for {{ $destination ?: 'Chittagong' }}</label>
+                        <label class="fw-bold text-dark d-block mb-2" style="font-size: 12.5px;">Popular filters for {{ $destination ?: 'Bangladesh' }}</label>
                         <div class="d-flex flex-column gap-2">
                             <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
                                 <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="breakfast" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Breakfast included</span>
@@ -819,6 +961,19 @@
                     maxZoom: 18
                 }).addTo(miniMap);
 
+                var userLat = {{ $userLat ?: 'null' }};
+                var userLng = {{ $userLng ?: 'null' }};
+
+                if (userLat && userLng) {
+                    var userPulseIcon = L.divIcon({
+                        className: 'user-mini-pulse',
+                        html: '<div style="width:14px;height:14px;background:#2563eb;border:2.5px solid #ffffff;border-radius:50%;box-shadow:0 0 0 4px rgba(37,99,235,0.35);"></div>',
+                        iconSize: [14, 14],
+                        iconAnchor: [7, 7]
+                    });
+                    L.marker([userLat, userLng], {icon: userPulseIcon, zIndexOffset: 10000}).addTo(miniMap);
+                }
+
                 allProperties.forEach(function(item) {
                     var dotIcon = L.divIcon({
                         className: 'agoda-mini-dot',
@@ -850,6 +1005,7 @@
             var html = '';
             items.forEach(function(item, idx) {
                 var isFirst = (idx === 0);
+                var distBadge = item.distance_text ? `<div style="color: #2067e1; font-size: 10.5px; font-weight: 700; margin-top: 1px;"><i class="fa-solid fa-location-crosshairs me-1"></i>${item.distance_text}</div>` : '';
                 html += `
                     <div class="card agoda-map-card" id="mapCard_${item.id}" style="border: 1.5px solid ${isFirst ? '#2067e1' : '#e2e8f0'}; border-radius: 4px; cursor: pointer; background: #ffffff; display: flex; flex-direction: row; height: 145px; margin-bottom: 8px; transition: all 0.15s ease; overflow: hidden; position: relative; ${isFirst ? 'box-shadow: 0 2px 10px rgba(32, 103, 225, 0.14);' : ''}" onmouseenter="highlightMarker(${item.id})" onmouseleave="unhighlightMarker(${item.id})" onclick="window.open('${item.url}', '_blank')">
                         <!-- Left Hotel Photo (135px width, 100% height) -->
@@ -870,6 +1026,7 @@
                                     </div>
                                 </div>
                                 <div style="color: #f59e0b; font-size: 10.5px; margin-top: 1px; letter-spacing: 0.5px;">★★★</div>
+                                ${distBadge}
                                 <div style="margin-top: 2px;">
                                     <span style="color: #2067e1; font-size: 13px; font-weight: 800;">${item.score} ${item.rating_text}</span>
                                     <div style="font-size: 10.5px; color: #64748b;">${item.reviews} reviews</div>
@@ -1133,28 +1290,56 @@
             if (clearBtn) clearBtn.classList.remove('d-none');
             var query = val.toLowerCase().trim();
 
-            // Filter predefined geo hierarchy + real property database
-            var matchedGeos = geoLocations.filter(g => g.name.toLowerCase().includes(query) || g.subtitle.toLowerCase().includes(query));
+            // 1. Instant match from current search results
             var matchedProps = allProperties.filter(p => p.name.toLowerCase().includes(query) || p.city.toLowerCase().includes(query));
+            var matchedGeos = geoLocations.filter(g => g.name.toLowerCase().includes(query) || g.subtitle.toLowerCase().includes(query));
 
             var results = [];
-            matchedGeos.forEach(g => results.push({ title: g.name, subtitle: g.subtitle, lat: g.lat, lng: g.lng, isGeo: true }));
             matchedProps.slice(0, 5).forEach(p => results.push({ title: p.name, subtitle: p.city + ' • ' + p.price, id: p.id, lat: p.lat, lng: p.lng, isProp: true }));
+            matchedGeos.forEach(g => results.push({ title: g.name, subtitle: g.subtitle, lat: g.lat, lng: g.lng, isGeo: true }));
 
-            if (results.length === 0) {
-                if (dropdown) dropdown.classList.add('d-none');
-            } else {
-                var html = '';
-                results.forEach(function(r) {
-                    html += `
-                        <div class="px-3 py-2 agoda-suggest-item" style="cursor:pointer; border-bottom:1px solid #f1f5f9; transition:background 0.15s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'" onclick="selectMapSuggestion('${r.title.replace(/'/g, "\\'")}', ${r.lat}, ${r.lng}, ${r.id || 'null'})">
-                            <div class="fw-bold text-dark" style="font-size:13.5px; font-family:'Plus Jakarta Sans',sans-serif; color:#0f172a;">${r.title}</div>
-                            <small class="text-secondary d-block" style="font-size:11px; line-height:1.2;">${r.subtitle}</small>
-                        </div>
-                    `;
+            // 2. Fetch live REST API suggestions across database
+            fetch(`/api/v1/suggestions?q=${encodeURIComponent(query)}`)
+                .then(r => r.json())
+                .then(res => {
+                    var apiItems = res?.data || res || [];
+                    if (Array.isArray(apiItems)) {
+                        apiItems.forEach(item => {
+                            var title = item.title || item.name;
+                            if (title && !results.some(r => r.title.toLowerCase() === title.toLowerCase())) {
+                                results.push({
+                                    title: title,
+                                    subtitle: item.subtitle || item.city || 'Bangladesh',
+                                    lat: parseFloat(item.latitude || item.lat || 23.8103),
+                                    lng: parseFloat(item.longitude || item.lng || 90.4125),
+                                    id: item.id || null,
+                                    isProp: item.type === 'hotel'
+                                });
+                            }
+                        });
+                    }
+                    renderSuggestions(results);
+                })
+                .catch(() => {
+                    renderSuggestions(results);
                 });
-                if (list) list.innerHTML = html;
-                if (dropdown) dropdown.classList.remove('d-none');
+
+            function renderSuggestions(resList) {
+                if (resList.length === 0) {
+                    if (dropdown) dropdown.classList.add('d-none');
+                } else {
+                    var html = '';
+                    resList.slice(0, 8).forEach(function(r) {
+                        html += `
+                            <div class="px-3 py-2 agoda-suggest-item" style="cursor:pointer; border-bottom:1px solid #f1f5f9; transition:background 0.15s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'" onclick="selectMapSuggestion('${r.title.replace(/'/g, "\\'")}', ${r.lat}, ${r.lng}, ${r.id || 'null'})">
+                                <div class="fw-bold text-dark" style="font-size:13.5px; font-family:'Plus Jakarta Sans',sans-serif; color:#0f172a;">${r.title}</div>
+                                <small class="text-secondary d-block" style="font-size:11px; line-height:1.2;">${r.subtitle}</small>
+                            </div>
+                        `;
+                    });
+                    if (list) list.innerHTML = html;
+                    if (dropdown) dropdown.classList.remove('d-none');
+                }
             }
 
             filterMapItems();
@@ -1218,6 +1403,18 @@
                 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                     attribution: '&copy; OpenStreetMap contributors | PRIME BOOKING'
                 }).addTo(map);
+
+                if (userLat && userLng) {
+                    var mainUserIcon = L.divIcon({
+                        className: 'main-user-pulse',
+                        html: '<div style="position:relative;width:22px;height:22px;"><div style="position:absolute;width:22px;height:22px;background:rgba(37,99,235,0.25);border-radius:50%;"></div><div style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#2563eb;border:2.5px solid #ffffff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div></div>',
+                        iconSize: [22, 22],
+                        iconAnchor: [11, 11]
+                    });
+                    L.marker([userLat, userLng], {icon: mainUserIcon, zIndexOffset: 10000})
+                        .addTo(map)
+                        .bindPopup("<div class='p-1 text-center' style='font-size:12px;font-family:sans-serif;'>📍 <strong>Your Current Location</strong></div>");
+                }
 
                 allProperties.forEach(function(item) {
                     var isSoldOut = item.price_raw <= 0 || item.price.includes('N/A');

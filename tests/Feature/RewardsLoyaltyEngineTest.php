@@ -12,6 +12,7 @@ use App\Services\RewardPointService;
 
 class RewardsLoyaltyEngineTest extends TestCase
 {
+    use \Illuminate\Foundation\Testing\RefreshDatabase;
     /** @test */
     public function reward_point_service_calculates_points_and_valuation_correctly()
     {

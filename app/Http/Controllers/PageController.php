@@ -60,11 +60,31 @@ class PageController extends Controller
                 ->ordered()->get()
         );
 
-        // ── Featured Destinations from Admin CMS (cached 15 min) ──────────
-        $destinations = Cache::remember(
-            'featured_destinations', 900,
-            fn() => FeaturedDestination::active()->get()
-        );
+        // ── Featured Destinations from Admin CMS with Live DB Property Counts (cached 15 min) ──
+        $destinations = Cache::remember('featured_destinations:with_counts', 900, function () {
+            $dests = FeaturedDestination::active()->get();
+            $cityCounts = Property::active()
+                ->whereNotNull('city')
+                ->selectRaw('LOWER(city) as city, COUNT(*) as total')
+                ->groupBy('city')
+                ->pluck('total', 'city');
+
+            foreach ($dests as $d) {
+                $cKey = strtolower(trim((string)($d->city ?? '')));
+                $nKey = strtolower(trim((string)($d->name ?? '')));
+                $count = $cityCounts[$cKey] ?? $cityCounts[$nKey] ?? null;
+                if ($count === null) {
+                    foreach ($cityCounts as $dbCity => $cTotal) {
+                        if (($cKey !== '' && str_contains($cKey, $dbCity)) || ($nKey !== '' && str_contains($nKey, $dbCity)) || str_contains($dbCity, $cKey)) {
+                            $count = $cTotal;
+                            break;
+                        }
+                    }
+                }
+                $d->live_property_count = $count ?? 0;
+            }
+            return $dests;
+        });
 
         // ── Property Type Stats from DB (live count, cached 30 min) ───────
         $propertyTypeCounts = Cache::remember('property_type_counts', 1800, function () {
@@ -73,8 +93,7 @@ class PageController extends Controller
                 ->groupBy('property_type')
                 ->pluck('count', 'property_type');
 
-            $types = ['hotel', 'resort', 'apartment', 'villa', 'hostel', 'guesthouse',
-                      'houseboat', 'eco_lodge', 'cottage'];
+            $types = ['hotel', 'resort', 'houseboat', 'homestay', 'apartment', 'villa', 'hostel', 'guesthouse', 'eco_lodge', 'cottage'];
             $result = [];
             foreach ($types as $t) {
                 $result[$t] = $counts[$t] ?? 0;

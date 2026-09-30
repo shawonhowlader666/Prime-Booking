@@ -293,6 +293,8 @@
             };
         });
     </script>
+    @include('partials.prime_toast')
+    @include('partials.social_proof_toaster')
     @stack('scripts')
 </body>
 </html>

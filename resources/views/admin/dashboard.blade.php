@@ -7,31 +7,24 @@
 {{-- =============================================
      PAGE HEADER
      ============================================= --}}
-<div class="page-header-card">
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
-        <h1 class="page-title m-0">Sales Summary Reports</h1>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><button class="btn-export-csv" onclick="exportTable('csv')">
-                <i class="fa-solid fa-file-csv"></i> Export CSV
-            </button>
-            <button class="btn-export-pdf" onclick="exportTable('pdf')">
-                <i class="fa-solid fa-file-pdf"></i> Export PDF
-            </button></div>
-    </div>
-    <div class="page-breadcrumb mt-2">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><span>Reports</span>
-        <span class="sep">-</span><strong style="color:#333;">Sales Summary</strong>
-    </div>
-</div>
-
 {{-- =============================================
-     FILTER BAR
+     PAGE HEADER WITH INLINE FILTERS & EXPORT
      ============================================= --}}
-<div class="page-filters-bar">
-    <div class="row g-2 align-items-end">
-        <div class="col-12 col-sm-6 col-md-3">
-            <label class="form-label">Tourist Region / City</label>
-            <select id="filterRegion" class="form-select" onchange="filterTable()">
+<div class="page-header-card mb-3">
+    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
+        <div>
+            <h1 class="page-title m-0">Sales Summary Reports</h1>
+            <div class="page-breadcrumb mt-1">
+                <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
+                <span class="sep">-</span><span>Reports</span>
+                <span class="sep">-</span><strong style="color:#333;">Sales Summary</strong>
+            </div>
+        </div>
+
+        {{-- Inline Filters & Export Group in the same line --}}
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            {{-- Tourist Region / City --}}
+            <select id="filterRegion" class="form-select form-select-sm" onchange="filterTable()" style="width:auto; min-width:150px; height:32px; font-size:12px; border-radius:4px; border-color:#cbd5e1; background-color:#fff;">
                 <option value="">All Regions &amp; Destinations</option>
                 <option>Cox's Bazar</option>
                 <option>Dhaka</option>
@@ -40,30 +33,40 @@
                 <option>Sundarban</option>
                 <option>Kuakata</option>
             </select>
-        </div>
-        <div class="col-12 col-sm-6 col-md-3">
-            <label class="form-label">Customer Category</label>
-            <select id="filterCategory" class="form-select" onchange="filterTable()">
+
+            {{-- Customer Category --}}
+            <select id="filterCategory" class="form-select form-select-sm" onchange="filterTable()" style="width:auto; min-width:150px; height:32px; font-size:12px; border-radius:4px; border-color:#cbd5e1; background-color:#fff;">
                 <option value="">All Customers &amp; Bookers</option>
                 <option value="bKash">bKash MFS Customers</option>
                 <option value="Nagad">Nagad MFS Customers</option>
                 <option value="Card">Visa / Mastercard Users</option>
             </select>
-        </div>
-        <div class="col-12 col-sm-6 col-md-3">
-            <label class="form-label">Date Range</label>
-            <select class="form-select">
+
+            {{-- Date Range --}}
+            <select class="form-select form-select-sm" style="width:auto; min-width:145px; height:32px; font-size:12px; border-radius:4px; border-color:#cbd5e1; background-color:#fff;">
                 <option selected>Last 30 Days (Aug 2026)</option>
                 <option>Last 7 Days</option>
                 <option>This Quarter</option>
             </select>
-        </div>
-        <div class="col-12 col-sm-6 col-md-3">
-            <label class="form-label">Search Orders</label>
-            <div style="display:flex;">
-                <input type="text" id="searchInput" class="form-control" placeholder="Search ref or guest..." oninput="filterTable()" style="border-radius:6px 0 0 6px; border-right:none;">
-                <button class="btn-search" type="button"><i class="fa-solid fa-magnifying-glass"></i></button>
+
+            {{-- Search Orders --}}
+            <div style="display:inline-flex; align-items:center;">
+                <input type="text" id="searchInput" class="form-control form-control-sm" placeholder="Search ref or guest..." oninput="filterTable()" style="width:140px; height:32px; font-size:12px; border-radius:4px 0 0 4px; border-right:none; border-color:#cbd5e1;">
+                <button class="btn-search" type="button" style="height:32px; width:32px; border-radius:0 4px 4px 0; background:#1890ff; color:#fff; border:none; display:inline-flex; align-items:center; justify-content:center; font-size:11px;">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
             </div>
+
+            {{-- Export Buttons: Excel, CSV, PDF --}}
+            <button type="button" class="btn-tbl-excel" onclick="exportTable('excel')" title="Export to Excel" style="height:32px; font-size:12px; padding:4px 10px;">
+                <i class="fa-solid fa-file-excel"></i> Excel
+            </button>
+            <button type="button" class="btn-export-csv" onclick="exportTable('csv')" title="Export CSV" style="height:32px; font-size:12px; padding:4px 10px;">
+                <i class="fa-solid fa-file-csv"></i> CSV
+            </button>
+            <button type="button" class="btn-export-pdf" onclick="exportTable('pdf')" title="Export PDF" style="height:32px; font-size:12px; padding:4px 10px;">
+                <i class="fa-solid fa-file-pdf"></i> PDF
+            </button>
         </div>
     </div>
 </div>
@@ -74,7 +77,7 @@
 <div class="page-content-area">
 
     @if(session('success'))
-        <div class="admin-alert success mb-3">
+        <div class="admin-alert success mb-3" id="adminWelcomeAlert" style="transition: opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease; overflow: hidden;">
             <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
         </div>
     @endif
@@ -487,8 +490,26 @@ function filterTable() {
 }
 
 function exportTable(type) {
-    alert('Exporting ' + type.toUpperCase() + ' — Sales Summary Report...');
+    if (type === 'excel' || type === 'csv') {
+        exportTableCSV('salesTable', 'Sales_Summary_Report');
+    } else {
+        window.print();
+    }
 }
+
+// ── Auto-dismiss Welcome alert after 3 seconds ──────────────────────────────
+document.addEventListener('DOMContentLoaded', function() {
+    const welcomeAlert = document.getElementById('adminWelcomeAlert');
+    if (welcomeAlert) {
+        setTimeout(function() {
+            welcomeAlert.style.opacity = '0';
+            welcomeAlert.style.transform = 'translateY(-10px)';
+            setTimeout(function() {
+                welcomeAlert.style.display = 'none';
+            }, 500);
+        }, 3000);
+    }
+});
 </script>
 @endsection
 

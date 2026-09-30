@@ -289,8 +289,12 @@
             autofillBtn.addEventListener('click', function() {
                 document.getElementById('adminEmail').value = 'admin@primebooking.com';
                 document.getElementById('adminPassword').value = 'password123';
+                if (window.showToast) {
+                    window.showToast('Admin demo credentials populated!', 'info', 2500);
+                }
             });
         }
     </script>
+    @include('partials.prime_toast')
 </body>
 </html>

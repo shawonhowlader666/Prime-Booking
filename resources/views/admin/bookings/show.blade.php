@@ -1,4 +1,4 @@
-﻿@extends('layouts.admin')
+@extends('layouts.admin')
 @section('title', 'Booking Details #' . ($booking->booking_reference ?? $booking->id) . ' | PRIME BOOKING Admin')
 
 @section('content')
@@ -7,12 +7,17 @@
 <div class="page-header-card">
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <h1 class="page-title m-0">Booking Record details #{{ $booking->booking_reference ?? $booking->id }}</h1>
-        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;"><a href="{{ route('admin.bookings.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959;">
+        <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+            <a href="{{ route('admin.bookings.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959;">
                 <i class="fa-solid fa-arrow-left"></i> Back to All Bookings
             </a>
-            <button class="btn-export-pdf" onclick="window.print()">
-                <i class="fa-solid fa-print"></i> Print Voucher
-            </button></div>
+            <a href="{{ route('booking.voucher', $booking->booking_reference ?? $booking->id) }}" target="_blank" class="btn btn-sm btn-outline-primary fw-bold" style="border-radius:4px; height:32px; font-size:12px; display:inline-flex; align-items:center;">
+                <i class="fa-solid fa-ticket me-1"></i> Check-in Voucher
+            </a>
+            <a href="{{ route('booking.invoice', $booking->booking_reference ?? $booking->id) }}" target="_blank" class="btn btn-sm btn-primary fw-bold text-white" style="border-radius:4px; height:32px; font-size:12px; background:var(--primary); border:none; display:inline-flex; align-items:center;">
+                <i class="fa-solid fa-file-invoice-dollar me-1"></i> Official Tax Invoice
+            </a>
+        </div>
     </div>
     <div class="page-breadcrumb mt-2">
         <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>

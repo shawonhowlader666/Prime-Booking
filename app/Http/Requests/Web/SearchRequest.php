@@ -55,7 +55,7 @@ class SearchRequest extends FormRequest
             'bed_type.*'   => ['string', 'max:50'],
             'room_feature' => ['nullable', 'array'],
             'room_feature.*'=> ['string', 'max:50'],
-            'sort_by'      => ['nullable', 'string', 'in:featured,price_low,price_high,rating,newest'],
+            'sort_by'      => ['nullable', 'string', 'in:featured,price_low,price_high,rating,newest,distance'],
             'lat'          => ['nullable', 'numeric', 'between:-90,90'],
             'lng'          => ['nullable', 'numeric', 'between:-180,180'],
             'radius_km'    => ['nullable', 'numeric', 'min:1', 'max:200'],
@@ -74,7 +74,7 @@ class SearchRequest extends FormRequest
 
     public function searchType(): string
     {
-        return strtolower(trim((string) ($this->validated()['type'] ?? 'all')));
+        return strtolower(trim((string) ($this->validated()['search_type'] ?? $this->validated()['type'] ?? 'all')));
     }
 
     public function checkIn(): string

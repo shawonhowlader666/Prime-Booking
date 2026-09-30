@@ -1,4 +1,4 @@
-﻿@extends('layouts.main', ['activePage' => 'home'])
+@extends('layouts.main', ['activePage' => 'home'])
 
 @section('title', 'Booking Confirmed #' . $booking->booking_reference . ' | PRIME BOOKING')
 
@@ -123,5 +123,7 @@
 
     </div>
 </div>
+
+@include('partials.booking_celebration')
 @endsection
 

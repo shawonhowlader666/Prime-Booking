@@ -16,6 +16,7 @@ class Coupon extends Model
         'type',
         'discount_type',
         'amount',
+        'value',
         'discount_value',
         'min_spend',
         'expires_at',
@@ -41,6 +42,16 @@ class Coupon extends Model
     public function setDiscountValueAttribute($value): void
     {
         $this->attributes['amount'] = $value;
+    }
+
+    public function setValueAttribute($value): void
+    {
+        $this->attributes['amount'] = $value;
+    }
+
+    public function getValueAttribute()
+    {
+        return $this->attributes['amount'] ?? 0;
     }
 
     public function setIsActiveAttribute($value): void

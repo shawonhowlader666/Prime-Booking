@@ -93,7 +93,7 @@ class AccountingController extends Controller
         $vendor     = \App\Models\User::where('role', 'vendor')->findOrFail($vendorId);
         $properties = \App\Models\Property::where('vendor_id', $vendorId)->get();
         $finance    = $this->accountingService->getSingleVendorAccounting((int)$vendorId);
-        $ledgers    = \App\Models\AccountingLedger::where('vendor_id', $vendorId)->latest('id')->get();
+        $ledgers    = \App\Models\AccountingLedger::where('vendor_id', $vendorId)->with(['property', 'booking.property'])->latest('id')->get();
 
         return view('pages.vendor-statement-print', compact('vendor', 'properties', 'finance', 'ledgers'));
     }

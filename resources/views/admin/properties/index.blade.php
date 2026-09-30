@@ -31,6 +31,29 @@
     @endif
 
     {{-- KPI SUMMARY ROW --}}
+    @php
+        $currentScopeLabel = 'All Inventory';
+        if (request('source') === 'vendor') $currentScopeLabel = 'Vendor Hotels';
+        elseif (request('source') === 'admin') $currentScopeLabel = 'Admin Hotels';
+        elseif (request('source') === 'api_system') $currentScopeLabel = 'API Feeds & Admin';
+        elseif (is_numeric(request('source')) && isset($vendors)) {
+            $selectedVendor = $vendors->firstWhere('id', (int) request('source'));
+            if ($selectedVendor) $currentScopeLabel = $selectedVendor->name . "'s Hotels";
+        }
+        if (request('city')) $currentScopeLabel .= ' in ' . request('city');
+    @endphp
+
+    <div class="d-flex align-items-center justify-content-between mb-2">
+        <span class="text-muted fw-semibold" style="font-size:12px;">
+            <i class="fa-solid fa-chart-pie text-primary me-1"></i> Live Real-Time Metrics: <strong class="text-dark">{{ $currentScopeLabel }}</strong>
+        </span>
+        @if(request()->hasAny(['source', 'city', 'type', 'status', 'search']))
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-2 py-1" style="font-size:11px;">
+                <i class="fa-solid fa-filter me-1"></i> Filter Active
+            </span>
+        @endif
+    </div>
+
     <div class="row g-3 mb-4">
         <div class="col-12 col-sm-6 col-xl-3">
             <div class="kpi-card">
@@ -61,7 +84,7 @@
             </div>
         </div>
         <div class="col-12 col-sm-6 col-xl-3">
-            <a href="{{ route('admin.properties.index', ['status' => 'pending']) }}" style="text-decoration:none;">
+            <a href="{{ route('admin.properties.index', array_merge(request()->query(), ['status' => 'pending'])) }}" style="text-decoration:none;">
                 <div class="kpi-card" style="border: {{ ($stats['pending'] ?? 0) > 0 ? '1.5px solid #ff9f43' : 'none' }};">
                     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:10px;">
                         <div>
@@ -95,8 +118,23 @@
     {{-- STOCKIFLY FILTER BAR --}}
     <div class="card border border-gray-200 rounded-3 mb-4 bg-white p-3 shadow-xs" style="border-radius: 8px !important;">
         <form method="GET" action="{{ route('admin.properties.index') }}" class="row g-2 align-items-center">
-            <div class="col-md-3">
-                <select name="city" class="form-select form-select-sm" style="font-size: 13px;">
+            <div class="col-md-2">
+                <select name="source" class="form-select form-select-sm" style="font-size: 13px;" onchange="this.form.submit()">
+                    <option value="">All Sources (Admin + Vendor + API)</option>
+                    <option value="admin" {{ request('source') == 'admin' ? 'selected' : '' }}>🏢 Admin Direct Hotels</option>
+                    <option value="vendor" {{ request('source') == 'vendor' ? 'selected' : '' }}>👤 Vendor Added Hotels</option>
+                    <option value="api_system" {{ request('source') == 'api_system' ? 'selected' : '' }}>🌐 API Feeds &amp; System</option>
+                    @if(isset($vendors) && $vendors->count() > 0)
+                        <optgroup label="Specific Vendors">
+                            @foreach($vendors as $v)
+                                <option value="{{ $v->id }}" {{ request('source') == $v->id ? 'selected' : '' }}>👤 {{ $v->name }}</option>
+                            @endforeach
+                        </optgroup>
+                    @endif
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="city" class="form-select form-select-sm" style="font-size: 13px;" onchange="this.form.submit()">
                     <option value="">All Cities / Regions</option>
                     <option value="Cox's Bazar" {{ request('city') == "Cox's Bazar" ? 'selected' : '' }}>Cox's Bazar</option>
                     <option value="Dhaka" {{ request('city') == 'Dhaka' ? 'selected' : '' }}>Dhaka</option>
@@ -106,8 +144,8 @@
                     <option value="Kuakata" {{ request('city') == 'Kuakata' ? 'selected' : '' }}>Kuakata</option>
                 </select>
             </div>
-            <div class="col-md-3">
-                <select name="type" class="form-select form-select-sm" style="font-size: 13px;">
+            <div class="col-md-2">
+                <select name="type" class="form-select form-select-sm" style="font-size: 13px;" onchange="this.form.submit()">
                     <option value="all" {{ request('type') == 'all' ? 'selected' : '' }}>All Property Types</option>
                     <option value="hotel" {{ request('type') == 'hotel' ? 'selected' : '' }}>Hotel &amp; Resort</option>
                     <option value="houseboat" {{ request('type') == 'houseboat' ? 'selected' : '' }}>Ship &amp; Houseboat</option>
@@ -115,8 +153,8 @@
                 </select>
             </div>
             <div class="col-md-2">
-                <select name="status" class="form-select form-select-sm" style="font-size: 13px;">
-                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Properties</option>
+                <select name="status" class="form-select form-select-sm" style="font-size: 13px;" onchange="this.form.submit()">
+                    <option value="all" {{ request('status') == 'all' ? 'selected' : '' }}>All Statuses</option>
                     <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending Approval</option>
                     <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Active / Listed</option>
                     <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Draft / Inactive</option>
@@ -130,7 +168,7 @@
                 <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold" style="background-color: #2067e1; font-size: 12.5px;">
                     <i class="fa-solid fa-filter me-1"></i> Filter
                 </button>
-                @if(request()->hasAny(['city', 'type', 'status', 'search']))
+                @if(request()->hasAny(['source', 'city', 'type', 'status', 'search']))
                     <a href="{{ route('admin.properties.index') }}" class="btn btn-light btn-sm text-secondary border fw-bold" title="Reset Filters" style="font-size: 12.5px;">Reset</a>
                 @endif
             </div>

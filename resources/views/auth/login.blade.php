@@ -320,9 +320,9 @@
                             <label class="pb-label">Email or Phone Number</label>
                             <div class="pb-input-wrap">
                                 <i class="fa-solid fa-envelope pb-icon"></i>
-                                <input type="text" name="login_credential" id="login-email"
+                                <input type="text" name="email" id="login-email"
                                        class="form-control pb-input @error('email') is-invalid @enderror"
-                                       value="{{ old('email') }}"
+                                       value="{{ old('email') ?: old('login_credential') }}"
                                        placeholder="you@example.com or 017…"
                                        autocomplete="email" required>
                             </div>

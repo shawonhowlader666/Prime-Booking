@@ -176,12 +176,15 @@
                         <td style="text-align:right; white-space:nowrap;">
                             <div class="table-action-group justify-content-end">
                                 @if($l->booking_id)
-                                    <a href="{{ route('admin.bookings.show', $l->booking_id) }}" class="table-action-btn primary" title="View Booking Details">
+                                    <a href="{{ route('booking.invoice', $l->booking?->booking_reference ?? $l->booking_id) }}" target="_blank" class="table-action-btn primary" title="Print Official Tax Invoice">
+                                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                                    </a>
+                                    <a href="{{ route('admin.bookings.show', $l->booking_id) }}" class="table-action-btn dark" title="View Booking Details">
                                         <i class="fa-solid fa-eye"></i>
                                     </a>
                                 @endif
                                 @if($l->vendor_id)
-                                    <a href="{{ route('admin.accounts.vendor-statements.print', $l->vendor_id) }}" target="_blank" class="table-action-btn dark" title="Print Partner Tax Statement">
+                                    <a href="{{ route('admin.accounts.vendor-statements.print', $l->vendor_id) }}" target="_blank" class="table-action-btn success" title="Print Partner Tax Settlement Statement">
                                         <i class="fa-solid fa-print"></i>
                                     </a>
                                 @endif

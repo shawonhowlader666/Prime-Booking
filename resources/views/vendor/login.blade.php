@@ -404,10 +404,14 @@
         const autofillVendorBtn = document.getElementById('btnVendorAutofill');
         if (autofillVendorBtn) {
             autofillVendorBtn.addEventListener('click', function() {
-                document.getElementById('vendorEmail').value = 'vendor@primebooking.com.bd';
-                document.getElementById('vendorPassword').value = 'vendor123';
+                document.getElementById('vendorEmail').value = 'vendor@primebooking.com';
+                document.getElementById('vendorPassword').value = 'password123';
+                if (window.showToast) {
+                    window.showToast('Partner demo credentials populated!', 'info', 2500);
+                }
             });
         }
     </script>
+    @include('partials.prime_toast')
 </body>
 </html>

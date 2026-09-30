@@ -13,8 +13,25 @@ class PropertyManagementController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Single-pass high performance indexed stats aggregate (1 fast query instead of 5)
-        $statsRaw = Property::selectRaw("
+        // 1. Dynamic scope-aware stats aggregate (reflects selected source, city, and type in real-time)
+        $statsQuery = Property::query();
+        if ($request->filled('source') && $request->source !== 'all') {
+            if ($request->source === 'vendor') {
+                $statsQuery->whereNotNull('vendor_id');
+            } elseif (in_array($request->source, ['admin', 'api_system', 'system'], true)) {
+                $statsQuery->whereNull('vendor_id');
+            } elseif (is_numeric($request->source)) {
+                $statsQuery->where('vendor_id', (int) $request->source);
+            }
+        }
+        if ($request->filled('city')) {
+            $statsQuery->where('city', 'like', '%' . $request->city . '%');
+        }
+        if ($request->filled('type') && $request->type !== 'all') {
+            $statsQuery->where('type', $request->type);
+        }
+
+        $statsRaw = $statsQuery->selectRaw("
             COUNT(*) as total,
             COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
             COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending,
@@ -39,6 +56,15 @@ class PropertyManagementController extends Controller
             ])
             ->withCount(['rooms', 'bookings']);
 
+        if ($request->filled('source') && $request->source !== 'all') {
+            if ($request->source === 'vendor') {
+                $query->whereNotNull('vendor_id');
+            } elseif (in_array($request->source, ['admin', 'api_system', 'system'], true)) {
+                $query->whereNull('vendor_id');
+            } elseif (is_numeric($request->source)) {
+                $query->where('vendor_id', (int) $request->source);
+            }
+        }
         if ($request->filled('city')) {
             $query->where('city', 'like', '%' . $request->city . '%');
         }
@@ -62,8 +88,9 @@ class PropertyManagementController extends Controller
         }
 
         $properties = $query->latest('id')->paginate(15)->withQueryString();
+        $vendors = User::where('role', 'vendor')->orderBy('name')->get(['id', 'name']);
 
-        return view('admin.properties.index', compact('properties', 'stats'));
+        return view('admin.properties.index', compact('properties', 'stats', 'vendors'));
     }
 
     public function create()

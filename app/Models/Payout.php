@@ -15,9 +15,17 @@ class Payout extends Model
         'amount',
         'payment_method',
         'account_details',
+        'account_number',
         'reference_number',
         'status',
         'notes',
+        'processed_by',
+        'processed_at',
+        'fee_deducted',
+        'requested_at',
+        'payout_date',
+        'created_at',
+        'updated_at',
     ];
 
     public function vendor()

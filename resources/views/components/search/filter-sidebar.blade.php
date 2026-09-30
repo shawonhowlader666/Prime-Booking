@@ -31,9 +31,25 @@
 
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
             <input type="hidden" name="destination" value="{{ request('destination') }}">
+            <input type="hidden" name="search_type" value="{{ request('search_type', 'hotel') }}">
             <input type="hidden" name="check_in" value="{{ request('check_in') }}">
             <input type="hidden" name="check_out" value="{{ request('check_out') }}">
             <input type="hidden" name="guests" value="{{ request('guests') }}">
+            @if(request('rooms'))
+                <input type="hidden" name="rooms" value="{{ request('rooms') }}">
+            @endif
+            @if(request('entire_home'))
+                <input type="hidden" name="entire_home" value="{{ request('entire_home') }}">
+            @endif
+            @if(request('sort_by'))
+                <input type="hidden" name="sort_by" value="{{ request('sort_by') }}">
+            @endif
+            @if(request('lat'))
+                <input type="hidden" name="lat" value="{{ request('lat') }}">
+            @endif
+            @if(request('lng'))
+                <input type="hidden" name="lng" value="{{ request('lng') }}">
+            @endif
 
             {{-- 2. Text Search Input Box (Agoda 1:1 Pill Style with Property Name Smart Popup) --}}
             <div class="mb-3 pb-3 border-bottom position-relative" id="outerSearchWidgetContainer">
@@ -423,10 +439,28 @@
                 };
 
                 $getAmenityCount = function($amenityKey) use ($resultsList) {
-                    return collect($resultsList)->filter(function($p) use ($amenityKey) {
+                    $synonyms = [
+                        'free wifi'          => ['wifi', 'free wifi', 'free wi-fi'],
+                        'swimming pool'      => ['pool', 'swimming pool'],
+                        'free parking'       => ['parking', 'free parking'],
+                        'parking'            => ['parking', 'free parking'],
+                        'gym'                => ['gym', 'fitness center'],
+                        'restaurant'         => ['restaurant'],
+                        'spa'                => ['spa'],
+                        'airport transfer'   => ['airport transfer'],
+                        'breakfast included' => ['breakfast included', 'breakfast'],
+                    ];
+                    $cleanKey = strtolower(trim($amenityKey));
+                    $allowed = $synonyms[$cleanKey] ?? [$cleanKey];
+
+                    return collect($resultsList)->filter(function($p) use ($allowed) {
                         $ams = is_object($p) ? ($p->amenities ?? []) : ($p['amenities'] ?? []);
                         if (is_string($ams)) $ams = json_decode($ams, true) ?? [];
-                        return in_array($amenityKey, (array)$ams);
+                        $lowerAms = array_map('strtolower', (array)$ams);
+                        foreach ($allowed as $a) {
+                            if (in_array($a, $lowerAms, true)) return true;
+                        }
+                        return false;
                     })->count();
                 };
 
@@ -517,7 +551,7 @@
             <div class="mb-4 pb-3 border-bottom">
                 <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Popular facilities</label>
                 <div class="d-flex flex-column gap-2">
-                    @foreach(['Free WiFi' => 'Free Wi-Fi', 'Swimming Pool' => 'Swimming Pool', 'Airport Transfer' => 'Airport Transfer', 'Breakfast Included' => 'Breakfast Included', 'Free Cancellation' => 'Free Cancellation'] as $aKey => $aLabel)
+                    @foreach(['Free WiFi' => 'Free Wi-Fi', 'Swimming Pool' => 'Swimming Pool', 'Free Parking' => 'Free Parking', 'Gym' => 'Fitness Center / Gym', 'Restaurant' => 'Restaurant & Dining', 'Spa' => 'Spa & Wellness', 'Airport Transfer' => 'Airport Transfer'] as $aKey => $aLabel)
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="amenities[]" value="{{ $aKey }}" id="am_{{ Str::slug($aKey) }}" @checked(in_array($aKey, $selAmenities))>
                             <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="am_{{ Str::slug($aKey) }}" style="font-size: 12px;">
@@ -601,24 +635,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        var propertyNames = [
-            "Hotel Grand SunShine Chittagong",
-            "Iconic Suites",
-            "White Park Hotel & Suites",
-            "The Avenue Hotel & Suites",
-            "Hotel Aristos Boutique & Suites",
-            "Radisson Blu Chattogram Bay View",
-            "The Peninsula Chittagong",
-            "Hotel Agrabad",
-            "Well Park Residence",
-            "Sayeman Beach Resort",
-            "Long Beach Hotel Cox's Bazar",
-            "Ocean Paradise Hotel & Resort",
-            "InterContinental Dhaka",
-            "Pan Pacific Sonargaon",
-            "Grand Sultan Tea Resort & Golf",
-            "DuSai Resort & Spa"
-        ];
+        let suggestAbortCtrl = null;
 
         window.handleOuterPropertySearch = function(query) {
             var clearBtn = document.getElementById('outerSearchClearBtn');
@@ -633,25 +650,38 @@
 
             if (clearBtn) clearBtn.classList.remove('d-none');
 
-            var q = query.toLowerCase().trim();
-            var matches = propertyNames.filter(function(name) {
-                return name.toLowerCase().includes(q);
-            });
+            if (suggestAbortCtrl) suggestAbortCtrl.abort();
+            suggestAbortCtrl = new AbortController();
 
-            if (matches.length === 0) {
-                if (suggestBox) suggestBox.classList.add('d-none');
-            } else {
-                var html = '';
-                matches.slice(0, 7).forEach(function(name) {
-                    html += `
-                        <div class="px-2 py-1.5 rounded" style="cursor:pointer; font-size:12.5px; color:#1e293b; font-weight:500; transition:all 0.15s;" onmouseenter="this.style.background='#f1f5f9'; this.style.color='#2067e1';" onmouseleave="this.style.background='transparent'; this.style.color='#1e293b';" onclick="selectOuterProperty('${name.replace(/'/g, "\\'")}')">
-                            ${name}
-                        </div>
-                    `;
-                });
-                if (list) list.innerHTML = html;
-                if (suggestBox) suggestBox.classList.remove('d-none');
-            }
+            // Dynamic REST API search across all Admin & Vendor properties in database
+            fetch(`/api/v1/suggestions?q=${encodeURIComponent(query.trim())}`, { signal: suggestAbortCtrl.signal })
+                .then(r => r.json())
+                .then(res => {
+                    var items = res?.data || res || [];
+                    if (!Array.isArray(items) || items.length === 0) {
+                        if (suggestBox) suggestBox.classList.add('d-none');
+                        return;
+                    }
+
+                    var html = '';
+                    items.slice(0, 8).forEach(function(item) {
+                        var title = item.title || item.name || '';
+                        var sub = item.subtitle || item.city || '';
+                        var type = item.type ? `<span class="badge bg-light text-secondary border ms-auto" style="font-size:9.5px;">${item.type}</span>` : '';
+                        html += `
+                            <div class="px-2 py-1.5 rounded d-flex align-items-center justify-content-between gap-2" style="cursor:pointer; font-size:12.5px; color:#1e293b; font-weight:500; transition:all 0.15s;" onmouseenter="this.style.background='#f1f5f9'; this.style.color='#2067e1';" onmouseleave="this.style.background='transparent'; this.style.color='#1e293b';" onclick="selectOuterProperty('${title.replace(/'/g, "\\'")}')">
+                                <div>
+                                    <div class="fw-semibold">${title}</div>
+                                    ${sub ? `<small class="text-secondary" style="font-size:11px;">${sub}</small>` : ''}
+                                </div>
+                                ${type}
+                            </div>
+                        `;
+                    });
+                    if (list) list.innerHTML = html;
+                    if (suggestBox) suggestBox.classList.remove('d-none');
+                })
+                .catch(() => {});
         };
 
         window.selectOuterProperty = function(name) {

@@ -16,11 +16,12 @@ class Booking extends Model
         'guest_name', 'guest_email', 'guest_phone',
         'check_in', 'check_out', 'check_in_date', 'check_out_date', 'nights', 'nights_count', 'guests', 'rooms', 'rooms_count', 'adults', 'children', 'adults_count', 'children_count',
         'price_per_night', 'subtotal', 'tax_amount', 'total_price', 'amount',
-        'total_amount',   // legacy compat
-        'currency', 'payment_status', 'payment_method',
+        'total_amount', 'payable_amount',   // legacy compat
+        'currency', 'payment_status', 'payment_method', 'transaction_id',
         'status', 'booking_status', // both supported
         'special_requests',
-        'coupon_code', 'discount_amount', 'commission_rate', 'commission_amount', 'vendor_payout_amount',
+        'coupon_code', 'discount_amount', 'commission_rate', 'commission_amount', 'vendor_payout_amount', 'vendor_payout',
+        'created_at', 'updated_at',
     ];
 
     protected $casts = [
@@ -89,6 +90,18 @@ class Booking extends Model
             'cancelled'              => 'cancelled',
             default                  => 'pending',
         };
+    }
+
+    // ─── Accessors & Mutators ─────────────────────────────────────────────
+
+    public function setVendorPayoutAttribute($value): void
+    {
+        $this->attributes['vendor_payout_amount'] = $value;
+    }
+
+    public function getVendorPayoutAttribute()
+    {
+        return $this->attributes['vendor_payout_amount'] ?? 0.0;
     }
 
     // ─── Scopes ──────────────────────────────────────────────────────────

@@ -278,85 +278,108 @@
                             </span>
                         </td>
 
-                        {{-- 3-Dot Actions Dropdown Menu --}}
+                        {{-- Direct Actions & 3-Dot Dropdown Menu --}}
                         <td style="text-align:right; white-space:nowrap;">
-                            <div class="dropdown d-inline-block position-relative">
-                                <button class="btn btn-light btn-sm shadow-none border-0 action-3dot-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:6px; background:#f1f5f9; color:#334155;" title="Manage Booking">
-                                    <i class="fa-solid fa-ellipsis-vertical fs-6"></i>
-                                </button>
-                                <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:6px; font-size:12.5px; border:1px solid #e2e8f0; padding:5px 0; min-width:190px; z-index:1060; margin-top:2px;">
-                                    
-                                    {{-- 1. Quick Preview Modal Trigger --}}
-                                    <li>
-                                        <button type="button" class="dropdown-item py-1.5 px-3 text-primary fw-semibold" onclick="openAdminBookingPreviewModal({{ $adminPreviewJson }})">
-                                            <i class="fa-solid fa-eye me-2 text-primary"></i> Quick Preview
-                                        </button>
-                                    </li>
+                            <div class="d-inline-flex align-items-center gap-1 justify-content-end">
+                                {{-- 1. Direct Invoice Button --}}
+                                <a href="{{ route('booking.invoice', $b->booking_reference ?? $b->id) }}" target="_blank" class="btn btn-light btn-sm border text-dark shadow-none" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="Print Official Tax Invoice">
+                                    <i class="fa-solid fa-file-invoice-dollar text-primary"></i>
+                                </a>
 
-                                    {{-- 2. Full Order Details Page --}}
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3 text-dark" href="{{ route('admin.bookings.show', $b->id) }}">
-                                            <i class="fa-solid fa-file-lines text-secondary me-2"></i> Full Order Details
-                                        </a>
-                                    </li>
+                                {{-- 2. Direct Voucher Button --}}
+                                <a href="{{ route('booking.voucher', $b->booking_reference ?? $b->id) }}" target="_blank" class="btn btn-light btn-sm border text-dark shadow-none" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="Hotel Check-in Voucher">
+                                    <i class="fa-solid fa-ticket text-success"></i>
+                                </a>
 
-                                    {{-- 3. Mark Confirmed --}}
-                                    <li>
-                                        <form action="{{ route('admin.bookings.update-status', $b->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <input type="hidden" name="status" value="confirmed">
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-success fw-bold">
-                                                <i class="fa-solid fa-circle-check me-2"></i> Mark Confirmed
+                                {{-- 3. 3-Dot Actions Dropdown Menu --}}
+                                <div class="dropdown d-inline-block position-relative">
+                                    <button class="btn btn-light btn-sm shadow-none border action-3dot-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:30px; height:30px; padding:0; border-radius:4px; background:#f8fafc; color:#334155;" title="More Actions">
+                                        <i class="fa-solid fa-ellipsis-vertical fs-6"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:6px; font-size:12.5px; border:1px solid #e2e8f0; padding:5px 0; min-width:200px; z-index:1060; margin-top:2px;">
+                                        
+                                        {{-- 1. Quick Preview Modal Trigger --}}
+                                        <li>
+                                            <button type="button" class="dropdown-item py-1.5 px-3 text-primary fw-semibold" onclick="openAdminBookingPreviewModal({{ $adminPreviewJson }})">
+                                                <i class="fa-solid fa-eye me-2 text-primary"></i> Quick Preview
                                             </button>
-                                        </form>
-                                    </li>
+                                        </li>
 
-                                    {{-- 4. Mark Paid (if unpaid) --}}
-                                    @if(strtolower($b->payment_status ?? '') !== 'paid')
-                                    <li>
-                                        <form action="{{ route('admin.bookings.update-payment', $b->id) }}" method="POST" class="m-0">
-                                            @csrf
-                                            <input type="hidden" name="payment_status" value="paid">
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-primary fw-bold">
-                                                <i class="fa-solid fa-credit-card me-2"></i> Mark Payment Paid
-                                            </button>
-                                        </form>
-                                    </li>
-                                    @endif
+                                        {{-- 2. Full Order Details Page --}}
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-dark" href="{{ route('admin.bookings.show', $b->id) }}">
+                                                <i class="fa-solid fa-file-lines text-secondary me-2"></i> Full Order Details
+                                            </a>
+                                        </li>
 
-                                    @if(isset($gPhone) && $gPhone)
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    {{-- 5. Call Guest --}}
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3 text-dark" href="tel:{{ $gPhone }}">
-                                            <i class="fa-solid fa-phone text-primary me-2"></i> Call Guest
-                                        </a>
-                                    </li>
-                                    {{-- 6. WhatsApp Guest --}}
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3" style="color:#16a34a;" href="https://wa.me/{{ $gWaNum }}?text={{ urlencode('Hello ' . ($b->guest_name ?? 'Guest') . ', regarding your booking ' . ($b->booking_reference ?? 'PRM-'.$b->id) . ' at ' . (optional($b->property)->name ?? 'our hotel') . '.') }}" target="_blank">
-                                            <i class="fa-brands fa-whatsapp me-2"></i> WhatsApp Guest
-                                        </a>
-                                    </li>
-                                    {{-- 7. Send SMS --}}
-                                    <li>
-                                        <a class="dropdown-item py-1.5 px-3 text-secondary" href="sms:{{ $gPhone }}">
-                                            <i class="fa-solid fa-comment-sms me-2"></i> Send SMS
-                                        </a>
-                                    </li>
-                                    @endif
+                                        {{-- 3. Tax Invoice Link --}}
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-dark" href="{{ route('booking.invoice', $b->booking_reference ?? $b->id) }}" target="_blank">
+                                                <i class="fa-solid fa-file-invoice text-primary me-2"></i> Print Tax Invoice (PDF)
+                                            </a>
+                                        </li>
 
-                                    <li><hr class="dropdown-divider my-1"></li>
-                                    {{-- 8. Delete Booking --}}
-                                    <li>
-                                        <form action="{{ route('admin.bookings.destroy', $b->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this booking record permanently?')">
-                                            @csrf @method('DELETE')
-                                            <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
-                                                <i class="fa-solid fa-trash me-2"></i> Delete Booking
-                                            </button>
-                                        </form>
-                                    </li>
-                                </ul>
+                                        {{-- 4. Hotel Check-in Voucher --}}
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-dark" href="{{ route('booking.voucher', $b->booking_reference ?? $b->id) }}" target="_blank">
+                                                <i class="fa-solid fa-ticket text-success me-2"></i> Check-in Voucher (QR)
+                                            </a>
+                                        </li>
+
+                                        <li><hr class="dropdown-divider my-1"></li>
+
+                                        {{-- 5. Mark Confirmed --}}
+                                        <li>
+                                            <form action="{{ route('admin.bookings.update-status', $b->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <input type="hidden" name="status" value="confirmed">
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-success fw-bold">
+                                                    <i class="fa-solid fa-circle-check me-2"></i> Mark Confirmed
+                                                </button>
+                                            </form>
+                                        </li>
+
+                                        {{-- 6. Mark Paid (if unpaid) --}}
+                                        @if(strtolower($b->payment_status ?? '') !== 'paid')
+                                        <li>
+                                            <form action="{{ route('admin.bookings.update-payment', $b->id) }}" method="POST" class="m-0">
+                                                @csrf
+                                                <input type="hidden" name="payment_status" value="paid">
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-primary fw-bold">
+                                                    <i class="fa-solid fa-credit-card me-2"></i> Mark Payment Paid
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @endif
+
+                                        @if(isset($gPhone) && $gPhone)
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        {{-- 7. Call Guest --}}
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3 text-dark" href="tel:{{ $gPhone }}">
+                                                <i class="fa-solid fa-phone text-primary me-2"></i> Call Guest
+                                            </a>
+                                        </li>
+                                        {{-- 8. WhatsApp Guest --}}
+                                        <li>
+                                            <a class="dropdown-item py-1.5 px-3" style="color:#16a34a;" href="https://wa.me/{{ $gWaNum }}?text={{ urlencode('Hello ' . ($b->guest_name ?? 'Guest') . ', regarding your booking ' . ($b->booking_reference ?? 'PRM-'.$b->id) . ' at ' . (optional($b->property)->name ?? 'our hotel') . '.') }}" target="_blank">
+                                                <i class="fa-brands fa-whatsapp me-2"></i> WhatsApp Guest
+                                            </a>
+                                        </li>
+                                        @endif
+
+                                        <li><hr class="dropdown-divider my-1"></li>
+                                        {{-- 9. Delete Booking --}}
+                                        <li>
+                                            <form action="{{ route('admin.bookings.destroy', $b->id) }}" method="POST" class="m-0" onsubmit="return confirm('Delete this booking record permanently?')">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-danger">
+                                                    <i class="fa-solid fa-trash me-2"></i> Delete Booking
+                                                </button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </div>
                             </div>
                         </td>
                     </tr>

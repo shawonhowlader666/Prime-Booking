@@ -66,7 +66,10 @@ class InventoryService
                     ->whereDate('check_out', '>', $dateStr)
                     ->count();
 
-                return max(0, $baseCapacity - $bookedUnits);
+                // Check active temporary 15-minute checkout holds
+                $heldUnits = (int) Cache::get("room_hold_count_{$roomId}_{$dateStr}", 0);
+
+                return max(0, $baseCapacity - $bookedUnits - $heldUnits);
             });
 
             $dateBreakdown[$dateStr] = $availableUnits;
@@ -90,6 +93,67 @@ class InventoryService
             'min_available'  => $minAvailable,
             'date_breakdown' => $dateBreakdown,
         ];
+    }
+
+    /**
+     * Place a temporary 15-minute hold on a room during checkout.
+     */
+    public function holdRoom(int $roomId, string $checkIn, string $checkOut, string $holdToken, int $minutes = 15): bool
+    {
+        $startDate = Carbon::parse($checkIn)->startOfDay();
+        $endDate   = Carbon::parse($checkOut)->startOfDay();
+        $period    = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
+
+        $tokenKey = "room_hold_token_{$holdToken}";
+        if (Cache::has($tokenKey)) {
+            return true; // Already held by this session
+        }
+
+        foreach ($period as $date) {
+            $dateStr = $date->format('Y-m-d');
+            $countKey = "room_hold_count_{$roomId}_{$dateStr}";
+            Cache::increment($countKey);
+            Cache::forget("room_avail_units_{$roomId}_{$dateStr}");
+        }
+
+        Cache::put($tokenKey, [
+            'room_id'   => $roomId,
+            'check_in'  => $checkIn,
+            'check_out' => $checkOut,
+            'expires'   => now()->addMinutes($minutes)->timestamp,
+        ], now()->addMinutes($minutes));
+
+        return true;
+    }
+
+    /**
+     * Release a temporary room hold.
+     */
+    public function releaseHold(string $holdToken): void
+    {
+        $tokenKey = "room_hold_token_{$holdToken}";
+        $data = Cache::get($tokenKey);
+
+        if (!$data) {
+            return;
+        }
+
+        $roomId    = $data['room_id'];
+        $startDate = Carbon::parse($data['check_in'])->startOfDay();
+        $endDate   = Carbon::parse($data['check_out'])->startOfDay();
+        $period    = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
+
+        foreach ($period as $date) {
+            $dateStr = $date->format('Y-m-d');
+            $countKey = "room_hold_count_{$roomId}_{$dateStr}";
+            $current = (int) Cache::get($countKey, 0);
+            if ($current > 0) {
+                Cache::decrement($countKey);
+            }
+            Cache::forget("room_avail_units_{$roomId}_{$dateStr}");
+        }
+
+        Cache::forget($tokenKey);
     }
 
     /**

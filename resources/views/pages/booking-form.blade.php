@@ -127,11 +127,13 @@
 
     <form action="{{ route('booking.store', $property->id) }}" method="POST" id="bookingForm">
     @csrf
-    {{-- Hidden fields --}}
-    <input type="hidden" name="room_id"   value="{{ $selectedRoom?->id }}">
-    <input type="hidden" name="check_in"  value="{{ $checkIn }}">
-    <input type="hidden" name="check_out" value="{{ $checkOut }}">
-    <input type="hidden" name="guests"    value="{{ $guests }}">
+    {{-- Hidden fields & Anti-Double-Booking Protection --}}
+    <input type="hidden" name="room_id"           value="{{ $selectedRoom?->id }}">
+    <input type="hidden" name="check_in"          value="{{ $checkIn }}">
+    <input type="hidden" name="check_out"         value="{{ $checkOut }}">
+    <input type="hidden" name="guests"            value="{{ $guests }}">
+    <input type="hidden" name="hold_token"        value="{{ $holdToken ?? '' }}">
+    <input type="hidden" name="idempotency_token" value="{{ $idempotencyToken ?? '' }}">
 
     <div class="row g-4">
 
@@ -749,7 +751,7 @@
     });
 
     // ── Urgency countdown timer ──────────────────────────────────────────
-    let seconds = 14 * 60 + 59;
+    let seconds = {{ (int)($holdSecondsRemaining ?? (14 * 60 + 59)) }};
     const timerEl = document.getElementById('urgencyTimer');
     setInterval(function() {
         if (seconds <= 0) { seconds = 14 * 60 + 59; return; }

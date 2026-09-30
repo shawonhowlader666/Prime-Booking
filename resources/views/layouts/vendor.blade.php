@@ -1386,6 +1386,7 @@
         }
     });
     </script>
+    @include('partials.prime_toast')
     @yield('scripts')
 </body>
 </html>

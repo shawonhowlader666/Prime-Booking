@@ -108,11 +108,21 @@ class AutoCompleteService
                 ->toArray();
         });
 
-        $international = [
-            ['city' => 'Singapore',    'country' => 'Singapore', 'property_count' => 1326, 'tags' => 'shopping, restaurants'],
-            ['city' => 'Bangkok',      'country' => 'Thailand',  'property_count' => 12048,'tags' => 'shopping, restaurants'],
-            ['city' => 'Kuala Lumpur', 'country' => 'Malaysia',  'property_count' => 19902,'tags' => 'shopping, restaurants'],
-        ];
+        $international = Cache::remember('autocomplete:intl_cities_real_v7', self::TTL_WARM, function (): array {
+            $locs = Location::where('country', '!=', 'Bangladesh')
+                ->where('country_code', '!=', 'BD')
+                ->limit(3)
+                ->get();
+            if ($locs->isNotEmpty()) {
+                return $locs->map(fn($l) => [
+                    'city'           => $l->city ?: $l->name,
+                    'country'        => $l->country,
+                    'property_count' => Property::active()->where('city', $l->city)->count() ?: 1,
+                    'tags'           => 'hotels, flights',
+                ])->toArray();
+            }
+            return [];
+        });
 
         return [
             'bd_destinations'        => $bdCities,
@@ -278,11 +288,20 @@ class AutoCompleteService
             $score = $this->calcScore($lq, $key);
             if (isset($trendingIndex[$key])) $score += 30;
 
+            $intlCountryMap = [
+                'Singapore'    => 'Singapore',
+                'Kuala Lumpur' => 'Malaysia',
+                'Bangkok'      => 'Thailand',
+                'Dubai'        => 'United Arab Emirates',
+                'Makkah'       => 'Saudi Arabia',
+            ];
+            $countryName = $intlCountryMap[$city] ?? 'Bangladesh';
+
             $results[] = [
                 'city'           => $city,
-                'country'        => 'Bangladesh',
-                'type'           => 'City / Area',
-                'property_count' => null,
+                'country'        => $countryName,
+                'type'           => isset($intlCountryMap[$city]) ? 'International City' : 'City / Area',
+                'property_count' => Property::active()->where('city', $city)->count(),
                 'lat'            => null,
                 'lng'            => null,
                 '_score'         => $score,
@@ -331,11 +350,19 @@ class AutoCompleteService
                   ->orWhere('name', 'like', '%Sundarban%')
                   ->orWhere('name', 'like', '%Haor%');
             });
-        } elseif ($searchType === 'homestay' || $searchType === 'villa' || $searchType === 'apartment') {
+        } elseif (in_array($searchType, ['homes', 'home', 'homestay', 'villa', 'apartment'], true)) {
             $builder->where(function ($q) {
                 $q->where('type', 'like', '%Homestay%')
                   ->orWhere('type', 'like', '%Apartment%')
-                  ->orWhere('type', 'like', '%Villa%');
+                  ->orWhere('type', 'like', '%Villa%')
+                  ->orWhere('type', 'like', '%Home%');
+            });
+        } elseif (in_array($searchType, ['longstays', 'long_stay'], true)) {
+            $builder->where(function ($q) {
+                $q->where('type', 'like', '%Apartment%')
+                  ->orWhere('type', 'like', '%Villa%')
+                  ->orWhere('type', 'like', '%Homestay%')
+                  ->orWhere('type', 'like', '%Long%');
             });
         }
 

@@ -48,8 +48,16 @@ class BookingFlowController extends Controller
         $guests   = (int) $request->input('guests', 2);
         $nights   = max(1, Carbon::parse($checkIn)->diffInDays(Carbon::parse($checkOut)));
 
-        $pricePerNight = $selectedRoom?->price_per_night ?? $property->price_per_night;
-        $subtotal      = $pricePerNight * $nights;
+        $pricingEngine = app(\App\Services\DynamicPricingService::class);
+        if ($selectedRoom) {
+            $stayPricing   = $pricingEngine->calculateStayPrice($selectedRoom, $checkIn, $checkOut, 1);
+            $subtotal      = (float) $stayPricing['final_price'];
+            $pricePerNight = (float) $stayPricing['avg_nightly_rate'];
+        } else {
+            $pricePerNight = (float) ($property->price_per_night ?? 1500);
+            $subtotal      = $pricePerNight * $nights;
+        }
+
         $taxRate       = 0.075; // 7.5% VAT
         $taxAmount     = round($subtotal * $taxRate);
         $totalPrice    = $subtotal + $taxAmount;
@@ -102,11 +110,25 @@ class BookingFlowController extends Controller
         $rewardSummary = $rewardService->getUserRewardSummary($user);
         $earnablePoints = $rewardService->calculatePoints($totalPrice);
 
+        // ── 15-Minute Agoda-Style Room Hold & Idempotency Token ───────────────
+        $holdToken = session('checkout_hold_token') ?: Str::uuid()->toString();
+        session(['checkout_hold_token' => $holdToken]);
+
+        $inventoryService = app(\App\Services\InventoryService::class);
+        if ($selectedRoom) {
+            $inventoryService->holdRoom((int)$selectedRoom->id, (string)$checkIn, (string)$checkOut, $holdToken, 15);
+        }
+
+        $holdData = \Illuminate\Support\Facades\Cache::get("room_hold_token_{$holdToken}");
+        $holdSecondsRemaining = $holdData ? max(0, $holdData['expires'] - now()->timestamp) : 900;
+        $idempotencyToken = Str::random(32);
+        session(['checkout_idempotency_token' => $idempotencyToken]);
+
         return view('pages.booking-form', compact(
             'property', 'selectedRoom', 'checkIn', 'checkOut',
             'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user',
             'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount', 'primaryPointsmax', 'earnedMiles',
-            'rewardSummary', 'earnablePoints'
+            'rewardSummary', 'earnablePoints', 'holdToken', 'holdSecondsRemaining', 'idempotencyToken'
         ));
     }
 
@@ -153,10 +175,22 @@ class BookingFlowController extends Controller
             'check_out.after'         => 'Check-out date must be at least 1 night after the check-in date.',
         ]);
 
+        // 0. Enterprise Idempotency Protection (Double-charge & Double-booking prevention)
         $property = Property::findOrFail($propertyId);
-        $room     = $request->room_id ? Room::where('property_id', $propertyId)->find($request->room_id) : null;
+        $room = $request->filled('room_id') ? Room::where('property_id', $property->id)->find($request->room_id) : null;
+        if (!$room) {
+            $room = Room::where('property_id', $property->id)->first();
+        }
 
-        // 0. AI Fraud & Booking Abuse Risk Evaluation
+        $idempotencyToken = $request->input('idempotency_token');
+        if ($idempotencyToken) {
+            $lockKey = "idempotency_checkout_{$idempotencyToken}";
+            if (!\Illuminate\Support\Facades\Cache::add($lockKey, 1, 30)) {
+                return back()->withInput()->with('error', 'Your booking request is already being processed. Please do not submit multiple times.');
+            }
+        }
+
+        // 0.1 AI Fraud & Booking Abuse Risk Evaluation
         $fraudDetector = app(\App\Services\AI\FraudDetector::class);
         $fraudRisk = $fraudDetector->evaluateBooking($request->all(), auth()->user());
         if ($fraudRisk['decision'] === 'REJECT_OR_MANUAL_REVIEW') {
@@ -175,8 +209,15 @@ class BookingFlowController extends Controller
         $checkOut = Carbon::parse($request->check_out);
         $nights   = max(1, $checkIn->diffInDays($checkOut));
 
-        $pricePerNight = $room?->price_per_night ?? $property->price_per_night;
-        $subtotal      = $pricePerNight * $nights;
+        $pricingEngine = app(\App\Services\DynamicPricingService::class);
+        if ($room) {
+            $stayPricing   = $pricingEngine->calculateStayPrice($room, $request->check_in, $request->check_out, 1);
+            $subtotal      = (float) $stayPricing['final_price'];
+            $pricePerNight = (float) $stayPricing['avg_nightly_rate'];
+        } else {
+            $pricePerNight = (float) ($property->price_per_night ?? 1500);
+            $subtotal      = $pricePerNight * $nights;
+        }
 
         // 2. Coupon Validation & Discount Calculation
         $couponCode     = null;
@@ -212,8 +253,8 @@ class BookingFlowController extends Controller
         $taxAmount  = round(max(0, ($subtotal - $discountAmount + $addonsTotal)) * 0.075);
         $totalPrice = max(0, ($subtotal - $discountAmount + $addonsTotal) + $taxAmount);
 
-        // 4. Platform Commission & Vendor Payout Calculation (12% OTA Standard)
-        $commissionRate   = 12.00; // 12% platform commission — aligned with AccountingService
+        // 4. Platform Commission & Vendor Payout Calculation (Dynamic per-property rate)
+        $commissionRate   = (float) ($property->commission_rate ?? 12.00);
         $commissionAmount = round(max(0, $subtotal - $discountAmount) * ($commissionRate / 100), 2);
         $vendorPayout     = max(0, ($subtotal - $discountAmount) - $commissionAmount);
 
@@ -255,6 +296,12 @@ class BookingFlowController extends Controller
                 'status'               => 'confirmed',
                 'booking_status'       => 'confirmed',
                 'special_requests'     => $specialReq,
+                'coupon_code'          => $couponCode,
+                'discount_amount'      => $discountAmount,
+                'commission_rate'      => $commissionRate,
+                'commission_amount'    => $commissionAmount,
+                'vendor_payout_amount' => $vendorPayout,
+                'vendor_payout'        => $vendorPayout,
             ]);
 
             foreach ($selectedAddons as $addon) {
@@ -276,6 +323,11 @@ class BookingFlowController extends Controller
 
             return $b;
         });
+
+        // Release temporary checkout hold
+        if ($request->filled('hold_token')) {
+            $inventoryService->releaseHold((string)$request->hold_token);
+        }
 
         // 5. Automated Multi-Channel Notification Dispatch & Rewards Point Auto-Credit
         try {
@@ -300,12 +352,14 @@ class BookingFlowController extends Controller
     public function confirmation($reference)
     {
         $booking = Booking::where('booking_reference', $reference)
-            ->with(['property:id,name,city,address,primary_image,star_rating', 'room:id,name'])
+            ->with(['property', 'room'])
             ->firstOrFail();
 
         $addons = BookingAddon::where('booking_id', $booking->id)->get();
+        $room = $booking->room;
+        $property = $booking->property;
 
-        return view('pages.booking-confirmation', compact('booking', 'addons'));
+        return view('pages.booking-confirmation', compact('booking', 'addons', 'room', 'property'));
     }
 
     /** GET /booking/voucher/{reference}/download — E-Ticket Voucher */

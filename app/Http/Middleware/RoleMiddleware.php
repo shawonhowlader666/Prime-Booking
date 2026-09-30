@@ -39,8 +39,12 @@ class RoleMiddleware
             return redirect()->route('signin')->with('error', 'Your account has been suspended. Contact support.');
         }
 
-        // Check role — allow if user has any of the required roles
-        if (!empty($roles) && !in_array($user->role, $roles)) {
+        // Check role — allow if user has any of the required roles (super_admin always has admin privileges)
+        $allowedRoles = $roles;
+        if (in_array('admin', $roles, true) && !in_array('super_admin', $allowedRoles, true)) {
+            $allowedRoles[] = 'super_admin';
+        }
+        if (!empty($allowedRoles) && !in_array($user->role, $allowedRoles, true)) {
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Access denied. Insufficient permissions.'], 403);
             }

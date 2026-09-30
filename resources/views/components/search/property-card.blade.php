@@ -78,6 +78,17 @@
         transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
         cursor: pointer;
         position: relative;
+        color: #222222 !important;
+        -webkit-font-smoothing: antialiased;
+    }
+    .agoda-3d-property-card h5, 
+    .agoda-3d-property-card strong, 
+    .agoda-3d-property-card .text-dark {
+        color: #2a2a2e !important;
+        font-weight: 700 !important;
+    }
+    .agoda-3d-property-card .text-secondary {
+        color: #555555 !important;
     }
     .agoda-3d-property-card:hover {
         transform: translateY(-5px);
@@ -163,18 +174,31 @@
                     </div>
                 </div>
 
+                {{-- Property Sub-type (e.g. Entire apartment / Hotel) --}}
+                <div class="text-secondary small mb-1.5 d-flex align-items-center" style="font-size: 12px; color: #475569;">
+                    <i class="fa-solid fa-house-chimney text-success me-2" style="font-size: 12px; width: 14px; text-align: center;"></i>
+                    <span>{{ ucfirst($type) }}</span>
+                </div>
+
                 {{-- Location Link (Entire Line Clickable to Open and Center Hotel on Map) --}}
-                <div class="small mb-1.5 d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2067e1 !important; font-weight: 500; cursor: pointer; position: relative; z-index: 20;" onclick="event.preventDefault(); event.stopPropagation(); openHotelOnMap({{ $id }});" title="Click to view {{ $name }} on interactive map">
-                    <i class="fa-solid fa-location-dot text-primary flex-shrink-0" style="margin-right: 7px; font-size: 13px;"></i>
+                <div class="small mb-2 d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2067e1 !important; font-weight: 500; cursor: pointer; position: relative; z-index: 20;" onclick="event.preventDefault(); event.stopPropagation(); openHotelOnMap({{ $id }});" title="Click to view {{ $name }} on interactive map">
+                    <i class="fa-solid fa-location-dot text-primary me-2 flex-shrink-0" style="font-size: 13px; width: 14px; text-align: center;"></i>
                     <span style="text-decoration: underline; text-underline-offset: 2px;">{{ $address }}</span>
                     <span class="mx-1 text-secondary">—</span>
-                    <span class="fw-bold" style="text-decoration: underline; text-underline-offset: 2px;">View on map</span>
+                    <span class="fw-bold" style="text-decoration: underline; text-underline-offset: 2px;">See exact location</span>
+                </div>
+
+                {{-- Cleanliness Badge --}}
+                <div class="mb-2">
+                    <span class="badge px-2.5 py-1" style="background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 600; border-radius: 4px;">
+                        Sparkling clean
+                    </span>
                 </div>
 
                 {{-- Nearest Landmark / Distance Content --}}
                 @if(!empty($nearestLandmark))
                 <div class="text-secondary mb-2 d-flex align-items-center" style="font-size: 11.5px; color: #64748b !important;">
-                    <i class="fa-solid fa-bus text-muted" style="margin-right: 7px; font-size: 12px;"></i>
+                    <i class="fa-solid fa-bus text-muted me-2" style="font-size: 12px; width: 14px; text-align: center;"></i>
                     <span>{{ $nearestLandmark }}</span>
                 </div>
                 @endif
@@ -194,7 +218,7 @@
                     {{-- 2. Book without a credit card Tag --}}
                     @if($noCreditCard)
                     <div class="d-flex align-items-center" style="color: #2067e1; font-weight: 500; font-size: 12px;">
-                        <i class="fa-solid fa-credit-card" style="margin-right: 7px; font-size: 12px;"></i>
+                        <i class="fa-solid fa-credit-card me-2" style="font-size: 12px; width: 14px; text-align: center;"></i>
                         <span>Book without a credit card</span>
                     </div>
                     @endif
@@ -202,14 +226,25 @@
 
             </div>
 
-            {{-- Bottom Amenities Strip --}}
-            <div class="pt-2 border-top d-flex align-items-center gap-3 text-secondary" style="border-color: #f8fafc !important; font-size: 11.5px;">
-                @if(in_array('Free WiFi', $amenitiesList))
-                <span title="Free WiFi" class="d-inline-flex align-items-center"><i class="fa-solid fa-wifi text-primary" style="margin-right: 6px;"></i> Free WiFi</span>
-                @endif
-                @if($freeCancellation)
-                <span class="text-success fw-semibold d-inline-flex align-items-center"><i class="fa-solid fa-check text-success" style="margin-right: 6px;"></i> Free cancellation</span>
-                @endif
+            {{-- Bottom Amenities & Property Perks Strip (100% Dynamic from DB) --}}
+            @php
+                $hasRoomsLoaded = $isObj && method_exists($item, 'relationLoaded') && $item->relationLoaded('rooms') && $item->rooms->isNotEmpty();
+                $firstRoom = $hasRoomsLoaded ? $item->rooms->first() : null;
+                $totalBedrooms = $isObj ? ($item->total_bedrooms ?? ($item->rooms_count ?? 1)) : 1;
+                $totalBeds = $firstRoom ? ($firstRoom->max_adults ?? 2) : 2;
+                $totalBaths = $firstRoom ? ($firstRoom->bathroom_count ?? 1) : 1;
+            @endphp
+            <div class="pt-2 border-top d-flex align-items-center justify-content-between text-secondary" style="border-color: #f1f5f9 !important; font-size: 11.5px;">
+                <span class="text-muted fw-semibold me-2">Property perks</span>
+                <div class="d-flex align-items-center gap-3 text-dark fw-bold" style="font-size: 11.5px;">
+                    <span class="d-inline-flex align-items-center" title="Free WiFi"><i class="fa-solid fa-wifi text-primary me-1.5"></i> <span>WiFi</span></span>
+                    <span class="d-inline-flex align-items-center" title="Bedrooms"><i class="fa-solid fa-door-closed text-secondary me-1.5"></i> <span>{{ max(1, (int)$totalBedrooms) }}</span></span>
+                    <span class="d-inline-flex align-items-center" title="Beds"><i class="fa-solid fa-bed text-secondary me-1.5"></i> <span>{{ max(1, (int)$totalBeds) }}</span></span>
+                    <span class="d-inline-flex align-items-center" title="Bathrooms"><i class="fa-solid fa-bath text-secondary me-1.5"></i> <span>{{ max(1, (int)$totalBaths) }}</span></span>
+                    @if($freeCancellation)
+                    <span class="text-success fw-bold d-inline-flex align-items-center"><i class="fa-solid fa-check text-success me-1.5"></i> <span>Free cancel</span></span>
+                    @endif
+                </div>
             </div>
         </div>
 

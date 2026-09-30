@@ -10,6 +10,7 @@
 <style>
     #bdHeroSliderSection {
         position: relative;
+        z-index: 50;
         height: 380px;
         margin-bottom: 135px;
         border-radius: 0 0 0 32px;
@@ -75,14 +76,14 @@
         @endif
     </div>
 
-    <div class="container text-center" style="position:relative;z-index:2;">
+    <div class="container text-center" style="position:relative;z-index:50;">
         <h1 id="bdHeroTitle" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;font-size:26px;letter-spacing:0.5px;color:#ffffff!important;text-transform:uppercase;margin-bottom:6px;text-shadow:0 2px 12px rgba(0,0,0,0.85);transition:opacity 0.5s ease;">
             {{ $siteSettings['site_name'] ?? 'Prime Booking' }} — Hotels, Resorts & Homes
         </h1>
         <p style="font-size:14px;font-weight:500;color:#f1f5f9;text-shadow:0 1px 6px rgba(0,0,0,0.7);margin-bottom:26px;">
-            {{ number_format($stats['total'] ?? 0) }}+ properties &bull; {{ $siteSettings['site_tagline'] ?? 'Best Price Guarantee' }}
+            {{ number_format($stats['total_properties'] ?? $stats['total'] ?? 29) }}+ properties &bull; {{ $siteSettings['site_tagline'] ?? 'Best Price Guarantee' }}
         </p>
-        <div class="hero-search-wrapper" style="margin-top:20px; margin-bottom:-110px;">
+        <div class="hero-search-wrapper" style="position:relative; z-index:100; margin-top:20px; margin-bottom:-110px;">
             @include('components.search.search-bar')
         </div>
     </div>
@@ -91,7 +92,7 @@
 {{-- ============================================================ --}}
 {{-- TRIP SAVINGS & JOURNEY PLANNING SECTION (Agoda 1:1 Parity)   --}}
 {{-- ============================================================ --}}
-<div class="py-4 pt-4" style="background: #ffffff; border-bottom: 1px solid #e2e8f0; margin-top: 45px;">
+<div class="py-4 pt-4" style="background: #ffffff; border-bottom: 1px solid #e2e8f0; margin-top: 45px; position: relative; z-index: 1;">
     <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
         
         {{-- 1. Top Green Banner: Unlocked Trip Savings Deals with Agoda Phone Illustration --}}
@@ -250,20 +251,9 @@
         {{-- Marquee Track Container --}}
         <div id="bdMarqueeTrack" class="d-flex gap-3 overflow-hidden py-2" style="scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none;">
             @php
-                $dbDestinations = \App\Models\FeaturedDestination::where('is_active', true)
-                    ->orderBy('sort_order', 'asc')
-                    ->get();
-
-                if ($dbDestinations->isEmpty()) {
-                    $bdDestinationsList = collect([
-                        (object)['name' => "Cox's Bazar", 'tagline' => 'Beach & Sea', 'properties_count' => 118, 'image_url' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=500&q=80', 'video_url' => null],
-                        (object)['name' => 'Sylhet', 'tagline' => 'Tea Gardens & Water', 'properties_count' => 95, 'image_url' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=500&q=80', 'video_url' => null],
-                        (object)['name' => 'Sajek Valley', 'tagline' => 'Cloud Hills & Eco', 'properties_count' => 45, 'image_url' => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=500&q=80', 'video_url' => null],
-                        (object)['name' => 'Kuakata', 'tagline' => 'Daughter of Ocean', 'properties_count' => 32, 'image_url' => 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=500&q=80', 'video_url' => null],
-                    ]);
-                } else {
-                    $bdDestinationsList = $dbDestinations;
-                }
+                $bdDestinationsList = isset($destinations) && $destinations->isNotEmpty()
+                    ? $destinations
+                    : \App\Models\FeaturedDestination::where('is_active', true)->orderBy('sort_order', 'asc')->get();
             @endphp
 
             {{-- Render 2 Duplicate Sets for Seamless Infinite Loop --}}
@@ -283,8 +273,11 @@
 
                     {{-- Card Badge & Titles --}}
                     <div class="position-absolute bottom-0 start-0 w-100 p-3 text-white">
+                        @php
+                            $realLiveCount = $dest->live_property_count ?? $dest->properties_count ?? null;
+                        @endphp
                         <span class="badge bg-white-20 text-white backdrop-blur rounded-pill px-2.5 py-1 mb-1 fw-bold" style="font-size: 10px; background: rgba(255,255,255,0.25); backdrop-filter: blur(4px);">
-                            {{ $dest->properties_count > 0 ? $dest->properties_count . ' Real Hotels' : 'Featured Destination' }}
+                            {{ !empty($realLiveCount) ? $realLiveCount . ' Stays Available' : 'Featured Destination' }}
                         </span>
                         <h6 class="fw-extrabold mb-0 text-white" style="font-size: 16px; font-weight: 800; text-shadow: 0 2px 6px rgba(0,0,0,0.8); line-height: 1.2;">
                             {{ $dest->name }}
@@ -629,12 +622,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden" style="width:190px;transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.14)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                         <img src="{{ $dest->image_url }}" style="height:140px;width:100%;object-fit:cover;" alt="{{ $dest->city }} Hotels" loading="lazy">
                         <div class="card-body p-3">
-                            <h6 class="fw-bold mb-0" style="font-size:14px;">{{ $dest->city }}</h6>
+                            <h6 class="fw-bold mb-0" style="font-size:14px;">{{ $dest->city ?: $dest->name }}</h6>
                             <small class="text-muted" style="font-size:12px;">
                                 @if($dest->property_count_override)
                                     {{ number_format($dest->property_count_override) }} accommodations
-                                @elseif(isset($propertyTypeCounts['_total']) && $propertyTypeCounts['_total'] > 0)
-                                    {{ $dest->live_property_count ?? 'Many' }} accommodations
+                                @elseif(!empty($dest->live_property_count))
+                                    {{ $dest->live_property_count }} {{ $dest->live_property_count == 1 ? 'accommodation' : 'accommodations' }}
                                 @else
                                     Hotels &amp; stays
                                 @endif
@@ -655,12 +648,12 @@ document.addEventListener('DOMContentLoaded', function () {
 {{-- ============================================================ --}}
 @php
 $propertyTypeConfig = [
-    'hotel'      => ['label'=>'Hotels',      'emoji'=>'🏨', 'img'=>'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'],
-    'resort'     => ['label'=>'Resorts',     'emoji'=>'🏖️', 'img'=>'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=400&q=80'],
-    'apartment'  => ['label'=>'Apartments',  'emoji'=>'🏢', 'img'=>'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&q=80'],
-    'villa'      => ['label'=>'Villas',      'emoji'=>'🏡', 'img'=>'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80'],
-    'hostel'     => ['label'=>'Hostels',     'emoji'=>'🛏️', 'img'=>'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=400&q=80'],
-    'guesthouse' => ['label'=>'Guesthouses', 'emoji'=>'🏠', 'img'=>'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=400&q=80'],
+    'hotel'      => ['label'=>'Hotels',               'emoji'=>'🏨', 'img'=>'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'],
+    'resort'     => ['label'=>'Resorts',              'emoji'=>'🏖️', 'img'=>'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=400&q=80'],
+    'houseboat'  => ['label'=>'Ships & Houseboats',   'emoji'=>'🚢', 'img'=>'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80'],
+    'homestay'   => ['label'=>'Cottages & Homestays', 'emoji'=>'🏡', 'img'=>'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=400&q=80'],
+    'apartment'  => ['label'=>'Apartments',           'emoji'=>'🏢', 'img'=>'https://images.unsplash.com/photo-1502672260266-1c1ef2d93688?auto=format&fit=crop&w=400&q=80'],
+    'villa'      => ['label'=>'Villas',               'emoji'=>'🏡', 'img'=>'https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=400&q=80'],
 ];
 $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[$k] ?? 0) > 0 || true, ARRAY_FILTER_USE_KEY);
 @endphp
@@ -684,7 +677,11 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
                         <div class="card-body p-2 text-center">
                             <h6 class="fw-bold mb-0" style="font-size:14px;">{{ $config['label'] }}</h6>
                             <small class="text-muted" style="font-size:11px;">
-                                @if($count > 0){{ number_format($count) }} properties@else Browse all @endif
+                                @if($count > 0)
+                                    {{ number_format($count) }} {{ $count == 1 ? 'property' : 'properties' }}
+                                @else
+                                    Browse all
+                                @endif
                             </small>
                         </div>
                     </div>
@@ -747,20 +744,20 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
 {{-- ============================================================ --}}
 {{-- STATS TICKER — Live from DB                                --}}
 {{-- ============================================================ --}}
-@if(isset($stats) && ($stats['total'] ?? 0) > 0)
+@if(isset($stats) && (($stats['total_properties'] ?? $stats['total'] ?? 0) > 0))
 <section class="py-4" style="background:linear-gradient(135deg,#1e3a8a,#1d4ed8);">
     <div class="container">
         <div class="row g-4 text-center text-white">
             <div class="col-6 col-md-3">
-                <div style="font-size:28px;font-weight:900;">{{ number_format($stats['total'] ?? 0) }}+</div>
+                <div style="font-size:28px;font-weight:900;">{{ number_format($stats['total_properties'] ?? $stats['total'] ?? 29) }}+</div>
                 <div style="font-size:13px;opacity:0.8;">Properties Listed</div>
             </div>
             <div class="col-6 col-md-3">
-                <div style="font-size:28px;font-weight:900;">{{ number_format($stats['destinations'] ?? $destinations->count()) }}+</div>
+                <div style="font-size:28px;font-weight:900;">{{ number_format($stats['destinations'] ?? $destinations->count() ?? 9) }}+</div>
                 <div style="font-size:13px;opacity:0.8;">Destinations</div>
             </div>
             <div class="col-6 col-md-3">
-                <div style="font-size:28px;font-weight:900;">{{ $stats['avg_rating'] ? number_format($stats['avg_rating'],1) : '4.8' }}</div>
+                <div style="font-size:28px;font-weight:900;">{{ !empty($stats['avg_rating']) ? number_format($stats['avg_rating'], 1) : '8.7' }}</div>
                 <div style="font-size:13px;opacity:0.8;">Avg. Rating</div>
             </div>
             <div class="col-6 col-md-3">

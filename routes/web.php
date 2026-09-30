@@ -110,6 +110,11 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/hotels-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
+    $cleanDest = str_replace(['-', '_'], ' ', ucwords($destination));
+    $request->merge(['destination' => $cleanDest]);
+    return $controller->index($request);
+})->name('seo.city.hotels');
 Route::get('/compare', [\App\Http\Controllers\Web\CompareController::class, 'index'])->name('properties.compare');
 Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show');
 Route::get('/hotel/{slug}', [PropertyDetailController::class, 'show'])->name('hotel.show');
@@ -123,21 +128,21 @@ Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitRe
 Route::post('/hotels/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('hotels.inquire');
 Route::post('/property/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('property.inquire');
 
-// Informational & Marketing Static Routes
-Route::get('/about', fn() => view('pages.about'))->name('about');
-Route::get('/about-us', fn() => view('pages.about'))->name('about.us');
-Route::get('/contact', fn() => view('pages.contact'))->name('contact');
-Route::get('/contact-us', fn() => view('pages.contact'))->name('contact.us');
-Route::get('/privacy', fn() => view('pages.privacy'))->name('privacy');
-Route::get('/privacy-policy', fn() => view('pages.privacy'))->name('privacy.policy');
-Route::get('/terms', fn() => view('pages.terms'))->name('terms');
-Route::get('/terms-and-conditions', fn() => view('pages.terms'))->name('terms.conditions');
+// Informational & Marketing Public Routes
+Route::get('/about', [PageController::class, 'about'])->name('about');
+Route::get('/about-us', [PageController::class, 'about'])->name('about.us');
+Route::get('/contact', [PageController::class, 'contact'])->name('contact');
+Route::get('/contact-us', [PageController::class, 'contact'])->name('contact.us');
+Route::get('/privacy', [PageController::class, 'privacy'])->name('privacy');
+Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy.policy');
+Route::get('/terms', [PageController::class, 'terms'])->name('terms');
+Route::get('/terms-and-conditions', [PageController::class, 'terms'])->name('terms.conditions');
 Route::get('/deals', [PageController::class, 'deals'])->name('deals');
 Route::get('/cashback', [PageController::class, 'cashback'])->name('cashback');
 Route::get('/pointsmax', [PageController::class, 'pointsmax'])->name('pointsmax');
 Route::get('/vip', [PageController::class, 'vip'])->name('vip');
-Route::get('/homes', fn() => view('pages.homes'))->name('homes');
-Route::get('/services', fn() => view('pages.services'))->name('services');
+Route::get('/homes', [PageController::class, 'homes'])->name('homes');
+Route::get('/services', [PageController::class, 'services'])->name('services');
 Route::get('/subscriptions', fn() => view('pages.subscriptions'))->name('subscriptions');
 
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');
@@ -247,7 +252,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
 
     Route::get('/pointsmax/programs', function () {
         $user = auth()->user();
-        $programs = $user && $user->pointsmax_programs ? (is_array($user->pointsmax_programs) ? $user->pointsmax_programs : json_decode($user->pointsmax_programs, true)) : session('pointsmax_programs_' . ($user?->id ?? 'guest'), []);
+        $programs = $user && $user->pointsmax_programs ? (is_array($user->pointsmax_programs) ? $user->pointsmax_programs : (is_string($user->pointsmax_programs) ? json_decode($user->pointsmax_programs, true) : [])) : session('pointsmax_programs_' . ($user?->id ?? 'guest'), []);
         return response()->json([
             'status'   => 'success',
             'success'  => true,
@@ -492,7 +497,7 @@ Route::post('/wishlist/toggle/{id}', function (\Illuminate\Http\Request $request
 
 
 // Super Admin Control Panel, SaaS Tenants & Settings Routes
-Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // ── System Cache Management & Backup ──────────────────────────────────
@@ -552,6 +557,9 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::delete('/properties/{id}', [PropertyManagementController::class, 'destroy'])->name('properties.destroy');
 
     // Room Types Management (nested under property)
+    Route::get('/rooms/availability', [App\Http\Controllers\Admin\AdminRoomAvailabilityController::class, 'index'])->name('rooms.availability');
+    Route::post('/rooms/availability/bulk-update', [App\Http\Controllers\Admin\AdminRoomAvailabilityController::class, 'updateRange'])->name('rooms.availability.bulk-update');
+    Route::get('/api/live-alerts', [App\Http\Controllers\Admin\LiveAlertController::class, 'poll'])->name('api.live-alerts');
     Route::get('/properties/{propertyId}/rooms', [RoomController::class, 'index'])->name('rooms.index');
     Route::get('/properties/{propertyId}/rooms/create', [RoomController::class, 'create'])->name('rooms.create');
     Route::post('/properties/{propertyId}/rooms', [RoomController::class, 'store'])->name('rooms.store');
@@ -581,6 +589,13 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin'])->grou
     Route::post('/users/{id}/demote', [UserManagementController::class, 'demote'])->name('users.demote');
     Route::delete('/users/{id}', [UserManagementController::class, 'destroy'])->name('users.destroy');
     Route::post('/users/bulk-action', [UserManagementController::class, 'bulkAction'])->name('users.bulk-action');
+
+    // Vendor Tenants & PMS Management
+    Route::get('/tenants', [TenantManagementController::class, 'index'])->name('tenants.index');
+    Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
+    Route::put('/tenants/{id}', [TenantManagementController::class, 'update'])->name('tenants.update');
+    Route::post('/tenants/{id}/toggle', [TenantManagementController::class, 'toggleStatus'])->name('tenants.toggle');
+    Route::delete('/tenants/{id}', [TenantManagementController::class, 'destroy'])->name('tenants.destroy');
 
     // ── Master Financial Accounts & General Ledger ─────────────────────
     Route::get('/accounts', [App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounts.index');
@@ -812,6 +827,23 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::post('/availability/update-range',    [RoomAvailabilityController::class, 'updateRange'])->name('availability.update-range');
     Route::post('/availability/weekend-surge',   [RoomAvailabilityController::class, 'applyWeekendSurge'])->name('availability.weekend-surge');
 
+    // ── Channel Manager iCal Calendar Sync (.ics) ───────────────
+    Route::get('/rooms/{roomId}/calendar.ics', function ($roomId, \App\Services\ICalSyncService $iCalService) {
+        $room = \App\Models\Room::with('property')->findOrFail($roomId);
+        $icsContent = $iCalService->generateIcsForRoom($room);
+        return response($icsContent, 200, [
+            'Content-Type'        => 'text/calendar; charset=utf-8',
+            'Content-Disposition' => 'attachment; filename="room-' . $room->id . '-calendar.ics"',
+        ]);
+    })->name('rooms.ical.export');
+
+    Route::post('/rooms/{roomId}/ical-import', function (\Illuminate\Http\Request $request, $roomId, \App\Services\ICalSyncService $iCalService) {
+        $request->validate(['ics_url' => 'required|url']);
+        $room = \App\Models\Room::findOrFail($roomId);
+        $result = $iCalService->importExternalIcs($room, $request->ics_url);
+        return back()->with($result['success'] ? 'success' : 'error', $result['message']);
+    })->name('rooms.ical.import');
+
     // ── Promotions ─────────────────────────────────────────────
     Route::get('/promotions',                 [VendorPromotionController::class, 'index'])->name('promotions.index');
     Route::get('/promotions/create',          [VendorPromotionController::class, 'create'])->name('promotions.create');
@@ -866,11 +898,6 @@ Route::get('/checkout', [BookingFlowController::class, 'index'])->name('checkout
 Route::post('/checkout/process', [BookingFlowController::class, 'process'])->name('checkout.process');
 Route::get('/checkout/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('checkout.confirmation');
 
-Route::get('/about-us', [PageController::class, 'about'])->name('about');
-Route::get('/services', [PageController::class, 'services'])->name('services');
-Route::get('/contact-us', [PageController::class, 'contact'])->name('contact');
-Route::get('/privacy-policy', [PageController::class, 'privacy'])->name('privacy');
-Route::get('/terms-and-conditions', [PageController::class, 'terms'])->name('terms');
 Route::get('/trips', [PageController::class, 'trips'])->name('trips');
 Route::get('/my-account/bookings', [UserDashboardController::class, 'bookings'])->name('bookings');
 Route::get('/my-account/user-bookings', [UserDashboardController::class, 'bookings'])->name('account.bookings');
@@ -881,17 +908,10 @@ Route::get('/profile',             [PageController::class, 'profile'])->name('pr
 Route::post('/profile',            [PageController::class, 'updateProfile'])->name('profile.update');
 Route::get('/my-account/profile',  [PageController::class, 'profile'])->name('account.profile');
 
-// ─── Loyalty & Rewards ────────────────────────────────────────────────────
-Route::get('/vip',        [PageController::class, 'vip'])->name('vip');
-Route::get('/cashback',   [PageController::class, 'cashback'])->name('cashback');
-Route::get('/pointsmax',  [PageController::class, 'pointsmax'])->name('pointsmax');
-
 // ─── User Activity Pages ──────────────────────────────────────────────────
 Route::get('/messages',   [App\Http\Controllers\Web\MessageController::class, 'index'])->name('messages');
 Route::post('/messages',  [App\Http\Controllers\Web\MessageController::class, 'store'])->name('messages.store');
 Route::get('/reviews',    [PageController::class, 'reviews'])->name('reviews');
-Route::get('/deals',      [PageController::class, 'deals'])->name('deals');
-Route::get('/homes',      [PageController::class, 'homes'])->name('homes');
 
 // ─── Travel & Service Pages ───────────────────────────────────────────────
 Route::get('/airport-transfer',    [PageController::class, 'transfer'])->name('transfer');
@@ -949,11 +969,7 @@ Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('ven
 // Form Actions
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 
-Route::get('/lang/{locale}', function ($locale) {
-    session(['locale' => $locale]);
-    cookie()->queue(cookie()->forever('locale', $locale));
-    return redirect()->back();
-})->name('lang.switch');
+
 
 // ── Universal Storage Fallback & Media Streamer ──────────────────────────
 Route::get('/storage/{path}', function ($path) {
@@ -979,7 +995,7 @@ Route::get('/account/rewards', [PageController::class, 'cashback'])->name('accou
 Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit');
 
 // ── PointsMAX Programs Routes (1:1 Agoda PointsMAX Parity) ──
-Route::get('/account/pointsmax', [PageController::class, 'pointsmax'])->name('pointsmax');
+Route::get('/account/pointsmax', [PageController::class, 'pointsmax'])->name('account.pointsmax');
 Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
 Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
 

@@ -38,15 +38,17 @@
 
         /* ── Reference strip ── */
         .ref-strip {
-            background: #0f172a;
+            background: #f0f7ff;
+            border-top: 1px solid #e0eeff;
+            border-bottom: 1px solid #e0eeff;
             padding: 14px 32px;
             display: flex;
             align-items: center;
             justify-content: space-between;
         }
-        .ref-label { color: rgba(255,255,255,0.6); font-size: 11px; text-transform: uppercase; letter-spacing: 1px; }
-        .ref-code  { color: #60a5fa; font-size: 22px; font-weight: 900; font-family: 'Courier New', monospace; letter-spacing: 3px; }
-        .ref-status { background: #16a34a; color: #fff; padding: 4px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; }
+        .ref-label { color: #64748b; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
+        .ref-code  { color: #2067e1; font-size: 22px; font-weight: 900; font-family: 'JetBrains Mono', 'Courier New', monospace; letter-spacing: 2px; }
+        .ref-status { background: #00b074; color: #fff; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; }
 
         /* ── Property section ── */
         .property-section {
@@ -93,15 +95,22 @@
         .footer-contact { color: rgba(255,255,255,0.85); font-size: 12px; font-weight: 600; margin-top: 4px; }
 
         /* ── Print Actions (no-print) ── */
-        .print-actions { display: flex; gap: 12px; justify-content: center; margin-bottom: 20px; }
+        .print-actions {
+            max-width: 800px;
+            margin: 0 auto 16px auto;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
         .print-btn {
-            display: inline-flex; align-items: center; gap: 8px; padding: 12px 28px;
-            border-radius: 10px; font-weight: 700; font-size: 14px;
+            display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px;
+            border-radius: 8px; font-weight: 700; font-size: 13.5px;
             text-decoration: none; cursor: pointer; border: none; transition: all 0.2s;
         }
         .btn-blue  { background: #2067e1; color: #fff; }
         .btn-green { background: #16a34a; color: #fff; }
-        .btn-gray  { background: #fff; color: #374151; border: 2px solid #e2e8f0; }
+        .btn-gray  { background: #fff; color: #374151; border: 1px solid #cbd5e1; }
 
         @media print {
             body { background: #fff; padding: 0; }
@@ -113,30 +122,35 @@
 <body>
     {{-- ── Print / Download Actions ── --}}
     <div class="print-actions no-print">
+        <div style="display: flex; gap: 8px;">
+            <a href="{{ route('booking.confirmation', $booking->booking_reference) }}" class="print-btn btn-gray">
+                <i class="fa-solid fa-arrow-left"></i> Back to Booking
+            </a>
+            <a href="{{ route('home') }}" class="print-btn btn-gray">
+                <i class="fa-solid fa-house"></i> Home
+            </a>
+        </div>
         <button onclick="window.print()" class="print-btn btn-blue">
-            🖨️ Print Voucher
+            <i class="fa-solid fa-print"></i> Print Voucher
         </button>
-        <a href="{{ route('booking.confirmation', $booking->booking_reference) }}" class="print-btn btn-gray">
-            ← Back to Booking
-        </a>
-        <a href="{{ route('home') }}" class="print-btn btn-gray">
-            🏠 Home
-        </a>
     </div>
 
     <div class="voucher-wrap">
     <div class="voucher-card">
 
         {{-- ── Header ── --}}
-        <div class="voucher-header">
-            <div>
-                <div class="brand-name">PRIME BOOKING</div>
-                <div class="brand-sub">Official Hotel Accommodation Voucher</div>
+        <div class="voucher-header" style="background: #ffffff; border-bottom: 2px solid #e2e8f0; padding: 22px 24px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <img src="{{ asset('images/logo.png') }}" style="height: 44px; width: auto; object-fit: contain;" alt="Prime Booking">
+                <div style="border-left: 2px solid #e2e8f0; padding-left: 14px;">
+                    <div class="brand-name" style="font-size: 18px; font-weight: 800; letter-spacing: -0.3px; color: #0f172a; line-height: 1.2;">PRIME BOOKING</div>
+                    <div class="brand-sub" style="font-size: 11.5px; font-weight: 500; color: #64748b; margin-top: 2px;">Official Hotel Accommodation Voucher</div>
+                </div>
             </div>
-            <div class="voucher-type">
-                <div class="voucher-type-label">Document Type</div>
-                <div class="voucher-type-name">E-TICKET</div>
-                <div style="font-size:11px; color:rgba(255,255,255,0.7); margin-top:2px;">Present this at hotel check-in</div>
+            <div class="voucher-type" style="text-align: right;">
+                <div class="voucher-type-label" style="font-size: 10.5px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: #2067e1;">Document Type</div>
+                <div class="voucher-type-name" style="font-size: 18px; font-weight: 800; color: #0f172a; letter-spacing: 0.5px;">E-TICKET</div>
+                <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Present this at hotel check-in</div>
             </div>
         </div>
 
@@ -148,7 +162,26 @@
             </div>
             <div style="text-align:right;">
                 <div class="ref-label" style="margin-bottom:4px;">Booking Status</div>
-                <span class="ref-status">✓ {{ strtoupper($booking->effective_status) }}</span>
+                @php
+                    $effStatus = strtolower($booking->effective_status ?? $booking->status ?? 'confirmed');
+                    $statusColor = '#00b074';
+                    $statusIcon  = 'fa-circle-check';
+                    $statusText  = strtoupper($effStatus);
+
+                    if (in_array($effStatus, ['cancelled', 'canceled', 'failed'])) {
+                        $statusColor = '#e63946';
+                        $statusIcon  = 'fa-circle-xmark';
+                    } elseif ($effStatus === 'refunded') {
+                        $statusColor = '#d97706';
+                        $statusIcon  = 'fa-rotate-left';
+                    } elseif (in_array($effStatus, ['pending', 'unpaid'])) {
+                        $statusColor = '#2563eb';
+                        $statusIcon  = 'fa-clock';
+                    }
+                @endphp
+                <span class="ref-status" style="background-color: {{ $statusColor }}; color: #ffffff; padding: 5px 14px; border-radius: 50px; font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px;">
+                    <i class="fa-solid {{ $statusIcon }}"></i> {{ $statusText }}
+                </span>
             </div>
         </div>
 

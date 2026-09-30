@@ -104,7 +104,7 @@ class RewardPointService
             return null;
         }
 
-        $paidAmount = (float) $booking->total_amount;
+        $paidAmount = (float) ($booking->total_price ?? $booking->total_amount ?? $booking->amount ?? 0);
         $earnedPoints = $this->calculatePoints($paidAmount);
 
         if ($earnedPoints <= 0) {

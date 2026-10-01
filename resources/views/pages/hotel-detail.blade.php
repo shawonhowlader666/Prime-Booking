@@ -1,37 +1,40 @@
 @extends('layouts.main', ['activePage' => 'hotels'])
 
 @section('schema')
+@php
+    $schemaHotel = [
+        '@context' => 'https://schema.org',
+        '@type' => in_array(strtolower($property->type ?? ''), ['resort', 'villa', 'motel']) ? ucfirst(strtolower($property->type)) : 'Hotel',
+        'name' => $property->name ?? 'Hotel',
+        'description' => strip_tags(\Illuminate\Support\Str::limit($property->description ?? 'Book ' . ($property->name ?? 'hotel') . ' on Prime Booking with best price guarantee.', 250)),
+        'image' => $property->primary_image ? (str_starts_with($property->primary_image, 'http') ? $property->primary_image : asset('storage/' . $property->primary_image)) : asset('images/logo.png'),
+        'starRating' => [
+            '@type' => 'Rating',
+            'ratingValue' => (int)($property->star_rating ?? 4),
+        ],
+        'priceRange' => 'BDT ' . number_format((float)($property->price_per_night ?? 2500)) . ' - ' . number_format((float)($property->price_per_night ?? 2500) * 2.5),
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => $property->address ?? $property->city ?? 'Bangladesh',
+            'addressLocality' => $property->city ?? 'Dhaka',
+            'addressCountry' => 'BD',
+        ],
+        'aggregateRating' => [
+            '@type' => 'AggregateRating',
+            'ratingValue' => number_format((float)($property->rating ?? 4.8), 1),
+            'reviewCount' => max(5, (int)($property->reviews_count ?? $property->total_reviews ?? 28)),
+        ],
+    ];
+    if (!empty($property->latitude) && !empty($property->longitude)) {
+        $schemaHotel['geo'] = [
+            '@type' => 'GeoCoordinates',
+            'latitude' => (float) $property->latitude,
+            'longitude' => (float) $property->longitude,
+        ];
+    }
+@endphp
 <script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "{{ in_array(strtolower($property->type ?? ''), ['resort', 'villa', 'motel']) ? ucfirst(strtolower($property->type)) : 'Hotel' }}",
-  "name": "{{ addslashes($property->name) }}",
-  "description": "{{ addslashes(strip_tags(\Illuminate\Support\Str::limit($property->description ?? 'Book ' . $property->name . ' on Prime Booking with best price guarantee.', 250))) }}",
-  "image": "{{ $property->primary_image ? (str_starts_with($property->primary_image, 'http') ? $property->primary_image : asset('storage/' . $property->primary_image)) : asset('images/logo.png') }}",
-  "starRating": {
-    "@type": "Rating",
-    "ratingValue": "{{ (int)($property->star_rating ?? 4) }}"
-  },
-  "priceRange": "BDT {{ number_format($property->price_per_night ?? 2500) }} - {{ number_format(($property->price_per_night ?? 2500) * 2.5) }}",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "{{ addslashes($property->address ?? $property->city ?? 'Bangladesh') }}",
-    "addressLocality": "{{ addslashes($property->city ?? 'Dhaka') }}",
-    "addressCountry": "BD"
-  },
-  @if(!empty($property->latitude) && !empty($property->longitude))
-  "geo": {
-    "@type": "GeoCoordinates",
-    "latitude": {{ (float) $property->latitude }},
-    "longitude": {{ (float) $property->longitude }}
-  },
-  @endif
-  "aggregateRating": {
-    "@type": "AggregateRating",
-    "ratingValue": "{{ number_format((float)($property->rating ?? 4.8), 1) }}",
-    "reviewCount": "{{ max(5, (int)($property->reviews_count ?? $property->total_reviews ?? 28)) }}"
-  }
-}
+{!! json_encode($schemaHotel, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
 </script>
 @endsection
 

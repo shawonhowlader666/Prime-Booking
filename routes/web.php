@@ -97,6 +97,7 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
+Route::get('/hotels', [SearchController::class, 'index'])->name('hotels.index');
 Route::get('/hotels-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
     $cleanDest = str_replace(['-', '_'], ' ', ucwords($destination));
     $request->merge(['destination' => $cleanDest]);

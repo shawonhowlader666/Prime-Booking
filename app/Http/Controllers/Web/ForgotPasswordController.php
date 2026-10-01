@@ -27,9 +27,8 @@ class ForgotPasswordController extends Controller
                 ['email' => $request->email],
                 ['token' => Hash::make($token), 'created_at' => now()]
             );
-            return back()->with('status', 'We have processed your request! Password reset token generated for ' . $request->email);
         }
 
-        return back()->with('error', 'We could not find a user with that email address.');
+        return back()->with('status', 'If an account exists with this email address, password reset instructions have been dispatched.');
     }
 }

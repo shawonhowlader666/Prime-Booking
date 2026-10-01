@@ -40,4 +40,4 @@ Route::post('/inquiries', function (Request $request) {
         'message' => 'Inquiry submitted successfully!',
         'data'    => $inq,
     ], 201);
-});
+})->middleware('throttle:5,1');

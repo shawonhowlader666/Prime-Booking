@@ -110,6 +110,23 @@ class TransferBookingController extends Controller
                 'status'            => 'confirmed',
                 'created_at'        => now(),
             ]);
+        } else {
+            // Anti-IDOR Authorization Check
+            $isAuthorized = (session("transfer_{$reference}") === true)
+                || (auth()->check() && (
+                    $booking->user_id === auth()->id()
+                    || strtolower((string)auth()->user()->email) === strtolower((string)$booking->passenger_email)
+                    || auth()->user()->isAdmin()
+                ));
+
+            if (!$isAuthorized) {
+                // Obfuscate passenger PII to prevent data scraping
+                $rawPhone = (string) $booking->passenger_phone;
+                $rawEmail = (string) $booking->passenger_email;
+                $booking->passenger_phone = strlen($rawPhone) > 6 ? substr($rawPhone, 0, 4) . '****' . substr($rawPhone, -2) : '****';
+                $emailParts = explode('@', $rawEmail);
+                $booking->passenger_email = count($emailParts) === 2 ? substr($emailParts[0], 0, 2) . '***@' . $emailParts[1] : '***@***.com';
+            }
         }
 
         return view('pages.transfer-voucher', compact('booking'));

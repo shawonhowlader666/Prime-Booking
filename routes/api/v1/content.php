@@ -76,4 +76,4 @@ Route::post('/coupons/validate', function (\Illuminate\Http\Request $request) {
             'discount_calculated' => (float)round($discount, 2),
         ]
     ]);
-});
+})->middleware('throttle:15,1');

@@ -67,15 +67,20 @@ class UserManagementController extends Controller
             'name'     => 'required|string|max:100',
             'email'    => 'required|email|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
-            'role'     => 'required|in:customer,vendor,admin',
+            'role'     => 'required|in:customer,vendor,admin,super_admin',
             'phone'    => 'nullable|string|max:20',
         ]);
+
+        $role = $request->role;
+        if (in_array($role, ['admin', 'super_admin']) && !auth()->user()->isSuperAdmin()) {
+            return back()->with('error', 'Only Super Admin can create administrative accounts.');
+        }
 
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role'     => $request->role,
+            'role'     => $role,
             'phone'    => $request->phone,
             'status'   => 'active',
         ]);
@@ -91,8 +96,8 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if (in_array($user->role, ['super_admin'])) {
-            return back()->with('error', 'Cannot ban a Super Admin account.');
+        if ($user->role === 'super_admin' || ($user->role === 'admin' && !auth()->user()->isSuperAdmin())) {
+            return back()->with('error', 'Unauthorized to suspend administrative accounts.');
         }
 
         $user->update(['status' => 'banned']);
@@ -119,6 +124,11 @@ class UserManagementController extends Controller
     public function activate($id)
     {
         $user = User::findOrFail($id);
+
+        if ($user->role === 'super_admin' || ($user->role === 'admin' && !auth()->user()->isSuperAdmin())) {
+            return back()->with('error', 'Unauthorized to modify administrative accounts.');
+        }
+
         $user->update(['status' => 'active']);
 
         // Remove IP firewall ban if exists
@@ -130,11 +140,25 @@ class UserManagementController extends Controller
 
     public function updateRole(Request $request, $id)
     {
+        $request->validate([
+            'role' => 'required|in:customer,vendor,admin,super_admin',
+        ]);
+        $targetRole = $request->input('role');
         $user = User::findOrFail($id);
-        $role = $request->input('role', 'user');
-        $user->update(['role' => $role]);
-        $this->log('updated_role', $user, "Changed role of {$user->email} to {$role}");
-        return back()->with('success', "User role updated to {$role} successfully.");
+
+        // Modifying or assigning admin/super_admin roles requires super_admin
+        if (($targetRole === 'admin' || $targetRole === 'super_admin' || $user->isAdmin()) && !auth()->user()->isSuperAdmin()) {
+            return back()->with('error', 'Only Super Admin can assign or alter administrative roles.');
+        }
+
+        // Prevent self-demotion if caller is super_admin
+        if ($user->id === auth()->id() && $user->role === 'super_admin' && $targetRole !== 'super_admin') {
+            return back()->with('error', 'Cannot demote the active Super Admin account.');
+        }
+
+        $user->update(['role' => $targetRole]);
+        $this->log('updated_role', $user, "Changed role of {$user->email} to {$targetRole}");
+        return back()->with('success', "User role updated to {$targetRole} successfully.");
     }
 
     public function toggleStatus($id)
@@ -152,6 +176,9 @@ class UserManagementController extends Controller
     public function promoteVendor($id)
     {
         $user = User::findOrFail($id);
+        if ($user->isAdmin() && !auth()->user()->isSuperAdmin()) {
+            return back()->with('error', 'Only Super Admin can alter administrative accounts.');
+        }
         $old  = $user->role;
         $user->update(['role' => 'vendor']);
         $this->log('promoted', $user, "Promoted {$user->email} from {$old} → vendor");
@@ -179,15 +206,29 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // Security check: Only Super Admin can edit Super Admin or other Admin profiles
+        if (($user->isSuperAdmin() || $user->role === 'admin') && !auth()->user()->isSuperAdmin() && auth()->id() !== $user->id) {
+            return back()->with('error', 'Only Super Admin can update administrative profiles.');
+        }
+
         $request->validate([
             'name'   => 'required|string|max:100',
             'email'  => 'required|email|unique:users,email,' . $id,
             'phone'  => 'nullable|string|max:20',
-            'role'   => 'required|in:customer,vendor,admin',
+            'role'   => 'required|in:customer,vendor,admin,super_admin',
             'status' => 'required|in:active,inactive,banned',
         ]);
 
-        $user->update($request->only(['name','email','phone','role','status']));
+        $roleToSet = $request->role;
+        // Non-super-admins cannot elevate anyone to admin/super_admin
+        if (in_array($roleToSet, ['admin', 'super_admin']) && !auth()->user()->isSuperAdmin()) {
+            $roleToSet = $user->role;
+        }
+
+        $updateData = $request->only(['name','email','phone','status']);
+        $updateData['role'] = $roleToSet;
+
+        $user->update($updateData);
 
         if ($request->filled('password')) {
             $user->update(['password' => Hash::make($request->password)]);
@@ -204,8 +245,12 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
-        if ($user->isAdmin()) {
-            return back()->with('error', 'Cannot delete an admin account.');
+        if ($user->isSuperAdmin()) {
+            return back()->with('error', 'Cannot delete Super Admin account.');
+        }
+
+        if ($user->isAdmin() && !auth()->user()->isSuperAdmin()) {
+            return back()->with('error', 'Only Super Admin can delete admin accounts.');
         }
 
         $name = $user->name;

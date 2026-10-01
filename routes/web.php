@@ -135,26 +135,26 @@ Route::get('/subscriptions', fn() => view('pages.subscriptions'))->name('subscri
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');
 Route::get('/tour-packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages');
 Route::get('/packages/{slug}', [App\Http\Controllers\Web\TourPackageController::class, 'show'])->name('packages.show');
-Route::post('/packages/book', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->name('packages.book');
-Route::post('/checkout/process', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->name('checkout.process');
+Route::post('/packages/book', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->middleware('throttle:15,1')->name('packages.book');
+Route::post('/checkout/process', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->middleware('throttle:15,1')->name('checkout.process');
 Route::get('/packages/voucher/{reference}', [App\Http\Controllers\Web\TourPackageController::class, 'voucher'])->name('packages.voucher');
 
 // Domestic Flight Booking Routes
 Route::get('/flights', [App\Http\Controllers\Web\FlightBookingController::class, 'index'])->name('flights.index');
-Route::post('/flights/book', [App\Http\Controllers\Web\FlightBookingController::class, 'book'])->name('flights.book');
+Route::post('/flights/book', [App\Http\Controllers\Web\FlightBookingController::class, 'book'])->middleware('throttle:15,1')->name('flights.book');
 Route::get('/flights/voucher/{pnr}', [App\Http\Controllers\Web\FlightBookingController::class, 'voucher'])->name('flights.voucher');
 
 // Airport Taxi & Transfer Routes
 Route::get('/transfers', [App\Http\Controllers\Web\TransferBookingController::class, 'index'])->name('transfers.index');
-Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->name('transfers.book');
+Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->middleware('throttle:15,1')->name('transfers.book');
 Route::get('/transfers/voucher/{reference}', [App\Http\Controllers\Web\TransferBookingController::class, 'voucher'])->name('transfers.voucher');
 
 // Public Guest Inquiry Form Submission Routes
-Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
-Route::post('/inquiries/store', [InquiryController::class, 'store'])->name('inquiries.store');
+Route::post('/inquiry', [InquiryController::class, 'store'])->middleware('throttle:10,1')->name('inquiry.store');
+Route::post('/inquiries/store', [InquiryController::class, 'store'])->middleware('throttle:10,1')->name('inquiries.store');
 
-Route::get('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+Route::get('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->middleware('throttle:10,1')->name('password.request');
+Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:5,1')->name('password.email');
 Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->name('booking.form');
 Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->middleware('throttle:30,1')->name('booking.store');
 Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.confirmation');
@@ -487,49 +487,51 @@ Route::post('/wishlist/toggle/{id}', function (\Illuminate\Http\Request $request
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    // ── System Cache Management & Backup ──────────────────────────────────
-    Route::post('/system/cache-clear', function () {
-        \Illuminate\Support\Facades\Artisan::call('view:clear');
-        \Illuminate\Support\Facades\Artisan::call('route:clear');
-        \Illuminate\Support\Facades\Cache::flush();
-        return back()->with('success', '✅ All caches cleared successfully! (views, routes, Redis/file cache)');
-    })->name('system.cache-clear');
+    // ── Super Admin Operations: Cache & Database Backup ───────────────────
+    Route::middleware('role:super_admin')->group(function () {
+        Route::post('/system/cache-clear', function () {
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            \Illuminate\Support\Facades\Cache::flush();
+            return back()->with('success', '✅ All caches cleared successfully! (views, routes, Redis/file cache)');
+        })->name('system.cache-clear');
 
-    Route::get('/system/backup/download', function () {
-        $tables = ['users', 'properties', 'rooms', 'bookings', 'accounting_ledgers', 'inquiries', 'coupons', 'payouts', 'site_settings'];
-        $filename = 'primebooking_backup_' . date('Y_m_d_His') . '.sql';
+        Route::get('/system/backup/download', function () {
+            $tables = ['users', 'properties', 'rooms', 'bookings', 'accounting_ledgers', 'inquiries', 'coupons', 'payouts', 'site_settings'];
+            $filename = 'primebooking_backup_' . date('Y_m_d_His') . '.sql';
 
-        $callback = function () use ($tables) {
-            $out = fopen('php://output', 'w');
-            fwrite($out, "-- Prime Booking Master Database Backup\n");
-            fwrite($out, "-- Generated: " . date('Y-m-d H:i:s') . "\n\n");
-            fwrite($out, "SET FOREIGN_KEY_CHECKS=0;\n\n");
+            $callback = function () use ($tables) {
+                $out = fopen('php://output', 'w');
+                fwrite($out, "-- Prime Booking Master Database Backup\n");
+                fwrite($out, "-- Generated: " . date('Y-m-d H:i:s') . "\n\n");
+                fwrite($out, "SET FOREIGN_KEY_CHECKS=0;\n\n");
 
-            foreach ($tables as $table) {
-                if (!\Illuminate\Support\Facades\Schema::hasTable($table)) continue;
-                $rows = \Illuminate\Support\Facades\DB::table($table)->get();
-                if ($rows->isNotEmpty()) {
-                    foreach ($rows as $row) {
-                        $rowArray = (array) $row;
-                        $keys = array_map(fn($k) => "`$k`", array_keys($rowArray));
-                        $vals = array_map(function ($v) {
-                            if (is_null($v)) return 'NULL';
-                            return "'" . addslashes((string)$v) . "'";
-                        }, array_values($rowArray));
+                foreach ($tables as $table) {
+                    if (!\Illuminate\Support\Facades\Schema::hasTable($table)) continue;
+                    $rows = \Illuminate\Support\Facades\DB::table($table)->get();
+                    if ($rows->isNotEmpty()) {
+                        foreach ($rows as $row) {
+                            $rowArray = (array) $row;
+                            $keys = array_map(fn($k) => "`$k`", array_keys($rowArray));
+                            $vals = array_map(function ($v) {
+                                if (is_null($v)) return 'NULL';
+                                return "'" . addslashes((string)$v) . "'";
+                            }, array_values($rowArray));
 
-                        fwrite($out, "INSERT INTO `$table` (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $vals) . ");\n");
+                            fwrite($out, "INSERT INTO `$table` (" . implode(', ', $keys) . ") VALUES (" . implode(', ', $vals) . ");\n");
+                        }
                     }
+                    fwrite($out, "\n");
                 }
-                fwrite($out, "\n");
-            }
-            fwrite($out, "SET FOREIGN_KEY_CHECKS=1;\n");
-            fclose($out);
-        };
+                fwrite($out, "SET FOREIGN_KEY_CHECKS=1;\n");
+                fclose($out);
+            };
 
-        return response()->streamDownload($callback, $filename, [
-            'Content-Type' => 'application/sql',
-        ]);
-    })->name('system.backup.download');
+            return response()->streamDownload($callback, $filename, [
+                'Content-Type' => 'application/sql',
+            ]);
+        })->middleware('throttle:2,1')->name('system.backup.download');
+    });
 
     // Property Management
     Route::get('/properties', [PropertyManagementController::class, 'index'])->name('properties.index');
@@ -706,23 +708,20 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
     Route::get('/import-hotels', [App\Http\Controllers\Admin\HotelImportController::class, 'index'])->name('import-hotels.index');
     Route::post('/import-hotels', [App\Http\Controllers\Admin\HotelImportController::class, 'store'])->name('import-hotels.store');
 
-    // Payment Gateways & API Vault
-    Route::get('/payment-gateways', [PaymentGatewayController::class, 'index'])->name('gateways.index');
-    Route::put('/payment-gateways/{id}', [PaymentGatewayController::class, 'update'])->name('gateways.update');
-    Route::post('/payment-gateways/{id}/toggle', [PaymentGatewayController::class, 'toggleStatus'])->name('gateways.toggle');
-
-    // Activity Log & Audit Trail
+    // Activity Log & Audit Trail (All Admins can view; Super Admin can purge)
     Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.index');
-    Route::delete('/activity-log/{id}', [ActivityLogController::class, 'destroy'])->name('activity.destroy');
-    Route::post('/activity-log/clear', [ActivityLogController::class, 'clear'])->name('activity.clear');
 
-    // System Cache Management
-    Route::post('/system/cache-clear', function () {
-        \Illuminate\Support\Facades\Artisan::call('view:clear');
-        \Illuminate\Support\Facades\Artisan::call('route:clear');
-        \Illuminate\Support\Facades\Cache::flush();
-        return back()->with('success', '✅ All caches cleared (views, routes, Redis).');
-    })->name('system.cache-clear');
+    // ── Dedicated Super Admin Sensitive Configuration ─────────────────────
+    Route::middleware('role:super_admin')->group(function () {
+        // Audit log destructive actions
+        Route::delete('/activity-log/{id}', [ActivityLogController::class, 'destroy'])->name('activity.destroy');
+        Route::post('/activity-log/clear', [ActivityLogController::class, 'clear'])->name('activity.clear');
+
+        // Payment Gateways & API Vault
+        Route::get('/payment-gateways', [PaymentGatewayController::class, 'index'])->name('gateways.index');
+        Route::put('/payment-gateways/{id}', [PaymentGatewayController::class, 'update'])->name('gateways.update');
+        Route::post('/payment-gateways/{id}/toggle', [PaymentGatewayController::class, 'toggleStatus'])->name('gateways.toggle');
+    });
 
     // System Health & Operational Diagnostics Engine
     Route::get('/system/health', function () {

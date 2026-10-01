@@ -122,10 +122,14 @@ class AccountingApiController extends Controller
      */
     public function vendorStatement(Request $request): JsonResponse
     {
-        $vendorId = (int) ($request->query('vendor_id') ?? auth()->id());
-        if (!$vendorId) {
-            return response()->json(['success' => false, 'message' => 'Vendor ID required.'], 400);
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
         }
+
+        $vendorId = ($user->isAdmin() || $user->isSuperAdmin())
+            ? (int) ($request->query('vendor_id') ?? $user->id)
+            : (int) $user->id;
 
         $finance = $this->accountingService->getSingleVendorAccounting($vendorId);
         $recentTransactions = AccountingLedger::where('vendor_id', $vendorId)->latest('id')->take(10)->get();
@@ -165,7 +169,15 @@ class AccountingApiController extends Controller
             'account_name'    => 'nullable|string|max:100',
         ]);
 
-        $vendorId = (int) ($validated['vendor_id'] ?? auth()->id());
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+
+        $vendorId = ($user->isAdmin() || $user->isSuperAdmin())
+            ? (int) ($validated['vendor_id'] ?? $user->id)
+            : (int) $user->id;
+
         $amount   = (float) $validated['amount'];
 
         $details = [
@@ -182,7 +194,7 @@ class AccountingApiController extends Controller
             $amount,
             $validated['payment_method'],
             $details,
-            auth()->user()
+            $user
         );
 
         return response()->json($res, $res['success'] ? 200 : 422);
@@ -331,13 +343,17 @@ class AccountingApiController extends Controller
      */
     public function taxCertificate(Request $request): JsonResponse
     {
-        $vendorId = (int) ($request->query('vendor_id') ?? auth()->id());
+        $user = $request->user();
+        if (!$user) {
+            return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
+        }
+
+        $vendorId = ($user->isAdmin() || $user->isSuperAdmin())
+            ? (int) ($request->query('vendor_id') ?? $user->id)
+            : (int) $user->id;
+
         $year     = (int) ($request->query('year') ?? date('Y'));
         $month    = (int) ($request->query('month') ?? date('m'));
-
-        if (!$vendorId) {
-            return response()->json(['success' => false, 'message' => 'Vendor ID required.'], 400);
-        }
 
         $certificate = $this->accountingService->generateMonthlyTaxCertificate($vendorId, $year, $month);
 
@@ -353,8 +369,22 @@ class AccountingApiController extends Controller
      */
     public function yieldAnalytics(Request $request): JsonResponse
     {
+        $user = $request->user();
+        $isAdmin = $user && ($user->isAdmin() || $user->isSuperAdmin());
+
+        $vendorId = $isAdmin
+            ? ($request->filled('vendor_id') ? (int) $request->query('vendor_id') : null)
+            : (int) ($user?->id ?? 0);
+
         $propertyId = $request->filled('property_id') ? (int) $request->query('property_id') : null;
-        $vendorId   = $request->filled('vendor_id') ? (int) $request->query('vendor_id') : null;
+
+        // If non-admin vendor requests specific property, verify ownership
+        if (!$isAdmin && $propertyId) {
+            $belongs = \App\Models\Property::where('id', $propertyId)->where('vendor_id', $vendorId)->exists();
+            if (!$belongs) {
+                return response()->json(['success' => false, 'message' => 'Unauthorized property analytics request.'], 403);
+            }
+        }
 
         $yieldService = app(\App\Services\YieldAnalyticsService::class);
         $metrics = $yieldService->getPropertyYieldMetrics($propertyId, $vendorId);

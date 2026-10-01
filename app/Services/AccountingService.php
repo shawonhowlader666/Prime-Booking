@@ -365,7 +365,7 @@ class AccountingService
             ->where('type', 'credit')->where('category', 'hotel_booking')->first();
         if ($existing) { return $existing; }
 
-        $gross       = round((float) ($b->total_price ?? $b->amount ?? 0), 2);
+        $gross       = round((float) ($b->total_price ?? $b->total_amount ?? 0), 2);
         $ratePercent = (float) ($b->property->commission_rate ?? self::DEFAULT_COMMISSION_RATE);
         $comm        = round($gross * $ratePercent / 100, 2);
         $fee         = in_array($paymentMethod, ['bkash', 'nagad', 'rocket'])

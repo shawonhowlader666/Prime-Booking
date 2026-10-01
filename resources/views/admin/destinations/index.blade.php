@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible !important;">
             <table class="table table-stockifly mb-0" id="destinationsTable">
                 <thead>
                     <tr>
@@ -132,7 +132,7 @@
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
                             <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
@@ -155,69 +155,6 @@
                             </div>
                         </td>
                     </tr>
-
-                    {{-- EDIT DESTINATION MODAL --}}
-                    <div class="modal fade" id="editModal{{ $d->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <form action="{{ route('admin.destinations.update', $d->id) }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
-                                        <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
-                                            <i class="fa-solid fa-pen text-primary me-2"></i> Edit Destination: {{ $d->city }}
-                                        </h6>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body" style="padding:20px;">
-                                        <div class="mb-3 text-center">
-                                            <img src="{{ $d->image_url }}" class="img-fluid rounded border shadow-sm" style="height:90px; width:100%; object-fit:cover; border-radius:4px;">
-                                        </div>
-                                        <div class="row g-2.5 mb-3">
-                                            <div class="col-7">
-                                                <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">City / District <span style="color:#ff4d4f;">*</span></label>
-                                                <input type="text" name="city" class="form-control" value="{{ $d->city }}" required style="font-size:13px; height:38px; border-radius:4px;">
-                                            </div>
-                                            <div class="col-5">
-                                                <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Country</label>
-                                                <input type="text" name="country" class="form-control" value="{{ $d->country ?? 'Bangladesh' }}" style="font-size:13px; height:38px; border-radius:4px;">
-                                            </div>
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Upload Banner Image from Computer / Gallery</label>
-                                            <input type="file" name="image_file" class="form-control form-control-sm mb-1" accept="image/*" style="font-size:11.5px; border-radius:4px;">
-                                            <span style="font-size:10.5px; color:#94a3b8;">OR keep image URL below:</span>
-                                            <input type="text" name="image_url" class="form-control" value="{{ $d->image_url }}" style="font-size:13px; height:38px; border-radius:4px;">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Tagline Description</label>
-                                            <textarea name="description" class="form-control" rows="2" style="font-size:13px; border-radius:4px;">{{ $d->description }}</textarea>
-                                        </div>
-                                        <div class="row g-2.5 mb-3">
-                                            <div class="col-6">
-                                                <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Sort Order</label>
-                                                <input type="number" name="sort_order" class="form-control" value="{{ $d->sort_order }}" style="font-size:13px; height:38px; border-radius:4px;">
-                                            </div>
-                                            <div class="col-6 pt-4">
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="is_active" value="1" id="activeCheck{{ $d->id }}" {{ $d->is_active ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-bold" for="activeCheck{{ $d->id }}" style="font-size:12.5px;">Active Status</label>
-                                                </div>
-                                                <div class="form-check">
-                                                    <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featuredCheck{{ $d->id }}" {{ $d->is_featured ? 'checked' : '' }}>
-                                                    <label class="form-check-label fw-bold text-primary" for="featuredCheck{{ $d->id }}" style="font-size:12.5px;">Featured Card</label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
-                                        <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
-                                        <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Changes <i class="fa-solid fa-check ms-1"></i></button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 @empty
                     <tr>
                         <td colspan="8" class="text-center py-5" style="background:#ffffff;">
@@ -241,6 +178,71 @@
     </div>
 
 </div>
+
+{{-- PER-ROW EDIT DESTINATION MODALS (moved outside table to fix DOM violation) --}}
+@foreach($destinations as $d)
+<div class="modal fade" id="editModal{{ $d->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <form action="{{ route('admin.destinations.update', $d->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                        <i class="fa-solid fa-pen text-primary me-2"></i> Edit Destination: {{ $d->city }}
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:20px;">
+                    <div class="mb-3 text-center">
+                        <img src="{{ $d->image_url }}" class="img-fluid rounded border shadow-sm" style="height:90px; width:100%; object-fit:cover; border-radius:4px;">
+                    </div>
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-7">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">City / District <span style="color:#ff4d4f;">*</span></label>
+                            <input type="text" name="city" class="form-control" value="{{ $d->city }}" required style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                        <div class="col-5">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Country</label>
+                            <input type="text" name="country" class="form-control" value="{{ $d->country ?? 'Bangladesh' }}" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Upload Banner Image from Computer / Gallery</label>
+                        <input type="file" name="image_file" class="form-control form-control-sm mb-1" accept="image/*" style="font-size:11.5px; border-radius:4px;">
+                        <span style="font-size:10.5px; color:#94a3b8;">OR keep image URL below:</span>
+                        <input type="text" name="image_url" class="form-control" value="{{ $d->image_url }}" style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Tagline Description</label>
+                        <textarea name="description" class="form-control" rows="2" style="font-size:13px; border-radius:4px;">{{ $d->description }}</textarea>
+                    </div>
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Sort Order</label>
+                            <input type="number" name="sort_order" class="form-control" value="{{ $d->sort_order }}" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                        <div class="col-6 pt-4">
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_active" value="1" id="activeCheckR{{ $d->id }}" {{ $d->is_active ? 'checked' : '' }}>
+                                <label class="form-check-label fw-bold" for="activeCheckR{{ $d->id }}" style="font-size:12.5px;">Active Status</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="featuredCheckR{{ $d->id }}" {{ $d->is_featured ? 'checked' : '' }}>
+                                <label class="form-check-label fw-bold text-primary" for="featuredCheckR{{ $d->id }}" style="font-size:12.5px;">Featured Card</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Changes <i class="fa-solid fa-check ms-1"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 {{-- CREATE DESTINATION MODAL --}}
 <div class="modal fade" id="createDestinationModal" tabindex="-1" aria-hidden="true">

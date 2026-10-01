@@ -127,30 +127,6 @@
                                     <i class="fa-solid fa-xmark"></i> Reject
                                 </button>
                             </div>
-
-                            {{-- Reject Modal --}}
-                            <div class="modal fade text-start" id="rejectModal{{ $payout->id }}" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content rounded-4 border-0 shadow">
-                                        <form action="{{ route('admin.rewards.reject', $payout->id) }}" method="POST">
-                                            @csrf
-                                            <div class="modal-header">
-                                                <h5 class="modal-title fw-bold">Reject Payout #{{ $payout->id }}</h5>
-                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                                            </div>
-                                            <div class="modal-body">
-                                                <p class="text-muted small mb-3">Rejecting will automatically refund {{ $payout->points }} points back to user's wallet balance.</p>
-                                                <label class="form-label fw-bold">Reason for Rejection</label>
-                                                <input type="text" name="admin_note" class="form-control" placeholder="e.g. Account number does not match bKash account" required>
-                                            </div>
-                                            <div class="modal-footer">
-                                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
-                                                <button type="submit" class="btn btn-danger fw-bold">Confirm Reject &amp; Refund</button>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
                             @else
                             <small class="text-muted font-monospace">{{ $payout->admin_note ?: 'Completed' }}</small>
                             @endif
@@ -172,6 +148,34 @@
         </div>
     </div>
 </div>
+
+{{-- PER-ROW REJECT MODALS (moved outside table to fix DOM violation) --}}
+@foreach($payouts as $payout)
+@if($payout->status === 'pending')
+<div class="modal fade text-start" id="rejectModal{{ $payout->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content rounded-4 border-0 shadow">
+            <form action="{{ route('admin.rewards.reject', $payout->id) }}" method="POST">
+                @csrf
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Reject Payout #{{ $payout->id }}</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-muted small mb-3">Rejecting will automatically refund {{ $payout->points }} points back to user's wallet balance.</p>
+                    <label class="form-label fw-bold">Reason for Rejection</label>
+                    <input type="text" name="admin_note" class="form-control" placeholder="e.g. Account number does not match bKash account" required>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-danger fw-bold">Confirm Reject &amp; Refund</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endif
+@endforeach
 
 {{-- Configure Reward Rules Modal --}}
 <div class="modal fade" id="rewardRulesModal" tabindex="-1" aria-hidden="true">

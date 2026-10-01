@@ -80,7 +80,7 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible !important;">
             <table class="table table-stockifly mb-0" id="cmsTable">
                 <thead>
                     <tr>
@@ -116,7 +116,7 @@
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
                             <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
@@ -149,35 +149,6 @@
                             </div>
                         </td>
                     </tr>
-
-                    {{-- PREVIEW CONTENT MODAL --}}
-                    <div class="modal fade" id="previewCmsModal{{ $page->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-lg modal-dialog-centered">
-                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
-                                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
-                                        <i class="fa-solid fa-file-lines text-primary me-2"></i> Preview: {{ $page->title }}
-                                    </h6>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="padding:20px; max-height:450px; overflow-y:auto;">
-                                    <div class="p-3 bg-light rounded border mb-3">
-                                        <span class="text-secondary d-block mb-1" style="font-size:11.5px; font-weight:700;">PAGE SYSTEM IDENTIFIER:</span>
-                                        <code>{{ $page->key }}</code> | <span class="badge bg-secondary" style="font-size:10.5px;">{{ ucfirst($page->group) }}</span>
-                                    </div>
-                                    <div class="p-3 bg-white border rounded">
-                                        {!! $page->content ?: '<p class="text-muted italic">No content written yet.</p>' !!}
-                                    </div>
-                                </div>
-                                <div class="modal-footer d-flex justify-content-between" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
-                                    <a href="{{ route('admin.cms.edit', $page) }}" class="btn btn-primary btn-sm fw-bold" style="border-radius:4px; background-color:var(--primary); border:none;">
-                                        <i class="fa-solid fa-pen-to-square me-1"></i> Edit Full Page HTML
-                                    </a>
-                                    <button type="button" class="btn btn-secondary btn-sm fw-bold" data-bs-dismiss="modal" style="border-radius:4px;">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 @empty
                     <tr>
                         <td colspan="5" class="text-center py-5" style="background:#ffffff;">
@@ -201,6 +172,37 @@
     </div>
 
 </div>
+
+{{-- PER-ROW PREVIEW CMS MODALS (moved outside table to fix DOM violation) --}}
+@foreach($pages as $page)
+<div class="modal fade" id="previewCmsModal{{ $page->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                    <i class="fa-solid fa-file-lines text-primary me-2"></i> Preview: {{ $page->title }}
+                </h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding:20px; max-height:450px; overflow-y:auto;">
+                <div class="p-3 bg-light rounded border mb-3">
+                    <span class="text-secondary d-block mb-1" style="font-size:11.5px; font-weight:700;">PAGE SYSTEM IDENTIFIER:</span>
+                    <code>{{ $page->key }}</code> | <span class="badge bg-secondary" style="font-size:10.5px;">{{ ucfirst($page->group) }}</span>
+                </div>
+                <div class="p-3 bg-white border rounded">
+                    {!! $page->content ?: '<p class="text-muted italic">No content written yet.</p>' !!}
+                </div>
+            </div>
+            <div class="modal-footer d-flex justify-content-between" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                <a href="{{ route('admin.cms.edit', $page) }}" class="btn btn-primary btn-sm fw-bold" style="border-radius:4px; background-color:var(--primary); border:none;">
+                    <i class="fa-solid fa-pen-to-square me-1"></i> Edit Full Page HTML
+                </a>
+                <button type="button" class="btn btn-secondary btn-sm fw-bold" data-bs-dismiss="modal" style="border-radius:4px;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
 
 {{-- ADD CMS PAGE MODAL --}}
 <div class="modal fade" id="addCmsModal" tabindex="-1" aria-hidden="true">

@@ -81,7 +81,7 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible !important;">
             <table class="table table-stockifly mb-0" id="amenitiesTable">
                 <thead>
                     <tr>
@@ -122,7 +122,7 @@
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
                             <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
@@ -145,47 +145,6 @@
                             </div>
                         </td>
                     </tr>
-
-                    {{-- EDIT AMENITY MODAL --}}
-                    <div class="modal fade" id="editAmenityModal{{ $am->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <form action="{{ route('admin.amenities.update', $am) }}" method="POST">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
-                                        <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
-                                            <i class="fa-solid fa-pen text-primary me-2"></i> Edit Amenity #{{ $am->id }}
-                                        </h6>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body" style="padding:20px;">
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Amenity Name <span style="color:#ff4d4f;">*</span></label>
-                                            <input type="text" name="name" class="form-control" value="{{ $am->name }}" required style="font-size:13px; height:38px; border-radius:4px;">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">FontAwesome Icon Class</label>
-                                            <input type="text" name="icon" class="form-control" value="{{ $am->icon }}" placeholder="e.g. fa-wifi, fa-swimming-pool" style="font-size:13px; height:38px; border-radius:4px;">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Category Group</label>
-                                            <select name="category" class="form-select" style="font-size:13px; height:38px; border-radius:4px;">
-                                                <option value="general" {{ $am->category == 'general' ? 'selected' : '' }}>General & Room Features</option>
-                                                <option value="recreation" {{ $am->category == 'recreation' ? 'selected' : '' }}>Recreation & Wellness</option>
-                                                <option value="dining" {{ $am->category == 'dining' ? 'selected' : '' }}>Dining & Food</option>
-                                                <option value="services" {{ $am->category == 'services' ? 'selected' : '' }}>Services & Convenience</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
-                                        <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
-                                        <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Amenity Changes <i class="fa-solid fa-check ms-1"></i></button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 @empty
                     <tr>
                         <td colspan="5" class="text-center py-5" style="background:#ffffff;">
@@ -209,6 +168,49 @@
     </div>
 
 </div>
+
+{{-- PER-ROW EDIT AMENITY MODALS (moved outside table to fix DOM violation) --}}
+@foreach($amenities as $am)
+<div class="modal fade" id="editAmenityModal{{ $am->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <form action="{{ route('admin.amenities.update', $am) }}" method="POST">
+                @csrf
+                @method('PUT')
+                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                        <i class="fa-solid fa-pen text-primary me-2"></i> Edit Amenity #{{ $am->id }}
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:20px;">
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Amenity Name <span style="color:#ff4d4f;">*</span></label>
+                        <input type="text" name="name" class="form-control" value="{{ $am->name }}" required style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">FontAwesome Icon Class</label>
+                        <input type="text" name="icon" class="form-control" value="{{ $am->icon }}" placeholder="e.g. fa-wifi, fa-swimming-pool" style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Category Group</label>
+                        <select name="category" class="form-select" style="font-size:13px; height:38px; border-radius:4px;">
+                            <option value="general" {{ $am->category == 'general' ? 'selected' : '' }}>General & Room Features</option>
+                            <option value="recreation" {{ $am->category == 'recreation' ? 'selected' : '' }}>Recreation & Wellness</option>
+                            <option value="dining" {{ $am->category == 'dining' ? 'selected' : '' }}>Dining & Food</option>
+                            <option value="services" {{ $am->category == 'services' ? 'selected' : '' }}>Services & Convenience</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Amenity Changes <i class="fa-solid fa-check ms-1"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 {{-- ADD AMENITY MODAL --}}
 <div class="modal fade" id="addAmenityModal" tabindex="-1" aria-hidden="true">

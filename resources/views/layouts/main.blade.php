@@ -54,33 +54,33 @@
 
     <!-- Schema.org JSON-LD Structured Data (Google Rich Snippet for Travel Agency) -->
     <script type="application/ld+json">
-    {
-      "{{ '@context' }}": "https://schema.org",
-      "{{ '@type' }}": "TravelAgency",
-      "name": "Prime Booking",
-      "alternateName": "প্রাইম বুকিং বাংলাদেশ",
-      "url": "https://primebooking.com.bd",
-      "logo": "https://primebooking.com.bd/images/logo.png",
-      "image": "https://primebooking.com.bd/images/logo.png",
-      "description": "Leading online travel platform in Bangladesh for booking hotels, resorts, ship cruises, flights and airport transfers.",
-      "telephone": "+8801606352642",
-      "priceRange": "৳৳ - ৳৳৳৳",
-      "address": {
-        "{{ '@type' }}": "PostalAddress",
-        "streetAddress": "Gulshan 2",
-        "addressLocality": "Dhaka",
-        "postalCode": "1212",
-        "addressCountry": "BD"
-      },
-      "geo": {
-        "{{ '@type' }}": "GeoCoordinates",
-        "latitude": 23.8103,
-        "longitude": 90.4125
-      },
-      "sameAs": [
-        "https://www.facebook.com/primebookingbd"
-      ]
-    }
+    {!! json_encode([
+        '@context' => 'https://schema.org',
+        '@type' => 'TravelAgency',
+        'name' => 'Prime Booking',
+        'alternateName' => 'প্রাইম বুকিং বাংলাদেশ',
+        'url' => 'https://primebooking.com.bd',
+        'logo' => 'https://primebooking.com.bd/images/logo.png',
+        'image' => 'https://primebooking.com.bd/images/logo.png',
+        'description' => 'Leading online travel platform in Bangladesh for booking hotels, resorts, ship cruises, flights and airport transfers.',
+        'telephone' => '+8801606352642',
+        'priceRange' => '৳৳ - ৳৳৳৳',
+        'address' => [
+            '@type' => 'PostalAddress',
+            'streetAddress' => 'Gulshan 2',
+            'addressLocality' => 'Dhaka',
+            'postalCode' => '1212',
+            'addressCountry' => 'BD'
+        ],
+        'geo' => [
+            '@type' => 'GeoCoordinates',
+            'latitude' => 23.8103,
+            'longitude' => 90.4125
+        ],
+        'sameAs' => [
+            'https://www.facebook.com/primebookingbd'
+        ]
+    ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
     @yield('schema')
     <!-- Brand Favicon & Icons -->

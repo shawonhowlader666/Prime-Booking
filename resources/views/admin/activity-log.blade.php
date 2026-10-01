@@ -105,7 +105,7 @@
             </form>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible !important;">
             <table class="table table-stockifly mb-0" id="activityLogsTable">
                 <thead>
                     <tr>
@@ -161,7 +161,7 @@
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
                             <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
@@ -184,53 +184,6 @@
                             </div>
                         </td>
                     </tr>
-
-                    {{-- LOG DETAIL MODAL --}}
-                    <div class="modal fade" id="logDetailModal{{ $log->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
-                                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
-                                        <i class="fa-solid fa-shield-halved text-primary me-2"></i> Audit Event #{{ $log->id }}
-                                    </h6>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body" style="padding:20px;">
-                                    <div class="mb-3 p-3 rounded" style="background:#f8fafc; border:1px solid #e2e8f0;">
-                                        <div class="row g-2">
-                                            <div class="col-6">
-                                                <span style="font-size:11px; color:#64748b; font-weight:600; display:block;">USER / OPERATOR</span>
-                                                <strong style="font-size:13px; color:#0f172a;">{{ $log->user_name }}</strong>
-                                            </div>
-                                            <div class="col-6">
-                                                <span style="font-size:11px; color:#64748b; font-weight:600; display:block;">ACTION TYPE</span>
-                                                <span class="badge" style="background:{{ $c }}15; color:{{ $c }}; font-size:11px; font-weight:700;">{{ ucfirst($log->action) }}</span>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="mb-3">
-                                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:4px;">Full Action Description</label>
-                                        <div class="p-3 rounded" style="background:#f1f5f9; font-size:13px; color:#0f172a; border:1px solid #cbd5e1;">
-                                            {{ $log->description }}
-                                        </div>
-                                    </div>
-                                    <div class="row g-2">
-                                        <div class="col-6">
-                                            <label class="form-label" style="font-size:11.5px; font-weight:600; color:#64748b; margin-bottom:2px;">Target Model</label>
-                                            <p class="mb-0 fw-bold" style="font-size:12.5px; color:#0f172a;">{{ $log->model_type ?? 'N/A' }} #{{ $log->model_id ?? 'N/A' }}</p>
-                                        </div>
-                                        <div class="col-6">
-                                            <label class="form-label" style="font-size:11.5px; font-weight:600; color:#64748b; margin-bottom:2px;">IP Address</label>
-                                            <p class="mb-0 fw-bold font-monospace" style="font-size:12.5px; color:#0f172a;">{{ $log->ip_address ?? '127.0.0.1' }}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
-                                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Close</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 @empty
                     <tr>
                         <td colspan="7" class="text-center py-5" style="background:#ffffff;">
@@ -251,5 +204,42 @@
     </div>
 
 </div>
+
+{{-- PER-ROW LOG DETAIL MODALS (moved outside table to fix DOM violation) --}}
+@foreach($logs as $log)
+@php
+    $colors = ['created'=>'#28c76f','updated'=>'#1890ff','deleted'=>'#ea5455','login'=>'#7367f0','logout'=>'#8c8c8c'];
+    $c = $colors[$log->action] ?? '#ff9f43';
+@endphp
+<div class="modal fade" id="logDetailModal{{ $log->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;"><i class="fa-solid fa-shield-halved text-primary me-2"></i> Audit Event #{{ $log->id }}</h6>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding:20px;">
+                <div class="mb-3 p-3 rounded" style="background:#f8fafc; border:1px solid #e2e8f0;">
+                    <div class="row g-2">
+                        <div class="col-6"><span style="font-size:11px; color:#64748b; font-weight:600; display:block;">USER / OPERATOR</span><strong style="font-size:13px; color:#0f172a;">{{ $log->user_name }}</strong></div>
+                        <div class="col-6"><span style="font-size:11px; color:#64748b; font-weight:600; display:block;">ACTION TYPE</span><span class="badge" style="background:{{ $c }}15; color:{{ $c }}; font-size:11px; font-weight:700;">{{ ucfirst($log->action) }}</span></div>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:4px;">Full Action Description</label>
+                    <div class="p-3 rounded" style="background:#f1f5f9; font-size:13px; color:#0f172a; border:1px solid #cbd5e1;">{{ $log->description }}</div>
+                </div>
+                <div class="row g-2">
+                    <div class="col-6"><label class="form-label" style="font-size:11.5px; font-weight:600; color:#64748b; margin-bottom:2px;">Target Model</label><p class="mb-0 fw-bold" style="font-size:12.5px; color:#0f172a;">{{ $log->model_type ?? 'N/A' }} #{{ $log->model_id ?? 'N/A' }}</p></div>
+                    <div class="col-6"><label class="form-label" style="font-size:11.5px; font-weight:600; color:#64748b; margin-bottom:2px;">IP Address</label><p class="mb-0 fw-bold font-monospace" style="font-size:12.5px; color:#0f172a;">{{ $log->ip_address ?? '127.0.0.1' }}</p></div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+@endforeach
 
 @endsection

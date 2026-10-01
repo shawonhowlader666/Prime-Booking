@@ -8,15 +8,15 @@
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;">
         <h1 class="page-title m-0">Hero Banner Slider</h1>
         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-            <button class="btn-tbl-copy" onclick="copyTableToClipboard('heroSlidesTable')"><i class="fa-solid fa-copy"></i> Copy</button>
-            <button class="btn-tbl-excel" onclick="exportTableExcel('heroSlidesTable', 'Hero_Slides')"><i class="fa-solid fa-file-excel"></i> Excel</button>
-            <button class="btn-export-csv" onclick="exportTableCSV('heroSlidesTable', 'Hero_Slides')"><i class="fa-solid fa-file-csv"></i> CSV</button>
-            <button class="btn-export-pdf" onclick="printTable('heroSlidesTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
-            <button class="btn-tbl-copy" onclick="printTable('heroSlidesTable')"><i class="fa-solid fa-print"></i> Print</button>
+            <button type="button" class="btn-tbl-copy" onclick="copyTableToClipboard('heroSlidesTable')"><i class="fa-solid fa-copy"></i> Copy</button>
+            <button type="button" class="btn-tbl-excel" onclick="exportTableExcel('heroSlidesTable', 'Hero_Slides')"><i class="fa-solid fa-file-excel"></i> Excel</button>
+            <button type="button" class="btn-export-csv" onclick="exportTableCSV('heroSlidesTable', 'Hero_Slides')"><i class="fa-solid fa-file-csv"></i> CSV</button>
+            <button type="button" class="btn-export-pdf" onclick="printTable('heroSlidesTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
+            <button type="button" class="btn-tbl-copy" onclick="printTable('heroSlidesTable')"><i class="fa-solid fa-print"></i> Print</button>
             <button type="button" class="btn btn-outline-primary btn-sm fw-bold" data-bs-toggle="modal" data-bs-target="#editHeroTaglineModal" style="height:36px; border-radius:4px; font-size:12.5px; display:inline-flex; align-items:center; gap:6px;">
                 <i class="fa-solid fa-heading"></i> <span>Edit Main Tagline</span>
             </button>
-            <button class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addSlideModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
+            <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addSlideModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-plus"></i> <span>Add New Banner Slide</span>
             </button>
         </div>
@@ -89,7 +89,7 @@
             </div>
         </div>
 
-        <div class="table-responsive">
+        <div class="table-responsive" style="overflow: visible !important;">
             <table class="table table-stockifly mb-0" id="heroSlidesTable">
                 <thead>
                     <tr>
@@ -131,13 +131,27 @@
                             </span>
                         </td>
                         <td style="text-align:right; white-space:nowrap;">
+                            {{-- Direct Quick Action Buttons --}}
+                            <div class="d-inline-flex align-items-center gap-1.5 me-1">
+                                <button type="button" class="btn btn-sm btn-light border text-primary" data-bs-toggle="modal" data-bs-target="#editSlideModal{{ $s->id }}" title="Edit Slide" style="width:30px; height:30px; padding:0; border-radius:4px;">
+                                    <i class="fa-solid fa-pen-to-square"></i>
+                                </button>
+                                <form action="{{ route('admin.content.hero.slides.toggle', $s->id) }}" method="POST" class="d-inline m-0">
+                                    @csrf
+                                    <button type="submit" class="btn btn-sm btn-light border {{ $s->status === 'active' ? 'text-warning' : 'text-success' }}" title="{{ $s->status === 'active' ? 'Deactivate Slide' : 'Activate Slide' }}" style="width:30px; height:30px; padding:0; border-radius:4px;">
+                                        <i class="fa-solid {{ $s->status === 'active' ? 'fa-eye-slash' : 'fa-eye' }}"></i>
+                                    </button>
+                                </form>
+                            </div>
+
+                            {{-- Gear Dropdown Menu --}}
                             <div class="dropdown action-gear-dropdown d-inline-block">
-                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" data-bs-display="static" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                     <i class="fa-solid fa-gear"></i>
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
                                     <li>
-                                        <button class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#editSlideModal{{ $s->id }}">
+                                        <button type="button" class="dropdown-item py-1.5 px-3" data-bs-toggle="modal" data-bs-target="#editSlideModal{{ $s->id }}">
                                             <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Banner Slide
                                         </button>
                                     </li>
@@ -163,60 +177,6 @@
                             </div>
                         </td>
                     </tr>
-
-                    {{-- EDIT SLIDE MODAL --}}
-                    <div class="modal fade" id="editSlideModal{{ $s->id }}" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
-                                <form action="{{ route('admin.content.hero.slides.update', $s->id) }}" method="POST" enctype="multipart/form-data">
-                                    @csrf
-                                    @method('PUT')
-                                    <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
-                                        <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
-                                            <i class="fa-solid fa-pen text-primary me-2"></i> Edit Slide #{{ $s->id }}
-                                        </h6>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body" style="padding:20px;">
-                                        <div class="mb-3 text-center">
-                                            <img src="{{ $s->image_path }}" class="img-fluid rounded border shadow-sm modal-preview-img{{ $s->id }}" style="height:90px; width:100%; object-fit:cover; border-radius:4px;">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Slide Title <span style="color:#ff4d4f;">*</span></label>
-                                            <input type="text" name="title" class="form-control" value="{{ $s->title }}" required style="font-size:13px; height:38px; border-radius:4px;">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Upload File from Gallery / Computer</label>
-                                            <input type="file" name="slide_file" class="form-control form-control-sm mb-1" accept="image/*" style="font-size:11.5px; border-radius:4px;">
-                                            <span style="font-size:10.5px; color:#94a3b8;">OR keep image URL below:</span>
-                                            <input type="text" name="image_url" class="form-control" value="{{ $s->image_path }}" style="font-size:13px; height:38px; border-radius:4px;">
-                                        </div>
-                                        <div class="mb-3">
-                                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Banner Offer Badge Text</label>
-                                            <input type="text" name="badge_text" class="form-control" value="{{ $s->badge_text }}" style="font-size:13px; height:38px; border-radius:4px;">
-                                        </div>
-                                        <div class="row g-2.5 mb-3">
-                                            <div class="col-6">
-                                                <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Sort Order</label>
-                                                <input type="number" name="sort_order" class="form-control" value="{{ $s->sort_order }}" style="font-size:13px; height:38px; border-radius:4px;">
-                                            </div>
-                                            <div class="col-6">
-                                                <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Status</label>
-                                                <select name="status" class="form-select" style="font-size:13px; height:38px; border-radius:4px;">
-                                                    <option value="active" {{ $s->status == 'active' ? 'selected' : '' }}>Active</option>
-                                                    <option value="inactive" {{ $s->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
-                                        <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
-                                        <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Slide Changes <i class="fa-solid fa-check ms-1"></i></button>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
                 @empty
                     <tr>
                         <td colspan="6" class="text-center py-5" style="background:#ffffff;">
@@ -312,5 +272,61 @@
         </div>
     </div>
 </div>
+
+{{-- ALL EDIT SLIDE MODALS (Cleanly Placed Outside Table for Perfect Bootstrap 5 DOM Binding) --}}
+@foreach($slides as $s)
+<div class="modal fade" id="editSlideModal{{ $s->id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:4px; border:1px solid #e2e8f0; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
+            <form action="{{ route('admin.content.hero.slides.update', $s->id) }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="modal-header" style="border-bottom:1px solid #e2e8f0; padding:16px 20px;">
+                    <h6 class="modal-title fw-bold" style="font-size:15px; color:#0f172a;">
+                        <i class="fa-solid fa-pen text-primary me-2"></i> Edit Slide #{{ $s->id }}
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:20px;">
+                    <div class="mb-3 text-center">
+                        <img src="{{ $s->image_path }}" class="img-fluid rounded border shadow-sm modal-preview-img{{ $s->id }}" style="height:90px; width:100%; object-fit:cover; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Slide Title <span style="color:#ff4d4f;">*</span></label>
+                        <input type="text" name="title" class="form-control" value="{{ $s->title }}" required style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Upload File from Gallery / Computer</label>
+                        <input type="file" name="slide_file" class="form-control form-control-sm mb-1" accept="image/*" style="font-size:11.5px; border-radius:4px;">
+                        <span style="font-size:10.5px; color:#94a3b8;">OR keep image URL below:</span>
+                        <input type="text" name="image_url" class="form-control" value="{{ $s->image_path }}" style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Banner Offer Badge Text</label>
+                        <input type="text" name="badge_text" class="form-control" value="{{ $s->badge_text }}" style="font-size:13px; height:38px; border-radius:4px;">
+                    </div>
+                    <div class="row g-2.5 mb-3">
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Sort Order</label>
+                            <input type="number" name="sort_order" class="form-control" value="{{ $s->sort_order }}" style="font-size:13px; height:38px; border-radius:4px;">
+                        </div>
+                        <div class="col-6">
+                            <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Status</label>
+                            <select name="status" class="form-select" style="font-size:13px; height:38px; border-radius:4px;">
+                                <option value="active" {{ $s->status == 'active' ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ $s->status == 'inactive' ? 'selected' : '' }}>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer" style="border-top:1px solid #e2e8f0; padding:12px 20px;">
+                    <button type="button" class="btn btn-light border text-secondary fw-bold" data-bs-dismiss="modal" style="font-size:13px; height:36px; border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-primary fw-bold text-white" style="font-size:13px; height:36px; border-radius:4px; background-color:var(--primary); border:none;">Save Slide Changes <i class="fa-solid fa-check ms-1"></i></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+@endforeach
 
 @endsection

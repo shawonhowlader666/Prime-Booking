@@ -63,6 +63,8 @@ class VendorRoomController extends Controller
             'max_adults'      => 'required|integer|min:1',
             'max_children'    => 'nullable|integer|min:0',
             'total_rooms'     => 'nullable|integer|min:1',
+            'image_file'      => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'image_files.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
         ]);
 
         $facilities = (array) ($request->amenities ?? []);
@@ -149,7 +151,8 @@ class VendorRoomController extends Controller
             'max_children'    => 'nullable|integer|min:0',
             'total_rooms'     => 'nullable|integer|min:1',
             'room_size_sqm'   => 'nullable|integer|min:1',
-            'image_file'      => 'nullable|image|max:10240',
+            'image_file'      => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'image_files.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
             'image_url'       => 'nullable|string',
         ]);
 

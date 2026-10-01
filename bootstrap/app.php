@@ -21,8 +21,8 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // ── Exclude External Callback / One-Tap POSTs from CSRF Protection ──
         $middleware->validateCsrfTokens(except: [
-            'auth/*',
-            'auth/*/*',
+            'auth/*/callback',
+            'auth/*/redirect',
             'payment/*',
         ]);
 

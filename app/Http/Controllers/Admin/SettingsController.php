@@ -129,6 +129,12 @@ class SettingsController extends Controller
             $user->password = Hash::make($request->new_password);
         }
 
+        $request->validate([
+            'avatar'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'site_logo_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
+            'site_favicon_file' => 'nullable|file|mimes:ico,png,svg|max:2048',
+        ]);
+
         // Profile Avatar Upload
         if ($request->hasFile('avatar') && $request->file('avatar')->isValid()) {
             $path = $request->file('avatar')->store('uploads/avatars', 'public');

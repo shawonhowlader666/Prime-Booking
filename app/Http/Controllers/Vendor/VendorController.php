@@ -92,6 +92,9 @@ class VendorController extends Controller
             'description'     => 'required|string',
             'primary_image'   => 'nullable|url',
             'video_url'       => 'nullable|url',
+            'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'video_file'            => 'nullable|file|mimes:mp4,webm,mov|max:51200',
         ]);
 
         $galleryImages = [];
@@ -224,6 +227,9 @@ class VendorController extends Controller
             'description'     => 'required|string',
             'primary_image'   => 'nullable|url',
             'video_url'       => 'nullable|url',
+            'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'video_file'            => 'nullable|file|mimes:mp4,webm,mov|max:51200',
         ]);
 
         $existingGallery = is_array($property->gallery_images) ? $property->gallery_images : (is_array($property->images) ? $property->images : []);

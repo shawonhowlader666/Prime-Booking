@@ -63,38 +63,36 @@ class OAuthController extends Controller
         // ── Handle Google One-Tap POST Credential Payload ────────────────────
         if ($request->isMethod('post') && $request->filled('credential')) {
             try {
-                $idToken = $request->input('credential');
-                $parts   = explode('.', $idToken);
-                if (count($parts) === 3) {
-                    $payloadJson = base64_decode(str_replace(['-', '_'], ['+', '/'], $parts[1]));
-                    $payload     = json_decode($payloadJson, true);
+                $idToken = (string) $request->input('credential');
+                $response = \Illuminate\Support\Facades\Http::timeout(5)->get('https://oauth2.googleapis.com/tokeninfo', [
+                    'id_token' => $idToken,
+                ]);
 
-                    if (is_array($payload) && ! empty($payload['email'])) {
+                if ($response->successful()) {
+                    $payload = $response->json();
+                    $isVerified = ($payload['email_verified'] ?? null) === 'true' || ($payload['email_verified'] ?? null) === true;
+
+                    if ($isVerified && ! empty($payload['email'])) {
                         $email  = strtolower(trim($payload['email']));
                         $name   = $payload['name'] ?? $payload['given_name'] ?? explode('@', $email)[0];
                         $avatar = $payload['picture'] ?? null;
 
-                        $isAdminEmail = in_array($email, ['shawonhawlader1044@gmail.com', 'shawonhawlader666@gmail.com', 'admin@primebooking.com.bd', 'admin@primeavn.com']);
-                        $defaultRole  = $isAdminEmail ? 'admin' : 'customer';
+                        $user = User::where('email', $email)->first();
 
-                        $user = User::firstOrCreate(
-                            ['email' => $email],
-                            [
+                        if (! $user) {
+                            $user = User::create([
                                 'name'              => $name,
+                                'email'             => $email,
                                 'password'          => Hash::make(Str::random(32)),
-                                'role'              => $defaultRole,
+                                'role'              => 'customer',
                                 'status'            => 'active',
                                 'avatar'            => $avatar,
                                 'email_verified_at' => now(),
-                            ]
-                        );
-
-                        if ($isAdminEmail && $user->role !== 'admin') {
-                            $user->update(['role' => 'admin']);
-                        }
-
-                        if ($avatar && ! $user->avatar) {
-                            $user->update(['avatar' => $avatar]);
+                            ]);
+                        } else {
+                            if ($avatar && ! $user->avatar) {
+                                $user->update(['avatar' => $avatar]);
+                            }
                         }
 
                         $this->loginUser($request, $user);
@@ -115,43 +113,7 @@ class OAuthController extends Controller
      */
     public function demoSelect(Request $request): RedirectResponse
     {
-        $request->validate([
-            'email'    => 'required|email',
-            'provider' => 'required|string',
-        ]);
-
-        $email    = strtolower(trim($request->email));
-        $provider = $request->provider;
-        $name     = $request->input('name') ?: ucwords(str_replace(['.', '_', '-'], ' ', explode('@', $email)[0]));
-        $avatar   = $request->input('email') === 'shawonhawlader1044@gmail.com'
-            ? 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'
-            : null;
-
-        $user = User::firstOrCreate(
-            ['email' => $email],
-            [
-                'name'              => $name,
-                'password'          => Hash::make(Str::random(32)),
-                'role'              => 'customer',
-                'status'            => 'active',
-                'avatar'            => $avatar,
-                'email_verified_at' => now(),
-            ]
-        );
-
-        SocialAccount::firstOrCreate(
-            ['provider' => $provider, 'provider_id' => 'demo_' . md5($email)],
-            [
-                'user_id'         => $user->id,
-                'provider_email'  => $email,
-                'provider_name'   => $name,
-                'provider_avatar' => $avatar,
-            ]
-        );
-
-        $this->loginUser($request, $user);
-
-        return redirect()->route('home')->with('success', "Signed in as {$user->name} ({$user->email})!");
+        abort(404);
     }
 
     /**
@@ -231,13 +193,10 @@ class OAuthController extends Controller
             : User::where('phone', $credential)->orWhere('phone', 'like', '%' . $credential)->first();
 
         $authenticated = false;
-        $commonPasses = ['password123', 'Admin@123', 'Vendor@123', 'Customer@123', 'password', '123456', 'admin123', 'vendor123'];
 
-        if ($user) {
-            if (Hash::check($password, $user->password) || in_array($password, $commonPasses, true)) {
-                Auth::login($user, $remember);
-                $authenticated = true;
-            }
+        if ($user && Hash::check($password, $user->password)) {
+            Auth::login($user, $remember);
+            $authenticated = true;
         }
 
         if (! $authenticated) {
@@ -347,11 +306,10 @@ class OAuthController extends Controller
         $remember = $request->boolean('remember');
 
         $user = User::where('email', $email)->first();
-        $adminPasses = ['password123', 'Admin@123', 'password', 'admin123', '123456', '12345678'];
 
         $valid = false;
         if ($user && ($user->role === 'admin' || $user->role === 'super_admin')) {
-            if (Hash::check($password, $user->password) || in_array($password, $adminPasses, true)) {
+            if (Hash::check($password, $user->password)) {
                 $valid = true;
                 Auth::login($user, $remember);
             }
@@ -404,11 +362,10 @@ class OAuthController extends Controller
         $remember = $request->boolean('remember');
 
         $user = User::where('email', $email)->first();
-        $vendorPasses = ['password123', 'Vendor@123', 'password', 'vendor123', '123456', '12345678'];
 
         $valid = false;
         if ($user && ($user->role === 'vendor' || $user->role === 'admin' || $user->role === 'super_admin')) {
-            if (Hash::check($password, $user->password) || in_array($password, $vendorPasses, true)) {
+            if (Hash::check($password, $user->password)) {
                 $valid = true;
                 Auth::login($user, $remember);
             }
@@ -434,11 +391,12 @@ class OAuthController extends Controller
     }
 
     // =========================================================================
-    // EMAIL MODAL — Auto Login / Register (No Password Required, like Agoda)
+    // EMAIL MODAL — Safe Verification / Sign In
     // =========================================================================
 
     /**
-     * Email-only sign in / registration from modal.
+     * Email modal continuation: Redirects existing users to password login,
+     * or new users to registration. Never logs in without password.
      * POST /auth/email
      */
     public function handleEmail(Request $request): RedirectResponse
@@ -448,21 +406,13 @@ class OAuthController extends Controller
         $email = strtolower(trim($data['email']));
         $user  = User::where('email', $email)->first();
 
-        if (! $user) {
-            $name = ucwords(str_replace(['.', '_', '-'], ' ', explode('@', $email)[0]));
-            $user = User::create([
-                'name'     => $name,
-                'email'    => $email,
-                'password' => Hash::make(Str::random(32)),
-                'role'     => 'customer',
-                'status'   => 'active',
-            ]);
-            Log::info("Auto-registered new user via email modal", ['email' => $email]);
+        if ($user) {
+            return redirect()->route('login', ['email' => $email])
+                ->with('info', 'An account with this email was found. Please enter your password to sign in.');
         }
 
-        $this->loginUser($request, $user);
-
-        return redirect()->back()->with('success', "Welcome, {$user->name}!");
+        return redirect()->route('register', ['email' => $email])
+            ->with('info', 'Please set up a password to complete your account registration.');
     }
 
     // =========================================================================

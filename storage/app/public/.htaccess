@@ -1,0 +1,27 @@
+# ----------------------------------------------------------------------
+# Anti-Webshell & Storage Execution Prevention
+# ----------------------------------------------------------------------
+
+# Block direct execution of any script or executable files
+<FilesMatch "\.(php|phtml|phar|php5|php7|php8|cgi|pl|py|sh|bash|exe|asp|aspx|jsp)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
+
+# Disable CGI execution and directory listings
+Options -ExecCGI -Indexes
+
+# Disable PHP engine if mod_php is present
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php7.c>
+    php_flag engine off
+</IfModule>
+<IfModule mod_php8.c>
+    php_flag engine off
+</IfModule>
+
+# Prevent script handler assignment
+RemoveHandler .php .phtml .phar .cgi .pl .py .sh
+RemoveType .php .phtml .phar .cgi .pl .py .sh

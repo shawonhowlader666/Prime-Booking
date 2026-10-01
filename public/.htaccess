@@ -24,12 +24,15 @@
     RewriteRule ^ index.php [L]
 </IfModule>
 
-<IfModule mod_security.c>
-    SecFilterEngine Off
-    SecFilterScanPOST Off
-</IfModule>
+# Block access to hidden files and directories (like .git, .env)
+<FilesMatch "^\.">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
 
-<IfModule mod_security2.c>
-    SecRuleEngine Off
-</IfModule>
+# Block access to database backups, sql, configs, logs, shell scripts
+<FilesMatch "\.(bak|config|sql|ini|log|sh|bash|inc|swp|dist|env|lock|yml|yaml)$">
+    Order Deny,Allow
+    Deny from all
+</FilesMatch>
 

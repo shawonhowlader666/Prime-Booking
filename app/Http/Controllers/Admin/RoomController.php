@@ -58,6 +58,8 @@ class RoomController extends Controller
             'max_children'    => 'nullable|integer|min:0',
             'room_size_sqm'   => 'nullable|integer|min:1',
             'total_rooms'     => 'nullable|integer|min:1',
+            'image_file'      => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'image_files.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
         ]);
 
         // Parse facilities from checkboxes and textarea
@@ -135,6 +137,8 @@ class RoomController extends Controller
             'name'            => 'required|string|max:255',
             'price_per_night' => 'required|numeric|min:0',
             'max_adults'      => 'required|integer|min:1',
+            'image_file'      => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'image_files.*'   => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
         ]);
 
         $facilities = (array) ($request->amenities ?? []);

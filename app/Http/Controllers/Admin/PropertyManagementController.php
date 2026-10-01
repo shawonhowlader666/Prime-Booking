@@ -111,6 +111,10 @@ class PropertyManagementController extends Controller
             'price_per_night' => 'required|numeric|min:0',
             'description'     => 'required|string',
             'primary_image'   => 'nullable|url',
+            'video_url'       => 'nullable|url',
+            'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'video_file'            => 'nullable|file|mimes:mp4,webm,mov|max:51200',
         ]);
 
         $galleryImages = [];
@@ -230,6 +234,9 @@ class PropertyManagementController extends Controller
             'description'     => 'required|string',
             'primary_image'   => 'nullable|url',
             'video_url'       => 'nullable|url',
+            'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'video_file'            => 'nullable|file|mimes:mp4,webm,mov|max:51200',
         ]);
 
         $property = Property::findOrFail($id);

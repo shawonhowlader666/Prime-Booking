@@ -41,19 +41,6 @@ use App\Http\Controllers\Vendor\VendorPackageController;
 use App\Http\Controllers\Vendor\VendorReviewController;
 
 
-// Secure System Deployment & Cache Purge Route (API Prefix for Direct Proxy Routing)
-Route::get('/api/deploy-sync-secret-key-9808165d', function () {
-    \Illuminate\Support\Facades\Artisan::call('view:clear');
-    \Illuminate\Support\Facades\Artisan::call('cache:clear');
-    \Illuminate\Support\Facades\Artisan::call('config:clear');
-    $gitOut = @shell_exec('cd ' . base_path() . ' && git pull origin master 2>&1');
-    return response()->json([
-        'success'    => true,
-        'message'    => 'View cache cleared and git sync executed successfully!',
-        'git_output' => $gitOut,
-    ]);
-});
-
 // Platform Healthcheck API for Cloudflare / Uptime Monitors
 Route::get('/api/health', function () {
     $dbOk = true;
@@ -934,52 +921,57 @@ Route::match(['get', 'post'], '/auth/{provider}/callback', [OAuthController::cla
     ->name('auth.social.callback')
     ->where('provider', 'google|facebook|apple');
 
-// Demo / Preview Account Chooser Select
-Route::post('/auth/social/demo-select', [OAuthController::class, 'demoSelect'])->name('auth.social.demo-select');
-
-// Email-only fallback (auto register/login from modal)
-Route::post('/auth/email', [OAuthController::class, 'handleEmail'])->name('auth.modal.email');
+// Email modal continuation
+Route::post('/auth/email', [OAuthController::class, 'handleEmail'])->name('auth.modal.email')->middleware('throttle:5,1');
 
 // Logout
 Route::post('/auth/logout', [OAuthController::class, 'logout'])->name('auth.logout');
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Traditional Login / Register (Dedicated Pages)
+// Traditional Login / Register (Dedicated Pages with Brute-Force Rate Limiting)
 // ─────────────────────────────────────────────────────────────────────────────
 
 Route::get('/login',    [OAuthController::class, 'showLogin'])->name('login');
 Route::get('/signin',   [OAuthController::class, 'showLogin'])->name('signin');
-Route::post('/login',   [OAuthController::class, 'loginWithPassword'])->name('login.post');
+Route::post('/login',   [OAuthController::class, 'loginWithPassword'])->name('login.post')->middleware('throttle:5,1');
 Route::get('/register', [OAuthController::class, 'showRegister'])->name('register');
-Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post');
+Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1');
 Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
 // Admin & Vendor Dedicated Standalone Portal Login Routes
 Route::get('/admin/login',  [OAuthController::class, 'showAdminLogin'])->name('admin.login');
-Route::post('/admin/login', [OAuthController::class, 'loginAdmin'])->name('admin.login.post');
+Route::post('/admin/login', [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
 Route::get('/vendor/login', [OAuthController::class, 'showVendorLogin'])->name('vendor.login');
-Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('vendor.login.post');
-
-    // ── Activity Log & Audit Trail ──────────────────────────────────────
-    Route::get('/activity-log', [ActivityLogController::class, 'index'])->name('activity.index');
-    Route::delete('/activity-log/{id}', [ActivityLogController::class, 'destroy'])->name('activity.destroy');
-    Route::post('/activity-log/clear', [ActivityLogController::class, 'clear'])->name('activity.clear');
-
+Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('vendor.login.post')->middleware('throttle:5,1');
 
 // Form Actions
 Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
 
+// ── Universal Storage Fallback & Media Streamer (Strict Anti-Traversal) ────
+Route::get('/storage/{path}', function (string $path) {
+    // Prevent path traversal
+    if (str_contains($path, '..') || str_contains($path, '\\')) {
+        abort(403, 'Access denied.');
+    }
 
-
-// ── Universal Storage Fallback & Media Streamer ──────────────────────────
-Route::get('/storage/{path}', function ($path) {
+    $basePath = realpath(storage_path('app/public'));
     $filePath = storage_path('app/public/' . $path);
-    if (!file_exists($filePath)) {
+    $realPath = realpath($filePath);
+
+    if (! $basePath || ! $realPath || ! str_starts_with($realPath, $basePath) || ! is_file($realPath)) {
         abort(404);
     }
-    $mimeType = mime_content_type($filePath) ?: 'application/octet-stream';
-    return response()->file($filePath, [
-        'Content-Type' => $mimeType,
+
+    // Never serve script files or configs
+    $extension = strtolower(pathinfo($realPath, PATHINFO_EXTENSION));
+    $blockedExtensions = ['php', 'phtml', 'phar', 'env', 'sh', 'bash', 'sql', 'json', 'lock', 'git', 'yml', 'yaml', 'ini', 'htaccess'];
+    if (in_array($extension, $blockedExtensions, true)) {
+        abort(403, 'Access denied.');
+    }
+
+    $mimeType = mime_content_type($realPath) ?: 'application/octet-stream';
+    return response()->file($realPath, [
+        'Content-Type'  => $mimeType,
         'Cache-Control' => 'public, max-age=86400, stale-while-revalidate=604800',
     ]);
 })->where('path', '.*')->name('storage.serve');

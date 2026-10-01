@@ -1,5 +1,40 @@
 @extends('layouts.main', ['activePage' => 'hotels'])
 
+@section('schema')
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "{{ in_array(strtolower($property->type ?? ''), ['resort', 'villa', 'motel']) ? ucfirst(strtolower($property->type)) : 'Hotel' }}",
+  "name": "{{ addslashes($property->name) }}",
+  "description": "{{ addslashes(strip_tags(\Illuminate\Support\Str::limit($property->description ?? 'Book ' . $property->name . ' on Prime Booking with best price guarantee.', 250))) }}",
+  "image": "{{ $property->primary_image ? (str_starts_with($property->primary_image, 'http') ? $property->primary_image : asset('storage/' . $property->primary_image)) : asset('images/logo.png') }}",
+  "starRating": {
+    "@type": "Rating",
+    "ratingValue": "{{ (int)($property->star_rating ?? 4) }}"
+  },
+  "priceRange": "BDT {{ number_format($property->price_per_night ?? 2500) }} - {{ number_format(($property->price_per_night ?? 2500) * 2.5) }}",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "{{ addslashes($property->address ?? $property->city ?? 'Bangladesh') }}",
+    "addressLocality": "{{ addslashes($property->city ?? 'Dhaka') }}",
+    "addressCountry": "BD"
+  },
+  @if(!empty($property->latitude) && !empty($property->longitude))
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": {{ (float) $property->latitude }},
+    "longitude": {{ (float) $property->longitude }}
+  },
+  @endif
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "{{ number_format((float)($property->rating ?? 4.8), 1) }}",
+    "reviewCount": "{{ max(5, (int)($property->reviews_count ?? $property->total_reviews ?? 28)) }}"
+  }
+}
+</script>
+@endsection
+
 @php
     use App\Services\CurrencyService;
     use Carbon\Carbon;

@@ -82,6 +82,7 @@
       ]
     }
     </script>
+    @yield('schema')
     <!-- Brand Favicon & Icons -->
     <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
     <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">

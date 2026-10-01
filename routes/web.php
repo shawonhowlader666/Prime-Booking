@@ -627,6 +627,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
 
     // Dynamic Content Managers (Tour Packages, Deals, CMS, Amenities)
     Route::get('/packages', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'index'])->name('packages.index');
+    Route::get('/packages/bookings', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'bookings'])->name('packages.bookings');
     Route::get('/packages/create', [App\Http\Controllers\Admin\TourPackageController::class, 'create'])->name('packages.create');
     Route::post('/packages', [App\Http\Controllers\Admin\TourPackageController::class, 'store'])->name('packages.store');
     Route::get('/packages/{package}/edit', [App\Http\Controllers\Admin\TourPackageController::class, 'edit'])->name('packages.edit');

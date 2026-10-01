@@ -76,6 +76,7 @@ class TourPackageController extends Controller
             'guest_name'  => 'nullable|string|max:100',
             'guest_email' => 'nullable|email|max:100',
             'guest_phone' => 'nullable|string|max:20',
+            'special_requests' => 'nullable|string|max:500',
         ]);
 
         $package = TourPackage::findOrFail($validated['package_id']);
@@ -87,6 +88,26 @@ class TourPackageController extends Controller
         $guestName = $user ? $user->name : ($validated['guest_name'] ?? 'Tour Traveler');
         $guestEmail = $user ? $user->email : ($validated['guest_email'] ?? 'traveler@example.com');
         $guestPhone = $user ? $user->phone : ($validated['guest_phone'] ?? '+880 1700-000000');
+
+        \Illuminate\Support\Facades\DB::transaction(function () use (
+            $reference, $package, $user, $guestName, $guestEmail, $guestPhone, $validated, $totalAmount
+        ) {
+            \App\Models\PackageBooking::create([
+                'booking_reference' => $reference,
+                'package_id'        => $package->id,
+                'user_id'           => $user?->id,
+                'guest_name'        => $guestName,
+                'guest_email'       => $guestEmail,
+                'guest_phone'       => $guestPhone,
+                'travel_date'       => $validated['travel_date'],
+                'guests'            => (int) $validated['guests'],
+                'total_amount'      => $totalAmount,
+                'payment_method'    => 'pay_on_arrival',
+                'payment_status'    => 'pending',
+                'status'            => 'confirmed',
+                'special_requests'  => $validated['special_requests'] ?? null,
+            ]);
+        });
 
         $bookingData = [
             'reference'        => $reference,
@@ -112,21 +133,57 @@ class TourPackageController extends Controller
      */
     public function voucher(string $reference): View
     {
-        $booking = session("pkg_booking_{$reference}");
-        if (!$booking) {
-            $package = TourPackage::active()->first();
+        $dbBooking = \App\Models\PackageBooking::with('package')->where('booking_reference', $reference)->first();
+
+        if ($dbBooking) {
+            // Anti-IDOR Authorization Check
+            $isAuthorized = (session("pkg_booking_{$reference}") !== null)
+                || (auth()->check() && (
+                    $dbBooking->user_id === auth()->id()
+                    || strtolower((string)auth()->user()->email) === strtolower((string)$dbBooking->guest_email)
+                    || auth()->user()->isAdmin()
+                ));
+
+            $guestName  = $dbBooking->guest_name;
+            $guestPhone = $dbBooking->guest_phone;
+            $guestEmail = $dbBooking->guest_email;
+
+            if (!$isAuthorized) {
+                // Mask sensitive PII
+                $guestPhone = strlen($guestPhone) > 6 ? substr($guestPhone, 0, 4) . '****' . substr($guestPhone, -2) : '****';
+                $parts = explode('@', $guestEmail);
+                $guestEmail = count($parts) === 2 ? substr($parts[0], 0, 2) . '***@' . $parts[1] : '***@***.com';
+            }
+
             $booking = [
-                'reference'    => $reference,
-                'package'      => $package,
-                'travel_date'  => now()->addDays(3)->format('Y-m-d'),
-                'guests'       => 2,
-                'guest_name'   => auth()->user()?->name ?? 'Verified Traveler',
-                'guest_email'  => auth()->user()?->email ?? 'traveler@example.com',
-                'guest_phone'  => '+880 1700-000000',
-                'total_amount' => ($package?->price_per_person ?? 12500) * 2,
-                'status'       => 'CONFIRMED',
-                'created_at'   => now()->format('d M Y, h:i A'),
+                'reference'    => $dbBooking->booking_reference,
+                'package'      => $dbBooking->package,
+                'travel_date'  => $dbBooking->travel_date->format('Y-m-d'),
+                'guests'       => $dbBooking->guests,
+                'guest_name'   => $guestName,
+                'guest_email'  => $guestEmail,
+                'guest_phone'  => $guestPhone,
+                'total_amount' => $dbBooking->total_amount,
+                'status'       => strtoupper($dbBooking->status),
+                'created_at'   => $dbBooking->created_at->format('d M Y, h:i A'),
             ];
+        } else {
+            $booking = session("pkg_booking_{$reference}");
+            if (!$booking) {
+                $package = TourPackage::active()->first();
+                $booking = [
+                    'reference'    => $reference,
+                    'package'      => $package,
+                    'travel_date'  => now()->addDays(3)->format('Y-m-d'),
+                    'guests'       => 2,
+                    'guest_name'   => auth()->user()?->name ?? 'Verified Traveler',
+                    'guest_email'  => auth()->user()?->email ?? 'traveler@example.com',
+                    'guest_phone'  => '+880 1700-000000',
+                    'total_amount' => ($package?->price_per_person ?? 12500) * 2,
+                    'status'       => 'CONFIRMED',
+                    'created_at'   => now()->format('d M Y, h:i A'),
+                ];
+            }
         }
 
         return view('pages.package-voucher', compact('booking'));

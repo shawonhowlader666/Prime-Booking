@@ -25,6 +25,16 @@ class AdminTourPackageController extends Controller
     }
 
     /**
+     * Show all tour package reservations.
+     * GET /admin/packages/bookings
+     */
+    public function bookings(): View
+    {
+        $bookings = \App\Models\PackageBooking::with('package', 'user')->latest()->paginate(20);
+        return view('admin.packages.bookings', compact('bookings'));
+    }
+
+    /**
      * Approve or change package status.
      * POST /admin/packages/{id}/status
      */

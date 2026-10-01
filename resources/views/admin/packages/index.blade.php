@@ -13,6 +13,7 @@
             <button class="btn-export-csv" onclick="exportTableCSV('packagesTable', 'Tour_Packages')"><i class="fa-solid fa-file-csv"></i> CSV</button>
             <button class="btn-export-pdf" onclick="printTable('packagesTable')"><i class="fa-solid fa-file-pdf"></i> PDF</button>
             <button class="btn-tbl-copy" onclick="printTable('packagesTable')"><i class="fa-solid fa-print"></i> Print</button>
+            <a href="{{ route('admin.packages.bookings') }}" class="btn-tbl-copy" style="text-decoration:none; display:inline-flex; align-items:center; gap:6px; color:#2067e1;"><i class="fa-solid fa-list-check"></i> View Reservations</a>
             <button type="button" class="btn-add-primary" data-bs-toggle="modal" data-bs-target="#addPackageModal" style="font-size:13px; height:36px; padding:0 16px; border-radius:4px; display:inline-flex; align-items:center; gap:8px;">
                 <i class="fa-solid fa-plus"></i> <span>New Tour Package</span>
             </button></div>

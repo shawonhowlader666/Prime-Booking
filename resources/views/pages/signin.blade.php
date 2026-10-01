@@ -1,4 +1,4 @@
-﻿@extends('layouts.main')
+@extends('layouts.main')
 
 @section('title', 'Sign In to PRIME BOOKING | Admin, Vendor & User Login')
 
@@ -74,7 +74,7 @@
                             <input class="form-check-input" type="checkbox" name="remember" id="rememberMe" checked>
                             <label class="form-check-label text-secondary" for="rememberMe">Remember me</label>
                         </div>
-                        <a href="#" class="text-decoration-none fw-semibold" style="color: #2067e1;">Forgot password?</a>
+                        <a href="{{ route('password.request') }}" class="text-decoration-none fw-semibold" style="color: #2067e1;">Forgot password?</a>
                     </div>
 
                     <button type="submit" class="btn text-white w-100 fw-bold py-2.5 shadow-xs mb-3" style="background-color: #2067e1; border-radius: 24px; font-size: 15px; height: 46px; border: none;">

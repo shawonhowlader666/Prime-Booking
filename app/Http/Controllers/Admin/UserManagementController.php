@@ -105,18 +105,23 @@ class UserManagementController extends Controller
         // Revoke all Sanctum API tokens immediately
         $user->tokens()->delete();
 
-        // High-Security IP Firewall Ban
-        $ip = request()->ip();
-        if ($ip && !in_array($ip, ['127.0.0.1', '::1'])) {
+        // High-Security IP Firewall Ban: ban the target user's last recorded IP from activity logs, never the admin's own IP
+        $adminIp = request()->ip();
+        $targetIp = \App\Models\ActivityLog::where('user_id', $user->id)
+            ->whereNotNull('ip_address')
+            ->latest()
+            ->value('ip_address');
+
+        if ($targetIp && !in_array($targetIp, ['127.0.0.1', '::1', $adminIp])) {
             \App\Models\BannedIp::firstOrCreate(
-                ['ip_address' => $ip],
+                ['ip_address' => $targetIp],
                 ['user_id' => $user->id, 'reason' => 'User Account Banned', 'banned_by' => auth()->user()?->name ?? 'Admin']
             );
         }
 
-        $this->log('banned', $user, "BANNED user and blocked IP ({$ip}): {$user->name} ({$user->email})");
+        $this->log('banned', $user, "BANNED user account: {$user->name} ({$user->email})" . ($targetIp ? " [IP: {$targetIp}]" : ""));
 
-        return back()->with('success', "User \"{$user->name}\" and IP address have been banned from system.");
+        return back()->with('success', "User \"{$user->name}\" has been banned successfully.");
     }
 
     // ─── Unban / Activate ─────────────────────────────────────────────────

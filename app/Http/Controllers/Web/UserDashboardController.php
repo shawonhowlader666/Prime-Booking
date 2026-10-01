@@ -75,6 +75,8 @@ class UserDashboardController extends Controller
             'special_requests' => trim($booking->special_requests . "\n[Cancellation Reason: {$reason}]"),
         ]);
 
+        app(\App\Services\InventoryService::class)->releaseInventory($booking);
+
         return back()->with('success', "Booking #{$reference} has been successfully cancelled.");
     }
 }

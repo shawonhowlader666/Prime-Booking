@@ -77,6 +77,19 @@ class PaymentCallbackController extends Controller
                 $booking = Booking::where('booking_reference', $ref)->first();
 
                 if ($booking) {
+                    // Cryptographic Amount Verification Check
+                    if (isset($result['amount']) && (float)$result['amount'] > 0) {
+                        $expectedAmount = (float) ($booking->total_price ?? $booking->total_amount ?? 0);
+                        if (abs((float)$result['amount'] - $expectedAmount) > 1.0) {
+                            \Illuminate\Support\Facades\Log::warning("bKash amount tampering attempt for booking {$ref}", [
+                                'expected' => $expectedAmount,
+                                'paid'     => $result['amount'],
+                                'ip'       => $request->ip(),
+                            ]);
+                            return redirect()->route('home')->with('error', 'Payment amount verification failed. Please contact customer support.');
+                        }
+                    }
+
                     $booking->update([
                         'payment_status' => 'paid',
                         'payment_method' => 'bkash',

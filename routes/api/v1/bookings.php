@@ -33,6 +33,7 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
         }
 
         $booking->update(['status' => 'cancelled', 'booking_status' => 'cancelled']);
+        app(\App\Services\InventoryService::class)->releaseInventory($booking);
 
         return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
     });

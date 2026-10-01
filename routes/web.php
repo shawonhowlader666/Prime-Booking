@@ -938,6 +938,12 @@ Route::get('/register', [OAuthController::class, 'showRegister'])->name('registe
 Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1');
 Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
+// Password Reset & Recovery
+Route::get('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+Route::post('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:5,1');
+Route::get('/reset-password/{token}', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
+Route::post('/reset-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
+
 // 🛡️ Enterprise Secret Admin Entrance (Stealth Protection against automated bots and scanners)
 $adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'portal-access');
 
@@ -996,16 +1002,20 @@ Route::get('/storage/{path}', function (string $path) {
 // ── Payments and Subscriptions Routes (1:1 Agoda Subscription Parity) ──
 Route::get('/account/subscription', [PageController::class, 'subscriptions'])->name('subscriptions');
 Route::get('/subscriptions', [PageController::class, 'subscriptions'])->name('subscriptions.alias');
-Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
 
 // ── Rewards & Cashback Routes (1:1 Agoda/Genius Rewards Parity) ──
 Route::get('/rewards', [PageController::class, 'cashback'])->name('rewards');
 Route::get('/account/rewards', [PageController::class, 'cashback'])->name('account.rewards');
-Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit');
 
 // ── PointsMAX Programs Routes (1:1 Agoda PointsMAX Parity) ──
 Route::get('/account/pointsmax', [PageController::class, 'pointsmax'])->name('account.pointsmax');
-Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
-Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
+
+// ── Authenticated User Financial & Account State Mutations ──
+Route::middleware(['auth'])->group(function () {
+    Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
+    Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit')->middleware('throttle:5,1');
+    Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
+    Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
+});
 
 

@@ -263,66 +263,92 @@ class BookingFlowController extends Controller
         $isPayAtHotel = in_array($request->payment_method, ['cash', 'pay_at_hotel', 'bank_transfer']);
         $paymentStatus = $isPayAtHotel ? 'unpaid' : 'pending';
 
-        $booking = DB::transaction(function () use (
-            $request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice,
-            $selectedAddons, $paymentStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout,
-            $inventoryService, $couponService
-        ) {
-            $specialReq = $request->special_requests;
-            if ($couponCode) {
-                $specialReq = ($specialReq ? $specialReq . ' | ' : '') . "Coupon Applied: {$couponCode} (-৳{$discountAmount})";
-            }
+        try {
+            $booking = DB::transaction(function () use (
+                $request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice,
+                $selectedAddons, $paymentStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout,
+                $inventoryService, $couponService
+            ) {
+                if ($room) {
+                    // Enterprise Pessimistic Concurrency Lock (Agoda pattern)
+                    $lockedRoom = Room::where('id', $room->id)->lockForUpdate()->first();
+                    if ($lockedRoom) {
+                        $activeBookingsCount = Booking::where('room_id', $lockedRoom->id)
+                            ->where(function ($q) {
+                                $q->where('status', 'confirmed')
+                                  ->orWhere('booking_status', 'confirmed')
+                                  ->orWhere('status', 'pending');
+                            })
+                            ->whereDate('check_in', '<', $request->check_out)
+                            ->whereDate('check_out', '>', $request->check_in)
+                            ->count();
 
-            $b = Booking::create([
-                'booking_reference'    => $reference,
-                'property_id'          => $property->id,
-                'room_id'              => $room?->id,
-                'user_id'              => auth()->id(),
-                'guest_name'           => $request->guest_name,
-                'guest_email'          => $request->guest_email,
-                'guest_phone'          => $request->guest_phone,
-                'check_in'             => $request->check_in,
-                'check_out'            => $request->check_out,
-                'guests'               => $request->guests,
-                'nights'               => $nights,
-                'price_per_night'      => $pricePerNight,
-                'subtotal'             => $subtotal,
-                'tax_amount'           => $taxAmount,
-                'total_price'          => $totalPrice,
-                'total_amount'         => $totalPrice,
-                'currency'             => 'BDT',
-                'payment_method'       => $request->payment_method,
-                'payment_status'       => $paymentStatus,
-                'status'               => 'confirmed',
-                'booking_status'       => 'confirmed',
-                'special_requests'     => $specialReq,
-                'coupon_code'          => $couponCode,
-                'discount_amount'      => $discountAmount,
-                'commission_rate'      => $commissionRate,
-                'commission_amount'    => $commissionAmount,
-                'vendor_payout_amount' => $vendorPayout,
-                'vendor_payout'        => $vendorPayout,
-            ]);
+                        $totalCap = (int) ($lockedRoom->total_rooms ?? 10);
+                        if ($activeBookingsCount >= $totalCap) {
+                            throw new \Exception('Sorry, the last room was just reserved by another guest. Please select another date or room.');
+                        }
+                    }
+                }
 
-            foreach ($selectedAddons as $addon) {
-                BookingAddon::create([
-                    'booking_id' => $b->id,
-                    'addon_name' => $addon['name'],
-                    'price'      => $addon['price'],
-                    'qty'        => 1,
+                $specialReq = $request->special_requests;
+                if ($couponCode) {
+                    $specialReq = ($specialReq ? $specialReq . ' | ' : '') . "Coupon Applied: {$couponCode} (-৳{$discountAmount})";
+                }
+
+                $b = Booking::create([
+                    'booking_reference'    => $reference,
+                    'property_id'          => $property->id,
+                    'room_id'              => $room?->id,
+                    'user_id'              => auth()->id(),
+                    'guest_name'           => $request->guest_name,
+                    'guest_email'          => $request->guest_email,
+                    'guest_phone'          => $request->guest_phone,
+                    'check_in'             => $request->check_in,
+                    'check_out'            => $request->check_out,
+                    'guests'               => $request->guests,
+                    'nights'               => $nights,
+                    'price_per_night'      => $pricePerNight,
+                    'subtotal'             => $subtotal,
+                    'tax_amount'           => $taxAmount,
+                    'total_price'          => $totalPrice,
+                    'total_amount'         => $totalPrice,
+                    'currency'             => 'BDT',
+                    'payment_method'       => $request->payment_method,
+                    'payment_status'       => $paymentStatus,
+                    'status'               => 'confirmed',
+                    'booking_status'       => 'confirmed',
+                    'special_requests'     => $specialReq,
+                    'coupon_code'          => $couponCode,
+                    'discount_amount'      => $discountAmount,
+                    'commission_rate'      => $commissionRate,
+                    'commission_amount'    => $commissionAmount,
+                    'vendor_payout_amount' => $vendorPayout,
+                    'vendor_payout'        => $vendorPayout,
                 ]);
-            }
 
-            // Lock inventory
-            $inventoryService->lockAndDeduct($b);
+                foreach ($selectedAddons as $addon) {
+                    BookingAddon::create([
+                        'booking_id' => $b->id,
+                        'addon_name' => $addon['name'],
+                        'price'      => $addon['price'],
+                        'qty'        => 1,
+                    ]);
+                }
 
-            // Record coupon usage
-            if ($couponCode) {
-                $couponService->recordUsage($couponCode);
-            }
+                // Lock inventory
+                $inventoryService->lockAndDeduct($b);
 
-            return $b;
-        });
+                // Record coupon usage
+                if ($couponCode) {
+                    $couponService->recordUsage($couponCode);
+                }
+
+                return $b;
+            });
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Booking transaction race conflict for property {$property->id}: " . $e->getMessage());
+            return back()->withInput()->with('error', $e->getMessage() ?: 'Booking could not be finalized. Please try again.');
+        }
 
         // Release temporary checkout hold
         if ($request->filled('hold_token')) {

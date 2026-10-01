@@ -706,11 +706,11 @@ class AccountingService
 
         $now = now();
         Booking::with('property:id,commission_rate,vendor_id,name')
-            ->select(['id', 'booking_reference', 'property_id', 'user_id', 'total_price', 'amount', 'payment_method', 'status', 'created_at', 'updated_at'])
+            ->select(['id', 'booking_reference', 'property_id', 'user_id', 'total_price', 'total_amount', 'payment_method', 'status', 'created_at', 'updated_at'])
             ->chunkById(200, function ($bookings) use ($now) {
                 $rows = [];
                 foreach ($bookings as $b) {
-                    $gross       = round((float) ($b->total_price ?? $b->amount ?? 0), 2);
+                    $gross       = round((float) ($b->total_price ?? $b->total_amount ?? 0), 2);
                     $ratePercent = (float) ($b->property->commission_rate ?? self::DEFAULT_COMMISSION_RATE);
                     $comm        = round($gross * $ratePercent / 100, 2);
                     $fee         = in_array($b->payment_method, ['bkash', 'nagad', 'rocket'])

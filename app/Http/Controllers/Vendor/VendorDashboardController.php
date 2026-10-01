@@ -12,11 +12,20 @@ use Illuminate\Support\Facades\DB;
 
 class VendorDashboardController extends Controller
 {
+    private function vendorId(): int
+    {
+        $id = auth()->id();
+        if (! $id) {
+            abort(401, 'Unauthorized vendor session.');
+        }
+        return (int) $id;
+    }
+
     // ─── Dashboard ────────────────────────────────────────────────────────
 
     public function index()
     {
-        $vendorId = auth()->id() ?? 1; // fallback for dev
+        $vendorId = $this->vendorId();
 
         // Cache vendor stats for 5 min (keyed by vendor id)
         $stats = Cache::remember("vendor:stats:{$vendorId}", 300, function () use ($vendorId) {
@@ -88,7 +97,7 @@ class VendorDashboardController extends Controller
 
     public function bookings(Request $request)
     {
-        $vendorId    = auth()->id() ?? 1;
+        $vendorId    = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
         $query = Booking::whereIn('property_id', $propertyIds)
@@ -114,7 +123,7 @@ class VendorDashboardController extends Controller
 
     public function bookingDetail($reference)
     {
-        $vendorId    = auth()->id() ?? 1;
+        $vendorId    = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
         $booking = Booking::where('booking_reference', $reference)
@@ -127,7 +136,7 @@ class VendorDashboardController extends Controller
 
     public function updateBookingStatus(Request $request, $reference)
     {
-        $vendorId = auth()->id() ?? 1;
+        $vendorId = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
         $booking = Booking::where('booking_reference', $reference)
             ->whereIn('property_id', $propertyIds)
@@ -147,7 +156,7 @@ class VendorDashboardController extends Controller
 
     public function updatePaymentStatus(Request $request, $id)
     {
-        $vendorId = auth()->id() ?? 1;
+        $vendorId = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
         $booking = Booking::where('id', $id)
             ->whereIn('property_id', $propertyIds)
@@ -168,7 +177,7 @@ class VendorDashboardController extends Controller
 
     public function earnings()
     {
-        $vendorId    = auth()->id() ?? 1;
+        $vendorId    = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
         $monthlyData = $this->getMonthlyRevenue($propertyIds, 12);

@@ -93,6 +93,10 @@ class SSLCommerzPaymentService
     /** Step 2: Validate transaction response from SSLCommerz API */
     public function validatePayment(string $valId, float $amount, string $currency = 'BDT'): bool
     {
+        if (empty($valId)) {
+            return false;
+        }
+
         try {
             $url = "{$this->baseUrl}/validator/api/validationserverAPI.php?" . http_build_query([
                 'val_id'       => $valId,
@@ -101,17 +105,25 @@ class SSLCommerzPaymentService
                 'format'       => 'json',
             ]);
 
-            $response = Http::get($url);
+            $response = Http::timeout(10)->get($url);
 
             if ($response->successful()) {
                 $data = $response->json();
-                return ($data['status'] ?? '') === 'VALID' || ($data['status'] ?? '') === 'VALIDATED';
+                $status = $data['status'] ?? '';
+                if ($status === 'VALID' || $status === 'VALIDATED') {
+                    $returnedAmount = (float) ($data['amount'] ?? 0);
+                    if ($amount > 0 && abs($returnedAmount - $amount) > 1.0) {
+                        Log::error("SSLCommerz Amount Mismatch: expected {$amount}, received {$returnedAmount}");
+                        return false;
+                    }
+                    return true;
+                }
             }
 
-            return true; // Fallback for dev mode
+            return false;
         } catch (\Throwable $e) {
             Log::error('SSLCommerz Validation Exception: ' . $e->getMessage());
-            return true;
+            return false;
         }
     }
 }

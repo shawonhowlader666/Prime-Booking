@@ -16,7 +16,11 @@ class VendorController extends Controller
 {
     private function vendorId(): int
     {
-        return auth()->id() ?? 1;
+        $id = auth()->id();
+        if (! $id) {
+            abort(401, 'Unauthorized vendor session.');
+        }
+        return (int) $id;
     }
 
     // ── My Properties List (Optimized for High Scale) ─────────

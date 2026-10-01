@@ -316,12 +316,6 @@
             </div>
         @endif
 
-        <!-- Quick 1-Click Demo Credentials -->
-        <div class="mb-4">
-            <button type="button" class="demo-autofill-btn" id="btnVendorAutofill">
-                <i class="fa-solid fa-bolt text-warning"></i> Quick Auto-Fill Partner Credentials
-            </button>
-        </div>
 
         <!-- Login Form -->
         <form action="{{ route('vendor.login.post') }}" method="POST">

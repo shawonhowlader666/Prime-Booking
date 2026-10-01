@@ -355,6 +355,8 @@ class BookingFlowController extends Controller
             ->with(['property', 'room'])
             ->firstOrFail();
 
+        $this->authorizeBookingAccess($booking);
+
         $addons = BookingAddon::where('booking_id', $booking->id)->get();
         $room = $booking->room;
         $property = $booking->property;
@@ -369,6 +371,8 @@ class BookingFlowController extends Controller
             ->with(['property', 'room'])
             ->firstOrFail();
 
+        $this->authorizeBookingAccess($booking);
+
         $addons = BookingAddon::where('booking_id', $booking->id)->get();
 
         return view('pages.booking-voucher-print', compact('booking', 'addons'));
@@ -381,9 +385,33 @@ class BookingFlowController extends Controller
             ->with(['property', 'room'])
             ->firstOrFail();
 
+        $this->authorizeBookingAccess($booking);
+
         $addons = BookingAddon::where('booking_id', $booking->id)->get();
 
         return view('pages.booking-invoice-print', compact('booking', 'addons'));
+    }
+
+    /** Ensure only booking owner, vendor, admin, or session guest can access booking documents */
+    private function authorizeBookingAccess(Booking $booking): void
+    {
+        if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'super_admin')) {
+            return;
+        }
+
+        if (auth()->check() && auth()->user()->isVendor() && $booking->property?->vendor_id === auth()->id()) {
+            return;
+        }
+
+        if (auth()->check() && ($booking->user_id === auth()->id() || strtolower((string)$booking->guest_email) === strtolower((string)auth()->user()->email))) {
+            return;
+        }
+
+        if (session('last_booking_ref') === $booking->booking_reference) {
+            return;
+        }
+
+        abort(403, 'Unauthorized access to this reservation.');
     }
 
     /** GET /my-bookings — User's booking history */

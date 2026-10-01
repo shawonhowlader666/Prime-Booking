@@ -37,6 +37,12 @@ class PaymentCallbackController extends Controller
     {
         $booking = Booking::where('booking_reference', $reference)->firstOrFail();
 
+        // Security check: block simulation when live gateway is configured or in production without admin
+        $bkashGateway = \App\Models\PaymentGateway::where('code', 'bkash')->first();
+        if ($bkashGateway && $bkashGateway->environment === 'live' && ! (auth()->check() && auth()->user()->isAdmin())) {
+            abort(403, 'Simulation is disabled for live payment processing.');
+        }
+
         $booking->update([
             'payment_status' => 'paid',
             'payment_method' => 'bkash',
@@ -99,6 +105,12 @@ class PaymentCallbackController extends Controller
     {
         $booking = Booking::where('booking_reference', $reference)->firstOrFail();
 
+        // Security check: block simulation when live gateway is configured or in production without admin
+        $sslGateway = \App\Models\PaymentGateway::where('code', 'sslcommerz')->first();
+        if ($sslGateway && $sslGateway->environment === 'live' && ! (auth()->check() && auth()->user()->isAdmin())) {
+            abort(403, 'Simulation is disabled for live payment processing.');
+        }
+
         $booking->update([
             'payment_status' => 'paid',
             'payment_method' => $request->input('card_type', 'sslcommerz_card'),
@@ -122,20 +134,37 @@ class PaymentCallbackController extends Controller
     /** POST /payment/ssl/success */
     public function sslSuccess(Request $request): RedirectResponse
     {
-        $tranId = $request->input('tran_id');
+        $tranId = (string) $request->input('tran_id');
+        $valId  = (string) $request->input('val_id');
         $booking = Booking::where('booking_reference', $tranId)->first();
 
-        if ($booking) {
-            $booking->update([
-                'payment_status' => 'paid',
-                'payment_method' => 'sslcommerz',
-                'status'         => 'confirmed',
-                'booking_status' => 'confirmed',
-            ]);
-            return redirect()->route('booking.confirmation', $booking->booking_reference);
+        if (! $booking) {
+            return redirect()->route('home')->with('error', 'Booking transaction not found.');
         }
 
-        return redirect()->route('home');
+        // Cryptographically verify transaction with SSLCommerz server
+        $isValid = $this->sslService->validatePayment(
+            $valId,
+            (float) ($booking->total_price ?? $booking->total_amount ?? 0),
+            'BDT'
+        );
+
+        if (! $isValid) {
+            \Illuminate\Support\Facades\Log::warning("SSLCommerz invalid or unverified payment attempt for booking {$tranId}", [
+                'ip'     => $request->ip(),
+                'val_id' => $valId,
+            ]);
+            return redirect()->route('home')->with('error', 'Payment verification failed. Please contact support.');
+        }
+
+        $booking->update([
+            'payment_status' => 'paid',
+            'payment_method' => 'sslcommerz',
+            'status'         => 'confirmed',
+            'booking_status' => 'confirmed',
+        ]);
+
+        return redirect()->route('booking.confirmation', $booking->booking_reference);
     }
 
     /** POST /payment/ssl/fail */
@@ -153,16 +182,26 @@ class PaymentCallbackController extends Controller
     /** POST /payment/ssl/ipn */
     public function sslIpn(Request $request)
     {
-        $tranId = $request->input('tran_id');
-        $status = $request->input('status');
+        $tranId = (string) $request->input('tran_id');
+        $valId  = (string) $request->input('val_id');
+        $status = (string) $request->input('status');
 
-        if ($status === 'VALID' && $tranId) {
+        if (($status === 'VALID' || $status === 'VALIDATED') && $tranId && $valId) {
             $booking = Booking::where('booking_reference', $tranId)->first();
-            if ($booking) {
-                $booking->update([
-                    'payment_status' => 'paid',
-                    'status'         => 'confirmed',
-                ]);
+            if ($booking && $booking->payment_status !== 'paid') {
+                $isValid = $this->sslService->validatePayment(
+                    $valId,
+                    (float) ($booking->total_price ?? $booking->total_amount ?? 0),
+                    'BDT'
+                );
+
+                if ($isValid) {
+                    $booking->update([
+                        'payment_status' => 'paid',
+                        'status'         => 'confirmed',
+                        'booking_status' => 'confirmed',
+                    ]);
+                }
             }
         }
         return response('IPN Processed', 200);

@@ -213,12 +213,6 @@
             </div>
         @endif
 
-        <!-- Quick 1-Click Demo Credentials -->
-        <div class="mb-4">
-            <button type="button" class="demo-autofill-btn" id="btnAdminAutofill">
-                <i class="fa-solid fa-bolt text-warning"></i> Quick Auto-Fill Admin Credentials
-            </button>
-        </div>
 
         <!-- Login Form -->
         <form action="{{ route('admin.login.post') }}" method="POST">

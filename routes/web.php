@@ -110,10 +110,10 @@ Route::get('/hotels/{id}/brochure', [PropertyDetailController::class, 'brochure'
 Route::get('/property/{slug}', [PropertyDetailController::class, 'show'])->name('property.show');
 Route::get('/property/{slug}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('property.preview');
 Route::get('/property/{slug}/brochure', [PropertyDetailController::class, 'brochure'])->name('property.brochure');
-Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store');
-Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store');
-Route::post('/hotels/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('hotels.inquire');
-Route::post('/property/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('property.inquire');
+Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store')->middleware('throttle:5,1');
+Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store')->middleware('throttle:5,1');
+Route::post('/hotels/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('hotels.inquire')->middleware('throttle:5,1');
+Route::post('/property/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('property.inquire')->middleware('throttle:5,1');
 
 // Informational & Marketing Public Routes
 Route::get('/about', [PageController::class, 'about'])->name('about');
@@ -938,14 +938,31 @@ Route::get('/register', [OAuthController::class, 'showRegister'])->name('registe
 Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1');
 Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
-// Admin & Vendor Dedicated Standalone Portal Login Routes
-Route::get('/admin/login',  [OAuthController::class, 'showAdminLogin'])->name('admin.login');
-Route::post('/admin/login', [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
+// 🛡️ Enterprise Secret Admin Entrance (Stealth Protection against automated bots and scanners)
+$adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'portal-access');
+
+// Official Stealth Admin Login Route
+Route::get("/{$adminSecretSlug}", [OAuthController::class, 'showAdminLogin'])->name('admin.login');
+Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
+
+// Trap/Stealth /admin/login — returns 404 for automated bots and scanners
+if ($adminSecretSlug !== 'admin/login') {
+    Route::get('/admin/login', fn() => abort(404));
+    Route::post('/admin/login', fn() => abort(404));
+    Route::get('/admin', function () {
+        if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'super_admin')) {
+            return redirect()->route('admin.dashboard');
+        }
+        abort(404);
+    });
+}
+
+// Dedicated Vendor Partner Portal Login Routes
 Route::get('/vendor/login', [OAuthController::class, 'showVendorLogin'])->name('vendor.login');
 Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('vendor.login.post')->middleware('throttle:5,1');
 
 // Form Actions
-Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store');
+Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store')->middleware('throttle:3,1');
 
 // ── Universal Storage Fallback & Media Streamer (Strict Anti-Traversal) ────
 Route::get('/storage/{path}', function (string $path) {

@@ -8,10 +8,19 @@ use App\Models\VendorSubscription;
 
 class SubscriptionController extends Controller
 {
+    private function vendorId(): int
+    {
+        $id = auth()->id();
+        if (! $id) {
+            abort(401, 'Unauthorized vendor session.');
+        }
+        return (int) $id;
+    }
+
     public function index()
     {
         $company  = config('company');
-        $vendorId = auth()->id() ?? 1;
+        $vendorId = $this->vendorId();
 
         $plans = [
             [
@@ -71,7 +80,7 @@ class SubscriptionController extends Controller
             'billing_cycle' => 'nullable|in:monthly,yearly',
         ]);
 
-        $vendorId = auth()->id() ?? 1;
+        $vendorId = $this->vendorId();
 
         // Cancel previous active subscriptions
         VendorSubscription::where('vendor_id', $vendorId)->update(['status' => 'cancelled']);

@@ -55,9 +55,9 @@
     <!-- Schema.org JSON-LD Structured Data (Google Rich Snippet for Travel Agency) -->
     <script type="application/ld+json">
     {!! json_encode([
-        '@context' => 'https://schema.org',
-        '@type' => 'TravelAgency',
-        'name' => 'Prime Booking',
+        chr(64) . 'context' => 'https://schema.org',
+        chr(64) . 'type'    => 'TravelAgency',
+        'name'              => 'Prime Booking',
         'alternateName' => 'প্রাইম বুকিং বাংলাদেশ',
         'url' => 'https://primebooking.com.bd',
         'logo' => 'https://primebooking.com.bd/images/logo.png',
@@ -66,14 +66,14 @@
         'telephone' => '+8801606352642',
         'priceRange' => '৳৳ - ৳৳৳৳',
         'address' => [
-            '@type' => 'PostalAddress',
+            chr(64) . 'type' => 'PostalAddress',
             'streetAddress' => 'Gulshan 2',
             'addressLocality' => 'Dhaka',
             'postalCode' => '1212',
             'addressCountry' => 'BD'
         ],
         'geo' => [
-            '@type' => 'GeoCoordinates',
+            chr(64) . 'type' => 'GeoCoordinates',
             'latitude' => 23.8103,
             'longitude' => 90.4125
         ],

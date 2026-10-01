@@ -3,33 +3,33 @@
 @section('schema')
 @php
     $schemaHotel = [
-        '@context' => 'https://schema.org',
-        '@type' => in_array(strtolower($property->type ?? ''), ['resort', 'villa', 'motel']) ? ucfirst(strtolower($property->type)) : 'Hotel',
-        'name' => $property->name ?? 'Hotel',
-        'description' => strip_tags(\Illuminate\Support\Str::limit($property->description ?? 'Book ' . ($property->name ?? 'hotel') . ' on Prime Booking with best price guarantee.', 250)),
-        'image' => $property->primary_image ? (str_starts_with($property->primary_image, 'http') ? $property->primary_image : asset('storage/' . $property->primary_image)) : asset('images/logo.png'),
-        'starRating' => [
-            '@type' => 'Rating',
-            'ratingValue' => (int)($property->star_rating ?? 4),
+        chr(64) . 'context' => 'https://schema.org',
+        chr(64) . 'type'    => in_array(strtolower($property->type ?? ''), ['resort', 'villa', 'motel']) ? ucfirst(strtolower($property->type)) : 'Hotel',
+        'name'              => $property->name ?? 'Hotel',
+        'description'       => strip_tags(\Illuminate\Support\Str::limit($property->description ?? 'Book ' . ($property->name ?? 'hotel') . ' on Prime Booking with best price guarantee.', 250)),
+        'image'             => $property->primary_image ? (str_starts_with($property->primary_image, 'http') ? $property->primary_image : asset('storage/' . $property->primary_image)) : asset('images/logo.png'),
+        'starRating'        => [
+            chr(64) . 'type' => 'Rating',
+            'ratingValue'    => (int)($property->star_rating ?? 4),
         ],
-        'priceRange' => 'BDT ' . number_format((float)($property->price_per_night ?? 2500)) . ' - ' . number_format((float)($property->price_per_night ?? 2500) * 2.5),
-        'address' => [
-            '@type' => 'PostalAddress',
-            'streetAddress' => $property->address ?? $property->city ?? 'Bangladesh',
+        'priceRange'        => 'BDT ' . number_format((float)($property->price_per_night ?? 2500)) . ' - ' . number_format((float)($property->price_per_night ?? 2500) * 2.5),
+        'address'           => [
+            chr(64) . 'type'  => 'PostalAddress',
+            'streetAddress'   => $property->address ?? $property->city ?? 'Bangladesh',
             'addressLocality' => $property->city ?? 'Dhaka',
-            'addressCountry' => 'BD',
+            'addressCountry'  => 'BD',
         ],
-        'aggregateRating' => [
-            '@type' => 'AggregateRating',
-            'ratingValue' => number_format((float)($property->rating ?? 4.8), 1),
-            'reviewCount' => max(5, (int)($property->reviews_count ?? $property->total_reviews ?? 28)),
+        'aggregateRating'   => [
+            chr(64) . 'type' => 'AggregateRating',
+            'ratingValue'    => number_format((float)($property->rating ?? 4.8), 1),
+            'reviewCount'    => max(5, (int)($property->reviews_count ?? $property->total_reviews ?? 28)),
         ],
     ];
     if (!empty($property->latitude) && !empty($property->longitude)) {
         $schemaHotel['geo'] = [
-            '@type' => 'GeoCoordinates',
-            'latitude' => (float) $property->latitude,
-            'longitude' => (float) $property->longitude,
+            chr(64) . 'type' => 'GeoCoordinates',
+            'latitude'       => (float) $property->latitude,
+            'longitude'      => (float) $property->longitude,
         ];
     }
 @endphp

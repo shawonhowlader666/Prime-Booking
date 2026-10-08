@@ -1,16 +1,17 @@
 {{-- Agoda-Exact Filter Sidebar Component (100% Dynamic DB-Backed & Agoda UI Parity) --}}
 <div class="card border border-gray-200 rounded-3 shadow-xs overflow-hidden mb-4 bg-white" style="border: 1px solid #cbd5e1; border-radius: 8px !important;">
     
-    {{-- 1. Map View Preview Box with Floating Blue Pill Button (Agoda 1:1 Parity) --}}
-    <div class="position-relative text-center p-0 overflow-hidden" style="height: 140px; background: #cad2d9; cursor: pointer; border-radius: 8px 8px 0 0;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
-        {{-- Live Leaflet Mini Map Container with Real Dots --}}
-        <div id="agodaMiniSidebarMap" style="width: 100%; height: 100%; pointer-events: none;"></div>
-
-        {{-- Floating Blue Pill Button "Search on Map" --}}
-        <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 100;">
-            <button type="button" class="btn text-white fw-bold shadow-md rounded-pill px-3 py-1.5 d-flex align-items-center gap-1.5" style="background-color: #2067e1; font-size: 12px; letter-spacing: 0.3px; border: 2px solid #ffffff; box-shadow: 0 4px 14px rgba(32,103,225,0.45) !important;">
-                <i class="fa-solid fa-location-dot"></i> Search on Map
-            </button>
+    {{-- 1. Official Agoda Map Entry Card (Downloaded SVG & Exact Agoda Styling) --}}
+    <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 135px; cursor: pointer; border-radius: 8px 8px 0 0; background: #ffffff; border-bottom: 1px solid #e2e8f0;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to search on map">
+        <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" alt="Map" style="width: 100%; height: 90px; object-fit: cover; display: block;">
+        {{-- Centered Red Map Pin --}}
+        <div class="position-absolute" style="top: 24px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;">
+            <i class="fa-solid fa-location-dot" style="font-size: 32px; color: #e03126; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i>
+        </div>
+        <div style="background: #ffffff; height: 45px; display: flex; align-items: center; justify-content: center;">
+            <span style="font-weight: 700; font-size: 13px; color: #2a2a2e; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                SEARCH ON MAP
+            </span>
         </div>
     </div>
 
@@ -29,7 +30,7 @@
             <a href="{{ route('search.index', $sidebarClearParams) }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
         </div>
 
-        <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
+        <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm" onsubmit="showAgodaSearchLoading();">
             <input type="hidden" name="destination" value="{{ request('destination') }}">
             <input type="hidden" name="search_type" value="{{ request('search_type', 'hotel') }}">
             <input type="hidden" name="check_in" value="{{ request('check_in') }}">

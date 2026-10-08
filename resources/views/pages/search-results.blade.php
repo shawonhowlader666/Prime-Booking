@@ -3,7 +3,6 @@
 @section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING')
 
 @section('content')
-@include('components.search.loading-skeleton-modal')
 
 {{-- 2. Agoda Compact Subheader Search Bar (Screenshot 1:1 Exact Parity) --}}
 @php
@@ -13,7 +12,7 @@
     $roomsCount = intval(request('rooms', 1));
 @endphp
 <div style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155;">
-    <div style="max-width: 1180px; margin: 0 auto; padding: 0 24px;">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
@@ -203,9 +202,9 @@
     }
 </script>
 
-{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Screenshot) --}}
+{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Screenshot 2) --}}
 <div class="agoda-coupon-strip" style="background: #ffebe6; border-bottom: 1px solid #ffd5cc; padding: 12px 0;">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1180px; margin: 0 auto; padding: 0 24px;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
         <div class="d-flex align-items-center gap-3">
             <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg);">
                 <i class="fa-solid fa-tags fs-5"></i>
@@ -226,9 +225,9 @@
     </div>
 </div>
 
-{{-- 4. Main Search Results Layout --}}
-<div style="max-width: 1180px; margin: 0 auto; padding: 24px 24px;">
-    <div class="row g-4">
+{{-- 4. Main Search Results Layout (Agoda 1140px Container Width & 20px Side Padding) --}}
+<div style="max-width: 1140px; margin: 0 auto; padding: 16px 20px 48px 20px;">
+    <div class="row g-3">
         
         {{-- Left Filter Sidebar --}}
         <div class="col-lg-3">
@@ -237,6 +236,8 @@
 
         {{-- Right Results Feed --}}
         <div class="col-lg-9" id="searchResultsContainer">
+
+
 
             {{-- 3.6 Auto-Radius Expander Notice Banner --}}
             @if(!empty($searchResults['radius_expanded']))
@@ -260,18 +261,7 @@
                 Zero hardcoded city/area names.
                 ════════════════════════════════════════════════
             --}}
-            @if(!empty($popularAreas))
-            <div class="d-flex align-items-center gap-2 mb-4 flex-wrap" style="padding: 4px 0;">
-                <span class="small text-muted fw-bold me-1" style="font-size: 12.5px;">Popular areas in {{ $destination ?: 'city' }}:</span>
-                @foreach($popularAreas as $hood)
-                    <a href="{{ route('search.index', array_merge(request()->query(), ['destination' => $destination, 'q' => $hood])) }}"
-                       class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold @if(request('q') == $hood) active bg-primary text-white border-primary @endif"
-                       style="font-size: 12px; border-color: #cbd5e1; color: #475569; padding: 5px 14px;">
-                        {{ $hood }}
-                    </a>
-                @endforeach
-            </div>
-            @endif
+
 
             {{-- Applied Active Filter Removable Tags Strip (ALL filter types) --}}
             @php
@@ -379,7 +369,7 @@
                 <div>
                     <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">
                         <span id="resultsCount">{{ $liveTotal }}</span>
-                        stays available in {{ $destLabel }}
+                        properties in {{ $destLabel }}
                     </h4>
                 </div>
                 <div class="d-flex align-items-center gap-2">
@@ -407,7 +397,7 @@
                                 data-bs-toggle="dropdown" 
                                 aria-expanded="false" 
                                 style="width: 220px; height: 42px; border: 1.5px solid #cbd5e1; font-size: 13.5px; padding: 0 14px;">
-                            <span>Sort: <strong class="fw-bold">{{ $curLabel }}</strong></span>
+                            <span>Sort by: <strong class="fw-bold">{{ $curLabel }}</strong></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 py-2 mt-1" aria-labelledby="agodaSortDropdownBtn" style="width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;">
                             @foreach($sortLabels as $sKey => $sTitle)
@@ -448,83 +438,7 @@
                 }
             </script>
 
-            {{-- Agoda Popular Quick Filter Chips Bar --}}
-            <div class="d-flex align-items-center gap-2 overflow-x-auto pb-2 mb-2" style="scrollbar-width: none;">
-                @php
-                    $quickAmenities = (array) request('amenities', []);
-                    $hasBreakfast = in_array('Breakfast included', $quickAmenities);
-                    $hasPool = in_array('Swimming pool', $quickAmenities);
-                    $hasWifi = in_array('Free WiFi', $quickAmenities);
-                    $isFreeCancel = request('free_cancel') == 1;
-                    $isPayLater = request('pay_later') == 1;
-                    $is5Star = request('star_rating') == '5';
-                    $isTopRated = request('guest_rating') == '9';
-                @endphp
 
-                {{-- Free Cancellation --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['free_cancel' => $isFreeCancel ? null : 1])) }}" 
-                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
-                   style="font-size: 12px; padding: 6px 14px; {{ $isFreeCancel ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-check {{ $isFreeCancel ? 'text-white' : 'text-success' }}" style="margin-right: 7px; font-size: 11px;"></i>
-                    <span>Free cancellation</span>
-                </a>
-
-                {{-- Breakfast Included --}}
-                @php
-                    $breakfastParams = request()->query();
-                    if ($hasBreakfast) {
-                        $breakfastParams['amenities'] = array_values(array_diff($quickAmenities, ['Breakfast included']));
-                    } else {
-                        $breakfastParams['amenities'] = array_merge($quickAmenities, ['Breakfast included']);
-                    }
-                @endphp
-                <a href="{{ route('search.index', $breakfastParams) }}" 
-                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
-                   style="font-size: 12px; padding: 6px 14px; {{ $hasBreakfast ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-mug-saucer {{ $hasBreakfast ? 'text-white' : 'text-warning' }}" style="margin-right: 7px; font-size: 11.5px;"></i>
-                    <span>Breakfast included</span>
-                </a>
-
-                {{-- Swimming Pool --}}
-                @php
-                    $poolParams = request()->query();
-                    if ($hasPool) {
-                        $poolParams['amenities'] = array_values(array_diff($quickAmenities, ['Swimming pool']));
-                    } else {
-                        $poolParams['amenities'] = array_merge($quickAmenities, ['Swimming pool']);
-                    }
-                @endphp
-                <a href="{{ route('search.index', $poolParams) }}" 
-                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
-                   style="font-size: 12px; padding: 6px 14px; {{ $hasPool ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-person-swimming {{ $hasPool ? 'text-white' : 'text-info' }}" style="margin-right: 7px; font-size: 12px;"></i>
-                    <span>Swimming pool</span>
-                </a>
-
-                {{-- Pay at Hotel --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['pay_later' => $isPayLater ? null : 1])) }}" 
-                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
-                   style="font-size: 12px; padding: 6px 14px; {{ $isPayLater ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-wallet {{ $isPayLater ? 'text-white' : 'text-success' }}" style="margin-right: 7px; font-size: 11.5px;"></i>
-                    <span>Pay at hotel</span>
-                </a>
-
-                {{-- Top Rated 9+ --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['guest_rating' => $isTopRated ? null : 9])) }}" 
-                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
-                   style="font-size: 12px; padding: 6px 14px; {{ $isTopRated ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-star text-warning" style="margin-right: 7px; font-size: 11px;"></i>
-                    <span>Superb 9.0+</span>
-                </a>
-
-                {{-- 5-Star Luxury --}}
-                <a href="{{ route('search.index', array_merge(request()->query(), ['star_rating' => $is5Star ? null : 5])) }}" 
-                   class="btn btn-sm rounded-pill fw-semibold text-nowrap d-inline-flex align-items-center shadow-xs" 
-                   style="font-size: 12px; padding: 6px 14px; {{ $is5Star ? 'background: #2067e1; color: #fff; border-color: #2067e1;' : 'background: #fff; color: #334155; border: 1px solid #cbd5e1;' }}">
-                    <i class="fa-solid fa-crown text-warning" style="margin-right: 7px; font-size: 11.5px;"></i>
-                    <span>5-Star Stays</span>
-                </a>
-            </div>
 
             {{-- Property Cards Grid --}}
             <div class="d-flex flex-column gap-3" id="propertyCardsFeed">
@@ -1047,17 +961,41 @@
         window.toggleMapCardWishlist = function(btn, propertyId) {
             var icon = btn.querySelector('i');
             var isWished = icon.classList.contains('fa-solid');
+            // Optimistic UI toggle
             if (isWished) {
                 icon.classList.replace('fa-solid', 'fa-regular');
+                icon.classList.remove('text-danger');
                 btn.style.background = 'rgba(255,255,255,0.85)';
             } else {
                 icon.classList.replace('fa-regular', 'fa-solid');
+                icon.classList.add('text-danger');
                 btn.style.background = 'rgba(255,255,255,0.95)';
-                fetch('/wishlist/toggle/' + propertyId, {
-                    method: 'POST',
-                    headers: { 'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '', 'X-Requested-With': 'XMLHttpRequest' }
-                }).catch(function() {});
             }
+            fetch('/wishlist/toggle/' + propertyId, {
+                method: 'POST',
+                headers: { 
+                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '', 
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function(res) {
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                return res.json();
+            })
+            .then(function(data) {
+                if (data && typeof data.is_wishlisted !== 'undefined') {
+                    if (data.is_wishlisted) {
+                        icon.className = 'fa-solid fa-heart text-danger';
+                    } else {
+                        icon.className = 'fa-regular fa-heart text-dark';
+                    }
+                }
+            })
+            .catch(function() {});
         };
 
         // ── 3. Highlighting and Marker Popups (Agoda 1:1 Parity) ──

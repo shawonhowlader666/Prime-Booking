@@ -466,20 +466,79 @@
             </div>
         </div>
 
+        @php
+            $hasVideo = !empty($property->video_url);
+            $videoUrl = $hasVideo ? $property->video_url : '';
+            $isYoutube = false;
+            $youtubeId = '';
+            if ($hasVideo && preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $videoUrl, $match)) {
+                $isYoutube = true;
+                $youtubeId = $match[1];
+            }
+        @endphp
+
         {{-- 3. Hero Photo Collage 5-Grid (Agoda Screenshot 1 Parity with Clean Modal Controls) --}}
         <div class="mb-4 position-relative" style="border-radius: 12px; overflow: hidden;">
             <div class="row g-2">
-                {{-- Main Feature Image (Left 60%) --}}
+                {{-- Main Feature Display (Left 60%): Autoplaying HD Video if available, else Primary Image --}}
                 <div class="col-lg-7">
-                    <div class="hero-main-img-box position-relative" style="background:#0f172a;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
+                    <div class="hero-main-img-box position-relative" style="background:#0f172a;">
+                        @if($hasVideo)
+                            @if($isYoutube)
+                                <div class="w-100 h-100 position-relative overflow-hidden">
+                                    <iframe id="heroDetailAutoplayIframe" 
+                                            src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=1&mute=1&loop=1&playlist={{ $youtubeId }}&controls=0&modestbranding=1&rel=0" 
+                                            class="w-100 h-100 border-0" 
+                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                            style="pointer-events: none; transform: scale(1.05);">
+                                    </iframe>
+                                    <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;">
+                                        <span class="badge bg-danger shadow-sm d-inline-flex align-items-center px-2.5 py-1.5" style="font-size: 11px; font-weight: 700; border-radius: 6px;">
+                                            <i class="fa-solid fa-circle-play fa-beat-fade me-1.5"></i> LIVE VIDEO TOUR
+                                        </span>
+                                    </div>
+                                    <div class="position-absolute w-100 h-100 top-0 start-0" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#videoTourModal" title="Click to open full Video Tour"></div>
+                                </div>
+                            @else
+                                <div class="w-100 h-100 position-relative overflow-hidden" id="heroVideoContainer">
+                                    <video id="heroDetailAutoplayVideo" 
+                                           class="w-100 h-100" 
+                                           style="object-fit: cover; cursor: pointer;" 
+                                           autoplay 
+                                           muted 
+                                           loop 
+                                           playsinline 
+                                           preload="auto"
+                                           poster="{{ $gallery[0] }}"
+                                           data-bs-toggle="modal" 
+                                           data-bs-target="#videoTourModal"
+                                           title="Click to view full video tour">
+                                        <source src="{{ media_url($videoUrl) }}" type="video/mp4">
+                                        <source src="{{ media_url($videoUrl) }}" type="video/quicktime">
+                                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
+                                    </video>
+
+                                    {{-- Video Tour Badge & Audio Mute/Unmute Button --}}
+                                    <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;" onclick="event.stopPropagation();">
+                                        <span class="badge bg-danger shadow-sm d-inline-flex align-items-center px-2.5 py-1.5" style="font-size: 11px; font-weight: 700; border-radius: 6px; letter-spacing: 0.3px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
+                                            <i class="fa-solid fa-circle-play fa-beat-fade me-1.5"></i> LIVE VIDEO TOUR
+                                        </span>
+                                        <button type="button" id="btnToggleHeroSound" class="btn btn-dark btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px; background: rgba(0,0,0,0.75); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; cursor: pointer; z-index: 25; position: relative;" onclick="toggleHeroVideoSound(event)" title="Mute/Unmute sound">
+                                            <i class="fa-solid fa-volume-xmark" id="iconHeroSound" style="font-size: 13px;"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            @endif
+                        @else
+                            <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                        @endif
 
                         {{-- Action Buttons on Bottom of Main Photo --}}
                         <div class="position-absolute bottom-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;" onclick="event.stopPropagation();">
-                            @if(!empty($property->video_url))
+                            @if($hasVideo)
                             <button type="button" class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12.5px; padding: 7px 16px;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
                                 <i class="fa-solid fa-circle-play text-white" style="margin-right: 8px; font-size: 13px;"></i>
-                                <span>Video Tour</span>
+                                <span>Watch Video Tour</span>
                             </button>
                             @endif
                             <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12.5px; padding: 7px 16px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;" data-bs-toggle="modal" data-bs-target="#galleryModal">
@@ -555,8 +614,8 @@
                 <div class="d-none d-md-flex align-items-center gap-3 py-1 flex-shrink-0">
                     <div class="text-end d-flex align-items-baseline gap-1">
                         <span style="font-size: 11px; color: #64748b; font-weight: 500;">from</span>
-                        <span style="color: #64748b; font-size: 13.5px; font-weight: 700;">USD</span>
-                        <strong style="color: #e11d48; font-size: 21px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{{ round($property->price_per_night / 120) ?: 41 }}</strong>
+                        <strong style="color: #e11d48; font-size: 21px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{!! format_price($property->price_per_night) !!}</strong>
+                        <span style="font-size: 11px; color: #94a3b8;">/ night</span>
                     </div>
                     <a href="#rooms" class="btn text-white fw-bold rounded-pill px-4 py-2 text-uppercase" style="background-color: #2067e1; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(32, 103, 225, 0.25);">
                         SEE YOUR PRICE
@@ -604,6 +663,39 @@
                         <span class="mx-1 text-muted">—</span>
                         <a href="#location" class="fw-bold text-uppercase" style="color: #2067e1; font-size: 12px; letter-spacing: 0.3px; text-decoration: none;" onclick="event.preventDefault(); document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});">SEE MAP</a>
                     </div>
+                </div>
+
+                {{-- Agoda High-Converting Live Urgency & Demand Alert Banner --}}
+                <div class="rounded-3 p-3 mb-3 d-flex align-items-center justify-content-between shadow-xs" style="background: linear-gradient(90deg, #fff1f2 0%, #fff7ed 100%); border: 1.5px solid #fecdd3; border-left: 5px solid #e11d48;">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 38px; height: 38px; background: #ffe4e6; color: #e11d48; font-size: 16px;">
+                            <i class="fa-solid fa-fire-flame-curved"></i>
+                        </div>
+                        <div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge bg-danger text-white text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px; border-radius: 3px;">In High Demand</span>
+                                <span class="text-dark fw-bold" style="font-size: 13.5px;">Booked {{ rand(3, 7) }} times today in Cox's Bazar!</span>
+                            </div>
+                            <div class="text-secondary" style="font-size: 12px; margin-top: 2px;">
+                                <i class="fa-solid fa-users text-danger me-1"></i> <strong>{{ rand(4, 9) }} travelers</strong> are viewing this property right now. Only <strong>{{ $property->rooms_left ?: 3 }} rooms</strong> left at this rate!
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-none d-md-block text-end flex-shrink-0 ps-3">
+                        <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #ffffff; color: #e11d48; border: 1px solid #fecdd3; font-size: 11px;">
+                            <i class="fa-regular fa-clock me-1"></i> Selling fast
+                        </span>
+                    </div>
+                </div>
+
+                {{-- AgodaVIP Member Deal Alert --}}
+                <div class="rounded-3 p-2.5 mb-4 d-flex align-items-center justify-content-between shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a;">
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge text-white px-2 py-0.5 rounded-1 fw-bold" style="background: #16a34a; font-size: 10.5px;">AgodaVIP</span>
+                        <span class="fw-bold text-dark" style="font-size: 12.5px;">Member Secret Deal Applied</span>
+                        <span class="text-muted d-none d-sm-inline" style="font-size: 12px;">• You're saving an extra 10% on today's lowest rate!</span>
+                    </div>
+                    <span class="fw-bold text-success" style="font-size: 12px;"><i class="fa-solid fa-check-circle me-1"></i> Best Price Guarantee</span>
                 </div>
 
                 {{-- Left Card 2: Property Perks (100% Dynamic from Real DB Reviews & Amenities) --}}
@@ -2713,16 +2805,7 @@
 </div>
 
 {{-- Dedicated High-Definition Video Tour Modal (Agoda & Booking.com Parity) --}}
-@if(!empty($property->video_url))
-@php
-    $videoUrl = $property->video_url;
-    $isYoutube = false;
-    $youtubeId = '';
-    if (preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $videoUrl, $match)) {
-        $isYoutube = true;
-        $youtubeId = $match[1];
-    }
-@endphp
+@if($hasVideo)
 <div class="modal fade" id="videoTourModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-xl modal-dialog-centered">
         <div class="modal-content rounded-4 border-0 shadow-lg bg-black text-white overflow-hidden">
@@ -2744,8 +2827,14 @@
                     </iframe>
                 </div>
                 @else
-                <video id="hotelDetailHtmlVideo" controls class="w-100 h-100" style="max-height: 75vh; object-fit: contain;">
-                    <source src="{{ $videoUrl }}" type="video/mp4">
+                <video id="hotelDetailHtmlVideo" 
+                       controls 
+                       playsinline 
+                       preload="none"
+                       class="w-100 h-100" 
+                       style="max-height: 75vh; object-fit: contain; background: #000;">
+                    <source data-src="{{ media_url($videoUrl) }}" src="" type="video/mp4">
+                    <source data-src="{{ media_url($videoUrl) }}" src="" type="video/quicktime">
                     Your browser does not support HTML5 video.
                 </video>
                 @endif
@@ -2755,19 +2844,132 @@
 </div>
 
 <script>
+    // Audio State & Sound Toggle for Hero Background Video
+    function updateHeroSoundIcon(isMuted) {
+        var icon = document.getElementById('iconHeroSound');
+        var btn = document.getElementById('btnToggleHeroSound');
+        if (icon) {
+            if (isMuted) {
+                icon.className = 'fa-solid fa-volume-xmark text-white';
+                if (btn) btn.title = 'Click to Unmute Sound';
+            } else {
+                icon.className = 'fa-solid fa-volume-high text-warning';
+                if (btn) btn.title = 'Click to Mute Sound';
+            }
+        }
+    }
+
+    function toggleHeroVideoSound(e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        var heroVid = document.getElementById('heroDetailAutoplayVideo');
+        if (!heroVid) return;
+
+        cleanupGlobalAudioUnlock(); // User manual control overrides automatic unlock
+
+        if (heroVid.muted) {
+            heroVid.muted = false;
+            heroVid.volume = 1.0;
+            var playPromise = heroVid.play();
+            if (playPromise !== undefined) {
+                playPromise.then(function() {
+                    updateHeroSoundIcon(false);
+                }).catch(function() {
+                    heroVid.muted = false;
+                    updateHeroSoundIcon(false);
+                });
+            } else {
+                updateHeroSoundIcon(false);
+            }
+        } else {
+            heroVid.muted = true;
+            updateHeroSoundIcon(true);
+        }
+    }
+
+    function unlockHeroAudioOnFirstGesture() {
+        var heroVid = document.getElementById('heroDetailAutoplayVideo');
+        if (heroVid && heroVid.muted) {
+            heroVid.muted = false;
+            heroVid.volume = 1.0;
+            var p = heroVid.play();
+            if (p !== undefined) {
+                p.then(function() {
+                    updateHeroSoundIcon(false);
+                }).catch(function() {});
+            }
+        }
+        cleanupGlobalAudioUnlock();
+    }
+
+    function cleanupGlobalAudioUnlock() {
+        ['click', 'touchstart', 'scroll', 'keydown'].forEach(function(ev) {
+            document.removeEventListener(ev, unlockHeroAudioOnFirstGesture);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
+        var heroVid = document.getElementById('heroDetailAutoplayVideo');
+        if (heroVid) {
+            // Attempt unmuted autoplay immediately on page load
+            heroVid.volume = 1.0;
+            heroVid.muted = false;
+            var playPromise = heroVid.play();
+            if (playPromise !== undefined) {
+                playPromise.then(function() {
+                    // Browser allowed unmuted autoplay!
+                    updateHeroSoundIcon(false);
+                }).catch(function(err) {
+                    // Browser policy blocked unmuted audio on cold load
+                    // Start muted, and immediately unlock sound on user's first click or interaction!
+                    heroVid.muted = true;
+                    heroVid.play().catch(function() {});
+                    updateHeroSoundIcon(true);
+
+                    ['click', 'touchstart', 'scroll', 'keydown'].forEach(function(ev) {
+                        document.addEventListener(ev, unlockHeroAudioOnFirstGesture, { passive: true, once: true });
+                    });
+                });
+            }
+        }
+
         var videoModalEl = document.getElementById('videoTourModal');
         if (videoModalEl) {
             videoModalEl.addEventListener('show.bs.modal', function() {
+                // Pause background hero video
+                if (heroVid) {
+                    heroVid.pause();
+                }
+
                 var iframe = document.getElementById('hotelDetailVideoIframe');
                 if (iframe && iframe.getAttribute('data-src')) {
                     iframe.src = iframe.getAttribute('data-src');
                 }
                 var vid = document.getElementById('hotelDetailHtmlVideo');
                 if (vid) {
-                    vid.play();
+                    var sources = vid.querySelectorAll('source');
+                    sources.forEach(function(s) {
+                        var dSrc = s.getAttribute('data-src');
+                        if (dSrc && !s.src) {
+                            s.src = dSrc;
+                        }
+                    });
+                    vid.load();
+                    vid.currentTime = 0;
+                    vid.muted = false;
+                    vid.volume = 1.0;
+                    var playPromise = vid.play();
+                    if (playPromise !== undefined) {
+                        playPromise.catch(function() {
+                            vid.muted = true;
+                            vid.play().catch(function() {});
+                        });
+                    }
                 }
             });
+
             videoModalEl.addEventListener('hidden.bs.modal', function() {
                 var iframe = document.getElementById('hotelDetailVideoIframe');
                 if (iframe) {
@@ -2777,6 +2979,10 @@
                 if (vid) {
                     vid.pause();
                     vid.currentTime = 0;
+                }
+                // Resume background hero video
+                if (heroVid) {
+                    heroVid.play().catch(function() {});
                 }
             });
         }
@@ -3594,8 +3800,8 @@
 
     // Web Share API & Quick Share Modal Handler
     function sharePropertyLink() {
-        const title = "{{ addslashes($property->name) }} - Prime Booking";
-        const text = "Check out {{ addslashes($property->name) }} in {{ addslashes($property->city ?: 'Bangladesh') }} on Prime Booking!";
+        const title = @json($property->name . ' - Prime Booking');
+        const text = @json('Check out ' . $property->name . ' in ' . ($property->city ?: 'Bangladesh') . ' on Prime Booking!');
         const url = window.location.href;
 
         if (navigator.share) {
@@ -4183,13 +4389,13 @@ function sendQuickAnswerQuery() {
         let answer = "";
         let actionBtn = "";
         const lowerQ = q.toLowerCase();
-        const propName = "{{ addslashes($property->name) }}";
+        const propName = @json($property->name);
         const checkinTime = "{{ $property->checkin_time ? date('h:i A', strtotime($property->checkin_time)) : '01:00 PM' }}";
         const checkoutTime = "{{ $property->checkout_time ? date('h:i A', strtotime($property->checkout_time)) : '11:00 AM' }}";
-        const city = "{{ addslashes($property->city ?? 'Bangladesh') }}";
-        const address = "{{ addslashes($property->address ?? '') }}";
+        const city = @json($property->city ?? 'Bangladesh');
+        const address = @json($property->address ?? '');
         const roomCount = {{ $property->rooms->count() }};
-        const minPriceUsd = {{ round($property->price_per_night / 120) ?: 41 }};
+        const minPriceFormatted = @json(strip_tags(format_price($property->price_per_night)));
         const hasParking = {{ (collect($amenitiesList)->contains(fn($a) => str_contains(strtolower($a), 'park')) || str_contains(strtolower($property->facilities_text ?? ''), 'park')) ? 'true' : 'false' }};
         const hasWifi = {{ (collect($amenitiesList)->contains(fn($a) => str_contains(strtolower($a), 'wi-fi') || str_contains(strtolower($a), 'wifi')) || true) ? 'true' : 'false' }};
         const hasBreakfast = {{ ($property->rooms->contains(fn($r) => str_contains(strtolower($r->meal_policy ?? ''), 'breakfast') || str_contains(strtolower($r->facilities_text ?? ''), 'breakfast'))) ? 'true' : 'false' }};
@@ -4222,7 +4428,7 @@ function sendQuickAnswerQuery() {
         } else if (lowerQ.includes('cancel') || lowerQ.includes('refund') || lowerQ.includes('policy')) {
             answer = `Risk-free booking! Most rooms at <strong>${propName}</strong> feature <strong>100% Free Cancellation</strong> up to 24-48 hours before check-in.`;
         } else if (lowerQ.includes('price') || lowerQ.includes('cost') || lowerQ.includes('rate') || lowerQ.includes('cheap')) {
-            answer = `Rates for <strong>${propName}</strong> start from approximately <strong>USD ${minPriceUsd}/night</strong>, backed by our <strong>We Price Match Guarantee</strong>!`;
+            answer = `Rates for <strong>${propName}</strong> start from approximately <strong>${minPriceFormatted}/night</strong>, backed by our <strong>We Price Match Guarantee</strong>!`;
         } else {
             answer = `According to verified details for <strong>${propName}</strong> in <strong>${city}</strong>, standard hotel perks, attentive staff, and verified hygiene protocols are guaranteed. You can ask me about parking, breakfast, check-in time, or room amenities!`;
         }

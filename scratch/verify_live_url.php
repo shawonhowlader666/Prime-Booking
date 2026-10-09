@@ -9,4 +9,7 @@ echo "Distance to center: " . (str_contains($html, 'Distance to center') ? 'FOUN
 echo "Room offers: " . (str_contains($html, 'Room offers') ? 'FOUND' : 'MISSING') . "\n";
 echo "Sticky Sidebar: " . (str_contains($html, 'agoda-sticky-sidebar') ? 'FOUND' : 'MISSING') . "\n";
 echo "Facilities Collapse: " . (str_contains($html, 'moreFacilitiesCollapse') ? 'FOUND' : 'MISSING') . "\n";
+echo "Wishlist AJAX: " . (str_contains($html, 'toggleCardWishlist') ? 'FOUND' : 'MISSING') . "\n";
+echo "Amenity Badges: " . (str_contains($html, 'Free Wi-Fi') || str_contains($html, 'Breakfast Included') ? 'FOUND' : 'MISSING') . "\n";
+echo "Prime Preferred / Top Rated: " . (str_contains($html, 'PRIME PREFERRED') || str_contains($html, 'TOP RATED') ? 'FOUND' : 'MISSING') . "\n";
 

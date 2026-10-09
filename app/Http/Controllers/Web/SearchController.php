@@ -23,7 +23,8 @@ class SearchController extends Controller
 {
     public function __construct(
         private readonly SearchService $searchService
-    ) {}
+    ) {
+    }
 
     /**
      * Show hotel/property search results page.
@@ -35,10 +36,10 @@ class SearchController extends Controller
         $params = $request->toSearchParams();
 
         // Delegate ALL work to the service — controller stays thin
-        $searchResults   = $this->searchService->searchHotels($params);
+        $searchResults = $this->searchService->searchHotels($params);
         $availableCities = $this->searchService->getAvailableCities();
-        $priceRange      = $this->searchService->getPriceRange();
-        $filterCounts    = $this->searchService->getFilterCounts($params['destination']);
+        $priceRange = $this->searchService->getPriceRange();
+        $filterCounts = $this->searchService->getFilterCounts($params['destination']);
 
         // ─── Dynamic Popular Neighborhoods for the searched destination ────
         // Queries distinct address parts / nearest_landmark values from real
@@ -50,17 +51,17 @@ class SearchController extends Controller
         if (!empty($params['destination'])) {
             try {
                 \App\Models\SearchLog::create([
-                    'query'         => mb_substr($params['destination'], 0, 255),
+                    'query' => mb_substr($params['destination'], 0, 255),
                     'resolved_city' => mb_substr($params['destination'], 0, 100),
-                    'check_in'      => $params['check_in'] ?? null,
-                    'check_out'     => $params['check_out'] ?? null,
-                    'guests'        => (int) ($params['guests'] ?? 2),
-                    'rooms'         => (int) request('rooms', 1),
-                    'result_count'  => count($searchResults['merged_results'] ?? []),
-                    'user_id'       => auth()->id(),
-                    'ip'            => request()->ip() ?? '127.0.0.1',
-                    'session_id'    => session()->getId() ?? 'anonymous',
-                    'search_type'   => $params['search_type'] ?? 'hotel',
+                    'check_in' => $params['check_in'] ?? null,
+                    'check_out' => $params['check_out'] ?? null,
+                    'guests' => (int) ($params['guests'] ?? 2),
+                    'rooms' => (int) request('rooms', 1),
+                    'result_count' => count($searchResults['merged_results'] ?? []),
+                    'user_id' => auth()->id(),
+                    'ip' => request()->ip() ?? '127.0.0.1',
+                    'session_id' => session()->getId() ?? 'anonymous',
+                    'search_type' => $params['search_type'] ?? 'hotel',
                 ]);
             } catch (\Throwable $e) {
                 // Non-blocking
@@ -69,27 +70,27 @@ class SearchController extends Controller
 
         return view('pages.search-results', [
             // Search results data
-            'searchResults'   => $searchResults,
+            'searchResults' => $searchResults,
             // Current filter values (for UI state restoration)
-            'destination'     => $params['destination'],
-            'searchType'      => $params['search_type'],
-            'checkIn'         => $params['check_in'],
-            'checkOut'        => $params['check_out'],
-            'guests'          => $params['guests'],
-            'minPrice'        => $params['min_price'],
-            'maxPrice'        => $params['max_price'],
-            'guestRating'     => $params['guest_rating'],
-            'starRating'      => $params['star_rating'],
-            'sortBy'          => $params['sort_by'],
-            'amenities'       => $params['amenities'],
-            'lat'             => $params['lat'] ?? null,
-            'lng'             => $params['lng'] ?? null,
+            'destination' => $params['destination'],
+            'searchType' => $params['search_type'],
+            'checkIn' => $params['check_in'],
+            'checkOut' => $params['check_out'],
+            'guests' => $params['guests'],
+            'minPrice' => $params['min_price'],
+            'maxPrice' => $params['max_price'],
+            'guestRating' => $params['guest_rating'],
+            'starRating' => $params['star_rating'],
+            'sortBy' => $params['sort_by'],
+            'amenities' => $params['amenities'],
+            'lat' => $params['lat'] ?? null,
+            'lng' => $params['lng'] ?? null,
             // Filter sidebar data
             'availableCities' => $availableCities,
-            'priceRange'      => $priceRange,
-            'filterCounts'    => $filterCounts,
+            'priceRange' => $priceRange,
+            'filterCounts' => $filterCounts,
             // Dynamic neighborhood pills — from DB, not hardcoded
-            'popularAreas'    => $popularAreas,
+            'popularAreas' => $popularAreas,
         ]);
     }
 
@@ -118,8 +119,8 @@ class SearchController extends Controller
             // 1. Distinct nearest_landmark values (most precise neighborhood labels)
             $landmarks = Property::active()
                 ->where(function ($q) use ($destination) {
-                    $q->where('city',    'LIKE', "%{$destination}%")
-                      ->orWhere('address', 'LIKE', "%{$destination}%");
+                    $q->where('city', 'LIKE', "%{$destination}%")
+                        ->orWhere('address', 'LIKE', "%{$destination}%");
                 })
                 ->whereNotNull('nearest_landmark')
                 ->where('nearest_landmark', '!=', '')

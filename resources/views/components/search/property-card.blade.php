@@ -67,6 +67,30 @@
         : false;
     
     $currencyCode      = \App\Helpers\CurrencyHelper::current();
+
+    $isFeatured        = boolval($isObj ? ($item->is_featured ?? false) : ($item['is_featured'] ?? false));
+    $apiSource         = $isObj ? ($item->api_source ?? null) : ($item['api_source'] ?? null);
+
+    // Dynamic Amenities from Admin / Vendor / DB
+    $rawAmenities      = is_array($isObj ? ($item->amenities ?? []) : ($item['amenities'] ?? [])) ? ($isObj ? ($item->amenities ?? []) : ($item['amenities'] ?? [])) : [];
+    if (is_string($rawAmenities)) {
+        $rawAmenities  = json_decode($rawAmenities, true) ?: [];
+    }
+    $lowerAmenities    = array_map('strtolower', (array)$rawAmenities);
+
+    $displayedAmenities = [];
+    if (collect($lowerAmenities)->contains(fn($a) => str_contains($a, 'breakfast'))) {
+        $displayedAmenities[] = ['label' => 'Breakfast Included', 'icon' => 'fa-mug-saucer', 'color' => '#15803d', 'bg' => '#f0fdf4', 'border' => '#bbf7d0'];
+    }
+    if (collect($lowerAmenities)->contains(fn($a) => str_contains($a, 'wifi') || str_contains($a, 'wi-fi'))) {
+        $displayedAmenities[] = ['label' => 'Free Wi-Fi', 'icon' => 'fa-wifi', 'color' => '#1d4ed8', 'bg' => '#eff6ff', 'border' => '#bfdbfe'];
+    }
+    if (collect($lowerAmenities)->contains(fn($a) => str_contains($a, 'pool'))) {
+        $displayedAmenities[] = ['label' => 'Swimming Pool', 'icon' => 'fa-person-swimming', 'color' => '#0369a1', 'bg' => '#f0f9ff', 'border' => '#bae6fd'];
+    }
+    if (count($displayedAmenities) < 3 && collect($lowerAmenities)->contains(fn($a) => str_contains($a, 'parking'))) {
+        $displayedAmenities[] = ['label' => 'Free Parking', 'icon' => 'fa-square-parking', 'color' => '#475569', 'bg' => '#f8fafc', 'border' => '#e2e8f0'];
+    }
 @endphp
 
 {{-- Main Property Card Container (Exact Agoda Screenshot 1 Dimensions & Layout) --}}
@@ -98,14 +122,15 @@
             </button>
         </div>
 
-        {{-- Wishlist Heart Button (Top Right of Image - Exact Screenshot 1 Parity) --}}
-        <form action="{{ route('wishlist.toggle') }}" method="POST" style="position: absolute; top: 8px; right: 8px; z-index: 12; margin: 0;" onclick="event.stopPropagation();">
-            @csrf
-            <input type="hidden" name="property_id" value="{{ $id }}">
-            <button type="submit" style="width: 28px; height: 28px; background: rgba(255,255,255,0.95); border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.18); cursor: pointer;" title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist' }}">
-                <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-dark' }} fa-heart" style="font-size: 12px;"></i>
-            </button>
-        </form>
+        {{-- Wishlist Heart Button (Instant AJAX Zero-Reload) --}}
+        <button type="button" 
+                id="wishlistBtn_{{ $id }}"
+                class="agoda-wishlist-btn"
+                onclick="event.stopPropagation(); toggleCardWishlist(this, {{ $id }});" 
+                style="position: absolute; top: 8px; right: 8px; z-index: 12; width: 28px; height: 28px; background: rgba(255,255,255,0.95); border-radius: 50%; border: none; display: flex; align-items: center; justify-content: center; box-shadow: 0 1px 4px rgba(0,0,0,0.18); cursor: pointer;" 
+                title="{{ $isWishlisted ? 'Remove from Wishlist' : 'Save to Wishlist' }}">
+            <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-dark' }} fa-heart" style="font-size: 12px;"></i>
+        </button>
 
         {{-- Video Tour Button (when available, Top Left) --}}
         @if(!empty($videoUrl))
@@ -128,6 +153,25 @@
     {{-- Column 2: Center Hotel Information (100% Database Driven) --}}
     <div class="agoda-card-info-col">
         <div>
+            {{-- Dynamic Admin & Partner Badges --}}
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px; flex-wrap: wrap;">
+                @if($isFeatured)
+                    <span style="background: #eff6ff; color: #2067e1; border: 1px solid #bfdbfe; font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 3px; display: inline-flex; align-items: center; gap: 4px; letter-spacing: 0.3px;">
+                        <i class="fa-solid fa-crown text-warning" style="font-size: 10px;"></i> PRIME PREFERRED
+                    </span>
+                @elseif(!empty($apiSource))
+                    <span style="background: #f8fafc; color: #475569; border: 1px solid #e2e8f0; font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 3px; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid fa-network-wired text-primary" style="font-size: 9px;"></i> PARTNER INVENTORY
+                    </span>
+                @endif
+
+                @if($scoreNum >= 9.0)
+                    <span style="background: #fefce8; color: #854d0e; border: 1px solid #fef08a; font-size: 10px; font-weight: 700; padding: 1.5px 6px; border-radius: 3px;">
+                        <i class="fa-solid fa-thumbs-up" style="font-size: 9px;"></i> TOP RATED
+                    </span>
+                @endif
+            </div>
+
             {{-- Hotel Title (Agoda Exact #2a2a2e Dark, 18px Bold, Dynamic from DB) --}}
             <h3 style="font-size: 18px; font-weight: 700; color: #2a2a2e; margin: 0 0 4px 0; line-height: 1.25; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 <a href="{{ route('hotels.show', $id) }}" style="color: #2a2a2e; text-decoration: none;" class="agoda-hotel-title" onmouseover="this.style.color='#2067e1'; this.style.textDecoration='underline';" onmouseout="this.style.color='#2a2a2e'; this.style.textDecoration='none';">
@@ -150,8 +194,19 @@
 
             {{-- Distance from Landmark (Dynamic from DB: nearest_landmark / GPS calculation) --}}
             @if(!empty($nearestLandmark))
-            <div style="font-size: 12px; color: #737373; margin-bottom: 7px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+            <div style="font-size: 12px; color: #737373; margin-bottom: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                 {{ $nearestLandmark }}
+            </div>
+            @endif
+
+            {{-- Key Amenities from Database (Admin & Vendor Dynamic) --}}
+            @if(!empty($displayedAmenities))
+            <div style="display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 7px;">
+                @foreach($displayedAmenities as $am)
+                    <span style="font-size: 11px; color: {{ $am['color'] }}; background: {{ $am['bg'] }}; border: 1px solid {{ $am['border'] }}; border-radius: 4px; padding: 1.5px 6px; font-weight: 600; display: inline-flex; align-items: center; gap: 4px;">
+                        <i class="fa-solid {{ $am['icon'] }}" style="font-size: 10px;"></i> {{ $am['label'] }}
+                    </span>
+                @endforeach
             </div>
             @endif
 
@@ -230,6 +285,13 @@
 
         {{-- Bottom: Price Section (Agoda Screenshot 1:1 Exact Parity) --}}
         <div style="text-align: right;">
+            @if($origPrice && $discount && $discount > 0)
+            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 2px;">
+                <span style="font-size: 12.5px; color: #94a3b8; text-decoration: line-through;">{{ $currencyCode }} {{ $origPrice }}</span>
+                <span style="background: #dc2626; color: #ffffff; font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 3px; letter-spacing: 0.2px;">-{{ $discount }}%</span>
+            </div>
+            @endif
+
             <div style="line-height: 1.1; margin-bottom: 2px;">
                 <span style="font-size: 18px; font-weight: 600; color: #4b5563; margin-right: 4px;">{{ $currencyCode }}</span>
                 <span style="font-size: 26px; font-weight: 700; color: #dc2626;">{{ $price }}</span>
@@ -302,4 +364,36 @@
             });
         }
     });
+
+    if (!window.toggleCardWishlist) {
+        window.toggleCardWishlist = function(btn, propId) {
+            @auth
+                fetch('{{ route('wishlist.toggle') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ property_id: propId })
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    var icon = btn.querySelector('i');
+                    if (icon && data.success !== undefined) {
+                        if (data.isWishlisted) {
+                            icon.className = 'fa-solid text-danger fa-heart';
+                            btn.title = 'Remove from Wishlist';
+                        } else {
+                            icon.className = 'fa-regular text-dark fa-heart';
+                            btn.title = 'Save to Wishlist';
+                        }
+                    }
+                })
+                .catch(function(err) { console.error('Wishlist toggle error:', err); });
+            @else
+                window.location.href = '{{ route('login') }}';
+            @endauth
+        };
+    }
 </script>

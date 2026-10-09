@@ -246,7 +246,113 @@ body {
     color: var(--agoda-text-muted);
 }
 
-/* ── Agoda Hotel Card Layout ── */
+/* ── Agoda Hotel Card Layout (100% 1:1 Agoda Live Parity) ── */
+.agoda-property-card-root {
+    background: #ffffff !important;
+    border: 1px solid #e0e0e0 !important;
+    border-radius: 4px !important;
+    height: 215px;
+    min-height: 215px;
+    margin-bottom: 14px;
+    display: flex !important;
+    flex-direction: row;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease;
+    position: relative;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.agoda-property-card-root:hover {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.12);
+    border-color: #cbd5e1 !important;
+}
+
+.agoda-card-photo-col {
+    width: 246px !important;
+    min-width: 246px !important;
+    max-width: 246px !important;
+    height: 215px !important;
+    position: relative;
+    overflow: hidden;
+    background: #f0f2f5;
+    flex-shrink: 0;
+}
+
+.agoda-card-photo-col .carousel,
+.agoda-card-photo-col .carousel-inner,
+.agoda-card-photo-col .carousel-item {
+    height: 100% !important;
+    width: 100% !important;
+}
+
+.agoda-card-photo-col img {
+    width: 100% !important;
+    height: 215px !important;
+    object-fit: cover !important;
+    display: block !important;
+}
+
+.agoda-card-info-col {
+    flex: 1 1 0% !important;
+    min-width: 0 !important;
+    height: 215px !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    text-align: left !important;
+    background: #ffffff !important;
+    box-sizing: border-box;
+}
+
+.agoda-card-price-col {
+    width: 190px !important;
+    min-width: 190px !important;
+    max-width: 190px !important;
+    height: 215px !important;
+    padding: 12px 16px !important;
+    text-align: right !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    border-left: 1px solid #f0f0f0 !important;
+    background: #ffffff !important;
+    flex-shrink: 0 !important;
+    box-sizing: border-box;
+}
+
+@media (max-width: 767.98px) {
+    .agoda-property-card-root {
+        flex-direction: column !important;
+        height: auto !important;
+        min-height: auto !important;
+    }
+    .agoda-card-photo-col {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: 200px !important;
+    }
+    .agoda-card-photo-col img {
+        height: 200px !important;
+    }
+    .agoda-card-info-col {
+        height: auto !important;
+        padding: 12px !important;
+    }
+    .agoda-card-price-col {
+        width: 100% !important;
+        min-width: 100% !important;
+        max-width: 100% !important;
+        height: auto !important;
+        border-left: none !important;
+        border-top: 1px solid #f0f0f0 !important;
+        padding: 12px !important;
+    }
+}
+
 .agoda-hotel-card {
     background: #ffffff;
     border-radius: 12px;
@@ -280,3 +386,136 @@ body {
     font-size: 11px;
     color: #64748b;
 }
+
+/* ============================================================
+   Official Agoda Production CSS Tokens & Keyframe Animations
+   Extracted from Live Agoda Search CDN
+   ============================================================ */
+
+/* 1. Agoda Official Skeleton Wave Shimmer */
+@-webkit-keyframes agoda-wave-300 { 0% { transform: translateX(-300px); } 50% { transform: translateX(0); } to { transform: translateX(300px); } }
+@keyframes agoda-wave-300 { 0% { transform: translateX(-300px); } 50% { transform: translateX(0); } to { transform: translateX(300px); } }
+
+@-webkit-keyframes agoda-wave-265 { 0% { transform: translateX(-265px); } 50% { transform: translateX(0); } to { transform: translateX(265px); } }
+@keyframes agoda-wave-265 { 0% { transform: translateX(-265px); } 50% { transform: translateX(0); } to { transform: translateX(265px); } }
+
+@-webkit-keyframes agoda-wave-180 { 0% { transform: translateX(-180px); } 50% { transform: translateX(0); } to { transform: translateX(180px); } }
+@keyframes agoda-wave-180 { 0% { transform: translateX(-180px); } 50% { transform: translateX(0); } to { transform: translateX(180px); } }
+
+@-webkit-keyframes agoda-wave-125 { 0% { transform: translateX(-125px); } 50% { transform: translateX(0); } to { transform: translateX(125px); } }
+@keyframes agoda-wave-125 { 0% { transform: translateX(-125px); } 50% { transform: translateX(0); } to { transform: translateX(125px); } }
+
+/* 2. Sparkling Clean Badge with Shimmer Sweep */
+.SparklingClean {
+    background-color: #e3edff;
+    color: #0283df;
+    font-weight: 600;
+    font-size: 11.5px;
+    margin: 0 4px 0 0;
+    padding: 3px 9px;
+    border-radius: 4px;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.SparklingClean-shimmer {
+    animation: agodaSparkleShimmer 2.2s ease-in infinite;
+    background: linear-gradient(45deg, #e3edff 40%, #ffffff 50%, #e3edff 60%);
+    background-position-x: 100%;
+    background-size: 300%;
+}
+@keyframes agodaSparkleShimmer {
+    to { background-position-x: 0; }
+}
+
+/* 3. Agoda Coupon Promo Code Badge */
+.CouponPromoCodeBadge {
+    font-size: 11.5px;
+    font-weight: 600;
+    line-height: 1.8;
+    color: #28871c;
+    background-color: #d8eed5;
+    border: 1px dashed #28871c;
+    border-radius: 3px;
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    margin-top: 3px;
+}
+
+/* 4. Agoda VIP Perks Container */
+.AgodaVipPerks {
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 10px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11.5px;
+}
+
+.AgodaVipPerks .Perk__Text {
+    color: #334155;
+    font-weight: 600;
+}
+
+.AgodaVipPerks .Perk__Icon {
+    color: #f59e0b;
+    font-size: 13px;
+    margin-right: 5px;
+}
+
+/* 5. Agoda Urgency Messaging ("Last booked X hours ago" / "Only X left") */
+.urgency-messaging-container {
+    color: #ee595d;
+    font-size: 11.5px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* 6. Agoda Review Section Score Text Formatting */
+.ReviewSection-scoreText {
+    font-weight: 700;
+    font-size: 13.5px;
+    color: #1e293b;
+    line-height: 1.2;
+}
+
+.ReviewSection-count {
+    font-weight: 500;
+    font-size: 11px;
+    color: #718096;
+}
+
+/* 7. Agoda Search Button Active Ripple */
+.oneline-searchbox .oneline-search-button {
+    background-color: #488bf8;
+    color: #ffffff;
+    font-weight: 700;
+    box-shadow: rgba(0, 0, 0, 0.2) 0 4px 10px 3px;
+    border: none;
+    border-radius: 4px;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+.oneline-searchbox .oneline-search-button:hover {
+    background-color: #2b75f6;
+    transform: translateY(-1px);
+}
+.oneline-searchbox .oneline-search-button:active {
+    transform: translateY(1px);
+}
+
+/* 8. Agoda 1:1 Map Box Hover Shadow */
+.staticMapPanel {
+    transition: box-shadow 0.2s ease-in-out;
+}
+.staticMapPanel:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+

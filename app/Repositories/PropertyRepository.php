@@ -321,19 +321,20 @@ class PropertyRepository
 
         // ── Amenity filters with synonyms/aliases support ───────────────
         $amenitySynonyms = [
-            'free wifi'          => ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi'],
-            'wifi'               => ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi'],
-            'swimming pool'      => ['Pool', 'Swimming pool', 'Swimming Pool', 'pool'],
-            'pool'               => ['Pool', 'Swimming pool', 'Swimming Pool', 'pool'],
-            'parking'            => ['Parking', 'Free parking', 'Free Parking', 'parking'],
-            'free parking'       => ['Parking', 'Free parking', 'Free Parking', 'parking'],
+            'free wifi'          => ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi', 'Free High-Speed WiFi'],
+            'wifi'               => ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi', 'Free High-Speed WiFi'],
+            'swimming pool'      => ['Pool', 'Swimming pool', 'Swimming Pool', 'pool', 'Rooftop Infinity Pool'],
+            'pool'               => ['Pool', 'Swimming pool', 'Swimming Pool', 'pool', 'Rooftop Infinity Pool'],
+            'parking'            => ['Parking', 'Free parking', 'Free Parking', 'parking', 'Valet Parking', 'Secured Parking'],
+            'free parking'       => ['Parking', 'Free parking', 'Free Parking', 'parking', 'Valet Parking', 'Secured Parking'],
             'gym'                => ['Gym', 'Fitness center', 'Fitness Center', 'gym'],
             'fitness center'     => ['Gym', 'Fitness center', 'Fitness Center', 'gym'],
             'spa'                => ['Spa', 'spa'],
-            'restaurant'         => ['Restaurant', 'restaurant'],
-            'airport transfer'   => ['Airport Transfer', 'Airport transfer'],
+            'restaurant'         => ['Restaurant', 'restaurant', '24/7 Room Service'],
+            'airport transfer'   => ['Airport Transfer', 'Airport transfer', 'Airport Shuttle'],
             'breakfast included' => ['Breakfast Included', 'Breakfast included', 'Breakfast'],
-            'beach access'       => ['Beach Access', 'beach access'],
+            'beach access'       => ['Beach Access', 'beach access', 'Direct Private Beach Access'],
+            'front desk'         => ['24/7 Front Desk', 'Front desk', '24-hour Front Desk', '24-Hour Front Desk'],
         ];
 
         foreach ($amenities as $amenity) {
@@ -447,6 +448,8 @@ class PropertyRepository
                     'star_5'     => (clone $base)->starRatings([5])->count(),
                     'star_4'     => (clone $base)->starRatings([4])->count(),
                     'star_3'     => (clone $base)->starRatings([3])->count(),
+                    'star_2'     => (clone $base)->starRatings([2])->count(),
+                    'star_1'     => (clone $base)->starRatings([1])->count(),
                     'wifi'       => $amenityCount($base, ['WiFi', 'Free WiFi', 'Free Wi-Fi', 'wifi']),
                     'pool'       => $amenityCount($base, ['Pool', 'Swimming pool', 'Swimming Pool', 'pool']),
                     'breakfast'  => $amenityCount($base, ['Breakfast included', 'Breakfast Included', 'Breakfast']),
@@ -460,6 +463,7 @@ class PropertyRepository
                 return [
                     'score_9' => 0, 'score_8' => 0, 'score_7' => 0,
                     'star_5'  => 0, 'star_4'  => 0, 'star_3'  => 0,
+                    'star_2'  => 0, 'star_1'  => 0,
                     'wifi'    => 0, 'pool'    => 0, 'breakfast' => 0,
                     'shuttle' => 0, 'parking' => 0, 'gym'       => 0,
                 ];

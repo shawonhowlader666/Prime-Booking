@@ -11,16 +11,16 @@
     $guestCount = intval($guests ?: 2);
     $roomsCount = intval(request('rooms', 1));
 @endphp
-<div style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155;">
-    <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
-        <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();">
+<div id="stickyAgodaSearchSubheader" style="background-color: #1d2b45; padding: 10px 0; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 1025; box-shadow: 0 4px 15px rgba(0,0,0,0.18);">
+    <div style="max-width: 1284px; margin: 0 auto; padding: 0 20px;">
+        <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();" style="max-width: 1100px; margin: 0;">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
             {{-- 1. Destination Input Box with Near Me GPS Button --}}
             <div class="col-12 col-lg-3">
                 <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
                     <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
-                    <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 14px; box-shadow: none;">
+                    <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 15px; box-shadow: none;">
                     <input type="hidden" name="lat" id="gpsLatInput" value="{{ request('lat') }}">
                     <input type="hidden" name="lng" id="gpsLngInput" value="{{ request('lng') }}">
                     <button type="button" class="btn btn-link p-0 text-primary ms-1" title="Search Near My Current GPS Location" onclick="useCurrentLocation()" style="font-size: 15px; text-decoration: none;">
@@ -29,48 +29,50 @@
                 </div>
             </div>
 
-            {{-- 2. Check-in Date Box (Agoda 2-line Card) --}}
-            <div class="col-6 col-md-3 col-lg-2">
-                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkInNativeInput').showPicker();">
-                    <i class="fa-regular fa-calendar text-secondary fs-5"></i>
-                    <div style="line-height: 1.15;">
-                        <strong class="d-block text-dark" id="checkInDisplayDate" style="font-size: 13px;">{{ $checkinCarbon->format('j M Y') }}</strong>
-                        <small class="text-secondary" id="checkInDisplayDay" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
+            {{-- 2. Agoda Exact Unified Joined Dates Box (Check-in & Check-out with Center Divider) --}}
+            <div class="col-12 col-md-6 col-lg-4">
+                <div class="bg-white rounded-3 d-flex align-items-center shadow-xs position-relative overflow-hidden" style="height: 48px;">
+                    {{-- Left Half: Check-in --}}
+                    <div class="w-50 px-3 py-1 d-flex align-items-center gap-2 h-100" style="cursor: pointer; border-right: 1px solid #e2e8f0;" onclick="document.getElementById('checkInNativeInput').showPicker();">
+                        <i class="fa-regular fa-calendar-check text-secondary fs-5 flex-shrink-0"></i>
+                        <div style="line-height: 1.15; min-width: 0;" class="overflow-hidden">
+                            <strong class="d-block text-dark text-truncate" id="checkInDisplayDate" style="font-size: 14px;">{{ $checkinCarbon->format('j M Y') }}</strong>
+                            <small class="text-secondary d-block text-truncate" id="checkInDisplayDay" style="font-size: 12px;">{{ $checkinCarbon->format('l') }}</small>
+                        </div>
+                        <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
                     </div>
-                    <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
+
+                    {{-- Right Half: Check-out --}}
+                    <div class="w-50 px-3 py-1 d-flex align-items-center gap-2 h-100" style="cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
+                        <i class="fa-regular fa-calendar text-secondary fs-5 flex-shrink-0"></i>
+                        <div style="line-height: 1.15; min-width: 0;" class="overflow-hidden">
+                            <strong class="d-block text-dark text-truncate" id="checkOutDisplayDate" style="font-size: 14px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
+                            <small class="text-secondary d-block text-truncate" id="checkOutDisplayDay" style="font-size: 12px;">{{ $checkoutCarbon->format('l') }}</small>
+                        </div>
+                        <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; right: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
+                    </div>
                 </div>
             </div>
 
-            {{-- 3. Check-out Date Box (Agoda 2-line Card) --}}
-            <div class="col-6 col-md-3 col-lg-2">
-                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center gap-2 shadow-xs position-relative" style="height: 48px; cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
-                    <i class="fa-regular fa-calendar text-secondary fs-5"></i>
-                    <div style="line-height: 1.15;">
-                        <strong class="d-block text-dark" id="checkOutDisplayDate" style="font-size: 13px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
-                        <small class="text-secondary" id="checkOutDisplayDay" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
-                    </div>
-                    <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
-                </div>
-            </div>
-
-            {{-- 4. Guests & Rooms Box (Agoda 2-line Card with Dropdown) --}}
+            {{-- 3. Guests & Rooms Box (Agoda 2-line Card with Chevron & Dropdown) --}}
             <div class="col-12 col-md-4 col-lg-3 position-relative">
                 <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-users text-secondary fs-5"></i>
                         <div style="line-height: 1.15;">
-                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 13px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
-                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 11px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
+                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 14px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
+                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 12px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
                         </div>
                     </div>
+                    <i class="fa-solid fa-chevron-down text-secondary" style="font-size: 11px;"></i>
                 </div>
 
                 {{-- Guests Counter Popover Menu --}}
                 <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1050;">
                     <div class="d-flex justify-content-between align-items-center mb-3">
                         <div>
-                            <strong class="d-block text-dark" style="font-size: 13px;">Adults</strong>
-                            <small class="text-muted" style="font-size: 11px;">Ages 18 or above</small>
+                            <strong class="d-block text-dark" style="font-size: 14px;">Adults</strong>
+                            <small class="text-muted" style="font-size: 12px;">Ages 18 or above</small>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', -1);">-</button>
@@ -81,8 +83,8 @@
                     </div>
                     <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
                         <div>
-                            <strong class="d-block text-dark" style="font-size: 13px;">Rooms</strong>
-                            <small class="text-muted" style="font-size: 11px;">Total units needed</small>
+                            <strong class="d-block text-dark" style="font-size: 14px;">Rooms</strong>
+                            <small class="text-muted" style="font-size: 12px;">Total units needed</small>
                         </div>
                         <div class="d-flex align-items-center gap-2">
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', -1);">-</button>
@@ -91,15 +93,15 @@
                             <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', 1);">+</button>
                         </div>
                     </div>
-                    <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
+                    <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1; font-size: 13.5px;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
                         Done
                     </button>
                 </div>
             </div>
 
-            {{-- 5. Search Blue Button --}}
+            {{-- 5. Search Blue Button (Agoda Exact 24px Rounded Pill Radius) --}}
             <div class="col-12 col-md-2 col-lg-2">
-                <button type="submit" class="btn text-white w-100 fw-bold rounded-3 shadow-sm" style="background-color: #2067e1; height: 48px; font-size: 14px; letter-spacing: 0.5px;">
+                <button type="submit" class="btn text-white w-100 fw-bold shadow-sm" style="background-color: #2067e1; height: 48px; font-size: 15px; letter-spacing: 0.5px; border-radius: 24px !important; transition: background-color 0.15s ease;" onmouseover="this.style.backgroundColor='#1656c4';" onmouseout="this.style.backgroundColor='#2067e1';">
                     SEARCH
                 </button>
             </div>
@@ -204,38 +206,41 @@
 
 {{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Screenshot 2) --}}
 <div class="agoda-coupon-strip" style="background: #ffebe6; border-bottom: 1px solid #ffd5cc; padding: 12px 0;">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
-        <div class="d-flex align-items-center gap-3">
-            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg);">
-                <i class="fa-solid fa-tags fs-5"></i>
+    <div style="max-width: 1284px; margin: 0 auto; padding: 0 20px;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1100px; margin: 0;">
+            <div class="d-flex align-items-center gap-3">
+                <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg);">
+                    <i class="fa-solid fa-tags fs-5"></i>
+                </div>
+                <div>
+                    <strong class="text-dark d-block" style="font-size: 16px; font-weight: 700; line-height: 1.25;">Looking for instant coupons?</strong>
+                    <span class="text-secondary" style="font-size: 13.5px;">Check out our Coupons &amp; Deals page for today's discounts</span>
+                </div>
             </div>
-            <div>
-                <strong class="text-dark d-block" style="font-size: 15px; font-weight: 700; line-height: 1.2;">Looking for instant coupons?</strong>
-                <span class="text-secondary" style="font-size: 13px;">Check out our Coupons &amp; Deals page for today's discounts</span>
+            <div class="d-flex align-items-center gap-3">
+                <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-2 fw-bold text-primary shadow-xs" style="font-size: 13.5px; color: #2067e1 !important; border: 1px solid #cbd5e1;">
+                    See all coupons
+                </a>
+                <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px;" title="Dismiss">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
             </div>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-2 fw-bold text-primary shadow-xs" style="font-size: 13px; color: #2067e1 !important; border: 1px solid #cbd5e1;">
-                See all coupons
-            </a>
-            <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px;" title="Dismiss">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
         </div>
     </div>
 </div>
 
-{{-- 4. Main Search Results Layout (Agoda 1140px Container Width & 20px Side Padding) --}}
-<div style="max-width: 1140px; margin: 0 auto; padding: 16px 20px 48px 20px;">
-    <div class="row g-3">
-        
-        {{-- Left Filter Sidebar --}}
-        <div class="col-lg-3">
-            @include('components.search.filter-sidebar')
-        </div>
+{{-- 4. Main Search Results Layout (Agoda 1284px Container, 1100px Main Column, Exact Side Paddings) --}}
+<div style="max-width: 1284px; margin: 0 auto; padding: 16px 20px 48px 20px;">
+    <div style="max-width: 1100px; margin: 0;">
+        <div class="row g-3">
+            
+            {{-- Left Filter Sidebar (Exact Agoda 270px Width) --}}
+            <div class="col-12 col-lg-3" style="width: 270px; flex: 0 0 270px;">
+                @include('components.search.filter-sidebar')
+            </div>
 
-        {{-- Right Results Feed --}}
-        <div class="col-lg-9" id="searchResultsContainer">
+            {{-- Right Results Feed (Exact Agoda 830px Width) --}}
+            <div class="col-12 col-lg-9" id="searchResultsContainer" style="width: calc(100% - 270px); flex: 0 0 calc(100% - 270px); max-width: calc(100% - 270px);">
 
 
 
@@ -396,7 +401,7 @@
                                 id="agodaSortDropdownBtn" 
                                 data-bs-toggle="dropdown" 
                                 aria-expanded="false" 
-                                style="width: 220px; height: 42px; border: 1.5px solid #cbd5e1; font-size: 13.5px; padding: 0 14px;">
+                                style="width: 220px; height: 42px; border: 1.5px solid #cbd5e1; font-size: 14px; padding: 0 14px;">
                             <span>Sort by: <strong class="fw-bold">{{ $curLabel }}</strong></span>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 py-2 mt-1" aria-labelledby="agodaSortDropdownBtn" style="width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;">
@@ -405,7 +410,7 @@
                                 <a class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between text-dark fw-semibold {{ $curSort === $sKey ? 'active bg-light' : '' }}" 
                                    href="javascript:void(0)" 
                                    onclick="applyAgodaSort('{{ $sKey }}')" 
-                                   style="font-size: 13.5px; {{ $curSort === $sKey ? 'color: #2067e1 !important; font-weight: 700;' : '' }}">
+                                   style="font-size: 14px; {{ $curSort === $sKey ? 'color: #2067e1 !important; font-weight: 700;' : '' }}">
                                     <span>{{ $sTitle }}</span>
                                     @if($curSort === $sKey)
                                         <i class="fa-solid fa-check text-primary" style="font-size: 13px;"></i>
@@ -494,7 +499,62 @@
         </div>
 
     </div>
+    </div>
 </div>
+
+{{-- Agoda Floating Action Buttons on Bottom Right (100% Vector SVG & Optical Parity) --}}
+<div class="d-none d-md-flex flex-column gap-2 position-fixed" id="agodaFloatingActionsWrap" style="bottom: 68px; right: 20px; z-index: 1045; transition: bottom 0.25s ease;">
+    {{-- 1. Business / Trips Briefcase Button --}}
+    <a href="{{ route('services') }}" 
+       class="btn p-0 rounded-circle d-flex align-items-center justify-content-center shadow-md agoda-floating-action-btn" 
+       style="width: 42px; height: 42px; min-width: 42px; background: #2067da; border: none; text-decoration: none; box-shadow: 0 4px 12px rgba(32, 103, 218, 0.35); transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" 
+       title="Prime Booking for Business & Trips"
+       onmouseover="this.style.transform='scale(1.08)'; this.style.backgroundColor='#1656c4';"
+       onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2067da';">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+            <path d="M9 4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V6H9V4Z" fill="#ffffff"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M3 7.5C3 6.67157 3.67157 6 4.5 6H19.5C20.3284 6 21 6.67157 21 7.5V11H3V7.5ZM3 12.5V18.5C3 19.3284 3.67157 20 4.5 20H19.5C20.3284 20 21 19.3284 21 18.5V12.5H14.5V13.5C14.5 14.0523 14.0523 14.5 13.5 14.5H10.5C9.94772 14.5 9.5 14.0523 9.5 13.5V12.5H3Z" fill="#ffffff"/>
+        </svg>
+    </a>
+
+    {{-- 2. Mobile App Download Button --}}
+    <a href="javascript:void(0)" 
+       onclick="alert('Prime Booking Mobile App coming soon on Android & iOS!')" 
+       class="btn p-0 rounded-circle d-flex align-items-center justify-content-center shadow-md agoda-floating-action-btn" 
+       style="width: 42px; height: 42px; min-width: 42px; background: #2067da; border: none; text-decoration: none; box-shadow: 0 4px 12px rgba(32, 103, 218, 0.35); transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" 
+       title="Download Prime Booking App"
+       onmouseover="this.style.transform='scale(1.08)'; this.style.backgroundColor='#1656c4';"
+       onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2067da';">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 3C4.89543 3 4 3.89543 4 5V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V5C20 3.89543 19.1046 3 18 3H6ZM6 5.5C6 5.22386 6.22386 5 6.5 5H17.5C17.7761 5 18 5.22386 18 5.5V16H6V5.5ZM12 19.25C12.5523 19.25 13 18.8023 13 18.25C13 17.6977 12.5523 17.25 12 17.25C11.4477 17.25 11 17.6977 11 18.25C11 18.8023 11.4477 19.25 12 19.25Z" fill="#ffffff"/>
+        </svg>
+    </a>
+
+    {{-- 3. Agoda Exact Back to Top Scroll Button (Fades in when scrolled down) --}}
+    <button type="button" 
+       id="agodaBackToTopBtn" 
+       onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
+       class="btn p-0 rounded-circle d-flex align-items-center justify-content-center shadow-md agoda-floating-action-btn d-none" 
+       style="width: 42px; height: 42px; min-width: 42px; background: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease; cursor: pointer;" 
+       title="Back to Top"
+       onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='#2067da'; this.style.boxShadow='0 6px 16px rgba(32,103,218,0.25)';"
+       onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';">
+        <i class="fa-solid fa-chevron-up text-dark" style="font-size: 14px;"></i>
+    </button>
+</div>
+
+<script>
+    window.addEventListener('scroll', function() {
+        var btt = document.getElementById('agodaBackToTopBtn');
+        if (btt) {
+            if (window.scrollY > 350) {
+                btt.classList.remove('d-none');
+            } else {
+                btt.classList.add('d-none');
+            }
+        }
+    }, { passive: true });
+</script>
 
 @php
     $currCode = \App\Helpers\CurrencyHelper::current();

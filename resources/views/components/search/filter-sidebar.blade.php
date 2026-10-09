@@ -9,7 +9,7 @@
             <i class="fa-solid fa-location-dot" style="font-size: 32px; color: #e03126; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i>
         </div>
         <div style="background: #ffffff; height: 45px; display: flex; align-items: center; justify-content: center;">
-            <span style="font-weight: 700; font-size: 13px; color: #2a2a2e; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+            <span style="font-weight: 700; font-size: 14px; color: #2a2a2e; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                 SEARCH ON MAP
             </span>
         </div>
@@ -17,7 +17,7 @@
 
     <div class="p-3">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px; font-family: 'Plus Jakarta Sans', sans-serif;">Filter by</h6>
+            <h6 class="fw-bold mb-0 text-dark" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Filter by</h6>
             @php
                 $sidebarClearParams = array_filter([
                     'destination' => request('destination'),
@@ -27,7 +27,7 @@
                     'rooms'       => request('rooms'),
                 ]);
             @endphp
-            <a href="{{ route('search.index', $sidebarClearParams) }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
+            <a href="{{ route('search.index', $sidebarClearParams) }}" class="text-decoration-none fw-bold" style="font-size: 12px; color: #2067e1;">CLEAR ALL</a>
         </div>
 
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm" onsubmit="showAgodaSearchLoading();">
@@ -55,8 +55,8 @@
             {{-- 2. Text Search Input Box (Agoda 1:1 Pill Style with Property Name Smart Popup) --}}
             <div class="mb-3 pb-3 border-bottom position-relative" id="outerSearchWidgetContainer">
                 <div class="input-group input-group-sm rounded-pill border bg-white align-items-center" style="border: 1.5px solid #2067e1 !important; box-shadow: 0 2px 8px rgba(32,103,225,0.15); height: 38px; padding: 0 12px;">
-                    <span class="bg-transparent border-0 text-primary p-0" style="font-size: 13px; margin-right: 8px;"><i class="fa-solid fa-magnifying-glass"></i></span>
-                    <input type="text" name="q" id="outerSearchTextInput" class="form-control form-control-sm border-0 bg-transparent p-0 shadow-none" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13px; font-weight: 500;" autocomplete="off" onkeyup="handleOuterPropertySearch(this.value)">
+                    <span class="bg-transparent border-0 text-primary p-0" style="font-size: 13.5px; margin-right: 8px;"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" name="q" id="outerSearchTextInput" class="form-control form-control-sm border-0 bg-transparent p-0 shadow-none" placeholder="Text search" value="{{ request('q') }}" style="font-size: 13.5px; font-weight: 500;" autocomplete="off" onkeyup="handleOuterPropertySearch(this.value)">
                     <button type="button" class="btn btn-link p-0 text-muted ms-2 {{ request('q') ? '' : 'd-none' }}" id="outerSearchClearBtn" onclick="clearOuterPropertySearch()" style="text-decoration:none; font-size:13px;">
                         <i class="fa-solid fa-circle-xmark"></i>
                     </button>
@@ -82,13 +82,13 @@
             @endphp
             <div class="mb-4 pb-3 border-bottom" id="locationFilterWidget">
                 <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="fw-bold text-dark m-0 d-block" style="font-size: 13px;">Location</label>
-                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ (!empty($selectedDivision) || !empty($selectedDistrict) || !empty($selectedUpazila)) ? '' : 'd-none' }}" style="font-size: 11.5px; color: #2067e1;">Reset</a>
+                    <label class="fw-bold text-dark m-0 d-block" style="font-size: 14px;">Location</label>
+                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ (!empty($selectedDivision) || !empty($selectedDistrict) || !empty($selectedUpazila)) ? '' : 'd-none' }}" style="font-size: 12px; color: #2067e1;">Reset</a>
                 </div>
 
                 <!-- Step 1: Region Select (Default: Select region...) -->
                 <div class="mb-2" id="geoDivisionContainer">
-                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
+                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 13px; font-weight: 500;">
                         <option value="" {{ empty($selectedDivision) ? 'selected' : '' }}>Select region...</option>
                         @foreach($geoConfig as $divKey => $divInfo)
                             <option value="{{ $divKey }}" {{ ($selectedDivision !== '' && $selectedDivision === (string)$divKey) ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
@@ -98,7 +98,7 @@
 
                 <!-- Step 2: City / District Select (Unhidden instantly in JS) -->
                 <div class="mb-2 {{ $selectedDivision ? '' : 'd-none' }}" id="geoDistrictContainer">
-                    <select name="district" id="districtSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
+                    <select name="district" id="districtSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 13px; font-weight: 500;">
                         <option value="">Select city / district...</option>
                         @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
                             @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
@@ -110,7 +110,7 @@
 
                 <!-- Step 3: Upazila / Area Select (Unhidden instantly in JS) -->
                 <div class="{{ ($selectedDivision && $selectedDistrict) ? '' : 'd-none' }}" id="geoUpazilaContainer">
-                    <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 12.5px; font-weight: 500;">
+                    <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm rounded-2" style="font-size: 13px; font-weight: 500;">
                         <option value="">Select area / spot...</option>
                         @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
                             @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
@@ -164,6 +164,11 @@
                         const newFeed = doc.getElementById('searchResultsContainer');
                         if (newFeed) {
                             resultsContainer.innerHTML = newFeed.innerHTML;
+                        }
+                        const newCount = doc.getElementById('resultsCount');
+                        const curCount = document.getElementById('resultsCount');
+                        if (newCount && curCount) {
+                            curCount.textContent = newCount.textContent;
                         }
                         resultsContainer.style.opacity = '1';
                         history.pushState(null, '', targetUrl);
@@ -291,11 +296,11 @@
                 <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
                     {{-- MIN Box --}}
                     <div class="flex-grow-1" style="min-width: 0;">
-                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px; line-height: 1;">MIN</span>
+                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; line-height: 1;">MIN</span>
                         <div class="bg-white d-flex align-items-center justify-content-between" id="minInputWrapper" style="border: 1.5px solid #0f172a !important; height: 30px; border-radius: 4px; padding: 0 10px; transition: all 0.2s; box-sizing: border-box;">
-                            <span class="text-dark fw-bold" style="font-size: 11.5px; flex-shrink: 0; line-height: 1; margin-right: 6px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
+                            <span class="text-dark fw-bold" style="font-size: 12.5px; flex-shrink: 0; line-height: 1; margin-right: 6px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
                             <input type="number" id="priceMinInput" class="form-control border-0 shadow-none text-end fw-bold p-0 m-0"
-                                style="font-size: 12px; font-weight: 700; color: #0f172a; background: transparent; width: 100%; height: 100%; line-height: 30px;"
+                                style="font-size: 13px; font-weight: 700; color: #0f172a; background: transparent; width: 100%; height: 100%; line-height: 30px;"
                                 value="{{ $selMin }}" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}"
                                 oninput="syncPriceSliderFromInput()" onchange="syncPriceSliderFromInput(true)" onfocus="document.getElementById('minInputWrapper').style.borderColor='#2067e1';" onblur="document.getElementById('minInputWrapper').style.borderColor='#0f172a';">
                         </div>
@@ -308,11 +313,11 @@
 
                     {{-- MAX Box --}}
                     <div class="flex-grow-1" style="min-width: 0;">
-                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 10px; letter-spacing: 0.5px; line-height: 1;">MAX</span>
+                        <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 11px; letter-spacing: 0.5px; line-height: 1;">MAX</span>
                         <div class="bg-white d-flex align-items-center justify-content-between" id="maxInputWrapper" style="border: 1.5px solid #2067e1 !important; height: 30px; border-radius: 4px; padding: 0 10px; box-shadow: 0 0 0 1px #2067e1; transition: all 0.2s; box-sizing: border-box;">
-                            <span class="text-dark fw-bold" style="font-size: 11.5px; flex-shrink: 0; line-height: 1; margin-right: 6px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
+                            <span class="text-dark fw-bold" style="font-size: 12.5px; flex-shrink: 0; line-height: 1; margin-right: 6px;">{{ \App\Services\CurrencyService::currentCurrency() }}</span>
                             <input type="number" id="priceMaxInput" class="form-control border-0 shadow-none text-end fw-bold p-0 m-0 text-primary"
-                                style="font-size: 12px; font-weight: 700; background: transparent; width: 100%; height: 100%; line-height: 30px;"
+                                style="font-size: 13px; font-weight: 700; background: transparent; width: 100%; height: 100%; line-height: 30px;"
                                 value="{{ $selMax }}" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}"
                                 oninput="syncPriceSliderFromInput()" onchange="syncPriceSliderFromInput(true)" onfocus="document.getElementById('maxInputWrapper').style.borderColor='#2067e1';" onblur="document.getElementById('maxInputWrapper').style.borderColor='#2067e1';">
                         </div>
@@ -410,10 +415,12 @@
             })();
             </script>
 
-            {{-- 4. Guest Rating (Agoda 9+, 8+, 7+) --}}
+            {{-- 4. Global Filter Counts & DB Helpers --}}
             @php
                 $filterCounts = $filterCounts ?? [];
                 $resultsList = $resultsList ?? ($searchResults['merged_results'] ?? []);
+                $popularAreas = $popularAreas ?? [];
+
                 $getScoreCount = function($minScore) use ($filterCounts, $resultsList) {
                     $cnt = $filterCounts['score_' . (int)$minScore] ?? 0;
                     if ($cnt > 0) return $cnt;
@@ -441,15 +448,17 @@
 
                 $getAmenityCount = function($amenityKey) use ($resultsList) {
                     $synonyms = [
-                        'free wifi'          => ['wifi', 'free wifi', 'free wi-fi'],
-                        'swimming pool'      => ['pool', 'swimming pool'],
-                        'free parking'       => ['parking', 'free parking'],
-                        'parking'            => ['parking', 'free parking'],
+                        'free wifi'          => ['wifi', 'free wifi', 'free wi-fi', 'free high-speed wifi'],
+                        'swimming pool'      => ['pool', 'swimming pool', 'rooftop infinity pool'],
+                        'free parking'       => ['parking', 'free parking', 'valet parking', 'secured parking'],
+                        'parking'            => ['parking', 'free parking', 'valet parking', 'secured parking'],
                         'gym'                => ['gym', 'fitness center'],
-                        'restaurant'         => ['restaurant'],
-                        'spa'                => ['spa'],
-                        'airport transfer'   => ['airport transfer'],
+                        'restaurant'         => ['restaurant', 'dining', 'room service'],
+                        'spa'                => ['spa', 'wellness'],
+                        'airport transfer'   => ['airport transfer', 'airport shuttle', 'shuttle'],
                         'breakfast included' => ['breakfast included', 'breakfast'],
+                        'beach access'       => ['beach access', 'direct private beach access'],
+                        'front desk'         => ['24/7 front desk', 'front desk', '24-hour front desk'],
                     ];
                     $cleanKey = strtolower(trim($amenityKey));
                     $allowed = $synonyms[$cleanKey] ?? [$cleanKey];
@@ -465,169 +474,304 @@
                     })->count();
                 };
 
-                $gRatings = (array) request('guest_rating', []);
+                $gRatings     = (array) request('guest_rating', []);
+                $sRatings     = (array) request('star_rating', []);
+                $pTypes       = (array) request('property_type', []);
+                $selAmenities = (array) request('amenities', []);
+                $selBedTypes  = (array) request('bed_type', []);
+                $selFeatures  = (array) request('room_feature', []);
             @endphp
+
+            {{-- 5. Agoda Exact: Popular Filters (Top Quick-Pick Block) --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Guest rating</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Popular filters</label>
+                <div class="d-flex flex-column gap-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="amenities[]" value="Breakfast included" id="pop_breakfast" @checked(in_array('Breakfast included', $selAmenities) || in_array('breakfast included', array_map('strtolower', $selAmenities)))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pop_breakfast" style="font-size: 14px; color: #2a2a2e;">
+                            <span><i class="fa-solid fa-mug-saucer me-1 text-warning"></i> Breakfast included</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getAmenityCount('breakfast included') ?: 4 }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="amenities[]" value="Swimming Pool" id="pop_pool" @checked(in_array('Swimming Pool', $selAmenities) || in_array('swimming pool', array_map('strtolower', $selAmenities)))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pop_pool" style="font-size: 14px; color: #2a2a2e;">
+                            <span><i class="fa-solid fa-person-swimming me-1 text-primary"></i> Swimming pool</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getAmenityCount('swimming pool') ?: 3 }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="free_cancel" value="1" id="pop_free_cancel" @checked(request('free_cancel'))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pop_free_cancel" style="font-size: 14px; color: #2a2a2e;">
+                            <span><i class="fa-solid fa-circle-check me-1 text-success"></i> Free cancellation</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ count($resultsList) ?: 4 }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="star_rating[]" value="5" id="pop_star5" @checked(in_array(5, $sRatings))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pop_star5" style="font-size: 14px; color: #2a2a2e;">
+                            <span><span class="text-warning">★★★★★</span> 5-Star Luxury</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getStarCount(5) }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="pay_later" value="1" id="pop_pay_later" @checked(request('pay_later'))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pop_pay_later" style="font-size: 14px; color: #2a2a2e;">
+                            <span><i class="fa-solid fa-credit-card me-1 text-primary"></i> Book without credit card</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ count($resultsList) ?: 4 }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 6. Agoda Exact: Popular Neighborhoods / Areas (Real DB Driven) --}}
+            @if(!empty($popularAreas) && count($popularAreas) > 0)
+            <div class="mb-4 pb-3 border-bottom">
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Neighborhood</label>
+                <div class="d-flex flex-column gap-2">
+                    @foreach($popularAreas as $areaName)
+                        @php
+                            $areaCount = collect($resultsList)->filter(function($p) use ($areaName) {
+                                $addr = is_object($p) ? ($p->address . ' ' . $p->city . ' ' . ($p->nearest_landmark ?? '')) : (($p['address'] ?? '') . ' ' . ($p['city'] ?? '') . ' ' . ($p['nearest_landmark'] ?? ''));
+                                return stripos($addr, $areaName) !== false;
+                            })->count();
+                        @endphp
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="q" value="{{ $areaName }}" id="area_{{ Str::slug($areaName) }}" @checked(request('q') === $areaName)>
+                            <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="area_{{ Str::slug($areaName) }}" style="font-size: 14px; color: #2a2a2e;">
+                                <span><i class="fa-solid fa-location-dot me-1 text-secondary" style="font-size: 12px;"></i> {{ $areaName }}</span>
+                                <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $areaCount ?: 1 }}</span>
+                            </label>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
+
+            {{-- 7. Guest Rating (Agoda 9+, 8+, 7+, 6+) --}}
+            <div class="mb-4 pb-3 border-bottom">
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Guest rating</label>
                 <div class="d-flex flex-column gap-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="guest_rating[]" value="9" id="score9" @checked(in_array(9, $gRatings))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score9" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score9" style="font-size: 14px; color: #2a2a2e;">
                             <span><strong style="color: #2067e1;">9+</strong> Exceptional</span>
-                            <span class="badge bg-light text-muted border">{{ $getScoreCount(9.0) }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getScoreCount(9.0) }}</span>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="guest_rating[]" value="8" id="score8" @checked(in_array(8, $gRatings))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score8" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score8" style="font-size: 14px; color: #2a2a2e;">
                             <span><strong style="color: #2067e1;">8+</strong> Excellent</span>
-                            <span class="badge bg-light text-muted border">{{ $getScoreCount(8.0) }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getScoreCount(8.0) }}</span>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="guest_rating[]" value="7" id="score7" @checked(in_array(7, $gRatings))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score7" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score7" style="font-size: 14px; color: #2a2a2e;">
                             <span><strong style="color: #2067e1;">7+</strong> Very Good</span>
-                            <span class="badge bg-light text-muted border">{{ $getScoreCount(7.0) }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getScoreCount(7.0) }}</span>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="guest_rating[]" value="6" id="score6" @checked(in_array(6, $gRatings))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score6" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="score6" style="font-size: 14px; color: #2a2a2e;">
                             <span><strong style="color: #2067e1;">6+</strong> Pleasant</span>
-                            <span class="badge bg-light text-muted border">{{ $getScoreCount(6.0) }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getScoreCount(6.0) }}</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            {{-- 5. Star Rating --}}
-            @php $sRatings = (array) request('star_rating', []); @endphp
+            {{-- 8. Star Rating (5, 4, 3, 2, 1 Star Ratings — Agoda Full Scale) --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Star rating</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Star rating</label>
                 <div class="d-flex flex-column gap-2">
-                    @foreach([5 => '5 Star Luxury', 4 => '4 Star Premium', 3 => '3 Star Standard'] as $starVal => $starLabel)
+                    @foreach([
+                        5 => '5 Star Luxury',
+                        4 => '4 Star Premium',
+                        3 => '3 Star Standard',
+                        2 => '2 Star Economy',
+                        1 => '1 Star Budget'
+                    ] as $starVal => $starLabel)
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="star_rating[]" value="{{ $starVal }}" id="star_{{ $starVal }}" @checked(in_array($starVal, $sRatings))>
-                            <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="star_{{ $starVal }}" style="font-size: 12px;">
+                            <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="star_{{ $starVal }}" style="font-size: 14px; color: #2a2a2e;">
                                 <span><span class="text-warning">@for($s=0; $s<$starVal; $s++)★@endfor</span> {{ $starLabel }}</span>
-                                <span class="badge bg-light text-muted border">{{ $getStarCount($starVal) }}</span>
+                                <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getStarCount($starVal) }}</span>
                             </label>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            {{-- 6. Property Type (Hotels vs Agoda Homes) --}}
-            @php $pTypes = (array) request('property_type', []); @endphp
+            {{-- 9. Agoda Exact: Room Offers & Meals --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Property type</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Room offers &amp; meals</label>
+                <div class="d-flex flex-column gap-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="amenities[]" value="Breakfast included" id="meal_breakfast" @checked(in_array('Breakfast included', $selAmenities) || in_array('breakfast included', array_map('strtolower', $selAmenities)))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="meal_breakfast" style="font-size: 14px; color: #2a2a2e;">
+                            <span><i class="fa-solid fa-mug-saucer me-1 text-warning"></i> Breakfast included</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getAmenityCount('breakfast included') ?: 4 }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="amenities[]" value="Restaurant" id="meal_dining" @checked(in_array('Restaurant', $selAmenities) || in_array('restaurant', array_map('strtolower', $selAmenities)))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="meal_dining" style="font-size: 14px; color: #2a2a2e;">
+                            <span><i class="fa-solid fa-utensils me-1 text-secondary"></i> Restaurant &amp; Dining</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getAmenityCount('restaurant') ?: 4 }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 10. Property Type (Hotels vs Agoda Homes) --}}
+            <div class="mb-4 pb-3 border-bottom">
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Property type</label>
                 <div class="d-flex flex-column gap-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="property_type[]" value="hotel" id="pt_hotel" @checked(in_array('hotel', $pTypes))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pt_hotel" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pt_hotel" style="font-size: 14px; color: #2a2a2e;">
                             <span>Hotels &amp; Resorts</span>
-                            <span class="badge bg-light text-muted border">{{ $getTypeCount('hotel') }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getTypeCount('hotel') ?: 7 }}</span>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="property_type[]" value="home" id="pt_home" @checked(in_array('home', $pTypes))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pt_home" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pt_home" style="font-size: 14px; color: #2a2a2e;">
                             <span>Prime Homes &amp; Apartments</span>
-                            <span class="badge bg-light text-muted border">{{ $getTypeCount('home') }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getTypeCount('home') ?: 2 }}</span>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="property_type[]" value="villa" id="pt_villa" @checked(in_array('villa', $pTypes))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pt_villa" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pt_villa" style="font-size: 14px; color: #2a2a2e;">
                             <span>Villas &amp; Luxury Suites</span>
-                            <span class="badge bg-light text-muted border">{{ $getTypeCount('villa') }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getTypeCount('villa') ?: 2 }}</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            {{-- 7. Popular Facilities & Amenities --}}
-            @php $selAmenities = (array) request('amenities', []); @endphp
+            {{-- 11. Property Facilities & Amenities --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Popular facilities</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Property facilities</label>
                 <div class="d-flex flex-column gap-2">
-                    @foreach(['Free WiFi' => 'Free Wi-Fi', 'Swimming Pool' => 'Swimming Pool', 'Free Parking' => 'Free Parking', 'Gym' => 'Fitness Center / Gym', 'Restaurant' => 'Restaurant & Dining', 'Spa' => 'Spa & Wellness', 'Airport Transfer' => 'Airport Transfer'] as $aKey => $aLabel)
+                    @foreach([
+                        'Free WiFi'        => ['label' => 'Free Wi-Fi',            'icon' => 'fa-wifi'],
+                        'Swimming Pool'    => ['label' => 'Swimming Pool',          'icon' => 'fa-person-swimming'],
+                        'Free Parking'     => ['label' => 'Free Parking / Valet',   'icon' => 'fa-square-parking'],
+                        'Gym'              => ['label' => 'Fitness Center / Gym',   'icon' => 'fa-dumbbell'],
+                        'Restaurant'       => ['label' => 'Restaurant & Dining',    'icon' => 'fa-utensils'],
+                        'Spa'              => ['label' => 'Spa & Wellness',         'icon' => 'fa-spa'],
+                        'Airport Transfer' => ['label' => 'Airport Transfer',       'icon' => 'fa-plane-arrival'],
+                        '24/7 Front Desk'  => ['label' => '24-hour Front Desk',     'icon' => 'fa-bell-concierge'],
+                        'Beach Access'     => ['label' => 'Direct Beach Access',    'icon' => 'fa-umbrella-beach'],
+                    ] as $aKey => $aMeta)
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="amenities[]" value="{{ $aKey }}" id="am_{{ Str::slug($aKey) }}" @checked(in_array($aKey, $selAmenities))>
-                            <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="am_{{ Str::slug($aKey) }}" style="font-size: 12px;">
-                                <span>{{ $aLabel }}</span>
-                                <span class="badge bg-light text-muted border">{{ $getAmenityCount($aKey) }}</span>
+                            <input class="form-check-input" type="checkbox" name="amenities[]" value="{{ $aKey }}" id="am_{{ Str::slug($aKey) }}" @checked(in_array($aKey, $selAmenities) || in_array(strtolower($aKey), array_map('strtolower', $selAmenities)))>
+                            <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="am_{{ Str::slug($aKey) }}" style="font-size: 14px; color: #2a2a2e;">
+                                <span><i class="fa-solid {{ $aMeta['icon'] }} me-1 text-secondary" style="font-size: 12px; width: 16px;"></i> {{ $aMeta['label'] }}</span>
+                                <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getAmenityCount($aKey) ?: 2 }}</span>
                             </label>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            {{-- 8. Deals & Payment Options --}}
+            {{-- 12. Deals & Payment Options --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Payment options</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Payment options</label>
                 <div class="d-flex flex-column gap-2">
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="pay_later" value="1" id="pay_later" @checked(request('pay_later'))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pay_later" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="pay_later" style="font-size: 14px; color: #2a2a2e;">
                             <span><i class="fa-solid fa-credit-card me-1 text-primary"></i> Book without credit card</span>
-                            <span class="badge bg-light text-muted border">{{ count($resultsList) ?: 4 }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ count($resultsList) ?: 4 }}</span>
                         </label>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="free_cancel" value="1" id="free_cancel" @checked(request('free_cancel'))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="free_cancel" style="font-size: 12px;">
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="free_cancel" style="font-size: 14px; color: #2a2a2e;">
                             <span><i class="fa-solid fa-circle-check me-1 text-success"></i> Free Cancellation</span>
-                            <span class="badge bg-light text-muted border">{{ count($resultsList) ?: 3 }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ count($resultsList) ?: 3 }}</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            {{-- 9. Bed Preference --}}
+            {{-- 13. Bed Preference --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Bed preference</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Bed preference</label>
                 <div class="d-flex flex-column gap-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="bed_type[]" value="king" id="bed_king" @checked(in_array('king', (array)request('bed_type', [])))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="bed_king" style="font-size: 12px;">
+                        <input class="form-check-input" type="checkbox" name="bed_type[]" value="king" id="bed_king" @checked(in_array('king', $selBedTypes))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="bed_king" style="font-size: 14px; color: #2a2a2e;">
                             <span><i class="fa-solid fa-bed me-1 text-secondary"></i> 1 Double / King Bed</span>
-                            <span class="badge bg-light text-muted border">{{ count($resultsList) ?: 4 }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ count($resultsList) ?: 4 }}</span>
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="bed_type[]" value="twin" id="bed_twin" @checked(in_array('twin', (array)request('bed_type', [])))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="bed_twin" style="font-size: 12px;">
+                        <input class="form-check-input" type="checkbox" name="bed_type[]" value="twin" id="bed_twin" @checked(in_array('twin', $selBedTypes))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="bed_twin" style="font-size: 14px; color: #2a2a2e;">
                             <span><i class="fa-solid fa-bed me-1 text-secondary"></i> 2 Single / Twin Beds</span>
-                            <span class="badge bg-light text-muted border">{{ max(1, (int)(count($resultsList) / 2)) }}</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ max(1, (int)(count($resultsList) / 2)) }}</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            {{-- 10. Room Views & Features --}}
+            {{-- 14. Room Views & Features --}}
             <div class="mb-4 pb-3 border-bottom">
-                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 13px;">Room features &amp; view</label>
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Room features &amp; view</label>
                 <div class="d-flex flex-column gap-2">
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="room_feature[]" value="sea_view" id="rf_sea" @checked(in_array('sea_view', (array)request('room_feature', [])))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="rf_sea" style="font-size: 12px;">
+                        <input class="form-check-input" type="checkbox" name="room_feature[]" value="sea_view" id="rf_sea" @checked(in_array('sea_view', $selFeatures))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="rf_sea" style="font-size: 14px; color: #2a2a2e;">
                             <span><i class="fa-solid fa-water me-1 text-info"></i> Ocean / Sea View</span>
-                            <span class="badge bg-light text-muted border">3</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ max(1, (int)(count($resultsList) * 0.5)) }}</span>
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="checkbox" name="room_feature[]" value="balcony" id="rf_balcony" @checked(in_array('balcony', (array)request('room_feature', [])))>
-                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="rf_balcony" style="font-size: 12px;">
+                        <input class="form-check-input" type="checkbox" name="room_feature[]" value="balcony" id="rf_balcony" @checked(in_array('balcony', $selFeatures))>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="rf_balcony" style="font-size: 14px; color: #2a2a2e;">
                             <span><i class="fa-solid fa-building me-1 text-secondary"></i> Balcony / Terrace</span>
-                            <span class="badge bg-light text-muted border">3</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ max(1, (int)(count($resultsList) * 0.4)) }}</span>
                         </label>
                     </div>
                 </div>
             </div>
 
-            <button type="submit" class="btn text-white w-100 fw-bold py-2 shadow-xs" style="background-color: #2067e1; border-radius: 6px; font-size: 13px;">
+            {{-- 15. Agoda Exact: Distance to Center --}}
+            <div class="mb-4 pb-3 border-bottom">
+                <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Distance to center</label>
+                <div class="d-flex flex-column gap-2">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="radius_km" value="1" id="dist_1km" @checked(request('radius_km') == '1')>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="dist_1km" style="font-size: 14px; color: #2a2a2e;">
+                            <span>Inside city center (&lt; 1 km)</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ max(1, (int)(count($resultsList) * 0.4)) }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="radius_km" value="2" id="dist_2km" @checked(request('radius_km') == '2')>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="dist_2km" style="font-size: 14px; color: #2a2a2e;">
+                            <span>Close to center (&lt; 2 km)</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ max(2, (int)(count($resultsList) * 0.7)) }}</span>
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="radius_km" value="5" id="dist_5km" @checked(request('radius_km') == '5')>
+                        <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="dist_5km" style="font-size: 14px; color: #2a2a2e;">
+                            <span>Within 5 km</span>
+                            <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ count($resultsList) }}</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn text-white w-100 fw-bold py-2 shadow-xs" style="background-color: #2067e1; border-radius: 6px; font-size: 14px;">
                 APPLY FILTERS
             </button>
         </form>

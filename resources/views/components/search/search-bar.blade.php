@@ -341,7 +341,7 @@
                                         <div id="pbBdCitiesGrid" style="display: grid; grid-template-columns: 1fr 1fr; row-gap: 14px; column-gap: 16px;">
                                             @php
                                             // 100% Real Live Database Cities & Counts (Zero Hardcoded Mock Data)
-                                            $allDbCities = \Illuminate\Support\Facades\Cache::remember('home_real_db_cities_v9', 60, function() {
+                                            $allDbCities = \Illuminate\Support\Facades\Cache::remember('home_real_db_cities_v10', 60, function() {
                                                 return \App\Models\Property::active()
                                                     ->select('city')
                                                     ->selectRaw('COUNT(*) as count')
@@ -352,8 +352,16 @@
                                                     ->orderByDesc('count')
                                                     ->get()
                                                     ->map(function($r) {
-                                                        $rawImg = $r->img;
-                                                        $img = $rawImg ? (str_starts_with($rawImg, 'http') ? $rawImg : asset('storage/' . ltrim($rawImg, '/'))) : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';
+                                                        $rawImg = $r->img ? trim($r->img) : null;
+                                                        if (!$rawImg) {
+                                                            $img = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';
+                                                        } elseif (str_starts_with($rawImg, 'http')) {
+                                                            $img = $rawImg;
+                                                        } elseif (str_starts_with(ltrim($rawImg, '/'), 'storage/')) {
+                                                            $img = asset(ltrim($rawImg, '/'));
+                                                        } else {
+                                                            $img = asset('storage/' . ltrim($rawImg, '/'));
+                                                        }
                                                         return ['name' => $r->city, 'img' => $img, 'count' => (int)$r->count];
                                                     })
                                                     ->toArray();
@@ -388,7 +396,7 @@
                                             }, $allDbCities);
                                             @endphp
                                             @foreach($liveBdCities as $c)
-                                            <div onclick="selectDestination('{{ $c['name'] }}')" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 3px 4px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                            <div data-destination="{{ $c['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
                                                 <img src="{{ $c['img'] }}" style="width: 42px; height: 42px; border-radius: 8px; object-fit: cover; flex-shrink: 0;" loading="lazy" alt="{{ $c['name'] }}">
                                                 <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $c['name'] }}</span> <span style="font-weight: 400; color: #64748b; font-size: 12.5px;">({{ $c['count'] }})</span></div>
                                             </div>
@@ -402,7 +410,7 @@
                                             <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 12px;">Scenic &amp; Hill Escapes</div>
                                             <div style="display: flex; flex-direction: column; gap: 10px;">
                                                 @foreach($remainingBdCities as $rem)
-                                                <div onclick="selectDestination('{{ $rem['name'] }}')" class="agoda-popover-item" style="cursor: pointer; padding: 3px 6px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                                <div data-destination="{{ $rem['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
                                                     <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $rem['name'] }}</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">({{ number_format($rem['count']) }})</span></div>
                                                     <div style="font-size: 11px; color: #78716c; margin-top: 1px;">{!! $natureTags[$rem['name']] ?? 'Scenic nature &bull; Holiday stay' !!}</div>
                                                 </div>
@@ -413,7 +421,7 @@
                                             <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-top: 14px; margin-bottom: 8px;">International Destinations</div>
                                             <div style="display: flex; flex-direction: column; gap: 8px;">
                                                 @foreach($liveIntlCities as $intl)
-                                                <div onclick="selectDestination('{{ $intl['name'] }}')" class="agoda-popover-item" style="cursor: pointer; padding: 3px 6px; border-radius: 6px;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='transparent'">
+                                                <div data-destination="{{ $intl['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
                                                     <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $intl['name'] }}</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">({{ number_format($intl['count']) }})</span></div>
                                                     <div style="font-size: 11px; color: #78716c; margin-top: 1px;">{{ $intl['name'] === 'Singapore' ? 'Singapore' : 'Malaysia' }} &bull; Luxury stays</div>
                                                 </div>
@@ -828,32 +836,44 @@ window.pbClearRecentSearches = function(e) {
 // Saves to history + logs to server + fills input
 // ════════════════════════════════════════════════════════════════
 function selectDestination(name) {
+    if (!name) return;
     const input    = document.getElementById('agodaDestinationInput');
     const popover  = document.getElementById('agodaDestinationPopoverCard');
     const backdrop = document.getElementById('agodaSearchBackdropOverlay');
     const clearBtn = document.getElementById('agodaClearDestinationBtn');
 
-    if (input) input.value = name;
+    if (input) {
+        input.value = name;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     if (popover) popover.style.display = 'none';
     if (backdrop) backdrop.style.display = 'none';
     if (clearBtn) clearBtn.style.display = 'inline-block';
 
     // Save to localStorage (capture current date values from form)
-    const checkIn  = document.getElementById('inputCheckIn')?.value  || '';
-    const checkOut = document.getElementById('inputCheckOut')?.value || '';
-    const guests   = document.getElementById('inputGuests')?.value   || 1;
-    pbSaveSearch(name, checkIn, checkOut, guests);
-
-    // Log to server (async, fire-and-forget, never blocks UI)
     try {
+        const checkIn  = document.getElementById('inputCheckIn')?.value  || '';
+        const checkOut = document.getElementById('inputCheckOut')?.value || '';
+        const guests   = document.getElementById('inputGuests')?.value   || 1;
+        if (typeof pbSaveSearch === 'function') {
+            pbSaveSearch(name, checkIn, checkOut, guests);
+        }
+
+        // Log to server (async, fire-and-forget, never blocks UI)
         const csrfToken = document.querySelector('meta[name="csrf-token"]')?.content || '';
         fetch('/api/search/log-query', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken },
             body: JSON.stringify({ query: name, city: name.split(',')[0]?.trim(), guests, check_in: checkIn, check_out: checkOut }),
             keepalive: true,
-        }).catch(() => {}); // silent fail
+        }).catch(() => {});
     } catch(e) {}
+
+    // Advance focus to Dates Picker smoothly (Agoda Exact 1:1 Flow)
+    const dateBox = document.getElementById('agodaDateBoxTrigger');
+    if (dateBox) {
+        setTimeout(() => dateBox.click(), 80);
+    }
 }
 
 let isSelectingCheckOut = false;
@@ -1413,6 +1433,56 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // ════════════════════════════════════════════════════════════════
+    // SENIOR BEST PRACTICE: Universal Outside Click Dismissal (pointerdown + contains)
+    // 0ms instant dismissal on any surface (hero background, navbar, page body, card)
+    // ════════════════════════════════════════════════════════════════
+    document.addEventListener('pointerdown', function(e) {
+        const isDestOpen  = destCard && destCard.style.display === 'block';
+        const isCalOpen   = calendarCard && calendarCard.style.display === 'block';
+        const isGuestOpen = guestsCard && guestsCard.style.display === 'block';
+
+        if (!isDestOpen && !isCalOpen && !isGuestOpen) return;
+
+        // Check if pointer event occurred inside destination trigger / input / popover
+        const insideDest = (destTrigger && destTrigger.contains(e.target)) ||
+                           (destCard && destCard.contains(e.target)) ||
+                           (destInput && destInput.contains(e.target));
+
+        // Check if pointer event occurred inside calendar trigger / popover
+        const dateBoxTrigger = document.getElementById('agodaDateBoxTrigger');
+        const insideCal = (btnCheckIn && btnCheckIn.contains(e.target)) ||
+                          (btnCheckOut && btnCheckOut.contains(e.target)) ||
+                          (dateBoxTrigger && dateBoxTrigger.contains(e.target)) ||
+                          (calendarCard && calendarCard.contains(e.target));
+
+        // Check if pointer event occurred inside guests trigger / popover
+        const insideGuest = (guestTrigger && guestTrigger.contains(e.target)) ||
+                            (guestsCard && guestsCard.contains(e.target));
+
+        if (isDestOpen && !insideDest) {
+            destCard.style.display = 'none';
+        }
+
+        if (isCalOpen && !insideCal) {
+            calendarCard.style.display = 'none';
+            if (btnCheckIn) btnCheckIn.classList.remove('active-border');
+            if (btnCheckOut) btnCheckOut.classList.remove('active-border');
+        }
+
+        if (isGuestOpen && !insideGuest) {
+            guestsCard.style.display = 'none';
+        }
+
+        // Hide overlay backdrop if everything is closed
+        const anyOpen = (destCard && destCard.style.display === 'block') ||
+                        (calendarCard && calendarCard.style.display === 'block') ||
+                        (guestsCard && guestsCard.style.display === 'block');
+        if (!anyOpen && backdrop) {
+            backdrop.style.display = 'none';
+        }
+    });
+
     if (backdrop) {
         backdrop.addEventListener('click', hideBackdrop);
     }
@@ -1565,18 +1635,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
 
-    window.selectDestination = function(val) {
-        const destInput = document.getElementById('agodaDestinationInput');
-        if (destInput) {
-            destInput.value = val;
-        }
-        const card = document.getElementById('agodaDestinationPopoverCard');
-        if (card) card.style.display = 'none';
-        const clearBtn = document.getElementById('agodaClearDestinationBtn');
-        if (clearBtn) clearBtn.style.display = 'inline-block';
-        const overlay = document.getElementById('agodaSearchBackdropOverlay');
-        if (overlay) overlay.style.display = 'none';
-    };
+    window.selectDestination = selectDestination;
 
     window.useHomeCurrentLocation = function(e) {
         if (e) { e.preventDefault(); e.stopPropagation(); }

@@ -17,7 +17,6 @@
 
     <div class="p-3">
         <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <h6 class="fw-bold mb-0 text-dark" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Filter by</h6>
             @php
                 $sidebarClearParams = array_filter([
                     'destination' => request('destination'),
@@ -26,8 +25,34 @@
                     'guests'      => request('guests'),
                     'rooms'       => request('rooms'),
                 ]);
+
+                $activeFilterCount = 0;
+                if (!empty(request('q'))) $activeFilterCount++;
+                if (!empty(request('division')) || !empty(request('district')) || !empty(request('upazila'))) $activeFilterCount++;
+                if (request('min_price') && (float)request('min_price') > 0) $activeFilterCount++;
+                if (request('max_price') && (float)request('max_price') < 10000000) $activeFilterCount++;
+                if (!empty(request('guest_rating'))) $activeFilterCount += count((array)request('guest_rating'));
+                if (!empty(request('star_rating'))) $activeFilterCount += count((array)request('star_rating'));
+                if (!empty(request('amenities'))) $activeFilterCount += count((array)request('amenities'));
+                if (!empty(request('property_type'))) $activeFilterCount += count((array)request('property_type'));
+                if (!empty(request('bed_type'))) $activeFilterCount += count((array)request('bed_type'));
+                if (!empty(request('room_feature'))) $activeFilterCount += count((array)request('room_feature'));
+                if (!empty(request('radius_km'))) $activeFilterCount++;
+                if (request('pay_later')) $activeFilterCount++;
+                if (request('free_cancel')) $activeFilterCount++;
+                if (request('entire_home')) $activeFilterCount++;
             @endphp
-            <a href="{{ route('search.index', $sidebarClearParams) }}" class="text-decoration-none fw-bold" style="font-size: 12px; color: #2067e1;">CLEAR ALL</a>
+            <div class="d-flex align-items-center">
+                <h6 class="fw-bold mb-0 text-dark" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">Filter by</h6>
+                @if($activeFilterCount > 0)
+                    <span class="badge rounded-pill ms-2" style="background: #2067e1; font-size: 11px; padding: 3px 8px; font-weight: 700;">{{ $activeFilterCount }}</span>
+                @endif
+            </div>
+            @if($activeFilterCount > 0)
+                <a href="{{ route('search.index', $sidebarClearParams) }}" class="text-decoration-none fw-bold" style="font-size: 12px; color: #2067e1;">CLEAR ALL</a>
+            @else
+                <span class="text-muted fw-bold" style="font-size: 12px; opacity: 0.4; cursor: default;">CLEAR ALL</span>
+            @endif
         </div>
 
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm" onsubmit="showAgodaSearchLoading();">
@@ -654,21 +679,33 @@
                 </div>
             </div>
 
-            {{-- 11. Property Facilities & Amenities --}}
+            {{-- 11. Property Facilities & Amenities (Top 5 + Agoda-Exact Show More Collapse) --}}
+            @php
+                $allFacilities = [
+                    'Free WiFi'        => ['label' => 'Free Wi-Fi',            'icon' => 'fa-wifi'],
+                    'Swimming Pool'    => ['label' => 'Swimming Pool',          'icon' => 'fa-person-swimming'],
+                    'Free Parking'     => ['label' => 'Free Parking / Valet',   'icon' => 'fa-square-parking'],
+                    'Gym'              => ['label' => 'Fitness Center / Gym',   'icon' => 'fa-dumbbell'],
+                    'Restaurant'       => ['label' => 'Restaurant & Dining',    'icon' => 'fa-utensils'],
+                    'Spa'              => ['label' => 'Spa & Wellness',         'icon' => 'fa-spa'],
+                    'Airport Transfer' => ['label' => 'Airport Transfer',       'icon' => 'fa-plane-arrival'],
+                    '24/7 Front Desk'  => ['label' => '24-hour Front Desk',     'icon' => 'fa-bell-concierge'],
+                    'Beach Access'     => ['label' => 'Direct Beach Access',    'icon' => 'fa-umbrella-beach'],
+                ];
+                $topFacilities = array_slice($allFacilities, 0, 5, true);
+                $extraFacilities = array_slice($allFacilities, 5, null, true);
+                $hasActiveInExtra = false;
+                foreach (array_keys($extraFacilities) as $extraKey) {
+                    if (in_array($extraKey, $selAmenities) || in_array(strtolower($extraKey), array_map('strtolower', $selAmenities))) {
+                        $hasActiveInExtra = true;
+                        break;
+                    }
+                }
+            @endphp
             <div class="mb-4 pb-3 border-bottom">
                 <label class="fw-bold mb-2 text-dark d-block" style="font-size: 14px;">Property facilities</label>
                 <div class="d-flex flex-column gap-2">
-                    @foreach([
-                        'Free WiFi'        => ['label' => 'Free Wi-Fi',            'icon' => 'fa-wifi'],
-                        'Swimming Pool'    => ['label' => 'Swimming Pool',          'icon' => 'fa-person-swimming'],
-                        'Free Parking'     => ['label' => 'Free Parking / Valet',   'icon' => 'fa-square-parking'],
-                        'Gym'              => ['label' => 'Fitness Center / Gym',   'icon' => 'fa-dumbbell'],
-                        'Restaurant'       => ['label' => 'Restaurant & Dining',    'icon' => 'fa-utensils'],
-                        'Spa'              => ['label' => 'Spa & Wellness',         'icon' => 'fa-spa'],
-                        'Airport Transfer' => ['label' => 'Airport Transfer',       'icon' => 'fa-plane-arrival'],
-                        '24/7 Front Desk'  => ['label' => '24-hour Front Desk',     'icon' => 'fa-bell-concierge'],
-                        'Beach Access'     => ['label' => 'Direct Beach Access',    'icon' => 'fa-umbrella-beach'],
-                    ] as $aKey => $aMeta)
+                    @foreach($topFacilities as $aKey => $aMeta)
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="amenities[]" value="{{ $aKey }}" id="am_{{ Str::slug($aKey) }}" @checked(in_array($aKey, $selAmenities) || in_array(strtolower($aKey), array_map('strtolower', $selAmenities)))>
                             <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="am_{{ Str::slug($aKey) }}" style="font-size: 14px; color: #2a2a2e;">
@@ -677,6 +714,24 @@
                             </label>
                         </div>
                     @endforeach
+
+                    {{-- Extra Facilities Collapsed --}}
+                    <div class="collapse d-flex flex-column gap-2 {{ $hasActiveInExtra ? 'show' : '' }}" id="moreFacilitiesCollapse">
+                        @foreach($extraFacilities as $aKey => $aMeta)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="amenities[]" value="{{ $aKey }}" id="am_{{ Str::slug($aKey) }}" @checked(in_array($aKey, $selAmenities) || in_array(strtolower($aKey), array_map('strtolower', $selAmenities)))>
+                                <label class="form-check-label d-flex align-items-center justify-content-between w-100" for="am_{{ Str::slug($aKey) }}" style="font-size: 14px; color: #2a2a2e;">
+                                    <span><i class="fa-solid {{ $aMeta['icon'] }} me-1 text-secondary" style="font-size: 12px; width: 16px;"></i> {{ $aMeta['label'] }}</span>
+                                    <span class="badge bg-light text-muted border" style="font-size: 12px;">{{ $getAmenityCount($aKey) ?: 2 }}</span>
+                                </label>
+                            </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Agoda-style Toggle Link --}}
+                    <a class="btn btn-link p-0 text-decoration-none fw-bold mt-1 text-start" data-bs-toggle="collapse" href="#moreFacilitiesCollapse" role="button" aria-expanded="{{ $hasActiveInExtra ? 'true' : 'false' }}" style="font-size: 13px; color: #2067e1;" onclick="var s = this.querySelector('span'); if (s) { s.textContent = s.textContent.includes('more') ? '− Show less' : '+ Show 4 more'; }">
+                        <span>{{ $hasActiveInExtra ? '− Show less' : '+ Show 4 more' }}</span>
+                    </a>
                 </div>
             </div>
 

@@ -230,17 +230,54 @@
 </div>
 
 {{-- 4. Main Search Results Layout (Agoda 1284px Container, 1100px Main Column, Exact Side Paddings) --}}
+<style>
+    @media (min-width: 992px) {
+        .agoda-filter-sidebar-col {
+            width: 270px !important;
+            flex: 0 0 270px !important;
+            max-width: 270px !important;
+        }
+        .agoda-results-col {
+            width: calc(100% - 270px) !important;
+            flex: 0 0 calc(100% - 270px) !important;
+            max-width: calc(100% - 270px) !important;
+        }
+    }
+    @media (max-width: 991.98px) {
+        .agoda-results-col {
+            width: 100% !important;
+            flex: 0 0 100% !important;
+            max-width: 100% !important;
+        }
+    }
+    .agoda-sticky-sidebar::-webkit-scrollbar {
+        width: 4px;
+    }
+    .agoda-sticky-sidebar::-webkit-scrollbar-track {
+        background: #f1f5f9;
+        border-radius: 4px;
+    }
+    .agoda-sticky-sidebar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 4px;
+    }
+    .agoda-sticky-sidebar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+</style>
 <div style="max-width: 1284px; margin: 0 auto; padding: 16px 20px 48px 20px;">
     <div style="max-width: 1100px; margin: 0;">
         <div class="row g-3">
             
-            {{-- Left Filter Sidebar (Exact Agoda 270px Width) --}}
-            <div class="col-12 col-lg-3" style="width: 270px; flex: 0 0 270px;">
-                @include('components.search.filter-sidebar')
+            {{-- Left Filter Sidebar (Exact Agoda 270px Width, Desktop Sticky Scroll) --}}
+            <div class="col-12 col-lg-3 d-none d-lg-block agoda-filter-sidebar-col">
+                <div class="agoda-sticky-sidebar" style="position: sticky; top: 76px; max-height: calc(100vh - 86px); overflow-y: auto; scrollbar-width: thin; padding-right: 4px;">
+                    @include('components.search.filter-sidebar')
+                </div>
             </div>
 
-            {{-- Right Results Feed (Exact Agoda 830px Width) --}}
-            <div class="col-12 col-lg-9" id="searchResultsContainer" style="width: calc(100% - 270px); flex: 0 0 calc(100% - 270px); max-width: calc(100% - 270px);">
+            {{-- Right Results Feed (Exact Agoda 830px Width Desktop, 100% Width Mobile) --}}
+            <div class="col-12 col-lg-9 agoda-results-col" id="searchResultsContainer">
 
 
 

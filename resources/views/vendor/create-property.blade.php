@@ -257,10 +257,14 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">YouTube Video Tour URL (Optional)</label>
-                        <input type="url" name="video_url" class="form-control form-control-sm" value="{{ old('video_url') }}" placeholder="https://www.youtube.com/watch?v=..." style="font-size:12.5px; height:38px;">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;"><i class="fa-solid fa-file-video text-danger me-1"></i> Upload Video Tour File (MP4 / WebM)</label>
+                        <input type="file" name="video_file" class="form-control form-control-sm" accept="video/*" style="font-size:12.5px;">
                     </div>
                     <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;"><i class="fa-brands fa-youtube text-danger me-1"></i> OR Video Tour URL (YouTube / Embed)</label>
+                        <input type="url" name="video_url" class="form-control form-control-sm" value="{{ old('video_url') }}" placeholder="https://www.youtube.com/watch?v=..." style="font-size:12.5px; height:38px;">
+                    </div>
+                    <div class="col-12">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Additional Gallery URLs (One per line — Optional)</label>
                         <textarea name="gallery_images" class="form-control form-control-sm" rows="2"
                             placeholder="https://your-cdn.com/room1.jpg&#10;https://your-cdn.com/room2.jpg" style="font-size:12.5px;">{{ old('gallery_images') }}</textarea>

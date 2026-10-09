@@ -293,11 +293,15 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Video Tour URL (YouTube Embed / MP4)</label>
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;"><i class="fa-solid fa-file-video text-danger me-1"></i> Upload Video Tour File (MP4 / WebM)</label>
+                    <input type="file" name="video_file" class="form-control" accept="video/*" style="font-size:13px; border-radius:4px;">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;"><i class="fa-brands fa-youtube text-danger me-1"></i> OR Video Tour URL (YouTube Embed / MP4)</label>
                     <input type="url" name="video_url" class="form-control"
                         value="{{ old('video_url') }}" placeholder="https://www.youtube.com/embed/..." style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
-                <div class="col-md-6">
+                <div class="col-12">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Additional Gallery URLs (one per line)</label>
                     <textarea name="gallery_images" class="form-control" rows="2"
                         placeholder="https://images.unsplash.com/photo-1571896349842...&#10;https://images.unsplash.com/photo-1582719478250..." style="font-size:13px; border-radius:4px; padding:8px 14px;">{{ old('gallery_images') }}</textarea>

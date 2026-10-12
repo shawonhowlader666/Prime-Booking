@@ -163,8 +163,93 @@
     }
 </style>
 
-<div class="py-3" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; margin-top: 35px; position: relative; z-index: 1;">
+<div class="py-3" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; margin-top: 28px; position: relative; z-index: 1;">
     <div class="agoda-exact-container">
+        
+        {{-- Continue planning your trip (Agoda Screenshot 1:1 Parity) --}}
+        <div id="agodaContinuePlanningSection" style="margin-bottom: 24px; text-align: left;">
+            <h5 class="fw-bold mb-2" style="color: #2a2a2e; font-size: 18px; letter-spacing: -0.2px;">
+                Continue planning your trip
+            </h5>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                {{-- Card 1: Stays in City --}}
+                <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" id="cpStaysLink" class="text-decoration-none" style="display: inline-flex; align-items: center; gap: 12px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px 18px; min-width: 250px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.06)';" onmouseout="this.style.borderColor='#e0e0e0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)';">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #fbe8e4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fa-solid fa-hotel" style="color: #e11d48; font-size: 17px;"></i>
+                    </div>
+                    <div style="text-align: left;">
+                        <div id="cpStaysTitle" style="font-size: 13.5px; font-weight: 700; color: #2a2a2e; line-height: 1.25; margin-bottom: 2px;">
+                            Stays in Cox's Bazar
+                        </div>
+                        <div style="font-size: 12px; color: #737373; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                            <span id="cpStaysDates">Oct 22 - Oct 23</span>
+                            <span style="color: #94a3b8;">&bull;</span>
+                            <i class="fa-solid fa-user-group" style="font-size: 10px; color: #737373;"></i>
+                            <span id="cpStaysGuests">2</span>
+                        </div>
+                    </div>
+                </a>
+
+                {{-- Card 2: Find things to do in City --}}
+                <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" id="cpThingsLink" class="text-decoration-none" style="display: inline-flex; align-items: center; gap: 12px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px 18px; min-width: 260px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.06)';" onmouseout="this.style.borderColor='#e0e0e0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)';">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #f3eed9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                        <i class="fa-solid fa-compass" style="color: #856404; font-size: 17px;"></i>
+                    </div>
+                    <div style="text-align: left;">
+                        <div id="cpThingsTitle" style="font-size: 13.5px; font-weight: 700; color: #2a2a2e; line-height: 1.25; margin-bottom: 2px;">
+                            Find things to do in Cox's Bazar
+                        </div>
+                        <div id="cpThingsDates" style="font-size: 12px; color: #737373; font-weight: 500;">
+                            Oct 22
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+
+        <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const stored = JSON.parse(localStorage.getItem('pb_recent_searches_v2') || '[]');
+                if (stored && stored.length > 0) {
+                    const last = stored[0];
+                    const rawCity = last.destination || "Cox's Bazar";
+                    const city = rawCity.split(',')[0].trim();
+                    const titleEl = document.getElementById('cpStaysTitle');
+                    const datesEl = document.getElementById('cpStaysDates');
+                    const guestsEl = document.getElementById('cpStaysGuests');
+                    const staysLink = document.getElementById('cpStaysLink');
+                    const thingsTitle = document.getElementById('cpThingsTitle');
+                    const thingsDates = document.getElementById('cpThingsDates');
+                    const thingsLink = document.getElementById('cpThingsLink');
+
+                    if (titleEl && city) titleEl.textContent = 'Stays in ' + city;
+                    if (thingsTitle && city) thingsTitle.textContent = 'Find things to do in ' + city;
+
+                    if (last.checkIn && last.checkOut) {
+                        const shortMonth = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+                        const dIn = new Date(last.checkIn);
+                        const dOut = new Date(last.checkOut);
+                        if (!isNaN(dIn.getTime()) && !isNaN(dOut.getTime())) {
+                            const strIn = shortMonth[dIn.getMonth()] + ' ' + dIn.getDate();
+                            const strOut = shortMonth[dOut.getMonth()] + ' ' + dOut.getDate();
+                            if (datesEl) datesEl.textContent = strIn + ' - ' + strOut;
+                            if (thingsDates) thingsDates.textContent = strIn;
+                        }
+                    }
+                    if (last.guests && guestsEl) {
+                        guestsEl.textContent = last.guests;
+                    }
+                    if (staysLink) {
+                        staysLink.href = "{{ route('search.index') }}?destination=" + encodeURIComponent(rawCity) + (last.checkIn ? '&check_in=' + last.checkIn : '') + (last.checkOut ? '&check_out=' + last.checkOut : '') + (last.guests ? '&guests=' + last.guests : '');
+                    }
+                    if (thingsLink) {
+                        thingsLink.href = "{{ route('search.index') }}?destination=" + encodeURIComponent(rawCity);
+                    }
+                }
+            } catch(e) {}
+        });
+        </script>
         
         {{-- Unified Agoda Connected Trip Outer Card Container --}}
         <div class="agoda-connected-outer-card">

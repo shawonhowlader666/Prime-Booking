@@ -12,8 +12,8 @@
     $roomsCount = intval(request('rooms', 1));
 @endphp
 <div id="stickyAgodaSearchSubheader" style="background-color: #1d2b45; padding: 10px 0; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 1025; box-shadow: 0 4px 15px rgba(0,0,0,0.18);">
-    <div style="max-width: 1284px; margin: 0 auto; padding: 0 20px;">
-        <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="showAgodaSearchLoading();" style="max-width: 1100px; margin: 0;">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
+        <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="return validateAndSubmitHeaderSearch(event);" style="width: 100%; margin: 0;">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
             {{-- 1. Destination Input Box with Near Me GPS Button --}}
@@ -99,9 +99,9 @@
                 </div>
             </div>
 
-            {{-- 5. Search Blue Button (Agoda Exact 24px Rounded Pill Radius) --}}
+            {{-- 5. Search Blue Button (Agoda 3D Pill Radius) --}}
             <div class="col-12 col-md-2 col-lg-2">
-                <button type="submit" class="btn text-white w-100 fw-bold shadow-sm" style="background-color: #2067e1; height: 48px; font-size: 15px; letter-spacing: 0.5px; border-radius: 24px !important; transition: background-color 0.15s ease;" onmouseover="this.style.backgroundColor='#1656c4';" onmouseout="this.style.backgroundColor='#2067e1';">
+                <button type="submit" class="btn text-white w-100 fw-bold" style="background: linear-gradient(180deg, #2b75ec 0%, #1660d5 100%); border: 1px solid #1455be; box-shadow: 0 4px 14px rgba(22, 96, 213, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.28); height: 48px; font-size: 15px; font-weight: 800; letter-spacing: 0.6px; border-radius: 9999px !important; transition: all 0.15s ease;">
                     SEARCH
                 </button>
             </div>
@@ -206,8 +206,8 @@
 
 {{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Screenshot 2) --}}
 <div class="agoda-coupon-strip" style="background: #ffebe6; border-bottom: 1px solid #ffd5cc; padding: 12px 0;">
-    <div style="max-width: 1284px; margin: 0 auto; padding: 0 20px;">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1100px; margin: 0;">
+    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="width: 100%; margin: 0;">
             <div class="d-flex align-items-center gap-3">
                 <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg);">
                     <i class="fa-solid fa-tags fs-5"></i>
@@ -229,18 +229,18 @@
     </div>
 </div>
 
-{{-- 4. Main Search Results Layout (Agoda 1284px Container, 1100px Main Column, Exact Side Paddings) --}}
+{{-- 4. Main Search Results Layout (Centered, Equal Left/Right Padding, Compact Card Width) --}}
 <style>
     @media (min-width: 992px) {
         .agoda-filter-sidebar-col {
-            width: 270px !important;
-            flex: 0 0 270px !important;
-            max-width: 270px !important;
+            width: 260px !important;
+            flex: 0 0 260px !important;
+            max-width: 260px !important;
         }
         .agoda-results-col {
-            width: calc(100% - 270px) !important;
-            flex: 0 0 calc(100% - 270px) !important;
-            max-width: calc(100% - 270px) !important;
+            width: calc(100% - 260px) !important;
+            flex: 0 0 calc(100% - 260px) !important;
+            max-width: calc(100% - 260px) !important;
         }
     }
     @media (max-width: 991.98px) {
@@ -249,6 +249,11 @@
             flex: 0 0 100% !important;
             max-width: 100% !important;
         }
+    }
+    .agoda-property-card-root {
+        max-width: 790px !important;
+        margin-left: 0;
+        margin-right: auto;
     }
     .agoda-sticky-sidebar::-webkit-scrollbar {
         width: 4px;
@@ -265,9 +270,8 @@
         background: #94a3b8;
     }
 </style>
-<div style="max-width: 1284px; margin: 0 auto; padding: 16px 20px 48px 20px;">
-    <div style="max-width: 1100px; margin: 0;">
-        <div class="row g-3">
+<div style="max-width: 1120px; margin: 0 auto; padding: 22px 24px 48px 24px;">
+    <div class="row g-3">
             
             {{-- Left Filter Sidebar (Exact Agoda 270px Width, Desktop Sticky Scroll) --}}
             <div class="col-12 col-lg-3 d-none d-lg-block agoda-filter-sidebar-col">
@@ -535,7 +539,6 @@
 
         </div>
 
-    </div>
     </div>
 </div>
 
@@ -1693,6 +1696,29 @@
         });
     }
 })();
+
+function validateAndSubmitHeaderSearch(e) {
+    var destInput = document.getElementById('mainDestInput');
+    var destVal = destInput ? destInput.value.trim() : '';
+    var latInput = document.getElementById('gpsLatInput');
+    var hasGps = latInput && latInput.value.trim() !== '';
+
+    if (!destVal && !hasGps) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (typeof window.showAgodaEmptyDestinationModal === 'function') {
+            window.showAgodaEmptyDestinationModal();
+        }
+        return false;
+    }
+
+    if (typeof window.showAgodaSearchLoading === 'function') {
+        window.showAgodaSearchLoading();
+    }
+    return true;
+}
 </script>
 
 @endsection

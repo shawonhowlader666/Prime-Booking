@@ -380,6 +380,273 @@
             </div>
         </div>
 
+        {{-- ============================================================ --}}
+        {{-- FLIGHTS & ACTIVITIES PROMOTIONS (Agoda 1:1 Parity)          --}}
+        {{-- ============================================================ --}}
+        <div class="mb-4" style="text-align: left;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 18.5px; letter-spacing: -0.2px;">
+                    Flights &amp; Activities Promotions
+                </h5>
+                <a href="{{ route('transfers.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 13.5px; font-weight: 600;">
+                    View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
+                </a>
+            </div>
+
+            <div style="position: relative;">
+                <div id="agodaFlightPromoCarousel" style="display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px;">
+                    
+                    {{-- Card 1: Ready, Set, Go! (Agoda 1:1 Worldwide) --}}
+                    <a href="{{ route('transfers.index') }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 340px; height: 152px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)';">
+                        {{-- Pink flight badge top-left --}}
+                        <div style="position: absolute; top: 12px; left: 12px; z-index: 5; background: #e02474; color: #ffffff; width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(224, 36, 116, 0.4);">
+                            <i class="fa-solid fa-plane" style="transform: rotate(-45deg); font-size: 12px;"></i>
+                        </div>
+
+                        <div style="display: flex; height: 100%; width: 100%;">
+                            {{-- Left side: Sky with airplane and world landmarks --}}
+                            <div style="width: 44%; height: 100%; position: relative; background: #cce7ff; overflow: hidden;">
+                                <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?auto=format&fit=crop&w=400&q=80" alt="Worldwide Flights" style="width: 100%; height: 100%; object-fit: cover; filter: brightness(1.05);">
+                                <div style="position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255,255,255,0) 60%, rgba(124, 58, 237, 0.4) 100%);"></div>
+                            </div>
+
+                            {{-- Right side: Purple gradient with promotional text --}}
+                            <div style="width: 56%; height: 100%; background: linear-gradient(135deg, #7c3aed 0%, #6366f1 100%); padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;">
+                                <div>
+                                    <div style="display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.22); color: #ffffff; border-radius: 12px; padding: 2px 8px; font-size: 10px; font-weight: 600; margin-bottom: 5px;">
+                                        <i class="fa-solid fa-globe" style="font-size: 9px;"></i> Worldwide
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 15px; font-weight: 800; line-height: 1.2; margin-bottom: 3px;">
+                                        Ready, Set, Go!
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 13px; font-weight: 700; line-height: 1.2;">
+                                        Up to <span style="font-size: 17px; font-weight: 900; color: #fde047;">7%</span> off
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.9); font-size: 10.5px; font-weight: 500; margin-top: 2px;">
+                                        Prices That'll Surprise You!
+                                    </div>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.55); font-size: 8.5px;">
+                                    T&amp;Cs apply
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {{-- Card 2: Fly to Cox's Bazar --}}
+                    <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" class="text-decoration-none flex-shrink-0" style="display: block; width: 340px; height: 152px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)';">
+                        <div style="position: absolute; top: 12px; left: 12px; z-index: 5; background: #0284c7; color: #ffffff; width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(2, 132, 199, 0.4);">
+                            <i class="fa-solid fa-plane-departure" style="font-size: 12px;"></i>
+                        </div>
+                        <div style="display: flex; height: 100%; width: 100%;">
+                            <div style="width: 44%; height: 100%; position: relative; overflow: hidden;">
+                                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80" alt="Cox's Bazar" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="width: 56%; height: 100%; background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;">
+                                <div>
+                                    <div style="display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.22); color: #ffffff; border-radius: 12px; padding: 2px 8px; font-size: 10px; font-weight: 600; margin-bottom: 5px;">
+                                        <i class="fa-solid fa-tag" style="font-size: 9px;"></i> Daily Flights
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 15px; font-weight: 800; line-height: 1.2; margin-bottom: 3px;">
+                                        Dhaka &rarr; Cox's Bazar
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 13px; font-weight: 700;">
+                                        From <span style="font-size: 16px; font-weight: 900; color: #fde047;">৳ 3,499</span>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.9); font-size: 10.5px; font-weight: 500; margin-top: 2px;">
+                                        Instant Confirmation
+                                    </div>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.55); font-size: 8.5px;">
+                                    T&amp;Cs apply
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {{-- Card 3: Adventure BD --}}
+                    <a href="{{ route('packages') }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 340px; height: 152px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)';">
+                        <div style="position: absolute; top: 12px; left: 12px; z-index: 5; background: #059669; color: #ffffff; width: 26px; height: 26px; border-radius: 7px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(5, 150, 105, 0.4);">
+                            <i class="fa-solid fa-compass" style="font-size: 12px;"></i>
+                        </div>
+                        <div style="display: flex; height: 100%; width: 100%;">
+                            <div style="width: 44%; height: 100%; position: relative; overflow: hidden;">
+                                <img src="https://images.unsplash.com/photo-1552733407-5d5c46c3bb3b?auto=format&fit=crop&w=400&q=80" alt="Activities" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="width: 56%; height: 100%; background: linear-gradient(135deg, #059669 0%, #047857 100%); padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;">
+                                <div>
+                                    <div style="display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.22); color: #ffffff; border-radius: 12px; padding: 2px 8px; font-size: 10px; font-weight: 600; margin-bottom: 5px;">
+                                        <i class="fa-solid fa-mountain" style="font-size: 9px;"></i> Activities
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 15px; font-weight: 800; line-height: 1.2; margin-bottom: 3px;">
+                                        Sajek &amp; Sylhet Tours
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 13px; font-weight: 700;">
+                                        Save up to <span style="font-size: 16px; font-weight: 900; color: #fde047;">15%</span>
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.9); font-size: 10.5px; font-weight: 500; margin-top: 2px;">
+                                        Guided Scenic Trips
+                                    </div>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.55); font-size: 8.5px;">
+                                    T&amp;Cs apply
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        {{-- ============================================================ --}}
+        {{-- PROPERTIES WE THINK YOU'LL LIKE (Agoda 1:1 Parity)          --}}
+        {{-- ============================================================ --}}
+        <div class="mb-4" style="text-align: left;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 18.5px; letter-spacing: -0.2px;">
+                    Properties we think you'll like
+                </h5>
+                <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 13.5px; font-weight: 600;">
+                    View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
+                </a>
+            </div>
+
+            <div style="position: relative;">
+                <div id="agodaPropertiesPromoCarousel" style="display: flex; gap: 16px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 4px;">
+                    
+                    {{-- Card 1: BWH Hotels (Agoda 1:1 Parity) --}}
+                    <a href="{{ route('search.index') }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 340px; height: 152px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)';">
+                        {{-- Top-left Flagship Store badge --}}
+                        <div style="position: absolute; top: 10px; left: 10px; z-index: 5; background: #fef08a; color: #854d0e; padding: 2.5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px; box-shadow: 0 2px 6px rgba(0,0,0,0.12);">
+                            <i class="fa-solid fa-store" style="font-size: 9px;"></i> Flagship Store
+                        </div>
+
+                        <div style="display: flex; height: 100%; width: 100%;">
+                            {{-- Left side: Sunny beach with umbrellas and sea --}}
+                            <div style="width: 44%; height: 100%; position: relative; overflow: hidden;">
+                                <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80" alt="BWH Hotels Beach" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+
+                            {{-- Right side: Charcoal/navy with BWH logo & text --}}
+                            <div style="width: 56%; height: 100%; background: #242c38; padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;">
+                                <div>
+                                    <div style="color: #ffffff; font-weight: 800; font-size: 11px; letter-spacing: 0.5px; margin-bottom: 6px; display: flex; align-items: center; gap: 5px;">
+                                        <span style="border: 1px solid rgba(255,255,255,0.7); padding: 1px 4px; border-radius: 3px; font-size: 9.5px; font-weight: 800;">BWH</span> Hotels
+                                    </div>
+                                    <div style="color: #ffffff; font-size: 15px; font-weight: 800; line-height: 1.25; margin-bottom: 4px;">
+                                        Discover BWH Hotels
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 500; line-height: 1.3;">
+                                        Explore Deals Across Thailand
+                                    </div>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.5); font-size: 8.5px;">
+                                    T&amp;Cs apply
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                    {{-- Card 2: Agoda's Top Stays! (Agoda 1:1 Parity) --}}
+                    <a href="{{ route('search.index') }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 340px; height: 152px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)';">
+                        {{-- Background night cityscape --}}
+                        <div style="position: absolute; inset: 0; background: url('https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=600&q=80') center/cover no-repeat;">
+                            <div style="position: absolute; inset: 0; background: linear-gradient(180deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 27, 75, 0.75) 50%, rgba(15, 23, 42, 0.95) 100%);"></div>
+                        </div>
+
+                        <div style="position: relative; z-index: 2; height: 100%; padding: 16px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                            {{-- Golden Flagship Deals pill --}}
+                            <div style="display: inline-flex; align-items: center; gap: 5px; background: linear-gradient(90deg, #fef08a, #fde047); color: #713f12; padding: 3px 12px; border-radius: 14px; font-size: 10.5px; font-weight: 800; box-shadow: 0 2px 8px rgba(253, 224, 71, 0.35); margin-bottom: 10px;">
+                                <i class="fa-solid fa-star" style="font-size: 8px;"></i> Flagship Deals <i class="fa-solid fa-star" style="font-size: 8px;"></i>
+                            </div>
+
+                            <div style="color: #ffffff; font-size: 18px; font-weight: 900; letter-spacing: -0.2px; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
+                                Agoda's Top Stays!
+                            </div>
+
+                            <div style="color: rgba(255,255,255,0.65); font-size: 9px; margin-top: 6px;">
+                                T&amp;Cs apply
+                            </div>
+                        </div>
+                    </a>
+
+                    {{-- Card 3: Last Minute Secret Deals --}}
+                    <a href="{{ route('deals') }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 340px; height: 152px; border-radius: 16px; overflow: hidden; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.06); transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 2px 10px rgba(0,0,0,0.06)';">
+                        <div style="position: absolute; top: 10px; left: 10px; z-index: 5; background: #fee2e2; color: #991b1b; padding: 2.5px 8px; border-radius: 6px; font-size: 10px; font-weight: 800; display: inline-flex; align-items: center; gap: 4px;">
+                            <i class="fa-solid fa-fire text-danger" style="font-size: 9px;"></i> Secret Deals
+                        </div>
+                        <div style="display: flex; height: 100%; width: 100%;">
+                            <div style="width: 44%; height: 100%; position: relative; overflow: hidden;">
+                                <img src="https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80" alt="Secret Deals" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                            <div style="width: 56%; height: 100%; background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%); padding: 14px 16px; display: flex; flex-direction: column; justify-content: space-between; text-align: left;">
+                                <div>
+                                    <div style="color: #ffffff; font-size: 15px; font-weight: 800; line-height: 1.25; margin-bottom: 4px; margin-top: 18px;">
+                                        Last Minute Deals
+                                    </div>
+                                    <div style="color: #fde047; font-size: 14px; font-weight: 900;">
+                                        Up to 40% OFF
+                                    </div>
+                                    <div style="color: rgba(255,255,255,0.85); font-size: 10.5px; margin-top: 2px;">
+                                        Book Tonight's Best
+                                    </div>
+                                </div>
+                                <div style="color: rgba(255,255,255,0.5); font-size: 8.5px;">
+                                    T&amp;Cs apply
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+
+        {{-- ============================================================ --}}
+        {{-- POPULAR DESTINATIONS OUTSIDE BANGLADESH (Agoda 1:1 Parity)   --}}
+        {{-- ============================================================ --}}
+        <div class="mb-4" style="text-align: left;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 18.5px; letter-spacing: -0.2px;">
+                    Popular destinations outside Bangladesh
+                </h5>
+                <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 13.5px; font-weight: 600;">
+                    View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
+                </a>
+            </div>
+
+            <div style="position: relative;">
+                <div id="agodaIntlDestCarousel" style="display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 6px;">
+                    @php
+                        $intlDests = [
+                            ['name' => 'Bangkok', 'country' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=300&q=80', 'count' => '3,450 accommodations'],
+                            ['name' => 'Kuala Lumpur', 'country' => 'Malaysia', 'img' => 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=300&q=80', 'count' => '2,180 accommodations'],
+                            ['name' => 'Singapore', 'country' => 'Singapore', 'img' => 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=300&q=80', 'count' => '940 accommodations'],
+                            ['name' => 'Dubai', 'country' => 'United Arab Emirates', 'img' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=300&q=80', 'count' => '1,820 accommodations'],
+                            ['name' => 'Kolkata', 'country' => 'India', 'img' => 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=300&q=80', 'count' => '1,150 accommodations'],
+                            ['name' => 'Kathmandu', 'country' => 'Nepal', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=80', 'count' => '680 accommodations'],
+                        ];
+                    @endphp
+                    @foreach($intlDests as $idst)
+                    <a href="{{ route('search.index') }}?destination={{ urlencode($idst['name']) }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 170px;">
+                        <div style="background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
+                            <img src="{{ $idst['img'] }}" alt="{{ $idst['name'] }}" style="width: 100%; height: 110px; object-fit: cover;">
+                            <div style="padding: 10px 12px; text-align: left;">
+                                <div style="font-weight: 700; font-size: 14px; color: #1e293b; line-height: 1.2; margin-bottom: 2px;">
+                                    {{ $idst['name'] }}
+                                </div>
+                                <div style="font-size: 11px; color: #64748b; line-height: 1.2;">
+                                    {{ $idst['count'] }}
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
@@ -678,81 +945,7 @@ document.addEventListener('DOMContentLoaded', function () {
 </section>
 @endif
 
-{{-- ============================================================ --}}
-{{-- ACCOMMODATION PROMOTIONS — Dynamic from Admin panel         --}}
-{{-- ============================================================ --}}
-@if(isset($accommodationPromos) && $accommodationPromos->isNotEmpty())
-<section class="py-4 bg-white">
-    <div class="container py-2">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0" style="font-size:18px;color:#1b2631;">Accommodation Promotions</h5>
-            <a href="{{ route('search.index') }}" class="text-decoration-none" style="color:#2067e1;font-size:14px;font-weight:600;">View all <i class="fa-solid fa-chevron-right ms-1" style="font-size:11px;"></i></a>
-        </div>
-        <div style="position:relative;">
-            <div style="position:absolute;right:0;top:0;height:100%;width:100px;background:linear-gradient(to left,#fff 20%,transparent 100%);z-index:5;pointer-events:none;"></div>
-            <button onclick="document.getElementById('promoAccCarousel').scrollBy({left:340,behavior:'smooth'})" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:10;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;">
-                <i class="fa-solid fa-chevron-right" style="font-size:12px;"></i>
-            </button>
-            <div id="promoAccCarousel" style="display:flex;gap:16px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:4px;">
-                @foreach($accommodationPromos as $promo)
-                <a href="{{ $promo->cta_url }}" class="text-decoration-none flex-shrink-0">
-                    <div style="width:340px;height:140px;border-radius:14px;overflow:hidden;position:relative;background:{{ $promo->gradient_css }};color:{{ $promo->text_color }};display:flex;align-items:center;padding:20px 24px;box-shadow:0 4px 14px rgba(0,0,0,0.15);">
-                        <div>
-                            @if($promo->badge_text)<div style="font-size:11px;font-weight:700;opacity:0.85;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">{{ $promo->icon }} {{ $promo->badge_text }}</div>@endif
-                            <div style="font-size:24px;font-weight:900;line-height:1.1;margin-bottom:6px;">{!! nl2br(e($promo->title)) !!}</div>
-                            @if($promo->subtitle)<div style="font-size:13px;opacity:0.85;margin-bottom:4px;">{{ $promo->subtitle }}</div>@endif
-                            @if($promo->cta_text)<div style="background:{{ $promo->badge_bg ?? '#fbbf24' }};color:#000;font-weight:800;font-size:13px;display:inline-block;padding:3px 10px;border-radius:20px;">{{ $promo->cta_text }}</div>@endif
-                        </div>
-                        @if($promo->icon)<div style="position:absolute;right:16px;font-size:50px;opacity:0.2;">{{ $promo->icon }}</div>@endif
-                    </div>
-                </a>
-                @endforeach
-                <div style="min-width:80px;flex-shrink:0;"></div>
-            </div>
-        </div>
-    </div>
-</section>
-@endif
-
-{{-- ============================================================ --}}
-{{-- FLIGHTS & ACTIVITIES PROMOTIONS — Dynamic from Admin panel  --}}
-{{-- ============================================================ --}}
-@if(isset($flightActivityPromos) && $flightActivityPromos->isNotEmpty())
-<section class="py-4 bg-white" style="border-top:1px solid #f1f5f9;">
-    <div class="container py-2">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0" style="font-size:18px;color:#1b2631;">Flights &amp; Activities Promotions</h5>
-            <a href="#" class="text-decoration-none" style="color:#2067e1;font-size:14px;font-weight:600;">View all <i class="fa-solid fa-chevron-right ms-1" style="font-size:11px;"></i></a>
-        </div>
-        <div style="position:relative;">
-            <div style="position:absolute;right:0;top:0;height:100%;width:100px;background:linear-gradient(to left,#fff 20%,transparent 100%);z-index:5;pointer-events:none;"></div>
-            <button onclick="document.getElementById('promoFlightCarousel').scrollBy({left:340,behavior:'smooth'})" style="position:absolute;right:6px;top:50%;transform:translateY(-50%);z-index:10;width:36px;height:36px;border-radius:50%;background:#fff;border:1px solid #e2e8f0;box-shadow:0 2px 8px rgba(0,0,0,0.15);cursor:pointer;display:flex;align-items:center;justify-content:center;color:#475569;">
-                <i class="fa-solid fa-chevron-right" style="font-size:12px;"></i>
-            </button>
-            <div id="promoFlightCarousel" style="display:flex;gap:16px;overflow-x:auto;scroll-behavior:smooth;scrollbar-width:none;-ms-overflow-style:none;padding-bottom:4px;">
-                @foreach($flightActivityPromos as $promo)
-                <a href="{{ $promo->cta_url }}" class="text-decoration-none flex-shrink-0">
-                    <div style="width:340px;height:140px;border-radius:14px;overflow:hidden;position:relative;background:{{ $promo->gradient_css }};color:{{ $promo->text_color }};display:flex;align-items:center;padding:20px 24px;box-shadow:0 4px 14px rgba(0,0,0,0.15);">
-                        <div>
-                            @if($promo->badge_text)<div style="font-size:11px;font-weight:700;opacity:0.85;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">{{ $promo->icon }} {{ $promo->badge_text }}</div>@endif
-                            <div style="font-size:22px;font-weight:900;line-height:1.2;margin-bottom:6px;">{!! nl2br(e($promo->title)) !!}</div>
-                            @if($promo->subtitle)<div style="font-size:13px;font-weight:600;opacity:0.85;margin-bottom:4px;">{{ $promo->subtitle }}</div>@endif
-                            @if($promo->cta_text)<div style="margin-top:4px;background:{{ $promo->badge_bg ?? '#fbbf24' }};color:#000;font-weight:800;font-size:13px;display:inline-block;padding:3px 10px;border-radius:20px;">{{ $promo->cta_text }}</div>@endif
-                        </div>
-                        @if($promo->icon)<div style="position:absolute;right:16px;font-size:50px;opacity:0.2;">{{ $promo->icon }}</div>@endif
-                    </div>
-                </a>
-                @endforeach
-                <div style="min-width:80px;flex-shrink:0;"></div>
-            </div>
-        </div>
-    </div>
-</section>
-@endif
-
 <style>
-#promoAccCarousel::-webkit-scrollbar,
-#promoFlightCarousel::-webkit-scrollbar,
 #bdDestCarousel::-webkit-scrollbar { display: none; }
 #bdDestScrollBtn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.22) !important; }
 </style>

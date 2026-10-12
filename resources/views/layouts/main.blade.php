@@ -20,6 +20,10 @@
     <meta name="keywords" content="@yield('meta_keywords', 'hotel booking bangladesh, online hotel booking bd, cheap hotels coxs bazar, sajek valley resort, sundarban cruise booking, sylhet hotel booking, dhaka 5 star hotel, air ticket booking bangladesh, হোটেল বুকিং বাংলাদেশ, কক্সবাজার হোটেল, সাজেক রিসোর্ট, প্রাইম বুকিং')">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
+    @if(!empty($siteSettings['google_search_console'] ?? null))
+    <meta name="google-site-verification" content="{{ $siteSettings['google_search_console'] }}">
+    @endif
+    @yield('extra_meta')
 
     <!-- Geo-Location Meta Tags for Bangladesh SEO ranking -->
     <meta name="geo.region" content="BD-13">
@@ -33,7 +37,6 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Prime Booking">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}">
 
     <!-- Open Graph (OG) / Social Media Sharing Tags -->
     <meta property="og:locale" content="en_US">
@@ -43,58 +46,72 @@
     <meta property="og:title" content="@yield('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')">
     <meta property="og:description" content="@yield('og_description', 'Book top hotels in Coxs Bazar, Sajek, Sylhet & Dhaka with instant confirmation and free cancellation. সেরা দামে বাংলাদেশ হোটেল ও ক্রুজ বুকিং করুন।')">
     <meta property="og:url" content="{{ url()->current() }}">
-    <meta property="og:image" content="@yield('og_image', asset('images/logo-brand.png'))">
+    <meta property="og:image" content="@yield('og_image', asset('android-chrome-512x512.png'))">
 
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@PrimeBookingBD">
     <meta name="twitter:title" content="@yield('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')">
     <meta name="twitter:description" content="@yield('og_description', 'Book top hotels in Coxs Bazar, Sajek, Sylhet & Dhaka with instant confirmation.')">
-    <meta name="twitter:image" content="@yield('og_image', asset('images/logo-brand.png'))">
+    <meta name="twitter:image" content="@yield('og_image', asset('android-chrome-512x512.png'))">
 
-    <!-- Schema.org JSON-LD Structured Data (Google Rich Snippet for Travel Agency) -->
+    <!-- Schema.org JSON-LD Structured Data (Google & Bing Rich Snippets for Travel Agency) -->
     <script type="application/ld+json">
     {!! json_encode([
         chr(64) . 'context' => 'https://schema.org',
         chr(64) . 'type'    => 'TravelAgency',
         'name'              => 'Prime Booking',
-        'alternateName' => 'প্রাইম বুকিং বাংলাদেশ',
-        'url' => 'https://primebooking.com.bd',
-        'logo' => 'https://primebooking.com.bd/images/logo.png',
-        'image' => 'https://primebooking.com.bd/images/logo.png',
-        'description' => 'Leading online travel platform in Bangladesh for booking hotels, resorts, ship cruises, flights and airport transfers.',
-        'telephone' => '+8801606352642',
-        'priceRange' => '৳৳ - ৳৳৳৳',
-        'address' => [
-            chr(64) . 'type' => 'PostalAddress',
-            'streetAddress' => 'Gulshan 2',
+        'alternateName'     => 'প্রাইম বুকিং বাংলাদেশ',
+        'url'               => 'https://primebooking.com.bd',
+        'logo'              => 'https://primebooking.com.bd/android-chrome-512x512.png',
+        'image'             => 'https://primebooking.com.bd/android-chrome-512x512.png',
+        'description'       => 'Leading online travel platform in Bangladesh for booking hotels, resorts, ship cruises, flights and airport transfers.',
+        'telephone'         => '+8801606352642',
+        'priceRange'        => '৳৳ - ৳৳৳৳',
+        'address'           => [
+            chr(64) . 'type'  => 'PostalAddress',
+            'streetAddress'   => 'Gulshan 2',
             'addressLocality' => 'Dhaka',
-            'postalCode' => '1212',
-            'addressCountry' => 'BD'
+            'postalCode'      => '1212',
+            'addressCountry'  => 'BD'
         ],
-        'geo' => [
+        'geo'               => [
             chr(64) . 'type' => 'GeoCoordinates',
-            'latitude' => 23.8103,
-            'longitude' => 90.4125
+            'latitude'       => 23.8103,
+            'longitude'      => 90.4125
         ],
-        'sameAs' => [
+        'sameAs'            => [
             'https://www.facebook.com/primebookingbd'
         ]
     ], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
     </script>
     @yield('schema')
-    <!-- Brand Favicon & Icons -->
-    <link rel="icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
-    <link rel="shortcut icon" type="image/png" href="{{ asset('images/logo.png') }}?v=2">
-    <link rel="apple-touch-icon" href="{{ asset('images/logo.png') }}?v=2">
+
+    <!-- Brand Favicon & Search Engine App Icons (Google & Bing SERP Verified Multi-Resolution) -->
+    <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}?v=3">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('favicon-16x16.png') }}?v=3">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('favicon-32x32.png') }}?v=3">
+    <link rel="icon" type="image/png" sizes="48x48" href="{{ asset('favicon-48x48.png') }}?v=3">
+    <link rel="icon" type="image/png" sizes="96x96" href="{{ asset('favicon-96x96.png') }}?v=3">
+    <link rel="icon" type="image/png" sizes="192x192" href="{{ asset('android-chrome-192x192.png') }}?v=3">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('apple-touch-icon.png') }}?v=3">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}?v=3">
+    <!-- DNS Preconnect for lightning fast CDN connection -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://flagcdn.com">
+
     <link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     
-    <!-- Agoda Custom 100% Design System -->
-    <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}?v={{ time() }}">
+    <!-- Agoda Official Design System Stylesheets (Cached for Speed) -->
+    <link rel="stylesheet" href="{{ asset('css/agoda/agoda-critical.css') }}?v=20261012">
+    <link rel="stylesheet" href="{{ asset('css/agoda/search-bundle.css') }}?v=20261012">
+    <link rel="stylesheet" href="{{ asset('css/agoda/3596-bundle.css') }}?v=20261012">
+    <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}?v=20261012">
     
     <style>
         :root {
@@ -110,9 +127,8 @@
             -webkit-text-size-adjust: 100%;
         }
         body {
-            background: linear-gradient(180deg, #e2eafc 0%, #edf2fb 50%, #f4f7fc 100%);
-            background-attachment: fixed;
-            color: #1b2631;
+            background-color: #f8f8f9 !important;
+            color: #2a2a2e;
             margin: 0;
             padding: 0;
             font-size: 14px;
@@ -230,7 +246,7 @@
     {{-- Mobile PWA Install Floating Prompt (Agoda 1:1 Parity) --}}
     <div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 75px; left: 16px; right: 16px; z-index: 99999; background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 16px; box-shadow: 0 12px 36px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);">
         <div class="d-flex align-items-center justify-content-between gap-3">
-            <img src="{{ asset('images/logo.png') }}" style="width: 38px; height: 38px; border-radius: 10px; background: #fff; padding: 2px; flex-shrink: 0;" alt="Prime Booking">
+            <img src="{{ asset('images/logo-icon.png') }}?v=5" style="width: 38px; height: 38px; border-radius: 10px; background: #fff; padding: 2px; flex-shrink: 0; object-fit: contain;" alt="Prime Booking">
             <div class="flex-grow-1" style="min-width: 0;">
                 <div style="font-size: 13px; font-weight: 700; color: #fff; line-height: 1.2;">Install Prime Booking App</div>
                 <div style="font-size: 11px; color: #94a3b8; margin-top: 2px;">Faster booking &amp; exclusive VIP deals</div>
@@ -296,6 +312,8 @@
     </script>
     @include('partials.prime_toast')
     @include('partials.social_proof_toaster')
-    @stack('scripts')
+    @include('components.modals.rewards-program-modal')
+    <!-- Enterprise Sub-Zero Latency Page Prefetcher (Instant.page: 0ms navigation on hover/touch) -->
+    <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.js" type="module" defer></script>
 </body>
 </html>

@@ -132,7 +132,7 @@
                     @endif
 
                     {{-- Exact 1:1 Agoda Link Card: "+ Link your miles program" --}}
-                    <div class="pointsmax-link-card" data-bs-toggle="modal" data-bs-target="#linkMilesModal">
+                    <div class="pointsmax-link-card" data-bs-toggle="modal" data-bs-target="#selectRewardsProgramModal" role="button">
                         <div class="text-primary mb-2" style="font-size: 32px; font-weight: 300; line-height: 1;">
                             +
                         </div>
@@ -145,84 +145,6 @@
 
             </div>
 
-        </div>
-    </div>
-</div>
-
-{{-- ── 1:1 EXACT AGODA LINK MILES PROGRAM MODAL (Matches Screenshot 2 & 3) ── --}}
-<div class="modal fade" id="linkMilesModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" style="max-width: 480px;">
-        <div class="modal-content border-0 shadow-lg" style="border-radius: 8px;">
-            <form action="{{ route('pointsmax.link') }}" method="POST">
-                @csrf
-                
-                {{-- Modal Header with Agoda 'x' close button --}}
-                <div class="modal-header border-0 pb-0 pt-4 px-4 position-relative">
-                    <h4 class="modal-title fw-bold text-dark mb-0" style="font-size: 20px; letter-spacing: -0.2px;">
-                        Link your miles program
-                    </h4>
-                    <button type="button" class="btn-close shadow-none position-absolute" data-bs-dismiss="modal" aria-label="Close"
-                            style="top: 20px; right: 20px; font-size: 12px;"></button>
-                </div>
-
-                {{-- Modal Body --}}
-                <div class="modal-body px-4 pt-3 pb-4">
-                    <p class="text-secondary mb-4" style="font-size: 13.5px; color: #475569 !important; line-height: 1.5;">
-                        Select a miles program from the drop-down list and then enter your membership ID. Then click "Save" and you can start earning miles on your next booking.
-                    </p>
-
-                    <div class="row g-3 mb-4">
-                        {{-- Program Dropdown Column --}}
-                        <div class="col-6">
-                            <label class="form-label fw-bold text-dark" style="font-size: 13px;">Program:</label>
-                            <select name="program" class="form-select form-select-sm py-2" required
-                                    style="border-color: #cbd5e1; border-radius: 4px; font-size: 13.5px; color: #334155;">
-                                <option value="" disabled selected>Please select</option>
-                                <option value="Air China">Air China</option>
-                                <option value="Citi Miles">Citi Miles</option>
-                                <option value="d Point">d Point</option>
-                                <option value="Korean Air SKYPASS">Korean Air SKYPASS</option>
-                                <option value="Singapore Airlines KrisFlyer">Singapore Airlines KrisFlyer</option>
-                                <option value="UOB Prvi Miles ID">UOB Prvi Miles ID</option>
-                                <option value="UOB Prvi Miles MY">UOB Prvi Miles MY</option>
-                                <option value="UOB Prvi Miles TH">UOB Prvi Miles TH</option>
-                                <option value="Biman Bangladesh Biman Club">Biman Bangladesh Biman Club</option>
-                                <option value="Emirates Skywards">Emirates Skywards</option>
-                                <option value="Qatar Airways Privilege Club">Qatar Airways Privilege Club</option>
-                            </select>
-                        </div>
-
-                        {{-- Membership ID Column --}}
-                        <div class="col-6">
-                            <label class="form-label fw-bold text-dark" style="font-size: 13px;">Membership ID:</label>
-                            <input type="text" name="membership_id" class="form-control form-control-sm py-2" placeholder="" required
-                                   style="border-color: #cbd5e1; border-radius: 4px; font-size: 13.5px;">
-                        </div>
-                    </div>
-
-                    {{-- Set as primary Checkbox --}}
-                    <div class="form-check mb-4">
-                        <input class="form-check-input" type="checkbox" name="is_primary" value="1" id="setAsPrimaryCheck" checked
-                               style="width: 17px; height: 17px; accent-color: #2067e1; margin-top: 2px;">
-                        <label class="form-check-label text-dark fw-medium ms-1" for="setAsPrimaryCheck" style="font-size: 13.5px;">
-                            Set as primary PointsMAX program
-                        </label>
-                    </div>
-
-                    {{-- Action Buttons: Cancel and Save (Exact Agoda Button Styling) --}}
-                    <div class="d-flex align-items-center justify-content-end gap-2 pt-2">
-                        <button type="button" class="btn btn-outline-secondary px-4 py-2 fw-semibold" data-bs-dismiss="modal"
-                                style="border: 1px solid #cbd5e1; border-radius: 4px; font-size: 14px; color: #334155; min-width: 95px;">
-                            Cancel
-                        </button>
-                        <button type="submit" class="btn text-white px-4 py-2 fw-semibold shadow-xs"
-                                style="background-color: #2067e1; border-radius: 4px; font-size: 14px; min-width: 95px; border: none;">
-                            Save
-                        </button>
-                    </div>
-                </div>
-
-            </form>
         </div>
     </div>
 </div>

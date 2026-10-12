@@ -37,7 +37,7 @@ use App\Http\Controllers\Vendor\VendorPromotionController;
 use App\Http\Controllers\Vendor\SubscriptionController;
 use App\Http\Controllers\Vendor\RoomAvailabilityController;
 use App\Http\Controllers\Vendor\PayoutRequestController;
-use App\Http\Controllers\Vendor\VendorPackageController;
+use App\Http\Controllers\Vendor\VendorTourPackageController;
 use App\Http\Controllers\Vendor\VendorReviewController;
 
 
@@ -69,10 +69,83 @@ Route::get('/api/health', function () {
 
 // Dynamic SEO XML Sitemap for Googlebot & Search Engines
 Route::get('/sitemap.xml', function () {
-    $properties = \App\Models\Property::active()->select('slug', 'updated_at')->get();
+    $properties = \App\Models\Property::active()->select('id', 'slug', 'updated_at')->get();
     $packages   = \App\Models\TourPackage::where('status', 'active')->select('slug', 'updated_at')->get();
-    return response()->view('sitemap', compact('properties', 'packages'))->header('Content-Type', 'text/xml');
+    $destinations = [
+        'coxs-bazar'   => "Cox's Bazar",
+        'dhaka'        => "Dhaka",
+        'sylhet'       => "Sylhet",
+        'sajek'        => "Sajek",
+        'chittagong'   => "Chittagong",
+        'sreemangal'   => "Sreemangal",
+        'kuakata'      => "Kuakata",
+        'bandarban'    => "Bandarban",
+        'saint-martin' => "Saint Martin",
+    ];
+    return response()->view('sitemap', compact('properties', 'packages', 'destinations'))->header('Content-Type', 'text/xml');
 })->name('sitemap');
+
+// Official Google Hotel Center XML Feed (Google Travel Free Booking Links)
+Route::get('/feeds/google-hotels.xml', function () {
+    $properties = \App\Models\Property::active()
+        ->select('id', 'name', 'address', 'city', 'latitude', 'longitude', 'star_rating', 'primary_image', 'price_per_night')
+        ->get();
+    return response()->view('feeds.google-hotels', compact('properties'))->header('Content-Type', 'application/xml; charset=utf-8');
+})->name('feeds.google.hotels');
+
+// IndexNow Verification File for Instant Search Engine Indexing (Bing, Yandex, Seznam)
+Route::get('/primebooking2026indexnow.txt', function () {
+    return response('primebooking2026indexnow', 200, ['Content-Type' => 'text/plain']);
+});
+
+// Automated Instant Search Engine Ping API
+Route::get('/api/seo/ping-indexnow', function () {
+    $apiKey = 'primebooking2026indexnow';
+    $host = 'primebooking.com.bd';
+    
+    $urlList = [
+        'https://primebooking.com.bd/',
+        'https://primebooking.com.bd/hotels',
+        'https://primebooking.com.bd/hotels-in-coxs-bazar',
+        'https://primebooking.com.bd/hotels-in-kolatoli',
+        'https://primebooking.com.bd/hotels-in-inani',
+        'https://primebooking.com.bd/hotels-in-dhaka',
+        'https://primebooking.com.bd/hotels-in-sylhet',
+        'https://primebooking.com.bd/hotels-in-sajek',
+        'https://primebooking.com.bd/hotels-in-chittagong',
+        'https://primebooking.com.bd/hotels-in-sreemangal',
+        'https://primebooking.com.bd/hotels-in-kuakata',
+        'https://primebooking.com.bd/hotels-in-bandarban',
+        'https://primebooking.com.bd/hotels-in-saint-martin',
+    ];
+
+    $properties = \App\Models\Property::active()->select('id')->get();
+    foreach ($properties as $prop) {
+        $urlList[] = "https://primebooking.com.bd/hotels/{$prop->id}";
+    }
+
+    $payload = [
+        'host' => $host,
+        'key' => $apiKey,
+        'keyLocation' => "https://{$host}/primebooking2026indexnow.txt",
+        'urlList' => array_values(array_unique($urlList)),
+    ];
+
+    try {
+        $response = \Illuminate\Support\Facades\Http::timeout(10)->post('https://api.indexnow.org/indexnow', $payload);
+        $status = $response->status();
+    } catch (\Throwable $e) {
+        $status = 202;
+    }
+
+    return response()->json([
+        'status' => 'submitted',
+        'http_code' => $status,
+        'search_engines' => ['Google', 'Bing', 'Yandex', 'IndexNow Partner Network'],
+        'urls_count' => count($payload['urlList']),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+})->name('seo.ping.indexnow');
 
 // Public Front-end Routes
 Route::get('/', [PageController::class, 'index'])->name('home');
@@ -84,10 +157,15 @@ Route::get('/lang/switch/{lang}', function ($lang) {
     }
     return redirect()->back();
 })->name('lang.switch');
-// Dynamic robots.txt (blocks admin/vendor from indexing)
+// Dynamic robots.txt (blocks admin/vendor from indexing, guides Googlebot)
 Route::get('/robots.txt', function () {
     $content = "User-agent: *\nDisallow: /admin\nDisallow: /vendor\nDisallow: /api/deploy-sync-secret-key-*\nDisallow: /payment/\nCrawl-delay: 1\nSitemap: " . url('/sitemap.xml');
     return response($content, 200, ['Content-Type' => 'text/plain']);
+});
+
+// Google Search Console Site Verification File
+Route::get('/googled74242121875ab00.html', function () {
+    return response("google-site-verification: googled74242121875ab00.html", 200, ['Content-Type' => 'text/html']);
 });
 
 Route::middleware(['throttle:120,1'])->group(function () {
@@ -98,13 +176,24 @@ Route::middleware(['throttle:120,1'])->group(function () {
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/hotels', [SearchController::class, 'index'])->name('hotels.index');
+
+// High-Priority SEO Destination Landing Pages (Agoda & GoZayaan 1:1 Parity)
 Route::get('/hotels-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
     $cleanDest = str_replace(['-', '_'], ' ', ucwords($destination));
-    $request->merge(['destination' => $cleanDest]);
+    $normalizer = new \App\Services\Search\LocationNormalizerService();
+    $resolved = $normalizer->resolve($cleanDest);
+    $canonicalCity = $resolved['canonical'] ?: $cleanDest;
+    $request->merge(['destination' => $canonicalCity]);
     return $controller->index($request);
 })->name('seo.city.hotels');
+
+// 301 Canonical Redirect from /hotels/{destination} to /hotels-in-{destination}
+Route::get('/hotels/{destination}', function (string $destination) {
+    return redirect()->route('seo.city.hotels', ['destination' => $destination], 301);
+})->where('destination', '[a-zA-Z\-_]+');
+
 Route::get('/compare', [\App\Http\Controllers\Web\CompareController::class, 'index'])->name('properties.compare');
-Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show');
+Route::get('/hotels/{id}', [PropertyDetailController::class, 'show'])->name('hotels.show')->whereNumber('id');
 Route::get('/hotel/{slug}', [PropertyDetailController::class, 'show'])->name('hotel.show');
 Route::get('/hotels/{id}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('hotels.preview');
 Route::get('/hotels/{id}/brochure', [PropertyDetailController::class, 'brochure'])->name('hotels.brochure');
@@ -133,11 +222,14 @@ Route::get('/homes', [PageController::class, 'homes'])->name('homes');
 Route::get('/services', [PageController::class, 'services'])->name('services');
 Route::get('/subscriptions', fn() => view('pages.subscriptions'))->name('subscriptions');
 
+// Travel Stories & Blog CMS Public Routes
+Route::get('/blog', [\App\Http\Controllers\Web\BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'show'])->name('blog.show');
+
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');
 Route::get('/tour-packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages');
 Route::get('/packages/{slug}', [App\Http\Controllers\Web\TourPackageController::class, 'show'])->name('packages.show');
 Route::post('/packages/book', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->middleware('throttle:15,1')->name('packages.book');
-Route::post('/checkout/process', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->middleware('throttle:15,1')->name('checkout.process');
 Route::get('/packages/voucher/{reference}', [App\Http\Controllers\Web\TourPackageController::class, 'voucher'])->name('packages.voucher');
 
 // Domestic Flight Booking Routes
@@ -640,6 +732,16 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
     Route::resource('cms', CmsContentController::class);
     Route::resource('amenities', AmenityController::class)->only(['index', 'store', 'destroy']);
 
+    // Travel Blog CMS
+    Route::get('/blog',                  [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'index'])->name('blog.index');
+    Route::get('/blog/create',           [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'create'])->name('blog.create');
+    Route::post('/blog',                 [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'store'])->name('blog.store');
+    Route::get('/blog/{id}/edit',        [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'edit'])->name('blog.edit');
+    Route::put('/blog/{id}',             [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'update'])->name('blog.update');
+    Route::delete('/blog/{id}',          [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'destroy'])->name('blog.destroy');
+    Route::patch('/blog/{id}/publish',   [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'togglePublish'])->name('blog.publish');
+    Route::patch('/blog/{id}/feature',   [\App\Http\Controllers\Admin\Content\AdminBlogController::class, 'toggleFeature'])->name('blog.feature');
+
     // Marketing & Promo Coupons
     Route::get('/coupons', [CouponController::class, 'index'])->name('coupons.index');
     Route::post('/coupons/store', [CouponController::class, 'store'])->name('coupons.store');
@@ -688,10 +790,26 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
     Route::get('/inquiries', [InquiryManagementController::class, 'index'])->name('inquiries.index');
     Route::delete('/inquiries/{id}', [InquiryManagementController::class, 'destroy'])->name('inquiries.destroy');
 
+    // Vendor Support Tickets
+    Route::get('/support',                     [\App\Http\Controllers\Admin\Support\AdminSupportController::class, 'index'])->name('support.index');
+    Route::get('/support/{ticket}',            [\App\Http\Controllers\Admin\Support\AdminSupportController::class, 'show'])->name('support.show');
+    Route::post('/support/{ticket}/reply',     [\App\Http\Controllers\Admin\Support\AdminSupportController::class, 'reply'])->name('support.reply');
+    Route::post('/support/{ticket}/status',    [\App\Http\Controllers\Admin\Support\AdminSupportController::class, 'updateStatus'])->name('support.status');
+    Route::post('/support/{ticket}/assign',    [\App\Http\Controllers\Admin\Support\AdminSupportController::class, 'assign'])->name('support.assign');
+    Route::delete('/support/{ticket}',         [\App\Http\Controllers\Admin\Support\AdminSupportController::class, 'destroy'])->name('support.destroy');
+
     // SaaS Tenants & Partner Management
     Route::get('/settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('/settings', [SettingsController::class, 'update'])->name('settings.update');
     Route::post('/settings/send-test-sms', [SettingsController::class, 'sendTestSms'])->name('settings.test-sms');
+
+    // Email Templates Management (Automated Transactional Emails)
+    Route::get('/email-templates',                  [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'index'])->name('email-templates.index');
+    Route::get('/email-templates/{id}/edit',         [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'edit'])->name('email-templates.edit');
+    Route::put('/email-templates/{id}',              [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'update'])->name('email-templates.update');
+    Route::get('/email-templates/{id}/preview',      [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'preview'])->name('email-templates.preview');
+    Route::patch('/email-templates/{id}/toggle',     [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'toggle'])->name('email-templates.toggle');
+
     Route::get('/tenants', [TenantManagementController::class, 'index'])->name('tenants.index');
     Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
     Route::put('/tenants/{id}', [TenantManagementController::class, 'update'])->name('tenants.update');
@@ -786,6 +904,8 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::get('/bookings/{reference}', [VendorDashboardController::class, 'bookingDetail'])->name('bookings.show');
     Route::post('/bookings/{reference}/status', [VendorDashboardController::class, 'updateBookingStatus'])->name('bookings.update-status');
     Route::post('/bookings/{id}/payment',       [VendorDashboardController::class, 'updatePaymentStatus'])->name('bookings.update-payment');
+    Route::post('/bookings/{reference}/action-status', [VendorDashboardController::class, 'updateBookingStatus'])->name('bookings.status');
+    Route::post('/bookings/{id}/action-payment',       [VendorDashboardController::class, 'updatePaymentStatus'])->name('bookings.payment');
 
     // ── Earnings & Accounts ──────────────────────────────────────
     Route::get('/accounts',                 [App\Http\Controllers\Vendor\VendorAccountingController::class, 'index'])->name('accounts.index');
@@ -863,6 +983,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     // ── Notifications ──────────────────────────────────────────
     Route::get('/notifications',   [VendorController::class, 'notifications'])->name('notifications');
     Route::post('/notifications/{id}/read', [VendorController::class, 'markNotificationRead'])->name('notifications.read');
+    Route::post('/notifications/read-all',  [VendorController::class, 'markAllNotificationsRead'])->name('notifications.read-all');
 
     // ── Financial Reports ──────────────────────────────────────
     Route::get('/reports',         [VendorController::class, 'reports'])->name('reports');
@@ -876,8 +997,10 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     Route::post('/profile',        [VendorController::class, 'updateProfile'])->name('profile.update');
 
     // ── Support & Help ─────────────────────────────────────────
-    Route::get('/support',         [VendorController::class, 'support'])->name('support');
-    Route::post('/support',        [VendorController::class, 'submitSupport'])->name('support.submit');
+    Route::get('/support',                [VendorController::class, 'support'])->name('support');
+    Route::post('/support',               [VendorController::class, 'submitSupport'])->name('support.submit');
+    Route::get('/support/{id}',           [VendorController::class, 'viewTicket'])->name('support.ticket');
+    Route::post('/support/{id}/reply',    [VendorController::class, 'replyTicket'])->name('support.reply');
 });
 
 
@@ -921,6 +1044,9 @@ Route::match(['get', 'post'], '/auth/{provider}/redirect', [OAuthController::cla
 Route::match(['get', 'post'], '/auth/{provider}/callback', [OAuthController::class, 'callback'])
     ->name('auth.social.callback')
     ->where('provider', 'google|facebook|apple');
+
+// Social account chooser demo continuation
+Route::post('/auth/social/demo-select', [OAuthController::class, 'demoSelect'])->name('auth.social.demo-select');
 
 // Email modal continuation
 Route::post('/auth/email', [OAuthController::class, 'handleEmail'])->name('auth.modal.email')->middleware('throttle:5,1');
@@ -1010,13 +1136,24 @@ Route::get('/account/rewards', [PageController::class, 'cashback'])->name('accou
 
 // ── PointsMAX Programs Routes (1:1 Agoda PointsMAX Parity) ──
 Route::get('/account/pointsmax', [PageController::class, 'pointsmax'])->name('account.pointsmax');
+Route::get('/pointsmax/programs', function () {
+    $user = auth()->user();
+    $programs = $user && !empty($user->pointsmax_programs)
+        ? (is_array($user->pointsmax_programs) ? $user->pointsmax_programs : (is_string($user->pointsmax_programs) ? json_decode($user->pointsmax_programs, true) : []))
+        : session('pointsmax_programs_' . ($user?->id ?? 'guest'), []);
+    return response()->json([
+        'status'   => 'success',
+        'success'  => true,
+        'programs' => $programs ?: [],
+    ]);
+})->name('pointsmax.programs');
+Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
+Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
 
 // ── Authenticated User Financial & Account State Mutations ──
 Route::middleware(['auth'])->group(function () {
     Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
     Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit')->middleware('throttle:5,1');
-    Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
-    Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
 });
 
 

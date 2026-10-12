@@ -33,11 +33,14 @@ class PageController extends Controller
     // ─────────────────────────────────────────────────────────────────────
     public function index(Request $request)
     {
-        // Disable Varnish & Browser Caching for Homepage to serve fresh views
+        // Top-Tier HTTP Edge & Browser Caching Strategy (Agoda / Airbnb standard)
         if (!headers_sent()) {
-            header('Cache-Control: no-cache, no-store, must-revalidate, max-age=0');
-            header('Pragma: no-cache');
-            header('Expires: 0');
+            if (Auth::check()) {
+                header('Cache-Control: private, no-cache, no-store, must-revalidate');
+            } else {
+                // Public edge caching: 5 min on Cloudflare edge (s-maxage), 60s in user browser
+                header('Cache-Control: public, max-age=60, s-maxage=300, stale-while-revalidate=600');
+            }
         }
 
         $company = config('company');
@@ -226,8 +229,58 @@ class PageController extends Controller
 
     public function deals()
     {
-        $deals = Cache::remember('deals_active', 600, fn() => Deal::active()->ordered()->get());
-        return view('pages.deals', ['company' => config('company'), 'deals' => $deals]);
+        // Auto-seed default deals if table is empty
+        if (\App\Models\Deal::count() === 0) {
+            \App\Models\Deal::create([
+                'title'          => 'Early Bird Flash Sale: Cox\'s Bazar',
+                'subtitle'       => 'Save up to 45% on top oceanfront resorts when booking ahead.',
+                'discount_pct'   => 45,
+                'original_price' => 8500,
+                'sale_price'     => 4675,
+                'valid_until'    => now()->addDays(5)->setTime(23, 59, 59),
+                'badge_text'     => 'Flash Deal',
+                'type'           => 'hotel',
+                'link_url'       => route('search.index') . '?city=Cox%27s+Bazar',
+                'is_active'      => true,
+            ]);
+            \App\Models\Deal::create([
+                'title'          => 'Sylhet Nature Retreat Escape',
+                'subtitle'       => 'Complimentary breakfast + 30% off on premium tea estate cottages.',
+                'discount_pct'   => 30,
+                'original_price' => 6200,
+                'sale_price'     => 4340,
+                'valid_until'    => now()->addDays(3)->setTime(18, 0, 0),
+                'badge_text'     => 'Weekend Special',
+                'type'           => 'hotel',
+                'link_url'       => route('search.index') . '?city=Sylhet',
+                'is_active'      => true,
+            ]);
+            \App\Models\Deal::create([
+                'title'          => 'Dhaka Luxury Suites Weekend Staycation',
+                'subtitle'       => 'Executive King Suites with late check-out included.',
+                'discount_pct'   => 25,
+                'original_price' => 12000,
+                'sale_price'     => 9000,
+                'valid_until'    => now()->addDays(7)->setTime(23, 59, 59),
+                'badge_text'     => 'VIP Exclusive',
+                'type'           => 'hotel',
+                'link_url'       => route('search.index') . '?city=Dhaka',
+                'is_active'      => true,
+            ]);
+        }
+
+        $deals = \App\Models\Deal::where('is_active', true)->latest('id')->get();
+        $coupons = \App\Models\Coupon::where(function($q) {
+            $q->where('status', 'active')->orWhere('is_active', true);
+        })->where(function($q) {
+            $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+        })->get();
+
+        return view('pages.deals', [
+            'company' => config('company'),
+            'deals'   => $deals,
+            'coupons' => $coupons,
+        ]);
     }
 
     public function contact()
@@ -367,50 +420,95 @@ class PageController extends Controller
     public function pointsmax()
     {
         $user = auth()->user();
-        $linkedPrograms = $user && $user->pointsmax_programs
-            ? json_decode($user->pointsmax_programs, true)
-            : (session('pointsmax_programs_' . ($user?->id ?? 'guest')) ?: []);
+        if ($user && !empty($user->pointsmax_programs)) {
+            $linkedPrograms = is_array($user->pointsmax_programs)
+                ? $user->pointsmax_programs
+                : (is_string($user->pointsmax_programs) ? json_decode($user->pointsmax_programs, true) : []);
+        } else {
+            $linkedPrograms = session('pointsmax_programs_' . ($user?->id ?? 'guest'), []);
+        }
 
         return view('pages.pointsmax', [
             'company'        => config('company'),
-            'linkedPrograms' => $linkedPrograms,
+            'linkedPrograms' => $linkedPrograms ?: [],
         ]);
     }
 
     public function linkPointsmaxProgram(Request $request)
     {
         $request->validate([
-            'program'       => 'required|string',
-            'membership_id' => 'required|string',
+            'program'       => 'required|string|max:120',
+            'membership_id' => 'required|string|max:100',
         ]);
 
         $user = auth()->user();
         $key = 'pointsmax_programs_' . ($user?->id ?? 'guest');
-        $current = session($key, []);
         
-        $newProgram = [
-            'id'            => uniqid(),
-            'program'       => $request->program,
-            'membership_id' => $request->membership_id,
-            'is_primary'    => $request->boolean('is_primary', true),
-            'linked_at'     => now()->toFormattedDateString(),
-        ];
+        if ($user && !empty($user->pointsmax_programs)) {
+            $current = is_array($user->pointsmax_programs)
+                ? $user->pointsmax_programs
+                : (is_string($user->pointsmax_programs) ? json_decode($user->pointsmax_programs, true) : []);
+        } else {
+            $current = session($key, []);
+        }
+
+        if (!is_array($current)) {
+            $current = [];
+        }
+
+        $isPrimary = $request->boolean('is_primary', true);
 
         // If marked primary, unset other primaries
-        if ($newProgram['is_primary']) {
+        if ($isPrimary) {
             foreach ($current as &$p) {
                 $p['is_primary'] = false;
             }
+            unset($p);
         }
 
-        $current[] = $newProgram;
+        // Check if program is already linked, update it instead of duplicate
+        $existingIndex = null;
+        foreach ($current as $idx => $p) {
+            if (strcasecmp($p['program'] ?? '', $request->program) === 0) {
+                $existingIndex = $idx;
+                break;
+            }
+        }
+
+        $newProgram = [
+            'id'            => $existingIndex !== null ? ($current[$existingIndex]['id'] ?? uniqid()) : uniqid(),
+            'program'       => $request->program,
+            'membership_id' => $request->membership_id,
+            'account_name'  => $request->input('account_name', $user?->name ?? ''),
+            'code'          => $request->input('code', ''),
+            'category'      => $request->input('category', 'Airline Loyalty'),
+            'is_primary'    => $isPrimary,
+            'linked_at'     => now()->format('d M Y'),
+        ];
+
+        if ($existingIndex !== null) {
+            $current[$existingIndex] = $newProgram;
+        } else {
+            $current[] = $newProgram;
+        }
+
         session([$key => $current]);
+
+        if ($user) {
+            try {
+                $user->pointsmax_programs = $current;
+                $user->save();
+            } catch (\Exception $e) {
+                \Log::warning('Pointsmax save failed: ' . $e->getMessage());
+            }
+        }
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'PointsMAX program linked successfully!',
                 'program' => $newProgram,
+                'programs' => $current,
             ]);
         }
 
@@ -421,7 +519,18 @@ class PageController extends Controller
     {
         $user = auth()->user();
         $key = 'pointsmax_programs_' . ($user?->id ?? 'guest');
-        $current = session($key, []);
+
+        if ($user && !empty($user->pointsmax_programs)) {
+            $current = is_array($user->pointsmax_programs)
+                ? $user->pointsmax_programs
+                : (is_string($user->pointsmax_programs) ? json_decode($user->pointsmax_programs, true) : []);
+        } else {
+            $current = session($key, []);
+        }
+
+        if (!is_array($current)) {
+            $current = [];
+        }
 
         $filtered = array_values(array_filter($current, function($item) use ($id) {
             return ($item['id'] ?? '') !== $id;
@@ -429,10 +538,20 @@ class PageController extends Controller
 
         session([$key => $filtered]);
 
+        if ($user) {
+            try {
+                $user->pointsmax_programs = $filtered;
+                $user->save();
+            } catch (\Exception $e) {
+                \Log::warning('Pointsmax unlink failed: ' . $e->getMessage());
+            }
+        }
+
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success' => true,
                 'message' => 'Program unlinked successfully.',
+                'programs' => $filtered,
             ]);
         }
 

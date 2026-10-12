@@ -1,5 +1,22 @@
 @extends('layouts.main', ['activePage' => 'hotels'])
 
+@php
+    $hotelCity = $property->city ?? "Cox's Bazar";
+    $hotelTitle = "{$property->name}, {$hotelCity} Booking | Best Room Rates Guaranteed | Prime Booking";
+    $hotelDesc = "Book {$property->name} in {$hotelCity} from ৳" . number_format((float)($property->price_per_night ?? 2500)) . "/night. 100% Instant confirmation, verified guest reviews, room photos & amenities on Prime Booking.";
+    $hotelKeywords = strtolower($property->name ?? '') . ", {$property->name} booking, " . strtolower($property->name ?? '') . " {$hotelCity}, hotels in {$hotelCity}, {$property->name} room price, coxs bazar hotel booking, হোটেল বুকিং বিডি";
+    $canonicalHotelUrl = url('/hotels/' . ($property->id ?? 1));
+    $hotelOgImage = media_url($property->primary_image, asset('images/logo.png'));
+@endphp
+
+@section('title', $hotelTitle)
+@section('meta_description', $hotelDesc)
+@section('meta_keywords', $hotelKeywords)
+@section('canonical_url', $canonicalHotelUrl)
+@section('og_title', $hotelTitle)
+@section('og_description', $hotelDesc)
+@section('og_image', $hotelOgImage)
+
 @section('schema')
 @php
     $schemaHotel = [
@@ -7,7 +24,7 @@
         chr(64) . 'type'    => in_array(strtolower($property->type ?? ''), ['resort', 'villa', 'motel']) ? ucfirst(strtolower($property->type)) : 'Hotel',
         'name'              => $property->name ?? 'Hotel',
         'description'       => strip_tags(\Illuminate\Support\Str::limit($property->description ?? 'Book ' . ($property->name ?? 'hotel') . ' on Prime Booking with best price guarantee.', 250)),
-        'image'             => $property->primary_image ? (str_starts_with($property->primary_image, 'http') ? $property->primary_image : asset('storage/' . $property->primary_image)) : asset('images/logo.png'),
+        'image'             => media_url($property->primary_image, asset('images/logo.png')),
         'starRating'        => [
             chr(64) . 'type' => 'Rating',
             'ratingValue'    => (int)($property->star_rating ?? 4),
@@ -56,12 +73,14 @@
     }
     $fallbacks = [
         'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=80',
-        'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=600&q=80',
+        'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
+        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80',
     ];
-    while ($gallery->count() < 5) { $gallery->push($fallbacks[$gallery->count() % count($fallbacks)]); }
+    while ($gallery->count() < 7) { $gallery->push($fallbacks[$gallery->count() % count($fallbacks)]); }
     
     // Dynamic Agoda Photo Categorization Collection
     $galleryCategorized = [
@@ -120,6 +139,7 @@
     $score = number_format($scoreNum, 1);
     $revCount = number_format($property->total_reviews ?: 6);
     $nights = $checkinCarbon->diffInDays($checkoutCarbon) ?: 1;
+    $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('property_id', $property->id)->exists();
 @endphp
 
 @section('title', e($property->name) . ' — Book Hotels in ' . ($property->city ?: 'Bangladesh') . ' | PRIME BOOKING')
@@ -139,7 +159,7 @@
     
     /* Agoda 1:1 Ultra-Premium Detail Page Styling */
     .detail-page-wrapper { 
-        background: #f8fafc; 
+        background: #ffffff; 
         min-height: 100vh; 
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
         color: #111827 !important; 
@@ -244,13 +264,13 @@
         40% { transform: scale(1.2); opacity: 1; }
     }
 
-    /* 📐 Standard Symmetric Page Container (100% Identical to Search Results & Other Pages: 1180px / 24px padding) */
+    /* 📐 Standard Symmetric Page Container (100% Identical to Agoda: 1200px max-width, 20px symmetric padding) */
     .agoda-page-container {
-        max-width: 1180px;
+        max-width: 1200px;
         margin-left: auto;
         margin-right: auto;
-        padding-left: 24px;
-        padding-right: 24px;
+        padding-left: 20px;
+        padding-right: 20px;
         width: 100%;
         box-sizing: border-box;
     }
@@ -362,35 +382,35 @@
     </div>
     @endif
 
-    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot 1 Exact 1:1 Parity - Single Clean Row) --}}
-    <div class="agoda-detail-search-bar shadow-sm" style="background: #132968; padding: 12px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
+    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot Exact 1:1 Parity) --}}
+    <div class="agoda-detail-search-bar shadow-xs" style="background: #0f294d; padding: 10px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
         <div class="agoda-page-container">
             <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" onsubmit="showAgodaSearchLoading();">
                 {{-- 1. Destination Input --}}
                 <div class="col-12 col-lg-3">
-                    <div class="input-group bg-white rounded-3 overflow-hidden shadow-xs" style="height: 46px;">
-                        <span class="input-group-text bg-white border-0 text-secondary ps-3 pe-2"><i class="fa-solid fa-magnifying-glass" style="color: #475569;"></i></span>
-                        <input type="text" name="destination" class="form-control border-0 fw-semibold text-dark ps-1" value="{{ $property->name }}" placeholder="Enter a destination or property" style="font-size: 13.5px; height: 46px;">
+                    <div class="input-group bg-white rounded-3 overflow-hidden shadow-xs" style="height: 44px;">
+                        <span class="input-group-text bg-white border-0 text-secondary ps-3 pe-2"><x-agoda-icon name="search" size="18" color="#475569" /></span>
+                        <input type="text" name="destination" class="form-control border-0 fw-semibold text-dark ps-1" value="{{ $property->name }}" placeholder="Enter a destination or property" style="font-size: 13.5px; height: 44px;">
                     </div>
                 </div>
 
                 {{-- 2. Combined Check-in & Check-out Single White Box --}}
                 <div class="col-12 col-md-6 col-lg-4">
-                    <div class="bg-white rounded-3 d-flex align-items-center overflow-hidden shadow-xs position-relative" style="height: 46px;">
+                    <div class="bg-white rounded-3 d-flex align-items-center overflow-hidden shadow-xs position-relative" style="height: 44px;">
                         <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="border-right: 1px solid #cbd5e1; cursor: pointer;" onclick="document.getElementById('checkInDetailInput').showPicker ? document.getElementById('checkInDetailInput').showPicker() : document.getElementById('checkInDetailInput').focus();">
-                            <i class="fa-regular fa-calendar text-secondary fs-5"></i>
+                            <x-agoda-icon name="calendar" size="18" color="#475569" />
                             <div style="line-height: 1.15;">
-                                <strong class="d-block text-dark" id="detailCheckInText" style="font-size: 12.5px;">{{ $checkinCarbon->format('j M Y') }}</strong>
-                                <small class="text-secondary" id="detailCheckInDay" style="font-size: 11px;">{{ $checkinCarbon->format('l') }}</small>
+                                <strong class="d-block text-dark" id="detailCheckInText" style="font-size: 12px;">{{ $checkinCarbon->format('j M Y') }}</strong>
+                                <small class="text-secondary" id="detailCheckInDay" style="font-size: 10.5px;">{{ $checkinCarbon->format('l') }}</small>
                             </div>
                         </div>
                         <input type="date" name="check_in" id="checkInDetailInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateDetailDateDisplay('checkIn', this.value);">
 
                         <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="cursor: pointer;" onclick="document.getElementById('checkOutDetailInput').showPicker ? document.getElementById('checkOutDetailInput').showPicker() : document.getElementById('checkOutDetailInput').focus();">
-                            <i class="fa-regular fa-calendar text-secondary fs-5"></i>
+                            <x-agoda-icon name="calendar" size="18" color="#475569" />
                             <div style="line-height: 1.15;">
-                                <strong class="d-block text-dark" id="detailCheckOutText" style="font-size: 12.5px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
-                                <small class="text-secondary" id="detailCheckOutDay" style="font-size: 11px;">{{ $checkoutCarbon->format('l') }}</small>
+                                <strong class="d-block text-dark" id="detailCheckOutText" style="font-size: 12px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
+                                <small class="text-secondary" id="detailCheckOutDay" style="font-size: 10.5px;">{{ $checkoutCarbon->format('l') }}</small>
                             </div>
                         </div>
                         <input type="date" name="check_out" id="checkOutDetailInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; right: 0; width: 1px; height: 1px;" onchange="updateDetailDateDisplay('checkOut', this.value);">
@@ -399,14 +419,15 @@
 
                 {{-- 3. Guests & Rooms Dropdown Box --}}
                 <div class="col-12 col-md-6 col-lg-3 position-relative">
-                    <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 46px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 44px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
                         <div class="d-flex align-items-center gap-2">
-                            <i class="fa-solid fa-users text-secondary fs-5"></i>
+                            <x-agoda-icon name="users" size="18" color="#475569" />
                             <div style="line-height: 1.15;">
-                                <strong class="d-block text-dark" id="detailGuestCountText" style="font-size: 12.5px;">{{ $guestStr }}</strong>
-                                <small class="text-secondary" id="detailRoomCountText" style="font-size: 11px;">{{ $roomsCountStr }}</small>
+                                <strong class="d-block text-dark" id="detailGuestCountText" style="font-size: 12px;">{{ $guestStr }}</strong>
+                                <small class="text-secondary" id="detailRoomCountText" style="font-size: 10.5px;">{{ $roomsCountStr }}</small>
                             </div>
                         </div>
+                        <i class="fa-solid fa-chevron-down text-muted" style="font-size: 11px;"></i>
                     </div>
 
                     {{-- Guests Popover Counter --}}
@@ -441,9 +462,9 @@
                     </div>
                 </div>
 
-                {{-- 4. SEARCH Button --}}
+                {{-- 4. Search Button (Agoda 1:1 Parity) --}}
                 <div class="col-12 col-lg-2">
-                    <button type="submit" class="btn text-white w-100 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center gap-2" style="background-color: #2067e1; height: 46px; font-size: 14px; letter-spacing: 0.5px;">
+                    <button type="submit" class="btn text-white w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center" style="background-color: #1b62dc; height: 44px; font-size: 14px; font-weight: 700; border-radius: 4px; letter-spacing: 0.5px;">
                         SEARCH
                     </button>
                 </div>
@@ -451,18 +472,18 @@
         </div>
     </div>
 
-    <div class="agoda-page-container pt-3">
+    <div class="agoda-page-container pt-2">
 
-        {{-- 2. Breadcrumb Strip (Screenshot 1 Parity) --}}
-        <div class="d-flex justify-content-between align-items-center mb-3" style="font-size: 12.5px;">
+        {{-- 2. Breadcrumb Strip (Screenshot Exact Parity) --}}
+        <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 12px; padding: 2px 0;">
             <div class="text-secondary">
-                <a href="{{ route('home') }}" class="text-secondary text-decoration-none">Home</a> &gt; 
-                <a href="{{ route('search.index') }}?destination=Bangladesh" class="text-secondary text-decoration-none">Bangladesh Hotels</a> <small class="text-muted">(1,851)</small> &gt; 
-                <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-secondary text-decoration-none">{{ $property->city ?: 'Dhaka' }} Hotels</a> <small class="text-muted">(538)</small> &gt; 
-                <strong class="text-dark">Book {{ $property->name }}</strong>
+                <a href="{{ route('home') }}" class="text-primary text-decoration-none">Home</a> <span class="text-muted mx-1">&gt;</span> 
+                <a href="{{ route('search.index') }}?destination=Bangladesh" class="text-primary text-decoration-none">Bangladesh Hotels</a> <span class="text-muted">(1,851)</span> <span class="text-muted mx-1">&gt;</span> 
+                <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-primary text-decoration-none">{{ $property->city ?: 'Dhaka' }} Hotels</a> <span class="text-muted">(538)</span> <span class="text-muted mx-1">&gt;</span> 
+                <span class="text-dark fw-normal">Book {{ $property->name }}</span>
             </div>
             <div>
-                <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-primary text-decoration-none fw-bold">See all properties in {{ $property->city ?: 'Dhaka' }}</a>
+                <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-primary text-decoration-none fw-bold" style="font-size: 12px;">See all properties in {{ $property->city ?: 'Dhaka' }}</a>
             </div>
         </div>
 
@@ -477,148 +498,114 @@
             }
         @endphp
 
-        {{-- 3. Hero Photo Collage 5-Grid (Agoda Screenshot 1 Parity with Clean Modal Controls) --}}
-        <div class="mb-4 position-relative" style="border-radius: 12px; overflow: hidden;">
-            <div class="row g-2">
-                {{-- Main Feature Display (Left 60%): Autoplaying HD Video if available, else Primary Image --}}
-                <div class="col-lg-7">
-                    <div class="hero-main-img-box position-relative" style="background:#0f172a;">
-                        @if($hasVideo)
-                            @if($isYoutube)
-                                <div class="w-100 h-100 position-relative overflow-hidden">
-                                    <iframe id="heroDetailAutoplayIframe" 
-                                            src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=1&mute=1&loop=1&playlist={{ $youtubeId }}&controls=0&modestbranding=1&rel=0" 
-                                            class="w-100 h-100 border-0" 
-                                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                            style="pointer-events: none; transform: scale(1.05);">
-                                    </iframe>
-                                    <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;">
-                                        <span class="badge bg-danger shadow-sm d-inline-flex align-items-center px-2.5 py-1.5" style="font-size: 11px; font-weight: 700; border-radius: 6px;">
-                                            <i class="fa-solid fa-circle-play fa-beat-fade me-1.5"></i> LIVE VIDEO TOUR
-                                        </span>
-                                    </div>
-                                    <div class="position-absolute w-100 h-100 top-0 start-0" style="cursor: pointer;" data-bs-toggle="modal" data-bs-target="#videoTourModal" title="Click to open full Video Tour"></div>
-                                </div>
-                            @else
-                                <div class="w-100 h-100 position-relative overflow-hidden" id="heroVideoContainer">
-                                    <video id="heroDetailAutoplayVideo" 
-                                           class="w-100 h-100" 
-                                           style="object-fit: cover; cursor: pointer;" 
-                                           autoplay 
-                                           muted 
-                                           loop 
-                                           playsinline 
-                                           preload="auto"
-                                           poster="{{ $gallery[0] }}"
-                                           data-bs-toggle="modal" 
-                                           data-bs-target="#videoTourModal"
-                                           title="Click to view full video tour">
-                                        <source src="{{ media_url($videoUrl) }}" type="video/mp4">
-                                        <source src="{{ media_url($videoUrl) }}" type="video/quicktime">
-                                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}">
-                                    </video>
-
-                                    {{-- Video Tour Badge & Audio Mute/Unmute Button --}}
-                                    <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;" onclick="event.stopPropagation();">
-                                        <span class="badge bg-danger shadow-sm d-inline-flex align-items-center px-2.5 py-1.5" style="font-size: 11px; font-weight: 700; border-radius: 6px; letter-spacing: 0.3px; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
-                                            <i class="fa-solid fa-circle-play fa-beat-fade me-1.5"></i> LIVE VIDEO TOUR
-                                        </span>
-                                        <button type="button" id="btnToggleHeroSound" class="btn btn-dark btn-sm rounded-circle d-flex align-items-center justify-content-center shadow-sm" style="width: 34px; height: 34px; background: rgba(0,0,0,0.75); border: 1.5px solid rgba(255,255,255,0.4); color: #fff; cursor: pointer; z-index: 25; position: relative;" onclick="toggleHeroVideoSound(event)" title="Mute/Unmute sound">
-                                            <i class="fa-solid fa-volume-xmark" id="iconHeroSound" style="font-size: 13px;"></i>
-                                        </button>
-                                    </div>
-                                </div>
-                            @endif
+        {{-- 3. Hero Photo Collage 4-Column Mosaic (1:1 Exact Agoda Screenshot 2 Parity) --}}
+        <div class="mb-2 position-relative" style="border-radius: 8px; overflow: hidden; height: 315px; -webkit-mask-image: -webkit-radial-gradient(white, black); transform: translateZ(0); background: #ffffff;">
+            <div class="d-flex flex-column flex-lg-row h-100" style="gap: 4px;">
+                {{-- Column 1: Left Hero Video / Main Image (~38% width) --}}
+                <div class="position-relative overflow-hidden" style="flex: 0 0 calc(38% - 3px); height: 100%; border-radius: 8px 0 0 8px; -webkit-mask-image: -webkit-radial-gradient(white, black); cursor: pointer; background: #0f172a;">
+                    @if($hasVideo)
+                        @if($isYoutube)
+                            <div class="w-100 h-100 position-relative overflow-hidden" style="border-radius: 8px 0 0 8px;">
+                                <iframe id="heroDetailAutoplayIframe" 
+                                        src="https://www.youtube-nocookie.com/embed/{{ $youtubeId }}?autoplay=1&mute=1&loop=1&playlist={{ $youtubeId }}&controls=0&modestbranding=1&rel=0" 
+                                        class="w-100 h-100 border-0" 
+                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                                        style="pointer-events: none; transform: scale(1.05); border-radius: 8px 0 0 8px;">
+                                </iframe>
+                                <div class="position-absolute w-100 h-100 top-0 start-0" style="cursor: pointer; border-radius: 8px 0 0 8px;" data-bs-toggle="modal" data-bs-target="#galleryModal" title="Click to open photos"></div>
+                            </div>
                         @else
-                            <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $property->name }}" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                            <div class="w-100 h-100 position-relative overflow-hidden" id="heroVideoContainer" style="border-radius: 8px 0 0 8px;">
+                                <video id="heroDetailAutoplayVideo" 
+                                       class="w-100 h-100" 
+                                       style="object-fit: cover; cursor: pointer; border-radius: 8px 0 0 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);" 
+                                       autoplay 
+                                       muted 
+                                       loop 
+                                       playsinline 
+                                       preload="auto"
+                                       poster="{{ $gallery[0] }}"
+                                       data-bs-toggle="modal" 
+                                       data-bs-target="#galleryModal"
+                                       title="Click to view photos">
+                                    <source src="{{ media_url($videoUrl) }}" type="video/mp4">
+                                    <source src="{{ media_url($videoUrl) }}" type="video/quicktime">
+                                    <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover; border-radius: 8px 0 0 8px;" alt="{{ $property->name }}">
+                                </video>
+                            </div>
                         @endif
+                    @else
+                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover; border-radius: 8px 0 0 8px; transition: transform 0.4s ease;" alt="{{ $property->name }}" data-bs-toggle="modal" data-bs-target="#galleryModal" fetchpriority="high" loading="eager">
+                    @endif
 
-                        {{-- Action Buttons on Bottom of Main Photo --}}
-                        <div class="position-absolute bottom-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 10;" onclick="event.stopPropagation();">
-                            @if($hasVideo)
-                            <button type="button" class="btn btn-danger btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12.5px; padding: 7px 16px;" data-bs-toggle="modal" data-bs-target="#videoTourModal">
-                                <i class="fa-solid fa-circle-play text-white" style="margin-right: 8px; font-size: 13px;"></i>
-                                <span>Watch Video Tour</span>
-                            </button>
-                            @endif
-                            <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12.5px; padding: 7px 16px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                                <i class="fa-solid fa-camera text-primary" style="margin-right: 8px; font-size: 13px;"></i>
-                                <span>See all photos</span>
-                            </button>
-                        </div>
+                    {{-- Bottom Action Button on Hero (Positioned at bottom right) --}}
+                    <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 10;" onclick="event.stopPropagation();">
+                        <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12px; padding: 6px 16px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1; color: #1e293b;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                            <i class="fa-solid fa-camera text-primary me-2" style="font-size: 13px;"></i>
+                            <span>See all photos</span>
+                        </button>
                     </div>
                 </div>
 
-                {{-- 4 Grid Photos (Right 2x2 Grid) --}}
-                <div class="col-lg-5 d-none d-lg-block" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                    <div class="row g-2">
-                        <div class="col-6">
-                            <div class="hero-thumb-img-box" style="border-top-right-radius: 0;">
-                                <img src="{{ $gallery[1] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 2">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="hero-thumb-img-box" style="border-top-right-radius: 12px;">
-                                <img src="{{ $gallery[2] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 3">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="hero-thumb-img-box" style="border-bottom-right-radius: 0;">
-                                <img src="{{ $gallery[3] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 4">
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="hero-thumb-img-box" style="border-bottom-right-radius: 12px;">
-                                <img src="{{ $gallery[4] ?? $gallery[0] }}" class="w-100 h-100" style="object-fit: cover;" alt="Gallery 5">
-                            </div>
-                        </div>
+                {{-- Column 2: 2 Stacked Images (~20.66% width) --}}
+                <div class="d-none d-lg-flex flex-column" style="flex: 0 0 calc(20.66% - 3px); height: 100%; gap: 4px;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[1] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} Highlight">
+                    </div>
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[2] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} Room">
                     </div>
                 </div>
-            </div>
 
-            {{-- Action Icons (Wishlist, Price Alert, Share) Top Right --}}
-            <div class="position-absolute top-0 end-0 m-3 d-flex align-items-center gap-2" style="z-index: 15;">
-                <button type="button" class="btn btn-light rounded-pill shadow-sm d-inline-flex align-items-center fw-bold" style="background: #ffffff; font-size: 12.5px; padding: 7px 16px; border: 1px solid #e2e8f0;" title="Set Price Drop Alert" data-bs-toggle="modal" data-bs-target="#priceAlertModal">
-                    <i class="fa-solid fa-bell text-warning" style="margin-right: 8px; font-size: 13px;"></i>
-                    <span class="d-none d-sm-inline">Price Alert</span>
-                </button>
-                <button type="button" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Share Property" onclick="sharePropertyLink();">
-                    <i class="fa-solid fa-share-nodes text-dark fs-6"></i>
-                </button>
-                <a href="{{ route('hotels.brochure', $property->id) }}" target="_blank" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center text-dark" style="width: 40px; height: 40px; background: #ffffff;" title="Print Official Hotel Brochure & Flyer">
-                    <i class="fa-solid fa-file-pdf fs-6 text-primary"></i>
-                </a>
-                @php
-                    $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('property_id', $property->id)->exists();
-                @endphp
-                <button type="button" class="btn btn-light rounded-circle shadow-sm d-flex align-items-center justify-content-center" style="width: 40px; height: 40px; background: #ffffff;" title="Save to Wishlist" onclick="toggleDetailWishlist(this, {{ $property->id }});">
-                    <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-dark' }} fa-heart fs-5"></i>
-                </button>
+                {{-- Column 3: 2 Stacked Images (~20.66% width) --}}
+                <div class="d-none d-lg-flex flex-column" style="flex: 0 0 calc(20.66% - 3px); height: 100%; gap: 4px;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[3] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} View 1">
+                    </div>
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[4] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} View 2">
+                    </div>
+                </div>
+
+                {{-- Column 4: 2 Stacked Images (Remaining ~20.66% width) --}}
+                <div class="d-none d-lg-flex flex-column flex-fill" style="height: 100%; gap: 4px;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a; border-top-right-radius: 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[5] }}" class="w-100 h-100" style="object-fit: cover; border-top-right-radius: 8px; transition: transform 0.4s ease;" alt="{{ $property->name }} View 3">
+                    </div>
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a; border-bottom-right-radius: 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[6] }}" class="w-100 h-100" style="object-fit: cover; border-bottom-right-radius: 8px; transition: transform 0.4s ease;" alt="{{ $property->name }} View 4">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- 4. Sticky Section Anchor Navigation Bar (Agoda 1:1 Parity: Full Width on Scroll, Centered Content with Padding) --}}
-    <div id="agodaStickyNavWrapper" class="agoda-sticky-nav-wrapper mb-4">
+    {{-- 4. Sticky Section Anchor Navigation Bar (Agoda 1:1 Parity) --}}
+    <div id="agodaStickyNavWrapper" class="agoda-sticky-nav-wrapper" style="margin-top: 8px; margin-bottom: 16px;">
         <div class="agoda-page-container">
-            <div class="agoda-sticky-nav-card d-flex align-items-center justify-content-between">
-                <div class="d-flex align-items-center gap-2 overflow-x-auto" style="scrollbar-width: none;">
-                    <a href="#overview" class="agoda-nav-item active">Overview</a>
-                    <a href="#rooms" class="agoda-nav-item">Rooms</a>
-                    <a href="#recommendations" class="agoda-nav-item">Trip recommendations</a>
-                    <a href="#facilities" class="agoda-nav-item">Facilities</a>
-                    <a href="#reviews" class="agoda-nav-item">Reviews</a>
-                    <a href="#location" class="agoda-nav-item">Location</a>
-                    <a href="#policies" class="agoda-nav-item">Policies</a>
+            <div class="agoda-sticky-nav-card d-flex align-items-center justify-content-between p-0" style="border: 1px solid #dddfe2; border-radius: 4px; background: #ffffff; height: 46px;">
+                <div class="d-flex align-items-center gap-1 overflow-x-auto ps-3 pe-2" style="scrollbar-width: none;">
+                    <a href="#overview" class="agoda-nav-item active" style="color: #2067e1 !important; border-bottom: 3px solid #2067e1; font-weight: 700; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Overview</a>
+                    <a href="#rooms" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Rooms</a>
+                    <a href="#recommendations" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Trip recommendations</a>
+                    <a href="#facilities" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Facilities</a>
+                    <a href="#reviews" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Reviews</a>
+                    <a href="#location" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Location</a>
+                    <button type="button" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center p-0 ms-1 flex-shrink-0" style="width: 24px; height: 24px; border: 1px solid #dddfe2; color: #475569; background: #ffffff;" onclick="document.querySelector('#agodaStickyNavWrapper .overflow-x-auto')?.scrollBy({left: 150, behavior: 'smooth'});">
+                        <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
+                    </button>
                 </div>
-                <div class="d-none d-md-flex align-items-center gap-3 py-1 flex-shrink-0">
+                <div class="d-none d-md-flex align-items-center gap-3 pe-3 py-1 flex-shrink-0">
                     <div class="text-end d-flex align-items-baseline gap-1">
-                        <span style="font-size: 11px; color: #64748b; font-weight: 500;">from</span>
-                        <strong style="color: #e11d48; font-size: 21px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{!! format_price($property->price_per_night) !!}</strong>
-                        <span style="font-size: 11px; color: #94a3b8;">/ night</span>
+                        <span style="font-size: 12px; color: #64748b; font-weight: 500;">from</span>
+                        <strong style="color: #e11d48; font-size: 19px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{!! format_price($property->price_per_night) !!}</strong>
                     </div>
-                    <a href="#rooms" class="btn text-white fw-bold rounded-pill px-4 py-2 text-uppercase" style="background-color: #2067e1; font-size: 13px; font-weight: 800; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(32, 103, 225, 0.25);">
-                        SEE YOUR PRICE
+                    <a href="#rooms" class="btn text-white fw-bold rounded-pill text-uppercase shadow-xs" style="background-color: #2067e1; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; padding: 7px 20px;">
+                        VIEW THIS DEAL
+                    </a>
+                    <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="text-decoration-none d-flex align-items-center gap-1 ms-1 text-dark fw-semibold" style="font-size: 12.5px; white-space: nowrap;">
+                        <span>Back to Top</span>
+                        <i class="fa-solid fa-arrow-up" style="font-size: 11px;"></i>
                     </a>
                 </div>
             </div>
@@ -627,269 +614,285 @@
 
     <div class="agoda-page-container">
         {{-- 5. Main Overview Section Grid (Exact User Screenshot Parity) --}}
-        <div id="overview" class="row g-4 mb-4">
+        <div id="overview" class="row gx-4 gy-4 mb-4">
             
-            {{-- Left Column: Title Card & Guest Highlights --}}
+            {{-- Left Column: Title & Overview (Agoda 1:1 Parity) --}}
             <div class="col-lg-8">
                 
-                {{-- Left Card 1: Badges, Title & Address (Screenshot Exact Parity) --}}
-                <div class="card agoda-card-border p-4 mb-4" style="border-radius: 8px;">
-                    {{-- Category Green Pill Badge (Exact Agoda Parity: Apartment/Flat) --}}
-                    <div class="d-flex align-items-center justify-content-between mb-2">
-                        <span class="badge bg-white px-2 py-1 d-inline-flex align-items-center gap-1.5" style="border: 1.5px solid #16a34a; color: #16a34a; font-size: 11.5px; font-weight: 700; border-radius: 4px;">
-                            <i class="fa-solid fa-house" style="font-size: 10.5px;"></i>
-                            <span>{{ !empty($property->type) ? ucfirst($property->type) : 'Apartment/Flat' }}</span>
-                        </span>
+                {{-- Left Header Card: Top Value, Best seller Badges, Wishlist, Title, Stars, Address (100% Exact Parity with Screenshot) --}}
+                <div class="card mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 6px !important; padding: 16px 20px !important; background: #ffffff !important; box-shadow: none !important;">
+                    {{-- Badges (Top Value & Best seller) + Wishlist Heart --}}
+                    <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 10px;">
+                        <div class="d-flex align-items-center" style="gap: 6px;">
+                            <span class="d-inline-flex align-items-center justify-content-center text-white" style="background: #f15600; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                Top Value
+                            </span>
+                            <span class="d-inline-flex align-items-center justify-content-center text-white" style="background: #d42e2e; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                Best seller
+                            </span>
+                        </div>
 
                         {{-- Wishlist Heart Button --}}
-                        <button type="button" class="btn btn-light btn-sm rounded-circle shadow-xs d-flex align-items-center justify-content-center" style="width: 34px; height: 34px; background: #ffffff; border: 1px solid #e2e8f0;" title="Save to Wishlist" onclick="toggleDetailWishlist(this, {{ $property->id }});">
-                            <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular text-dark' }} fa-heart" style="font-size: 15px;"></i>
+                        <button type="button" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center p-0" style="width: 36px; height: 36px; background: #ffffff; border: 1px solid #d1d5db; transition: all 0.2s ease;" title="Save to Wishlist" onclick="toggleDetailWishlist(this, {{ $property->id }});">
+                            <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular' }} fa-heart" style="font-size: 15px; color: {{ $isWishlisted ? '#dc2626' : '#222222' }};"></i>
                         </button>
                     </div>
 
-                    {{-- Title & Stars (Inline Beside Hotel Name - Agoda 1:1 Parity) --}}
-                    <div class="d-flex align-items-center flex-wrap gap-2 mb-1.5">
-                        <h1 class="fw-bold text-dark mb-0 d-inline" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 23px; line-height: 1.25; font-weight: 800; color: #0f172a;">
+                    {{-- Title & Stars Inline --}}
+                    <div class="d-flex align-items-center flex-wrap" style="margin-bottom: 6px;">
+                        <h1 class="mb-0 d-inline" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 22px; line-height: 1.3; font-weight: 700; color: #222222; letter-spacing: 0; -webkit-font-smoothing: antialiased;">
                             {{ $property->name }}
                         </h1>
-                        <div class="text-warning d-inline-flex align-items-center" style="font-size: 13px; letter-spacing: 2px;">
-                            @for($i = 0; $i < ($property->star_rating ?? 3); $i++)★@endfor
+                        <div class="d-inline-flex align-items-center ms-2" style="color: #e58c00 !important; font-size: 13px; letter-spacing: 2.5px; vertical-align: middle;">
+                            @for($i = 0; $i < ($property->star_rating ?? 5); $i++)★@endfor
                         </div>
                     </div>
 
                     {{-- Address & See Map Link --}}
-                    <div class="text-secondary small mb-0 d-inline-flex align-items-center flex-wrap" style="font-size: 13px;">
-                        <span style="color: #475569;">{{ $property->address ?: ($property->city . ', Bangladesh') }}</span>
-                        <span class="mx-1 text-muted">—</span>
-                        <a href="#location" class="fw-bold text-uppercase" style="color: #2067e1; font-size: 12px; letter-spacing: 0.3px; text-decoration: none;" onclick="event.preventDefault(); document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});">SEE MAP</a>
+                    <div class="d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2a2a2e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.4; margin-top: 2px;">
+                        <span>{{ $property->address ?: ($property->city . ', Bangladesh') }} - </span>
+                        <a href="#location" class="fw-bold text-uppercase text-decoration-none ms-1" style="color: #0b66c2; font-size: 12px; font-weight: 700; letter-spacing: 0.2px;" onclick="event.preventDefault(); document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});">SEE MAP</a>
                     </div>
                 </div>
 
-                {{-- Agoda High-Converting Live Urgency & Demand Alert Banner --}}
-                <div class="rounded-3 p-3 mb-3 d-flex align-items-center justify-content-between shadow-xs" style="background: linear-gradient(90deg, #fff1f2 0%, #fff7ed 100%); border: 1.5px solid #fecdd3; border-left: 5px solid #e11d48;">
-                    <div class="d-flex align-items-center gap-3">
-                        <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 38px; height: 38px; background: #ffe4e6; color: #e11d48; font-size: 16px;">
-                            <i class="fa-solid fa-fire-flame-curved"></i>
-                        </div>
-                        <div>
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="badge bg-danger text-white text-uppercase fw-bold" style="font-size: 10px; letter-spacing: 0.5px; border-radius: 3px;">In High Demand</span>
-                                <span class="text-dark fw-bold" style="font-size: 13.5px;">Booked {{ rand(3, 7) }} times today in Cox's Bazar!</span>
-                            </div>
-                            <div class="text-secondary" style="font-size: 12px; margin-top: 2px;">
-                                <i class="fa-solid fa-users text-danger me-1"></i> <strong>{{ rand(4, 9) }} travelers</strong> are viewing this property right now. Only <strong>{{ $property->rooms_left ?: 3 }} rooms</strong> left at this rate!
-                            </div>
-                        </div>
-                    </div>
-                    <div class="d-none d-md-block text-end flex-shrink-0 ps-3">
-                        <span class="badge rounded-pill px-2.5 py-1 fw-bold" style="background: #ffffff; color: #e11d48; border: 1px solid #fecdd3; font-size: 11px;">
-                            <i class="fa-regular fa-clock me-1"></i> Selling fast
-                        </span>
-                    </div>
-                </div>
-
-                {{-- AgodaVIP Member Deal Alert --}}
-                <div class="rounded-3 p-2.5 mb-4 d-flex align-items-center justify-content-between shadow-xs" style="background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 4px solid #16a34a;">
-                    <div class="d-flex align-items-center gap-2">
-                        <span class="badge text-white px-2 py-0.5 rounded-1 fw-bold" style="background: #16a34a; font-size: 10.5px;">AgodaVIP</span>
-                        <span class="fw-bold text-dark" style="font-size: 12.5px;">Member Secret Deal Applied</span>
-                        <span class="text-muted d-none d-sm-inline" style="font-size: 12px;">• You're saving an extra 10% on today's lowest rate!</span>
-                    </div>
-                    <span class="fw-bold text-success" style="font-size: 12px;"><i class="fa-solid fa-check-circle me-1"></i> Best Price Guarantee</span>
-                </div>
-
-                {{-- Left Card 2: Property Perks (100% Dynamic from Real DB Reviews & Amenities) --}}
-                @php
-                    $valScore = $property->sub_scores['value'] ?? $scoreNum;
-                    $cleanScore = $property->sub_scores['cleanliness'] ?? $scoreNum;
-                    $comfortScore = $property->sub_scores['room_comfort_and_quality'] ?? ($property->sub_scores['service'] ?? $scoreNum);
-                    $hasWifi = in_array('Free WiFi', $amenitiesList) || in_array('wifi', array_map('strtolower', $amenitiesList));
-                    $hasAc = in_array('Air conditioning', $amenitiesList) || in_array('ac', array_map('strtolower', $amenitiesList));
-                @endphp
-                <div class="card agoda-card-border p-4 mb-4" style="border-radius: 8px;">
-                    <h5 class="fw-bold text-dark mb-3" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;">Property perks</h5>
+                {{-- Left Card 2: Highlights (Agoda 1:1 Parity with Screenshot) --}}
+                <div class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 20px 24px !important; background: #ffffff;">
+                    <h5 class="fw-bold mb-3.5" style="font-size: 18px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; color: #222222;">Highlights</h5>
                     
-                    <div class="d-flex flex-column gap-3">
-                        {{-- 1. Top Value (Dynamic Value Subscore) --}}
+                    <div class="d-flex flex-column" style="gap: 18px;">
+                        {{-- 1. Great for children --}}
                         <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background-color: #fef3c7; color: #d97706; border-radius: 8px;">
-                                <i class="fa-solid fa-award fs-5"></i>
-                            </div>
-                            <div style="font-size: 13.5px; color: #1e293b;">
-                                <strong class="fw-bold text-dark">Top Value</strong>
-                                <span class="text-secondary"> - Guests rated this property {{ number_format((float)$valScore, 1) }}/10 on value for money</span>
+                            <img loading="lazy" decoding="async" src="{{ asset('images/agoda-highlights/highlight-1.png') }}" class="flex-shrink-0" style="width: 48px; height: 48px; object-fit: contain;" alt="Great for children">
+                            <div>
+                                <strong class="fw-bold" style="font-size: 14px; color: #222222;">Great for children</strong>
                             </div>
                         </div>
 
-                        {{-- 2. Sparkling Clean (Dynamic Cleanliness Subscore) --}}
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background-color: #e0f2fe; color: #0284c7; border-radius: 8px;">
-                                <i class="fa-solid fa-spray-can-sparkles fs-5"></i>
-                            </div>
-                            <div style="font-size: 13.5px; color: #1e293b;">
-                                <strong class="fw-bold text-dark">Sparkling clean</strong>
-                                <span class="text-secondary"> - Guests have rated this property {{ number_format((float)$cleanScore, 1) }}/10 on cleanliness</span>
+                        {{-- 2. Highly rated by couple travelers --}}
+                        <div class="d-flex align-items-start gap-3">
+                            <img loading="lazy" decoding="async" src="{{ asset('images/agoda-highlights/highlight-2.png') }}" class="flex-shrink-0" style="width: 48px; height: 48px; object-fit: contain;" alt="Highly rated by couple travelers">
+                            <div style="font-size: 14px; line-height: 1.35;">
+                                <div class="fw-bold mb-0.5" style="font-size: 14px; color: #222222;">Highly rated by couple travelers</div>
+                                <div style="font-size: 12.5px; color: #555555;">“We had a wonderful honeymoon here.”</div>
                             </div>
                         </div>
 
-                        {{-- 3. Room Comfort (Dynamic Comfort Subscore) --}}
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background-color: #f1f5f9; color: #475569; border-radius: 8px;">
-                                <i class="fa-solid fa-bed fs-5"></i>
-                            </div>
-                            <div style="font-size: 13.5px; color: #1e293b;">
-                                <strong class="fw-bold text-dark">Excellent room comfort &amp; quality</strong>
-                                <span class="text-secondary"> - Guests have rated this property {{ number_format((float)$comfortScore, 1) }}/10 on room comfort and quality</span>
+                        {{-- 3. Great overall atmosphere --}}
+                        <div class="d-flex align-items-start gap-3">
+                            <img loading="lazy" decoding="async" src="{{ asset('images/agoda-highlights/highlight-3.png') }}" class="flex-shrink-0" style="width: 48px; height: 48px; object-fit: contain;" alt="Great overall atmosphere">
+                            <div style="font-size: 14px; line-height: 1.35;">
+                                <div class="fw-bold mb-0.5" style="font-size: 14px; color: #222222;">Great overall atmosphere</div>
+                                <div style="font-size: 12.5px; color: #555555;">“Again, this was a pleasant experience overall.”</div>
                             </div>
                         </div>
 
-                        {{-- 4. Free Wi-Fi (Rendered if in DB Amenities) --}}
-                        @if($hasWifi)
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background-color: #e8f0fe; color: #2067e1; border-radius: 8px;">
-                                <i class="fa-solid fa-wifi fs-5"></i>
-                            </div>
-                            <div style="font-size: 13.5px; color: #1e293b;">
-                                <strong class="fw-bold text-dark">Free Wi-Fi in all rooms!</strong>
+                        {{-- 4. Top property facilities --}}
+                        <div class="d-flex align-items-start gap-3">
+                            <img loading="lazy" decoding="async" src="{{ asset('images/agoda-highlights/highlight-4.png') }}" class="flex-shrink-0" style="width: 48px; height: 48px; object-fit: contain;" alt="Top property facilities">
+                            <div style="font-size: 14px; line-height: 1.35;">
+                                <div><strong style="color: #222222; font-weight: 700;">Top property facilities</strong> <span style="font-size: 13px; color: #555555;">- Overall stays feel enjoyable for many guests, and several reviews say...</span></div>
+                                <div class="mt-0.5" style="font-size: 12.5px; color: #555555;">“Best 5 star hotel around cox's Bazar.”</div>
                             </div>
                         </div>
-                        @endif
 
-                        {{-- 5. Air conditioning (Rendered if in DB Amenities) --}}
-                        @if($hasAc)
-                        <div class="d-flex align-items-center gap-3">
-                            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background-color: #f1f5f9; color: #475569; border-radius: 8px;">
-                                <i class="fa-solid fa-snowflake fs-5"></i>
-                            </div>
-                            <div style="font-size: 13.5px; color: #1e293b;">
-                                <strong class="fw-bold text-dark">Air conditioning</strong>
+                        {{-- 5. Professional guest services --}}
+                        <div class="d-flex align-items-start gap-3">
+                            <img loading="lazy" decoding="async" src="{{ asset('images/agoda-highlights/highlight-5.png') }}" class="flex-shrink-0" style="width: 48px; height: 48px; object-fit: contain;" alt="Professional guest services">
+                            <div style="font-size: 14px; line-height: 1.35;">
+                                <div><strong style="color: #222222; font-weight: 700;">Professional guest services</strong> <span style="font-size: 13px; color: #555555;">- Hospitality stands out, with courteous staff, quick service, and 24-ho...</span></div>
+                                <div class="mt-0.5" style="font-size: 12.5px; color: #555555;">“Services, Swimming pool and also out side view is nice.”</div>
                             </div>
                         </div>
-                        @endif
                     </div>
                 </div>
 
-                {{-- Space & Rooms Breakdown (Agoda 1:1 Parity with Screenshot) --}}
-                @php
-                    $roomsCount = $property->rooms->count();
-                    $maxGuests = $property->rooms->max('max_adults') ?: 5;
-                    $maxSizeSqm = $property->rooms->max('room_size_sqm') ?: 93;
-                    $maxSizeSqft = round($maxSizeSqm * 10.764);
-                    $firstRoom = $property->rooms->first();
-                @endphp
-                <div class="card agoda-card-border mb-4" style="border: 1px solid #dddfe2 !important; border-radius: 8px !important; padding: 20px !important; background: #ffffff;">
-                    {{-- Sub-header Specs Row (Agoda 1:1 Match) --}}
-                    <div class="mb-3">
-                        <div class="fw-bold text-dark mb-1" style="font-size: 14.5px;">
-                            {{ $property->type ? ucfirst($property->type) : 'Apartment/Flat' }} 
-                            <span class="text-secondary fw-normal" style="font-size: 13px;">(Room size: {{ $maxSizeSqm }} m²/{{ $maxSizeSqft }} ft²)</span>
-                        </div>
-                        <div class="d-flex align-items-center flex-wrap gap-2 text-dark" style="font-size: 12.5px; font-weight: 600;">
-                            <span>Max {{ $maxGuests }} guests</span>
-                            <span class="text-muted fw-normal">|</span>
-                            <span>{{ $property->total_bedrooms ?: '1 bedroom/studio' }}</span>
-                            <span class="text-muted fw-normal">|</span>
-                            <span>{{ $firstRoom?->bathroom_count ?: 2 }} bathrooms</span>
-                            <span class="text-muted fw-normal">|</span>
-                            <span>{{ $firstRoom?->bed_count ?: 2 }} beds</span>
-                            <span class="text-muted fw-normal">|</span>
-                            <span>Kitchen</span>
+                {{-- Staycation offers available Card (Exact 1:1 Agoda Parity) --}}
+                <div class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px !important; background: #ffffff;">
+                    <div style="margin-bottom: 16px;">
+                        <h5 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; color: #2a2a2e; margin: 0 0 4px 0; line-height: 1.3;">
+                            Staycation offers available
+                        </h5>
+                        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #2a2a2e; line-height: 1.4;">
+                            Get special benefits for your stay
                         </div>
                     </div>
 
-                    {{-- Horizontal Scrollable Sub-cards (Bedroom 1, Common space, Bathroom and toiletries, Kitchen) --}}
+                    {{-- Horizontal Scrollable Sub-cards (Food & Drinks, Wellness, Activities, Sports & Entertainment) --}}
                     <div class="position-relative">
-                        <div id="roomSpacesScrollTrack" class="d-flex gap-3 overflow-x-auto pb-2 align-items-stretch" style="scrollbar-width: none;">
-                            {{-- Card 1: Bedroom 1 --}}
-                            <div class="d-flex flex-column justify-content-between" style="min-width: 170px; width: 170px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; background: #ffffff; flex-shrink: 0;">
+                        <div id="staycationScrollTrack" class="d-flex align-items-stretch overflow-hidden" style="gap: 12px; scroll-behavior: smooth; padding-bottom: 2px;">
+                            
+                            {{-- Card 1: Food and Drinks --}}
+                            <div class="d-flex flex-column justify-content-between" style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
                                 <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px; font-weight: 700;">Bedroom 1</strong>
-                                    <span class="text-secondary d-block" style="font-size: 12.5px;">1 king bed</span>
+                                    <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
+                                        <img loading="lazy" decoding="async" src="{{ asset('images/staycation-icons/food-drinks.png') }}" style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;" alt="Food and Drinks">
+                                        <strong style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Food and Drinks</strong>
+                                    </div>
+                                    <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Room service [24-hour]</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Coffee shop</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Room service</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-secondary mt-3">
-                                    <i class="fa-solid fa-bed fs-5" style="color: #64748b;"></i>
+                                <div style="text-align: right; margin-top: auto;">
+                                    <a href="#facilities" style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See all amenities</a>
                                 </div>
                             </div>
 
-                            {{-- Card 2: Common space --}}
-                            <div class="d-flex flex-column justify-content-between" style="min-width: 170px; width: 170px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; background: #ffffff; flex-shrink: 0;">
+                            {{-- Card 2: Wellness --}}
+                            <div class="d-flex flex-column justify-content-between" style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
                                 <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px; font-weight: 700;">Common space</strong>
-                                    <span class="text-secondary d-block" style="font-size: 12.5px;">1 sofa bed</span>
+                                    <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
+                                        <img loading="lazy" decoding="async" src="{{ asset('images/staycation-icons/wellness.png') }}" style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;" alt="Wellness">
+                                        <strong style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Wellness</strong>
+                                    </div>
+                                    <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Salon</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Fitness center</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Spa</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-secondary mt-3">
-                                    <i class="fa-solid fa-couch fs-5" style="color: #64748b;"></i>
+                                <div style="text-align: right; margin-top: auto;">
+                                    <a href="#facilities" style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See all amenities</a>
                                 </div>
                             </div>
 
-                            {{-- Card 3: Bathroom and toiletries --}}
-                            <div class="d-flex flex-column justify-content-between" style="min-width: 200px; width: 200px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; background: #ffffff; flex-shrink: 0;">
+                            {{-- Card 3: Activities --}}
+                            <div class="d-flex flex-column justify-content-between" style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
                                 <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px; font-weight: 700;">Bathroom and toiletries</strong>
-                                    <span class="text-secondary d-block text-truncate" style="font-size: 12px; line-height: 1.4;">
-                                        Additional toilet, Cleaning products, Shared bathroom,...
-                                    </span>
+                                    <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
+                                        <img loading="lazy" decoding="async" src="{{ asset('images/staycation-icons/activities.png') }}" style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;" alt="Activities">
+                                        <strong style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Activities</strong>
+                                    </div>
+                                    <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Swimming pool [indoor]</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>On-site activity</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Water park</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="d-flex align-items-center gap-2 text-secondary fs-6 mt-3" style="color: #64748b !important;">
-                                    <i class="fa-solid fa-pump-soap"></i>
-                                    <i class="fa-solid fa-shower"></i>
-                                    <i class="fa-solid fa-bottle-droplet"></i>
-                                    <i class="fa-solid fa-toilet"></i>
+                                <div style="text-align: right; margin-top: auto;">
+                                    <a href="#facilities" style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See all amenities</a>
                                 </div>
                             </div>
 
-                            {{-- Card 4: Kitchen --}}
-                            <div class="d-flex flex-column justify-content-between" style="min-width: 160px; width: 160px; border: 1px solid #e2e8f0; border-radius: 6px; padding: 14px; background: #ffffff; flex-shrink: 0;">
+                            {{-- Card 4: Sports & Entertainment --}}
+                            <div class="d-flex flex-column justify-content-between" style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
                                 <div>
-                                    <strong class="d-block text-dark mb-1" style="font-size: 13.5px; font-weight: 700;">Kitchen</strong>
-                                    <span class="text-secondary d-block" style="font-size: 12px;">Dining area, Full kitchen</span>
+                                    <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
+                                        <img loading="lazy" decoding="async" src="{{ asset('images/staycation-icons/sports.png') }}" style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;" alt="Sports & Entertainment">
+                                        <strong style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Sports &amp; Entertainment</strong>
+                                    </div>
+                                    <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Game room</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Tennis court</span>
+                                        </div>
+                                        <div style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0; margin-top: 2px;"><polyline points="20 6 9 17 4 12"/></svg>
+                                            <span>Hiking trails</span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="text-secondary mt-3">
-                                    <i class="fa-solid fa-utensils fs-5" style="color: #64748b;"></i>
+                                <div style="text-align: right; margin-top: auto;">
+                                    <a href="#facilities" style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;" onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See all amenities</a>
                                 </div>
                             </div>
+
                         </div>
 
-                        {{-- Floating Chevron Scroll Button --}}
-                        <button class="btn btn-light rounded-circle shadow-sm border position-absolute top-50 end-0 translate-middle-y me-1 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 12px; z-index: 10; background: #ffffff;" title="Scroll Right" onclick="document.getElementById('roomSpacesScrollTrack').scrollBy({left: 200, behavior: 'smooth'});">
-                            <i class="fa-solid fa-chevron-right text-dark"></i>
+                        {{-- Floating Next Carousel Chevron Button --}}
+                        <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y d-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px; border: 1px solid #dddfe2; background: #ffffff; z-index: 5; margin-right: -10px;" title="Next" onclick="document.getElementById('staycationScrollTrack').scrollBy({left: 220, behavior: 'smooth'});">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
                         </button>
                     </div>
                 </div>
 
-                {{-- Facilities Grid (Agoda 1:1 Parity with Screenshot) --}}
-                <div id="facilities" class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 16px !important; background: #ffffff;">
-                    <div class="mb-2.5">
-                        <h5 class="fw-bold text-dark mb-0" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800;">Facilities</h5>
+                {{-- Facilities Card (Exact 1:1 Agoda Parity) --}}
+                <div id="facilities" class="card agoda-card-border mb-4" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px !important; background: #ffffff;">
+                    <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 18px;">
+                        <h5 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; color: #2a2a2e; margin: 0; line-height: 1.3;">Facilities</h5>
+                        <a href="javascript:void(0)" class="fw-bold text-decoration-none" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #2067e1; font-size: 14px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#facilitiesModal">See all</a>
                     </div>
-                    <div class="row g-2 mb-2">
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Free Wi-Fi</span>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13.5px; color: #2a2a2e;">
+                        {{-- Column 1 --}}
+                        <div class="d-flex flex-column" style="gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Private beach</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Spa</span>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Family room</span>
+
+                        {{-- Column 2 --}}
+                        <div class="d-flex flex-column" style="gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Free Wi-Fi</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Front desk [24-hour]</span>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Balcony/terrace</span>
+
+                        {{-- Column 3 --}}
+                        <div class="d-flex flex-column" style="gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Swimming pool</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Fitness center</span>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Contactless check-in/out</span>
+
+                        {{-- Column 4 --}}
+                        <div class="d-flex flex-column" style="gap: 10px;">
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Free parking</span>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Restaurants</span>
+                            </div>
                         </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Laundry</span>
-                        </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Rental car</span>
-                        </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Safety deposit boxes</span>
-                        </div>
-                        <div class="col-6 col-md-3 d-flex align-items-center gap-2" style="font-size: 12px; color: #1e293b;">
-                            <i class="fa-solid fa-check text-dark" style="font-size: 12px; width: 14px; text-align: center;"></i> <span>Non-smoking rooms</span>
-                        </div>
-                    </div>
-                    <div class="text-end">
-                        <a href="#location" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 13px;" onclick="event.preventDefault(); document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});">See nearby places</a>
                     </div>
                 </div>
 
@@ -898,61 +901,126 @@
             {{-- Right Column Sidebar Widgets --}}
             <div class="col-lg-4 d-flex flex-column">
                 
-                {{-- Right Card 1: Review Score Box (Agoda 1:1 Parity with Screenshot) --}}
-                <div id="reviews" class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 8px !important; padding: 16px !important; background: #ffffff;">
-                    <div class="d-flex align-items-baseline justify-content-between gap-2 mb-1">
-                        <h4 class="fw-bold mb-0" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #1e293b;">
-                            {{ $scoreNum >= 9 ? '10 Exceptional' : ($scoreNum >= 8 ? number_format($scoreNum, 1) . ' Excellent' : number_format($scoreNum, 1) . ' Very Good') }}
-                        </h4>
-                        <a href="#reviews" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 13px;">Read all reviews</a>
-                    </div>
-                    <div class="d-flex align-items-center mb-3" style="color: #2067e1; font-size: 13px; font-weight: 600;">
-                        <i class="fa-solid fa-circle-check me-2" style="font-size: 14px; color: #2067e1;"></i>
-                        <span style="color: #2067e1; font-weight: 700;">{{ $revCount }} {{ $property->total_reviews == 1 ? 'review' : 'reviews' }}</span>
+                {{-- Right Card 1: Review Score Box with Sub-scores AND Customer Review Snippets (Agoda 1:1 Parity) --}}
+                @php
+                    $cleanScoreVal = (float)($property->sub_scores['cleanliness'] ?? 8.2);
+                    $facScoreVal = (float)($property->sub_scores['facilities'] ?? 7.8);
+                    $servScoreVal = (float)($property->sub_scores['service'] ?? 7.8);
+                    $valScoreVal = (float)($property->sub_scores['value'] ?? 7.5);
+                @endphp
+                <div id="reviews" class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 16px !important; background: #ffffff;">
+                    {{-- Header: Score Badge + Summary + See All --}}
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        {{-- Blue Rating Badge (Agoda Speech Bubble: 3 rounded corners, bottom-left sharp 0px) --}}
+                        <div class="d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0" style="width: 48px; height: 44px; background-color: #2067e1; border-radius: 14px 14px 14px 0 !important; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1;">
+                            {{ $score }}
+                        </div>
+                        {{-- Rating Summary & Review Count --}}
+                        <div class="flex-grow-1" style="line-height: 1.25;">
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <strong style="font-size: 17px; font-weight: 700; color: #2067e1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                    {{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : ($scoreNum >= 7 ? 'Very good' : 'Good')) }}
+                                </strong>
+                                <a href="#reviews" class="text-decoration-none" style="color: #2067e1; font-size: 13px; font-weight: 600;">See all</a>
+                            </div>
+                            <div class="mt-0.5" style="font-size: 13px; color: #536279; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                {{ $revCount }} {{ $property->total_reviews == 1 ? 'review' : 'reviews' }}
+                            </div>
+                        </div>
                     </div>
 
-                    {{-- Dynamic Green Sub-scores Pills (Exact Agoda Spacing & Margins) --}}
-                    <div class="d-flex flex-wrap align-items-center" style="gap: 6px 6px;">
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11.5px; white-space: nowrap;">
-                            Cleanliness {{ number_format((float)($property->sub_scores['cleanliness'] ?? 10.0), 1) }}
-                        </span>
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11.5px; white-space: nowrap;">
-                            Facilities {{ number_format((float)($property->sub_scores['facilities'] ?? 10.0), 1) }}
-                        </span>
-                        <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11.5px; white-space: nowrap;">
-                            Location {{ number_format((float)($property->sub_scores['location'] ?? 10.0), 1) }}
-                        </span>
-                        <div class="d-inline-flex align-items-center gap-1.5">
-                            <span class="px-2 py-1" style="background-color: #e6f4ea; color: #137333; font-weight: 600; border-radius: 4px; font-size: 11.5px; white-space: nowrap;">
-                                Room comfort and quality {{ number_format((float)($property->sub_scores['room_comfort_and_quality'] ?? 10.0), 1) }}
-                            </span>
-                            <span class="d-inline-flex align-items-center justify-content-center rounded-circle border border-dark text-dark flex-shrink-0" style="width: 14px; height: 14px; font-size: 9px; font-weight: 700; cursor: pointer;" title="Rating Breakdown Info">i</span>
+                    {{-- 2x2 Sub-scores Grid with Blue Numbers and Progress Bars ("niche dag") --}}
+                    <div class="row g-2 mb-3" style="font-size: 12px; line-height: 1.4;">
+                        {{-- Cleanliness --}}
+                        <div class="col-6 pe-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Cleanliness</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($cleanScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
+                                <div style="width: {{ min(100, max(10, round(($cleanScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
                         </div>
+
+                        {{-- Facilities --}}
+                        <div class="col-6 ps-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Facilities</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($facScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
+                                <div style="width: {{ min(100, max(10, round(($facScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+
+                        {{-- Service --}}
+                        <div class="col-6 pe-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Service</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($servScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: {{ min(100, max(10, round(($servScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+
+                        {{-- Value for money --}}
+                        <div class="col-6 ps-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Value for money</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($valScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: {{ min(100, max(10, round(($valScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Customer Review Snippets Track (Inside this same Card!) --}}
+                    <div class="position-relative mt-2 pt-1">
+                        <div class="d-flex gap-2 overflow-hidden align-items-stretch" style="margin-right: -4px;">
+                            {{-- Snippet Card 1 --}}
+                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff;">
+                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
+                                    Great Location, Impeccably<br>Clean – Highly Recommended!
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
+                                    {{-- BD Flag Badge --}}
+                                    <span class="d-inline-flex align-items-center justify-content-center" style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
+                                        <span style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
+                                    </span>
+                                    <strong class="text-dark" style="font-weight: 700; color: #1e293b;">MD I.</strong>
+                                    <span style="color: #64748b;">Bangladesh</span>
+                                </div>
+                            </div>
+
+                            {{-- Snippet Card 2 (Peeking) --}}
+                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff; opacity: 0.95;">
+                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
+                                    Services ...<br>also ...
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
+                                    <span class="d-inline-flex align-items-center justify-content-center" style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
+                                        <span style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
+                                    </span>
+                                    <strong class="text-dark" style="font-weight: 700; color: #1e293b;">Sha...</strong>
+                                    <span style="color: #64748b;">Bangladesh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Circular Next Button Overlapping --}}
+                        <button type="button" class="btn btn-light rounded-circle position-absolute top-50 d-flex align-items-center justify-content-center p-0" style="right: 8px; transform: translateY(-50%); width: 28px; height: 28px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.18); z-index: 5;" onclick="document.getElementById('reviews')?.scrollIntoView({behavior:'smooth'});" title="View more reviews">
+                            <i class="fa-solid fa-chevron-right" style="font-size: 11px; color: #1e293b;"></i>
+                        </button>
                     </div>
                 </div>
 
-                {{-- Right Card 2: Check-in / Check-out Box (Agoda 1:1 Parity with Screenshot) --}}
-                <div class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 8px !important; padding: 16px !important; background: #ffffff;">
-                    <div class="row g-2 mb-2">
-                        <div class="col-6">
-                            <strong class="d-block text-dark mb-0.5" style="font-size: 13.5px; font-weight: 800; color: #1e293b;">Check-in:</strong>
-                            <span style="font-size: 13px; color: #1e293b; font-weight: 500;">{{ $property->checkin_time ? date('h:i A', strtotime($property->checkin_time)) : '01:00 PM' }}</span>
-                        </div>
-                        <div class="col-6">
-                            <strong class="d-block text-dark mb-0.5" style="font-size: 13.5px; font-weight: 800; color: #1e293b;">Check-out:</strong>
-                            <span style="font-size: 13px; color: #1e293b; font-weight: 500;">until {{ $property->checkout_time ? date('h:i A', strtotime($property->checkout_time)) : '11:00 AM' }}</span>
-                        </div>
-                    </div>
-                    <div class="border-top pt-2 mt-2 text-end" style="border-color: #f1f5f9 !important;">
-                        <a href="#policies" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 13px;">See more info</a>
-                    </div>
-                </div>
-
-                {{-- Right Card 3: Combined Interactive Map & Closest Landmarks Single Card (Agoda 1:1 Exact Parity) --}}
-                <div id="location" class="card agoda-card-border overflow-hidden mb-4 flex-grow-1" style="border: 1px solid #dddfe2 !important; border-radius: 8px !important; background: #ffffff;">
-                    {{-- Map Preview Container with 12px Margins Matching Screenshot --}}
-                    <div style="padding: 16px 16px 0 16px;">
-                        <div class="position-relative text-center overflow-hidden" style="height: 125px; border-radius: 8px; background: #eef2f6; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal" title="Click to view full interactive map">
+                {{-- Right Card 2: Interactive Location & Map Card (Agoda 1:1 Parity) --}}
+                <div id="location" class="card agoda-card-border overflow-hidden mb-4 flex-grow-1 d-flex flex-column" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; background: #ffffff;">
+                    {{-- Map Preview Container --}}
+                    <div style="padding: 12px 12px 0 12px;">
+                        <div class="position-relative text-center overflow-hidden" style="height: 130px; border-radius: 4px; background: #eef2f6; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal" title="Click to view full interactive map">
                             {{-- Agoda SVG Road Grid Pattern --}}
                             <svg class="w-100 h-100 position-absolute top-0 start-0" style="pointer-events: none;" xmlns="http://www.w3.org/2000/svg">
                                 <rect width="100%" height="100%" fill="#f1f5f9"/>
@@ -961,9 +1029,9 @@
                                 <line x1="120" y1="-20" x2="350" y2="80" stroke="#fed7aa" stroke-width="5"/>
                                 <line x1="-30" y1="110" x2="250" y2="-10" stroke="#cbd5e1" stroke-width="3"/>
                                 <line x1="50" y1="160" x2="350" y2="30" stroke="#cbd5e1" stroke-width="3"/>
-                                <rect x="210" y="15" width="55" height="40" fill="#6ee7b7" opacity="0.8" rx="2" transform="rotate(-35 237 35)"/>
-                                <rect x="180" y="70" width="50" height="35" fill="#6ee7b7" opacity="0.8" rx="2" transform="rotate(-35 205 87)"/>
-                                <rect x="90" y="75" width="45" height="35" fill="#93c5fd" opacity="0.8" rx="2" transform="rotate(-35 112 92)"/>
+                                <rect x="210" y="15" width="55" height="40" fill="#80cbc4" opacity="0.8" rx="2" transform="rotate(-35 237 35)"/>
+                                <rect x="180" y="70" width="50" height="35" fill="#80cbc4" opacity="0.8" rx="2" transform="rotate(-35 205 87)"/>
+                                <rect x="90" y="75" width="45" height="35" fill="#90caf9" opacity="0.8" rx="2" transform="rotate(-35 112 92)"/>
                                 <circle cx="120" cy="50" r="6" fill="#fef08a" stroke="#fde047" stroke-width="2"/>
                             </svg>
 
@@ -975,39 +1043,103 @@
                         </div>
                     </div>
 
-                    {{-- Card Inner Content --}}
-                    <div style="padding: 16px;">
+                    {{-- Card Inner Content (Stretches full height to keep 'See nearby places' anchored to bottom) --}}
+                    <div class="d-flex flex-column flex-grow-1" style="padding: 14px 16px;">
                         <div class="mb-2">
-                            <h4 class="fw-bold mb-0" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #1e293b;">
-                                {{ $scoreNum >= 9 ? '10 Exceptional' : ($scoreNum >= 8 ? number_format($scoreNum, 1) . ' Excellent' : number_format($scoreNum, 1) . ' Very Good') }}
+                            <h4 class="fw-bold mb-0" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #1e293b;">
+                                8.0 Excellent
                             </h4>
-                            <div class="text-secondary" style="font-size: 13px; color: #64748b !important; font-weight: 500;">
+                            <div class="mt-0.5" style="font-size: 13px; color: #64748b !important; font-weight: 400;">
                                 Location rating score
                             </div>
                         </div>
                         
                         <div class="d-flex align-items-center gap-2 mb-3" style="font-size: 13.5px; color: #0f172a; font-weight: 700;">
-                            <i class="fa-solid fa-medal text-dark fs-6 flex-shrink-0"></i>
-                            <span>Exceptional location</span>
+                            <i class="fa-solid fa-ribbon text-dark fs-6 flex-shrink-0" style="color: #000000 !important;"></i>
+                            <span>Excellent location</span>
                         </div>
 
-                        <div class="border-top pt-3" style="border-color: #e2e8f0 !important;">
-                            <h6 class="fw-bold text-dark mb-3" style="font-size: 13.5px; font-weight: 800; color: #0f172a;">Closest landmarks</h6>
+                        {{-- Parking Row (Agoda 1:1 Match) --}}
+                        <div class="d-flex align-items-center justify-content-between py-2 border-top" style="font-size: 13px; border-color: #e2e8f0 !important;">
+                            <div class="d-flex align-items-center gap-2">
+                                <i class="fa-solid fa-square-parking text-secondary fs-6"></i>
+                                <span style="color: #1e293b; font-weight: 500;">Parking</span>
+                            </div>
+                            <span style="color: #00805a; font-weight: 700; font-size: 13px; letter-spacing: 0.3px;">FREE</span>
+                        </div>
+
+                        <div class="border-top pt-2.5 d-flex flex-column flex-grow-1 justify-content-between" style="border-color: #e2e8f0 !important;">
+                            @php
+                                $cityLower = strtolower((string)($property->city ?? 'cox'));
+                                if (str_contains($cityLower, 'cox') || str_contains(strtolower($property->name ?? ''), 'pearl') || str_contains(strtolower($property->name ?? ''), 'seagull')) {
+                                    $transportList = [
+                                        ['name' => "Inani Beach", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
+                                        ['name' => "Himchari National Park", 'dist' => '14.2 km', 'icon' => 'tree'],
+                                        ['name' => "Cox's Bazar Airport", 'dist' => '35.7 km', 'icon' => 'plane'],
+                                        ['name' => "Shah Amanat International Airport", 'dist' => '125.2 km', 'icon' => 'plane'],
+                                        ['name' => "Sittwe Airport", 'dist' => '140.1 km', 'icon' => 'plane'],
+                                        ['name' => "Kyaukpyu Airport", 'dist' => '244.6 km', 'icon' => 'plane'],
+                                    ];
+                                } elseif (str_contains($cityLower, 'chittagong')) {
+                                    $transportList = [
+                                        ['name' => "Patenga Beach", 'dist' => '14.0 km', 'icon' => 'umbrella-beach'],
+                                        ['name' => "Foy's Lake", 'dist' => '6.5 km', 'icon' => 'tree'],
+                                        ['name' => "Shah Amanat International Airport", 'dist' => '12.4 km', 'icon' => 'plane'],
+                                        ['name' => "Cox's Bazar Airport", 'dist' => '125.2 km', 'icon' => 'plane'],
+                                        ['name' => "Hazrat Shahjalal International Airport", 'dist' => '242.0 km', 'icon' => 'plane'],
+                                    ];
+                                } else {
+                                    $transportList = [
+                                        ['name' => "National Parliament House", 'dist' => '4.2 km', 'icon' => 'tree'],
+                                        ['name' => "Gulshan Lake Park", 'dist' => '2.5 km', 'icon' => 'tree'],
+                                        ['name' => "Hazrat Shahjalal International Airport", 'dist' => '11.8 km', 'icon' => 'plane'],
+                                        ['name' => "Shah Amanat International Airport", 'dist' => '242.0 km', 'icon' => 'plane'],
+                                        ['name' => "Cox's Bazar Airport", 'dist' => '392.5 km', 'icon' => 'plane'],
+                                    ];
+                                }
+                            @endphp
                             
-                            {{-- Dynamic Closest Landmarks List (Agoda 1:1 Spacious Padding & Gap) --}}
-                            <div class="d-flex flex-column gap-3" style="font-size: 13px;">
-                                @foreach($property->nearby_landmarks_list as $lm)
-                                <div class="d-flex align-items-center justify-content-between text-dark py-0.5">
-                                    <div class="d-flex align-items-center gap-3 text-truncate pe-2">
-                                        <i class="fa-solid {{ $lm['icon'] ?? 'fa-landmark' }} text-dark flex-shrink-0" style="font-size: 14px; width: 16px; text-align: center;"></i>
-                                        <span class="text-truncate" style="color: #1e293b; font-weight: 500; font-size: 13px;">{{ $lm['name'] }}</span>
+                            {{-- Airports & Transportation List (Exact Agoda Parity) --}}
+                            <div class="d-flex flex-column gap-2.5 pt-1" style="font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                @foreach($transportList as $tp)
+                                <div class="d-flex align-items-center justify-content-between" style="color: #2a2a2e;">
+                                    <div class="d-flex align-items-center gap-2 text-truncate pe-2">
+                                        @if(($tp['icon'] ?? 'plane') === 'umbrella-beach')
+                                        <i class="fa-solid fa-umbrella-beach text-secondary fs-6 flex-shrink-0" style="width: 15px;"></i>
+                                        @elseif(($tp['icon'] ?? 'plane') === 'tree')
+                                        <i class="fa-solid fa-tree text-secondary fs-6 flex-shrink-0" style="width: 15px;"></i>
+                                        @else
+                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                            <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3.5c-.5-.5-2.5 0-4 1.5L13.5 8.5 5.3 6.7c-.8-.2-1.6.1-2.1.7l-.2.3c-.4.5-.4 1.2 0 1.6l5.7 4.2-3.1 3.1-2.4-.6c-.4-.1-.8 0-1.1.3l-.2.2c-.3.3-.3.8 0 1.1l2.3 2.3c.3.3.8.3 1.1 0l.2-.2c.3-.3.4-.7.3-1.1l-.6-2.4 3.1-3.1 4.2 5.7c.4.4 1.1.4 1.6 0l.3-.2c.6-.5.9-1.3.7-2.1z"/>
+                                        </svg>
+                                        @endif
+                                        <span class="text-truncate" style="color: #2a2a2e; font-size: 13px; font-weight: 400;">{{ $tp['name'] }}</span>
                                     </div>
-                                    <span class="text-dark font-monospace flex-shrink-0 fw-normal" style="font-size: 13px; color: #1e293b;">{{ $lm['distance'] }}</span>
+                                    <span class="flex-shrink-0 text-end" style="color: #2a2a2e; font-size: 13px; font-weight: 400;">{{ $tp['dist'] }}</span>
                                 </div>
                                 @endforeach
                             </div>
+
+                            {{-- See Nearby Places Link (Pinned to bottom of the card) --}}
+                            <div class="d-flex justify-content-end pt-3 mt-auto">
+                                <a href="javascript:void(0)" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 13.5px;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal">
+                                    See nearby places
+                                </a>
+                            </div>
                         </div>
                     </div>
+                </div>
+
+                {{-- Agoda Signature "We price match!" Under Location Card --}}
+                <div class="d-flex justify-content-end align-items-center gap-2 mt-2 mb-3">
+                    <a href="javascript:void(0)" class="text-decoration-none d-inline-flex align-items-center gap-2 fw-bold" style="color: #2067e1; font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                            <circle cx="12" cy="8.5" r="5.5"/>
+                            <polyline points="9.5 8.5 11 10 14.5 6.5"/>
+                            <path d="M8.2 13.5L6 20.5l6-3 6 3-2.2-7"/>
+                        </svg>
+                        <span>We price match!</span>
+                    </a>
                 </div>
 
             </div>
@@ -1015,47 +1147,81 @@
 
         {{-- 6. Select Your Room Section & Filter Pills (Exact Agoda 1:1 Parity) --}}
         <div id="rooms" class="mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-                <h4 class="fw-bold text-dark mb-0" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px; font-weight: 800;">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h4 class="fw-bold mb-0" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 22px; font-weight: 700; color: #111827;">
                     Select your room
                 </h4>
-                <div class="d-flex align-items-center gap-2.5">
-                    <a href="#rooms" class="fw-bold text-decoration-none d-flex align-items-center gap-2" style="color: #2067e1; font-size: 13px;">
-                        <i class="fa-solid fa-award text-dark" style="font-size: 16px;"></i>
-                        <span>We price match!</span>
-                    </a>
-                </div>
             </div>
 
             {{-- Room Filter Container Box (Exact Agoda 1:1 Parity) --}}
             <div class="p-3 mb-4 rounded-3" style="background: #ffffff; border: 1px solid #dddfe2; border-radius: 8px !important;">
                 <div class="mb-2">
-                    <strong class="text-dark" style="font-size: 14px; font-weight: 800;">Filter</strong>
+                    <strong style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e;">Filter</strong>
                 </div>
                 <div class="d-flex flex-wrap gap-2" id="roomFilterPillsContainer">
-                    <div class="agoda-filter-pill-121" data-filter="pay_at_hotel" onclick="toggleRoomFilter('pay_at_hotel', this)"><i class="fa-solid fa-money-bill-wave text-dark"></i> Pay at the hotel</div>
-                    <div class="agoda-filter-pill-121" data-filter="freecancel" onclick="toggleRoomFilter('freecancel', this)"><i class="fa-solid fa-circle-check text-dark"></i> Free cancellation</div>
-                    <div class="agoda-filter-pill-121" data-filter="kingbed" onclick="toggleRoomFilter('kingbed', this)"><i class="fa-solid fa-bed text-dark"></i> King bed</div>
-                    <div class="agoda-filter-pill-121" data-filter="balcony" onclick="toggleRoomFilter('balcony', this)"><i class="fa-solid fa-building text-dark"></i> Balcony/terrace</div>
-                    <div class="agoda-filter-pill-121" data-filter="creditcard" onclick="toggleRoomFilter('creditcard', this)"><i class="fa-solid fa-credit-card text-dark"></i> Book without credit card</div>
+                    <div class="agoda-filter-pill-121" data-filter="pay_at_hotel" onclick="toggleRoomFilter('pay_at_hotel', this)"><x-agoda-icon name="pay-at-hotel" size="15" color="#2a2a2e" class="me-1" /> Pay at the hotel</div>
+                    <div class="agoda-filter-pill-121" data-filter="freecancel" onclick="toggleRoomFilter('freecancel', this)"><x-agoda-icon name="check-circle" size="15" color="#00805a" class="me-1" /> Free cancellation</div>
+                    <div class="agoda-filter-pill-121" data-filter="kingbed" onclick="toggleRoomFilter('kingbed', this)"><x-agoda-icon name="bed" size="15" color="#2a2a2e" class="me-1" /> King bed</div>
+                    <div class="agoda-filter-pill-121" data-filter="balcony" onclick="toggleRoomFilter('balcony', this)"><x-agoda-icon name="balcony" size="15" color="#2a2a2e" class="me-1" /> Balcony/terrace</div>
+                    <div class="agoda-filter-pill-121" data-filter="creditcard" onclick="toggleRoomFilter('creditcard', this)"><x-agoda-icon name="credit-card" size="15" color="#2a2a2e" class="me-1" /> Book without credit card</div>
                 </div>
             </div>
 
+            {{-- Agoda Scarcity Sold Out Alert Bar (Screenshot 1:1 Parity) --}}
+            <div class="d-inline-flex align-items-center gap-2 mb-3 px-3 py-1.5 rounded" style="background: #fff0f0; border: 1px solid #ffe3e3; font-size: 12px; color: #ba2a26; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <i class="fa-regular fa-clock" style="color: #ba2a26; font-size: 13px;"></i>
+                <span>Hurry up! 2 room types have already sold out for your dates!</span>
+            </div>
+
             {{-- Available Rooms List (100% Dynamic from Database - Agoda 1:1 Parity) --}}
-            <div class="d-flex flex-column gap-4" id="availableRoomsContainer">
+            <div class="d-flex flex-column" id="available_rooms_list">
                 @forelse($property->rooms as $rIdx => $room)
                 @php
                     $rAdults = $room->max_adults ?: 2;
                     $rKids = $room->max_children ?: 1;
-                    $rSizeStr = $room->formatted_size ?: '46 m²/495 ft²';
-                    $rBedStr = $room->bed_type ?: '1 King / Queen Bed';
-                    $rView = $room->view_type ?: 'City view';
+                    $rSizeStr = $room->formatted_size ?: '37 m²/398 ft²';
+                    $rBedStr = $room->bed_type ?: '2 single beds';
+                    $rView = $room->view_type ?: 'Garden view';
                     $rSmoking = $room->smoking_policy ?: 'Non-smoking';
                     $rBalcony = $room->balcony_type ?: 'Private Balcony';
                     $rBathrooms = $room->bathroom_count ?: 1;
                     $isTwin = str_contains(strtolower($rBedStr), 'twin') || str_contains(strtolower($rBedStr), '2 single');
+
+                    // Resolve dynamic photos for this room carousel
+                    $galleryArr = $gallery instanceof \Illuminate\Support\Collection ? $gallery->all() : (array)($gallery ?? []);
+                    $rImages = !empty($room->images) && is_array($room->images) && count($room->images) > 0 
+                        ? $room->images 
+                        : [];
+                    if (empty($rImages) && !empty($galleryArr)) {
+                        $rImages = array_slice($galleryArr, ($rIdx * 2) % max(1, count($galleryArr)), 4);
+                    }
+                    if (empty($rImages) && !empty($room->primary_image)) {
+                        $rImages = [$room->primary_image];
+                    }
+                    if (empty($rImages)) {
+                        $rImages = ['https://cdn6.agoda.net/images/accommodation/other/default.jpg'];
+                    }
+                    $rImages = array_values($rImages);
+
+                    // Dynamic Pricing & Discount Calculations
+                    $roomPrice = (float)($room->price_per_night ?: 3500);
+                    $discountPercent1 = 18;
+                    if (!empty($property->discount_percentage) && $property->discount_percentage > 0) {
+                        $discountPercent1 = (int)$property->discount_percentage;
+                    }
+                    $origPrice1 = round($roomPrice / (1 - ($discountPercent1 / 100)));
+                    $voucher1 = round($roomPrice * 0.14);
+                    $finalPrice1 = $roomPrice;
+
+                    $discountPercent2 = max(10, $discountPercent1 - 1);
+                    $finalPrice2 = round($roomPrice * 1.05);
+                    $origPrice2 = round($finalPrice2 / (1 - ($discountPercent2 / 100)));
+                    $voucher2 = $voucher1;
+
+                    $minPropertyPrice = $property->rooms->min('price_per_night');
+                    $isLowestInProperty = ($roomPrice <= $minPropertyPrice);
                 @endphp
-                <div class="card mb-4 overflow-hidden agoda-room-listing-card"
+                <div class="agoda-room-listing-card mb-4"
                     data-breakfast="true"
                     data-creditcard="true"
                     data-freecancel="true"
@@ -1064,160 +1230,497 @@
                     data-twinbed="{{ $isTwin ? 'true' : 'false' }}"
                     data-view="true"
                     data-kitchen="true"
-                    style="padding: 16px !important; background: #f8fafc !important; border: 1px solid #e2e8f0 !important; border-radius: 12px !important;">
-                    <div class="row g-3">
+                    style="position: relative;">
+
+
+
+                    <div class="row g-3 align-items-stretch">
                         
-                        {{-- LEFT COLUMN: Room Image, Title, Specs & Amenities Grid (Exact 1:1 Parity) --}}
-                        <div class="col-lg-4">
-                            <div class="bg-white p-3.5 rounded-3 h-100 d-flex flex-column justify-content-between" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 18px !important;">
-                                <div>
-                                    {{-- Image Carousel Box --}}
-                                    <div class="position-relative mb-2.5 rounded-3 overflow-hidden" style="height: 180px; border-radius: 4px !important;">
-                                        <img src="{{ $room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '') }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $room->name }}">
-                                        <span class="badge fw-bold position-absolute top-0 start-0 m-2 px-2.5 py-1" style="background: #fde8e8; color: #991b1b; font-size: 11px; border-radius: 4px;">Our last 2!</span>
-                                        <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-2 px-2 py-0.5" style="font-size: 10.5px; border-radius: 4px;">1/1</span>
-                                        <button class="btn btn-light rounded-circle shadow-sm border p-0 position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px; font-size: 12px; z-index: 5; background: #fff;" title="Next Photo">
-                                            <i class="fa-solid fa-chevron-right text-dark"></i>
-                                        </button>
-                                    </div>
-                                    
-                                    <a href="javascript:void(0)" class="text-decoration-none fw-bold d-block mb-2" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #2067e1; font-size: 13px;">
-                                        <i class="fa-solid fa-expand me-1"></i> Room photos and details
-                                    </a>
+                        {{-- LEFT COLUMN: Standalone White Room Card (Exact Agoda 1:1 Parity) --}}
+                        <div class="col-lg-4 d-flex flex-column">
+                            <div class="h-100 d-flex flex-column" style="background: #ffffff; border: 1px solid #cbcfd7; border-radius: 8px; padding: 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
+                                {{-- Image Carousel Box (Functional Next Photo Carousel) --}}
+                                <div class="position-relative mb-2 rounded overflow-hidden room-photo-carousel flex-shrink-0" 
+                                     id="roomCarousel_{{ $room->id ?? $rIdx }}"
+                                     data-images='@json($rImages)'
+                                     data-index="0"
+                                     style="height: 195px; border-radius: 6px !important; cursor: pointer;">
+                                    <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                                    @if($isLowestInProperty || $rIdx === 0)
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2;">
+                                        <i class="fa-solid fa-tag me-1" style="font-size: 10px;"></i> Our last room!
+                                    </span>
+                                    @elseif($rIdx === 1)
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2;">
+                                        <i class="fa-solid fa-thumbs-up me-1" style="font-size: 10px;"></i> Top Value
+                                    </span>
+                                    @elseif($rIdx === 2)
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #8038a8; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2;">
+                                        <i class="fa-solid fa-heart me-1" style="font-size: 10px;"></i> Most Popular
+                                    </span>
+                                    @else
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2;">
+                                        <i class="fa-solid fa-star me-1" style="font-size: 10px;"></i> Recommended
+                                    </span>
+                                    @endif
+                                    <span class="room-photo-counter position-absolute bottom-0 start-0 m-2 text-white d-inline-flex align-items-center" style="background: rgba(0,0,0,0.65); font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 8px; line-height: 1.2;">1/{{ count($rImages) }}</span>
+                                    @if(count($rImages) > 1)
+                                    <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center p-0" style="width: 32px; height: 32px; border: 1px solid #dddfe2; background: #ffffff; z-index: 5;" title="Next Photo" onclick="nextRoomPhoto(this, event)">
+                                        <i class="fa-solid fa-chevron-right" style="font-size: 12px; color: #2a2a2e;"></i>
+                                    </button>
+                                    @endif
+                                </div>
+                                
+                                <a href="javascript:void(0)" class="text-decoration-none d-block mt-1 mb-1.5" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #0b66c2; font-size: 13.5px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                    Room photos and details
+                                </a>
 
-                                    <h4 class="fw-bold text-dark mb-1.5" style="font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; line-height: 1.3;">{{ $room->name }}</h4>
-                                    
-                                    <div class="mb-2.5" style="font-size: 12.5px; line-height: 1.5; color: #0f172a;">
-                                        <strong style="font-weight: 800;">{{ $rSizeStr }}</strong> 
-                                        <span class="text-muted mx-1">|</span> 
-                                        <strong style="font-weight: 800;">Max {{ $rAdults }} adults</strong> 
-                                        <span class="text-muted mx-1">|</span> 
-                                        <strong style="font-weight: 800;">{{ $rBedStr }}</strong>
-                                    </div>
+                                <h4 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 21px; font-weight: 700; color: #111827; margin-top: 4px; margin-bottom: 6px; line-height: 1.25;">
+                                    {{ $room->name }}
+                                </h4>
+                                
+                                <div class="mb-2 d-flex align-items-center flex-wrap" style="font-size: 13px; line-height: 1.4; color: #222222; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                    <span>{{ $rSizeStr }}</span> 
+                                    <span style="color: #d2d9e3; margin: 0 8px;">|</span> 
+                                    <span>Max {{ $rAdults }} adults</span> 
+                                    <span style="color: #d2d9e3; margin: 0 8px;">|</span> 
+                                    <span>{{ $rBedStr }}</span>
+                                </div>
 
-                                    {{-- Agoda Signature Purple Kids Badge (Screenshot 1:1 Match) --}}
-                                    <div class="mb-2.5">
-                                        <span class="badge text-white fw-bold px-2.5 py-1" style="background: #7c3aed; font-size: 11.5px; border-radius: 4px; letter-spacing: 0.2px;">
-                                            Your kids can stay for FREE!
+                                {{-- Badges (Smart: Red only on Lowest Price, Blue on remaining rooms) --}}
+                                @if($isLowestInProperty || $rIdx === 0)
+                                <div class="d-flex flex-wrap align-items-center mb-2" style="gap: 6px;">
+                                    <span class="d-inline-flex align-items-center text-white" style="background: #ba2a26; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                        <i class="fa-solid fa-bolt me-1 flex-shrink-0" style="font-size: 10px;"></i> Lowest price you've seen!
+                                    </span>
+                                    <span class="d-inline-flex align-items-center text-white" style="background: #8038a8; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                        Your kids can stay for FREE!
+                                    </span>
+                                </div>
+                                @elseif($rIdx === 1)
+                                <div class="d-flex flex-wrap align-items-center mb-2" style="gap: 6px;">
+                                    <span class="d-inline-flex align-items-center text-white" style="background: #0b66c2; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                        <i class="fa-solid fa-thumbs-up me-1 flex-shrink-0" style="font-size: 10px;"></i> Top Value
+                                    </span>
+                                    <span class="d-inline-flex align-items-center text-white" style="background: #8038a8; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                        Your kids can stay for FREE!
+                                    </span>
+                                </div>
+                                @else
+                                <div class="d-flex flex-wrap align-items-center mb-2" style="gap: 6px;">
+                                    <span class="d-inline-flex align-items-center text-white" style="background: #0b66c2; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                        <i class="fa-solid fa-award me-1 flex-shrink-0" style="font-size: 10px;"></i> Great Deal
+                                    </span>
+                                    <span class="d-inline-flex align-items-center text-white" style="background: #8038a8; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                        <i class="fa-solid fa-users me-1 flex-shrink-0" style="font-size: 10px;"></i> Preferred by Couples
+                                    </span>
+                                </div>
+                                @endif
+
+                                {{-- Rating Score Badge & Room Comfort with Top & Bottom Dividers --}}
+                                <div style="border-top: 1px solid #eef2f6; border-bottom: 1px solid #eef2f6; padding: 8px 0; margin-bottom: 12px;">
+                                    <div class="d-flex align-items-center" style="gap: 6px;">
+                                        <span class="d-inline-flex align-items-center justify-content-center text-white fw-bold" style="background: #0b66c2; border-radius: 4px; padding: 2px 6px; font-size: 12.5px; font-weight: 800; line-height: 1.2;">
+                                            {{ number_format((float)($room->rating_score ?? 8.1), 1) }}
+                                        </span>
+                                        <span style="color: #0b66c2; font-size: 13.5px; font-weight: 700;">
+                                            {{ ($room->rating_score ?? 8.1) >= 8.5 ? 'Exceptional' : 'Excellent' }}
                                         </span>
                                     </div>
-
-                                    {{-- 2-Column Dynamic Amenities with Agoda Specific Grey Icons --}}
-                                    @php
-                                        $roomFacilities = !empty($room->facilities) && is_array($room->facilities) 
-                                            ? $room->facilities 
-                                            : ['1 bedroom/studio', '2 bathrooms', 'Shared bathroom', 'Shower', 'Toiletries', 'Streaming service', 'TV', 'Air conditioning', 'Free bottled water', 'Desk'];
-                                        
-                                        $getAgodaIcon = function($name) {
-                                            $n = strtolower($name);
-                                            if (str_contains($n, 'bed') || str_contains($n, 'studio')) return 'fa-solid fa-door-closed';
-                                            if (str_contains($n, 'bath') || str_contains($n, 'toilet')) return 'fa-solid fa-bath';
-                                            if (str_contains($n, 'shower')) return 'fa-solid fa-shower';
-                                            if (str_contains($n, 'stream') || str_contains($n, 'play')) return 'fa-solid fa-circle-check';
-                                            if (str_contains($n, 'tv') || str_contains($n, 'screen')) return 'fa-solid fa-tv';
-                                            if (str_contains($n, 'air') || str_contains($n, 'ac') || str_contains($n, 'fan')) return 'fa-solid fa-snowflake';
-                                            if (str_contains($n, 'water') || str_contains($n, 'bottle')) return 'fa-solid fa-bottle-water';
-                                            if (str_contains($n, 'desk') || str_contains($n, 'table')) return 'fa-solid fa-table';
-                                            if (str_contains($n, 'wifi') || str_contains($n, 'wi-fi')) return 'fa-solid fa-wifi';
-                                            if (str_contains($n, 'balcony')) return 'fa-solid fa-landmark';
-                                            return 'fa-solid fa-circle-check';
-                                        };
-                                    @endphp
-                                    <div class="row g-2 text-dark mb-3" style="font-size: 12px; color: #334155 !important; line-height: 1.45;">
-                                        @foreach(array_slice($roomFacilities, 0, 10) as $fac)
-                                            <div class="col-6 d-flex align-items-center gap-2 text-nowrap">
-                                                <i class="{{ $getAgodaIcon(is_string($fac) ? $fac : '') }}" style="font-size: 12.5px; width: 15px; text-align: center; color: #475569 !important;"></i> 
-                                                <span class="text-truncate" style="font-weight: 500; color: #334155;">{{ is_string($fac) ? $fac : 'Facility' }}</span>
-                                            </div>
-                                        @endforeach
-                                        @if(count($roomFacilities) > 10)
-                                            <div class="col-6 d-flex align-items-center text-nowrap">
-                                                <a href="javascript:void(0)" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 12px;">+ {{ count($roomFacilities) - 10 }} more</a>
-                                            </div>
-                                        @endif
+                                    <div style="color: #64748b; font-size: 12px; margin-top: 2px;">
+                                        Room comfort
                                     </div>
                                 </div>
 
-                                {{-- Bottom Carousel Control Bar (Agoda Crisp Chevron Style) --}}
-                                <div class="d-flex align-items-center gap-2 pt-2.5 border-top" style="border-color: #e2e8f0 !important;">
-                                    <i class="fa-solid fa-chevron-left text-secondary" style="font-size: 13px; cursor: pointer;"></i>
-                                    <div class="flex-fill" style="height: 6px; background: #e2e8f0; border-radius: 3px;">
-                                        <div style="width: 65%; height: 100%; background: #64748b; border-radius: 3px;"></div>
+                                {{-- 2-Column Clean Amenities Matching Agoda Screenshot 1:1 Identically --}}
+                                @php
+                                    $rawFacs = !empty($room->facilities) && is_array($room->facilities) ? $room->facilities : [];
+                                    if (empty($rawFacs)) {
+                                        $rawFacs = [
+                                            $rView ?: 'Garden view',
+                                            'Hair dryer',
+                                            'Wi-Fi [free]',
+                                            'Private bathroom',
+                                            'Shower',
+                                            'Air conditioning',
+                                            'Free bottled water',
+                                            $rSmoking ?: 'Non-smoking'
+                                        ];
+                                    }
+                                    $half = (int) ceil(count($rawFacs) / 2);
+                                    $agodaFacilitiesCol1 = array_slice($rawFacs, 0, $half);
+                                    $agodaFacilitiesCol2 = array_slice($rawFacs, $half);
+
+                                    $detectIcon = function($str) {
+                                        $s = strtolower($str);
+                                        if (str_contains($s, 'view') || str_contains($s, 'balcony') || str_contains($s, 'window')) return 'view';
+                                        if (str_contains($s, 'bath') || str_contains($s, 'tub')) return 'bath';
+                                        if (str_contains($s, 'shower')) return 'shower';
+                                        if (str_contains($s, 'wifi') || str_contains($s, 'wi-fi') || str_contains($s, 'internet')) return 'wifi';
+                                        if (str_contains($s, 'ac') || str_contains($s, 'air')) return 'ac';
+                                        if (str_contains($s, 'bar') || str_contains($s, 'minibar')) return 'minibar';
+                                        if (str_contains($s, 'fridge') || str_contains($s, 'refrigerator')) return 'refrigerator';
+                                        if (str_contains($s, 'kettle') || str_contains($s, 'coffee') || str_contains($s, 'tea')) return 'kettle';
+                                        if (str_contains($s, 'bottle') || str_contains($s, 'water')) return 'bottle';
+                                        if (str_contains($s, 'closet') || str_contains($s, 'wardrobe')) return 'closet';
+                                        if (str_contains($s, 'smoking')) return 'smoking-ban';
+                                        return 'check';
+                                    };
+                                @endphp
+                                <div class="row g-2 mb-2" style="font-size: 12.5px; color: #222222 !important; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                    <div class="col-6 d-flex flex-column">
+                                        @foreach($agodaFacilitiesCol1 as $facName)
+                                            @php $icon = $detectIcon($facName); @endphp
+                                            <div class="d-flex align-items-center gap-2 text-nowrap" style="margin-bottom: 6px;">
+                                                @if($icon === 'view')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 16 5-5c.9-.9 2.1-.9 3 0l7 7"/><path d="m14 14 1-1c.9-.9 2.1-.9 3 0l3 3"/></svg>
+                                                @elseif($icon === 'wifi')
+                                                    <x-agoda-icon name="wifi" size="14" color="#475569" class="flex-shrink-0" />
+                                                @elseif($icon === 'bath')
+                                                    <x-agoda-icon name="bath" size="14" color="#475569" class="flex-shrink-0" />
+                                                @elseif($icon === 'shower')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m4 4 2.5 2.5"/><path d="M13.5 6.5a4.95 4.95 0 0 0-7 7L11 18l4.5-4.5"/><path d="M14 17v.01"/><path d="M17 14v.01"/><path d="M11 20v.01"/></svg>
+                                                @elseif($icon === 'ac')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/><path d="M2 12h20"/><path d="m7 7 5 5 5-5"/><path d="m7 17 5-5 5 5"/></svg>
+                                                @elseif($icon === 'minibar')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg>
+                                                @elseif($icon === 'kettle')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                                                @elseif($icon === 'smoking-ban')
+                                                    <x-agoda-icon name="smoking-ban" size="14" color="#475569" class="flex-shrink-0" />
+                                                @elseif($icon === 'bottle')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M10 2h4"/><path d="M10 5h4v3l2 2v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10l2-2V5z"/></svg>
+                                                @elseif($icon === 'refrigerator')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M5 10h14"/><path d="M15 6v2"/><path d="M15 14v4"/></svg>
+                                                @elseif($icon === 'closet')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/><path d="M9 10v2"/><path d="M15 10v2"/></svg>
+                                                @else
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                @endif
+                                                <span style="font-weight: 500; color: #222222;">{{ $facName }}</span>
+                                            </div>
+                                        @endforeach
                                     </div>
-                                    <i class="fa-solid fa-chevron-right text-secondary" style="font-size: 13px; cursor: pointer;"></i>
+                                    <div class="col-6 d-flex flex-column">
+                                        @foreach($agodaFacilitiesCol2 as $facName)
+                                            @php $icon = $detectIcon($facName); @endphp
+                                            <div class="d-flex align-items-center gap-2 text-nowrap" style="margin-bottom: 6px;">
+                                                @if($icon === 'bath')
+                                                    <x-agoda-icon name="bath" size="14" color="#475569" class="flex-shrink-0" />
+                                                @elseif($icon === 'shower')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m4 4 2.5 2.5"/><path d="M13.5 6.5a4.95 4.95 0 0 0-7 7L11 18l4.5-4.5"/><path d="M14 17v.01"/><path d="M17 14v.01"/><path d="M11 20v.01"/></svg>
+                                                @elseif($icon === 'ac')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/><path d="M2 12h20"/><path d="m7 7 5 5 5-5"/><path d="m7 17 5-5 5 5"/></svg>
+                                                @elseif($icon === 'bottle')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M10 2h4"/><path d="M10 5h4v3l2 2v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V10l2-2V5z"/></svg>
+                                                @elseif($icon === 'refrigerator')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M5 10h14"/><path d="M15 6v2"/><path d="M15 14v4"/></svg>
+                                                @elseif($icon === 'closet')
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/><path d="M9 10v2"/><path d="M15 10v2"/></svg>
+                                                @else
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                @endif
+                                                <span style="font-weight: 500; color: #222222;">{{ $facName }}</span>
+                                            </div>
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- RIGHT COLUMN: 3 Stacked Rate Offer Sub-cards (Exact 1:1 Parity) --}}
-                        <div class="col-lg-8">
-                            <div class="d-flex flex-column gap-3">
-                                {{-- OFFER CARD 1: Lowest Price Deal (Red Header Banner) --}}
-                                <div class="card overflow-hidden shadow-xs" style="background: #ffffff !important; border: 1px solid #c5221f !important; border-radius: 10px !important;">
-                                    <div class="px-3 py-1.5 text-white fw-bold d-flex justify-content-between align-items-center" style="background-color: #c5221f; font-size: 13px; letter-spacing: 0.2px;">
-                                        <span>Lowest price available!</span>
-                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.9;">Best Rate Guarantee</span>
-                                    </div>
-                                    <div class="p-3">
-                                        <div class="row g-2 align-items-center">
-                                            {{-- Sub-col 1: Benefits List --}}
-                                            <div class="col-md-5 border-end pe-3">
-                                                <div class="fw-bold text-dark mb-1 d-flex align-items-center" style="font-size: 13px;">
-                                                    <i class="fa-solid fa-user text-dark me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">{{ $rAdults }} adults &amp; {{ $rKids }} child</span> 
-                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #334155; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
-                                                </div>
-                                                <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
-                                                    <i class="fa-solid fa-child text-success me-2" style="width: 14px; text-align: center;"></i> <span>Your kid stays FREE!</span>
-                                                </div>
-                                                <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
-                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span class="me-1">Cancel for free before {{ $checkinCarbon->copy()->subDays(2)->format('M d, Y') }}</span>
-                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle text-white ms-1" style="width: 13px; height: 13px; background-color: #16a34a; font-size: 8.5px; font-weight: 700;" title="Info">i</span>
-                                                </div>
-                                                <div class="fw-bold mb-1 d-flex align-items-center" style="color: #16a34a; font-size: 12.5px;">
-                                                    <i class="fa-solid fa-check text-success me-2" style="width: 14px; text-align: center;"></i> <span>No credit card needed</span>
-                                                </div>
-                                                <div class="text-dark mb-1 d-flex align-items-center" style="font-size: 12.5px;">
-                                                    <i class="fa-solid fa-check text-dark me-2" style="width: 14px; text-align: center;"></i> <span>Free Parking &amp; High-Speed WiFi</span>
-                                                </div>
-                                                <div class="fw-bold mb-1 d-flex align-items-center" style="color: #c5221f; font-size: 12px;">
-                                                    <i class="fa-solid fa-bolt text-danger me-2" style="width: 14px; text-align: center;"></i> <span>High Demand — Fast Selling</span>
-                                                </div>
-                                                <div>
-                                                    <a href="javascript:void(0)" class="text-decoration-none fw-bold small" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #2067e1; font-size: 12.5px;">See all room perks</a>
-                                                </div>
+                        {{-- RIGHT COLUMN: Agoda Offer Cards inside #eff4fc Container (Exact Agoda 1:1 Parity) --}}
+                        <div class="col-lg-8 d-flex flex-column">
+                            <div class="h-100 d-flex flex-column justify-content-between" style="background: #eff4fc; border: 1px solid #cbcfd7; border-radius: 8px; padding: 12px; gap: 12px;">
+                                
+                                {{-- OFFER 1 CARD (Standalone White Card - Agoda 1:1) --}}
+                                <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+                                    <div class="row g-0 align-items-stretch flex-grow-1">
+                                        {{-- Sub-col 1: Benefits List --}}
+                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                            <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
+                                                <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
+                                                <span>{{ $rAdults }} adults</span>
+                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
                                             </div>
+                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                <i class="fa-solid fa-child-reaching flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
+                                                <span>Your kids can stay for FREE!</span>
+                                            </div>
+                                            @if($room->breakfast_included)
+                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
+                                                <span>Breakfast included</span>
+                                            </div>
+                                            @else
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 13px; color: #475569; width: 14px; text-align: center;"></i>
+                                                <span>Breakfast available ({{ \App\Services\CurrencyService::format(15) }} / person)</span>
+                                            </div>
+                                            @endif
+
+                                            @if($room->free_cancellation ?? $property->free_cancellation ?? true)
+                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="#00805a" class="flex-shrink-0"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1.06 13.54L7.4 12l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>
+                                                <span>Cancel for free before {{ \Carbon\Carbon::parse($checkIn)->subDays(1)->format('M d, Y') }}</span>
+                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #00805a; color: #00805a; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                            </div>
+                                            @else
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Non-refundable (Low price!)</span>
+                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                            </div>
+                                            @endif
+
+                                            @if($property->no_credit_card_required ?? false)
+                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Book without credit card</span>
+                                            </div>
+                                            @else
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Book and pay now</span>
+                                            </div>
+                                            @endif
+
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Parking</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Express check-in</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Free WiFi</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
+                                                <i class="fa-solid fa-sack-dollar flex-shrink-0" style="font-size: 13px; color: #222222; width: 14px; text-align: center;"></i>
+                                                <span>Cashback: {{ \App\Services\CurrencyService::format(4) }} (Terms apply)</span>
+                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 12.5px; font-weight: 700; gap: 8px;">
+                                                <x-agoda-icon name="tag" size="13" color="#222222" class="flex-shrink-0" />
+                                                <span>PRIME EXCLUSIVE - {{ \App\Services\CurrencyService::format(35) }} off!</span>
+                                            </div>
+                                            <div>
+                                                <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">See details</a>
+                                            </div>
+                                        </div>
 
                                             {{-- Sub-col 2: Price Breakdown --}}
-                                            <div class="col-md-4 text-end border-end px-3">
-                                                <div class="fw-bold mb-1" style="color: #c5221f; font-size: 12.5px; line-height: 1.2;">
-                                                    Cheapest price you've<br>seen!
+                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                                @if($isLowestInProperty || $rIdx === 0)
+                                                <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
+                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-right: 2px;">i</span>
+                                                    <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
+                                                    <span style="color: #ba2a26; font-weight: 700; margin-left: 2px;">-{{ $discountPercent1 }}%</span>
                                                 </div>
-                                                <div class="fw-bold mt-1" style="color: #c5221f; font-size: 26px; line-height: 1; font-family: 'Plus Jakarta Sans', sans-serif;">
-                                                    {{ \App\Services\CurrencyService::format($room->price_per_night) }}
+                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
+                                                    <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
                                                 </div>
-                                                <small class="text-secondary d-block mt-1" style="font-size: 11px;">Per night before taxes</small>
+                                                <div class="fw-bold" style="color: #ba2a26; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
+                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
+                                                </div>
+                                                @else
+                                                <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
+                                                    <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
+                                                </div>
+                                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Price after Cashback</div>
+                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
+                                                    <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
+                                                </div>
+                                                <div class="fw-bold" style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
+                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
+                                                </div>
+                                                @endif
+                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
                                             </div>
 
-                                            {{-- Sub-col 3: Book Button --}}
-                                            <div class="col-md-3 text-end ps-2">
-                                                <div class="text-dark d-block mb-1.5 fw-bold" style="font-size: 13px;">1 room</div>
-                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn text-white w-100 fw-bold py-2 shadow-sm rounded-pill d-flex flex-column align-items-center justify-content-center" style="background-color: #2067e1; font-size: 15px; line-height: 1.1;">
-                                                    <span>Book</span>
-                                                    <small style="font-size: 10.5px; font-weight: 500; opacity: 0.95;">Pay at hotel</small>
-                                                </a>
-                                                <div class="fw-bold mt-2 text-end" style="color: #16a34a; font-size: 13px;">
-                                                    + Free Cancellation
+                                            {{-- Sub-col 3: Book Action --}}
+                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 16px 18px !important;">
+                                                <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
+                                                    <button type="button" 
+                                                            class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
+                                                            style="border: 1px solid #cdd4de; border-radius: 20px; height: 38px; padding: 0 16px; color: #0b66c2; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
+                                                            onclick="toggleAgodaRoomDropdown(this, event)">
+                                                        <span class="agoda-room-pill-label">1 room</span>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                                            <path d="m6 9 6 6 6-6"/>
+                                                        </svg>
+                                                    </button>
+
+                                                    {{-- Agoda Custom Floating Speech-Bubble Popover --}}
+                                                    <div class="agoda-room-dropdown-popover position-absolute d-none" 
+                                                         style="top: calc(100% + 7px); left: 8px; min-width: 140px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #eef2f6; z-index: 1050; padding: 6px 0;">
+                                                        <div style="position: absolute; top: -6px; left: 24px; width: 12px; height: 12px; background: #ffffff; transform: rotate(45deg); border-left: 1px solid #eef2f6; border-top: 1px solid #eef2f6; box-shadow: -2px -2px 3px rgba(0,0,0,0.03);"></div>
+                                                        <div class="d-flex flex-column" style="position: relative; z-index: 2;">
+                                                            @for($num = 1; $num <= 5; $num++)
+                                                            <div class="agoda-room-popover-item d-flex align-items-center gap-2 px-3 py-2" 
+                                                                 style="cursor: pointer; font-size: 14px; transition: background 0.12s ease; {{ $num === 1 ? 'color: #0b66c2; font-weight: 700;' : 'color: #222222; font-weight: 500;' }}"
+                                                                 data-value="{{ $num }}"
+                                                                 onclick="selectAgodaRoomCount(this, {{ $num }}, '{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}')">
+                                                                <span class="agoda-item-check" style="width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center;" class="flex-shrink-0">
+                                                                    @if($num === 1)
+                                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                                                    @endif
+                                                                </span>
+                                                                <span class="agoda-item-text">{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}</span>
+                                                            </div>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
                                                 </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <button type="button" class="btn d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 38px; height: 42px; border: 1px solid #cdd4de; border-radius: 50%; background: #ffffff;" title="Save to wishlist">
+                                                        <x-agoda-icon name="heart" size="18" color="#475569" />
+                                                    </button>
+                                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" 
+                                                       class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
+                                                       style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
+                                                        <span style="font-size: 15px; font-weight: 700;">Book</span>
+                                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">Pay now</span>
+                                                    </a>
+                                                </div>
+                                                <div style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 6px;">You won't be charged yet</div>
+                                                @if($isLowestInProperty || $rIdx === 0)
+                                                <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last room!</div>
+                                                @else
+                                                <div style="font-size: 11.5px; color: #0b66c2; font-weight: 700; text-align: center; margin-top: 2px;">Popular choice</div>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>
-                                </div>                              </div>
 
+                                    {{-- OFFER 2 CARD (Standalone White Card - Agoda 1:1) --}}
+                                    <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+                                        <div class="row g-0 align-items-stretch flex-grow-1">
+                                            {{-- Sub-col 1: Benefits List (11 Complete Items matching Screenshot 2) --}}
+                                            <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                                <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
+                                                    <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
+                                                    <span>{{ $rAdults }} adults</span>
+                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                    <i class="fa-solid fa-child-reaching flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
+                                                    <span>Your kids can stay for FREE!</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13.5px; font-weight: 700; gap: 8px;">
+                                                    <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
+                                                    <span>Breakfast included</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#00805a" class="flex-shrink-0"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1.06 13.54L7.4 12l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>
+                                                    <span>Cancel for free before {{ \Carbon\Carbon::parse($checkIn)->subDays(1)->format('M d, Y') }}</span>
+                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #00805a; color: #00805a; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    <span>No payment until {{ \Carbon\Carbon::parse($checkIn)->subDays(3)->format('M d, Y') }}</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    <span>Parking</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    <span>Express check-in</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
+                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    <span>Free WiFi</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
+                                                    <i class="fa-solid fa-sack-dollar flex-shrink-0" style="font-size: 13px; color: #222222; width: 14px; text-align: center;"></i>
+                                                    <span>Cashback: {{ \App\Services\CurrencyService::format(6) }} (Terms apply)</span>
+                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                                </div>
+                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 12.5px; font-weight: 700; gap: 8px;">
+                                                    <x-agoda-icon name="tag" size="13" color="#222222" class="flex-shrink-0" />
+                                                    <span>PRIME EXCLUSIVE - {{ \App\Services\CurrencyService::format(41) }} off!</span>
+                                                </div>
+                                                <div>
+                                                    <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">See details</a>
+                                                </div>
+                                            </div>
+
+                                            {{-- Sub-col 2: Pricing Breakdown --}}
+                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                                <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
+                                                    <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice2) }}</span>
+                                                </div>
+                                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Price after Cashback</div>
+                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
+                                                    <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher2) }} applied
+                                                </div>
+                                                <div class="fw-bold" style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
+                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice2)) }}
+                                                </div>
+                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
+                                            </div>
+
+                                            {{-- Sub-col 3: Book Action (2-line Button + Urgency matching Screenshot 2) --}}
+                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 16px 18px !important;">
+                                                <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
+                                                    <button type="button" 
+                                                            class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
+                                                            style="border: 1px solid #cdd4de; border-radius: 20px; height: 38px; padding: 0 16px; color: #0b66c2; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
+                                                            onclick="toggleAgodaRoomDropdown(this, event)">
+                                                        <span class="agoda-room-pill-label">1 room</span>
+                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                                            <path d="m6 9 6 6 6-6"/>
+                                                        </svg>
+                                                    </button>
+
+                                                    {{-- Agoda Custom Floating Speech-Bubble Popover --}}
+                                                    <div class="agoda-room-dropdown-popover position-absolute d-none" 
+                                                         style="top: calc(100% + 7px); left: 8px; min-width: 140px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #eef2f6; z-index: 1050; padding: 6px 0;">
+                                                        <div style="position: absolute; top: -6px; left: 24px; width: 12px; height: 12px; background: #ffffff; transform: rotate(45deg); border-left: 1px solid #eef2f6; border-top: 1px solid #eef2f6; box-shadow: -2px -2px 3px rgba(0,0,0,0.03);"></div>
+                                                        <div class="d-flex flex-column" style="position: relative; z-index: 2;">
+                                                            @for($num = 1; $num <= 5; $num++)
+                                                            <div class="agoda-room-popover-item d-flex align-items-center gap-2 px-3 py-2" 
+                                                                 style="cursor: pointer; font-size: 14px; transition: background 0.12s ease; {{ $num === 1 ? 'color: #0b66c2; font-weight: 700;' : 'color: #222222; font-weight: 500;' }}"
+                                                                 data-value="{{ $num }}"
+                                                                 onclick="selectAgodaRoomCount(this, {{ $num }}, '{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}')">
+                                                                <span class="agoda-item-check" style="width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center;" class="flex-shrink-0">
+                                                                    @if($num === 1)
+                                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                                                    @endif
+                                                                </span>
+                                                                <span class="agoda-item-text">{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}</span>
+                                                            </div>
+                                                            @endfor
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <button type="button" class="btn d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 38px; height: 42px; border: 1px solid #cdd4de; border-radius: 50%; background: #ffffff;" title="Save to wishlist">
+                                                        <x-agoda-icon name="heart" size="18" color="#475569" />
+                                                    </button>
+                                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" 
+                                                       class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
+                                                       style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
+                                                        <span style="font-size: 15px; font-weight: 700;">Book</span>
+                                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">Pay later</span>
+                                                    </a>
+                                                </div>
+                                                <div style="font-size: 13px; color: #00805a; font-weight: 700; text-align: center; margin-top: 6px;">+ Free Cancellation</div>
+                                                @if($isLowestInProperty || $rIdx === 0)
+                                                <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last 4!</div>
+                                                @else
+                                                <div style="font-size: 11.5px; color: #0b66c2; font-weight: 700; text-align: center; margin-top: 2px;">Limited availability</div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                </div>
                             </div>
                         </div>
-
                     </div>
-                </div>
 
                 {{-- Room Details & Photo Gallery Lightbox Modal (Agoda Standard) --}}
                 <div class="modal fade" id="roomDetailModal_{{ $room->id ?? $rIdx }}" tabindex="-1" aria-hidden="true">
@@ -1717,7 +2220,7 @@
                 <div class="col-lg-2 col-md-3 text-start">
                     <div class="position-relative d-inline-block">
                         <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-xs" 
-                             style="width: 82px; height: 62px; background-color: #5392f9; border-radius: 6px 16px 6px 6px; font-size: 32px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">
+                             style="width: 82px; height: 62px; background-color: #2067e1; border-radius: 18px 18px 18px 0 !important; font-size: 32px; font-weight: 800; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                             {{ round((float)$score) ?: 10 }}
                         </div>
                     </div>
@@ -2574,26 +3077,6 @@
 
 </div>
 
-{{-- 16. Bottom Fixed Sticky Offer Bar (Screenshot Parity) --}}
-<div id="agodaDetailStickyBottomBar" class="position-fixed bottom-0 start-0 w-100 bg-white border-top shadow-lg py-2.5" style="z-index: 1050; border-color: #cbd5e1 !important;">
-    <div class="agoda-page-container d-flex align-items-center justify-content-between">
-        <div class="d-flex align-items-center gap-2">
-            <i class="fa-solid fa-bell text-warning fs-5"></i>
-            <span class="fw-bold text-dark" style="font-size: 13.5px;">Don't miss out on this amazing property!</span>
-        </div>
-        <div class="d-flex align-items-center gap-3" style="font-size: 12.5px;">
-            <a href="{{ route('search.index') }}" class="text-primary fw-bold text-decoration-none">
-                Back to search results
-            </a>
-            <span class="text-muted">|</span>
-            <a href="#rooms" class="btn btn-outline-primary btn-sm fw-bold rounded-pill px-3 py-1.5" style="font-size: 12.5px; border-color: #cbd5e1; color: #2067e1;">
-                Back to room choices
-            </a>
-            <button type="button" class="btn-close ms-2" onclick="document.getElementById('agodaDetailStickyBottomBar').style.display='none';" aria-label="Dismiss"></button>
-        </div>
-    </div>
-</div>
-
 {{-- Agoda 1:1 Dual-Mode Full-Screen Photo Gallery Modal (Grid & Slideshow Views) --}}
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-fullscreen">
@@ -2682,7 +3165,7 @@
                         <div class="py-2 px-3 bg-black bg-opacity-90 border-top border-secondary border-opacity-25 flex-shrink-0 d-flex align-items-center gap-2 overflow-x-auto position-relative" id="agodaFilmstripContainer" style="scrollbar-width: thin;">
                             @foreach($galleryCategorized['all'] as $fIdx => $fItem)
                             <div class="agoda-filmstrip-thumb flex-shrink-0 @if($fIdx === 0) active @endif" data-index="{{ $fIdx }}" data-category="{{ $fItem['cat_key'] }}" onclick="openAgodaSlideshow({{ $fIdx }});" style="width: 76px; height: 52px; cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid transparent; transition: all 0.2s;">
-                                <img src="{{ $fItem['url'] }}" class="w-100 h-100 object-fit-cover" alt="Thumb {{ $fIdx }}">
+                                <img src="{{ $fItem['url'] }}" class="w-100 h-100 object-fit-cover" alt="Thumb {{ $fIdx }}" loading="lazy" decoding="async">
                             </div>
                             @endforeach
                         </div>
@@ -2991,6 +3474,35 @@
 @endif
 
 <script>
+    window.nextRoomPhoto = function(btn, event) {
+        if (event) {
+            event.stopPropagation();
+            event.preventDefault();
+        }
+        const box = btn.closest('.room-photo-carousel');
+        if (!box) return;
+        const img = box.querySelector('img.room-carousel-img');
+        const counter = box.querySelector('.room-photo-counter');
+        let images = [];
+        try {
+            images = JSON.parse(box.getAttribute('data-images') || '[]');
+        } catch(e) {
+            console.error(e);
+        }
+        if (!images || images.length <= 1) return;
+        let idx = parseInt(box.getAttribute('data-index') || '0', 10);
+        idx = (idx + 1) % images.length;
+        box.setAttribute('data-index', idx);
+        let newSrc = images[idx];
+        if (newSrc && !newSrc.startsWith('http') && !newSrc.startsWith('/')) {
+            newSrc = '/' + newSrc;
+        }
+        if (img) img.src = newSrc;
+        if (counter) {
+            counter.textContent = (idx + 1) + '/' + images.length;
+        }
+    };
+
     const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -3946,6 +4458,11 @@
     </div>
 </div>
 
+{{-- Agoda Floating Deals / Cart Trigger Button (Bottom Right) --}}
+<a href="#rooms" class="btn btn-primary rounded-circle shadow-lg position-fixed d-flex align-items-center justify-content-center text-white text-decoration-none" style="bottom: 24px; right: 24px; width: 48px; height: 48px; z-index: 1050; background-color: #2067e1; border: none; box-shadow: 0 4px 14px rgba(32,103,225,0.4) !important;" title="View deals" onclick="document.getElementById('rooms')?.scrollIntoView({behavior:'smooth'}); return false;">
+    <i class="fa-solid fa-suitcase-rolling fs-5"></i>
+</a>
+
 <script>
 function submitHostInquiry(e) {
     e.preventDefault();
@@ -4011,8 +4528,8 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {{-- Leaflet CSS & JS for Live Interactive Maps --}}
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css" media="print" onload="this.media='all'" />
+<script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.js" defer></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -4247,8 +4764,8 @@ document.addEventListener('DOMContentLoaded', function() {
     </div>
 </div>
 
-{{-- Agoda Signature "Quick Answers" Floating AI Chat Widget (1:1 Exact Parity with Screenshot) --}}
-<div id="agodaQuickAnswersWrapper" class="position-fixed" style="bottom: 24px; left: 24px; z-index: 1080;">
+{{-- Agoda Signature Support & Chat Widget (1:1 Exact Parity with Screenshot 2) --}}
+<div id="agodaQuickAnswersWrapper" class="position-fixed" style="bottom: 24px; right: 24px; z-index: 1080;">
     
     {{-- Quick Answers Interactive Chat Window (Agoda Screenshot 1:1 Parity) --}}
     <div id="quickAnswersCard" class="card shadow-lg border-0 mb-2.5 overflow-hidden d-none" style="width: 335px; border-radius: 12px; background: #ffffff; border: 1px solid #cbd5e1 !important; box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2) !important;">
@@ -4315,10 +4832,9 @@ document.addEventListener('DOMContentLoaded', function() {
         </div>
     </div>
 
-    {{-- Floating Trigger Pill Button (Matches Agoda Exactly) --}}
-    <button type="button" class="btn btn-primary rounded-pill shadow d-flex align-items-center gap-2 px-3 py-2 text-white border-0" onclick="toggleQuickAnswers()" style="background: #1b65e7; font-weight: 700; font-size: 13px; box-shadow: 0 4px 14px rgba(27, 101, 231, 0.4) !important;">
-        <i class="fa-solid fa-comment-dots fs-6"></i>
-        <span>Quick Answers</span>
+    {{-- Floating Circular Button (Matches Agoda Screenshot 2 Exactly) --}}
+    <button type="button" class="btn btn-primary rounded-circle shadow-lg d-flex align-items-center justify-content-center text-white border-0" onclick="toggleQuickAnswers()" style="width: 48px; height: 48px; background: #2067e1; box-shadow: 0 4px 14px rgba(32, 103, 225, 0.4) !important;" title="Customer Assistance">
+        <i class="fa-solid fa-headset fs-5"></i>
     </button>
 </div>
 
@@ -4474,6 +4990,95 @@ document.addEventListener('DOMContentLoaded', function() {
         };
         window.addEventListener('scroll', checkSticky, { passive: true });
         checkSticky();
+    }
+});
+</script>
+<style>
+.agoda-room-popover-item:hover {
+    background-color: #f8fafc !important;
+}
+.agoda-room-pill-btn:hover {
+    border-color: #0b66c2 !important;
+}
+</style>
+
+<script>
+function toggleAgodaRoomDropdown(btn, e) {
+    if (e) {
+        e.stopPropagation();
+        e.preventDefault();
+    }
+    const wrapper = btn.closest('.agoda-room-selector-wrapper');
+    if (!wrapper) return;
+    const popover = wrapper.querySelector('.agoda-room-dropdown-popover');
+    if (!popover) return;
+    
+    const isClosed = popover.classList.contains('d-none');
+    
+    // Close all other popovers across the page
+    document.querySelectorAll('.agoda-room-dropdown-popover').forEach(p => {
+        p.classList.add('d-none');
+    });
+    
+    if (isClosed) {
+        popover.classList.remove('d-none');
+    }
+}
+
+function selectAgodaRoomCount(itemEl, count, label) {
+    const wrapper = itemEl.closest('.agoda-room-selector-wrapper');
+    if (!wrapper) return;
+    
+    // Update pill button text
+    const labelSpan = wrapper.querySelector('.agoda-room-pill-label');
+    if (labelSpan) labelSpan.textContent = label;
+    
+    // Update items state in this popover
+    const allItems = wrapper.querySelectorAll('.agoda-room-popover-item');
+    allItems.forEach(item => {
+        const val = parseInt(item.getAttribute('data-value'), 10);
+        const checkSpan = item.querySelector('.agoda-item-check');
+        if (val === count) {
+            item.style.color = '#0b66c2';
+            item.style.fontWeight = '700';
+            if (checkSpan) {
+                checkSpan.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+            }
+        } else {
+            item.style.color = '#222222';
+            item.style.fontWeight = '500';
+            if (checkSpan) {
+                checkSpan.innerHTML = '';
+            }
+        }
+    });
+    
+    // Update Book button URL in the same column
+    const col = wrapper.closest('.col-md-3') || wrapper.parentElement;
+    if (col) {
+        const bookBtn = col.querySelector('a[href*="booking.form"]');
+        if (bookBtn) {
+            try {
+                const url = new URL(bookBtn.href, window.location.origin);
+                url.searchParams.set('rooms', count);
+                bookBtn.href = url.pathname + url.search;
+            } catch(e) {}
+        }
+    }
+    
+    // Close popover
+    const popover = wrapper.querySelector('.agoda-room-dropdown-popover');
+    if (popover) {
+        popover.classList.add('d-none');
+    }
+}
+
+// Global click outside listener to dismiss popovers
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.agoda-room-selector-wrapper')) {
+        document.querySelectorAll('.agoda-room-dropdown-popover').forEach(p => {
+            p.classList.add('d-none');
+        });
     }
 });
 </script>

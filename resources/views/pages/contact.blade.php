@@ -21,7 +21,7 @@
                 <span style="font-size: 28px;">📞</span>
                 <div>
                     <div style="font-size: 11px; font-weight: 700; color: #fbbf24; text-transform: uppercase;">{{ __('24/7 Dedicated Customer Care') }}</div>
-                    <div style="font-size: 12px; font-weight: 800; color: #fff;">01770887733</div>
+                    <div style="font-size: 12px; font-weight: 800; color: #fff;"><a href="tel:01756000111" style="color: #fff; text-decoration: none;">01756000111</a></div>
                 </div>
             </div>
             <span style="font-size: 38px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));" class="d-none d-lg-inline-block">🎧</span>
@@ -90,7 +90,7 @@
                     <i class="fa-solid fa-phone text-primary fs-5 mt-1"></i>
                     <div>
                         <strong class="text-dark d-block mb-1">Hotline &amp; Support</strong>
-                        <span class="text-secondary small d-block">{{ $siteSettings['phone'] ?? \App\Models\SiteSetting::get('site_phone', '+880 1770-887733') }}</span>
+                        <span class="text-secondary small d-block"><a href="tel:01756000111" class="text-secondary text-decoration-none">{{ $siteSettings['phone'] ?? \App\Models\SiteSetting::get('site_phone', '01756000111') }}</a></span>
                     </div>
                 </div>
 
@@ -98,7 +98,7 @@
                     <i class="fa-solid fa-envelope text-info fs-5 mt-1"></i>
                     <div>
                         <strong class="text-dark d-block mb-1">Email Support</strong>
-                        <span class="text-secondary small d-block">{{ $siteSettings['email'] ?? \App\Models\SiteSetting::get('site_email', 'support@primebooking.com.bd') }}</span>
+                        <span class="text-secondary small d-block"><a href="mailto:primebooking.bd@gmail.com" class="text-secondary text-decoration-none">{{ $siteSettings['email'] ?? \App\Models\SiteSetting::get('site_email', 'primebooking.bd@gmail.com') }}</a></span>
                     </div>
                 </div>
             </div>

@@ -18,6 +18,7 @@
                 <h6 style="font-weight: 700; font-size: 14px; color: #1b2631; margin-bottom: 14px;">{{ __('Help') }}</h6>
                 <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 10px;">
                     <li><a href="{{ route('contact') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Help center</a></li>
+                    <li><a href="mailto:primebooking.bd@gmail.com" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 600;"><i class="fa-solid fa-envelope me-1 text-danger"></i>primebooking.bd@gmail.com</a></li>
                     <li><a href="{{ route('contact') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">FAQs</a></li>
                     <li><a href="{{ route('privacy') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">{{ __('Privacy policy') }}</a></li>
                     <li><a href="{{ route('privacy') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Cookie policy</a></li>
@@ -45,10 +46,12 @@
                 <h6 style="font-weight: 700; font-size: 14px; color: #1b2631; margin-bottom: 14px;">{{ __('Destinations') }}</h6>
                 <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 10px;">
                     <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Countries/Territories</a></li>
-                    <li><a href="{{ route('services') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">All Flight Routes</a></li>
-                    <li><a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Cox's Bazar Hotels</a></li>
-                    <li><a href="{{ route('search.index') }}?destination=Dhaka" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Dhaka Hotels</a></li>
-                    <li><a href="{{ route('search.index') }}?destination=Sylhet" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Sylhet Hotels</a></li>
+                    <li><a href="{{ url('/hotels-in-coxs-bazar') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 500;">Cox's Bazar Hotels</a></li>
+                    <li><a href="{{ url('/hotels-in-kolatoli') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Kolatoli Beach Hotels</a></li>
+                    <li><a href="{{ url('/hotels-in-inani') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Inani Beach Resorts</a></li>
+                    <li><a href="{{ url('/hotels-in-dhaka') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Dhaka Hotels</a></li>
+                    <li><a href="{{ url('/hotels-in-sylhet') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Sylhet Resorts</a></li>
+                    <li><a href="{{ url('/hotels-in-sajek') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Sajek Valley Cottages</a></li>
                 </ul>
             </div>
 
@@ -94,11 +97,11 @@
                 <div style="margin-top: 20px;">
                     <div style="font-size: 12px; color: #475569; margin-bottom: 6px;">
                         <i class="fa-solid fa-phone" style="color: #2067e1; margin-right: 6px;"></i>
-                        <strong>{{ \App\Models\SiteSetting::get('support_phone', '+880 1700 000000') }}</strong>
+                        <strong><a href="tel:{{ \App\Models\SiteSetting::get('support_phone', '01756000111') }}" style="color: #475569; text-decoration: none;">{{ \App\Models\SiteSetting::get('support_phone', '01756000111') }}</a></strong>
                     </div>
                     <div style="font-size: 12px; color: #475569;">
                         <i class="fa-solid fa-envelope" style="color: #2067e1; margin-right: 6px;"></i>
-                        {{ \App\Models\SiteSetting::get('support_email', 'support@primeaviation.com') }}
+                        <a href="mailto:{{ \App\Models\SiteSetting::get('support_email', 'primebooking.bd@gmail.com') }}" style="color: #475569; text-decoration: none;">{{ \App\Models\SiteSetting::get('support_email', 'primebooking.bd@gmail.com') }}</a>
                     </div>
                 </div>
             </div>
@@ -120,12 +123,12 @@
                 <div class="col-6 col-md-4 col-lg-2">
                     <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Destination Cities</h6>
                     <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 8px;">
-                        <li><a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Cox's Bazar Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Dhaka" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Dhaka Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Chittagong" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Chittagong Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Sylhet" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sylhet Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Khulna" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Khulna Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Rajshahi" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Rajshahi Hotels</a></li>
+                        <li><a href="{{ url('/hotels-in-coxs-bazar') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Cox's Bazar Hotels</a></li>
+                        <li><a href="{{ url('/hotels-in-kolatoli') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Kolatoli Beach Hotels</a></li>
+                        <li><a href="{{ url('/hotels-in-inani') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Inani Beach Resorts</a></li>
+                        <li><a href="{{ url('/hotels-in-dhaka') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Dhaka Hotels</a></li>
+                        <li><a href="{{ url('/hotels-in-sylhet') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sylhet Resorts</a></li>
+                        <li><a href="{{ url('/hotels-in-sajek') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sajek Valley Cottages</a></li>
                     </ul>
                 </div>
 
@@ -200,9 +203,10 @@
                         {{-- SSLCommerz --}}
                         <span style="background: #006eb4; color: #fff; font-weight: 900; font-size: 10px; padding: 4px 8px; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif;">SSL</span>
                     </div>
-                    <div style="font-size: 11px; color: #94a3b8; line-height: 1.7;">
+                    <div style="font-size: 11px; color: #94a3b8; line-height: 1.8;">
                         <i class="fa-solid fa-shield-halved" style="color: #4ade80; margin-right: 5px;"></i>SSL 256-Bit Encrypted<br>
-                        <i class="fa-solid fa-headset" style="color: #60a5fa; margin-right: 5px;"></i>24/7 Customer Support
+                        <i class="fa-solid fa-headset" style="color: #60a5fa; margin-right: 5px;"></i>24/7 Customer Support<br>
+                        <i class="fa-solid fa-envelope" style="color: #f59e0b; margin-right: 5px;"></i><a href="mailto:primebooking.bd@gmail.com" style="color: #60a5fa; text-decoration: none; font-weight: 500;">primebooking.bd@gmail.com</a>
                     </div>
                 </div>
 
@@ -214,6 +218,7 @@
             <div class="container" style="padding-top: 16px; padding-bottom: 16px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px;">
                 <p style="margin: 0; font-size: 12px; color: #94a3b8;">
                     &copy; 2006 – {{ date('Y') }} Prime Booking Ltd. All rights reserved.
+                    &nbsp;·&nbsp; Support: <a href="mailto:primebooking.bd@gmail.com" style="color: #60a5fa; text-decoration: none; font-weight: 500;">primebooking.bd@gmail.com</a>
                     &nbsp;·&nbsp; Trade License: 19/515 &nbsp;·&nbsp; Khulna, Bangladesh
                 </p>
                 <div style="margin: 0; font-size: 11.5px; color: #94a3b8; font-weight: 500;">

@@ -1734,13 +1734,24 @@
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-4">
-                                {{-- Room High-Res Image Carousel --}}
-                                <div class="rounded-3 overflow-hidden mb-4 position-relative" style="height: 280px; background: #000;">
-                                    <img src="{{ $room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '') }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $room->name }}">
-                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-3 px-3 py-1" style="font-size: 12px; border-radius: 20px;">
-                                        <i class="fa-solid fa-camera me-1"></i> Verified High-Res Room Photo
+                                {{-- Room High-Res Image Gallery & Thumbnail Selector --}}
+                                <div class="rounded-3 overflow-hidden mb-3 position-relative" style="height: 320px; background: #0f172a;" id="roomModalMainBox_{{ $room->id ?? $rIdx }}">
+                                    <img id="roomModalActiveImg_{{ $room->id ?? $rIdx }}" src="{{ $rImages[0] ?? ($room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '')) }}" class="w-100 h-100" style="object-fit: cover; transition: opacity 0.25s ease;" alt="{{ $room->name }}">
+                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-3 px-3 py-1.5" style="font-size: 12px; border-radius: 20px;">
+                                        <i class="fa-solid fa-camera me-1"></i> Verified High-Res Room Photo (<span id="roomModalCounter_{{ $room->id ?? $rIdx }}">1/{{ count($rImages) }}</span>)
                                     </span>
                                 </div>
+                                @if(count($rImages) > 1)
+                                <div class="d-flex align-items-center gap-2 mb-4 overflow-x-auto pb-1" style="scrollbar-width: thin;">
+                                    @foreach($rImages as $rImgIdx => $rImgUrl)
+                                    <div class="flex-shrink-0 rounded-2 overflow-hidden border {{ $rImgIdx === 0 ? 'border-primary' : 'border-light-subtle' }}" 
+                                         style="width: 72px; height: 50px; cursor: pointer; opacity: {{ $rImgIdx === 0 ? '1' : '0.7' }}; transition: all 0.2s;"
+                                         onclick="var mImg=document.getElementById('roomModalActiveImg_{{ $room->id ?? $rIdx }}'); if(mImg){ mImg.style.opacity='0'; setTimeout(function(){ mImg.src='{{ $rImgUrl }}'; mImg.style.opacity='1'; }, 150); } var c=document.getElementById('roomModalCounter_{{ $room->id ?? $rIdx }}'); if(c){ c.innerText='{{ $rImgIdx + 1 }}/{{ count($rImages) }}'; } this.parentElement.querySelectorAll('.flex-shrink-0').forEach(function(el){ el.style.opacity='0.7'; el.classList.remove('border-primary'); }); this.style.opacity='1'; this.classList.add('border-primary');">
+                                        <img src="{{ $rImgUrl }}" class="w-100 h-100 object-fit-cover" alt="Photo {{ $rImgIdx + 1 }}" loading="lazy">
+                                    </div>
+                                    @endforeach
+                                </div>
+                                @endif
 
                                 <div class="row g-4">
                                     {{-- Left: Key Room Specs --}}
@@ -1756,30 +1767,44 @@
 
                                         <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-shield-halved text-success me-2"></i> Policies &amp; Inclusions</h6>
                                         <ul class="list-unstyled d-flex flex-column gap-2 text-secondary" style="font-size: 13px;">
-                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold"><i class="fa-solid fa-circle-check"></i> Free Breakfast Included</li>
-                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold"><i class="fa-solid fa-circle-check"></i> Free Cancellation Available</li>
-                                            <li class="d-flex align-items-center gap-2 text-primary fw-semibold"><i class="fa-solid fa-circle-check"></i> Pay at Hotel Accepted</li>
+                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold">
+                                                <i class="fa-solid fa-circle-check"></i> 
+                                                <span>{{ $room->breakfast_included ? 'Free Breakfast Included' : 'Breakfast available at hotel' }}</span>
+                                            </li>
+                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold">
+                                                <i class="fa-solid fa-circle-check"></i> 
+                                                <span>{{ $room->free_cancellation ? 'Free Cancellation Available' : 'Standard cancellation policy' }}</span>
+                                            </li>
+                                            <li class="d-flex align-items-center gap-2 text-primary fw-semibold">
+                                                <i class="fa-solid fa-circle-check"></i> 
+                                                <span>{{ $room->pay_at_hotel ? 'Pay at Hotel Accepted' : 'Instant Confirmation' }}</span>
+                                            </li>
                                         </ul>
                                     </div>
 
                                     {{-- Right: Bathroom Features & Amenities --}}
                                     <div class="col-md-6 ps-md-4">
-                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-bath text-info me-2"></i> Bathroom &amp; Toiletries</h6>
+                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-sparkles text-warning me-2"></i> Room Amenities &amp; Comfort</h6>
                                         <div class="row g-2 text-secondary mb-4" style="font-size: 12.5px;">
-                                            <div class="col-6"><i class="fa-solid fa-shower text-muted me-1.5"></i> {{ $rBathrooms }} Private Bath</div>
-                                            <div class="col-6"><i class="fa-solid fa-temperature-arrow-up text-muted me-1.5"></i> Hot Water Geyser</div>
-                                            <div class="col-6"><i class="fa-solid fa-bath text-muted me-1.5"></i> Bathtub / Shower</div>
-                                            <div class="col-6"><i class="fa-solid fa-wind text-muted me-1.5"></i> Hairdryer</div>
-                                            <div class="col-6"><i class="fa-solid fa-pump-soap text-muted me-1.5"></i> Free Toiletries</div>
-                                            <div class="col-6"><i class="fa-solid fa-shirt text-muted me-1.5"></i> Towels &amp; Slippers</div>
+                                            @php
+                                                $displayFacs = !empty($room->facilities) && is_array($room->facilities) ? $room->facilities : [
+                                                    'Wi-Fi [free]', 'Air conditioning', 'Private bathroom', 'Hot water geyser', 'Smart TV', 'Balcony/terrace', 'Free bottled water', 'Hair dryer'
+                                                ];
+                                            @endphp
+                                            @foreach(array_slice($displayFacs, 0, 10) as $fItem)
+                                            <div class="col-6 d-flex align-items-center gap-1.5 text-truncate">
+                                                <i class="fa-solid fa-check text-success" style="font-size: 11px;"></i>
+                                                <span class="text-truncate">{{ $fItem }}</span>
+                                            </div>
+                                            @endforeach
                                         </div>
 
-                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-tv text-secondary me-2"></i> Media &amp; Technology</h6>
+                                        <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-bath text-info me-2"></i> Bathroom &amp; Extras</h6>
                                         <div class="row g-2 text-secondary" style="font-size: 12.5px;">
-                                            <div class="col-6"><i class="fa-solid fa-wifi text-muted me-1.5"></i> Free High-Speed WiFi</div>
-                                            <div class="col-6"><i class="fa-solid fa-tv text-muted me-1.5"></i> Smart Flat TV</div>
-                                            <div class="col-6"><i class="fa-solid fa-snowflake text-muted me-1.5"></i> Air conditioning</div>
-                                            <div class="col-6"><i class="fa-solid fa-box text-muted me-1.5"></i> Mini Refrigerator</div>
+                                            <div class="col-6"><i class="fa-solid fa-shower text-muted me-1.5"></i> {{ $rBathrooms }} Private Bath</div>
+                                            <div class="col-6"><i class="fa-solid fa-temperature-arrow-up text-muted me-1.5"></i> Hot Water</div>
+                                            <div class="col-6"><i class="fa-solid fa-pump-soap text-muted me-1.5"></i> Toiletries</div>
+                                            <div class="col-6"><i class="fa-solid fa-shirt text-muted me-1.5"></i> Towels &amp; Linens</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1787,11 +1812,11 @@
                             <div class="modal-footer border-top py-3 px-4 bg-light d-flex align-items-center justify-content-between">
                                 <div>
                                     <span class="text-secondary small d-block" style="font-size: 11px;">Starting from</span>
-                                    <strong class="text-danger fw-bold" style="font-size: 20px;">USD {{ $room->price_per_night }} <small class="text-secondary fw-normal" style="font-size: 12px;">/ night</small></strong>
+                                    <strong class="text-danger fw-bold" style="font-size: 21px;">৳{{ number_format((float)($room->price_per_night ?? 2500)) }} <small class="text-secondary fw-normal" style="font-size: 12px;">/ night</small></strong>
                                 </div>
                                 <div class="d-flex gap-2">
                                     <button type="button" class="btn btn-light fw-bold px-3 py-2 border" data-bs-dismiss="modal" style="font-size: 13px;">Close</button>
-                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}" class="btn btn-primary fw-bold px-4 py-2" style="background: #2067e1; font-size: 13px; border-radius: 6px;">
+                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn btn-primary fw-bold px-4 py-2" style="background: #2067e1; font-size: 13px; border-radius: 6px;">
                                         Book this Room
                                     </a>
                                 </div>
@@ -4684,7 +4709,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 </div>
 
-                <a href="https://api.whatsapp.com/send?phone=8801700000000&text={{ urlencode('Hello Prime Booking, I would like to claim the Best Price Guarantee for ' . $property->name) }}" target="_blank" rel="noopener" class="btn btn-success w-100 fw-bold rounded-3 py-2.5 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                <a href="https://api.whatsapp.com/send?phone=8801756000111&text={{ urlencode('Hello Prime Booking, I would like to claim the Best Price Guarantee for ' . $property->name) }}" target="_blank" rel="noopener" class="btn btn-success w-100 fw-bold rounded-3 py-2.5 shadow-sm d-flex align-items-center justify-content-center gap-2">
                     <i class="fa-brands fa-whatsapp fs-5"></i> Contact Price Match Concierge
                 </a>
             </div>

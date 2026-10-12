@@ -115,7 +115,7 @@
         {{-- Help Card --}}
         <div class="card border-0 shadow-xs rounded-4 p-3 bg-white text-center" style="border-radius: 12px !important;">
             <div class="d-flex align-items-center justify-content-center gap-3 text-secondary" style="font-size: 13px;">
-                <span><i class="fa-solid fa-headset text-primary me-1"></i> Need to modify your stay? Contact 24/7 Support: <strong>01770887733</strong></span>
+                <span><i class="fa-solid fa-headset text-primary me-1"></i> Need to modify your stay? Contact 24/7 Support: <strong><a href="tel:01756000111" class="text-secondary text-decoration-none">01756000111</a></strong></span>
                 <span>|</span>
                 <a href="{{ route('home') }}" class="text-decoration-none fw-semibold" style="color: #2067e1;">Return to Homepage</a>
             </div>

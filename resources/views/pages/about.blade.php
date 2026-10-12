@@ -51,10 +51,10 @@
                 <strong><i class="fa-solid fa-location-dot text-danger me-2"></i>{{ __('Head Office') }}:</strong> 46, KDA Avenue, Jiban Bima Bhaban, Khulna, Bangladesh
             </div>
             <div class="col-md-6">
-                <strong><i class="fa-solid fa-phone text-success me-2"></i>{{ __('Support Hotline') }}:</strong> 01770887733, 01785880033
+                <strong><i class="fa-solid fa-phone text-success me-2"></i>{{ __('Support Hotline') }}:</strong> <a href="tel:01756000111" class="text-dark text-decoration-none">01756000111</a>
             </div>
             <div class="col-md-6">
-                <strong><i class="fa-solid fa-envelope text-primary me-2"></i>{{ __('Email Support') }}:</strong> primeaviation.ltd@gmail.com
+                <strong><i class="fa-solid fa-envelope text-primary me-2"></i>{{ __('Email Support') }}:</strong> <a href="mailto:primebooking.bd@gmail.com" class="text-primary text-decoration-none">primebooking.bd@gmail.com</a>
             </div>
             <div class="col-md-6">
                 <strong><i class="fa-solid fa-credit-card text-warning me-2"></i>Local Payment Partners:</strong> bKash, Nagad, Rocket, Visa &amp; Mastercard

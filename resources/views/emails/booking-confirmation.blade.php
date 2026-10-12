@@ -152,8 +152,8 @@
 
             <p style="font-size:13px; color:#8c8c8c; text-align:center; line-height:1.6;">
                 Need help? Contact us at
-                <a href="mailto:support@primeaviation.com" style="color:#1890ff;">support@primeaviation.com</a><br>
-                or WhatsApp: <a href="https://wa.me/8801XXXXXXXXX" style="color:#1890ff;">+880 1XXX-XXXXXX</a>
+                <a href="mailto:primebooking.bd@gmail.com" style="color:#1890ff;">primebooking.bd@gmail.com</a><br>
+                or WhatsApp: <a href="https://wa.me/8801756000111" style="color:#1890ff;">+880 1756 000111</a>
             </p>
         </div>
 
@@ -166,7 +166,7 @@
             </div>
             <p>
                 <strong>PRIME BOOKING</strong> — Bangladesh's Premium Travel & Hotel Booking Platform<br>
-                <a href="{{ config('app.url') }}">www.primeaviation.com</a> &bull;
+                <a href="{{ config('app.url') }}">www.primebooking.com.bd</a> &bull;
                 <a href="{{ config('app.url') }}/privacy">Privacy Policy</a> &bull;
                 <a href="{{ config('app.url') }}/terms">Terms</a><br><br>
                 You received this email because you made a booking on PRIME BOOKING.<br>

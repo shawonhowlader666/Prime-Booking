@@ -373,7 +373,7 @@
                 <strong>Prime Booking Network</strong> &bull; House #42, Road #11, Banani, Dhaka-1213, Bangladesh
             </div>
             <div>
-                Hotline: <strong class="font-mono">01770887733</strong> &bull; Email: accounts@primebooking.com
+                Hotline: <strong class="font-mono">01756000111</strong> &bull; Email: primebooking.bd@gmail.com
             </div>
         </div>
     </div>

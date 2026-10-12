@@ -39,7 +39,7 @@
         <p class="text-secondary small">All transaction data is processed over 256-bit SSL encrypted channels. Payment credentials for bKash, Nagad, and credit cards are processed through PCI-DSS compliant gateways.</p>
 
         <h5 class="fw-bold text-dark mt-4">3. Contacting Us</h5>
-        <p class="text-secondary small">If you have any questions regarding privacy, contact us at <strong>primeaviation.ltd@gmail.com</strong> or call <strong>01770887733</strong>.</p>
+        <p class="text-secondary small">If you have any questions regarding privacy, contact us at <strong><a href="mailto:primebooking.bd@gmail.com" class="text-dark text-decoration-none">primebooking.bd@gmail.com</a></strong> or call <strong><a href="tel:01756000111" class="text-dark text-decoration-none">01756000111</a></strong>.</p>
     </div>
 </div>
 @endsection

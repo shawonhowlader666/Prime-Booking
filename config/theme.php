@@ -21,8 +21,8 @@ return [
         'app_name' => 'Prime Booking',
         'tagline' => 'Online Travel Platform',
         'trade_license' => '19/515, Khulna, Bangladesh',
-        'hotlines' => ['01770887733', '01785880033'],
-        'email' => 'primeaviation.ltd@gmail.com',
+        'hotlines' => ['01756000111'],
+        'email' => 'primebooking.bd@gmail.com',
         'address' => '46, K D A Avenue, Jiban Bima Bhaban, Khulna, Bangladesh',
     ]
 ];

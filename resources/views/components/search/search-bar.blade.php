@@ -588,7 +588,7 @@
                         <div style="position: absolute; top: -8px; right: 28px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 100000;"></div>
 
                         <!-- Item 1: Rooms -->
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 22px; position: relative;">
                             <div>
                                 <span style="font-weight: 700; color: #1e293b; font-size: 15px; display: block;">{{ __('Rooms') }}</span>
                             </div>
@@ -596,6 +596,12 @@
                                 <button type="button" class="agoda-stepper-btn" id="btnMinusRoom" {{ $defaultRooms <= 1 ? 'disabled' : '' }}>-</button>
                                 <span style="font-weight: 700; font-size: 16px; color: #1e293b; width: 16px; text-align: center;" id="valRooms">{{ $defaultRooms }}</span>
                                 <button type="button" class="agoda-stepper-btn" id="btnPlusRoom">+</button>
+                            </div>
+
+                            <!-- Agoda Tooltip Callout next to Room row (Image 5 Exact Parity) -->
+                            <div class="d-none d-lg-block" style="position: absolute; left: calc(100% + 14px); top: 0; width: 220px; background: #1e293b; color: #ffffff; padding: 11px 14px; border-radius: 6px; font-size: 12px; line-height: 1.35; font-weight: 500; box-shadow: 0 4px 14px rgba(0,0,0,0.25); z-index: 100001; pointer-events: none; text-align: left;">
+                                <div style="position: absolute; left: -5px; top: 14px; width: 10px; height: 10px; background: #1e293b; transform: rotate(45deg);"></div>
+                                Search for 1 room to see all multi-bedroom properties that can fit your entire group
                             </div>
                         </div>
 
@@ -871,11 +877,13 @@ function selectDestination(name) {
         }).catch(() => {});
     } catch(e) {}
 
-    // Advance focus to Dates Picker smoothly (Agoda Exact 1:1 Flow)
-    const dateBox = document.getElementById('agodaDateBoxTrigger');
-    if (dateBox) {
-        setTimeout(() => dateBox.click(), 80);
-    }
+    // Advance focus to Dates Picker smoothly (Agoda Exact 1:1 Flow as requested!)
+    setTimeout(() => {
+        const btnIn = document.getElementById('btnCheckInDate');
+        if (btnIn) {
+            btnIn.click();
+        }
+    }, 100);
 }
 
 let isSelectingCheckOut = false;
@@ -1095,8 +1103,16 @@ function selectCalendarDay(dateStr, formattedStr, dayName) {
             if (sm) sm.textContent = dayName;
             btnOut.classList.remove('active-border');
         }
+        if (btnIn) btnIn.classList.remove('active-border');
         if (calendarCard) calendarCard.style.display = 'none';
-        if (backdrop) backdrop.style.display = 'none';
+
+        // AUTOMATIC ADVANCE (Agoda Exact 1:1 Flow as requested!):
+        // Automatically open the Guests & Rooms popover!
+        setTimeout(() => {
+            if (guestTrigger) {
+                guestTrigger.click();
+            }
+        }, 120);
     }
     updateNightsPill();
     renderAgodaDynamicCalendar();
@@ -1288,9 +1304,13 @@ window.applyFlexibleSelection = function() {
     renderAgodaDynamicCalendar();
 
     const popover = document.getElementById('agodaCalendarPopoverCard');
-    const backdrop = document.getElementById('agodaSearchBackdropOverlay');
     if (popover) popover.style.display = 'none';
-    if (backdrop) backdrop.style.display = 'none';
+
+    // Automatic Advance to Guests on flexible select
+    const guestTrigger = document.getElementById('agodaGuestBoxTrigger');
+    setTimeout(() => {
+        if (guestTrigger) guestTrigger.click();
+    }, 120);
 };
 
 document.addEventListener('DOMContentLoaded', function() {
@@ -1358,6 +1378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (guestsCard) guestsCard.style.display = 'none';
         if (btnCheckIn) btnCheckIn.classList.remove('active-border');
         if (btnCheckOut) btnCheckOut.classList.remove('active-border');
+        if (guestTrigger) guestTrigger.classList.remove('active-border');
     }
 
     window.hideAllSearchPopovers = function() {
@@ -1734,15 +1755,40 @@ document.addEventListener('DOMContentLoaded', function() {
         container.style.display = 'block';
 
         let html = '';
+        const lq = query.trim().toLowerCase();
 
-        // ── 1. City / Location Suggestions (100% Live DB from API) ───────
+        // ── 0. Matching Recent Searches from localStorage (Agoda Image 2 Parity) ──
+        try {
+            const stored = JSON.parse(localStorage.getItem(PB_SEARCH_KEY) || '[]');
+            const matchingRecent = stored.filter(item => {
+                const dest = (item.destination || '').toLowerCase();
+                return dest.includes(lq);
+            }).slice(0, 2);
+
+            matchingRecent.forEach(rec => {
+                const safeName = rec.destination.replace(/'/g, "\\'");
+                const highlighted = highlightMatch(rec.destination, query);
+                html += `
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
+                        <i class="fa-regular fa-clock" style="font-size: 16px; color: #2a2a2e; width: 22px; text-align: center; flex-shrink: 0;"></i>
+                        <div style="flex: 1; min-width: 0; text-align: left;">
+                            <div style="font-size: 14px; color: #2a2a2e; font-weight: 400; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${highlighted}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+        } catch(e) {}
+
+        // ── 1. City / Location Suggestions (100% Live DB from API — Agoda Image 2 & 3) ───────
         let allLocations = data.locations || [];
         if (allLocations.length === 0) {
             allLocations = matchClientCities(query || '');
         }
 
         if (allLocations.length > 0) {
-            allLocations.slice(0, 8).forEach(loc => {
+            allLocations.slice(0, 6).forEach(loc => {
                 const cityName  = loc.city || loc.title || '';
                 const country   = loc.country || 'Bangladesh';
                 const locType   = loc.type || loc.loc_type || 'City';
@@ -1750,61 +1796,37 @@ document.addEventListener('DOMContentLoaded', function() {
                 const safeTitle = fullTitle.replace(/'/g, "\\'");
                 const highlightedFullTitle = highlightMatch(fullTitle, query);
 
-
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeTitle}')" style="padding: 12px 24px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
-                        <i class="fa-solid fa-location-dot" style="font-size: 19px; color: #262626; width: 22px; text-align: center; flex-shrink: 0;"></i>
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeTitle}')" style="padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
+                        <i class="fa-solid fa-location-dot" style="font-size: 16px; color: #2a2a2e; width: 22px; text-align: center; flex-shrink: 0;"></i>
                         <div style="flex: 1; min-width: 0; text-align: left;">
-                            <div style="font-size: 14.5px; color: #262626; font-weight: 400; line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left;">
+                            <div style="font-size: 14px; color: #2a2a2e; font-weight: 400; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
                                 ${highlightedFullTitle}
                             </div>
-                            <div style="color: #737373; font-size: 12px; font-weight: 400; text-align: left; margin-top: 2px;">${locType}</div>
+                            <div style="color: #737373; font-size: 12px; font-weight: 400; margin-top: 1px;">${locType}</div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // ── 2. Matching Properties ───────────────────────────────────────────────
+        // ── 2. Matching Properties (Agoda Image 2 & 3: Bed Icon, clean row, subtitle "Property") ───
         const properties = data.properties || [];
         if (properties.length > 0) {
-            html += `
-                <div style="padding: 12px 24px 6px; font-size: 11px; font-weight: 700; color: #737373; letter-spacing: 0.8px; text-transform: uppercase; margin-top: 6px; border-top: 1px solid #f1f5f9; text-align: left;">
-                    MATCHING PROPERTIES &amp; CRUISES
-                </div>
-            `;
-            properties.forEach(p => {
-                const imgUrl   = p.primary_image || null;
-                const safeName = (p.name || '').replace(/'/g, "\\'");
-                // Use property_type from API (Hotel, Resort, Houseboat, etc.) — Agoda 1:1
-                const propType = p.property_type || p.type_label || 'Hotel';
+            properties.slice(0, 8).forEach(p => {
                 const cityPart = p.city ? ', ' + p.city + ', Bangladesh' : '';
                 const fullPropTitle = (p.name || '') + cityPart;
+                const safeFullTitle = fullPropTitle.replace(/'/g, "\\'");
                 const highlightedPropTitle = highlightMatch(fullPropTitle, query);
 
-                // Thumbnail: real image from DB (62x62px) or bed icon fallback — Agoda 1:1
-                let leftIconHtml;
-                if (imgUrl) {
-                    leftIconHtml = `<img src="${imgUrl}" style="width: 62px; height: 62px; border-radius: 8px; object-fit: cover; flex-shrink: 0; border: 1px solid #e2e8f0;" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                                    <div style="display:none; width:62px; height:62px; border-radius:8px; background:#f1f5f9; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hotel" style="font-size:22px; color:#94a3b8;"></i></div>`;
-                } else {
-                    leftIconHtml = `<div style="width:62px; height:62px; border-radius:8px; background:#f1f5f9; display:flex; align-items:center; justify-content:center; flex-shrink:0;"><i class="fa-solid fa-hotel" style="font-size:22px; color:#94a3b8;"></i></div>`;
-                }
-
-                let badgeHtml = '';
-                if (p.badge) {
-                    badgeHtml = `<span style="display:inline-block; font-size:10.5px; font-weight:700; color:${p.badge.color}; background:${p.badge.bg}; padding:1px 6px; border-radius:4px; margin-left:6px;">${p.badge.text}</span>`;
-                }
-
                 html += `
-                    <div class="agoda-popover-item" onclick="selectDestination('${safeName}')" style="padding: 10px 24px; cursor: pointer; display: flex; align-items: center; gap: 14px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
-                        ${leftIconHtml}
+                    <div class="agoda-popover-item" onclick="selectDestination('${safeFullTitle}')" style="padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
+                        <i class="fa-solid fa-bed" style="font-size: 15px; color: #2a2a2e; width: 22px; text-align: center; flex-shrink: 0;"></i>
                         <div style="flex: 1; min-width: 0; text-align: left;">
-                            <div style="font-size: 14px; color: #262626; font-weight: 400; line-height: 1.35; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${highlightedPropTitle}</div>
-                            <div style="color: #2067e1; font-size: 12px; font-weight: 400; margin-top: 3px; text-align: left; display:flex; align-items:center;">
-                                <span>${propType}</span>
-                                ${badgeHtml}
+                            <div style="font-size: 14px; color: #2a2a2e; font-weight: 400; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${highlightedPropTitle}
                             </div>
+                            <div style="color: #737373; font-size: 12px; font-weight: 400; margin-top: 1px;">Property</div>
                         </div>
                     </div>
                 `;
@@ -1813,24 +1835,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
         if (html === '') {
             html = `<div style="padding: 24px; text-align: center; color: #737373; font-size: 13.5px;">No matching destinations or properties found for "<strong>${query}</strong>".</div>`;
-        }
-
-        // ── 3. CityInsight Badge (weather + travel tip from server) ──────────
-        const insight = data.insight;
-        if (insight && insight.temp) {
-            html += `
-                <div style="margin: 0 24px 12px; padding: 10px 14px; background: linear-gradient(135deg, #f0f7ff 0%, #e8f4fd 100%);
-                             border-radius: 10px; border: 1px solid #dbeafe; display: flex; align-items: center; gap: 12px;">
-                    <i class="${insight.icon || 'fa-solid fa-compass text-primary'}" style="font-size: 20px; flex-shrink: 0;"></i>
-                    <div style="flex: 1;">
-                        <div style="font-size: 12.5px; font-weight: 700; color: #1e3a5f; margin-bottom: 2px;">
-                            ${insight.temp} · ${insight.condition}
-                            <span style="margin-left: 6px; font-size: 11px; background: #2067e1; color: white;
-                                         padding: 1px 7px; border-radius: 20px; font-weight: 600;">${insight.season_badge}</span>
-                        </div>
-                        <div style="font-size: 11.5px; color: #475569;">${insight.tip}</div>
-                    </div>
-                </div>`;
         }
 
         container.innerHTML = html;
@@ -1871,6 +1875,9 @@ document.addEventListener('DOMContentLoaded', function() {
             showBackdrop();
             positionPopover(guestsCard, guestTrigger);
             guestsCard.style.display = 'block';
+            guestTrigger.classList.add('active-border');
+            if (btnCheckIn) btnCheckIn.classList.remove('active-border');
+            if (btnCheckOut) btnCheckOut.classList.remove('active-border');
             if (destCard) destCard.style.display = 'none';
             if (calendarCard) calendarCard.style.display = 'none';
         });

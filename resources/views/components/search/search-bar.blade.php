@@ -47,8 +47,8 @@
         align-items: center;
         gap: 4px;
         padding: 4px 8px;
-        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
-        border: 1px solid #cbd5e1;
+        box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+        border: 1px solid #d5d9e0;
         max-width: 100%;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
@@ -58,24 +58,24 @@
         display: none;
     }
 
-    /* Main Search Card */
+    /* Main Search Card — Subtle off-white / light grey (halka sada kom) */
     .agoda-search-card {
-        background-color: #ffffff;
+        background-color: #f8f7f9;
         border-radius: 16px;
         padding: 24px 36px 44px 36px;
-        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-        border: 1px solid #cbd5e1;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.14);
+        border: 1px solid #e2e8f0;
         position: relative;
         z-index: 1;
         text-align: left !important;
     }
 
-    /* Input Buttons (Height: 58px) */
+    /* Input Buttons (Height: 58px) — Pure Crisp White (btn ektu sada) */
     .agoda-input-btn {
         width: 100%;
-        background-color: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
+        background-color: #ffffff !important;
+        border: 1px solid #d5d9e0;
+        border-radius: 8px;
         height: 58px;
         padding: 8px 16px;
         display: flex;
@@ -85,13 +85,15 @@
         transition: all 0.2s ease;
         text-align: left;
         outline: none;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
     }
     .agoda-input-btn:hover {
         border-color: #2067e1;
-        box-shadow: 0 4px 12px rgba(32, 103, 225, 0.12);
+        box-shadow: 0 2px 8px rgba(32, 103, 225, 0.12);
     }
     .agoda-input-btn.active-border {
         border: 2px solid #2067e1;
+        box-shadow: 0 2px 10px rgba(32, 103, 225, 0.16);
     }
 
     .agoda-nights-pill {
@@ -279,7 +281,7 @@
         @endphp
 
         <!-- Form 1: Standard Hotel / Homes / Long Stays Search Form -->
-        <form action="{{ route('search.index') }}" method="GET" id="agodaFormStandard" onsubmit="showAgodaSearchLoading();">
+        <form action="{{ route('search.index') }}" method="GET" id="agodaFormStandard" onsubmit="return validateAndSubmitAgodaSearch(event);">
             <input type="hidden" name="search_type" id="agodaSearchTypeInput" value="{{ request('search_type', request('type', 'hotel')) }}">
             <input type="hidden" name="check_in" id="inputCheckIn" value="{{ $rawCheckIn }}">
             <input type="hidden" name="check_out" id="inputCheckOut" value="{{ $rawCheckOut }}">
@@ -656,7 +658,7 @@
         </form>
 
         <!-- Form 2: Dedicated Airport Transfer Search Form (Exact Screenshot 4 Parity) -->
-        <form action="{{ route('services') }}" method="GET" id="agodaFormAirport" style="display: none;" onsubmit="showAgodaSearchLoading();">
+        <form action="{{ route('services') }}" method="GET" id="agodaFormAirport" style="display: none;" onsubmit="return validateAndSubmitAgodaTransfer(event);">
             <input type="hidden" name="type" value="transfer">
 
             <!-- Sub Toggle Pills: From Airport | To Airport -->
@@ -1961,4 +1963,49 @@ document.addEventListener('DOMContentLoaded', function() {
 
     updateUI();
 });
+
+/* ─── Agoda Empty Destination Interceptor & Validator (Exact Screenshot Parity) ─── */
+function validateAndSubmitAgodaSearch(e) {
+    const destInput = document.getElementById('agodaDestinationInput');
+    const destVal = destInput ? destInput.value.trim() : '';
+    const latInput = document.getElementById('homeGpsLatInput');
+    const hasGps = latInput && latInput.value.trim() !== '';
+
+    if (!destVal && !hasGps) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (typeof window.showAgodaEmptyDestinationModal === 'function') {
+            window.showAgodaEmptyDestinationModal();
+        }
+        return false;
+    }
+
+    if (typeof window.showAgodaSearchLoading === 'function') {
+        window.showAgodaSearchLoading();
+    }
+    return true;
+}
+
+function validateAndSubmitAgodaTransfer(e) {
+    const pickup = document.getElementById('agodaPickupInput')?.value.trim();
+    const dropoff = document.getElementById('agodaDropoffInput')?.value.trim();
+
+    if (!pickup && !dropoff) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        if (typeof window.showAgodaEmptyDestinationModal === 'function') {
+            window.showAgodaEmptyDestinationModal();
+        }
+        return false;
+    }
+
+    if (typeof window.showAgodaSearchLoading === 'function') {
+        window.showAgodaSearchLoading();
+    }
+    return true;
+}
 </script>

@@ -123,11 +123,19 @@
         padding: 0 16px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
+    .agoda-connected-outer-card {
+        background: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        margin-bottom: 28px;
+    }
     .agoda-exact-card {
         background: #ffffff;
         border: 1px solid #e0e0e0;
         border-radius: 16px;
-        padding: 24px 28px;
+        padding: 22px 28px;
         box-shadow: none;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
@@ -158,155 +166,138 @@
 <div class="py-3" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; margin-top: 35px; position: relative; z-index: 1;">
     <div class="agoda-exact-container">
         
-        {{-- Section 1: Trip Savings Deals Banner --}}
-        <div class="position-relative overflow-hidden mb-4" style="background: linear-gradient(90deg, #d8f3dc 0%, #d8f3dc 65%, #b7e4c7 100%); border-radius: 16px; min-height: 92px; padding: 22px 28px;">
-            <div class="position-relative" style="z-index: 2; max-width: 700px;">
-                <h4 class="fw-bold mb-1" style="color: #1a382b; font-size: 20px; letter-spacing: -0.3px; line-height: 1.25;">
-                    {{ auth()->check() ? auth()->user()->name . '! ' : '' }}You've unlocked Trip Savings deals!
-                </h4>
-                <p class="mb-0 fw-medium" style="color: #007a3d; font-size: 13.5px;">
-                    Save more with Trip Savings
-                </p>
-            </div>
+        {{-- Unified Agoda Connected Trip Outer Card Container --}}
+        <div class="agoda-connected-outer-card">
+            
+            {{-- Top Green Banner (Fills top of outer card with 16px top corners) --}}
+            <div class="position-relative overflow-hidden" style="background: linear-gradient(90deg, #d8f3dc 0%, #d8f3dc 65%, #b7e4c7 100%); min-height: 94px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;">
+                <div class="position-relative" style="z-index: 2; max-width: 650px;">
+                    <h4 class="fw-bold mb-1" style="color: #1a382b; font-size: 19px; letter-spacing: -0.3px; line-height: 1.25;">
+                        {{ auth()->check() ? auth()->user()->name . '! ' : 'PRIME! ' }}You've unlocked Trip Savings deals!
+                    </h4>
+                    <p class="mb-0 fw-medium" style="color: #007a3d; font-size: 13.5px;">
+                        Save more with Trip Savings
+                    </p>
+                </div>
 
-            {{-- Agoda Phone + Trip Savings Pill Illustration --}}
-            <div class="d-none d-md-flex align-items-center position-absolute" style="right: 28px; top: 50%; transform: translateY(-50%); z-index: 1;">
-                <div style="position: relative; width: 165px; height: 86px; display: flex; align-items: center; justify-content: center;">
-                    <!-- Phone graphic -->
-                    <div style="position: absolute; right: 12px; top: 2px; width: 66px; height: 80px; background: #ffffff; border: 3px solid #334155; border-radius: 13px; transform: rotate(15deg); box-shadow: 0 4px 14px rgba(0,0,0,0.1); padding: 4px; overflow: hidden;">
-                        <div style="font-size: 7.5px; font-weight: 800; color: #007a3d; text-align: center; border-bottom: 1px solid #f1f5f9; padding-bottom: 2px; letter-spacing: 0.3px;">prime</div>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2.5px; margin-top: 4px;">
-                            <div style="height: 14px; background: #c084fc; border-radius: 3px;"></div>
-                            <div style="height: 14px; background: #60a5fa; border-radius: 3px;"></div>
-                            <div style="height: 14px; background: #f472b6; border-radius: 3px;"></div>
-                            <div style="height: 14px; background: #fbbf24; border-radius: 3px;"></div>
-                        </div>
-                    </div>
-                    <!-- Trip Savings Overlay Pill -->
-                    <div style="position: absolute; left: -6px; top: 27px; z-index: 3; background: #007a3d; color: #ffffff; padding: 4px 13px; border-radius: 20px; font-weight: 700; font-size: 12.5px; box-shadow: 0 4px 12px rgba(0, 122, 61, 0.32); display: flex; align-items: center; gap: 6px; white-space: nowrap;">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
-                            <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.2-6.3-4.6-6.3 4.6 2.3-7.2-6-4.6h7.6z"/>
-                        </svg>
-                        Trip Savings
-                    </div>
+                {{-- Agoda Phone + Trip Savings Pill Illustration --}}
+                <div class="d-none d-md-flex align-items-center position-absolute" style="right: 24px; top: 50%; transform: translateY(-50%); z-index: 1;">
+                    <img src="{{ asset('images/connected-trip/trip-savings-phone.png') }}" alt="Trip Savings" style="height: 80px; object-fit: contain;">
                 </div>
             </div>
-        </div>
 
-        {{-- Section 2: Need more hotels for your trip? --}}
-        <div class="mb-4">
-            <h5 class="fw-bold mb-2.5" style="color: #2a2a2e; font-size: 19px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
-            <div class="agoda-exact-card">
-                <div class="d-flex align-items-end justify-content-between flex-wrap gap-3">
-                    <div>
-                        {{-- Emerald Green Hotel Icon matching Agoda SVG 1:1 --}}
-                        <div style="color: #007a3d; margin-bottom: 12px; line-height: 1;">
-                            <svg width="34" height="34" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M4 28V6C4 4.89543 4.89543 4 6 4H18C19.1046 4 20 4.89543 20 6V12H26C27.1046 12 28 12.8954 28 14V28H4Z" fill="#007a3d"/>
-                                <rect x="7" y="7" width="3" height="3" rx="0.5" fill="white"/>
-                                <rect x="13" y="7" width="3" height="3" rx="0.5" fill="white"/>
-                                <rect x="7" y="12" width="3" height="3" rx="0.5" fill="white"/>
-                                <rect x="13" y="12" width="3" height="3" rx="0.5" fill="white"/>
-                                <rect x="23" y="15" width="2.5" height="2.5" rx="0.5" fill="white"/>
-                                <rect x="23" y="20" width="2.5" height="2.5" rx="0.5" fill="white"/>
-                                <path d="M10 28V22H14V28H10Z" fill="white"/>
-                            </svg>
-                        </div>
-                        
-                        {{-- Badges Row --}}
-                        <div class="d-flex align-items-center gap-2 mb-2">
-                            <span style="background: #e6f7ec; color: #007a3d; font-size: 11px; font-weight: 600; padding: 2.5px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="#007a3d">
-                                    <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.2-6.3-4.6-6.3 4.6 2.3-7.2-6-4.6h7.6z"/>
-                                </svg>
-                                Trip Savings
-                            </span>
-                            <span style="background: #007a3d; color: #ffffff; font-size: 11px; font-weight: 700; padding: 2.5px 8px; border-radius: 4px;">
-                                Up to 5% off
-                            </span>
-                        </div>
+            {{-- Main Container Body --}}
+            <div style="padding: 24px 28px 28px 28px;">
+                
+                {{-- Section 1: Need more hotels for your trip? --}}
+                <div class="mb-4">
+                    <h5 class="fw-bold mb-2.5" style="color: #2a2a2e; font-size: 18px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
+                    <div class="agoda-exact-card">
+                        <div class="d-flex align-items-end justify-content-between flex-wrap gap-3">
+                            <div>
+                                {{-- Emerald Green Hotel Icon matching Agoda 1:1 --}}
+                                <div style="margin-bottom: 12px; line-height: 1;">
+                                    <img src="{{ asset('images/connected-trip/hotel-icon.png') }}" alt="Hotel" style="width: 32px; height: 33px; object-fit: contain;">
+                                </div>
+                                
+                                {{-- Badges Row --}}
+                                <div class="d-flex align-items-center gap-2 mb-2">
+                                    <span style="background: #e6f7ec; color: #007a3d; font-size: 11px; font-weight: 700; padding: 2.5px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#007a3d">
+                                            <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.2-6.3-4.6-6.3 4.6 2.3-7.2-6-4.6h7.6z"/>
+                                        </svg>
+                                        Trip Savings
+                                    </span>
+                                    <span style="background: #007a3d; color: #ffffff; font-size: 11px; font-weight: 700; padding: 2.5px 8px; border-radius: 4px;">
+                                        Up to 5% off
+                                    </span>
+                                </div>
 
-                        {{-- Title & Subtitle --}}
-                        <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Book another place to stay</h6>
-                        <p class="small mb-2.5" style="color: #737373; font-size: 12px;">We have unlocked the best deals with Trip Savings</p>
-                        
-                        {{-- Date line with external link icon --}}
-                        <div class="small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 12px; color: #737373;">
-                            <span>11 Oct - 12 Oct &bull; 2 Adults</span>
-                            <a href="{{ route('search.index') }}" style="color: #5392f9; text-decoration: none;">
-                                <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
-                            </a>
-                        </div>
-                    </div>
-
-                    {{-- Search Pill Button --}}
-                    <div>
-                        <a href="{{ route('search.index') }}" class="agoda-btn-outline-search">
-                            Search
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Section 3: Plan your journey to your hotel --}}
-        <div class="mb-3">
-            <h5 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 19px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
-            <p class="small mb-3" style="color: #737373; font-size: 12.5px;">Book your ride in advance for a hassle-free trip</p>
-
-            <div class="row g-3">
-                {{-- Card A: Airport Transfer --}}
-                <div class="col-md-6">
-                    <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 20px 24px;">
-                        <div>
-                            <div style="width: 110px; height: 52px; display: flex; align-items: center; margin-bottom: 8px;">
-                                <img src="https://images.unsplash.com/photo-1549399542-7e3f8b79c341?auto=format&fit=crop&w=240&q=80" alt="Airport Transfer" style="max-height: 50px; max-width: 105px; object-fit: contain;">
+                                {{-- Title & Subtitle --}}
+                                <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Book another place to stay</h6>
+                                <p class="small mb-2.5" style="color: #737373; font-size: 12px;">We have unlocked the best deals with Trip Savings</p>
+                                
+                                {{-- Date line with external link icon --}}
+                                <div class="small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 12px; color: #737373;">
+                                    <span>23 Oct - 24 Oct &bull; 2 Adults</span>
+                                    <a href="{{ route('search.index') }}" style="color: #5392f9; text-decoration: none;">
+                                        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Book your airport transfer</h6>
-                            <p class="small mb-3" style="color: #737373; font-size: 12px; line-height: 1.35;">Get to your hotel easily and securely</p>
-                        </div>
-                        <div class="d-flex align-items-center justify-content-between pt-1">
-                            <div class="small fw-semibold" style="font-size: 12px; color: #737373;">
-                                <span>8 Sep &bull; 1 Adult</span>
-                                <a href="{{ route('transfers.index') }}" style="color: #5392f9; text-decoration: none; margin-left: 3px;">
-                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+
+                            {{-- Search Pill Button --}}
+                            <div>
+                                <a href="{{ route('search.index') }}" class="agoda-btn-outline-search">
+                                    Search
                                 </a>
                             </div>
-                            <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 5px 22px; font-size: 13px;">
-                                Search
-                            </a>
                         </div>
                     </div>
                 </div>
 
-                {{-- Card B: Rent a Car --}}
-                <div class="col-md-6">
-                    <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 20px 24px;">
-                        <div>
-                            <div style="width: 110px; height: 52px; display: flex; align-items: center; margin-bottom: 8px;">
-                                <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&w=240&q=80" alt="Rent a Car" style="max-height: 50px; max-width: 105px; object-fit: contain;">
+                {{-- Section 2: Plan your journey to your hotel --}}
+                <div>
+                    <h5 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 18px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
+                    <p class="small mb-3" style="color: #737373; font-size: 12.5px;">Book your ride in advance for a hassle-free trip</p>
+
+                    <div class="row g-3">
+                        {{-- Card A: Airport Transfer --}}
+                        <div class="col-md-6">
+                            <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 20px 24px;">
+                                <div>
+                                    <div style="height: 52px; display: flex; align-items: flex-end; margin-bottom: 12px;">
+                                        <img src="{{ asset('images/connected-trip/airport-transfer-car.png') }}" alt="Airport Transfer" style="height: 48px; object-fit: contain;">
+                                    </div>
+                                    <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Book your airport transfer</h6>
+                                    <p class="small mb-3" style="color: #737373; font-size: 12px; line-height: 1.35;">Get to your hotel easily and securely</p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between pt-1">
+                                    <div class="small fw-semibold" style="font-size: 12px; color: #737373;">
+                                        <span>22 Oct &bull; 2 Adults</span>
+                                        <a href="{{ route('transfers.index') }}" style="color: #5392f9; text-decoration: none; margin-left: 3px;">
+                                            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+                                        </a>
+                                    </div>
+                                    <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 5px 24px; font-size: 13px;">
+                                        Search
+                                    </a>
+                                </div>
                             </div>
-                            <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Rent a car</h6>
-                            <p class="small mb-3" style="color: #737373; font-size: 12px; line-height: 1.35;">Find an ideal ride for your trip</p>
                         </div>
-                        <div class="d-flex align-items-center justify-content-between pt-1">
-                            <div class="small fw-semibold" style="font-size: 12px; color: #737373;">
-                                <span>8 Sep - 15 Sep</span>
-                                <a href="{{ route('transfers.index') }}" style="color: #5392f9; text-decoration: none; margin-left: 3px;">
-                                    <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
-                                </a>
+
+                        {{-- Card B: Rent a Car --}}
+                        <div class="col-md-6">
+                            <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 20px 24px;">
+                                <div>
+                                    <div style="height: 52px; display: flex; align-items: flex-end; margin-bottom: 12px;">
+                                        <img src="{{ asset('images/connected-trip/rent-a-car.png') }}" alt="Rent a Car" style="height: 44px; object-fit: contain;">
+                                    </div>
+                                    <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Rent a car</h6>
+                                    <p class="small mb-3" style="color: #737373; font-size: 12px; line-height: 1.35;">Find an ideal ride for your trip</p>
+                                </div>
+                                <div class="d-flex align-items-center justify-content-between pt-1">
+                                    <div class="small fw-semibold" style="font-size: 12px; color: #737373;">
+                                        <span>22 Oct - 23 Oct</span>
+                                        <a href="{{ route('transfers.index') }}" style="color: #5392f9; text-decoration: none; margin-left: 3px;">
+                                            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+                                        </a>
+                                    </div>
+                                    <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 5px 24px; font-size: 13px;">
+                                        Search
+                                    </a>
+                                </div>
                             </div>
-                            <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 5px 22px; font-size: 13px;">
-                                Search
-                            </a>
                         </div>
                     </div>
                 </div>
+
             </div>
         </div>
 
     </div>
 </div>
+
 
 {{-- ============================================================ --}}
 {{-- LUXURY BD DESTINATIONS — INFINITE VISUAL CARDS MARQUEE SLIDER --}}

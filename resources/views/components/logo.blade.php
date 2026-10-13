@@ -1,12 +1,16 @@
 @props([
-    'height' => '44px',
+    'height' => '32px',
     'mode' => 'light',
     'class' => '',
     'style' => ''
 ])
 
 @php
-    $logoPath = asset('images/logo.png') . '?v=3';
+    $logoPath = match($mode) {
+        'dark'  => asset('images/logo-dark.png') . '?v=5',
+        'icon'  => asset('images/logo-icon.png') . '?v=5',
+        default => asset('images/logo-light.png') . '?v=5',
+    };
 @endphp
 
 <img src="{{ $logoPath }}" 

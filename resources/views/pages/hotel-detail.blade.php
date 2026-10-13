@@ -2958,21 +2958,22 @@
                 <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: none;">
                     @php
                         $places = [
-                            ['name' => 'United States', 'img' => 'https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Malaysia', 'img' => 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'India', 'img' => 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Philippines', 'img' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Indonesia', 'img' => 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Singapore', 'img' => 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'China', 'img' => 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=400&q=80'],
                             ['name' => "Cox's Bazar", 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
                             ['name' => 'Sylhet', 'img' => 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Saint Martin', 'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Sreemangal', 'img' => 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Sajek Valley', 'img' => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Bandarban', 'img' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Rangamati', 'img' => 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Kuakata', 'img' => 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Sundarbans', 'img' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Chittagong', 'img' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => 'Dhaka', 'img' => 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=400&q=80'],
                         ];
                     @endphp
                     @foreach($places as $pl)
                     <a href="{{ route('search.index') }}?destination={{ urlencode($pl['name']) }}" class="card border-0 shadow-xs rounded-3 overflow-hidden text-decoration-none text-white flex-shrink-0" style="width: 175px; height: 130px; position: relative;">
-                        <img src="{{ $pl['img'] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $pl['name'] }}">
+                        <img src="{{ $pl['img'] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $pl['name'] }}" loading="lazy">
                         <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);">
                             <strong class="d-block text-white mb-0" style="font-size: 13.5px; font-weight: 700;">{{ $pl['name'] }}</strong>
                         </div>
@@ -2993,20 +2994,24 @@
                 <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: none;">
                     @php
                         $trending = [
-                            ['city' => 'Seoul', 'country' => 'South Korea', 'img' => 'https://images.unsplash.com/photo-1538485399081-7191377e8241?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Yilan', 'country' => 'Taiwan', 'img' => 'https://images.unsplash.com/photo-1508248467877-aed3278c2e64?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Pattaya', 'country' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Chiang Mai', 'country' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1528181304800-259b08848526?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Paris', 'country' => 'France', 'img' => 'https://images.unsplash.com/photo-1502602898657-3e91760cbb34?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Taichung', 'country' => 'Taiwan', 'img' => 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => "Cox's Bazar", 'division' => 'Chittagong Division', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Dhaka', 'division' => 'Dhaka Division', 'img' => 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Sylhet', 'division' => 'Sylhet Division', 'img' => 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Chittagong', 'division' => 'Chittagong Division', 'img' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Sreemangal', 'division' => 'Moulvibazar', 'img' => 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Bandarban', 'division' => 'Hill Tracts', 'img' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Rangamati', 'division' => 'Kaptai Lake', 'img' => 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Kuakata', 'division' => 'Patuakhali', 'img' => 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Rajshahi', 'division' => 'Rajshahi Division', 'img' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => 'Khulna', 'division' => 'Khulna Division', 'img' => 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=400&q=80'],
                         ];
                     @endphp
                     @foreach($trending as $trend)
                     <a href="{{ route('search.index') }}?destination={{ urlencode($trend['city']) }}" class="card border-0 shadow-xs rounded-3 overflow-hidden text-decoration-none bg-white flex-shrink-0" style="width: 180px;">
-                        <img src="{{ $trend['img'] }}" class="w-100" style="height: 140px; object-fit: cover;" alt="{{ $trend['city'] }}">
+                        <img src="{{ $trend['img'] }}" class="w-100" style="height: 140px; object-fit: cover;" alt="{{ $trend['city'] }}" loading="lazy">
                         <div class="p-2 text-center">
                             <strong class="d-block text-dark mb-0" style="font-size: 13.5px;">{{ $trend['city'] }}</strong>
-                            <small class="text-secondary" style="font-size: 11.5px;">{{ $trend['country'] }}</small>
+                            <small class="text-secondary" style="font-size: 11.5px;">{{ $trend['division'] }}</small>
                         </div>
                     </a>
                     @endforeach

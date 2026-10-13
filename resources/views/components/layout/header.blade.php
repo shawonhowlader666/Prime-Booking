@@ -1,10 +1,10 @@
 {{-- Agoda.com 100% Identical Header Navigation — Single Row, Exact Spacing & Gaps --}}
 <header class="navbar navbar-expand-lg navbar-light bg-white border-bottom py-0" style="min-height: 60px; height: 60px; z-index: 1050; border-color: #e5e7eb !important; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-    <div class="container-fluid" style="height: 60px; width: 100%; margin: 0; padding-left: 8px; padding-right: 8px; display: flex; align-items: center;">
+    <div class="container-fluid" style="height: 60px; width: 100%; margin: 0; padding-left: 20px; padding-right: 20px; display: flex; align-items: center;">
 
-        {{-- 100% Identical Prime Booking Logo --}}
-        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 56px !important;">
-            <x-logo height="44" />
+        {{-- 100% Identical Prime Booking Logo (Agoda 32px Compact Parity) --}}
+        <a class="navbar-brand d-flex align-items-center flex-shrink-0" href="{{ route('home') }}" style="text-decoration: none; padding: 0; margin-right: 48px !important;">
+            <x-logo height="32" style="max-height: 32px !important; height: 32px !important;" />
         </a>
 
         {{-- Mobile toggle (Triggers Dark Glass Modal) --}}
@@ -68,6 +68,7 @@
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('properties.compare') }}"><i class="fa-solid fa-code-compare text-primary me-2"></i> {{ __('Compare Stays') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('packages') }}"><i class="fa-solid fa-map-location-dot text-primary me-2"></i> {{ __('Activities & Tours') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car-side text-success me-2"></i> {{ __('Airport Transfer') }}</a></li>
+                        <li><a class="dropdown-item py-2 fw-medium" href="{{ Route::has('blog.index') ? route('blog.index') : url('/blog') }}"><i class="fa-solid fa-newspaper text-info me-2"></i> {{ __('Travel Guides & Blog') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('search.index') }}?type=resort"><i class="fa-solid fa-umbrella-beach text-warning me-2"></i> {{ __('Luxury Resorts') }}</a></li>
                         <li><a class="dropdown-item py-2 fw-medium" href="{{ route('search.index') }}?type=villa"><i class="fa-solid fa-house-chimney-user text-danger me-2"></i> {{ __('Private Villas') }}</a></li>
                         <li><hr class="dropdown-divider my-1"></li>
@@ -99,11 +100,11 @@
                 {{-- 1. Flag & Currency Badge (Agoda Image Exact: Flag + Currency Text) --}}
                 <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 6px 12px; border-radius: 6px; gap: 14px; transition: background 0.15s ease;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
                     @if($currencyFlag === 'bd')
-                        <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
+                        <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
                     @elseif($currencyFlag === 'us')
-                        <img src="https://flagcdn.com/w40/us.png" alt="US" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
+                        <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/us.png" alt="US" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
                     @else
-                        <img src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
+                        <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/{{ $currencyFlag }}.png" alt="{{ $currencyFlag }}" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
                     @endif
                     <span style="color: #262626; font-weight: 600; font-size: 14.5px; letter-spacing: 0.3px;">{{ $currentCurrency }}</span>
                 </a>
@@ -136,76 +137,8 @@
 
                     {{-- 100% Identical Agoda User Dropdown Menu --}}
                     <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-2"
-                         style="width: 270px; max-height: 520px; overflow-y: auto; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.18) !important; background: #ffffff;">
-                        
-                        <div style="padding: 16px 20px 8px 20px;">
-                            <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Account') }}</a>
-                            <a href="{{ route('trips') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('My Trips') }}</a>
-                            <a href="{{ route('messages') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Property messages') }}</a>
-                            
-                            {{-- PrimeCash row with blue pill badge --}}
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <a href="{{ route('cashback') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PrimeCash') }}</a>
-                                <span style="background-color: #6366f1; color: #ffffff; font-size: 12px; font-weight: 700; border-radius: 4px; padding: 2px 8px;">{{ $currentCurrency }} 0</span>
-                            </div>
-
-                            <a href="{{ route('cashback') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Cashback Rewards') }}</a>
-
-                            {{-- PrimeVIP row with dynamic VIP badge --}}
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <a href="{{ route('vip') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PrimeVIP') }}</a>
-                                <div style="display: inline-flex; align-items: center; border-radius: 3px; overflow: hidden; height: 18px; font-size: 10.5px; line-height: 1;">
-                                    <div style="background-color: #1e2430; color: #ffffff; padding: 0 6px 0 5px; height: 100%; display: flex; align-items: center; gap: 3px; font-weight: 800; clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%); padding-right: 9px;">
-                                        ★VIP
-                                    </div>
-                                    <div style="background-color: {{ $headerBadgeColor }}; color: #ffffff; padding: 0 7px 0 4px; height: 100%; display: flex; align-items: center; font-weight: 700; font-size: 11px; margin-left: -3px;">
-                                        {{ $headerTier }}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <a href="{{ route('wishlist') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Saved properties list') }}</a>
-                            <a href="{{ route('reviews') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Reviews') }}</a>
-                            
-                            {{-- PointsMAX row with (P) icon --}}
-                            <div class="d-flex align-items-center justify-content-between mb-3">
-                                <a href="{{ route('pointsmax') }}" class="text-decoration-none text-dark fw-bold" style="font-size: 14px; color: #2d2d2d;">{{ __('PointsMAX') }}</a>
-                                <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1.5px solid #2d2d2d; border-radius: 50%; font-size: 10px; font-weight: 800;">P</span>
-                            </div>
-
-                            <a href="{{ route('profile') }}" class="text-decoration-none d-block text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Profile') }}</a>
-
-                            {{-- SIGN OUT Outline Pill Button (Exact Agoda screenshot) --}}
-                            <form action="{{ route('auth.logout') }}" method="POST" class="my-3 text-center">
-                                @csrf
-                                <button type="submit" class="btn btn-outline-primary w-100 rounded-pill fw-bold" 
-                                        style="color: #2067e1; border-color: #cbd5e1; border-width: 1.5px; padding: 8px 0; font-size: 13.5px; letter-spacing: 0.5px; background: transparent; transition: all 0.2s ease;"
-                                        onmouseover="this.style.borderColor='#2067e1'; this.style.backgroundColor='#f0f7ff'" 
-                                        onmouseout="this.style.borderColor='#cbd5e1'; this.style.backgroundColor='transparent'">
-                                    SIGN OUT
-                                </button>
-                            </form>
-
-                            {{-- Settings Section --}}
-                            <div style="border-top: 1px solid #f1f5f9; padding-top: 12px; margin-top: 10px;">
-                                <div class="text-dark fw-bold mb-3" style="font-size: 14px; color: #2d2d2d;">{{ __('Settings') }}</div>
-                                
-                                <div class="d-flex align-items-center gap-2 mb-2" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="cursor: pointer;">
-                                    <img src="https://flagcdn.com/w40/gb.png" alt="EN" style="width: 18px; height: 12px; border-radius: 2px;">
-                                    <span style="font-size: 13.5px; font-weight: 600; color: #2d2d2d;">English</span>
-                                </div>
-                                <div class="mb-3" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="cursor: pointer;">
-                                    <span style="font-size: 13px; font-weight: 500; color: #475569;">{{ $currentCurrency }} &nbsp; <strong>{{ $currentCurrency === 'BDT' ? 'Bangladeshi Taka' : ($currentCurrency === 'USD' ? 'US Dollar' : $currentCurrency) }}</strong></span>
-                                </div>
-
-                                {{-- List your place on Prime Booking --}}
-                                <div style="background: #fafafa; border-radius: 8px; padding: 10px 12px; margin-top: 12px;">
-                                    <div style="font-size: 13.5px; font-weight: 700; color: #2d2d2d;">List your place on Prime Booking</div>
-                                    <div style="font-size: 11.5px; color: #64748b; margin-bottom: 4px;">Earn money to pay for your travel!</div>
-                                    <a href="{{ Route::has('admin.properties.create') ? route('admin.properties.create') : '#' }}" style="font-size: 13px; font-weight: 700; color: #2067e1; text-decoration: none;">List your place</a>
-                                </div>
-                            </div>
-                        </div>
+                         style="width: 280px; max-height: calc(100vh - 80px); overflow-y: auto; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.18) !important; background: #ffffff;">
+                        @include('components.layout.agoda-user-menu')
                     </div>
                 </div>
 
@@ -217,17 +150,10 @@
                         <div style="width: 20px; height: 20px; background: #6366f1; color: #ffffff; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 11px;">a</div>
                         <span style="color: #6366f1; font-weight: 600; font-size: 14.5px;">Rewards</span>
                     </button>
-                    <ul class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-3 mt-2"
-                         style="min-width: 250px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
-                        <li class="p-2 border-bottom mb-2">
-                            <div class="small text-secondary fw-medium">Prime Rewards Wallet</div>
-                            <div class="h6 mb-0 fw-bold text-primary"><i class="fa-solid fa-coins text-warning me-1"></i> Earn 1 Pt per ৳1,000</div>
-                        </li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('rewards') }}"><i class="fa-solid fa-wallet me-2 text-success"></i> My Rewards &amp; Payouts</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('booking.history') }}"><i class="fa-solid fa-clock-rotate-left me-2 text-secondary"></i> My Bookings</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('wishlist') }}"><i class="fa-solid fa-heart me-2 text-danger"></i> Saved Properties</a></li>
-                        <li><a class="dropdown-item py-2 rounded-2 fw-medium" href="{{ route('profile') }}"><i class="fa-solid fa-gear me-2 text-secondary"></i> Account Settings</a></li>
-                    </ul>
+                    <div class="dropdown-menu dropdown-menu-end border-0 shadow-lg p-0 mt-2"
+                         style="width: 280px; max-height: calc(100vh - 80px); overflow-y: auto; border-radius: 12px; box-shadow: 0 12px 35px rgba(0,0,0,0.18) !important; background: #ffffff;">
+                        @include('components.layout.agoda-user-menu')
+                    </div>
                 </div>
                 @else
                 {{-- 2. "Sign in" Blue Link (Agoda Guest Image Exact) --}}
@@ -290,7 +216,7 @@
 
                             <!-- Language Row (Flag + English) -->
                             <a href="#" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" class="d-flex align-items-center gap-2 text-decoration-none mb-2" style="color: #1e293b; font-size: 13.5px; font-weight: 500;">
-                                <img src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 22px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 22px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15);">
                                 <span>{{ app()->getLocale() == 'bn' ? 'বাংলা (Bengali)' : 'English' }}</span>
                             </a>
 
@@ -624,7 +550,7 @@ window.addEventListener('scroll', function () {
                                 @if(app()->getLocale() == 'en')
                                 <i class="fa-solid fa-check text-primary" style="font-size: 12px; margin-right: 2px; flex-shrink: 0;"></i>
                                 @endif
-                                <img src="https://flagcdn.com/w40/us.png" alt="US" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/us.png" alt="US" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">English</span>
                             </a>
                         </div>
@@ -634,7 +560,7 @@ window.addEventListener('scroll', function () {
                                 @if(app()->getLocale() == 'bn')
                                 <i class="fa-solid fa-check text-primary" style="font-size: 12px; margin-right: 2px; flex-shrink: 0;"></i>
                                 @endif
-                                <img src="https://flagcdn.com/w40/bd.png" alt="BD" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/bd.png" alt="BD" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">বাংলা (Bengali)</span>
                             </a>
                         </div>
@@ -644,7 +570,7 @@ window.addEventListener('scroll', function () {
                                 @if(app()->getLocale() == 'kr')
                                 <i class="fa-solid fa-check text-primary" style="font-size: 12px; margin-right: 2px; flex-shrink: 0;"></i>
                                 @endif
-                                <img src="https://flagcdn.com/w40/kr.png" alt="KR" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/kr.png" alt="KR" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">한국어</span>
                             </a>
                         </div>
@@ -658,133 +584,133 @@ window.addEventListener('scroll', function () {
                         <!-- Bengali (BD) -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'bn') }}" class="agoda-lang-btn text-decoration-none {{ app()->getLocale() == 'bn' ? 'active' : '' }}">
-                                <img src="https://flagcdn.com/w40/bd.png" alt="BD" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/bd.png" alt="BD" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">বাংলা (Bengali)</span>
                             </a>
                         </div>
                         <!-- India (Hindi) -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'hi') }}" class="agoda-lang-btn text-decoration-none {{ app()->getLocale() == 'hi' ? 'active' : '' }}">
-                                <img src="https://flagcdn.com/w40/in.png" alt="IN" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/in.png" alt="IN" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">हिन्दी (Hindi)</span>
                             </a>
                         </div>
                         <!-- Saudi Arabia (Arabic) -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'ar') }}" class="agoda-lang-btn text-decoration-none {{ app()->getLocale() == 'ar' ? 'active' : '' }}">
-                                <img src="https://flagcdn.com/w40/sa.png" alt="SA" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/sa.png" alt="SA" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">العربية (Arabic)</span>
                             </a>
                         </div>
                         <!-- China (Simplified) -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'zh') }}" class="agoda-lang-btn text-decoration-none {{ app()->getLocale() == 'zh' ? 'active' : '' }}">
-                                <img src="https://flagcdn.com/w40/cn.png" alt="CN" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/cn.png" alt="CN" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">简体中文 (Chinese)</span>
                             </a>
                         </div>
                         <!-- Malaysia -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'ms') }}" class="agoda-lang-btn text-decoration-none {{ app()->getLocale() == 'ms' ? 'active' : '' }}">
-                                <img src="https://flagcdn.com/w40/my.png" alt="MY" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/my.png" alt="MY" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Bahasa Melayu</span>
                             </a>
                         </div>
                         <!-- Singapore -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'en') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/sg.png" alt="SG" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/sg.png" alt="SG" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">English (Singapore)</span>
                             </a>
                         </div>
                         <!-- Pakistan (Urdu) -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'ur') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/pk.png" alt="PK" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/pk.png" alt="PK" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">اردو (Urdu)</span>
                             </a>
                         </div>
                         <!-- Nepal -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'ne') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/np.png" alt="NP" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/np.png" alt="NP" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">নেপালী (Nepali)</span>
                             </a>
                         </div>
                         <!-- Sri Lanka -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'en') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/lk.png" alt="LK" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/lk.png" alt="LK" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Sri Lanka (සිංහල)</span>
                             </a>
                         </div>
                         <!-- Maldives -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'en') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/mv.png" alt="MV" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/mv.png" alt="MV" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Maldives (Dhivehi)</span>
                             </a>
                         </div>
                         <!-- Philippines -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'en') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/ph.png" alt="PH" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/ph.png" alt="PH" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Filipino (Tagalog)</span>
                             </a>
                         </div>
                         <!-- Thai -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'th') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/th.png" alt="TH" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/th.png" alt="TH" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">ภาษาไทย (Thai)</span>
                             </a>
                         </div>
                         <!-- Bahasa Indonesia -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'id') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/id.png" alt="ID" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/id.png" alt="ID" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Bahasa Indonesia</span>
                             </a>
                         </div>
                         <!-- Vietnamese -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'vn') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/vn.png" alt="VN" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/vn.png" alt="VN" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Tiếng Việt</span>
                             </a>
                         </div>
                         <!-- Russian -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'ru') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/ru.png" alt="RU" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/ru.png" alt="RU" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Русский</span>
                             </a>
                         </div>
                         <!-- Turkish -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'tr') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/tr.png" alt="TR" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/tr.png" alt="TR" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Türkçe</span>
                             </a>
                         </div>
                         <!-- French -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'fr') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/fr.png" alt="FR" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/fr.png" alt="FR" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Français</span>
                             </a>
                         </div>
                         <!-- German -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'de') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/de.png" alt="DE" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/de.png" alt="DE" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">Deutsch</span>
                             </a>
                         </div>
                         <!-- Japanese -->
                         <div class="col-12 col-md-4">
                             <a href="{{ route('lang.switch', 'jp') }}" class="agoda-lang-btn text-decoration-none">
-                                <img src="https://flagcdn.com/w40/jp.png" alt="JP" class="agoda-lang-flag">
+                                <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/jp.png" alt="JP" class="agoda-lang-flag">
                                 <span class="agoda-lang-text">日本語 (Japanese)</span>
                             </a>
                         </div>

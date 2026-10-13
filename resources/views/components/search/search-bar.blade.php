@@ -58,322 +58,52 @@
         display: none;
     }
 
-    /* Main Search Card — Agoda Exact Dark Navy (#20274d) sampled from screenshot */
+    /* Main Search Card — Pure Clean White (100% Agoda Matching) */
     .agoda-search-card {
-        background-color: #20274d;
-        border-radius: 14px;
-        padding: 12px 14px 10px 14px;
-        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.28);
-        border: 1px solid rgba(255, 255, 255, 0.08);
+        background-color: #ffffff;
+        border-radius: 16px;
+        padding: 24px 36px 44px 36px;
+        box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+        border: 1px solid #e2e8f0;
         position: relative;
         z-index: 1;
         text-align: left !important;
     }
 
-    /* Single Horizontal Search Row */
-    .agoda-search-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        width: 100%;
-        position: relative;
-    }
-
-    .agoda-col-dest {
-        flex: 1.35;
-        min-width: 0;
-        position: relative;
-        z-index: 100;
-    }
-    .agoda-col-dates {
-        flex: 1.65;
-        min-width: 0;
-        position: relative;
-        z-index: 99;
-    }
-    .agoda-col-guests {
-        flex: 1.1;
-        min-width: 0;
-        position: relative;
-        z-index: 98;
-    }
-    .agoda-col-btn {
-        flex: 0 0 auto;
-        position: relative;
-        z-index: 10;
-    }
-
-    /* Standard Input Buttons & Cards (Height: 52px, Radius: 8px, Crisp White) */
+    /* Input Buttons (Height: 58px) — Pure Crisp White (btn ektu sada) */
     .agoda-input-btn {
         width: 100%;
         background-color: #ffffff !important;
         border: 1px solid #d5d9e0;
         border-radius: 8px;
-        height: 52px;
-        padding: 0 14px;
+        height: 58px;
+        padding: 8px 16px;
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 12px;
         cursor: pointer;
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        transition: all 0.2s ease;
         text-align: left;
         outline: none;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        box-sizing: border-box;
     }
     .agoda-input-btn:hover {
         border-color: #2067e1;
+        box-shadow: 0 2px 8px rgba(32, 103, 225, 0.12);
     }
     .agoda-input-btn.active-border {
-        border: 2px solid #2067e1 !important;
-        box-shadow: 0 0 0 2px rgba(32, 103, 225, 0.2) !important;
-    }
-
-    .agoda-input-icon {
-        font-size: 16px;
-        color: #717784;
-        flex-shrink: 0;
-    }
-    .agoda-input-field-wrap {
-        width: 100%;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 8px;
-        overflow: hidden;
-    }
-    .agoda-text-input {
-        width: 100%;
-        border: none;
-        outline: none;
-        background: transparent;
-        font-size: 14.5px;
-        font-weight: 500;
-        color: #1e293b;
-        text-overflow: ellipsis;
-    }
-    .agoda-text-input::placeholder {
-        color: #717784;
-        font-weight: 400;
-    }
-
-    /* Joined Dates Card (Height: 52px, Radius: 8px, 1 Box with 2 Halves) */
-    .agoda-joined-dates-card {
-        height: 52px;
-        border-radius: 8px;
-        background: #ffffff;
-        border: 1px solid #d5d9e0;
-        display: flex;
-        align-items: center;
-        width: 100%;
-        position: relative;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        box-sizing: border-box;
-    }
-    .agoda-joined-dates-card:hover {
-        border-color: #2067e1;
-    }
-    .agoda-joined-dates-card.active-border {
-        border: 2px solid #2067e1 !important;
-        box-shadow: 0 0 0 2px rgba(32, 103, 225, 0.2) !important;
-    }
-
-    .agoda-date-half-btn {
-        flex: 1;
-        height: 100%;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        padding: 0 12px;
-        background: transparent;
-        border: none;
-        cursor: pointer;
-        text-align: left;
-        overflow: hidden;
-        outline: none;
-        transition: background-color 0.12s ease;
-    }
-    .agoda-date-half-btn:hover {
-        background-color: #f8fafc;
-    }
-    .agoda-date-text-wrap {
-        overflow: hidden;
-        text-align: left;
-        line-height: 1.15;
-    }
-    .agoda-date-main {
-        font-weight: 700;
-        color: #1e293b;
-        display: block;
-        font-size: 13.5px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    .agoda-date-sub {
-        color: #64748b;
-        font-size: 11px;
-        display: block;
-        margin-top: 1px;
-        white-space: nowrap;
-    }
-    .agoda-dates-divider {
-        width: 1px;
-        height: 32px;
-        background-color: #e2e8f0;
-        flex-shrink: 0;
-        position: relative;
+        border: 2px solid #2067e1;
+        box-shadow: 0 2px 10px rgba(32, 103, 225, 0.16);
     }
 
     .agoda-nights-pill {
         transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         user-select: none;
-        position: absolute;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 5;
-        background: #ffffff;
-        border: 1px solid #cbd5e1;
-        border-radius: 20px;
-        padding: 2px 7px;
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-        font-size: 10.5px;
-        font-weight: 700;
-        color: #1e293b;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-        pointer-events: none;
-        white-space: nowrap;
     }
-    @media (max-width: 991px) {
+    @media (max-width: 768px) {
         .agoda-nights-pill {
             display: none !important;
         }
-    }
-
-    /* Guest Button */
-    .agoda-guest-btn {
-        justify-content: space-between;
-        padding: 0 12px;
-    }
-    .agoda-guest-text-wrap {
-        overflow: hidden;
-        line-height: 1.15;
-    }
-    .agoda-guest-main {
-        font-weight: 700;
-        color: #1e293b;
-        display: block;
-        font-size: 13.5px;
-        white-space: nowrap;
-        text-overflow: ellipsis;
-    }
-    .agoda-guest-sub {
-        color: #64748b;
-        font-size: 11px;
-        display: block;
-        margin-top: 1px;
-        white-space: nowrap;
-    }
-    .agoda-chevron-icon {
-        color: #717784;
-        font-size: 11px;
-        flex-shrink: 0;
-    }
-
-    /* Agoda 3D Blue Pill SEARCH Button (100% Screenshot Parity) */
-    .agoda-search-submit-btn {
-        position: static !important;
-        transform: none !important;
-        height: 52px !important;
-        border-radius: 9999px !important;
-        padding: 0 34px !important;
-        background: linear-gradient(180deg, #2b75ec 0%, #1660d5 100%) !important;
-        border: 1px solid #1455be !important;
-        box-shadow: 0 4px 14px rgba(22, 96, 213, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.28) !important;
-        color: #ffffff !important;
-        font-weight: 800 !important;
-        font-size: 15px !important;
-        letter-spacing: 0.6px !important;
-        text-transform: uppercase !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        cursor: pointer !important;
-        outline: none !important;
-        transition: all 0.15s ease !important;
-        white-space: nowrap !important;
-        user-select: none !important;
-    }
-    .agoda-search-submit-btn:hover {
-        background: linear-gradient(180deg, #3780f2 0%, #1a67dd 100%) !important;
-        box-shadow: 0 6px 18px rgba(22, 96, 213, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
-        transform: translateY(-1px) !important;
-    }
-    .agoda-search-submit-btn:active {
-        transform: translateY(1px) !important;
-        box-shadow: 0 2px 8px rgba(22, 96, 213, 0.4), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
-    }
-
-    /* Entire Homes Checkbox Row */
-    .agoda-entire-homes-row {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin-top: 10px;
-        padding-left: 4px;
-    }
-    .agoda-entire-checkbox {
-        width: 17px;
-        height: 17px;
-        border: 1px solid #94a3b8;
-        border-radius: 4px;
-        cursor: pointer;
-        accent-color: #2067e1;
-    }
-    .agoda-entire-label {
-        font-size: 13px;
-        color: rgba(255, 255, 255, 0.92);
-        font-weight: 400;
-        cursor: pointer;
-        margin: 0;
-        user-select: none;
-    }
-
-    /* Popovers Base */
-    .agoda-popover-dropdown {
-        display: none;
-        position: absolute;
-        top: 58px;
-        background: #ffffff;
-        box-shadow: 0 14px 40px rgba(0, 0, 0, 0.22);
-        border: 1px solid #e2e8f0;
-        text-align: left !important;
-    }
-    .agoda-dest-dropdown {
-        left: 0;
-        width: 560px;
-        max-width: 95vw;
-        border-radius: 12px;
-        padding: 0;
-        z-index: 10001;
-    }
-    .agoda-calendar-dropdown {
-        left: 0;
-        width: 660px;
-        max-width: 95vw;
-        border-radius: 16px;
-        padding: 22px;
-        z-index: 10001;
-    }
-    .agoda-guests-dropdown {
-        right: 0;
-        width: 320px;
-        border-radius: 12px;
-        padding: 22px;
-        z-index: 10001;
     }
 
     .agoda-recent-pill {
@@ -432,8 +162,35 @@
         color: #94a3b8;
     }
 
-    /* Mobile Responsive Optimizations (< 992px) */
-    @media (max-width: 991px) {
+    /* Agoda Blue SEARCH Button */
+    .agoda-search-submit-btn {
+        position: absolute;
+        bottom: -22px;
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: #2067e1;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 15px;
+        letter-spacing: 0.8px;
+        border-radius: 22px;
+        height: 44px;
+        width: 380px;
+        max-width: 90%; 
+        border: none;
+        box-shadow: 0 6px 18px rgba(32, 103, 225, 0.4);
+        cursor: pointer;
+        z-index: 10;
+        transition: all 0.2s ease;
+    }
+    .agoda-search-submit-btn:hover {
+        background-color: #1a56be;
+        box-shadow: 0 8px 22px rgba(32, 103, 225, 0.55);
+        transform: translateX(-50%) translateY(-2px);
+    }
+
+    /* Mobile Responsive Optimizations (< 768px) */
+    @media (max-width: 768px) {
         .agoda-tabs-wrapper {
             margin-left: 0 !important;
             top: 8px !important;
@@ -459,37 +216,23 @@
             flex-shrink: 0 !important;
         }
         .agoda-search-card {
-            padding: 14px 12px 14px 12px !important;
+            padding: 16px 12px 38px 12px !important;
             border-radius: 14px !important;
         }
-        .agoda-search-row {
-            flex-direction: column !important;
+        .agoda-input-btn {
+            height: 52px !important;
+            padding: 8px 12px !important;
             gap: 8px !important;
         }
-        .agoda-col-dest,
-        .agoda-col-dates,
-        .agoda-col-guests,
-        .agoda-col-btn {
-            width: 100% !important;
-            flex: 1 1 100% !important;
-        }
-        .agoda-input-btn {
-            height: 50px !important;
-            padding: 0 12px !important;
-        }
-        .agoda-joined-dates-card {
-            height: 50px !important;
-        }
         .agoda-search-submit-btn {
-            width: 100% !important;
-            height: 48px !important;
+            width: calc(100% - 24px) !important;
+            max-width: 100% !important;
             font-size: 14px !important;
+            height: 44px !important;
+            bottom: -22px !important;
         }
-        .agoda-dest-dropdown,
-        .agoda-calendar-dropdown,
-        .agoda-guests-dropdown {
+        #agodaDestinationPopoverCard, #agodaCalendarPopoverCard, #agodaGuestsPopoverCard {
             left: 0 !important;
-            right: 0 !important;
             width: 100% !important;
             max-width: calc(100vw - 20px) !important;
         }
@@ -547,23 +290,20 @@
             <input type="hidden" name="children" id="inputChildren" value="{{ $defaultChildren }}">
             <input type="hidden" name="entire_home" id="inputEntireHome" value="{{ request('entire_home', 0) }}">
                 
-            <!-- Single Horizontal Search Row (Agoda 1:1 Exact Parity) -->
-            <div class="agoda-search-row">
-
-                <!-- 1. Destination Input Box (Height: 52px, Radius: 8px) -->
-                <div class="agoda-col-dest" id="agodaDestinationRowWrapper">
-                    <div class="agoda-input-btn" id="agodaDestinationBoxTrigger">
-                        <i class="fa-solid fa-magnifying-glass agoda-input-icon"></i>
-                        <div class="agoda-input-field-wrap">
-                            <input type="text" id="agodaDestinationInput" name="destination" class="agoda-text-input" placeholder="{{ __('Enter a destination or property') }}" value="{{ request('destination', '') }}" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+                <!-- Row 1: Destination Input Button Box (Agoda 1:1 Clean Parity) -->
+                <div id="agodaDestinationRowWrapper" style="margin-top: 14px; margin-bottom: 22px; position: relative; z-index: 10000;">
+                    <div class="agoda-input-btn active-border" id="agodaDestinationBoxTrigger">
+                        <i class="fa-solid fa-magnifying-glass" style="font-size: 1.3rem; color: #64748b;"></i>
+                        <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                            <input type="text" id="agodaDestinationInput" name="destination" style="width: 100%; border: none; outline: none; background: transparent; font-size: 15px; font-weight: 500; color: #1e293b;" placeholder="{{ __('Enter a destination or property') }}" value="{{ request('destination', '') }}" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
                             <input type="hidden" name="lat" id="homeGpsLatInput" value="{{ request('lat') }}">
                             <input type="hidden" name="lng" id="homeGpsLngInput" value="{{ request('lng') }}">
-                            <i class="fa-solid fa-circle-xmark text-secondary" id="agodaClearDestinationBtn" style="cursor: pointer; font-size: 1rem; display: {{ request('destination') ? 'inline-block' : 'none' }};" title="Clear destination"></i>
+                            <i class="fa-solid fa-circle-xmark text-secondary" id="agodaClearDestinationBtn" style="cursor: pointer; font-size: 1.1rem; display: {{ request('destination') ? 'inline-block' : 'none' }};" title="Clear destination"></i>
                         </div>
                     </div>
 
-                    <!-- Destination Autocomplete Popover Card -->
-                    <div id="agodaDestinationPopoverCard" class="agoda-popover-dropdown agoda-dest-dropdown">
+                    <!-- Destination Autocomplete Popover Card — Agoda 1:1 Exact Parity (100% Full Width) -->
+                    <div id="agodaDestinationPopoverCard" style="display: none; position: absolute; top: 68px; left: 0; right: 0; width: 100%; background: #ffffff; border-radius: 12px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.16); padding: 0; z-index: 10001; border: 1px solid #e2e8f0; text-align: left !important;">
                         <!-- Agoda Speech/SMS Bubble Pointer Notch -->
                         <div style="position: absolute; top: -8px; left: 36px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 10002;"></div>
                         <!-- DEFAULT STATE: Smart Popover — localStorage pills + DB city grid + "Book another place" CTA -->
@@ -718,40 +458,41 @@
 
                 </div>
 
-                <!-- 2. Joined Check-in | Check-out Dates Box (Height: 52px, Radius: 8px) -->
-                <div class="agoda-col-dates" id="agodaDatesWrapper">
-                    <div class="agoda-joined-dates-card" id="agodaJoinedDatesWrapper">
+            <!-- Row 2: Split Columns with 2 SEPARATE DATE BUTTONS & CONNECTING NIGHTS PILL -->
+            <div class="row g-3" style="margin-bottom: 22px; position: relative;">
+                
+                <!-- Box 1: Date Pickers Container -->
+                <div class="col-md-7" style="position: relative;">
+                    <div style="display: flex; gap: 10px; width: 100%; position: relative; align-items: center;">
                         
-                        <!-- Check-in half button -->
-                        <button type="button" class="agoda-date-half-btn" id="btnCheckInDate">
-                            <i class="fa-regular fa-calendar-check agoda-input-icon"></i>
-                            <div class="agoda-date-text-wrap">
-                                <span id="displayCheckInDate" class="agoda-date-main">{{ date('j M Y', strtotime($rawCheckIn)) }}</span>
-                                <small id="displayCheckInDay" class="agoda-date-sub">{{ date('l', strtotime($rawCheckIn)) }}</small>
+                        <!-- Separate Button 1: Check-in Date Button -->
+                        <button type="button" class="agoda-input-btn" id="btnCheckInDate" style="flex: 1; min-width: 0;">
+                            <i class="fa-solid fa-calendar-days" style="font-size: 1.25rem; color: #2067e1; flex-shrink: 0;"></i>
+                            <div style="overflow: hidden; text-align: left;">
+                                <span id="displayCheckInDate" style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis;">{{ date('j M Y', strtotime($rawCheckIn)) }}</span>
+                                <small id="displayCheckInDay" style="color: #64748b; font-size: 11px;">{{ date('l', strtotime($rawCheckIn)) }}</small>
                             </div>
                         </button>
 
-                        <!-- Center Divider line with floating nights pill -->
-                        <div class="agoda-dates-divider">
-                            <div class="agoda-nights-pill" id="agodaNightsPill">
-                                <i class="fa-regular fa-moon" style="color: #2067e1; font-size: 10px;"></i>
-                                <span id="agodaNightsCount">{{ $initNights }} {{ $initNights === 1 ? 'night' : 'nights' }}</span>
-                            </div>
+                        <!-- Agoda Central Connecting Floating Nights Pill -->
+                        <div class="agoda-nights-pill" id="agodaNightsPill" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.08); pointer-events: none; white-space: nowrap;">
+                            <i class="fa-regular fa-moon" style="color: #2067e1; font-size: 11px;"></i>
+                            <span id="agodaNightsCount">{{ $initNights }} {{ $initNights === 1 ? 'night' : 'nights' }}</span>
                         </div>
 
-                        <!-- Check-out half button -->
-                        <button type="button" class="agoda-date-half-btn" id="btnCheckOutDate">
-                            <i class="fa-regular fa-calendar agoda-input-icon"></i>
-                            <div class="agoda-date-text-wrap">
-                                <span id="displayCheckOutDate" class="agoda-date-main">{{ date('j M Y', strtotime($rawCheckOut)) }}</span>
-                                <small id="displayCheckOutDay" class="agoda-date-sub">{{ date('l', strtotime($rawCheckOut)) }}</small>
+                        <!-- Separate Button 2: Check-out Date Button -->
+                        <button type="button" class="agoda-input-btn" id="btnCheckOutDate" style="flex: 1; min-width: 0;">
+                            <i class="fa-solid fa-calendar-days" style="font-size: 1.25rem; color: #2067e1; flex-shrink: 0;"></i>
+                            <div style="overflow: hidden; text-align: left;">
+                                <span id="displayCheckOutDate" style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis;">{{ date('j M Y', strtotime($rawCheckOut)) }}</span>
+                                <small id="displayCheckOutDay" style="color: #64748b; font-size: 11px;">{{ date('l', strtotime($rawCheckOut)) }}</small>
                             </div>
                         </button>
 
                     </div>
 
-                    <!-- Dual Month Interactive Calendar Popover Card -->
-                    <div id="agodaCalendarPopoverCard" class="agoda-popover-dropdown agoda-calendar-dropdown">
+                    <!-- Dual Month Interactive Calendar Popover Card (Anchored 6px below date buttons) -->
+                    <div id="agodaCalendarPopoverCard" style="display: none; position: absolute; top: 68px; left: 0; width: 680px; max-width: 94vw; background: #ffffff !important; opacity: 1 !important; border-radius: 16px; box-shadow: 0 14px 40px rgba(0,0,0,0.22); padding: 24px; z-index: 99999; border: 1px solid #e2e8f0;">
                         <!-- Dynamic Triangle Notch (Agoda SMS/Speech Bubble Notch) -->
                         <div id="calendarPointerTriangle" style="position: absolute; top: -8px; left: 60px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 100000; transition: left 0.2s ease;"></div>
 
@@ -828,21 +569,21 @@
                     </div>
                 </div>
 
-                <!-- 3. Guests & Rooms Box (Height: 52px, Radius: 8px) -->
-                <div class="agoda-col-guests" id="agodaGuestsWrapper">
-                    <button type="button" class="agoda-input-btn agoda-guest-btn" id="agodaGuestBoxTrigger">
-                        <div class="d-flex align-items-center gap-2 overflow-hidden">
-                            <i class="fa-solid fa-user-group agoda-input-icon"></i>
-                            <div class="agoda-guest-text-wrap text-start">
-                                <span class="agoda-guest-main" id="displayAdultsCount">{{ $defaultAdults }} adults{{ $defaultChildren > 0 ? ', ' . $defaultChildren . ' children' : '' }}</span>
-                                <small class="agoda-guest-sub" id="displayRoomsCount">{{ $defaultRooms }} {{ $defaultRooms > 1 ? 'rooms' : 'room' }}</small>
+                <!-- Box 2: Guests & Rooms Separate Button Container -->
+                <div class="col-md-5" style="position: relative;">
+                    <button type="button" class="agoda-input-btn" id="agodaGuestBoxTrigger">
+                        <i class="fa-solid fa-user-group" style="font-size: 1.25rem; color: #2067e1; flex-shrink: 0;"></i>
+                        <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left;">
+                            <div>
+                                <span style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; line-height: 1.2;" id="displayAdultsCount">{{ $defaultAdults }} adults{{ $defaultChildren > 0 ? ', ' . $defaultChildren . ' children' : '' }}</span>
+                                <small style="color: #64748b; font-size: 11px;" id="displayRoomsCount">{{ $defaultRooms }} {{ $defaultRooms > 1 ? 'rooms' : 'room' }}</small>
                             </div>
+                            <i class="fa-solid fa-chevron-down" style="color: #94a3b8; font-size: 0.8rem;"></i>
                         </div>
-                        <i class="fa-solid fa-chevron-down agoda-chevron-icon"></i>
                     </button>
 
-                    <!-- Interactive Occupancy Stepper Popover Card -->
-                    <div id="agodaGuestsPopoverCard" class="agoda-popover-dropdown agoda-guests-dropdown">
+                    <!-- Interactive Occupancy Stepper Popover Card (Anchored 6px below guest button) -->
+                    <div id="agodaGuestsPopoverCard" style="display: none; position: absolute; top: 68px; right: 0; width: 320px; background: #ffffff; border-radius: 12px; box-shadow: 0 14px 36px rgba(0,0,0,0.22); padding: 22px; z-index: 99999; border: 1px solid #e2e8f0;">
                         <!-- Triangle Notch (Agoda SMS/Speech Bubble Notch) -->
                         <div style="position: absolute; top: -8px; right: 28px; width: 14px; height: 14px; background: #ffffff; transform: rotate(45deg); border-top: 1px solid #e2e8f0; border-left: 1px solid #e2e8f0; z-index: 100000;"></div>
 
@@ -903,22 +644,22 @@
                     </div>
                 </div>
 
-                <!-- 4. SEARCH Blue 3D Pill Button (Exact Screenshot Height: 52px) -->
-                <div class="agoda-col-btn">
-                    <button type="submit" class="agoda-search-submit-btn">
-                        SEARCH
-                    </button>
+            </div>
+
+            <!-- Row 3: Agoda Checkbox (Exact 1:1 Parity) -->
+            <div style="display: flex; align-items: center; margin-left: 2px; margin-top: 10px; margin-bottom: 22px;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <input type="checkbox" id="entireHomesAgodaMatchExact100" {{ request('entire_home') ? 'checked' : '' }} onchange="document.getElementById('inputEntireHome').value = this.checked ? 1 : 0;" style="width: 18px; height: 18px; border: 1px solid #94a3b8; border-radius: 4px; cursor: pointer; accent-color: #2067e1;">
+                    <label for="entireHomesAgodaMatchExact100" style="font-size: 13.5px; color: #475569; font-weight: 400; cursor: pointer; margin: 0; user-select: none;">
+                        {{ __('Show me only entire homes and apartments') }}
+                    </label>
                 </div>
-
             </div>
 
-            <!-- Row Below: Show me only entire homes and apartments -->
-            <div class="agoda-entire-homes-row">
-                <input type="checkbox" id="entireHomesAgodaMatchExact100" {{ request('entire_home') ? 'checked' : '' }} onchange="document.getElementById('inputEntireHome').value = this.checked ? 1 : 0;" class="agoda-entire-checkbox">
-                <label for="entireHomesAgodaMatchExact100" class="agoda-entire-label">
-                    {{ __('Show me only entire homes and apartments') }}
-                </label>
-            </div>
+            <!-- Row 4: Agoda Blue SEARCH Button -->
+            <button type="submit" class="agoda-search-submit-btn">
+                <i class="fa-solid fa-magnifying-glass" style="margin-right: 8px;"></i> SEARCH
+            </button>
 
         </form>
 
@@ -1630,15 +1371,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (backdrop) backdrop.style.display = 'block';
     }
 
-    const datesCardWrapper = document.getElementById('agodaJoinedDatesWrapper');
-
     function hideBackdrop() {
         if (backdrop) backdrop.style.display = 'none';
         if (destCard) destCard.style.display = 'none';
         if (calendarCard) calendarCard.style.display = 'none';
         if (guestsCard) guestsCard.style.display = 'none';
-        if (destTrigger) destTrigger.classList.remove('active-border');
-        if (datesCardWrapper) datesCardWrapper.classList.remove('active-border');
+        if (btnCheckIn) btnCheckIn.classList.remove('active-border');
+        if (btnCheckOut) btnCheckOut.classList.remove('active-border');
         if (guestTrigger) guestTrigger.classList.remove('active-border');
     }
 
@@ -1780,15 +1519,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Position popover attached directly under trigger element
     function positionPopover(card, triggerEl) {
-        if (!card) return;
-        card.style.top = '58px';
-        if (card === guestsCard) {
-            card.style.right = '0';
-            card.style.left = 'auto';
-        } else {
+        if (!card || !triggerEl) return;
+        if (card === destCard) {
+            card.style.top = '66px';
             card.style.left = '0';
-            card.style.right = 'auto';
+            return;
         }
+        card.style.top = '';
+        card.style.left = '';
     }
 
     if (destTrigger && destCard) {
@@ -1796,9 +1534,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             showBackdrop();
             positionPopover(destCard, destTrigger);
-            destTrigger.classList.add('active-border');
-            if (datesCardWrapper) datesCardWrapper.classList.remove('active-border');
-            if (guestTrigger) guestTrigger.classList.remove('active-border');
             destCard.style.display = 'block';
             if (destInput) destInput.focus();
             if (calendarCard) calendarCard.style.display = 'none';
@@ -1810,9 +1545,6 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             showBackdrop();
             positionPopover(destCard, destTrigger);
-            if (destTrigger) destTrigger.classList.add('active-border');
-            if (datesCardWrapper) datesCardWrapper.classList.remove('active-border');
-            if (guestTrigger) guestTrigger.classList.remove('active-border');
             destCard.style.display = 'block';
             if (calendarCard) calendarCard.style.display = 'none';
             if (guestsCard)   guestsCard.style.display   = 'none';
@@ -2115,9 +1847,8 @@ document.addEventListener('DOMContentLoaded', function() {
             showBackdrop();
             positionPopover(calendarCard, btnCheckIn);
             if (calendarTriangle) calendarTriangle.style.left = '60px';
-            if (datesCardWrapper) datesCardWrapper.classList.add('active-border');
-            if (destTrigger) destTrigger.classList.remove('active-border');
-            if (guestTrigger) guestTrigger.classList.remove('active-border');
+            btnCheckIn.classList.add('active-border');
+            if (btnCheckOut) btnCheckOut.classList.remove('active-border');
             calendarCard.style.display = 'block';
             if (destCard) destCard.style.display = 'none';
             if (guestsCard) guestsCard.style.display = 'none';
@@ -2129,10 +1860,9 @@ document.addEventListener('DOMContentLoaded', function() {
             e.stopPropagation();
             showBackdrop();
             positionPopover(calendarCard, btnCheckOut);
-            if (calendarTriangle) calendarTriangle.style.left = '200px';
-            if (datesCardWrapper) datesCardWrapper.classList.add('active-border');
-            if (destTrigger) destTrigger.classList.remove('active-border');
-            if (guestTrigger) guestTrigger.classList.remove('active-border');
+            if (calendarTriangle) calendarTriangle.style.left = '60px';
+            btnCheckOut.classList.add('active-border');
+            if (btnCheckIn) btnCheckIn.classList.remove('active-border');
             calendarCard.style.display = 'block';
             if (destCard) destCard.style.display = 'none';
             if (guestsCard) guestsCard.style.display = 'none';
@@ -2146,8 +1876,8 @@ document.addEventListener('DOMContentLoaded', function() {
             positionPopover(guestsCard, guestTrigger);
             guestsCard.style.display = 'block';
             guestTrigger.classList.add('active-border');
-            if (datesCardWrapper) datesCardWrapper.classList.remove('active-border');
-            if (destTrigger) destTrigger.classList.remove('active-border');
+            if (btnCheckIn) btnCheckIn.classList.remove('active-border');
+            if (btnCheckOut) btnCheckOut.classList.remove('active-border');
             if (destCard) destCard.style.display = 'none';
             if (calendarCard) calendarCard.style.display = 'none';
         });

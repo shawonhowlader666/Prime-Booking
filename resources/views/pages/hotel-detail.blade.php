@@ -1758,7 +1758,6 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
 
                                 {{-- OFFER 2 CARD (Standalone White Card - Agoda 1:1) --}}
                                 <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
@@ -1884,6 +1883,7 @@
                                     </div>
                                 </div>
                         </div>
+                </div>
 
                 {{-- Room Details & Photo Gallery Lightbox Modal (Agoda Standard) --}}
                 <div class="modal fade" id="roomDetailModal_{{ $room->id ?? $rIdx }}" tabindex="-1" aria-hidden="true">

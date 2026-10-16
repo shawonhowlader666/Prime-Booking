@@ -179,16 +179,6 @@ class PropertyRepository
                 $items = $apiProperties;
             }
 
-            $fallbackProperties = collect();
-            if ($paginator->isEmpty() && empty($items)) {
-                $fallbackProperties = Property::select(Property::LIST_COLUMNS)
-                    ->active()
-                    ->orderByDesc('rating_score')
-                    ->orderByDesc('total_reviews')
-                    ->limit(6)
-                    ->get();
-            }
-
             return [
                 'total_count'         => count($items) > 0 ? max($paginator->total(), count($items)) : 0,
                 'current_page'        => $paginator->currentPage(),
@@ -200,7 +190,6 @@ class PropertyRepository
                 'merged_results'      => $items,
                 'database_properties' => $paginator->items(),
                 'api_properties'      => $apiProperties,
-                'fallback_properties' => $fallbackProperties,
                 'radius_expanded'     => $radiusExpanded,
                 'original_radius_km'  => $radiusKm,
                 'expanded_radius_km'  => $expandedRadius,

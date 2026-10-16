@@ -646,61 +646,14 @@
                 @forelse($searchResults['merged_results'] as $item)
                     @include('components.search.property-card', ['item' => $item, 'isFirst' => $loop->first])
                 @empty
-                    {{-- World-Class OTA Zero-State with Popular BD Stays Fallback --}}
-                    @php
-                        $suggestedFallback = !empty($searchResults['fallback_properties']) && count($searchResults['fallback_properties']) > 0
-                            ? $searchResults['fallback_properties']
-                            : \App\Models\Property::select(Property::LIST_COLUMNS)
-                                ->active()
-                                ->orderByDesc('rating_score')
-                                ->orderByDesc('total_reviews')
-                                ->limit(6)
-                                ->get();
-                    @endphp
-                    <div class="card border-0 shadow-xs rounded-4 p-4 text-center bg-white my-2" style="border: 1px solid #e2e8f0 !important;">
-                        <div class="mb-3" style="font-size: 44px;">🗺️</div>
-                        <h5 class="fw-bold text-dark mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
-                            No properties found in "{{ $destination ?: 'this area' }}"
-                        </h5>
-                        <p class="text-secondary small mb-3" style="max-width: 520px; margin: 0 auto 16px auto; line-height: 1.5;">
-                            We couldn't find any available hotels directly in <strong>{{ $destination ?: 'this area' }}</strong> or within a 45 km radius. Explore top-rated stays in popular destinations across Bangladesh below.
-                        </p>
-                        <div class="d-flex gap-2 flex-wrap justify-content-center mb-2">
-                            <a href="{{ route('search.index', ['destination'=>"Cox's Bazar", 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-primary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
-                                <i class="fa-solid fa-umbrella-beach me-1"></i>Cox's Bazar
-                            </a>
-                            <a href="{{ route('search.index', ['destination'=>'Dhaka', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
-                                <i class="fa-solid fa-city me-1"></i>Dhaka
-                            </a>
-                            <a href="{{ route('search.index', ['destination'=>'Sylhet', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
-                                <i class="fa-solid fa-mountain me-1"></i>Sylhet
-                            </a>
-                            <a href="{{ route('search.index', ['destination'=>'Sajek', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
-                                <i class="fa-solid fa-cloud-sun me-1"></i>Sajek
-                            </a>
-                            <a href="{{ route('search.index', ['destination'=>'Kuakata', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
-                                <i class="fa-solid fa-water me-1"></i>Kuakata
-                            </a>
+                    <div class="card border-0 shadow-xs rounded-4 p-5 text-center bg-white my-3" style="border: 1px solid #e2e8f0 !important;">
+                        <div class="mb-3 text-muted"><i class="fa-solid fa-hotel fs-1 opacity-25"></i></div>
+                        <h5 class="fw-bold text-dark mb-1">No properties found in "{{ $destination ?: 'this area' }}"</h5>
+                        <p class="text-secondary small mb-3">There are no available properties matching your search criteria.</p>
+                        <div>
+                            <a href="{{ route('search.index') }}" class="btn text-white fw-bold px-4 py-2" style="background-color: #2067e1; border-radius: 6px; font-size: 13px;">Clear All Filters</a>
                         </div>
                     </div>
-
-                    @if(isset($suggestedFallback) && $suggestedFallback->count() > 0)
-                    <div class="mt-4">
-                        <div class="d-flex align-items-center justify-content-between mb-3">
-                            <div>
-                                <h6 class="fw-bold text-dark mb-1" style="font-size:16px; font-family:'Plus Jakarta Sans',sans-serif;">
-                                    <i class="fa-solid fa-fire text-danger me-2"></i>Popular Stays in Bangladesh You Might Like
-                                </h6>
-                                <p class="text-secondary small mb-0">Top-rated hotels, beach resorts & luxury stays across Bangladesh</p>
-                            </div>
-                        </div>
-                        <div class="d-flex flex-column gap-3">
-                            @foreach($suggestedFallback as $item)
-                                @include('components.search.property-card', ['item' => $item, 'isFallback' => true])
-                            @endforeach
-                        </div>
-                    </div>
-                    @endif
                 @endforelse
             </div>
 

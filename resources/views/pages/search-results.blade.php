@@ -548,19 +548,6 @@
                     : 'Bangladesh';
             @endphp
 
-            {{-- Exact 1:1 Agoda Homes Promotional Discount Banner --}}
-            <div class="mb-3 d-flex align-items-center justify-content-between px-3 py-2.5 rounded-2 shadow-xs" 
-                 style="background: #eefaf3; border: 1px solid #c2eed5; max-width: 790px;">
-                <div class="d-flex align-items-center gap-2.5">
-                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background: #27a858; color: #ffffff; border-radius: 50%;">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-                    </div>
-                    <div style="font-size: 13.5px; color: #155724; line-height: 1.4;">
-                        <strong>Additional discounts up to 12% on Prime Homes</strong> (apartments, vacation rentals, private villas &amp; more) with code <span class="badge bg-white text-success border border-success fw-bold px-2 py-0.5 ms-1" style="font-size: 12px; letter-spacing: 0.5px;">PRIMEHOMES</span>
-                    </div>
-                </div>
-                <button type="button" class="btn-close btn-close-sm flex-shrink-0 ms-2" onclick="this.closest('.mb-3').remove()" aria-label="Close" style="font-size: 10px;"></button>
-            </div>
 
             {{-- Clean 1:1 Agoda Results Header Row (Count on Left, Sort Dropdown on Right) --}}
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="max-width: 790px;">

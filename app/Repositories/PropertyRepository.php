@@ -39,10 +39,11 @@ use Illuminate\Database\Eloquent\Builder;
 class PropertyRepository
 {
     private const TTL_FEATURED     = 600;   //  10 min
-    private const TTL_SEARCH       = 120;   //   2 min
+    private const TTL_SEARCH       = 600;   //  10 min (high cache hit rate for Google & users)
     private const TTL_DETAIL       = 900;   //  15 min
     private const TTL_DESTINATIONS = 1800;  //  30 min
-    private const TTL_FILTERS      = 300;   //   5 min
+    private const TTL_FILTERS      = 1800;  //  30 min (stable sidebar aggregations)
+    public const MAX_NEARBY_RADIUS_KM = 45.0; // strict regional commuter radius boundary (max allowed nearby expansion)
 
     // ─── HOMEPAGE QUERIES ─────────────────────────────────────────────────
 
@@ -156,21 +157,18 @@ class PropertyRepository
             $radiusExpanded = false;
             $expandedRadius = $radiusKm;
 
-            // Auto-Radius Expander: If 0 results within initial radius, expand gracefully across BD
-            if ($paginator->isEmpty() && $lat !== null && $lng !== null) {
-                foreach ([60.0, 120.0, 250.0, 500.0] as $candidateRadius) {
-                    if ($candidateRadius > $radiusKm) {
-                        $expandedParams = array_merge($params, ['radius_km' => $candidateRadius]);
-                        $expandedQuery = $this->buildSearchQuery($expandedParams);
-                        $expandedPaginator = $expandedQuery->paginate($perPage, ['*'], 'page', $page);
-                        if (!$expandedPaginator->isEmpty()) {
-                            $paginator = $expandedPaginator;
-                            $items = $paginator->items();
-                            $radiusExpanded = true;
-                            $expandedRadius = $candidateRadius;
-                            break;
-                        }
-                    }
+            // Strict OTA Geolocation Standard:
+            // Only auto-expand to reasonable commuter/neighboring district radius (MAX 45.0 km).
+            // Radii > 45 km (e.g. 100+ km) NEVER qualify as "nearby" and must NOT be branded as such.
+            if ($paginator->isEmpty() && $lat !== null && $lng !== null && $radiusKm < self::MAX_NEARBY_RADIUS_KM) {
+                $expandedParams = array_merge($params, ['radius_km' => self::MAX_NEARBY_RADIUS_KM]);
+                $expandedQuery = $this->buildSearchQuery($expandedParams);
+                $expandedPaginator = $expandedQuery->paginate($perPage, ['*'], 'page', $page);
+                if (!$expandedPaginator->isEmpty()) {
+                    $paginator = $expandedPaginator;
+                    $items = $paginator->items();
+                    $radiusExpanded = true;
+                    $expandedRadius = self::MAX_NEARBY_EXPANDED_RADIUS_KM;
                 }
             }
 
@@ -179,6 +177,16 @@ class PropertyRepository
                 $apiService = new \App\Services\External\HotelSearchApiService();
                 $apiProperties = $apiService->searchLiveHotels((string) $params['destination'], $perPage);
                 $items = $apiProperties;
+            }
+
+            $fallbackProperties = collect();
+            if ($paginator->isEmpty() && empty($items)) {
+                $fallbackProperties = Property::select(Property::LIST_COLUMNS)
+                    ->active()
+                    ->orderByDesc('rating_score')
+                    ->orderByDesc('total_reviews')
+                    ->limit(6)
+                    ->get();
             }
 
             return [
@@ -192,6 +200,7 @@ class PropertyRepository
                 'merged_results'      => $items,
                 'database_properties' => $paginator->items(),
                 'api_properties'      => $apiProperties,
+                'fallback_properties' => $fallbackProperties,
                 'radius_expanded'     => $radiusExpanded,
                 'original_radius_km'  => $radiusKm,
                 'expanded_radius_km'  => $expandedRadius,
@@ -263,12 +272,18 @@ class PropertyRepository
             $normalizer = new \App\Services\Search\LocationNormalizerService();
             $resolved   = $normalizer->resolve($destination);
             $canonical  = $resolved['canonical'] ?: $destination;
+            $destPrimary = trim(explode(',', $destination)[0]);
 
-            $query->where(function (Builder $q) use ($destination, $canonical) {
-                $q->keyword($destination);
-                if ($canonical !== $destination) {
-                    $q->orWhere(function (Builder $q2) use ($canonical) {
-                        $q2->keyword($canonical);
+            $query->where(function (Builder $q) use ($destination, $canonical, $destPrimary) {
+                $q->keyword($canonical);
+                if ($destPrimary !== '' && $destPrimary !== $canonical) {
+                    $q->orWhere(function (Builder $q2) use ($destPrimary) {
+                        $q2->keyword($destPrimary);
+                    });
+                }
+                if ($destination !== $canonical && $destination !== $destPrimary) {
+                    $q->orWhere(function (Builder $q3) use ($destination) {
+                        $q3->keyword($destination);
                     });
                 }
             });
@@ -407,7 +422,9 @@ class PropertyRepository
             'villa'                => ['villa', 'Villa'],
             'apartment'            => ['apartment', 'Apartment'],
             'boat', 'ships', 'ship', 'houseboat' => ['houseboat', 'Houseboat', 'cruise', 'Cruise', 'ship', 'Ship', 'boat', 'Boat'],
-            'homestay'             => ['homestay', 'Homestay', 'guesthouse', 'Guesthouse'],
+            'sundarban_ship', 'sundarbans_ship'  => ['ship', 'Ship', 'cruise', 'Cruise', 'boat', 'Boat'],
+            'tanguar_houseboat'                  => ['houseboat', 'Houseboat', 'boat', 'Boat'],
+            'homestay', 'homestays', 'home_stay' => ['homestay', 'Homestay', 'guesthouse', 'Guesthouse', 'cottage', 'Cottage'],
             'cottage'              => ['cottage', 'Cottage', 'eco_lodge', 'Eco Lodge'],
             default                => [],   // Unknown type = no filter (show all)
         };

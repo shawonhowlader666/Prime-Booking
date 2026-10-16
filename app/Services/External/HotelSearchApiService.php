@@ -240,8 +240,9 @@ class HotelSearchApiService
             ];
         }
 
-        // Generic Real BD Luxury Hotel Fallback (Dhaka Luxury Hotels)
-        return [
+        // Dhaka Luxury Hotels (matched only when destination is Dhaka or all Bangladesh)
+        if (str_contains($destLower, 'dhaka') || str_contains($destLower, 'bangladesh') || $destLower === '') {
+            return [
             (object)[
                 'id' => 107,
                 'name' => "Radisson Blu Dhaka Water Garden",
@@ -289,5 +290,8 @@ class HotelSearchApiService
                 'amenities' => ['Free WiFi', 'Swimming pool', 'Breakfast included', 'Free parking'],
             ]
         ];
+        }
+
+        return [];
     }
 }

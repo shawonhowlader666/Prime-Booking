@@ -1,8 +1,224 @@
 @extends('layouts.main', ['activePage' => 'services'])
 
-@section('title', 'Search Hotels & Stays in ' . ($destination ?: 'Bangladesh') . ' | PRIME BOOKING')
+@php
+    $dest = trim($destination ?? '');
+    $destLabel = !empty($dest) ? $dest : 'Bangladesh';
+    
+    // Result counts
+    $merged = $searchResults['merged_results'] ?? [];
+    $totalCount = isset($searchResults['paginator']) ? $searchResults['paginator']->total() : count($merged);
+    
+    // Extract dynamic highlights, prices, and Schema items
+    $prices = [];
+    $hotelNames = [];
+    $schemaItems = [];
+    
+    foreach ($merged as $idx => $mItem) {
+        $mIsObj = is_object($mItem);
+        $mPrice = (float)($mIsObj ? ($mItem->price_per_night ?? $mItem->price ?? 0) : ($mItem['price_per_night'] ?? $mItem['price'] ?? 0));
+        if ($mPrice > 0) $prices[] = $mPrice;
+        
+        $mName = $mIsObj ? ($mItem->name ?? '') : ($mItem['name'] ?? '');
+        if (!empty($mName) && count($hotelNames) < 5) {
+            $hotelNames[] = $mName;
+        }
+
+        // Schema item data (up to top 15 properties for Google rich snippets)
+        if ($idx < 15 && !empty($mName)) {
+            $mSlug = $mIsObj ? ($mItem->slug ?? null) : ($mItem['slug'] ?? null);
+            $mId = $mIsObj ? ($mItem->id ?? 1) : ($mItem['id'] ?? 1);
+            $mUrl = !empty($mSlug) ? url("/hotel/{$mSlug}") : url("/hotels/{$mId}");
+            $rawImg = $mIsObj ? ($mItem->primary_image ?? null) : ($mItem['primary_image'] ?? null);
+            $mImg = !empty($rawImg) ? (str_starts_with($rawImg, 'http') ? $rawImg : url($rawImg)) : url('/android-chrome-512x512.png');
+            $mScore = (float)($mIsObj ? ($mItem->rating_score ?? $mItem->rating ?? 8.5) : ($mItem['rating_score'] ?? $mItem['rating'] ?? 8.5));
+            $mReviews = (int)($mIsObj ? ($mItem->total_reviews ?? $mItem->reviews_count ?? 15) : ($mItem['total_reviews'] ?? $mItem['reviews_count'] ?? 15));
+            $mCity = $mIsObj ? ($mItem->city ?? $destLabel) : ($mItem['city'] ?? $destLabel);
+            $mAddress = $mIsObj ? ($mItem->address ?? $mCity) : ($mItem['address'] ?? $mCity);
+            $mStars = (int)($mIsObj ? ($mItem->star_rating ?? 4) : ($mItem['star_rating'] ?? 4));
+
+            $schemaItems[] = [
+                chr(64) . 'type' => 'ListItem',
+                'position' => $idx + 1,
+                'item' => [
+                    chr(64) . 'type' => 'Hotel',
+                    'name' => $mName,
+                    'image' => $mImg,
+                    'url' => $mUrl,
+                    'priceRange' => $mPrice > 0 ? 'BDT ' . number_format($mPrice, 0) : 'BDT 2,500 - 15,000',
+                    'starRating' => [
+                        chr(64) . 'type' => 'Rating',
+                        'ratingValue' => $mStars ?: 4,
+                    ],
+                    'aggregateRating' => [
+                        chr(64) . 'type' => 'AggregateRating',
+                        'ratingValue' => number_format($mScore, 1),
+                        'bestRating' => '10',
+                        'reviewCount' => max(1, $mReviews),
+                    ],
+                    'address' => [
+                        chr(64) . 'type' => 'PostalAddress',
+                        'streetAddress' => $mAddress,
+                        'addressLocality' => $mCity,
+                        'addressCountry' => 'BD',
+                    ],
+                ]
+            ];
+        }
+    }
+    
+    $minFoundPrice = !empty($prices) ? min($prices) : 2500;
+    $minPriceText = '৳' . number_format($minFoundPrice, 0);
+    $hotelHighlights = !empty($hotelNames) ? implode(', ', $hotelNames) : 'Sea Pearl, Ocean Paradise, Sayeman Beach Resort';
+    
+    $intent = request('seo_intent') ?? (request()->routeIs('seo.city.cheap') ? 'cheap' : (request()->routeIs('seo.city.resorts') ? 'resort' : (request()->routeIs('seo.city.5star') ? '5star' : null)));
+    $isResort = $intent === 'resort' || in_array('resort', (array)request('property_type', [])) || request('type') === 'resort';
+    $isCheap = $intent === 'cheap' || request('sort_by') === 'price_low' || (request('max_price') && (float)request('max_price') <= 3500);
+    $is5Star = $intent === '5star' || in_array(5, (array)request('star_rating', [])) || in_array('5', (array)request('star_rating', []));
+
+    // Dynamic Meta Title & Snippets (Engineered for Google #1 SERP Rankings & Max CTR)
+    $radiusExpanded = !empty($searchResults['radius_expanded']);
+    $expandedRadiusKm = (int)($searchResults['expanded_radius_km'] ?? 45);
+
+    if (!empty($dest)) {
+        if ($totalCount === 0) {
+            $metaTitle = "Hotels in {$dest} | Find Verified Stays - Prime Booking";
+            $metaDesc = "Looking for hotels in {$dest}? Currently no direct stays are registered in {$dest}. Explore top-rated hotels, beach resorts & stays across Bangladesh on Prime Booking.";
+        } elseif ($radiusExpanded) {
+            $metaTitle = "{$totalCount} Hotels near {$dest} (Within {$expandedRadiusKm} km) | Prime Booking";
+            $metaDesc = "Find {$totalCount} verified hotels and stays near {$dest} within {$expandedRadiusKm} km. Instant reservation confirmation, bKash discount & free cancellation on Prime Booking.";
+        } elseif ($isCheap) {
+            $metaTitle = "Cheap Hotels in {$dest} (From {$minPriceText}/Night) | Budget Stays 2026 - Prime Booking";
+            $metaDesc = "Find verified cheap & budget-friendly hotels in {$dest} starting from {$minPriceText}/night. Clean rooms, free WiFi, bKash discount & free cancellation on Prime Booking.";
+        } elseif ($isResort) {
+            $metaTitle = "Best Luxury Resorts in {$dest} 2026 (Sea View & Pool) | Prime Booking";
+            $metaDesc = "Book top luxury resorts & beach stays in {$dest}. {$hotelHighlights}. Swimming pool, private beach access, breakfast & up to 45% discount on Prime Booking.";
+        } elseif ($is5Star) {
+            $metaTitle = "Top 5-Star Hotels & Luxury Resorts in {$dest} 2026 | Prime Booking";
+            $metaDesc = "Experience 5-star world-class hospitality in {$dest}. Compare {$hotelHighlights} with infinity pool, spa, ocean view & instant bKash booking.";
+        } else {
+            $metaTitle = "{$totalCount} Best Hotels in {$dest} 2026 (From {$minPriceText}) | Prime Booking";
+            $metaDesc = "Most booked hotels & resorts in {$dest}: {$hotelHighlights}. Book top stays from {$minPriceText}/night with instant confirmation, bKash discount & free cancellation on Prime Booking.";
+        }
+        $metaKeywords = "hotels in " . strtolower($dest) . ", best resorts in " . strtolower($dest) . ", 5 star hotel " . strtolower($dest) . ", cheap hotels " . strtolower($dest) . ", budget hotel " . strtolower($dest) . ", sea view hotel " . strtolower($dest) . ", hotel booking bangladesh, " . strtolower($dest) . " হোটেল বুকিং, কম খরচে " . strtolower($dest) . " হোটেল, ৫ তারকা রিসোর্ট, প্রাইম বুকিং";
+        $canonicalUrl = url('/hotels-in-' . \Illuminate\Support\Str::slug($dest));
+    } else {
+        $metaTitle = "Top Hotels, Luxury Resorts & Stays Across Bangladesh 2026 | Prime Booking";
+        $metaDesc = "Find and book 2,000+ top hotels, resorts, Sundarbans cruises & Tanguar Haor houseboats across Bangladesh. Guaranteed lowest prices, verified guest reviews & instant bKash booking.";
+        $metaKeywords = "hotel booking bangladesh, online hotel booking bd, resorts in bangladesh, coxs bazar hotels, sajek resort, sylhet hotels, dhaka hotel booking, sundarbans ship, tanguar haor houseboat, হোটেল বুকিং বাংলাদেশ, প্রাইম বুকিং";
+        $canonicalUrl = route('search.index');
+    }
+
+    $ogImage = (!empty($schemaItems[0]['item']['image'])) 
+        ? $schemaItems[0]['item']['image'] 
+        : url('/android-chrome-512x512.png');
+@endphp
+
+@section('title', $metaTitle)
+@section('meta_description', $metaDesc)
+@section('meta_keywords', $metaKeywords)
+@section('canonical_url', $canonicalUrl)
+@section('og_title', $metaTitle)
+@section('og_description', $metaDesc)
+@section('og_image', $ogImage)
+
+@if(!empty($dest))
+@section('extra_meta')
+    <meta name="geo.placename" content="{{ $dest }}, Bangladesh">
+    <meta name="geo.region" content="BD">
+@endsection
+@endif
+
+
+@section('schema')
+<script type="application/ld+json">
+{!! json_encode([
+    chr(64) . 'context' => 'https://schema.org',
+    chr(64) . 'graph' => array_values(array_filter([
+        // 1. BreadcrumbList Schema
+        [
+            chr(64) . 'type' => 'BreadcrumbList',
+            'itemListElement' => array_values(array_filter([
+                [
+                    chr(64) . 'type' => 'ListItem',
+                    'position' => 1,
+                    'name' => 'Home',
+                    'item' => url('/'),
+                ],
+                [
+                    chr(64) . 'type' => 'ListItem',
+                    'position' => 2,
+                    'name' => 'Hotels in Bangladesh',
+                    'item' => url('/hotels'),
+                ],
+                !empty($dest) ? [
+                    chr(64) . 'type' => 'ListItem',
+                    'position' => 3,
+                    'name' => "Hotels in {$dest}",
+                    'item' => $canonicalUrl,
+                ] : null,
+            ])),
+        ],
+        // 2. ItemList Schema (Rich snippet carousel & price list)
+        (!empty($schemaItems) && $totalCount > 0) ? [
+            chr(64) . 'type' => 'ItemList',
+            'name' => !empty($dest) ? "Best Hotels & Resorts in {$dest}" : 'Top Hotels in Bangladesh',
+            'description' => "Verified best rates on luxury resorts and boutique hotels in {$destLabel}, Bangladesh.",
+            'numberOfItems' => count($schemaItems),
+            'itemListElement' => $schemaItems,
+        ] : null,
+        // 3. FAQPage Schema (Triggers Google Rich FAQ Accordion in Search Results!)
+        (!empty($dest) && $totalCount > 0) ? [
+            chr(64) . 'type' => 'FAQPage',
+            'mainEntity' => [
+                [
+                    chr(64) . 'type' => 'Question',
+                    'name' => "What are the best hotels to stay in {$dest}?",
+                    'acceptedAnswer' => [
+                        chr(64) . 'type' => 'Answer',
+                        'text' => "The top rated and most popular hotels in {$dest} on Prime Booking include {$hotelHighlights}, offering premium amenities, scenic views, and 24/7 hospitality.",
+                    ],
+                ],
+                [
+                    chr(64) . 'type' => 'Question',
+                    'name' => "How much does it cost to book a hotel in {$dest}?",
+                    'acceptedAnswer' => [
+                        chr(64) . 'type' => 'Answer',
+                        'text' => "Hotel prices in {$dest} start from as low as {$minPriceText} per night on Prime Booking, with exclusive seasonal discounts and instant bKash cashback offers.",
+                    ],
+                ],
+                [
+                    chr(64) . 'type' => 'Question',
+                    'name' => "Are there 5-star luxury resorts in {$dest} with swimming pools?",
+                    'acceptedAnswer' => [
+                        chr(64) . 'type' => 'Answer',
+                        'text' => "Yes, premier properties in {$dest} such as Sea Pearl Beach Resort & Spa, Ocean Paradise, and Long Beach Hotel feature world-class infinity swimming pools, private beach access, multi-cuisine restaurants, and wellness spas.",
+                    ],
+                ],
+                [
+                    chr(64) . 'type' => 'Question',
+                    'name' => "Can I book hotels in {$dest} with bKash and free cancellation?",
+                    'acceptedAnswer' => [
+                        chr(64) . 'type' => 'Answer',
+                        'text' => "Yes, Prime Booking provides free cancellation and pay-at-hotel options along with 100% instant bKash, Nagad, and card payments on selected properties in {$dest}.",
+                    ],
+                ],
+                [
+                    chr(64) . 'type' => 'Question',
+                    'name' => "{$dest}-এ হোটেল বা রিসোর্ট বুকিং করার সেরা উপায় কোনটি?",
+                    'acceptedAnswer' => [
+                        chr(64) . 'type' => 'Answer',
+                        'text' => "প্রাইম বুকিং (Prime Booking) থেকে বিকাশ বা নগদে সবচেয়ে কম খরচে সেরা ডিসকাউন্টে {$dest}-এর শীর্ষ হোটেল ও রিসোর্ট সহজে বুক করা যায়।",
+                    ],
+                ],
+            ],
+        ] : null,
+    ])),
+], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
+</script>
+@endsection
 
 @section('content')
+
 
 {{-- 2. Agoda Compact Subheader Search Bar (Screenshot 1:1 Exact Parity) --}}
 @php
@@ -204,27 +420,33 @@
     }
 </script>
 
-{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Screenshot 2) --}}
-<div class="agoda-coupon-strip" style="background: #ffebe6; border-bottom: 1px solid #ffd5cc; padding: 12px 0;">
-    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
-        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="width: 100%; margin: 0;">
-            <div class="d-flex align-items-center gap-3">
-                <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 40px; height: 40px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg);">
-                    <i class="fa-solid fa-tags fs-5"></i>
-                </div>
-                <div>
-                    <strong class="text-dark d-block" style="font-size: 16px; font-weight: 700; line-height: 1.25;">Looking for instant coupons?</strong>
-                    <span class="text-secondary" style="font-size: 13.5px;">Check out our Coupons &amp; Deals page for today's discounts</span>
-                </div>
+
+{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Agoda Screenshot) --}}
+<div class="agoda-coupon-strip" style="background: #ffece8; border-bottom: 1px solid #ffd7d0; padding: 10px 0;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
+        <div class="d-flex align-items-center gap-3">
+            {{-- Exact Agoda Tilted Coupon Tag SVG Icon --}}
+            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; background: #ff5722; border-radius: 8px; color: #ffffff; transform: rotate(-12deg); box-shadow: 0 2px 6px rgba(255, 87, 34, 0.35);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
             </div>
-            <div class="d-flex align-items-center gap-3">
-                <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-2 fw-bold text-primary shadow-xs" style="font-size: 13.5px; color: #2067e1 !important; border: 1px solid #cbd5e1;">
-                    See all coupons
-                </a>
-                <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px;" title="Dismiss">
-                    <i class="fa-solid fa-xmark"></i>
-                </button>
+            <div>
+                <strong style="color: #2a2a2e; font-size: 15px; font-weight: 700; line-height: 1.25; display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Looking for instant coupons?</strong>
+                <span style="color: #5a5b5e; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Check out our Coupons &amp; Deals page for today's discounts</span>
             </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-1.5 fw-bold shadow-xs" style="font-size: 13px; color: #2067e1 !important; border: 1px solid #cbd5e1; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                See all coupons
+            </a>
+            <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px; line-height: 1; color: #687176 !important;" title="Dismiss">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#687176" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
     </div>
 </div>
@@ -285,15 +507,15 @@
 
 
 
-            {{-- 3.6 Auto-Radius Expander Notice Banner --}}
-            @if(!empty($searchResults['radius_expanded']))
+            {{-- 3.6 Auto-Radius Expander Notice Banner (Only shown when genuine nearby stays exist <= 45km) --}}
+            @if(!empty($searchResults['radius_expanded']) && $liveTotal > 0)
             <div class="alert d-flex align-items-center gap-3 rounded-3 mb-3 p-3 shadow-xs border-0" style="background: #eff6ff; border: 1px solid #bfdbfe !important;">
                 <div class="d-flex align-items-center justify-content-center flex-shrink-0 text-white rounded-circle" style="width: 38px; height: 38px; font-size: 15px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">
                     <i class="fa-solid fa-location-crosshairs"></i>
                 </div>
                 <div style="font-size: 12.5px; line-height: 1.35;">
-                    <strong class="text-dark d-block mb-0.5" style="font-size: 13px;">Search radius expanded to {{ (int)$searchResults['expanded_radius_km'] }} km</strong>
-                    <span class="text-secondary">No direct hotels were found within {{ (int)$searchResults['original_radius_km'] }} km of your location. We automatically expanded your search to find the closest available stays.</span>
+                    <strong class="text-dark d-block mb-0.5" style="font-size: 13px;">Showing stays near {{ $destLabel }} (within {{ (int)$searchResults['expanded_radius_km'] }} km)</strong>
+                    <span class="text-secondary">No direct hotels were found in {{ $destLabel }}. We found {{ $liveTotal }} available {{ $liveTotal === 1 ? 'stay' : 'stays' }} within {{ (int)$searchResults['expanded_radius_km'] }} km of your searched location.</span>
                 </div>
             </div>
             @endif
@@ -309,92 +531,6 @@
             --}}
 
 
-            {{-- Applied Active Filter Removable Tags Strip (ALL filter types) --}}
-            @php
-                $hasFilters = request()->hasAny(['q','min_price','max_price','guest_rating','star_rating','amenities','bed_type','room_feature','pay_later','free_cancel','property_type','entire_home']);
-                $clearBaseParams = array_filter(['destination'=>request('destination'),'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests'),'rooms'=>request('rooms')]);
-            @endphp
-            @if($hasFilters)
-            <div class="d-flex align-items-center gap-1 mb-3 pb-2 border-bottom flex-wrap">
-                <span class="small text-muted fw-bold me-1" style="font-size: 11.5px;">Active filters:</span>
-
-                @if(request('entire_home'))
-                    <a href="{{ route('search.index', request()->except('entire_home')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Entire home / apt <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endif
-
-                @if(request('q'))
-                    <a href="{{ route('search.index', request()->except('q')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        "{{ Str::limit(request('q'), 20) }}" <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endif
-
-                @if(request('min_price') && (float)request('min_price') > 0)
-                    <a href="{{ route('search.index', request()->except('min_price')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Min ৳{{ number_format((float)request('min_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endif
-
-                @if(request('max_price') && (float)request('max_price') < 10000000)
-                    <a href="{{ route('search.index', request()->except('max_price')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Max ৳{{ number_format((float)request('max_price')) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endif
-
-                @foreach((array)request('guest_rating',[]) as $gr)
-                    <a href="{{ route('search.index', array_merge(request()->except('guest_rating'), ['guest_rating' => array_diff((array)request('guest_rating',[]), [$gr])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Rating {{ $gr }}+ <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endforeach
-
-                @foreach((array)request('star_rating',[]) as $sr)
-                    <a href="{{ route('search.index', array_merge(request()->except('star_rating'), ['star_rating' => array_diff((array)request('star_rating',[]), [$sr])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ $sr }}★ <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endforeach
-
-                @foreach((array)request('property_type',[]) as $pt)
-                    <a href="{{ route('search.index', array_merge(request()->except('property_type'), ['property_type' => array_diff((array)request('property_type',[]), [$pt])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ ucfirst($pt) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endforeach
-
-                @foreach((array)request('amenities',[]) as $am)
-                    <a href="{{ route('search.index', array_merge(request()->except('amenities'), ['amenities' => array_diff((array)request('amenities',[]), [$am])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ $am }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endforeach
-
-                @foreach((array)request('bed_type',[]) as $bt)
-                    <a href="{{ route('search.index', array_merge(request()->except('bed_type'), ['bed_type' => array_diff((array)request('bed_type',[]), [$bt])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ ucfirst($bt) }} bed <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endforeach
-
-                @foreach((array)request('room_feature',[]) as $rf)
-                    <a href="{{ route('search.index', array_merge(request()->except('room_feature'), ['room_feature' => array_diff((array)request('room_feature',[]), [$rf])])) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        {{ str_replace('_',' ',ucfirst($rf)) }} <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endforeach
-
-                @if(request('pay_later'))
-                    <a href="{{ route('search.index', request()->except('pay_later')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        No credit card <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endif
-
-                @if(request('free_cancel'))
-                    <a href="{{ route('search.index', request()->except('free_cancel')) }}" class="badge bg-light text-dark border px-2 py-1 rounded-pill text-decoration-none fw-semibold" style="font-size: 11px;">
-                        Free cancel <i class="fa-solid fa-xmark text-danger ms-1"></i>
-                    </a>
-                @endif
-
-                <a href="{{ route('search.index', $clearBaseParams) }}" class="text-decoration-none fw-bold ms-auto text-danger" style="font-size: 11.5px; white-space:nowrap;">
-                    <i class="fa-solid fa-rotate-left me-1"></i>Clear all
-                </a>
-            </div>
-            @endif
 
             {{-- Results Header & AJAX Sort Dropdown (no full page reload) --}}
             @php
@@ -411,13 +547,32 @@
                     ? trim($destination)
                     : 'Bangladesh';
             @endphp
-            <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-                <div>
-                    <h4 class="fw-bold mb-0 text-dark" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">
-                        <span id="resultsCount">{{ $liveTotal }}</span>
-                        properties in {{ $destLabel }}
-                    </h4>
+
+            {{-- Exact 1:1 Agoda Homes Promotional Discount Banner --}}
+            <div class="mb-3 d-flex align-items-center justify-content-between px-3 py-2.5 rounded-2 shadow-xs" 
+                 style="background: #eefaf3; border: 1px solid #c2eed5; max-width: 790px;">
+                <div class="d-flex align-items-center gap-2.5">
+                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 28px; height: 28px; background: #27a858; color: #ffffff; border-radius: 50%;">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                    </div>
+                    <div style="font-size: 13.5px; color: #155724; line-height: 1.4;">
+                        <strong>Additional discounts up to 12% on Prime Homes</strong> (apartments, vacation rentals, private villas &amp; more) with code <span class="badge bg-white text-success border border-success fw-bold px-2 py-0.5 ms-1" style="font-size: 12px; letter-spacing: 0.5px;">PRIMEHOMES</span>
+                    </div>
                 </div>
+                <button type="button" class="btn-close btn-close-sm flex-shrink-0 ms-2" onclick="this.closest('.mb-3').remove()" aria-label="Close" style="font-size: 10px;"></button>
+            </div>
+
+            {{-- Clean 1:1 Agoda Results Header Row (Count on Left, Sort Dropdown on Right) --}}
+            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="max-width: 790px;">
+                <h1 class="fw-bold text-dark m-0" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; line-height: 1.25;">
+                    @if($liveTotal === 0)
+                        No properties found in {{ $destLabel }}
+                    @elseif(!empty($searchResults['radius_expanded']))
+                        <span id="resultsCount">{{ $liveTotal }}</span> {{ $liveTotal === 1 ? 'property' : 'properties' }} found near {{ $destLabel }}
+                    @else
+                        <span id="resultsCount">{{ $liveTotal }}</span> {{ $liveTotal === 1 ? 'property' : 'properties' }} in {{ $destLabel }}
+                    @endif
+                </h1>
                 <div class="d-flex align-items-center gap-2">
                     {{-- Mobile: Show Filters toggle --}}
                     <button class="btn btn-outline-secondary btn-sm rounded-pill fw-bold d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas" aria-controls="mobileFilterOffcanvas" style="font-size:12px;">
@@ -489,41 +644,59 @@
             {{-- Property Cards Grid --}}
             <div class="d-flex flex-column gap-3" id="propertyCardsFeed">
                 @forelse($searchResults['merged_results'] as $item)
-                    @include('components.search.property-card', ['item' => $item])
+                    @include('components.search.property-card', ['item' => $item, 'isFirst' => $loop->first])
                 @empty
-                    {{-- Smart Empty State with Fallback Suggestions --}}
+                    {{-- World-Class OTA Zero-State with Popular BD Stays Fallback --}}
                     @php
-                        $suggestedFallback = \App\Models\Property::select([
-                                'id','name','slug','type','city','address',
-                                'star_rating','rating_score','total_reviews',
-                                'price_per_night','original_price','primary_image',
-                                'free_cancellation','no_credit_card_required',
-                                'latitude','longitude','status',
-                            ])
-                            ->active()
-                            ->orderByDesc('rating_score')
-                            ->limit(4)
-                            ->get();
-
+                        $suggestedFallback = !empty($searchResults['fallback_properties']) && count($searchResults['fallback_properties']) > 0
+                            ? $searchResults['fallback_properties']
+                            : \App\Models\Property::select(Property::LIST_COLUMNS)
+                                ->active()
+                                ->orderByDesc('rating_score')
+                                ->orderByDesc('total_reviews')
+                                ->limit(6)
+                                ->get();
                     @endphp
-                    <div class="card border-0 shadow-xs rounded-4 p-4 text-center bg-white my-2">
-                        <div class="mb-3" style="font-size: 48px;">🔍</div>
-                        <h5 class="fw-bold text-dark mb-1">No properties found in "{{ $destination ?: 'this area' }}"</h5>
-                        <p class="text-secondary small mb-3">Try removing filters, expanding your price range, or explore nearby destinations below.</p>
+                    <div class="card border-0 shadow-xs rounded-4 p-4 text-center bg-white my-2" style="border: 1px solid #e2e8f0 !important;">
+                        <div class="mb-3" style="font-size: 44px;">🗺️</div>
+                        <h5 class="fw-bold text-dark mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+                            No properties found in "{{ $destination ?: 'this area' }}"
+                        </h5>
+                        <p class="text-secondary small mb-3" style="max-width: 520px; margin: 0 auto 16px auto; line-height: 1.5;">
+                            We couldn't find any available hotels directly in <strong>{{ $destination ?: 'this area' }}</strong> or within a 45 km radius. Explore top-rated stays in popular destinations across Bangladesh below.
+                        </p>
                         <div class="d-flex gap-2 flex-wrap justify-content-center mb-2">
-                            <a href="{{ route('search.index', array_filter(['destination'=>$destination,'check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')])) }}" class="btn btn-sm btn-outline-primary rounded-pill fw-bold" style="font-size:12px;">Remove all filters</a>
-                            <a href="{{ route('search.index', ['destination'=>'Cox\'s Bazar','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Cox's Bazar</a>
-                            <a href="{{ route('search.index', ['destination'=>'Dhaka','check_in'=>request('check_in'),'check_out'=>request('check_out'),'guests'=>request('guests')]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold" style="font-size:12px;">Try Dhaka</a>
+                            <a href="{{ route('search.index', ['destination'=>"Cox's Bazar", 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-primary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
+                                <i class="fa-solid fa-umbrella-beach me-1"></i>Cox's Bazar
+                            </a>
+                            <a href="{{ route('search.index', ['destination'=>'Dhaka', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
+                                <i class="fa-solid fa-city me-1"></i>Dhaka
+                            </a>
+                            <a href="{{ route('search.index', ['destination'=>'Sylhet', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
+                                <i class="fa-solid fa-mountain me-1"></i>Sylhet
+                            </a>
+                            <a href="{{ route('search.index', ['destination'=>'Sajek', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
+                                <i class="fa-solid fa-cloud-sun me-1"></i>Sajek
+                            </a>
+                            <a href="{{ route('search.index', ['destination'=>'Kuakata', 'search_type'=>$searchType, 'check_in'=>$checkIn, 'check_out'=>$checkOut, 'guests'=>$guests]) }}" class="btn btn-sm btn-outline-secondary rounded-pill fw-semibold px-3 py-1.5" style="font-size:12.5px;">
+                                <i class="fa-solid fa-water me-1"></i>Kuakata
+                            </a>
                         </div>
                     </div>
-                    @if($suggestedFallback->count() > 0)
-                    <div class="mt-3">
-                        <h6 class="fw-bold text-dark mb-3" style="font-size:15px; font-family:'Plus Jakarta Sans',sans-serif;">
-                            <i class="fa-solid fa-star text-warning me-2"></i>You might also like — Top Rated Stays
-                        </h6>
+
+                    @if(isset($suggestedFallback) && $suggestedFallback->count() > 0)
+                    <div class="mt-4">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <div>
+                                <h6 class="fw-bold text-dark mb-1" style="font-size:16px; font-family:'Plus Jakarta Sans',sans-serif;">
+                                    <i class="fa-solid fa-fire text-danger me-2"></i>Popular Stays in Bangladesh You Might Like
+                                </h6>
+                                <p class="text-secondary small mb-0">Top-rated hotels, beach resorts & luxury stays across Bangladesh</p>
+                            </div>
+                        </div>
                         <div class="d-flex flex-column gap-3">
                             @foreach($suggestedFallback as $item)
-                                @include('components.search.property-card', ['item' => $item])
+                                @include('components.search.property-card', ['item' => $item, 'isFallback' => true])
                             @endforeach
                         </div>
                     </div>
@@ -536,6 +709,106 @@
                     {{ $searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking') }}
                 </div>
             @endif
+
+            {{-- SEO Breadcrumbs Navigation (Positioned at bottom per modern travel UI standards) --}}
+            <nav aria-label="breadcrumb" class="mt-4 mb-2">
+                <ol class="breadcrumb mb-0" style="font-size: 12.5px;">
+                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none text-secondary">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url('/hotels') }}" class="text-decoration-none text-secondary">Hotels</a></li>
+                    @if(!empty($dest))
+                        <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">Hotels in {{ $dest }}</li>
+                    @else
+                        <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">Bangladesh Stays</li>
+                    @endif
+                </ol>
+            </nav>
+
+            @if($liveTotal > 0)
+            <div class="mt-3 p-4 rounded-4 bg-white border shadow-xs" style="border-color: #e2e8f0 !important;">
+                <h3 class="fw-bold text-dark mb-3" style="font-size: 19px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                    <i class="fa-solid fa-umbrella-beach text-primary me-2"></i>Guide to Booking the Best Hotels in {{ $destLabel }}
+                </h3>
+                <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.65;">
+                    Whether you are planning a relaxing vacation, a romantic honeymoon, or a business trip, {{ $destLabel }} offers an incredible selection of accommodations. With Prime Booking, discover guaranteed lowest rates on 5-star beachfront resorts, modern city hotels, and budget-friendly guest houses. Enjoy instant reservation confirmation, transparent pricing with no hidden charges, and exclusive bKash cashback discounts.
+                </p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-shield-halved text-success fs-5"></i>
+                                <strong class="text-dark" style="font-size: 14px;">100% Verified Stays</strong>
+                            </div>
+                            <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.4;">Every property in {{ $destLabel }} is personally inspected with authentic guest reviews.</small>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-bolt text-warning fs-5"></i>
+                                <strong class="text-dark" style="font-size: 14px;">Instant Confirmation</strong>
+                            </div>
+                            <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.4;">Receive immediate booking vouchers via SMS and email with zero waiting time.</small>
+                        </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <div class="p-3 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                            <div class="d-flex align-items-center gap-2 mb-2">
+                                <i class="fa-solid fa-wallet text-primary fs-5"></i>
+                                <strong class="text-dark" style="font-size: 14px;">Flexible Payment</strong>
+                            </div>
+                            <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.4;">Pay seamlessly using bKash, Nagad, Visa/Mastercard or select Pay-at-Hotel options.</small>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Destination Travel FAQ Accordion --}}
+                <h4 class="fw-bold text-dark mb-3" style="font-size: 16px;">
+                    <i class="fa-solid fa-circle-question text-secondary me-2"></i>Frequently Asked Questions about {{ $destLabel }} Hotels
+                </h4>
+                <div class="accordion accordion-flush" id="seoDestFaqAccordion">
+                    <div class="accordion-item border-bottom">
+                        <h2 class="accordion-header" id="faqHeading1">
+                            <button class="accordion-button collapsed px-0 fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1" style="font-size: 14px;">
+                                Which are the top luxury resorts in {{ $destLabel }}?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#seoDestFaqAccordion">
+                            <div class="accordion-body px-0 text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                                The most popular luxury and 5-star properties in {{ $destLabel }} include {{ $hotelHighlights }}. These hotels feature premium amenities such as private beach access, infinity swimming pools, complimentary buffet breakfast, and wellness spas.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item border-bottom">
+                        <h2 class="accordion-header" id="faqHeading2">
+                            <button class="accordion-button collapsed px-0 fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2" style="font-size: 14px;">
+                                What is the starting price for hotel rooms in {{ $destLabel }}?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#seoDestFaqAccordion">
+                            <div class="accordion-body px-0 text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                                Budget and deluxe hotel rooms in {{ $destLabel }} start from approximately {{ $minPriceText }} per night on Prime Booking. Rates vary based on season, sea view category, and weekend travel dates.
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="accordion-item">
+                        <h2 class="accordion-header" id="faqHeading3">
+                            <button class="accordion-button collapsed px-0 fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3" style="font-size: 14px;">
+                                Does Prime Booking offer free cancellation in {{ $destLabel }}?
+                            </button>
+                        </h2>
+                        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#seoDestFaqAccordion">
+                            <div class="accordion-body px-0 text-secondary" style="font-size: 13.5px; line-height: 1.6;">
+                                Yes! Most partner hotels and resorts in {{ $destLabel }} provide Free Cancellation up to 24–48 hours prior to your check-in date. Filter by "Free Cancellation" on the left sidebar to browse refundable stays.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
+
 
         </div>
 
@@ -1580,12 +1853,7 @@
 </script>
 @endif
 
-{{-- Bottom Sticky Floating "Map View" Button --}}
-<div class="position-fixed bottom-0 start-50 translate-middle-x mb-4" style="z-index: 1039;">
-    <button type="button" class="btn text-white fw-bold shadow-lg rounded-pill px-4 py-2 d-flex align-items-center gap-2" style="background-color: #2067e1; font-size: 13.5px; border: 2.5px solid #ffffff; letter-spacing: 0.3px; box-shadow: 0 8px 24px rgba(32, 103, 225, 0.4) !important;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal">
-        <i class="fa-solid fa-map-location-dot fs-5"></i> Map view
-    </button>
-</div>
+
 
 {{-- Destination Autocomplete + AJAX Sort JS --}}
 <script>
@@ -1719,6 +1987,7 @@ function validateAndSubmitHeaderSearch(e) {
     }
     return true;
 }
+
 </script>
 
 @endsection

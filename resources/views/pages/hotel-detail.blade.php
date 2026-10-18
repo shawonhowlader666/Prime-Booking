@@ -296,6 +296,82 @@
     .agoda-filter-pill { background: #ffffff; border: 1px solid #cbd5e1; padding: 8px 16px; border-radius: 20px; font-size: 12.5px; font-weight: 600; color: #222222; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s ease; }
     .agoda-filter-pill:hover { border-color: #2067e1; color: #2067e1; background: #f0f7ff; }
 
+    /* Agoda Room Filter Container Box (1:1 Exact Parity to Agoda & Screenshot) */
+    .agoda-room-filter-card {
+        background: #ffffff;
+        border: 1px solid #dce1e8;
+        border-radius: 16px;
+        padding: 18px 20px 20px 20px;
+        margin-bottom: 16px;
+        box-shadow: none;
+    }
+    .agoda-room-filter-title {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 14px;
+        line-height: 1.2;
+    }
+    .agoda-room-filter-pills {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px 10px;
+    }
+    .agoda-room-filter-pill {
+        background-color: #ffffff;
+        border: 1px solid #cfd5df;
+        border-radius: 9999px;
+        padding: 7px 16px;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 13.5px;
+        font-weight: 400;
+        color: #2b2e38;
+        line-height: 1.35;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        outline: none;
+        user-select: none;
+        transition: all 0.15s ease-in-out;
+        text-decoration: none;
+    }
+    .agoda-room-filter-pill:hover {
+        background-color: #f8fafc;
+        border-color: #94a3b8;
+        color: #111827;
+    }
+    .agoda-room-filter-pill.active {
+        background-color: #eff6ff !important;
+        border-color: #2067da !important;
+        color: #2067da !important;
+        font-weight: 600 !important;
+    }
+    .agoda-room-filter-pill .agoda-pill-icon {
+        flex-shrink: 0;
+        color: #2b2e38;
+        transition: color 0.15s ease-in-out;
+    }
+    .agoda-room-filter-pill.active .agoda-pill-icon {
+        color: #2067da !important;
+    }
+    @media (max-width: 576px) {
+        .agoda-room-filter-card {
+            padding: 14px 16px 16px 16px;
+            border-radius: 12px;
+        }
+        .agoda-room-filter-pills {
+            gap: 6px 8px;
+        }
+        .agoda-room-filter-pill {
+            padding: 6px 13px;
+            font-size: 12.5px;
+            gap: 6px;
+        }
+    }
+
     .room-space-card { background: #ffffff; border: 1px solid #dddfe2; border-radius: 4px; padding: 14px; flex: 1; min-width: 140px; }
     
     @keyframes agodaBounce {
@@ -1197,50 +1273,174 @@
                 </a>
             </div>
 
-            {{-- Room Filter Container Box (Exact Agoda 1:1 Parity: 12 Interactive Filter Pills) --}}
-            <div class="p-3 mb-3 rounded-4" style="background: #ffffff; border: 1px solid #d8dce2; border-radius: 12px !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02);">
-                <div class="mb-2.5">
-                    <span style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14.5px; font-weight: 800; color: #111827;">Filter</span>
-                </div>
-                <div class="d-flex flex-wrap gap-2" id="roomFilterPillsContainer">
+            @php
+                // Hotel-Specific Room Feature Discovery Engine (Exact Agoda 1:1 Dynamic Parity)
+                $hotelHasNonSmoking = false;
+                $hotelHasBreakfast = false;
+                $hotelHasFreeCancel = false;
+                $hotelHasKingBed = false;
+                $hotelHasQueenBed = false;
+                $hotelHasTwinBed = false;
+                $hotelHasMountainView = false;
+                $hotelHasBalcony = false;
+                $hotelHasSeaView = false;
+                $hotelHasGardenView = false;
+                $hotelHasFamily = false;
+                $hotelHas2Bedrooms = false;
+
+                if (!empty($property->rooms) && count($property->rooms) > 0) {
+                    foreach ($property->rooms as $rmItem) {
+                        $rSmk = $rmItem->smoking_policy ?: 'Non-smoking';
+                        if (!str_contains(strtolower($rSmk), 'smoking allowed') && !str_contains(strtolower($rSmk), 'permit')) {
+                            $hotelHasNonSmoking = true;
+                        }
+                        if (boolval($rmItem->breakfast_included ?? true)) {
+                            $hotelHasBreakfast = true;
+                        }
+                        if (boolval($rmItem->free_cancellation ?? true)) {
+                            $hotelHasFreeCancel = true;
+                        }
+                        $bStr = strtolower(($rmItem->bed_type ?: '') . ' ' . ($rmItem->name ?: ''));
+                        if (str_contains($bStr, 'king')) {
+                            $hotelHasKingBed = true;
+                        }
+                        if (str_contains($bStr, 'queen')) {
+                            $hotelHasQueenBed = true;
+                        }
+                        if (str_contains($bStr, 'twin') || str_contains($bStr, '2 single') || str_contains($bStr, 'single')) {
+                            $hotelHasTwinBed = true;
+                        }
+                        $vStr = strtolower(($rmItem->view_type ?: '') . ' ' . ($rmItem->name ?: ''));
+                        if (str_contains($vStr, 'mountain') || str_contains($vStr, 'hill')) {
+                            $hotelHasMountainView = true;
+                        }
+                        if (str_contains($vStr, 'sea') || str_contains($vStr, 'ocean') || str_contains($vStr, 'beach')) {
+                            $hotelHasSeaView = true;
+                        }
+                        if (str_contains($vStr, 'garden') || str_contains($vStr, 'park')) {
+                            $hotelHasGardenView = true;
+                        }
+                        $balcStr = $rmItem->balcony_type ?: 'Private Balcony';
+                        if (!empty($balcStr) && !str_contains(strtolower($balcStr), 'no balcony')) {
+                            $hotelHasBalcony = true;
+                        }
+                        $adCount = (int)($rmItem->max_adults ?: 2);
+                        $kdCount = (int)($rmItem->max_children ?: 1);
+                        if ($adCount >= 3 || $kdCount >= 2 || str_contains(strtolower($rmItem->name), 'family') || str_contains(strtolower($rmItem->name), 'triple')) {
+                            $hotelHasFamily = true;
+                        }
+                        $bathCount = (int)($rmItem->bathroom_count ?: 1);
+                        if ($bathCount >= 2 || str_contains(strtolower($rmItem->name), 'suite') || str_contains(strtolower($rmItem->name), '2 bedroom') || str_contains(strtolower($rmItem->name), 'presidential') || str_contains(strtolower($rmItem->name), 'ambassador')) {
+                            $hotelHas2Bedrooms = true;
+                        }
+                    }
+                }
+
+                $totalAvailableFilters = ($hotelHasNonSmoking ? 1 : 0) +
+                                        ($hotelHasBreakfast ? 1 : 0) +
+                                        ($hotelHasKingBed ? 1 : 0) +
+                                        ($hotelHasMountainView ? 1 : 0) +
+                                        ($hotelHasBalcony ? 1 : 0) +
+                                        ($hotelHasFreeCancel ? 1 : 0) +
+                                        ($hotelHasQueenBed ? 1 : 0) +
+                                        ($hotelHasTwinBed ? 1 : 0) +
+                                        ($hotelHasSeaView ? 1 : 0) +
+                                        ($hotelHasGardenView ? 1 : 0) +
+                                        ($hotelHasFamily ? 1 : 0) +
+                                        ($hotelHas2Bedrooms ? 1 : 0);
+            @endphp
+
+            {{-- Room Filter Container Card (Exact Agoda 1:1 Parity: Dynamic Per-Hotel Filter Pills Matching Screenshot) --}}
+            @if($totalAvailableFilters > 0)
+            <div class="agoda-room-filter-card">
+                <div class="agoda-room-filter-title">Filter</div>
+                <div class="agoda-room-filter-pills" id="roomFilterPillsContainer">
+                    @if($hotelHasNonSmoking)
                     <button type="button" class="agoda-room-filter-pill" data-filter="nonsmoking" onclick="toggleRoomFilter('nonsmoking', this)">
-                        <i class="fa-solid fa-ban-smoking me-1.5" style="font-size: 13px;"></i> Non-smoking
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><line x1="2" y1="2" x2="22" y2="22"></line><path d="M18 8h3a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1h-3"></path><path d="M7 12h7"></path><path d="M7 8h3"></path><line x1="7" y1="8" x2="7" y2="12"></line><path d="M18 5c0-1.5.5-2 1.5-2"></path></svg>
+                        <span>Non-smoking</span>
                     </button>
+                    @endif
+
+                    @if($hotelHasBreakfast)
                     <button type="button" class="agoda-room-filter-pill" data-filter="breakfast" onclick="toggleRoomFilter('breakfast', this)">
-                        <i class="fa-solid fa-mug-saucer me-1.5" style="font-size: 13px;"></i> Breakfast included
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M17 8h1a4 4 0 0 1 0 8h-1"></path><path d="M3 8h14v7a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="2" x2="6" y2="4"></line><line x1="10" y1="2" x2="10" y2="4"></line><line x1="14" y1="2" x2="14" y2="4"></line><line x1="2" y1="21" x2="18" y2="21"></line></svg>
+                        <span>Breakfast included</span>
                     </button>
-                    <button type="button" class="agoda-room-filter-pill" data-filter="freecancel" onclick="toggleRoomFilter('freecancel', this)">
-                        <i class="fa-solid fa-shield-halved me-1.5" style="font-size: 13px;"></i> Free cancellation
-                    </button>
-                    <button type="button" class="agoda-room-filter-pill" data-filter="queenbed" onclick="toggleRoomFilter('queenbed', this)">
-                        <i class="fa-solid fa-bed me-1.5" style="font-size: 13px;"></i> Queen bed
-                    </button>
+                    @endif
+
+                    @if($hotelHasKingBed)
                     <button type="button" class="agoda-room-filter-pill" data-filter="kingbed" onclick="toggleRoomFilter('kingbed', this)">
-                        <i class="fa-solid fa-bed me-1.5" style="font-size: 13px;"></i> King bed
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M3 6v14M21 6v14M3 10h18M3 18h18"></path><rect x="5.5" y="11" width="5.5" height="3.5" rx="0.8"></rect><rect x="13" y="11" width="5.5" height="3.5" rx="0.8"></rect></svg>
+                        <span>King bed</span>
                     </button>
-                    <button type="button" class="agoda-room-filter-pill" data-filter="twinbed" onclick="toggleRoomFilter('twinbed', this)">
-                        <i class="fa-solid fa-bed-pulse me-1.5" style="font-size: 13px;"></i> Twin Bed
-                    </button>
-                    <button type="button" class="agoda-room-filter-pill" data-filter="gardenview" onclick="toggleRoomFilter('gardenview', this)">
-                        <i class="fa-solid fa-seedling me-1.5" style="font-size: 13px;"></i> Garden view
-                    </button>
-                    <button type="button" class="agoda-room-filter-pill" data-filter="seaview" onclick="toggleRoomFilter('seaview', this)">
-                        <i class="fa-solid fa-umbrella-beach me-1.5" style="font-size: 13px;"></i> Sea view
-                    </button>
+                    @endif
+
+                    @if($hotelHasMountainView)
                     <button type="button" class="agoda-room-filter-pill" data-filter="mountainview" onclick="toggleRoomFilter('mountainview', this)">
-                        <i class="fa-solid fa-mountain-sun me-1.5" style="font-size: 13px;"></i> Mountain view
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="m2 20 7-13 5 8 3-4 5 9H2Z"></path><path d="m14 15 2.5-3 4.5 8"></path></svg>
+                        <span>Mountain view</span>
                     </button>
+                    @endif
+
+                    @if($hotelHasBalcony)
                     <button type="button" class="agoda-room-filter-pill" data-filter="balcony" onclick="toggleRoomFilter('balcony', this)">
-                        <i class="fa-solid fa-door-open me-1.5" style="font-size: 13px;"></i> Balcony/terrace
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M3 8h18M3 18h18M5 8v10M9 8v10M13 8v10M17 8v10M21 8v10M3 8V5M21 8V5"></path></svg>
+                        <span>Balcony/terrace</span>
                     </button>
+                    @endif
+
+                    @if($hotelHasFreeCancel)
+                    <button type="button" class="agoda-room-filter-pill" data-filter="freecancel" onclick="toggleRoomFilter('freecancel', this)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><polyline points="9 12 11 14 15 10"></polyline></svg>
+                        <span>Free cancellation</span>
+                    </button>
+                    @endif
+
+                    @if($hotelHasQueenBed)
+                    <button type="button" class="agoda-room-filter-pill" data-filter="queenbed" onclick="toggleRoomFilter('queenbed', this)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M3 6v14M21 6v14M3 10h18M3 18h18"></path><rect x="6" y="11" width="5" height="3.5" rx="0.8"></rect><rect x="13" y="11" width="5" height="3.5" rx="0.8"></rect></svg>
+                        <span>Queen bed</span>
+                    </button>
+                    @endif
+
+                    @if($hotelHasTwinBed)
+                    <button type="button" class="agoda-room-filter-pill" data-filter="twinbed" onclick="toggleRoomFilter('twinbed', this)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M2 6v14M10 6v14M2 10h8M2 17h8M14 6v14M22 6v14M14 10h8M14 17h8"></path></svg>
+                        <span>Twin Bed</span>
+                    </button>
+                    @endif
+
+                    @if($hotelHasSeaView)
+                    <button type="button" class="agoda-room-filter-pill" data-filter="seaview" onclick="toggleRoomFilter('seaview', this)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M2 12c2-1 4-1 6 0s4 1 6 0 4-1 6 0"></path><path d="M2 17c2-1 4-1 6 0s4 1 6 0 4-1 6 0"></path><path d="M12 4a5 5 0 0 0-5 5h10a5 5 0 0 0-5-5z"></path></svg>
+                        <span>Sea view</span>
+                    </button>
+                    @endif
+
+                    @if($hotelHasGardenView)
+                    <button type="button" class="agoda-room-filter-pill" data-filter="gardenview" onclick="toggleRoomFilter('gardenview', this)">
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M12 10a5 5 0 0 0-5-5H3v2a5 5 0 0 0 5 5h4"></path><path d="M12 14a5 5 0 0 1 5-5h4v2a5 5 0 0 1-5 5h-4"></path><line x1="12" y1="21" x2="12" y2="10"></line></svg>
+                        <span>Garden view</span>
+                    </button>
+                    @endif
+
+                    @if($hotelHasFamily)
                     <button type="button" class="agoda-room-filter-pill" data-filter="family" onclick="toggleRoomFilter('family', this)">
-                        <i class="fa-solid fa-people-roof me-1.5" style="font-size: 13px;"></i> Great for families
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+                        <span>Great for families</span>
                     </button>
+                    @endif
+
+                    @if($hotelHas2Bedrooms)
                     <button type="button" class="agoda-room-filter-pill" data-filter="twobedrooms" onclick="toggleRoomFilter('twobedrooms', this)">
-                        <i class="fa-solid fa-door-closed me-1.5" style="font-size: 13px;"></i> 2+ bedrooms
+                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="agoda-pill-icon"><path d="M18 20V6a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v14"></path><path d="M2 20h20"></path><circle cx="14" cy="12" r="1"></circle></svg>
+                        <span>2+ bedrooms</span>
                     </button>
+                    @endif
                 </div>
             </div>
+            @endif
 
             {{-- Agoda Scarcity Sold Out Alert Bar (Screenshot 1:1 Parity) --}}
             <div class="d-inline-flex align-items-center gap-2 mb-3 px-3 py-1.5 rounded" style="background: #fff0f0; border: 1px solid #ffe3e3; font-size: 12px; color: #ba2a26; font-weight: 600; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -5273,15 +5473,9 @@ function toggleRoomFilter(filterName, btn) {
     if (activeRoomFilters.has(filterName)) {
         activeRoomFilters.delete(filterName);
         btn.classList.remove('active');
-        btn.style.backgroundColor = '#ffffff';
-        btn.style.color = '#2a2a2e';
-        btn.style.borderColor = '#cbcfd7';
     } else {
         activeRoomFilters.add(filterName);
         btn.classList.add('active');
-        btn.style.backgroundColor = '#f0f6ff';
-        btn.style.color = '#0b66c2';
-        btn.style.borderColor = '#0b66c2';
     }
     applyRoomFilters();
 }
@@ -5333,9 +5527,6 @@ function clearAllRoomFilters() {
     activeRoomFilters.clear();
     document.querySelectorAll('.agoda-room-filter-pill').forEach(btn => {
         btn.classList.remove('active');
-        btn.style.backgroundColor = '#ffffff';
-        btn.style.color = '#2a2a2e';
-        btn.style.borderColor = '#cbcfd7';
     });
     applyRoomFilters();
 }

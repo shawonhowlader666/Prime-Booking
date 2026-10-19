@@ -57,7 +57,10 @@ class Room extends Model
 
     public function setAvailableRoomsAttribute($value): void
     {
-        $this->attributes['total_rooms'] = (int)$value;
+        $this->attributes['available_rooms'] = (int)$value;
+        if (!isset($this->attributes['total_rooms'])) {
+            $this->attributes['total_rooms'] = (int)$value;
+        }
     }
 
     public function setAmenitiesAttribute($value): void
@@ -107,5 +110,23 @@ class Room extends Model
         $sqm = $this->room_size_sqm ?: 46;
         $sqft = round($sqm * 10.764);
         return "{$sqm} m²/{$sqft} ft²";
+    }
+
+    /**
+     * Primary Room Image URL resolved via CDN / MediaService.
+     */
+    public function getImageUrlAttribute(): string
+    {
+        $first = is_array($this->images) && !empty($this->images) ? $this->images[0] : null;
+        return media_url($first, $this->property?->image_url ?? null);
+    }
+
+    /**
+     * All Room Gallery URLs resolved via CDN / MediaService.
+     */
+    public function getGalleryUrlsAttribute(): array
+    {
+        $list = is_array($this->images) ? $this->images : [];
+        return array_map(fn($img) => media_url($img), $list);
     }
 }

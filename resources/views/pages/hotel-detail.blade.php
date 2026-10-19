@@ -176,7 +176,8 @@
     
     $scoreNum = (float)($property->rating_score ?? 8.7);
     $score = number_format($scoreNum, 1);
-    $revCount = number_format($property->total_reviews ?: 6);
+    $totalReviewsInt = (int)($property->total_reviews ?: 6);
+    $revCount = number_format($totalReviewsInt);
     $nights = $checkinCarbon->diffInDays($checkoutCarbon) ?: 1;
     $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('property_id', $property->id)->exists();
 @endphp
@@ -2527,7 +2528,7 @@
                         </strong>
                         <span class="d-flex align-items-center gap-1 mt-0.5" style="font-size: 12.5px; color: #2067e1; font-weight: 600;">
                             <i class="fa-solid fa-circle-check" style="font-size: 13px;"></i>
-                            <span>From {{ $revCount ?: 1 }} review</span>
+                            <span>From {{ $revCount }} {{ $totalReviewsInt === 1 ? 'review' : 'reviews' }}</span>
                         </span>
                     </div>
                 </div>
@@ -2617,11 +2618,11 @@
                     </span>
                     <select class="form-select shadow-none fw-bold" id="guestTypeFilterSelect" onchange="filterReviewsByGuestType(this.value);"
                             style="border: 1.5px solid #2067e1; border-radius: 8px !important; min-height: 48px; font-size: 13.5px; color: #1e293b; padding-left: 14px; cursor: pointer;">
-                        <option value="all" selected>All guests ({{ $revCount ?: 1 }})</option>
-                        <option value="couples">Couples ({{ max(1, round(($revCount ?: 1) * 0.6)) }})</option>
-                        <option value="solo">Solo travelers ({{ max(1, round(($revCount ?: 1) * 0.2)) }})</option>
-                        <option value="family">Families ({{ max(1, round(($revCount ?: 1) * 0.2)) }})</option>
-                        <option value="business">Business travelers ({{ max(1, round(($revCount ?: 1) * 0.1)) }})</option>
+                        <option value="all" selected>All guests ({{ $revCount }})</option>
+                        <option value="couples">Couples ({{ number_format(max(1, (int)round($totalReviewsInt * 0.6))) }})</option>
+                        <option value="solo">Solo travelers ({{ number_format(max(1, (int)round($totalReviewsInt * 0.2))) }})</option>
+                        <option value="family">Families ({{ number_format(max(1, (int)round($totalReviewsInt * 0.2))) }})</option>
+                        <option value="business">Business travelers ({{ number_format(max(1, (int)round($totalReviewsInt * 0.1))) }})</option>
                     </select>
                 </div>
             </div>

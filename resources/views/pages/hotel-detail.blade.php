@@ -1465,7 +1465,7 @@
                     $isNonSmoking = !str_contains(strtolower($rSmoking), 'smoking allowed') && !str_contains(strtolower($rSmoking), 'permit');
                     $hasBreakfast = boolval($room->breakfast_included ?? true);
                     $hasFreeCancel = boolval($room->free_cancellation ?? true);
-                    $bedLower = strtolower($rBedStr);
+                    $bedLower = strtolower(($room->bed_type ?: $rBedStr) . ' ' . ($room->name ?: ''));
                     $isQueen = str_contains($bedLower, 'queen');
                     $isKing = str_contains($bedLower, 'king');
                     $isTwin = str_contains($bedLower, 'twin') || str_contains($bedLower, '2 single') || str_contains($bedLower, 'single');

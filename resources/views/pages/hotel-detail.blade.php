@@ -1554,531 +1554,441 @@
                     <div class="row g-0 align-items-stretch">
                         
                         {{-- LEFT COLUMN: Standalone White Room Details (Exact Agoda 1:1 Parity - Single 1px Border on Right, ZERO GAP) --}}
-                        <div class="col-lg-4 d-flex flex-column agoda-room-left-col" style="background: #ffffff; padding: 16px;">
-                            <div class="h-100 d-flex flex-column">
-                                {{-- Image Carousel Box (Functional Next Photo Carousel) --}}
-                                <div class="position-relative mb-2 rounded overflow-hidden room-photo-carousel flex-shrink-0" 
-                                     id="roomCarousel_{{ $room->id ?? $rIdx }}"
-                                     data-images='@json($rImages)'
-                                     data-index="0"
-                                     style="height: 195px; border-radius: 6px !important; cursor: pointer;">
-                                    <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                        <div class="col-lg-4 d-flex flex-column agoda-room-left-col" style="background: #ffffff; padding: 14px 16px;">
+                            <div class="h-100 d-flex flex-column justify-content-between">
+                                <div>
+                                    {{-- Image Carousel Box (Compact 170px Height matching Agoda) --}}
+                                    <div class="position-relative mb-2 rounded overflow-hidden room-photo-carousel flex-shrink-0" 
+                                         id="roomCarousel_{{ $room->id ?? $rIdx }}"
+                                         data-images='@json($rImages)'
+                                         data-index="0"
+                                         style="height: 170px; border-radius: 6px !important; cursor: pointer;">
+                                        <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                                        
+                                        {{-- Real Inventory Dynamic Urgency Badges --}}
+                                        @if($availableRoomsLeft <= 0)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-ban me-1" style="font-size: 10px;"></i> Sold out for your dates!
+                                        </span>
+                                        @elseif($availableRoomsLeft === 1)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-tag me-1" style="font-size: 10px;"></i> Our last room!
+                                        </span>
+                                        @elseif($availableRoomsLeft === 2)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-clock me-1" style="font-size: 10px;"></i> Only 2 rooms left on our site!
+                                        </span>
+                                        @elseif($availableRoomsLeft === 3)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #d97706; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-fire me-1" style="font-size: 10px;"></i> Only 3 rooms left!
+                                        </span>
+                                        @elseif($isLowestInProperty || $rIdx === 0)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-tag me-1" style="font-size: 10px;"></i> Our last room!
+                                        </span>
+                                        @elseif($rIdx === 1)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-thumbs-up me-1" style="font-size: 10px;"></i> Top Value
+                                        </span>
+                                        @elseif($rIdx === 2)
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #8038a8; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-heart me-1" style="font-size: 10px;"></i> Most Popular
+                                        </span>
+                                        @else
+                                        <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
+                                            <i class="fa-solid fa-star me-1" style="font-size: 10px;"></i> Recommended
+                                        </span>
+                                        @endif
+                                        <span class="room-photo-counter position-absolute bottom-0 start-0 m-2 text-white d-inline-flex align-items-center" style="background: rgba(0,0,0,0.65); font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 8px; line-height: 1.2;">1/{{ count($rImages) }}</span>
+                                        @if(count($rImages) > 1)
+                                        <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 start-0 translate-middle-y ms-2 d-flex align-items-center justify-content-center p-0" style="width: 26px; height: 26px; border: 1px solid #dddfe2; background: rgba(255,255,255,0.95); z-index: 5;" title="Previous Photo" onclick="prevRoomPhoto(this, event)">
+                                            <i class="fa-solid fa-chevron-left" style="font-size: 10px; color: #2a2a2e;"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center p-0" style="width: 26px; height: 26px; border: 1px solid #dddfe2; background: rgba(255,255,255,0.95); z-index: 5;" title="Next Photo" onclick="nextRoomPhoto(this, event)">
+                                            <i class="fa-solid fa-chevron-right" style="font-size: 10px; color: #2a2a2e;"></i>
+                                        </button>
+                                        @endif
+                                    </div>
                                     
-                                    {{-- Real Inventory Dynamic Urgency Badges --}}
-                                    @if($availableRoomsLeft <= 0)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-ban me-1" style="font-size: 10px;"></i> Sold out for your dates!
-                                    </span>
-                                    @elseif($availableRoomsLeft === 1)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-tag me-1" style="font-size: 10px;"></i> Our last room!
-                                    </span>
-                                    @elseif($availableRoomsLeft === 2)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-clock me-1" style="font-size: 10px;"></i> Only 2 rooms left on our site!
-                                    </span>
-                                    @elseif($availableRoomsLeft === 3)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #d97706; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-fire me-1" style="font-size: 10px;"></i> Only 3 rooms left!
-                                    </span>
-                                    @elseif($isLowestInProperty || $rIdx === 0)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-tag me-1" style="font-size: 10px;"></i> Our last room!
-                                    </span>
-                                    @elseif($rIdx === 1)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-thumbs-up me-1" style="font-size: 10px;"></i> Top Value
-                                    </span>
-                                    @elseif($rIdx === 2)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #8038a8; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-heart me-1" style="font-size: 10px;"></i> Most Popular
-                                    </span>
-                                    @else
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-star me-1" style="font-size: 10px;"></i> Recommended
-                                    </span>
-                                    @endif
-                                    <span class="room-photo-counter position-absolute bottom-0 start-0 m-2 text-white d-inline-flex align-items-center" style="background: rgba(0,0,0,0.65); font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 8px; line-height: 1.2;">1/{{ count($rImages) }}</span>
-                                    @if(count($rImages) > 1)
-                                    <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 start-0 translate-middle-y ms-2 d-flex align-items-center justify-content-center p-0" style="width: 28px; height: 28px; border: 1px solid #dddfe2; background: rgba(255,255,255,0.95); z-index: 5;" title="Previous Photo" onclick="prevRoomPhoto(this, event)">
-                                        <i class="fa-solid fa-chevron-left" style="font-size: 11px; color: #2a2a2e;"></i>
-                                    </button>
-                                    <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center p-0" style="width: 28px; height: 28px; border: 1px solid #dddfe2; background: rgba(255,255,255,0.95); z-index: 5;" title="Next Photo" onclick="nextRoomPhoto(this, event)">
-                                        <i class="fa-solid fa-chevron-right" style="font-size: 11px; color: #2a2a2e;"></i>
-                                    </button>
-                                    @endif
-                                </div>
-                                
-                                <a href="javascript:void(0)" class="text-decoration-none d-block mb-1.5" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #1668e3; font-size: 13px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                    Room photos and details
-                                </a>
+                                    <a href="javascript:void(0)" class="text-decoration-none d-block mb-1" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #1668e3; font-size: 12.5px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                        Room photos and details
+                                    </a>
 
-                                <h4 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 19px; font-weight: 700; color: #222222; margin-top: 2px; margin-bottom: 6px; line-height: 1.25;">
-                                    {{ $room->name }}
-                                </h4>
-                                
-                                <div class="mb-1 d-flex align-items-center flex-wrap" style="font-size: 12.5px; line-height: 1.4; color: #222222; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                    <span>{{ $rSizeStr }}</span> 
-                                    <span style="color: #cbd5e1; margin: 0 7px;">|</span> 
-                                    <span>Max {{ $rAdults }} adults</span> 
-                                    <span style="color: #cbd5e1; margin: 0 7px;">|</span> 
-                                    <span>{{ $rBedStr }}</span>
-                                </div>
+                                    <h4 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 17.5px; font-weight: 700; color: #111827; margin-top: 1px; margin-bottom: 4px; line-height: 1.25;">
+                                        {{ $room->name }}
+                                    </h4>
+                                    
+                                    <div class="mb-2 d-flex align-items-center flex-wrap" style="font-size: 12px; line-height: 1.35; color: #374151; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                        <span>{{ $rSizeStr }}</span> 
+                                        <span style="color: #cbd5e1; margin: 0 6px;">|</span> 
+                                        <span>Max {{ $rAdults }} adults</span> 
+                                        <span style="color: #cbd5e1; margin: 0 6px;">|</span> 
+                                        <span>{{ $rBedStr }}</span>
+                                    </div>
 
-                                {{-- Agoda Aspect Rating Engine (Matching Agoda 1:1) --}}
-                                @php
-                                    $rNameLower = strtolower($room->name ?? '');
-                                    $rViewLower = strtolower((string)$rView);
+                                    {{-- Agoda Aspect Rating Engine (Compact Row) --}}
+                                    @php
+                                        $rNameLower = strtolower($room->name ?? '');
+                                        $rViewLower = strtolower((string)$rView);
 
-                                    if ($isLowestInProperty || $rIdx === 0) {
-                                        $aspectScore = 8.1;
-                                        $aspectLabel = 'Excellent';
-                                        $aspectName = 'Room comfort';
-                                    } elseif (str_contains($rNameLower, 'sea') || str_contains($rViewLower, 'sea') || str_contains($rViewLower, 'ocean')) {
-                                        $aspectScore = 9.2;
-                                        $aspectLabel = 'Exceptional';
-                                        $aspectName = 'Ocean view & balcony';
-                                    } elseif (str_contains($rNameLower, 'hill') || str_contains($rViewLower, 'hill') || str_contains($rViewLower, 'nature')) {
-                                        $aspectScore = 8.9;
-                                        $aspectLabel = 'Excellent';
-                                        $aspectName = 'Scenic hill view & quietness';
-                                    } elseif (str_contains($rNameLower, 'family') || str_contains($rNameLower, 'triple') || $rAdults >= 3) {
-                                        $aspectScore = 8.8;
-                                        $aspectLabel = 'Excellent';
-                                        $aspectName = 'Spacious family layout';
-                                    } elseif (str_contains($rNameLower, 'executive') || str_contains($rNameLower, 'premier') || str_contains($rNameLower, 'suite')) {
-                                        $aspectScore = 9.5;
-                                        $aspectLabel = 'Exceptional';
-                                        $aspectName = 'VIP hospitality & suite comfort';
-                                    } else {
-                                        $aspectList = [
-                                            ['score' => 8.6, 'label' => 'Excellent', 'name' => 'Room cleanliness & housekeeping'],
-                                            ['score' => 8.8, 'label' => 'Excellent', 'name' => 'Bed comfort & peaceful sleep'],
-                                            ['score' => 8.5, 'label' => 'Excellent', 'name' => 'Room quietness & AC'],
-                                            ['score' => 8.7, 'label' => 'Excellent', 'name' => 'Value for money'],
-                                        ];
-                                        $choice = $aspectList[$rIdx % count($aspectList)];
-                                        $aspectScore = $choice['score'];
-                                        $aspectLabel = $choice['label'];
-                                        $aspectName = $choice['name'];
-                                    }
-                                @endphp
+                                        if ($isLowestInProperty || $rIdx === 0) {
+                                            $aspectScore = 8.1;
+                                            $aspectLabel = 'Excellent';
+                                            $aspectName = 'Room comfort';
+                                        } elseif (str_contains($rNameLower, 'sea') || str_contains($rViewLower, 'sea') || str_contains($rViewLower, 'ocean')) {
+                                            $aspectScore = 9.2;
+                                            $aspectLabel = 'Exceptional';
+                                            $aspectName = 'Ocean view & balcony';
+                                        } elseif (str_contains($rNameLower, 'hill') || str_contains($rViewLower, 'hill') || str_contains($rViewLower, 'nature')) {
+                                            $aspectScore = 8.9;
+                                            $aspectLabel = 'Excellent';
+                                            $aspectName = 'Scenic hill view & quietness';
+                                        } elseif (str_contains($rNameLower, 'family') || str_contains($rNameLower, 'triple') || $rAdults >= 3) {
+                                            $aspectScore = 8.8;
+                                            $aspectLabel = 'Excellent';
+                                            $aspectName = 'Spacious family layout';
+                                        } elseif (str_contains($rNameLower, 'executive') || str_contains($rNameLower, 'premier') || str_contains($rNameLower, 'suite')) {
+                                            $aspectScore = 9.5;
+                                            $aspectLabel = 'Exceptional';
+                                            $aspectName = 'VIP hospitality & suite comfort';
+                                        } else {
+                                            $aspectList = [
+                                                ['score' => 8.6, 'label' => 'Excellent', 'name' => 'Room cleanliness'],
+                                                ['score' => 8.8, 'label' => 'Excellent', 'name' => 'Bed comfort'],
+                                                ['score' => 8.5, 'label' => 'Excellent', 'name' => 'Quietness & AC'],
+                                                ['score' => 8.7, 'label' => 'Excellent', 'name' => 'Value for money'],
+                                            ];
+                                            $choice = $aspectList[$rIdx % count($aspectList)];
+                                            $aspectScore = $choice['score'];
+                                            $aspectLabel = $choice['label'];
+                                            $aspectName = $choice['name'];
+                                        }
+                                    @endphp
 
-                                {{-- Agoda Rating Score & Aspect with Thin Dividers --}}
-                                <div style="border-top: 1px solid #eef2f6; border-bottom: 1px solid #eef2f6; padding: 10px 0; margin: 10px 0;">
-                                    <div class="d-flex align-items-center" style="gap: 7px;">
-                                        <span class="d-inline-flex align-items-center justify-content-center text-white fw-bold" style="background: #1668e3; border-radius: 4px; padding: 2px 7px; font-size: 13px; font-weight: 800; line-height: 1.2;">
+                                    <div class="d-flex align-items-center mb-2" style="gap: 6px;">
+                                        <span class="d-inline-flex align-items-center justify-content-center text-white fw-bold" style="background: #1668e3; border-radius: 4px; padding: 1.5px 6px; font-size: 12px; font-weight: 800; line-height: 1.2;">
                                             {{ number_format((float)$aspectScore, 1) }}
                                         </span>
-                                        <span style="color: #1668e3; font-size: 14px; font-weight: 700;">
+                                        <span style="color: #1668e3; font-size: 13px; font-weight: 700;">
                                             {{ $aspectLabel }}
                                         </span>
+                                        <span style="color: #94a3b8; font-size: 12px;">•</span>
+                                        <span style="color: #64748b; font-size: 12px; font-weight: 500;">
+                                            {{ $aspectName }}
+                                        </span>
                                     </div>
-                                    <div style="color: #687282; font-size: 12px; margin-top: 3px; font-weight: 400;">
-                                        {{ $aspectName }}
+
+                                    {{-- 2-Column Core Amenities (Top 6 Items with Icons) --}}
+                                    @php
+                                        $rawFacs = !empty($room->facilities) && is_array($room->facilities) ? $room->facilities : [];
+                                        $standardLeft = [
+                                            $rView ?: 'City view',
+                                            'Wi-Fi [free]',
+                                            $rSmoking ?: 'Non-smoking'
+                                        ];
+                                        $standardRight = [
+                                            'Private bathroom',
+                                            'Air conditioning',
+                                            'Free bottled water'
+                                        ];
+
+                                        if (!empty($rawFacs) && count($rawFacs) >= 4) {
+                                            $half = (int) ceil(count($rawFacs) / 2);
+                                            $agodaFacilitiesCol1 = array_slice($rawFacs, 0, min(3, $half));
+                                            $agodaFacilitiesCol2 = array_slice($rawFacs, $half, 3);
+                                        } else {
+                                            $agodaFacilitiesCol1 = $standardLeft;
+                                            $agodaFacilitiesCol2 = $standardRight;
+                                        }
+
+                                        $detectIcon = function($str) {
+                                            $s = strtolower($str);
+                                            if (str_contains($s, 'view') || str_contains($s, 'balcony') || str_contains($s, 'mountain') || str_contains($s, 'city') || str_contains($s, 'sea') || str_contains($s, 'ocean')) return 'view';
+                                            if (str_contains($s, 'bath') || str_contains($s, 'tub') || str_contains($s, 'toilet')) return 'bath';
+                                            if (str_contains($s, 'shower')) return 'shower';
+                                            if (str_contains($s, 'wifi') || str_contains($s, 'wi-fi') || str_contains($s, 'internet')) return 'wifi';
+                                            if (str_contains($s, 'ac') || str_contains($s, 'air')) return 'ac';
+                                            if (str_contains($s, 'mini bar') || str_contains($s, 'minibar') || str_contains($s, 'bar')) return 'minibar';
+                                            if (str_contains($s, 'fridge') || str_contains($s, 'refrigerator')) return 'refrigerator';
+                                            if (str_contains($s, 'kettle') || str_contains($s, 'coffee') || str_contains($s, 'tea')) return 'circle-check';
+                                            if (str_contains($s, 'window')) return 'circle-check';
+                                            if (str_contains($s, 'bottle') || str_contains($s, 'water')) return 'bottle';
+                                            if (str_contains($s, 'closet') || str_contains($s, 'wardrobe')) return 'closet';
+                                            if (str_contains($s, 'smoking')) return 'smoking-ban';
+                                            if (str_contains($s, 'hair') || str_contains($s, 'dryer')) return 'check';
+                                            return 'check';
+                                        };
+                                    @endphp
+                                    <div class="row g-1 mb-1" style="font-size: 11.5px; color: #222222 !important; line-height: 1.4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                        <div class="col-6 d-flex flex-column" style="gap: 5px;">
+                                            @foreach($agodaFacilitiesCol1 as $facName)
+                                                @php $icon = $detectIcon($facName); @endphp
+                                                <div class="d-flex align-items-center gap-1.5 text-nowrap" style="color: #222222;">
+                                                    @if($icon === 'view')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 16 5-5c.9-.9 2.1-.9 3 0l7 7"/><path d="m14 14 1-1c.9-.9 2.1-.9 3 0l3 3"/></svg>
+                                                    @elseif($icon === 'wifi')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="#3d4551"/></svg>
+                                                    @elseif($icon === 'bath')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M7 12h10a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-2a2 2 0 0 1 2-2z"/><path d="M5 12V6a2 2 0 0 1 2-2h1"/></svg>
+                                                    @elseif($icon === 'shower')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m4 4 2.5 2.5"/><path d="M13.5 6.5a4.95 4.95 0 0 0-7 7L11 18l4.5-4.5"/><circle cx="14" cy="17" r="0.8" fill="#3d4551"/><circle cx="17" cy="14" r="0.8" fill="#3d4551"/><circle cx="11" cy="20" r="0.8" fill="#3d4551"/></svg>
+                                                    @elseif($icon === 'ac')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/><path d="M2 12h20"/><path d="m7 7 5 5 5-5"/><path d="m7 17 5-5 5 5"/></svg>
+                                                    @elseif($icon === 'minibar')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg>
+                                                    @elseif($icon === 'circle-check')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9" stroke-width="2"/></svg>
+                                                    @elseif($icon === 'smoking-ban')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/><path d="M18 12h-6"/></svg>
+                                                    @elseif($icon === 'bottle')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M10 2h4"/><path d="M10 5h4v2l2 2v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-2V5z"/></svg>
+                                                    @elseif($icon === 'refrigerator')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M5 10h14"/><path d="M15 6v2"/><path d="M15 14v4"/></svg>
+                                                    @elseif($icon === 'closet')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/><path d="M9 10v2"/><path d="M15 10v2"/></svg>
+                                                    @else
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    @endif
+                                                    <span style="font-weight: 400; color: #222222;">{{ $facName }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                        <div class="col-6 d-flex flex-column" style="gap: 5px;">
+                                            @foreach($agodaFacilitiesCol2 as $facName)
+                                                @php $icon = $detectIcon($facName); @endphp
+                                                <div class="d-flex align-items-center gap-1.5 text-nowrap" style="color: #222222;">
+                                                    @if($icon === 'bath')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M7 12h10a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-2a2 2 0 0 1 2-2z"/><path d="M5 12V6a2 2 0 0 1 2-2h1"/></svg>
+                                                    @elseif($icon === 'shower')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m4 4 2.5 2.5"/><path d="M13.5 6.5a4.95 4.95 0 0 0-7 7L11 18l4.5-4.5"/><circle cx="14" cy="17" r="0.8" fill="#3d4551"/><circle cx="17" cy="14" r="0.8" fill="#3d4551"/><circle cx="11" cy="20" r="0.8" fill="#3d4551"/></svg>
+                                                    @elseif($icon === 'ac')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/><path d="M2 12h20"/><path d="m7 7 5 5 5-5"/><path d="m7 17 5-5 5 5"/></svg>
+                                                    @elseif($icon === 'bottle')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M10 2h4"/><path d="M10 5h4v2l2 2v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-2V5z"/></svg>
+                                                    @elseif($icon === 'refrigerator')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M5 10h14"/><path d="M15 6v2"/><path d="M15 14v4"/></svg>
+                                                    @elseif($icon === 'closet')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/><path d="M9 10v2"/><path d="M15 10v2"/></svg>
+                                                    @elseif($icon === 'circle-check')
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9" stroke-width="2"/></svg>
+                                                    @else
+                                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                    @endif
+                                                    <span style="font-weight: 400; color: #222222;">{{ $facName }}</span>
+                                                </div>
+                                            @endforeach
+                                        </div>
                                     </div>
                                 </div>
 
-                                {{-- 2-Column Clean Amenities Matching Agoda Screenshot 1:1 Identically --}}
-                                @php
-                                    $rawFacs = !empty($room->facilities) && is_array($room->facilities) ? $room->facilities : [];
-                                    $standardLeft = [
-                                        $rView ?: 'Mountain view',
-                                        'Hair dryer',
-                                        'Wi-Fi [free]',
-                                        'Mini bar',
-                                        'Kettle',
-                                        'Window',
-                                        $rSmoking ?: 'Non-smoking'
-                                    ];
-                                    $standardRight = [
-                                        'Private bathroom',
-                                        'Shower',
-                                        'Air conditioning',
-                                        'Free bottled water',
-                                        'Refrigerator',
-                                        'Closet'
-                                    ];
-
-                                    if (!empty($rawFacs) && count($rawFacs) >= 4) {
-                                        $half = (int) ceil(count($rawFacs) / 2);
-                                        $agodaFacilitiesCol1 = array_slice($rawFacs, 0, $half);
-                                        $agodaFacilitiesCol2 = array_slice($rawFacs, $half);
-                                    } else {
-                                        $agodaFacilitiesCol1 = $standardLeft;
-                                        $agodaFacilitiesCol2 = $standardRight;
-                                    }
-
-                                    $detectIcon = function($str) {
-                                        $s = strtolower($str);
-                                        if (str_contains($s, 'view') || str_contains($s, 'balcony') || str_contains($s, 'mountain') || str_contains($s, 'city') || str_contains($s, 'sea') || str_contains($s, 'ocean')) return 'view';
-                                        if (str_contains($s, 'bath') || str_contains($s, 'tub') || str_contains($s, 'toilet')) return 'bath';
-                                        if (str_contains($s, 'shower')) return 'shower';
-                                        if (str_contains($s, 'wifi') || str_contains($s, 'wi-fi') || str_contains($s, 'internet')) return 'wifi';
-                                        if (str_contains($s, 'ac') || str_contains($s, 'air')) return 'ac';
-                                        if (str_contains($s, 'mini bar') || str_contains($s, 'minibar') || str_contains($s, 'bar')) return 'minibar';
-                                        if (str_contains($s, 'fridge') || str_contains($s, 'refrigerator')) return 'refrigerator';
-                                        if (str_contains($s, 'kettle') || str_contains($s, 'coffee') || str_contains($s, 'tea')) return 'circle-check';
-                                        if (str_contains($s, 'window')) return 'circle-check';
-                                        if (str_contains($s, 'bottle') || str_contains($s, 'water')) return 'bottle';
-                                        if (str_contains($s, 'closet') || str_contains($s, 'wardrobe')) return 'closet';
-                                        if (str_contains($s, 'smoking')) return 'smoking-ban';
-                                        if (str_contains($s, 'hair') || str_contains($s, 'dryer')) return 'check';
-                                        return 'check';
-                                    };
-                                @endphp
-                                <div class="row g-2" style="font-size: 12px; color: #222222 !important; line-height: 1.45; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                    <div class="col-6 d-flex flex-column" style="gap: 7px;">
-                                        @foreach($agodaFacilitiesCol1 as $facName)
-                                            @php $icon = $detectIcon($facName); @endphp
-                                            <div class="d-flex align-items-center gap-2 text-nowrap" style="color: #222222;">
-                                                @if($icon === 'view')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 16 5-5c.9-.9 2.1-.9 3 0l7 7"/><path d="m14 14 1-1c.9-.9 2.1-.9 3 0l3 3"/></svg>
-                                                @elseif($icon === 'wifi')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><circle cx="12" cy="20" r="1" fill="#3d4551"/></svg>
-                                                @elseif($icon === 'bath')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M7 12h10a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-2a2 2 0 0 1 2-2z"/><path d="M5 12V6a2 2 0 0 1 2-2h1"/></svg>
-                                                @elseif($icon === 'shower')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m4 4 2.5 2.5"/><path d="M13.5 6.5a4.95 4.95 0 0 0-7 7L11 18l4.5-4.5"/><circle cx="14" cy="17" r="0.8" fill="#3d4551"/><circle cx="17" cy="14" r="0.8" fill="#3d4551"/><circle cx="11" cy="20" r="0.8" fill="#3d4551"/></svg>
-                                                @elseif($icon === 'ac')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/><path d="M2 12h20"/><path d="m7 7 5 5 5-5"/><path d="m7 17 5-5 5 5"/></svg>
-                                                @elseif($icon === 'minibar')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M8 22h8"/><path d="M12 11v11"/><path d="m19 3-7 8-7-8Z"/></svg>
-                                                @elseif($icon === 'circle-check')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9" stroke-width="2"/></svg>
-                                                @elseif($icon === 'smoking-ban')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/><path d="M18 12h-6"/></svg>
-                                                @elseif($icon === 'bottle')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M10 2h4"/><path d="M10 5h4v2l2 2v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-2V5z"/></svg>
-                                                @elseif($icon === 'refrigerator')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M5 10h14"/><path d="M15 6v2"/><path d="M15 14v4"/></svg>
-                                                @elseif($icon === 'closet')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/><path d="M9 10v2"/><path d="M15 10v2"/></svg>
-                                                @else
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                @endif
-                                                <span style="font-weight: 400; color: #222222;">{{ $facName }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <div class="col-6 d-flex flex-column" style="gap: 7px;">
-                                        @foreach($agodaFacilitiesCol2 as $facName)
-                                            @php $icon = $detectIcon($facName); @endphp
-                                            <div class="d-flex align-items-center gap-2 text-nowrap" style="color: #222222;">
-                                                @if($icon === 'bath')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M7 12h10a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-2a2 2 0 0 1 2-2z"/><path d="M5 12V6a2 2 0 0 1 2-2h1"/></svg>
-                                                @elseif($icon === 'shower')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="m4 4 2.5 2.5"/><path d="M13.5 6.5a4.95 4.95 0 0 0-7 7L11 18l4.5-4.5"/><circle cx="14" cy="17" r="0.8" fill="#3d4551"/><circle cx="17" cy="14" r="0.8" fill="#3d4551"/><circle cx="11" cy="20" r="0.8" fill="#3d4551"/></svg>
-                                                @elseif($icon === 'ac')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M12 2v20"/><path d="m17 7-5 5-5-5"/><path d="m17 17-5-5-5 5"/><path d="M2 12h20"/><path d="m7 7 5 5 5-5"/><path d="m7 17 5-5 5 5"/></svg>
-                                                @elseif($icon === 'bottle')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M10 2h4"/><path d="M10 5h4v2l2 2v11a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-2V5z"/></svg>
-                                                @elseif($icon === 'refrigerator')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="14" height="20" x="5" y="2" rx="2"/><path d="M5 10h14"/><path d="M15 6v2"/><path d="M15 14v4"/></svg>
-                                                @elseif($icon === 'closet')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M12 3v18"/><path d="M9 10v2"/><path d="M15 10v2"/></svg>
-                                                @elseif($icon === 'circle-check')
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><circle cx="12" cy="12" r="9"/><polyline points="8 12 11 15 16 9" stroke-width="2"/></svg>
-                                                @else
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                @endif
-                                                <span style="font-weight: 400; color: #222222;">{{ $facName }}</span>
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                {{-- More facilities link --}}
+                                <div class="pt-1">
+                                    <a href="javascript:void(0)" class="text-decoration-none" style="color: #1668e3; font-size: 12px; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                                        See all room facilities <i class="fa-solid fa-chevron-right ms-0.5" style="font-size: 9px;"></i>
+                                    </a>
                                 </div>
                             </div>
                         </div>
 
-                        {{-- RIGHT COLUMN: Agoda Offer Cards inside #eff4fc Container (Exact Agoda 1:1 Parity, ZERO GAP) --}}
-                        <div class="col-lg-8 d-flex flex-column justify-content-between" style="background: #eff4fc; padding: 12px; gap: 12px;">
+                        {{-- RIGHT COLUMN: Compact Agoda Offer Rows inside #eff4fc Container (Exact Agoda Parity Height ~380px) --}}
+                        <div class="col-lg-8 d-flex flex-column justify-content-between" style="background: #eff4fc; padding: 10px; gap: 8px;">
                                 
-                                {{-- OFFER 1 CARD (Standalone White Card - Agoda 1:1) --}}
+                                {{-- OFFER 1 CARD (Standalone White Card - Lowest Price) --}}
                                 <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; position: relative;">
-                                    {{-- Agoda Signature Red Ribbon matching Image 3 --}}
-                                    <div style="background: #c52924; color: #ffffff; font-size: 11px; font-weight: 700; padding: 3px 12px; border-bottom-right-radius: 8px; width: fit-content; line-height: 1.3; letter-spacing: 0.2px;">
+                                    {{-- Agoda Signature Red Ribbon --}}
+                                    <div style="background: #c52924; color: #ffffff; font-size: 10.5px; font-weight: 700; padding: 2px 10px; border-bottom-right-radius: 6px; width: fit-content; line-height: 1.25; letter-spacing: 0.2px;">
                                         15% off today! Lowest price
                                     </div>
-                                    <div class="row g-0 align-items-stretch flex-grow-1">
-                                        {{-- Sub-col 1: Benefits List --}}
-                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
-                                            <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
-                                                <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
+                                    <div class="row g-0 align-items-center flex-grow-1">
+                                        {{-- Sub-col 1: Benefits List (4 Key Focused Highlights) --}}
+                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #e2e8f0; padding: 10px 14px !important;">
+                                            <div class="d-flex align-items-center mb-1.5" style="font-size: 13px; font-weight: 700; color: #111827; gap: 6px;">
+                                                <x-agoda-icon name="user" size="13" color="#111827" class="flex-shrink-0" />
                                                 <span>{{ $rAdults }} adults</span>
-                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 12px; height: 12px; border: 1px solid #94a3b8; color: #94a3b8; font-size: 8px; font-weight: 700; margin-left: 2px;">i</span>
                                             </div>
-                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                <i class="fa-solid fa-child-reaching flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #00805a; font-size: 12px; font-weight: 700; gap: 6px;">
+                                                <i class="fa-solid fa-child-reaching flex-shrink-0" style="font-size: 12px; color: #00805a; width: 13px; text-align: center;"></i>
                                                 <span>Your kids can stay for FREE!</span>
                                             </div>
                                             @if($room->breakfast_included)
-                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #00805a; font-size: 12px; font-weight: 700; gap: 6px;">
+                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 12px; color: #00805a; width: 13px; text-align: center;"></i>
                                                 <span>Breakfast included</span>
                                             </div>
                                             @else
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 13px; color: #475569; width: 14px; text-align: center;"></i>
-                                                <span>Breakfast available ({{ \App\Services\CurrencyService::format(15) }} / person)</span>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #4b5563; font-size: 12px; gap: 6px;">
+                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 12px; color: #6b7280; width: 13px; text-align: center;"></i>
+                                                <span>Breakfast available</span>
                                             </div>
                                             @endif
 
                                             @if($room->free_cancellation ?? $property->free_cancellation ?? true)
-                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                <svg width="15" height="15" viewBox="0 0 24 24" fill="#00805a" class="flex-shrink-0"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1.06 13.54L7.4 12l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>
-                                                <span>Cancel for free before {{ \Carbon\Carbon::parse($checkIn)->subDays(1)->format('M d, Y') }}</span>
-                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #00805a; color: #00805a; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #00805a; font-size: 12px; font-weight: 700; gap: 6px;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="#00805a" class="flex-shrink-0"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1.06 13.54L7.4 12l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>
+                                                <span>Free cancellation</span>
                                             </div>
                                             @else
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>Non-refundable (Low price!)</span>
-                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #4b5563; font-size: 12px; gap: 6px;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#4b5563" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Non-refundable (Lowest rate)</span>
                                             </div>
                                             @endif
 
-                                            @if($property->no_credit_card_required ?? false)
-                                            <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>Book without credit card</span>
-                                            </div>
-                                            @else
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>Book and pay now</span>
-                                            </div>
-                                            @endif
-
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>Parking</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>Express check-in</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                <span>Free WiFi</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; gap: 8px;">
-                                                <i class="fa-solid fa-sack-dollar flex-shrink-0" style="font-size: 13px; color: #222222; width: 14px; text-align: center;"></i>
-                                                <span>Cashback: {{ \App\Services\CurrencyService::format(4) }} (Terms apply)</span>
-                                                <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
-                                            </div>
-                                            <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 12.5px; font-weight: 700; gap: 8px;">
-                                                <x-agoda-icon name="tag" size="13" color="#222222" class="flex-shrink-0" />
-                                                <span>PRIME EXCLUSIVE - {{ \App\Services\CurrencyService::format(35) }} off!</span>
-                                            </div>
                                             <div>
-                                                <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">See details</a>
+                                                <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 11.5px; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">Offer details</a>
                                             </div>
                                         </div>
 
-                                            {{-- Sub-col 2: Price Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
-                                                @if($isLowestInProperty || $rIdx === 0)
-                                                <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
-                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-right: 2px;">i</span>
-                                                    <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
-                                                    <span style="color: #ba2a26; font-weight: 700; margin-left: 2px;">-{{ $discountPercent1 }}%</span>
-                                                </div>
-                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
-                                                    <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
-                                                </div>
-                                                <div class="fw-bold" style="color: #ba2a26; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
-                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
-                                                </div>
-                                                @else
-                                                <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
-                                                    <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
-                                                </div>
-                                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Price after Cashback</div>
-                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
-                                                    <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
-                                                </div>
-                                                <div class="fw-bold" style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
-                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
-                                                </div>
-                                                @endif
-                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
+                                        {{-- Sub-col 2: Price Breakdown --}}
+                                        <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #e2e8f0; padding: 10px 14px !important;">
+                                            @if($isLowestInProperty || $rIdx === 0)
+                                            <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 11.5px; color: #737373;">
+                                                <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
+                                                <span style="color: #ba2a26; font-weight: 700; margin-left: 2px;">-{{ $discountPercent1 }}%</span>
                                             </div>
+                                            <div class="d-inline-flex align-items-center gap-1 px-1.5 py-0.5 rounded mb-1 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11px; font-weight: 700; width: fit-content;">
+                                                <x-agoda-icon name="cash" size="11" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
+                                            </div>
+                                            <div class="fw-bold" style="color: #ba2a26; font-size: 24px; line-height: 1; letter-spacing: -0.5px;">
+                                                <span style="font-size: 13px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
+                                            </div>
+                                            @else
+                                            <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 11.5px; color: #737373;">
+                                                <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
+                                            </div>
+                                            <div class="d-inline-flex align-items-center gap-1 px-1.5 py-0.5 rounded mb-1 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11px; font-weight: 700; width: fit-content;">
+                                                <x-agoda-icon name="cash" size="11" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
+                                            </div>
+                                            <div class="fw-bold" style="color: #222222; font-size: 24px; line-height: 1; letter-spacing: -0.5px;">
+                                                <span style="font-size: 13px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
+                                            </div>
+                                            @endif
+                                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Per night before taxes &amp; fees</div>
+                                        </div>
 
-                                            {{-- Sub-col 3: Book Action --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 16px 18px !important;">
-                                                <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
-                                                    <button type="button" 
-                                                            class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
-                                                            style="border: 1px solid #cdd4de; border-radius: 20px; height: 38px; padding: 0 16px; color: #0b66c2; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
-                                                            onclick="toggleAgodaRoomDropdown(this, event)">
-                                                        <span class="agoda-room-pill-label">1 room</span>
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
-                                                            <path d="m6 9 6 6 6-6"/>
-                                                        </svg>
-                                                    </button>
+                                        {{-- Sub-col 3: Book Action --}}
+                                        <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 10px 14px !important;">
+                                            <div class="mb-2 position-relative agoda-room-selector-wrapper text-start">
+                                                <button type="button" 
+                                                        class="w-100 bg-white d-flex align-items-center justify-content-center gap-1.5 agoda-room-pill-btn" 
+                                                        style="border: 1px solid #cdd4de; border-radius: 18px; height: 34px; padding: 0 12px; color: #0b66c2; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
+                                                        onclick="toggleAgodaRoomDropdown(this, event)">
+                                                    <span class="agoda-room-pill-label">1 room</span>
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                                        <path d="m6 9 6 6 6-6"/>
+                                                    </svg>
+                                                </button>
 
-                                                    {{-- Agoda Custom Floating Speech-Bubble Popover --}}
-                                                    <div class="agoda-room-dropdown-popover position-absolute d-none" 
-                                                         style="top: calc(100% + 7px); left: 8px; min-width: 140px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #eef2f6; z-index: 1050; padding: 6px 0;">
-                                                        <div style="position: absolute; top: -6px; left: 24px; width: 12px; height: 12px; background: #ffffff; transform: rotate(45deg); border-left: 1px solid #eef2f6; border-top: 1px solid #eef2f6; box-shadow: -2px -2px 3px rgba(0,0,0,0.03);"></div>
-                                                        <div class="d-flex flex-column" style="position: relative; z-index: 2;">
-                                                            @for($num = 1; $num <= 5; $num++)
-                                                            <div class="agoda-room-popover-item d-flex align-items-center gap-2 px-3 py-2" 
-                                                                 style="cursor: pointer; font-size: 14px; transition: background 0.12s ease; {{ $num === 1 ? 'color: #0b66c2; font-weight: 700;' : 'color: #222222; font-weight: 500;' }}"
-                                                                 data-value="{{ $num }}"
-                                                                 onclick="selectAgodaRoomCount(this, {{ $num }}, '{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}')">
-                                                                <span class="agoda-item-check" style="width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center;" class="flex-shrink-0">
-                                                                    @if($num === 1)
-                                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                                                    @endif
-                                                                </span>
-                                                                <span class="agoda-item-text">{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}</span>
-                                                            </div>
-                                                            @endfor
+                                                <div class="agoda-room-dropdown-popover position-absolute d-none" 
+                                                     style="top: calc(100% + 5px); left: 0; min-width: 130px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #eef2f6; z-index: 1050; padding: 4px 0;">
+                                                    <div class="d-flex flex-column" style="position: relative; z-index: 2;">
+                                                        @for($num = 1; $num <= 5; $num++)
+                                                        <div class="agoda-room-popover-item d-flex align-items-center gap-2 px-3 py-1.5" 
+                                                             style="cursor: pointer; font-size: 13px; {{ $num === 1 ? 'color: #0b66c2; font-weight: 700;' : 'color: #222222; font-weight: 500;' }}"
+                                                             data-value="{{ $num }}"
+                                                             onclick="selectAgodaRoomCount(this, {{ $num }}, '{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}')">
+                                                            <span class="agoda-item-text">{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}</span>
                                                         </div>
+                                                        @endfor
                                                     </div>
                                                 </div>
-                                                <div class="d-flex align-items-center gap-2 mb-2">
-                                                    <button type="button" class="btn d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 38px; height: 42px; border: 1px solid #cdd4de; border-radius: 50%; background: #ffffff;" title="Save to wishlist">
-                                                        <x-agoda-icon name="heart" size="18" color="#475569" />
-                                                    </button>
-                                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" 
-                                                       class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
-                                                       style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
-                                                        <span style="font-size: 15px; font-weight: 700;">Book</span>
-                                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">Pay now</span>
-                                                    </a>
-                                                </div>
-                                                <div style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 6px;">You won't be charged yet</div>
-                                                @if($isLowestInProperty || $rIdx === 0)
-                                                <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last room!</div>
-                                                @else
-                                                <div style="font-size: 11.5px; color: #0b66c2; font-weight: 700; text-align: center; margin-top: 2px;">Popular choice</div>
-                                                @endif
                                             </div>
+                                            <div class="d-flex align-items-center gap-1.5 mb-1">
+                                                <button type="button" class="btn d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 34px; height: 36px; border: 1px solid #cdd4de; border-radius: 50%; background: #ffffff;" title="Save to wishlist">
+                                                    <x-agoda-icon name="heart" size="16" color="#475569" />
+                                                </button>
+                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" 
+                                                   class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
+                                                   style="background: #1765c7; border-radius: 18px; height: 36px; text-decoration: none; padding: 2px 8px; line-height: 1.15;">
+                                                    <span style="font-size: 14px; font-weight: 700;">Book</span>
+                                                    <span style="font-size: 10px; font-weight: 600; opacity: 0.95;">Pay now</span>
+                                                </a>
+                                            </div>
+                                            <div style="font-size: 10.5px; color: #64748b; text-align: center;">You won't be charged yet</div>
                                         </div>
                                     </div>
+                                </div>
 
-                                {{-- OFFER 2 CARD (Standalone White Card - Agoda 1:1) --}}
+                                {{-- OFFER 2 CARD (Standalone White Card - Flexible Package) --}}
                                 <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
-                                        <div class="row g-0 align-items-stretch flex-grow-1">
-                                            {{-- Sub-col 1: Benefits List (11 Complete Items matching Screenshot 2) --}}
-                                            <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
-                                                <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
-                                                    <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
-                                                    <span>{{ $rAdults }} adults</span>
-                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                    <i class="fa-solid fa-child-reaching flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
-                                                    <span>Your kids can stay for FREE!</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13.5px; font-weight: 700; gap: 8px;">
-                                                    <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 13px; color: #00805a; width: 14px; text-align: center;"></i>
-                                                    <span>Breakfast included</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="#00805a" class="flex-shrink-0"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1.06 13.54L7.4 12l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>
-                                                    <span>Cancel for free before {{ \Carbon\Carbon::parse($checkIn)->subDays(1)->format('M d, Y') }}</span>
-                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #00805a; color: #00805a; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #00805a; font-size: 13px; font-weight: 700; gap: 8px;">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                    <span>No payment until {{ \Carbon\Carbon::parse($checkIn)->subDays(3)->format('M d, Y') }}</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                    <span>Parking</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                    <span>Express check-in</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
-                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#222222" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
-                                                    <span>Free WiFi</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 13px; font-weight: 500; gap: 8px;">
-                                                    <i class="fa-solid fa-sack-dollar flex-shrink-0" style="font-size: 13px; color: #222222; width: 14px; text-align: center;"></i>
-                                                    <span>Cashback: {{ \App\Services\CurrencyService::format(6) }} (Terms apply)</span>
-                                                    <span class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-left: 2px;">i</span>
-                                                </div>
-                                                <div class="d-flex align-items-center mb-2" style="color: #222222; font-size: 12.5px; font-weight: 700; gap: 8px;">
-                                                    <x-agoda-icon name="tag" size="13" color="#222222" class="flex-shrink-0" />
-                                                    <span>PRIME EXCLUSIVE - {{ \App\Services\CurrencyService::format(41) }} off!</span>
-                                                </div>
-                                                <div>
-                                                    <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">See details</a>
-                                                </div>
+                                    <div class="row g-0 align-items-center flex-grow-1">
+                                        {{-- Sub-col 1: Benefits List --}}
+                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #e2e8f0; padding: 10px 14px !important;">
+                                            <div class="d-flex align-items-center mb-1.5" style="font-size: 13px; font-weight: 700; color: #111827; gap: 6px;">
+                                                <x-agoda-icon name="user" size="13" color="#111827" class="flex-shrink-0" />
+                                                <span>{{ $rAdults }} adults</span>
                                             </div>
-
-                                            {{-- Sub-col 2: Pricing Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
-                                                <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
-                                                    <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice2) }}</span>
-                                                </div>
-                                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Price after Cashback</div>
-                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
-                                                    <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher2) }} applied
-                                                </div>
-                                                <div class="fw-bold" style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
-                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice2)) }}
-                                                </div>
-                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #00805a; font-size: 12px; font-weight: 700; gap: 6px;">
+                                                <i class="fa-solid fa-utensils flex-shrink-0" style="font-size: 12px; color: #00805a; width: 13px; text-align: center;"></i>
+                                                <span>Breakfast included</span>
                                             </div>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #00805a; font-size: 12px; font-weight: 700; gap: 6px;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="#00805a" class="flex-shrink-0"><path d="M12 2L4 5v6.09c0 5.05 3.41 9.76 8 10.91 4.59-1.15 8-5.86 8-10.91V5l-8-3zm-1.06 13.54L7.4 12l1.41-1.41 2.12 2.12 4.24-4.24 1.41 1.41-5.64 5.66z"/></svg>
+                                                <span>Free cancellation</span>
+                                            </div>
+                                            <div class="d-flex align-items-center mb-1.5" style="color: #00805a; font-size: 12px; font-weight: 700; gap: 6px;">
+                                                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00805a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><polyline points="20 6 9 17 4 12"/></svg>
+                                                <span>Pay at hotel / Pay later</span>
+                                            </div>
+                                            <div>
+                                                <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 11.5px; font-weight: 600;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">Offer details</a>
+                                            </div>
+                                        </div>
 
-                                            {{-- Sub-col 3: Book Action (2-line Button + Urgency matching Screenshot 2) --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 16px 18px !important;">
-                                                <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
-                                                    <button type="button" 
-                                                            class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
-                                                            style="border: 1px solid #cdd4de; border-radius: 20px; height: 38px; padding: 0 16px; color: #0b66c2; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
-                                                            onclick="toggleAgodaRoomDropdown(this, event)">
-                                                        <span class="agoda-room-pill-label">1 room</span>
-                                                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
-                                                            <path d="m6 9 6 6 6-6"/>
-                                                        </svg>
-                                                    </button>
+                                        {{-- Sub-col 2: Pricing Breakdown --}}
+                                        <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #e2e8f0; padding: 10px 14px !important;">
+                                            <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 11.5px; color: #737373;">
+                                                <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice2) }}</span>
+                                            </div>
+                                            <div class="d-inline-flex align-items-center gap-1 px-1.5 py-0.5 rounded mb-1 ms-auto" style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11px; font-weight: 700; width: fit-content;">
+                                                <x-agoda-icon name="cash" size="11" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher2) }} applied
+                                            </div>
+                                            <div class="fw-bold" style="color: #222222; font-size: 24px; line-height: 1; letter-spacing: -0.5px;">
+                                                <span style="font-size: 13px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice2)) }}
+                                            </div>
+                                            <div style="font-size: 11px; color: #64748b; margin-top: 2px;">Per night before taxes &amp; fees</div>
+                                        </div>
 
-                                                    {{-- Agoda Custom Floating Speech-Bubble Popover --}}
-                                                    <div class="agoda-room-dropdown-popover position-absolute d-none" 
-                                                         style="top: calc(100% + 7px); left: 8px; min-width: 140px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15), 0 1px 4px rgba(0,0,0,0.06); border: 1px solid #eef2f6; z-index: 1050; padding: 6px 0;">
-                                                        <div style="position: absolute; top: -6px; left: 24px; width: 12px; height: 12px; background: #ffffff; transform: rotate(45deg); border-left: 1px solid #eef2f6; border-top: 1px solid #eef2f6; box-shadow: -2px -2px 3px rgba(0,0,0,0.03);"></div>
-                                                        <div class="d-flex flex-column" style="position: relative; z-index: 2;">
-                                                            @for($num = 1; $num <= 5; $num++)
-                                                            <div class="agoda-room-popover-item d-flex align-items-center gap-2 px-3 py-2" 
-                                                                 style="cursor: pointer; font-size: 14px; transition: background 0.12s ease; {{ $num === 1 ? 'color: #0b66c2; font-weight: 700;' : 'color: #222222; font-weight: 500;' }}"
-                                                                 data-value="{{ $num }}"
-                                                                 onclick="selectAgodaRoomCount(this, {{ $num }}, '{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}')">
-                                                                <span class="agoda-item-check" style="width: 14px; height: 14px; display: inline-flex; align-items: center; justify-content: center;" class="flex-shrink-0">
-                                                                    @if($num === 1)
-                                                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                                                                    @endif
-                                                                </span>
-                                                                <span class="agoda-item-text">{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}</span>
-                                                            </div>
-                                                            @endfor
+                                        {{-- Sub-col 3: Book Action --}}
+                                        <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 10px 14px !important;">
+                                            <div class="mb-2 position-relative agoda-room-selector-wrapper text-start">
+                                                <button type="button" 
+                                                        class="w-100 bg-white d-flex align-items-center justify-content-center gap-1.5 agoda-room-pill-btn" 
+                                                        style="border: 1px solid #cdd4de; border-radius: 18px; height: 34px; padding: 0 12px; color: #0b66c2; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
+                                                        onclick="toggleAgodaRoomDropdown(this, event)">
+                                                    <span class="agoda-room-pill-label">1 room</span>
+                                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                                        <path d="m6 9 6 6 6-6"/>
+                                                    </svg>
+                                                </button>
+
+                                                <div class="agoda-room-dropdown-popover position-absolute d-none" 
+                                                     style="top: calc(100% + 5px); left: 0; min-width: 130px; background: #ffffff; border-radius: 8px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid #eef2f6; z-index: 1050; padding: 4px 0;">
+                                                    <div class="d-flex flex-column" style="position: relative; z-index: 2;">
+                                                        @for($num = 1; $num <= 5; $num++)
+                                                        <div class="agoda-room-popover-item d-flex align-items-center gap-2 px-3 py-1.5" 
+                                                             style="cursor: pointer; font-size: 13px; {{ $num === 1 ? 'color: #0b66c2; font-weight: 700;' : 'color: #222222; font-weight: 500;' }}"
+                                                             data-value="{{ $num }}"
+                                                             onclick="selectAgodaRoomCount(this, {{ $num }}, '{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}')">
+                                                            <span class="agoda-item-text">{{ $num }} {{ $num === 1 ? 'room' : 'rooms' }}</span>
                                                         </div>
+                                                        @endfor
                                                     </div>
                                                 </div>
-                                                <div class="d-flex align-items-center gap-2 mb-2">
-                                                    <button type="button" class="btn d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 38px; height: 42px; border: 1px solid #cdd4de; border-radius: 50%; background: #ffffff;" title="Save to wishlist">
-                                                        <x-agoda-icon name="heart" size="18" color="#475569" />
-                                                    </button>
-                                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" 
-                                                       class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
-                                                       style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
-                                                        <span style="font-size: 15px; font-weight: 700;">Book</span>
-                                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">Pay later</span>
-                                                    </a>
-                                                </div>
-                                                <div style="font-size: 13px; color: #00805a; font-weight: 700; text-align: center; margin-top: 6px;">+ Free Cancellation</div>
-                                                @if($isLowestInProperty || $rIdx === 0)
-                                                <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last 4!</div>
-                                                @else
-                                                <div style="font-size: 11.5px; color: #0b66c2; font-weight: 700; text-align: center; margin-top: 2px;">Limited availability</div>
-                                                @endif
                                             </div>
+                                            <div class="d-flex align-items-center gap-1.5 mb-1">
+                                                <button type="button" class="btn d-flex align-items-center justify-content-center p-0 flex-shrink-0" style="width: 34px; height: 36px; border: 1px solid #cdd4de; border-radius: 50%; background: #ffffff;" title="Save to wishlist">
+                                                    <x-agoda-icon name="heart" size="16" color="#475569" />
+                                                </button>
+                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" 
+                                                   class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
+                                                   style="background: #1765c7; border-radius: 18px; height: 36px; text-decoration: none; padding: 2px 8px; line-height: 1.15;">
+                                                    <span style="font-size: 14px; font-weight: 700;">Book</span>
+                                                    <span style="font-size: 10px; font-weight: 600; opacity: 0.95;">Pay later</span>
+                                                </a>
+                                            </div>
+                                            <div style="font-size: 10.5px; color: #00805a; font-weight: 700; text-align: center;">+ Free Cancellation</div>
                                         </div>
                                     </div>
                                 </div>

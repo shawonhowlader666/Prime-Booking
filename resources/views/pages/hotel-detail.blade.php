@@ -258,6 +258,49 @@
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
     }
 
+    /* Agoda 1:1 Exact Sold Out / Unavailable Room Card */
+    .agoda-soldout-room-card {
+        background: #ffffff !important;
+        border: 1px solid #d5dbe5 !important;
+        border-radius: 12px !important;
+        padding: 14px 18px !important;
+        margin-bottom: 16px !important;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        transition: all 0.2s ease !important;
+    }
+    .agoda-soldout-room-card:hover {
+        border-color: #b0b8c4 !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+    }
+    @media (min-width: 768px) {
+        .border-start-md {
+            border-left: 1px solid #f1f5f9 !important;
+        }
+    }
+    @media (max-width: 768px) {
+        .agoda-soldout-room-card {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            padding: 12px !important;
+        }
+        .agoda-soldout-room-card .soldout-img-box {
+            width: 100% !important;
+            height: 160px !important;
+        }
+        .agoda-soldout-room-card .soldout-info-box {
+            padding: 12px 0 8px 0 !important;
+        }
+        .agoda-soldout-room-card .soldout-status-box {
+            border-left: none !important;
+            border-top: 1px solid #f1f5f9 !important;
+            padding: 10px 0 0 0 !important;
+            justify-content: flex-start !important;
+        }
+    }
+
     .agoda-sticky-nav-card {
         background: #ffffff !important;
         border: 1px solid #dddfe2;
@@ -1537,6 +1580,74 @@
                     $minPropertyPrice = $property->rooms->min('price_per_night');
                     $isLowestInProperty = ($roomPrice <= $minPropertyPrice);
                 @endphp
+                @if($availableRoomsLeft <= 0 || $room->status === 'sold_out' || $room->status === 'unavailable')
+                {{-- Agoda 1:1 Exact Carbon-Copy Sold-Out / Unavailable Room Card --}}
+                <div class="agoda-room-listing-card agoda-soldout-room-card mb-3"
+                    data-nonsmoking="{{ $isNonSmoking ? 'true' : 'false' }}"
+                    data-breakfast="{{ $hasBreakfast ? 'true' : 'false' }}"
+                    data-freecancel="{{ $hasFreeCancel ? 'true' : 'false' }}"
+                    data-queenbed="{{ $isQueen ? 'true' : 'false' }}"
+                    data-kingbed="{{ $isKing ? 'true' : 'false' }}"
+                    data-twinbed="{{ $isTwin ? 'true' : 'false' }}"
+                    data-gardenview="{{ $isGarden ? 'true' : 'false' }}"
+                    data-seaview="{{ $isSea ? 'true' : 'false' }}"
+                    data-mountainview="{{ $isMountain ? 'true' : 'false' }}"
+                    data-balcony="{{ $hasBalcony ? 'true' : 'false' }}"
+                    data-family="{{ $isFamily ? 'true' : 'false' }}"
+                    data-twobedrooms="{{ $is2Bedrooms ? 'true' : 'false' }}">
+
+                    <div class="d-flex align-items-center justify-content-between flex-wrap flex-md-nowrap gap-3 w-100">
+                        {{-- Left: Room Photo (Agoda 1:1 Rounded Thumbnail with Carousel) --}}
+                        <div class="position-relative flex-shrink-0 rounded overflow-hidden room-photo-carousel soldout-img-box" 
+                             id="roomCarousel_{{ $room->id ?? $rIdx }}"
+                             data-images='@json($rImages)'
+                             data-index="0"
+                             style="width: 220px; height: 135px; border-radius: 8px !important; cursor: pointer;">
+                            <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                            <span class="room-photo-counter position-absolute bottom-0 start-0 m-2 text-white d-inline-flex align-items-center" style="background: rgba(0,0,0,0.65); font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 8px; line-height: 1.2;">1/{{ count($rImages) }}</span>
+                            @if(count($rImages) > 1)
+                            <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center p-0" style="width: 26px; height: 26px; border: 1px solid #dddfe2; background: rgba(255,255,255,0.95); z-index: 5;" title="Next Photo" onclick="nextRoomPhoto(this, event)">
+                                <i class="fa-solid fa-chevron-right" style="font-size: 10px; color: #2a2a2e;"></i>
+                            </button>
+                            @endif
+                        </div>
+
+                        {{-- Middle: Room Title & Subtitle Specs --}}
+                        <div class="flex-grow-1 px-md-3 py-1 soldout-info-box">
+                            <h4 class="mb-1" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 700; color: #111827; line-height: 1.3; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                                {{ $room->name }}
+                            </h4>
+                            <div class="d-flex align-items-center flex-wrap gap-2" style="font-size: 13px; line-height: 1.4; color: #555555; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                <span class="fw-semibold text-secondary">{{ $rSizeStr }}</span>
+                                <span style="color: #cbd5e1;">•</span>
+                                <span>{{ $rBedStr }}</span>
+                                @if(!empty($rView) && !str_contains(strtolower($room->name), strtolower($rView)))
+                                <span style="color: #cbd5e1;">•</span>
+                                <span>{{ $rView }}</span>
+                                @endif
+                            </div>
+                            <a href="javascript:void(0)" class="text-decoration-none d-inline-block mt-2" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #1668e3; font-size: 12px; font-weight: 600;">
+                                Room photos and details
+                            </a>
+                        </div>
+
+                        {{-- Right: Agoda Exact Sold Out Indicator --}}
+                        <div class="flex-shrink-0 d-flex align-items-center justify-content-end gap-2 ps-md-3 border-start-md soldout-status-box" style="min-width: 190px;">
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#64748b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                            <span style="font-size: 13px; font-weight: 600; color: #555555; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                @if($room->status === 'unavailable')
+                                Unavailable on Prime Booking
+                                @else
+                                Sold out at ৳{{ number_format((float)($room->price_per_night ?? 4500)) }}
+                                @endif
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                @else
                 <div class="agoda-room-listing-card mb-4"
                     data-nonsmoking="{{ $isNonSmoking ? 'true' : 'false' }}"
                     data-breakfast="{{ $hasBreakfast ? 'true' : 'false' }}"
@@ -2085,6 +2196,7 @@
                                 </div>
                         </div>
                 </div>
+                @endif
 
                 {{-- Room Details & Photo Gallery Lightbox Modal (Agoda Standard) --}}
                 <div class="modal fade" id="roomDetailModal_{{ $room->id ?? $rIdx }}" tabindex="-1" aria-hidden="true">

@@ -249,19 +249,52 @@ body {
 /* ── Agoda Hotel Card Layout (100% 1:1 Agoda Live Parity) ── */
 .agoda-property-card-root {
     background: #ffffff !important;
-    border: 1px solid #e0e0e0 !important;
-    border-radius: 4px !important;
-    height: 215px;
-    min-height: 215px;
-    margin-bottom: 14px;
+    border: 1px solid #dcdcdc !important;
+    border-radius: 6px !important;
+    margin-bottom: 16px;
     display: flex !important;
-    flex-direction: row;
-    overflow: hidden;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    flex-direction: column !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
     transition: box-shadow 0.2s ease-in-out, border-color 0.2s ease;
     position: relative;
     cursor: pointer;
     box-sizing: border-box;
+    max-width: 790px !important;
+    width: 100% !important;
+}
+
+/* Card 1 Highlighted State (Exact Agoda Parity - Soft Blue Tint) */
+.agoda-property-card-root.agoda-first-featured-card {
+    background: #eaf2fd !important;
+    border: 1px solid #b9d5fb !important;
+}
+
+.agoda-property-card-root.agoda-first-featured-card .agoda-card-content-wrap {
+    background: #eaf2fd !important;
+}
+
+.agoda-property-card-root.agoda-first-featured-card .agoda-card-info-col {
+    background: transparent !important;
+}
+
+.agoda-property-card-root.agoda-first-featured-card .agoda-card-price-col {
+    background: transparent !important;
+    border-left: 1px solid #cce1fd !important;
+}
+
+.agoda-property-card-root.agoda-first-featured-card:hover {
+    box-shadow: 0 4px 14px rgba(45, 104, 219, 0.16);
+    border-color: #8bbafd !important;
+}
+
+.agoda-card-content-wrap {
+    display: flex !important;
+    flex-direction: row !important;
+    width: 100% !important;
+    flex-grow: 1 !important;
+    min-height: 220px;
+    background: transparent;
 }
 
 .agoda-property-card-root:hover {
@@ -270,10 +303,10 @@ body {
 }
 
 .agoda-card-photo-col {
-    width: 246px !important;
-    min-width: 246px !important;
-    max-width: 246px !important;
-    height: 215px !important;
+    width: 236px !important;
+    min-width: 236px !important;
+    max-width: 236px !important;
+    min-height: 220px !important;
     position: relative;
     overflow: hidden;
     background: #f0f2f5;
@@ -289,7 +322,8 @@ body {
 
 .agoda-card-photo-col img {
     width: 100% !important;
-    height: 215px !important;
+    height: 100% !important;
+    min-height: 220px !important;
     object-fit: cover !important;
     display: block !important;
 }
@@ -297,28 +331,26 @@ body {
 .agoda-card-info-col {
     flex: 1 1 0% !important;
     min-width: 0 !important;
-    height: 215px !important;
-    padding: 12px 16px !important;
+    padding: 12px 14px !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     text-align: left !important;
-    background: #ffffff !important;
+    background: transparent !important;
     box-sizing: border-box;
 }
 
 .agoda-card-price-col {
-    width: 190px !important;
-    min-width: 190px !important;
-    max-width: 190px !important;
-    height: 215px !important;
-    padding: 12px 16px !important;
+    width: 200px !important;
+    min-width: 200px !important;
+    max-width: 200px !important;
+    padding: 12px 14px !important;
     text-align: right !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: space-between !important;
     border-left: 1px solid #f0f0f0 !important;
-    background: #ffffff !important;
+    background: transparent !important;
     flex-shrink: 0 !important;
     box-sizing: border-box;
 }
@@ -518,4 +550,131 @@ body {
 .staticMapPanel:hover {
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
+
+/* 9. Agoda Card #1 Blue Urgency Header Strip */
+.agoda-card-blue-strip {
+    background: #1f4ba4 !important;
+    color: #ffffff !important;
+    font-size: 13.5px !important;
+    font-weight: 500 !important;
+    padding: 7px 14px !important;
+    border-radius: 0 !important;
+    max-width: 100% !important;
+    width: 100% !important;
+    margin-bottom: 0 !important;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    letter-spacing: 0.1px;
+    line-height: 1.4;
+}
+
+/* 10. Agoda Smart Coupon Tags & Interactive Collect Button */
+.agoda-coupon-pill {
+    background: #edfcf2 !important;
+    border: 1px solid #a3e6be !important;
+    color: #0e8345 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 2.5px 8px !important;
+    border-radius: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4.5px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+.agoda-coupon-pill-gold {
+    background: #fffbeb !important;
+    border: 1px solid #fde68a !important;
+    color: #b45309 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 2.5px 8px !important;
+    border-radius: 3px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4.5px !important;
+    line-height: 1.2 !important;
+    white-space: nowrap !important;
+}
+.agoda-collect-btn {
+    background: #ffffff !important;
+    border: 1px dashed #0e8345 !important;
+    color: #0e8345 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    padding: 2px 7px !important;
+    border-radius: 3px !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    transition: all 0.15s ease !important;
+}
+.agoda-collect-btn:hover {
+    background: #edfcf2 !important;
+}
+
+/* 11. Agoda Homes 3D Floating Interactive Card */
+.agoda-homes-3d-card {
+    background: #e8f7ee !important;
+    border: 1px solid #b7ebd0 !important;
+    border-radius: 8px !important;
+    /* Initial 3D depth with 4-sided shadow */
+    box-shadow: 0 4px 14px rgba(16, 185, 129, 0.16), 0 2px 6px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(16, 185, 129, 0.08) !important;
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease !important;
+    cursor: pointer;
+    position: relative;
+    max-width: 790px !important;
+}
+
+/* Mouse Hover: 3D Lift with 4-Sided Spreading Shadow */
+.agoda-homes-3d-card:hover {
+    transform: translateY(-3px) scale(1.003) !important;
+    box-shadow: 0 14px 34px -4px rgba(16, 185, 129, 0.28), 0 8px 24px rgba(0, 0, 0, 0.10), 0 0 18px rgba(52, 211, 153, 0.30) !important;
+    border-color: #6ee7b7 !important;
+}
+
+.agoda-homes-3d-card .agoda-homes-btn {
+    background: linear-gradient(180deg, #3385ff 0%, #2067e1 100%) !important;
+    box-shadow: 0 2px 8px rgba(32, 103, 225, 0.36), inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    border: none !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    padding: 8px 18px !important;
+    border-radius: 4px !important;
+}
+
+.agoda-homes-3d-card:hover .agoda-homes-btn,
+.agoda-homes-3d-card .agoda-homes-btn:hover {
+    box-shadow: 0 6px 20px rgba(32, 103, 225, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+    transform: translateY(-1px) scale(1.02) !important;
+}
+
+/* Agoda Room Listing Unified Card (100% 1:1 Parity - Zero Gap, Single Divider Border) */
+.agoda-room-listing-card {
+    background: #ffffff !important;
+    border: 1px solid #cbcfd7 !important;
+    border-radius: 12px !important;
+    overflow: hidden !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03) !important;
+    margin-bottom: 24px !important;
+}
+
+@media (min-width: 992px) {
+    .agoda-room-left-col {
+        border-right: 1px solid #cbcfd7 !important;
+        border-bottom: none !important;
+    }
+}
+@media (max-width: 991.98px) {
+    .agoda-room-left-col {
+        border-right: none !important;
+        border-bottom: 1px solid #cbcfd7 !important;
+    }
+}
+
 

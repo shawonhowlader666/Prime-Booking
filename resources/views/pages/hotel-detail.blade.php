@@ -258,6 +258,11 @@
         box-shadow: 0 4px 12px rgba(15, 23, 42, 0.08) !important;
     }
 
+    /* Agoda Room Listing Unified Card */
+    .agoda-room-listing-card {
+        border-radius: 12px !important;
+    }
+
     /* Agoda 1:1 Exact Sold Out / Unavailable Room Card */
     .agoda-soldout-room-card {
         background: #ffffff !important;
@@ -1919,14 +1924,14 @@
                         <div class="col-lg-8 d-flex flex-column {{ $hasSecondOffer ? 'justify-content-between' : '' }}" style="background: #eff4fc; padding: 12px; {{ $hasSecondOffer ? 'gap: 12px;' : '' }}">
                                 
                                 {{-- OFFER 1 CARD (Standalone White Card - Agoda 1:1 Full-Height when Single Offer) --}}
-                                <div class="flex-grow-1 h-100 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; position: relative;">
+                                <div class="flex-grow-1 {{ $hasSecondOffer ? '' : 'h-100' }} d-flex flex-column justify-content-start" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; position: relative;">
                                     {{-- Agoda Signature Red Ribbon matching Image 3 --}}
                                     <div style="background: #c52924; color: #ffffff; font-size: 11px; font-weight: 700; padding: 3px 12px; border-bottom-right-radius: 8px; width: fit-content; line-height: 1.3; letter-spacing: 0.2px;">
                                         15% off today! Lowest price
                                     </div>
                                     <div class="row g-0 align-items-stretch flex-grow-1 h-100">
                                         {{-- Sub-col 1: Benefits List --}}
-                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '22px 20px' }} !important;">
+                                        <div class="col-md-5 d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '16px 20px' }} !important;">
                                             <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
                                                 <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
                                                 <span>{{ $rAdults }} adults</span>
@@ -2001,7 +2006,7 @@
                                         </div>
 
                                             {{-- Sub-col 2: Price Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '16px 18px' : '22px 20px' }} !important;">
+                                            <div class="col-md-4 text-end d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '16px 20px' }} !important;">
                                                 @if($isLowestInProperty || $rIdx === 0)
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-right: 2px;">i</span>
@@ -2030,8 +2035,8 @@
                                             </div>
 
                                             {{-- Sub-col 3: Book Action --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: {{ $hasSecondOffer ? '16px 18px' : '22px 20px' }} !important;">
-                                                <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
+                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-start" style="padding: {{ $hasSecondOffer ? '14px 16px' : '16px 18px' }} !important;">
+                                                <div class="mb-2 position-relative agoda-room-selector-wrapper text-start">
                                                     <button type="button" 
                                                             class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
                                                             style="border: 1px solid #cdd4de; border-radius: 20px; height: 38px; padding: 0 16px; color: #0b66c2; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
@@ -2074,7 +2079,7 @@
                                                         <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">{{ $hasSecondOffer ? 'Pay now' : (($property->no_credit_card_required ?? false) ? 'Pay later' : 'Pay now') }}</span>
                                                     </a>
                                                 </div>
-                                                <div style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 6px;">You won't be charged yet</div>
+                                                <div style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 4px;">You won't be charged yet</div>
                                                 @if($isLowestInProperty || $rIdx === 0)
                                                 <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last room!</div>
                                                 @elseif(!$hasSecondOffer && ($room->free_cancellation ?? true))
@@ -2088,10 +2093,10 @@
 
                                 @if($hasSecondOffer)
                                 {{-- OFFER 2 CARD (Standalone White Card - Agoda 1:1) --}}
-                                <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
+                                <div class="flex-grow-1 d-flex flex-column justify-content-start" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
                                         <div class="row g-0 align-items-stretch flex-grow-1">
                                             {{-- Sub-col 1: Benefits List (11 Complete Items matching Screenshot 2) --}}
-                                            <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                            <div class="col-md-5 d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
                                                 <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
                                                     <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
                                                     <span>{{ $rAdults }} adults</span>
@@ -2141,7 +2146,7 @@
                                             </div>
 
                                             {{-- Sub-col 2: Pricing Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                            <div class="col-md-4 text-end d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
                                                     <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice2) }}</span>
                                                 </div>
@@ -2156,8 +2161,8 @@
                                             </div>
 
                                             {{-- Sub-col 3: Book Action (2-line Button + Urgency matching Screenshot 2) --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 16px 18px !important;">
-                                                <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
+                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-start" style="padding: 14px 16px !important;">
+                                                <div class="mb-2 position-relative agoda-room-selector-wrapper text-start">
                                                     <button type="button" 
                                                             class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
                                                             style="border: 1px solid #cdd4de; border-radius: 20px; height: 38px; padding: 0 16px; color: #0b66c2; font-size: 14px; font-weight: 700; cursor: pointer; transition: all 0.15s ease;"
@@ -2200,7 +2205,7 @@
                                                         <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">Pay later</span>
                                                     </a>
                                                 </div>
-                                                <div style="font-size: 13px; color: #00805a; font-weight: 700; text-align: center; margin-top: 6px;">+ Free Cancellation</div>
+                                                <div style="font-size: 13px; color: #00805a; font-weight: 700; text-align: center; margin-top: 4px;">+ Free Cancellation</div>
                                                 @if($isLowestInProperty || $rIdx === 0)
                                                 <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last 4!</div>
                                                 @else

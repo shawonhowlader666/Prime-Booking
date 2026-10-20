@@ -261,6 +261,9 @@
     /* Agoda Room Listing Unified Card */
     .agoda-room-listing-card {
         border-radius: 12px !important;
+        margin-bottom: 24px !important;
+        display: block !important;
+        clear: both !important;
     }
 
     /* Agoda 1:1 Exact Sold Out / Unavailable Room Card */
@@ -2214,9 +2217,9 @@
                                             </div>
                                         </div>
                                     </div>
-                                </div>
                                 @endif
                         </div>
+                    </div>
                 </div>
                 @endif
 

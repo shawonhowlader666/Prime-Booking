@@ -1579,6 +1579,19 @@
 
                     $minPropertyPrice = $property->rooms->min('price_per_night');
                     $isLowestInProperty = ($roomPrice <= $minPropertyPrice);
+
+                    // Agoda Dynamic Rate Plans / Offer Display (1 Full-Height Offer vs 2 Stacked Offers)
+                    // If room specifies offers_count in data, respect it.
+                    // Otherwise, provide 2 offers on lead/popular rooms (e.g. index 0, 2) and 1 full-height offer on others, exactly like Agoda!
+                    $hasSecondOffer = true;
+                    if (request()->has('offers')) {
+                        $hasSecondOffer = (request('offers') == '2');
+                    } elseif (isset($room->offers_count) && $room->offers_count !== null) {
+                        $hasSecondOffer = ((int)$room->offers_count >= 2);
+                    } else {
+                        // Alternate between 2 stacked offers and 1 full-height offer (Agoda standard)
+                        $hasSecondOffer = ($rIdx % 2 === 0);
+                    }
                 @endphp
                 @if($availableRoomsLeft <= 0 || $room->status === 'sold_out' || $room->status === 'unavailable')
                 {{-- Agoda 1:1 Exact Carbon-Copy Sold-Out / Unavailable Room Card --}}
@@ -1903,17 +1916,17 @@
                         </div>
 
                         {{-- RIGHT COLUMN: Agoda Offer Cards inside #eff4fc Container (Exact Agoda 1:1 Parity, ZERO GAP) --}}
-                        <div class="col-lg-8 d-flex flex-column justify-content-between" style="background: #eff4fc; padding: 12px; gap: 12px;">
+                        <div class="col-lg-8 d-flex flex-column {{ $hasSecondOffer ? 'justify-content-between' : '' }}" style="background: #eff4fc; padding: 12px; {{ $hasSecondOffer ? 'gap: 12px;' : '' }}">
                                 
-                                {{-- OFFER 1 CARD (Standalone White Card - Agoda 1:1) --}}
-                                <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; position: relative;">
+                                {{-- OFFER 1 CARD (Standalone White Card - Agoda 1:1 Full-Height when Single Offer) --}}
+                                <div class="flex-grow-1 h-100 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; position: relative;">
                                     {{-- Agoda Signature Red Ribbon matching Image 3 --}}
                                     <div style="background: #c52924; color: #ffffff; font-size: 11px; font-weight: 700; padding: 3px 12px; border-bottom-right-radius: 8px; width: fit-content; line-height: 1.3; letter-spacing: 0.2px;">
                                         15% off today! Lowest price
                                     </div>
-                                    <div class="row g-0 align-items-stretch flex-grow-1">
+                                    <div class="row g-0 align-items-stretch flex-grow-1 h-100">
                                         {{-- Sub-col 1: Benefits List --}}
-                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
+                                        <div class="col-md-5 d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '22px 20px' }} !important;">
                                             <div class="d-flex align-items-center mb-2" style="font-size: 13.5px; font-weight: 700; color: #222222; gap: 8px;">
                                                 <x-agoda-icon name="user" size="14" color="#222222" class="flex-shrink-0" />
                                                 <span>{{ $rAdults }} adults</span>
@@ -1988,7 +2001,7 @@
                                         </div>
 
                                             {{-- Sub-col 2: Price Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: 16px 18px !important;">
+                                            <div class="col-md-4 text-end d-flex flex-column justify-content-center" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '16px 18px' : '22px 20px' }} !important;">
                                                 @if($isLowestInProperty || $rIdx === 0)
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-right: 2px;">i</span>
@@ -2017,7 +2030,7 @@
                                             </div>
 
                                             {{-- Sub-col 3: Book Action --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: 16px 18px !important;">
+                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-center" style="padding: {{ $hasSecondOffer ? '16px 18px' : '22px 20px' }} !important;">
                                                 <div class="mb-3 position-relative agoda-room-selector-wrapper text-start">
                                                     <button type="button" 
                                                             class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
@@ -2058,12 +2071,14 @@
                                                        class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn" 
                                                        style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
                                                         <span style="font-size: 15px; font-weight: 700;">Book</span>
-                                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">Pay now</span>
+                                                        <span style="font-size: 11px; font-weight: 600; opacity: 0.95;">{{ $hasSecondOffer ? 'Pay now' : (($property->no_credit_card_required ?? false) ? 'Pay later' : 'Pay now') }}</span>
                                                     </a>
                                                 </div>
                                                 <div style="font-size: 11.5px; color: #64748b; text-align: center; margin-top: 6px;">You won't be charged yet</div>
                                                 @if($isLowestInProperty || $rIdx === 0)
                                                 <div style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">Our last room!</div>
+                                                @elseif(!$hasSecondOffer && ($room->free_cancellation ?? true))
+                                                <div style="font-size: 12.5px; color: #00805a; font-weight: 700; text-align: center; margin-top: 2px;">+ Free Cancellation</div>
                                                 @else
                                                 <div style="font-size: 11.5px; color: #0b66c2; font-weight: 700; text-align: center; margin-top: 2px;">Popular choice</div>
                                                 @endif
@@ -2071,6 +2086,7 @@
                                         </div>
                                     </div>
 
+                                @if($hasSecondOffer)
                                 {{-- OFFER 2 CARD (Standalone White Card - Agoda 1:1) --}}
                                 <div class="flex-grow-1 d-flex flex-column justify-content-center" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;">
                                         <div class="row g-0 align-items-stretch flex-grow-1">
@@ -2194,6 +2210,7 @@
                                         </div>
                                     </div>
                                 </div>
+                                @endif
                         </div>
                 </div>
                 @endif

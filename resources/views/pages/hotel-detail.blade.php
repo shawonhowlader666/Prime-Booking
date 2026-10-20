@@ -3978,11 +3978,13 @@
         const counter = box.querySelector('.room-photo-counter');
         let images = [];
         try {
-            images = JSON.parse(box.getAttribute('data-images') || '[]');
+            const raw = box.getAttribute('data-images') || '[]';
+            images = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            if (typeof images === 'string') images = JSON.parse(images);
         } catch(e) {
-            console.error(e);
+            console.error('Error parsing room images:', e);
         }
-        if (!images || images.length <= 1) return;
+        if (!Array.isArray(images) || images.length <= 1) return;
         let idx = parseInt(box.getAttribute('data-index') || '0', 10);
         idx = (idx + 1) % images.length;
         box.setAttribute('data-index', idx);
@@ -3990,7 +3992,20 @@
         if (newSrc && !newSrc.startsWith('http') && !newSrc.startsWith('/')) {
             newSrc = '/' + newSrc;
         }
-        if (img) img.src = newSrc;
+        if (img && newSrc) {
+            img.style.opacity = '0.35';
+            img.style.transition = 'opacity 0.15s ease';
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                img.src = newSrc;
+                img.style.opacity = '1';
+            };
+            tempImg.onerror = function() {
+                img.src = newSrc;
+                img.style.opacity = '1';
+            };
+            tempImg.src = newSrc;
+        }
         if (counter) {
             counter.textContent = (idx + 1) + '/' + images.length;
         }
@@ -4007,11 +4022,13 @@
         const counter = box.querySelector('.room-photo-counter');
         let images = [];
         try {
-            images = JSON.parse(box.getAttribute('data-images') || '[]');
+            const raw = box.getAttribute('data-images') || '[]';
+            images = typeof raw === 'string' ? JSON.parse(raw) : raw;
+            if (typeof images === 'string') images = JSON.parse(images);
         } catch(e) {
-            console.error(e);
+            console.error('Error parsing room images:', e);
         }
-        if (!images || images.length <= 1) return;
+        if (!Array.isArray(images) || images.length <= 1) return;
         let idx = parseInt(box.getAttribute('data-index') || '0', 10);
         idx = (idx - 1 + images.length) % images.length;
         box.setAttribute('data-index', idx);
@@ -4019,7 +4036,20 @@
         if (newSrc && !newSrc.startsWith('http') && !newSrc.startsWith('/')) {
             newSrc = '/' + newSrc;
         }
-        if (img) img.src = newSrc;
+        if (img && newSrc) {
+            img.style.opacity = '0.35';
+            img.style.transition = 'opacity 0.15s ease';
+            const tempImg = new Image();
+            tempImg.onload = function() {
+                img.src = newSrc;
+                img.style.opacity = '1';
+            };
+            tempImg.onerror = function() {
+                img.src = newSrc;
+                img.style.opacity = '1';
+            };
+            tempImg.src = newSrc;
+        }
         if (counter) {
             counter.textContent = (idx + 1) + '/' + images.length;
         }
@@ -4061,84 +4091,6 @@
             document.getElementById('detailRoomsValText').textContent = val;
             document.getElementById('detailRoomCountText').textContent = `${val} room${val > 1 ? 's' : ''}`;
         }
-    }
-
-    // ─── Instant Client-Side Zero-Latency Room Filtering (Agoda Standard) ───
-    const activeRoomFilters = new Set();
-
-    function toggleRoomFilter(filterKey, element) {
-        if (activeRoomFilters.has(filterKey)) {
-            activeRoomFilters.delete(filterKey);
-            element.style.background = '#ffffff';
-            element.style.color = '#334155';
-            element.style.borderColor = '#cbd5e1';
-        } else {
-            activeRoomFilters.add(filterKey);
-            element.style.background = '#e0f2fe';
-            element.style.color = '#0284c7';
-            element.style.borderColor = '#0284c7';
-        }
-
-        applyRoomFilters();
-    }
-
-    function applyRoomFilters() {
-        const cards = document.querySelectorAll('.agoda-room-listing-card');
-        let visibleCount = 0;
-
-        cards.forEach(card => {
-            let isMatch = true;
-
-            activeRoomFilters.forEach(f => {
-                const val = card.getAttribute('data-' + f);
-                if (val !== 'true') {
-                    isMatch = false;
-                }
-            });
-
-            if (isMatch) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        const countBadge = document.getElementById('roomFilterCount');
-        if (countBadge) {
-            if (activeRoomFilters.size === 0) {
-                countBadge.textContent = 'Showing all room types';
-            } else {
-                countBadge.textContent = `Showing ${visibleCount} matching room${visibleCount === 1 ? '' : 's'}`;
-            }
-        }
-    }
-
-    // ─── Review Mention Filter Chips ───
-    function filterReviewsByMention(keyword, element) {
-        document.querySelectorAll('.mention-filter-btn').forEach(btn => {
-            btn.classList.remove('btn-primary');
-            btn.classList.add('btn-light', 'text-dark', 'border');
-            btn.style.background = '';
-        });
-
-        element.classList.remove('btn-light', 'text-dark', 'border');
-        element.classList.add('btn-primary');
-        element.style.background = '#2067e1';
-
-        const reviewCards = document.querySelectorAll('.verified-review-card');
-        reviewCards.forEach(rc => {
-            if (!keyword || keyword === 'all') {
-                rc.style.display = 'flex';
-            } else {
-                const text = rc.innerText.toLowerCase();
-                if (text.includes(keyword.toLowerCase())) {
-                    rc.style.display = 'flex';
-                } else {
-                    rc.style.display = 'none';
-                }
-            }
-        });
     }
 
     // ─── Smooth Scroll Spy for Sticky Sub-Nav Bar ───
@@ -4359,65 +4311,6 @@
                 showHotelToast(data.message || (data.is_wishlisted ? 'Saved to wishlist! ❤️' : 'Removed from wishlist.'));
             }
         })
-        .catch(() => {});
-    }
-
-    // ── Interactive Room Filter Engine ──
-    const activeRoomFilters = new Set();
-
-    function toggleRoomFilter(filterKey, el) {
-        if (activeRoomFilters.has(filterKey)) {
-            activeRoomFilters.delete(filterKey);
-            el.classList.remove('active');
-            el.style.backgroundColor = '#ffffff';
-            el.style.color = '#0f172a';
-            el.style.borderColor = '#cbd5e1';
-            const icon = el.querySelector('i');
-            if (icon) {
-                icon.classList.remove('text-white');
-                icon.classList.add('text-dark');
-            }
-        } else {
-            activeRoomFilters.add(filterKey);
-            el.classList.add('active');
-            el.style.backgroundColor = '#2067e1';
-            el.style.color = '#ffffff';
-            el.style.borderColor = '#2067e1';
-            const icon = el.querySelector('i');
-            if (icon) {
-                icon.classList.remove('text-dark');
-                icon.classList.add('text-white');
-            }
-        }
-
-        const roomCards = document.querySelectorAll('.agoda-room-listing-card');
-        let visibleCount = 0;
-
-        roomCards.forEach(card => {
-            let match = true;
-            for (const f of activeRoomFilters) {
-                const val = card.getAttribute('data-' + f);
-                if (val !== 'true') {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) {
-                card.style.display = 'block';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-
-        const countBadge = document.getElementById('roomFilterCount');
-        if (countBadge) {
-            if (activeRoomFilters.size === 0) {
-                countBadge.textContent = 'Showing all room types';
-            } else {
-                countBadge.textContent = `Showing ${visibleCount} of ${roomCards.length} room types`;
-            }
-        }
     }
 
     // Interactive Review Mention Filter
@@ -5605,7 +5498,8 @@ document.addEventListener('click', function(e) {
 });
 
 // Interactive Room Pill Filters (Agoda 1:1 Parity)
-let activeRoomFilters = new Set();
+window.activeRoomFilters = window.activeRoomFilters || new Set();
+var activeRoomFilters = window.activeRoomFilters;
 
 function toggleRoomFilter(filterName, btn) {
     if (activeRoomFilters.has(filterName)) {
@@ -5668,6 +5562,32 @@ function clearAllRoomFilters() {
     });
     applyRoomFilters();
 }
+
+// Mobile Touch Swipe Support for Room Photo Carousels
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.room-photo-carousel').forEach(function(box) {
+        var startX = 0;
+        box.addEventListener('touchstart', function(e) {
+            if (e.touches && e.touches.length > 0) {
+                startX = e.touches[0].clientX;
+            }
+        }, { passive: true });
+        box.addEventListener('touchend', function(e) {
+            if (e.changedTouches && e.changedTouches.length > 0) {
+                var diffX = startX - e.changedTouches[0].clientX;
+                if (Math.abs(diffX) > 40) {
+                    if (diffX > 0) {
+                        var nBtn = box.querySelector('button[onclick*="nextRoomPhoto"]');
+                        if (nBtn && window.nextRoomPhoto) window.nextRoomPhoto(nBtn, e);
+                    } else {
+                        var pBtn = box.querySelector('button[onclick*="prevRoomPhoto"]');
+                        if (pBtn && window.prevRoomPhoto) window.prevRoomPhoto(pBtn, e);
+                    }
+                }
+            }
+        }, { passive: true });
+    });
+});
 </script>
 @endsection
 

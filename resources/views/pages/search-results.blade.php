@@ -491,6 +491,36 @@
     .agoda-sticky-sidebar::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
     }
+
+    /* Agoda-Exact Horizontal Shimmer Wave Animation (Right to Left sweep) */
+    @keyframes agodaShimmerWave {
+        0% {
+            background-position: 250% 0;
+        }
+        100% {
+            background-position: -250% 0;
+        }
+    }
+    .agoda-shimmer {
+        background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 30%, #ffffff 50%, #e2e8f0 70%, #f1f5f9 100%);
+        background-size: 250% 100%;
+        animation: agodaShimmerWave 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .agoda-skeleton-card {
+        max-width: 790px !important;
+        margin-left: 0;
+        margin-right: auto;
+    }
+    @keyframes fadeInUpCard {
+        from {
+            opacity: 0;
+            transform: translateY(12px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 </style>
 <div style="max-width: 1120px; margin: 0 auto; padding: 22px 24px 48px 24px;">
     <div class="row g-3">
@@ -629,7 +659,10 @@
 
 
             {{-- Property Cards Grid --}}
-            <div class="d-flex flex-column gap-3" id="propertyCardsFeed">
+            <div class="d-flex flex-column gap-3" id="propertyCardsFeed"
+                 data-current-page="{{ isset($searchResults['paginator']) ? $searchResults['paginator']->currentPage() : 1 }}"
+                 data-last-page="{{ isset($searchResults['paginator']) ? $searchResults['paginator']->lastPage() : 1 }}"
+                 data-total="{{ $liveTotal }}">
                 @forelse($searchResults['merged_results'] as $item)
                     @include('components.search.property-card', ['item' => $item, 'isFirst' => $loop->first])
                 @empty
@@ -644,11 +677,32 @@
                 @endforelse
             </div>
 
-            @if(isset($searchResults['paginator']) && $searchResults['paginator']->hasPages())
-                <div class="mt-4 d-flex justify-content-center" id="paginationContainer">
-                    {{ $searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking') }}
+            {{-- Agoda-Style Infinite Scroll Skeleton Shimmer Placeholders (shown when fetching next page) --}}
+            <div id="infiniteScrollSkeletonContainer" class="d-none flex-column gap-3 mt-3">
+                @include('components.search.property-card-skeleton')
+                @include('components.search.property-card-skeleton')
+            </div>
+
+            {{-- Infinite Scroll Sentinel Trigger (Observed by IntersectionObserver) --}}
+            <div id="infiniteScrollSentinel" style="height: 15px; margin: 15px 0;"></div>
+
+            {{-- All Caught Up / End of Results Indicator --}}
+            <div id="infiniteScrollEndMessage" class="d-none text-center my-4 py-3 px-4 rounded-4 bg-white border" style="max-width: 790px; border-color: #e2e8f0 !important;">
+                <div class="d-inline-flex align-items-center justify-content-center text-primary bg-primary-subtle rounded-circle mb-2" style="width: 38px; height: 38px;">
+                    <i class="fa-solid fa-check fs-6"></i>
                 </div>
-            @endif
+                <h6 class="fw-bold text-dark mb-1" style="font-size: 14px;">You've seen all available stays in {{ $destLabel }}</h6>
+                <p class="text-secondary small mb-0">Total {{ $liveTotal }} properties displayed. Change your travel dates or filters to explore more.</p>
+            </div>
+
+            {{-- Fallback numeric pagination for JavaScript-disabled browsers only --}}
+            <noscript>
+                @if(isset($searchResults['paginator']) && $searchResults['paginator']->hasPages())
+                    <div class="mt-4 d-flex justify-content-center" id="paginationContainer">
+                        {{ $searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking') }}
+                    </div>
+                @endif
+            </noscript>
 
             {{-- SEO Breadcrumbs Navigation (Positioned at bottom per modern travel UI standards) --}}
             <nav aria-label="breadcrumb" class="mt-4 mb-2">
@@ -1897,11 +1951,127 @@
                 .then(function(html) {
                     var doc = new DOMParser().parseFromString(html, 'text/html');
                     var fresh = doc.getElementById('searchResultsContainer');
-                    if (fresh) resultsContainer.innerHTML = fresh.innerHTML;
+                    if (fresh) {
+                        resultsContainer.innerHTML = fresh.innerHTML;
+                        if (typeof window.initAgodaInfiniteScroll === 'function') {
+                            window.initAgodaInfiniteScroll();
+                        }
+                    }
                     resultsContainer.style.opacity = '1';
                     history.pushState(null, '', url);
                 }).catch(function() { resultsContainer.style.opacity = '1'; });
         });
+    }
+
+    // ── C. Agoda-Exact Infinite Scroll with Shimmer Skeleton Loader ──────────
+    window.initAgodaInfiniteScroll = function() {
+        var feed = document.getElementById('propertyCardsFeed');
+        var sentinel = document.getElementById('infiniteScrollSentinel');
+        var skeleton = document.getElementById('infiniteScrollSkeletonContainer');
+        var endMsg = document.getElementById('infiniteScrollEndMessage');
+
+        if (!feed || !sentinel) return;
+
+        if (window._agodaScrollObserver) {
+            window._agodaScrollObserver.disconnect();
+            window._agodaScrollObserver = null;
+        }
+
+        var currentPage = parseInt(feed.getAttribute('data-current-page') || '1', 10);
+        var lastPage = parseInt(feed.getAttribute('data-last-page') || '1', 10);
+        var totalCount = parseInt(feed.getAttribute('data-total') || '0', 10);
+        var isLoading = false;
+        var hasMore = currentPage < lastPage;
+
+        if (!hasMore) {
+            if (endMsg && totalCount > 0) endMsg.classList.remove('d-none');
+            if (skeleton) skeleton.classList.add('d-none');
+            return;
+        } else {
+            if (endMsg) endMsg.classList.add('d-none');
+        }
+
+        function fetchNextBatch() {
+            if (isLoading || !hasMore) return;
+            isLoading = true;
+
+            if (skeleton) skeleton.classList.remove('d-none');
+
+            var nextPage = currentPage + 1;
+            var fetchUrl = new URL(window.location.href);
+            fetchUrl.searchParams.set('page', nextPage);
+            fetchUrl.searchParams.set('ajax_scroll', '1');
+
+            fetch(fetchUrl.toString(), {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'X-Infinite-Scroll': 'true',
+                    'Accept': 'application/json'
+                }
+            })
+            .then(function(res) {
+                if (!res.ok) throw new Error('Network response error');
+                return res.json();
+            })
+            .then(function(data) {
+                if (skeleton) skeleton.classList.add('d-none');
+
+                if (data && data.success && data.html) {
+                    var tempDiv = document.createElement('div');
+                    tempDiv.innerHTML = data.html;
+
+                    while (tempDiv.firstChild) {
+                        var child = tempDiv.firstChild;
+                        if (child.nodeType === 1) {
+                            child.style.animation = 'fadeInUpCard 0.35s ease-out';
+                        }
+                        feed.appendChild(child);
+                    }
+
+                    currentPage = data.current_page || nextPage;
+                    hasMore = Boolean(data.has_more);
+                    feed.setAttribute('data-current-page', currentPage);
+
+                    var displayUrl = new URL(window.location.href);
+                    displayUrl.searchParams.set('page', currentPage);
+                    history.replaceState(null, '', displayUrl.toString());
+
+                    if (!hasMore) {
+                        if (endMsg) endMsg.classList.remove('d-none');
+                        if (window._agodaScrollObserver && sentinel) {
+                            window._agodaScrollObserver.unobserve(sentinel);
+                        }
+                    }
+                } else {
+                    hasMore = false;
+                    if (endMsg) endMsg.classList.remove('d-none');
+                }
+                isLoading = false;
+            })
+            .catch(function(err) {
+                console.error('Agoda Infinite Scroll Error:', err);
+                if (skeleton) skeleton.classList.add('d-none');
+                isLoading = false;
+            });
+        }
+
+        window._agodaScrollObserver = new IntersectionObserver(function(entries) {
+            if (entries[0] && entries[0].isIntersecting && hasMore && !isLoading) {
+                fetchNextBatch();
+            }
+        }, {
+            root: null,
+            rootMargin: '350px',
+            threshold: 0.05
+        });
+
+        window._agodaScrollObserver.observe(sentinel);
+    };
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', window.initAgodaInfiniteScroll);
+    } else {
+        window.initAgodaInfiniteScroll();
     }
 })();
 

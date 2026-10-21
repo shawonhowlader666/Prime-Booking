@@ -61,6 +61,7 @@ class SearchRequest extends FormRequest
             'radius_km'    => ['nullable', 'numeric', 'min:1', 'max:200'],
             'page'         => ['nullable', 'integer', 'min:1', 'max:9999'],
             'per_page'     => ['nullable', 'integer', 'min:1', 'max:50'],  // cap at 50 — never let user request 10,000 rows
+            'ajax_scroll'  => ['nullable'],
         ];
     }
 
@@ -69,7 +70,7 @@ class SearchRequest extends FormRequest
 
     public function destination(): string
     {
-        return trim((string) ($this->validated()['destination'] ?? ''));
+        return trim((string) ($this->input('destination') ?: ($this->validated()['destination'] ?? '')));
     }
 
     public function searchType(): string

@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Web\SearchRequest;
 use App\Models\Property;
 use App\Services\Search\SearchService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;
 
@@ -30,13 +31,38 @@ class SearchController extends Controller
      * Show hotel/property search results page.
      * GET /search
      */
-    public function index(SearchRequest $request): View
+    public function index(SearchRequest $request): View|JsonResponse
     {
         // All params are validated + sanitized via SearchRequest
         $params = $request->toSearchParams();
 
         // Delegate ALL work to the service — controller stays thin
         $searchResults = $this->searchService->searchHotels($params);
+
+        // ─── Agoda-Style Infinite Scroll AJAX Endpoint ───────────────────────
+        if ($request->boolean('ajax_scroll') || $request->wantsJson() || $request->header('X-Infinite-Scroll') === 'true') {
+            $merged = $searchResults['merged_results'] ?? [];
+            $paginator = $searchResults['paginator'] ?? null;
+            $hasMore = $paginator ? $paginator->hasMorePages() : false;
+            $nextPage = $paginator ? ($paginator->currentPage() + 1) : null;
+
+            $html = '';
+            foreach ($merged as $item) {
+                $html .= view('components.search.property-card', [
+                    'item' => $item,
+                    'isFirst' => false,
+                ])->render();
+            }
+
+            return response()->json([
+                'success'      => true,
+                'html'         => $html,
+                'has_more'     => $hasMore,
+                'next_page'    => $nextPage,
+                'current_page' => $paginator ? $paginator->currentPage() : 1,
+                'total'        => $paginator ? $paginator->total() : count($merged),
+            ]);
+        }
         $availableCities = $this->searchService->getAvailableCities();
         $priceRange = $this->searchService->getPriceRange();
         $filterCounts = $this->searchService->getFilterCounts($params['destination']);
@@ -66,6 +92,11 @@ class SearchController extends Controller
             } catch (\Throwable $e) {
                 // Non-blocking
             }
+        }
+
+        // Top-tier Edge & Browser Caching for Guest Search & Destination Pages
+        if (!headers_sent() && !auth()->check()) {
+            header('Cache-Control: public, max-age=120, s-maxage=300, stale-while-revalidate=600');
         }
 
         return view('pages.search-results', [

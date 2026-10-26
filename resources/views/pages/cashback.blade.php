@@ -3,6 +3,21 @@
 @section('title', 'Prime Rewards Loyalty & Points | Prime Booking')
 @section('meta_description', 'Earn 1 Reward Point for every ৳1,000 spent. Redeem points directly at checkout or cashout to bKash / Nagad / Bank once you reach 100 points.')
 
+@php
+    $rewardSummary = $rewardSummary ?? [
+        'point_value' => 10,
+        'points_balance' => 0,
+        'bdt_value' => 0,
+        'min_threshold' => 100,
+        'min_threshold_bdt' => 1000,
+        'progress_percent' => 0,
+        'can_withdraw' => false,
+        'total_earned_points' => 0,
+    ];
+    $transactions = $transactions ?? collect();
+    $pendingPayouts = $pendingPayouts ?? collect();
+@endphp
+
 @section('content')
 <style>
 /* 1:1 Agoda / Prime Rewards Styling */

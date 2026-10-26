@@ -70,7 +70,7 @@
                 </div>
 
                 <button type="submit" class="ssl-btn">
-                    PAY {{ CurrencyService::format($booking->amount) }} NOW
+                    PAY {{ CurrencyService::format($booking->total_amount ?? $booking->total_price ?? $booking->amount ?? 0) }} NOW
                 </button>
             </form>
 

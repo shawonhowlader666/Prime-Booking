@@ -251,6 +251,69 @@
                 </div>
             </div>
 
+            {{-- AGODA SEARCH CARD HIGHLIGHTS & MARKETING BADGES --}}
+            <div class="border-bottom pb-2.5 mb-4 mt-5">
+                <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#2067e1;">
+                    <i class="fa-solid fa-wand-magic-sparkles text-primary me-2.5" style="font-size:15px; width:20px;"></i>
+                    <span>Agoda Search Card Highlights &amp; Marketing Badges</span>
+                </h5>
+            </div>
+            <div class="p-3.5 border rounded bg-light mb-4" style="border-left: 4px solid #2067e1 !important;">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label fw-bold" style="font-size:12.5px;">Card Feature Snippet / Key Highlights (Agoda Bottom Line)</label>
+                        <input type="text" name="feature_snippet" class="form-control" 
+                               value="{{ old('feature_snippet') }}" 
+                               placeholder="e.g. Panoramic Sea Views from 12th Floor, Five-Minute Walk to Kolatoly Beach">
+                        <small class="text-muted" style="font-size:11.5px;">
+                            Appears at the bottom of the hotel card with a sparkle icon (Exact Agoda feature snippet).
+                        </small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold" style="font-size:12.5px;">Top Photo Ribbon Badge (Top Left Corner of Image)</label>
+                        <input type="text" name="ribbon_badge" class="form-control" 
+                               value="{{ old('ribbon_badge') }}" 
+                               placeholder="e.g. Best rated 5-star hotels or Top Beach Resort (Leave blank for none)">
+                        <small class="text-muted" style="font-size:11.5px;">
+                            Displays an authentic Agoda blue ribbon over the hotel photo.
+                        </small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold" style="font-size:12.5px;">Rooms Remaining / Urgency</label>
+                        <input type="number" name="rooms_left" class="form-control" 
+                               value="{{ old('rooms_left', 5) }}" min="0" max="99">
+                        <small class="text-muted" style="font-size:11px;">e.g. "1 still available" if 1-5</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold" style="font-size:12.5px;">Location Score (Out of 10)</label>
+                        <input type="number" step="0.1" name="location_score" class="form-control" 
+                               value="{{ old('location_score', 8.8) }}" min="1" max="10">
+                        <small class="text-muted" style="font-size:11px;">e.g. 9.1 Location score</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold" style="font-size:12.5px;">Guest Rating Score (Out of 10)</label>
+                        <input type="number" step="0.1" name="rating_score" class="form-control" 
+                               value="{{ old('rating_score', 8.8) }}" min="1" max="10">
+                        <small class="text-muted" style="font-size:11px;">e.g. 9.2 Exceptional</small>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-bold" style="font-size:12.5px;">Total Reviews Count</label>
+                        <input type="number" name="total_reviews" class="form-control" 
+                               value="{{ old('total_reviews', 128) }}" min="0">
+                        <small class="text-muted" style="font-size:11px;">e.g. 1,280 reviews</small>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="form-check form-switch pt-1">
+                            <input class="form-check-input" type="checkbox" name="is_sold_out" value="1" id="createIsSoldOut"
+                                {{ old('is_sold_out') ? 'checked' : '' }}>
+                            <label class="form-check-label fw-bold text-danger" for="createIsSoldOut" style="font-size:12.5px;">
+                                <i class="fa-solid fa-ban"></i> Mark as "Sold out on your dates!"
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- 3. MEDIA & GALLERY --}}
             <div class="border-bottom pb-2.5 mb-4 mt-5">
                 <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:15px; color:#0f172a;">

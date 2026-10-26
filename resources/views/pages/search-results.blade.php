@@ -477,6 +477,60 @@
         margin-left: 0;
         margin-right: auto;
     }
+    @media (min-width: 768px) {
+        .agoda-property-card-root {
+            height: 200px !important;
+            min-height: 200px !important;
+            max-height: 200px !important;
+        }
+        .agoda-property-card-root.agoda-first-featured-card {
+            height: 235px !important;
+            min-height: 235px !important;
+            max-height: 235px !important;
+            background: #eaf2fd !important;
+            border-color: #b9d5fb !important;
+        }
+        .agoda-card-blue-strip {
+            background: #1f4ba4 !important;
+            color: #ffffff !important;
+            font-size: 13.5px !important;
+            font-weight: 500 !important;
+            padding: 7px 14px !important;
+            width: 100% !important;
+            display: flex !important;
+            align-items: center !important;
+            box-sizing: border-box !important;
+            line-height: 1.4 !important;
+        }
+        .agoda-card-content-wrap {
+            height: 200px !important;
+            min-height: 200px !important;
+            max-height: 200px !important;
+        }
+        .agoda-card-photo-col {
+            width: 236px !important;
+            min-width: 236px !important;
+            max-width: 236px !important;
+            height: 200px !important;
+            min-height: 200px !important;
+            max-height: 200px !important;
+        }
+        .agoda-card-info-col {
+            height: 200px !important;
+            min-height: 200px !important;
+            max-height: 200px !important;
+            padding: 9px 14px !important;
+        }
+        .agoda-card-price-col {
+            width: 195px !important;
+            min-width: 195px !important;
+            max-width: 195px !important;
+            height: 200px !important;
+            min-height: 200px !important;
+            max-height: 200px !important;
+            padding: 9px 14px 9px 10px !important;
+        }
+    }
     .agoda-sticky-sidebar::-webkit-scrollbar {
         width: 4px;
     }

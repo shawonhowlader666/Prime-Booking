@@ -16,8 +16,8 @@
     <title>@yield('title', 'Prime Booking | Hotels, Flights & Ship Cruise Booking in Bangladesh | হোটেল বুকিং বিডি')</title>
 
     <!-- Comprehensive SEO Meta Tags (Bilingual English & Bangla for BD Market) -->
-    <meta name="description" content="@yield('meta_description', 'Book 2,000+ hotels, resorts, ship cruises, domestic flights & airport transfers across Bangladesh at guaranteed lowest prices. Coxs Bazar, Sajek, Sylhet, Sundarban & Dhaka hotel booking. কক্সবাজার, সাজেক ও সিলেট হোটেল বুকিং।')">
-    <meta name="keywords" content="@yield('meta_keywords', 'hotel booking bangladesh, online hotel booking bd, cheap hotels coxs bazar, sajek valley resort, sundarban cruise booking, sylhet hotel booking, dhaka 5 star hotel, air ticket booking bangladesh, হোটেল বুকিং বাংলাদেশ, কক্সবাজার হোটেল, সাজেক রিসোর্ট, প্রাইম বুকিং')">
+    <meta name="description" content="@yield('meta_description', 'Book 2,000+ hotels, resorts, Sundarbans ship cruises, Tanguar Haor luxury houseboats, flights & transfers across Bangladesh at guaranteed lowest prices. Coxs Bazar, Sajek, Sylhet, Sundarban & Tanguar Haor booking. কক্সবাজার, সাজেক, সুন্দরবন শিপ ও টাঙ্গুয়ার হাওর হাউসবোট বুকিং।')">
+    <meta name="keywords" content="@yield('meta_keywords', 'hotel booking bangladesh, online hotel booking bd, cheap hotels coxs bazar, sajek valley resort, sundarban cruise booking, sundarbans ship booking, tanguar haor houseboat, tanguar haor luxury houseboat, sylhet hotel booking, dhaka 5 star hotel, air ticket booking bangladesh, হোটেল বুকিং বাংলাদেশ, সুন্দরবন শিপ বুকিং, টাঙ্গুয়ার হাওর হাউসবোট, কক্সবাজার হোটেল, সাজেক রিসোর্ট, প্রাইম বুকিং')">
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <link rel="canonical" href="@yield('canonical_url', url()->current())">
     @if(!empty($siteSettings['google_search_console'] ?? null))
@@ -65,7 +65,7 @@
         'url'               => 'https://primebooking.com.bd',
         'logo'              => 'https://primebooking.com.bd/android-chrome-512x512.png',
         'image'             => 'https://primebooking.com.bd/android-chrome-512x512.png',
-        'description'       => 'Leading online travel platform in Bangladesh for booking hotels, resorts, ship cruises, flights and airport transfers.',
+        'description'       => 'Leading online travel platform in Bangladesh for booking hotels, luxury resorts, Sundarbans ship cruises, Tanguar Haor houseboats, domestic flights and transfers.',
         'telephone'         => '+8801606352642',
         'priceRange'        => '৳৳ - ৳৳৳৳',
         'address'           => [
@@ -111,7 +111,7 @@
     <link rel="stylesheet" href="{{ asset('css/agoda/agoda-critical.css') }}?v=20261012">
     <link rel="stylesheet" href="{{ asset('css/agoda/search-bundle.css') }}?v=20261012">
     <link rel="stylesheet" href="{{ asset('css/agoda/3596-bundle.css') }}?v=20261012">
-    <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}?v=20261012">
+    <link rel="stylesheet" href="{{ asset('css/agoda-style.css') }}?v=20261023_agoda_blue_banner_v4">
     
     <style>
         :root {
@@ -241,7 +241,9 @@
     @include('components.layout.mobile-bottom-nav')
 
     <!-- Agoda Recently Viewed Properties Floating Dock & Drawer -->
-    @include('components.recently-viewed-drawer')
+    @if(!request()->routeIs('search.*') && !request()->routeIs('hotels.*') && !request()->routeIs('seo.city.*'))
+        @include('components.recently-viewed-drawer')
+    @endif
 
     {{-- Mobile PWA Install Floating Prompt (Agoda 1:1 Parity) --}}
     <div id="pwaInstallBanner" style="display: none; position: fixed; bottom: 75px; left: 16px; right: 16px; z-index: 99999; background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 16px; box-shadow: 0 12px 36px rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15);">
@@ -311,7 +313,9 @@
         });
     </script>
     @include('partials.prime_toast')
-    @include('partials.social_proof_toaster')
+    @if(!request()->routeIs('search.*') && !request()->routeIs('hotels.*') && !request()->routeIs('seo.city.*'))
+        @include('partials.social_proof_toaster')
+    @endif
     @include('components.modals.rewards-program-modal')
     <!-- Enterprise Sub-Zero Latency Page Prefetcher (Instant.page: 0ms navigation on hover/touch) -->
     <script src="https://cdn.jsdelivr.net/npm/instant.page@5.2.0/instantpage.js" type="module" defer></script>

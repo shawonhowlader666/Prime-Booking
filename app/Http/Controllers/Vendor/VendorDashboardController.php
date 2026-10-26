@@ -126,7 +126,10 @@ class VendorDashboardController extends Controller
         $vendorId    = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
 
-        $booking = Booking::where('booking_reference', $reference)
+        $booking = Booking::where(function($q) use ($reference) {
+                $q->where('booking_reference', $reference)
+                  ->orWhere('id', $reference);
+            })
             ->whereIn('property_id', $propertyIds)
             ->with(['property', 'room'])
             ->firstOrFail();
@@ -138,7 +141,10 @@ class VendorDashboardController extends Controller
     {
         $vendorId = $this->vendorId();
         $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
-        $booking = Booking::where('booking_reference', $reference)
+        $booking = Booking::where(function($q) use ($reference) {
+                $q->where('booking_reference', $reference)
+                  ->orWhere('id', $reference);
+            })
             ->whereIn('property_id', $propertyIds)
             ->firstOrFail();
 
@@ -163,7 +169,7 @@ class VendorDashboardController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'payment_status' => 'required|string|in:paid,unpaid,pending,refunded',
+            'payment_status' => 'required|string|in:paid,unpaid,pending,refunded,failed',
         ]);
 
         $booking->update([

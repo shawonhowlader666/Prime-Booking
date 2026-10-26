@@ -1,8 +1,9 @@
 <?php
-$pdo = new PDO("mysql:host=127.0.0.1;port=3307;dbname=prime_aviation", "root", "");
-$stmt = $pdo->query("SELECT id, name, city, price_per_night, star_rating, status, created_at FROM properties ORDER BY id ASC");
-$props = $stmt->fetchAll(PDO::FETCH_ASSOC);
-echo "=== PROPERTIES (" . count($props) . ") ===\n";
+require 'vendor/autoload.php';
+$app = require_once 'bootstrap/app.php';
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+
+$props = \App\Models\Property::active()->select('id', 'name', 'slug', 'city', 'star_rating', 'price_per_night')->get();
 foreach ($props as $p) {
-    echo "ID: {$p['id']} | {$p['name']} | City: {$p['city']} | Price: {$p['price_per_night']} | Stars: {$p['star_rating']} | Status: {$p['status']}\n";
+    echo "ID: {$p->id} | Name: {$p->name} | Slug: {$p->slug} | Stars: {$p->star_rating} | Price: ৳{$p->price_per_night}\n";
 }

@@ -124,10 +124,11 @@
 
         {{-- Price Breakdown --}}
         @php
-            $cNights   = $booking->nights_count;
+            $addons    = $addons ?? ($booking->addons ?? collect());
+            $cNights   = $booking->nights_count ?? $booking->nights ?? 1;
             $cRate     = $booking->price_per_night > 0 ? $booking->price_per_night : ($booking->property?->price_per_night ?? 12500);
             $cSubtotal = $booking->subtotal > 0 ? $booking->subtotal : ($cRate * $cNights);
-            $cAddons   = $addons->sum('price');
+            $cAddons   = (!empty($addons) && method_exists($addons, 'sum')) ? $addons->sum('price') : 0;
             $cTax      = $booking->tax_amount > 0 ? $booking->tax_amount : round(($cSubtotal + $cAddons) * 0.075);
             $cTotal    = $cSubtotal + $cAddons + $cTax;
         @endphp
@@ -136,7 +137,7 @@
                 <span>Room rate × {{ $cNights }} night{{ $cNights > 1 ? 's' : '' }}</span>
                 <span>{{ CurrencyService::format($cSubtotal) }}</span>
             </div>
-            @if($addons->isNotEmpty())
+            @if(!empty($addons) && method_exists($addons, 'isNotEmpty') && $addons->isNotEmpty())
             @foreach($addons as $addon)
             <div class="price-row">
                 <span>{{ $addon->addon_name }}</span>

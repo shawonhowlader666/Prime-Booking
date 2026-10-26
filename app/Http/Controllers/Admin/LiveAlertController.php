@@ -33,13 +33,17 @@ class LiveAlertController extends Controller
 
         $hasNewAlert = Booking::where('created_at', '>', $lastCheckedTime)->exists();
 
+        $userId = auth()->id() ? (int)auth()->id() : null;
+        $sidebarCounts = \App\Services\SidebarBadgeService::getAdminCounts($userId, true);
+
         return response()->json([
             'status'             => 'success',
             'timestamp'          => Carbon::now()->toIso8601String(),
             'pending_properties' => $pendingProperties,
             'pending_payouts'    => $pendingPayouts,
             'pending_inquiries'  => $pendingInquiries,
-            'total_alerts'       => $pendingProperties + $pendingPayouts + $pendingInquiries,
+            'total_alerts'       => $sidebarCounts['total_alerts'] ?? ($pendingProperties + $pendingPayouts + $pendingInquiries),
+            'counts'             => $sidebarCounts,
             'play_chime'         => $hasNewAlert,
             'latest_booking'     => $latestBooking ? [
                 'ref'           => $latestBooking->booking_reference,

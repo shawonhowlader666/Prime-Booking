@@ -210,7 +210,7 @@
                                         
                                         {{-- 1. Quick Preview Modal Trigger --}}
                                         <li>
-                                            <button type="button" class="dropdown-item py-1.5 px-3 text-primary fw-semibold" onclick="openBookingPreviewModal({{ $previewJson }})">
+                                            <button type="button" class="dropdown-item py-1.5 px-3 text-primary fw-semibold" data-preview="{{ base64_encode($previewJson) }}" onclick="openBookingPreviewModal(this)">
                                                 <i class="fa-solid fa-eye me-2 text-primary"></i> Quick Preview
                                             </button>
                                         </li>
@@ -403,7 +403,17 @@
 </div>
 
 <script>
-function openBookingPreviewModal(data) {
+function openBookingPreviewModal(input) {
+    let data = input;
+    if (input && input.dataset && input.dataset.preview) {
+        try {
+            data = JSON.parse(atob(input.dataset.preview));
+        } catch (e) {
+            console.error('Failed to parse booking preview data:', e);
+            return;
+        }
+    }
+    if (!data) return;
     document.getElementById('pv_ref').innerText = data.reference;
     document.getElementById('pv_name').innerText = data.guest_name;
     document.getElementById('pv_phone_link').innerText = data.guest_phone;

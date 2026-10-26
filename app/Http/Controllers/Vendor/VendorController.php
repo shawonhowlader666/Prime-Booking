@@ -6,6 +6,10 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Booking;
 use App\Models\Location;
+use App\Models\SupportTicket;
+use App\Models\SupportTicketReply;
+use App\Models\Review;
+use App\Models\Payout;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -169,6 +173,13 @@ class VendorController extends Controller
             'amenities'                => $request->amenities ?? [],
             'free_cancellation'        => $request->boolean('free_cancellation', true),
             'no_credit_card_required'  => $request->boolean('no_credit_card_required', false),
+            'feature_snippet'          => $request->feature_snippet ?: null,
+            'ribbon_badge'             => $request->ribbon_badge ?: null,
+            'is_sold_out'              => $request->boolean('is_sold_out'),
+            'rooms_left'               => $request->has('rooms_left') ? (int)$request->rooms_left : 5,
+            'location_score'           => $request->location_score ? (float)$request->location_score : 8.8,
+            'rating_score'             => $request->rating_score ? (float)$request->rating_score : 8.8,
+            'total_reviews'            => $request->has('total_reviews') ? (int)$request->total_reviews : 128,
             'is_featured'              => false,
             'status'                   => 'pending',
             'vendor_id'                => $vendorId,
@@ -306,6 +317,13 @@ class VendorController extends Controller
             'amenities'                => $request->amenities ?? [],
             'free_cancellation'        => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $property->free_cancellation,
             'no_credit_card_required'  => $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : $property->no_credit_card_required,
+            'rooms_left'               => $request->has('rooms_left') ? (int)$request->rooms_left : $property->rooms_left,
+            'location_score'           => $request->location_score ? (float)$request->location_score : $property->location_score,
+            'rating_score'             => $request->rating_score ? (float)$request->rating_score : $property->rating_score,
+            'total_reviews'            => $request->has('total_reviews') ? (int)$request->total_reviews : $property->total_reviews,
+            'feature_snippet'          => $request->has('feature_snippet') ? $request->feature_snippet : $property->feature_snippet,
+            'ribbon_badge'             => $request->has('ribbon_badge') ? $request->ribbon_badge : $property->ribbon_badge,
+            'is_sold_out'              => $request->boolean('is_sold_out'),
             'status'                   => $wasRejected ? 'pending' : $property->status,
             'rejection_reason'         => $wasRejected ? null : $property->rejection_reason,
         ]);
@@ -339,62 +357,6 @@ class VendorController extends Controller
         $property->delete();
         return redirect()->route('vendor.properties.index')
             ->with('success', '"' . $name . '" deleted successfully.');
-    }
-
-    // ── Notifications ──────────────────────────────────────────
-    public function notifications()
-    {
-        $vendorId    = $this->vendorId();
-        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
-
-        $notifications = Booking::whereIn('property_id', $propertyIds)
-            ->with('property:id,name')
-            ->latest()
-            ->take(25)
-            ->get();
-        $recentBookings = $notifications;
-
-        return view('vendor.notifications', compact('notifications', 'recentBookings'));
-    }
-
-    public function markNotificationRead($id)
-    {
-        return back()->with('success', 'Notification marked as read.');
-    }
-
-    // ── Financial Reports ──────────────────────────────────────
-    public function reports(Request $request)
-    {
-        $vendorId    = $this->vendorId();
-        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
-        $year        = (int)($request->year ?? now()->year);
-
-        $monthlyData = [];
-        for ($m = 1; $m <= 12; $m++) {
-            $revenue = Booking::whereIn('property_id', $propertyIds)
-                ->whereYear('created_at', $year)
-                ->whereMonth('created_at', $m)
-                ->whereNotIn('status', ['cancelled'])
-                ->sum(DB::raw('COALESCE(total_price, total_amount, 0)'));
-            $monthlyData[] = ['month' => date('M', mktime(0, 0, 0, $m, 1)), 'revenue' => (float)$revenue];
-        }
-
-        $topProperties = Property::where('vendor_id', $vendorId)
-            ->withCount('bookings')
-            ->orderByDesc('bookings_count')
-            ->take(5)
-            ->get();
-
-        $totalRevenue  = Booking::whereIn('property_id', $propertyIds)->whereNotIn('status', ['cancelled'])->whereYear('created_at', $year)->sum(DB::raw('COALESCE(total_price, total_amount, 0)'));
-        $totalBookings = Booking::whereIn('property_id', $propertyIds)->whereYear('created_at', $year)->count();
-        $avgBookingVal = $totalBookings > 0 ? round($totalRevenue / $totalBookings) : 0;
-        $cancellations = Booking::whereIn('property_id', $propertyIds)->whereYear('created_at', $year)
-            ->where(fn($q) => $q->where('status', 'cancelled')->orWhere('booking_status', 'cancelled'))->count();
-
-        return view('vendor.reports', compact(
-            'monthlyData', 'topProperties', 'totalRevenue',
-            'totalBookings', 'avgBookingVal', 'cancellations', 'year'
-        ));
     }
 
     // ── Guest Inquiries ────────────────────────────────────────
@@ -478,17 +440,275 @@ class VendorController extends Controller
     }
 
     // ── Support & Help ─────────────────────────────────────────
-    public function support()
+    public function support(Request $request)
     {
-        return view('vendor.support');
+        $userId  = $this->vendorId();
+        $tickets = SupportTicket::where('user_id', $userId)
+            ->withCount('replies')
+            ->orderByDesc('created_at')
+            ->paginate(10);
+
+        return view('vendor.support', compact('tickets'));
     }
 
     public function submitSupport(Request $request)
     {
         $request->validate([
-            'subject' => 'required|string|max:255',
-            'message' => 'required|string|max:5000',
+            'subject'  => 'required|string|max:255',
+            'category' => 'required|string|max:100',
+            'message'  => 'required|string|max:5000',
         ]);
-        return back()->with('success', 'Your support request has been submitted. Our team will contact you within 24 hours.');
+
+        SupportTicket::create([
+            'user_id'       => $this->vendorId(),
+            'ticket_number' => SupportTicket::generateTicketNumber(),
+            'subject'       => $request->subject,
+            'category'      => $request->category,
+            'message'       => $request->message,
+            'status'        => 'open',
+            'priority'      => 'medium',
+            'source'        => 'vendor',
+        ]);
+
+        return back()->with('success', 'Your support ticket has been submitted! Ticket number sent to your email. Our team will respond within 24 hours.');
+    }
+
+    public function viewTicket(int $id)
+    {
+        $ticket = SupportTicket::where('user_id', $this->vendorId())
+            ->with(['replies.user'])
+            ->findOrFail($id);
+
+        return view('vendor.support-ticket', compact('ticket'));
+    }
+
+    public function replyTicket(Request $request, int $id)
+    {
+        $ticket = SupportTicket::where('user_id', $this->vendorId())->findOrFail($id);
+        $request->validate(['message' => 'required|string|max:5000']);
+
+        SupportTicketReply::create([
+            'ticket_id'      => $ticket->id,
+            'user_id'        => $this->vendorId(),
+            'message'        => $request->message,
+            'is_admin_reply' => false,
+        ]);
+
+        if ($ticket->status === 'closed' || $ticket->status === 'resolved') {
+            $ticket->update(['status' => 'open']);
+        }
+
+        return back()->with('success', 'Reply sent successfully.');
+    }
+
+    // ── Notifications Center ───────────────────────────────────
+    public function notifications(Request $request)
+    {
+        $user = auth()->user();
+        $vendorId = $this->vendorId();
+
+        $propertyIds = Property::where('vendor_id', $vendorId)->pluck('id');
+
+        // Recent bookings (confirmed or new)
+        $recentBookings = Booking::whereIn('property_id', $propertyIds)
+            ->with(['property', 'room'])
+            ->latest('id')
+            ->take(15)
+            ->get();
+
+        // Recent reviews
+        $recentReviews = Review::whereIn('property_id', $propertyIds)
+            ->with('property')
+            ->latest('id')
+            ->take(10)
+            ->get();
+
+        // Recent payouts
+        $recentPayouts = Payout::where('vendor_id', $vendorId)
+            ->latest('id')
+            ->take(5)
+            ->get();
+
+        // Merge into structured unified activity feed
+        $items = collect();
+
+        foreach ($recentBookings as $b) {
+            $isCancel = ($b->status === 'cancelled');
+            $items->push([
+                'id'         => 'booking_' . $b->id,
+                'type'       => $isCancel ? 'booking_cancelled' : 'booking_new',
+                'title'      => $isCancel ? 'Booking Cancelled' : 'New Reservation Confirmed',
+                'message'    => "Ref #{$b->booking_reference} for " . ($b->property->name ?? 'Property') . " by {$b->guest_name} (৳" . number_format($b->total_price ?? 0) . ")",
+                'time'       => $b->created_at,
+                'link'       => route('vendor.bookings.show', $b->id),
+                'icon'       => $isCancel ? 'fa-solid fa-ban text-danger' : 'fa-solid fa-calendar-check text-success',
+                'bg'         => $isCancel ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)',
+                'is_read'    => false,
+            ]);
+        }
+
+        foreach ($recentReviews as $r) {
+            $items->push([
+                'id'         => 'review_' . $r->id,
+                'type'       => 'review_received',
+                'title'      => "New {$r->rating}-Star Guest Review",
+                'message'    => "Guest review received on " . ($r->property->name ?? 'Property') . ": \"" . \Illuminate\Support\Str::limit($r->comment, 60) . "\"",
+                'time'       => $r->created_at,
+                'link'       => route('vendor.reviews.index'),
+                'icon'       => 'fa-solid fa-star text-warning',
+                'bg'         => 'rgba(245, 158, 11, 0.1)',
+                'is_read'    => false,
+            ]);
+        }
+
+        foreach ($recentPayouts as $p) {
+            $items->push([
+                'id'         => 'payout_' . $p->id,
+                'type'       => 'payout_status',
+                'title'      => 'Payout ' . ucfirst($p->status),
+                'message'    => "Payout request of ৳" . number_format($p->amount) . " is " . ucfirst($p->status) . " (Ref: {$p->reference_number})",
+                'time'       => $p->created_at,
+                'link'       => route('vendor.payouts.index'),
+                'icon'       => 'fa-solid fa-money-bill-transfer text-primary',
+                'bg'         => 'rgba(24, 144, 255, 0.1)',
+                'is_read'    => true,
+            ]);
+        }
+
+        // Sort unified stream newest first
+        $notifications = $items->sortByDesc('time')->values();
+
+        return view('vendor.notifications', compact('notifications'));
+    }
+
+    public function markNotificationRead(Request $request, $id)
+    {
+        if ($user = auth()->user()) {
+            $user->unreadNotifications()->where('id', $id)->update(['read_at' => now()]);
+        }
+        return back()->with('success', 'Notification marked as read.');
+    }
+
+    public function markAllNotificationsRead(Request $request)
+    {
+        if ($user = auth()->user()) {
+            $user->unreadNotifications()->update(['read_at' => now()]);
+        }
+        return back()->with('success', 'All notifications marked as read.');
+    }
+
+    // ── Financial & Analytics Reports ──────────────────────────
+    public function reports(Request $request)
+    {
+        $vendorId = $this->vendorId();
+        $selectedYear = (int) ($request->get('year', now()->year));
+        $selectedPropertyId = $request->get('property_id');
+
+        $propertiesQuery = Property::where('vendor_id', $vendorId);
+        $vendorProperties = $propertiesQuery->select(['id', 'name'])->get();
+        $propertyIds = $vendorProperties->pluck('id')->toArray();
+
+        // Base bookings query for this vendor
+        $bookingsQuery = Booking::whereIn('property_id', $propertyIds)
+            ->whereYear('created_at', $selectedYear);
+
+        if ($selectedPropertyId && in_array($selectedPropertyId, $propertyIds)) {
+            $bookingsQuery->where('property_id', $selectedPropertyId);
+        }
+
+        // Export CSV if requested
+        if ($request->get('export') === 'csv') {
+            $filename = "vendor_report_{$selectedYear}_" . date('Ymd_His') . ".csv";
+            $headers = [
+                'Content-Type' => 'text/csv',
+                'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            ];
+
+            $exportBookings = (clone $bookingsQuery)->with(['property', 'room'])->latest('id')->get();
+
+            $callback = function () use ($exportBookings) {
+                $file = fopen('php://output', 'w');
+                fputcsv($file, ['Ref #', 'Guest Name', 'Property', 'Room', 'Check-in', 'Check-out', 'Amount (BDT)', 'Status', 'Payment Status', 'Created At']);
+
+                foreach ($exportBookings as $b) {
+                    fputcsv($file, [
+                        $b->booking_reference ?? $b->booking_code ?? $b->id,
+                        $b->guest_name,
+                        $b->property->name ?? 'N/A',
+                        $b->room->name ?? 'Standard Room',
+                        $b->check_in ? $b->check_in->format('Y-m-d') : 'N/A',
+                        $b->check_out ? $b->check_out->format('Y-m-d') : 'N/A',
+                        $b->total_price ?? $b->total_amount ?? 0,
+                        ucfirst($b->status ?? 'pending'),
+                        ucfirst($b->payment_status ?? 'unpaid'),
+                        $b->created_at->format('Y-m-d H:i'),
+                    ]);
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        }
+
+        // Metrics
+        $totalBookings = (clone $bookingsQuery)->count();
+        $grossRevenue = (clone $bookingsQuery)->whereNotIn('status', ['cancelled'])->sum('total_price');
+        $cancellations = (clone $bookingsQuery)->where('status', 'cancelled')->count();
+        $validBookings = max(1, $totalBookings - $cancellations);
+        $avgValue = $totalBookings > 0 ? round($grossRevenue / $validBookings, 2) : 0;
+
+        // 12-Month aggregated data for Chart.js
+        $monthlyRevenueRaw = (clone $bookingsQuery)
+            ->whereNotIn('status', ['cancelled'])
+            ->selectRaw('MONTH(created_at) as month_num, SUM(total_price) as rev, COUNT(*) as cnt')
+            ->groupBy('month_num')
+            ->pluck('rev', 'month_num')
+            ->toArray();
+
+        $monthlyBookingsRaw = (clone $bookingsQuery)
+            ->selectRaw('MONTH(created_at) as month_num, COUNT(*) as cnt')
+            ->groupBy('month_num')
+            ->pluck('cnt', 'month_num')
+            ->toArray();
+
+        $monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        $monthlyData = [];
+
+        for ($m = 1; $m <= 12; $m++) {
+            $monthlyData[] = [
+                'month'    => $monthNames[$m - 1],
+                'revenue'  => (float) ($monthlyRevenueRaw[$m] ?? 0),
+                'bookings' => (int) ($monthlyBookingsRaw[$m] ?? 0),
+            ];
+        }
+
+        // Top properties ranked
+        $topProperties = Property::where('vendor_id', $vendorId)
+            ->withCount(['bookings' => function ($q) use ($selectedYear) {
+                $q->whereYear('created_at', $selectedYear);
+            }])
+            ->orderByDesc('bookings_count')
+            ->take(6)
+            ->get();
+
+        // Recent completed bookings for the report table
+        $recentBookings = (clone $bookingsQuery)
+            ->with(['property', 'room'])
+            ->latest('id')
+            ->take(10)
+            ->get();
+
+        return view('vendor.reports', compact(
+            'selectedYear',
+            'selectedPropertyId',
+            'vendorProperties',
+            'grossRevenue',
+            'totalBookings',
+            'avgValue',
+            'cancellations',
+            'monthlyData',
+            'topProperties',
+            'recentBookings'
+        ));
     }
 }

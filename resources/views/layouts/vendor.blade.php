@@ -884,6 +884,42 @@
         .sb-sub-item.active { color: #ffffff; background-color: var(--primary); font-weight: 600; }
         .sb-sub-item i { width: 14px; text-align: center; flex-shrink: 0; font-size: 11px; margin-right: 4px; }
 
+        /* ── Enterprise Smart Sidebar Menu Unread Badges ── */
+        .sb-menu-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 19px;
+            height: 18px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 10px;
+            line-height: 1;
+            letter-spacing: -0.2px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sb-badge-pulse {
+            animation: sbPulse 2.2s infinite ease-in-out;
+        }
+        @keyframes sbPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); box-shadow: 0 0 8px rgba(24, 144, 255, 0.6); }
+        }
+        .sb-badge-primary { background: #1890ff; color: #ffffff; }
+        .sb-badge-warning { background: #fa8c16; color: #ffffff; }
+        .sb-badge-danger  { background: #ff4d4f; color: #ffffff; }
+        .sb-badge-info    { background: #13c2c2; color: #ffffff; }
+        .sb-badge-success { background: #52c41a; color: #ffffff; }
+
+        /* Strict Zero/Empty Badge Suppression */
+        .sb-menu-badge:empty,
+        .sb-menu-badge.d-none,
+        .sb-menu-badge[data-count="0"] {
+            display: none !important;
+        }
+
         /* Compact Table Action Icon Buttons */
         .table-action-group {
             display: inline-flex !important;
@@ -960,25 +996,27 @@
         </div>
 
         <nav style="padding:8px 0 80px 0; flex:1; overflow-y:auto;">
+            @php 
+                \App\Services\SidebarBadgeService::autoMarkCurrentRoute();
+                $vendorBadgeCounts = \App\Services\SidebarBadgeService::getVendorCounts(); 
+            @endphp
 
             {{-- OVERVIEW --}}
             <div class="sb-section-header">Overview</div>
             <a href="{{ route('vendor.dashboard') }}" class="sb-nav-item {{ request()->routeIs('vendor.dashboard') ? 'active' : '' }}">
                 <i class="fa-solid fa-chart-pie"></i> <span>Dashboard</span>
             </a>
-            <a href="{{ route('vendor.notifications') }}" class="sb-nav-item {{ request()->routeIs('vendor.notifications') ? 'active' : '' }}">
+            @php $vTotalAlerts = $vendorBadgeCounts['total_alerts'] ?? 0; @endphp
+            <a href="{{ route('vendor.notifications') }}" data-badge-key="notifications" class="sb-nav-item {{ request()->routeIs('vendor.notifications') ? 'active' : '' }}">
                 <i class="fa-solid fa-bell"></i> <span>Notifications</span>
-                @php $pendingBookingsCount = \App\Models\Booking::whereIn('property_id', \App\Models\Property::where('vendor_id', auth()->id() ?? 1)->pluck('id'))->where(fn($q) => $q->where('status','pending')->orWhere('booking_status','pending'))->count(); @endphp
-                @if($pendingBookingsCount > 0)
-                    <span style="margin-left:auto;background:#ff9f43;color:#fff;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:10px;">{{ $pendingBookingsCount }}</span>
-                @endif
+                <span class="sb-menu-badge sb-badge-warning ms-auto {{ $vTotalAlerts > 0 ? '' : 'd-none' }}" id="badgeVendorNotifications" data-count="{{ $vTotalAlerts }}" style="{{ $vTotalAlerts > 0 ? '' : 'display: none !important;' }}">{{ $vTotalAlerts > 0 ? $vTotalAlerts : '' }}</span>
             </a>
 
             {{-- PROPERTY MANAGEMENT --}}
             <div class="sb-section-header">Property Management</div>
             @php 
                 $isPropActive = request()->routeIs('vendor.properties.*', 'vendor.property.*', 'vendor.availability.*', 'vendor.rooms.*'); 
-                $vendorPropsCount = \App\Models\Property::where('vendor_id', auth()->id() ?? 1)->count();
+                $vendorPropsCount = $vendorBadgeCounts['properties'] ?? 0;
                 $firstVendorProp = \App\Models\Property::where('vendor_id', auth()->id() ?? 1)->first();
             @endphp
             <div class="sb-nav-group">
@@ -991,10 +1029,10 @@
                 </button>
                 <div class="collapse {{ $isPropActive ? 'show' : '' }}" id="menuVendorProps">
                     <div class="sb-sub-menu">
-                        <a href="{{ route('vendor.properties.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.index') ? 'active' : '' }}">
+                        <a href="{{ route('vendor.properties.index') }}" data-badge-key="properties" class="sb-sub-item {{ request()->routeIs('vendor.properties.index') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Property List
                             @if($vendorPropsCount > 0)
-                                <span style="margin-left:auto; background:rgba(24,144,255,0.25); color:#91caff; font-size:10px; font-weight:700; padding:1px 6px; border-radius:10px;">{{ $vendorPropsCount }}</span>
+                                <span class="sb-menu-badge sb-badge-primary ms-auto" id="badgeVendorProps" data-count="{{ $vendorPropsCount }}">{{ $vendorPropsCount }}</span>
                             @endif
                         </a>
                         <a href="{{ route('vendor.properties.create') }}" class="sb-sub-item {{ request()->routeIs('vendor.properties.create','vendor.property.create') ? 'active' : '' }}">
@@ -1014,50 +1052,84 @@
 
             {{-- BOOKINGS & GUESTS --}}
             <div class="sb-section-header">Bookings & Guests</div>
-            @php $isBookActive = request()->routeIs('vendor.bookings.*', 'vendor.inquiries'); @endphp
+            @php 
+                $isBookActive = request()->routeIs('vendor.bookings.*', 'vendor.inquiries'); 
+                $vResTotal = $vendorBadgeCounts['reservations_total'] ?? 0;
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isBookActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorBook" aria-expanded="{{ $isBookActive ? 'true' : 'false' }}">
                     <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-calendar-days" style="width:16px;text-align:center;"></i> <span>Reservations</span></div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-primary sb-badge-pulse {{ $vResTotal > 0 ? '' : 'd-none' }}" id="badgeVendorResTotal" data-count="{{ $vResTotal }}" style="{{ $vResTotal > 0 ? '' : 'display: none !important;' }}">{{ $vResTotal > 0 ? $vResTotal : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
                 </button>
                 <div class="collapse {{ $isBookActive ? 'show' : '' }}" id="menuVendorBook">
                     <div class="sb-sub-menu">
-                        <a href="{{ route('vendor.bookings.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.bookings.index') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Bookings</a>
-                        <a href="{{ route('vendor.inquiries') }}" class="sb-sub-item {{ request()->routeIs('vendor.inquiries') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Inquiries</a>
+                        <a href="{{ route('vendor.bookings.index') }}" data-badge-key="bookings" data-parent-badge-id="badgeVendorResTotal" class="sb-sub-item {{ request()->routeIs('vendor.bookings.index') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Bookings
+                            @php $vBkCount = $vendorBadgeCounts['bookings'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-primary ms-auto {{ $vBkCount > 0 ? '' : 'd-none' }}" id="badgeVendorBookings" data-count="{{ $vBkCount }}" style="{{ $vBkCount > 0 ? '' : 'display: none !important;' }}">{{ $vBkCount > 0 ? $vBkCount : '' }}</span>
+                        </a>
+                        <a href="{{ route('vendor.inquiries') }}" data-badge-key="inquiries" data-parent-badge-id="badgeVendorResTotal" class="sb-sub-item {{ request()->routeIs('vendor.inquiries') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Inquiries
+                            @php $vInqCount = $vendorBadgeCounts['inquiries'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-warning ms-auto {{ $vInqCount > 0 ? '' : 'd-none' }}" id="badgeVendorInquiries" data-count="{{ $vInqCount }}" style="{{ $vInqCount > 0 ? '' : 'display: none !important;' }}">{{ $vInqCount > 0 ? $vInqCount : '' }}</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             {{-- MARKETING --}}
             <div class="sb-section-header">Marketing & Reviews</div>
-            @php $isMktActive = request()->routeIs('vendor.packages.*', 'vendor.promotions.*', 'vendor.reviews.*'); @endphp
+            @php 
+                $isMktActive = request()->routeIs('vendor.packages.*', 'vendor.promotions.*', 'vendor.reviews.*'); 
+                $vMktTotal = $vendorBadgeCounts['marketing_total'] ?? 0;
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isMktActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorMkt" aria-expanded="{{ $isMktActive ? 'true' : 'false' }}">
                     <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-bullhorn" style="width:16px;text-align:center;"></i> <span>Marketing</span></div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-info {{ $vMktTotal > 0 ? '' : 'd-none' }}" id="badgeVendorMktTotal" data-count="{{ $vMktTotal }}" style="{{ $vMktTotal > 0 ? '' : 'display: none !important;' }}">{{ $vMktTotal > 0 ? $vMktTotal : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
                 </button>
                 <div class="collapse {{ $isMktActive ? 'show' : '' }}" id="menuVendorMkt">
                     <div class="sb-sub-menu">
                         <a href="{{ route('vendor.packages.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.packages.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Tour Packages</a>
                         <a href="{{ route('vendor.promotions.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.promotions.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Promo Codes</a>
-                        <a href="{{ route('vendor.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.reviews.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Reviews</a>
+                        <a href="{{ route('vendor.reviews.index') }}" data-badge-key="reviews" data-parent-badge-id="badgeVendorMktTotal" class="sb-sub-item {{ request()->routeIs('vendor.reviews.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Reviews
+                            @php $vRevCount = $vendorBadgeCounts['reviews'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-info ms-auto {{ $vRevCount > 0 ? '' : 'd-none' }}" id="badgeVendorReviews" data-count="{{ $vRevCount }}" style="{{ $vRevCount > 0 ? '' : 'display: none !important;' }}">{{ $vRevCount > 0 ? $vRevCount : '' }}</span>
+                        </a>
                     </div>
                 </div>
             </div>
 
             {{-- FINANCE --}}
             <div class="sb-section-header">Finance & Billing</div>
-            @php $isFinActive = request()->routeIs('vendor.accounts.*', 'vendor.payouts.*', 'vendor.earnings', 'vendor.reports', 'vendor.plans.*'); @endphp
+            @php 
+                $isFinActive = request()->routeIs('vendor.accounts.*', 'vendor.payouts.*', 'vendor.earnings', 'vendor.reports', 'vendor.plans.*'); 
+                $vFinTotal = $vendorBadgeCounts['finance_total'] ?? 0;
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isFinActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuVendorFin" aria-expanded="{{ $isFinActive ? 'true' : 'false' }}">
                     <div class="d-flex align-items-center gap-2"><i class="fa-solid fa-wallet" style="width:16px;text-align:center;"></i> <span>Finance</span></div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-danger {{ $vFinTotal > 0 ? '' : 'd-none' }}" id="badgeVendorFinTotal" data-count="{{ $vFinTotal }}" style="{{ $vFinTotal > 0 ? '' : 'display: none !important;' }}">{{ $vFinTotal > 0 ? $vFinTotal : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
                 </button>
                 <div class="collapse {{ $isFinActive ? 'show' : '' }}" id="menuVendorFin">
                     <div class="sb-sub-menu">
                         <a href="{{ route('vendor.accounts.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.accounts.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Accounts &amp; Statements</a>
                         <a href="{{ route('vendor.earnings') }}" class="sb-sub-item {{ request()->routeIs('vendor.earnings') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Earnings Overview</a>
-                        <a href="{{ route('vendor.payouts.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.payouts.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payouts</a>
+                        <a href="{{ route('vendor.payouts.index') }}" data-badge-key="payouts" data-parent-badge-id="badgeVendorFinTotal" class="sb-sub-item {{ request()->routeIs('vendor.payouts.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payouts
+                            @php $vPayCount = $vendorBadgeCounts['pending_payouts'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-danger ms-auto {{ $vPayCount > 0 ? '' : 'd-none' }}" id="badgeVendorPayouts" data-count="{{ $vPayCount }}" style="{{ $vPayCount > 0 ? '' : 'display: none !important;' }}">{{ $vPayCount > 0 ? $vPayCount : '' }}</span>
+                        </a>
                         <a href="{{ route('vendor.reports') }}" class="sb-sub-item {{ request()->routeIs('vendor.reports') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Financial Reports</a>
                         <a href="{{ route('vendor.plans.index') }}" class="sb-sub-item {{ request()->routeIs('vendor.plans.*') ? 'active' : '' }}"><i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> SaaS Plans & Billing</a>
                     </div>
@@ -1069,8 +1141,10 @@
             <a href="{{ route('vendor.profile') }}" class="sb-nav-item {{ request()->routeIs('vendor.profile') ? 'active' : '' }}">
                 <i class="fa-solid fa-user-circle"></i> <span>My Profile</span>
             </a>
-            <a href="{{ route('vendor.support') }}" class="sb-nav-item {{ request()->routeIs('vendor.support') ? 'active' : '' }}">
+            <a href="{{ route('vendor.support') }}" data-badge-key="tickets" class="sb-nav-item {{ request()->routeIs('vendor.support') ? 'active' : '' }}">
                 <i class="fa-solid fa-headset"></i> <span>Support & Help</span>
+                @php $vTickCount = $vendorBadgeCounts['open_tickets'] ?? 0; @endphp
+                <span class="sb-menu-badge sb-badge-danger ms-auto {{ $vTickCount > 0 ? '' : 'd-none' }}" id="badgeVendorTickets" data-count="{{ $vTickCount }}" style="{{ $vTickCount > 0 ? '' : 'display: none !important;' }}">{{ $vTickCount > 0 ? $vTickCount : '' }}</span>
             </a>
 
             {{-- LIVE SITE --}}
@@ -1385,9 +1459,79 @@
             document.querySelectorAll('.btn-tbl-gear, .btn-tbl-col').forEach(b => b.classList.remove('active-col'));
         }
     });
+
+    function updateSbBadge(id, count) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const c = parseInt(count) || 0;
+        if (c > 0) {
+            el.textContent = c > 99 ? '99+' : c;
+            el.style.display = 'inline-flex';
+            el.classList.remove('d-none');
+            el.setAttribute('data-count', c);
+        } else {
+            el.textContent = '';
+            el.style.display = 'none';
+            el.classList.add('d-none');
+            el.setAttribute('data-count', '0');
+        }
+    }
+
+    function dismissVendorSidebarBadge(key, clickedLink) {
+        if (!key) return;
+        if (clickedLink) {
+            const childBadge = clickedLink.querySelector('.sb-menu-badge');
+            if (childBadge) {
+                childBadge.textContent = '';
+                childBadge.style.display = 'none';
+                childBadge.classList.add('d-none');
+                childBadge.setAttribute('data-count', '0');
+            }
+            const parentId = clickedLink.getAttribute('data-parent-badge-id');
+            if (parentId) {
+                const parentEl = document.getElementById(parentId);
+                if (parentEl) {
+                    const cur = parseInt(parentEl.getAttribute('data-count') || parentEl.textContent) || 0;
+                    const next = Math.max(0, cur - 1);
+                    updateSbBadge(parentId, next);
+                }
+            }
+        }
+        document.querySelectorAll(`[data-badge-key="${key}"] .sb-menu-badge`).forEach(b => {
+            b.textContent = '';
+            b.style.display = 'none';
+            b.classList.add('d-none');
+            b.setAttribute('data-count', '0');
+        });
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        try {
+            fetch('{{ route("api.sidebar-badge.mark-seen") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ key: key }),
+                keepalive: true
+            }).catch(() => {});
+        } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('#vendorSidebar [data-badge-key]').forEach(function(item) {
+            item.addEventListener('click', function() {
+                const key = this.getAttribute('data-badge-key');
+                dismissVendorSidebarBadge(key, this);
+            });
+        });
+    });
     </script>
     @include('partials.prime_toast')
     @yield('scripts')
+    @stack('scripts')
 </body>
 </html>
 

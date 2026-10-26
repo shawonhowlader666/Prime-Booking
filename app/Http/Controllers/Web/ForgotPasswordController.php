@@ -27,6 +27,24 @@ class ForgotPasswordController extends Controller
                 ['email' => $request->email],
                 ['token' => Hash::make($token), 'created_at' => now()]
             );
+
+            $resetUrl = route('password.reset', ['token' => $token, 'email' => $user->email]);
+
+            // Dispatch transactional email via EmailTemplate engine
+            try {
+                $template = \App\Models\EmailTemplate::getTemplate('password_reset');
+                if ($template && $template->is_active) {
+                    $rendered = $template->render([
+                        'user_name' => $user->name,
+                        'reset_url' => $resetUrl,
+                    ]);
+                    \Illuminate\Support\Facades\Mail::html($rendered['body'], function ($m) use ($user, $rendered) {
+                        $m->to($user->email, $user->name)->subject($rendered['subject']);
+                    });
+                }
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::warning('Password reset mail dispatch notice: ' . $e->getMessage());
+            }
         }
 
         return back()->with('status', 'If an account exists with this email address, password reset instructions have been dispatched.');
@@ -63,7 +81,11 @@ class ForgotPasswordController extends Controller
 
         $user->update(['password' => Hash::make($request->password)]);
         DB::table('password_reset_tokens')->where('email', $request->email)->delete();
-        $user->tokens()->delete();
+        try {
+            if (method_exists($user, 'tokens')) {
+                $user->tokens()->delete();
+            }
+        } catch (\Throwable $e) {}
 
         return redirect()->route('signin')->with('success', 'Your password has been reset successfully! Please sign in with your new password.');
     }

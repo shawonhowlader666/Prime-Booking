@@ -57,9 +57,9 @@
 
 .pb-center-brand .pb-brand-txt {
     font-size: 11px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: #475569;
+    letter-spacing: 0.3px;
     line-height: 1;
     text-transform: lowercase;
 }
@@ -110,27 +110,27 @@
     border-radius: 20px;
     padding: 2px 8px;
     font-size: 10px;
-    font-weight: 700;
+    font-weight: 600;
     margin: 4px auto 0;
     width: fit-content;
 }
 
 .pb-top-title {
-    font-size: 18px;
-    font-weight: 800;
-    color: #0f172a;
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
     text-align: center;
     margin: 6px 0 10px;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.1px;
 }
 
 .pb-top-btn {
     width: 100%;
-    background: #d84315;
+    background: #e04a1b;
     color: #ffffff;
-    font-weight: 700;
-    font-size: 13.5px;
-    padding: 9px 14px;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 14px;
     border-radius: 7px;
     border: none;
     cursor: pointer;
@@ -139,13 +139,13 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
-    box-shadow: 0 3px 10px rgba(216, 67, 21, 0.25);
+    box-shadow: 0 2px 8px rgba(224, 74, 27, 0.25);
 }
 
 .pb-top-btn:hover {
-    background: #bf360c;
+    background: #c83b0f;
     transform: translateY(-1px);
-    box-shadow: 0 5px 14px rgba(216, 67, 21, 0.35);
+    box-shadow: 0 4px 12px rgba(224, 74, 27, 0.3);
 }
 
 .pb-top-btn.is-active {
@@ -236,21 +236,22 @@
 }
 
 .pb-app-title-txt {
-    font-size: 17.5px;
-    font-weight: 800;
-    color: #0f172a;
+    font-size: 14.5px;
+    font-weight: 600;
+    color: #1e293b;
     text-align: center;
-    line-height: 1.25;
+    line-height: 1.3;
     margin-bottom: 3px;
-    letter-spacing: -0.3px;
+    letter-spacing: -0.1px;
 }
 
 .pb-app-sub-txt {
-    font-size: 11.5px;
-    color: #475569;
+    font-size: 11px;
+    color: #64748b;
     text-align: center;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
     line-height: 1.3;
+    font-weight: 400;
 }
 
 /* Phone Mockup Frame */
@@ -284,9 +285,9 @@
 
 .pb-phone-brand-tag .name {
     font-size: 11px;
-    font-weight: 800;
-    color: #1e293b;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    color: #475569;
+    letter-spacing: 0.3px;
     line-height: 1;
     text-transform: lowercase;
 }
@@ -340,14 +341,14 @@
 
 .pb-coupon-bar .code {
     font-size: 11px;
-    font-weight: 800;
-    color: #0f172a;
-    letter-spacing: 0.8px;
+    font-weight: 700;
+    color: #1e293b;
+    letter-spacing: 0.5px;
 }
 
 .pb-coupon-bar .hint {
     font-size: 10px;
-    font-weight: 600;
+    font-weight: 500;
     color: #2563eb;
 }
 
@@ -438,6 +439,15 @@
     }
 }
 </style>
+
+<script>
+    if (sessionStorage.getItem('pb_top_rewards_dismissed') === 'true') {
+        document.write('<style>#pbTopRewardsCard, #pbStickySideTab { display: none !important; }</style>');
+    }
+    if (sessionStorage.getItem('pb_bottom_app_dismissed') === 'true') {
+        document.write('<style>#pbBottomAppCard { display: none !important; }</style>');
+    }
+</script>
 
 <!-- Canvas for Confetti -->
 <canvas id="pbConfettiCanvas"></canvas>
@@ -531,6 +541,33 @@
 let pbBottomCardVisible = true;
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Check if bottom app card was dismissed in this session
+    if (sessionStorage.getItem('pb_bottom_app_dismissed') === 'true') {
+        pbBottomCardVisible = false;
+        const appCard = document.getElementById('pbBottomAppCard');
+        const toggleBtn = document.getElementById('pbCircleToggleBtn');
+        if (appCard) {
+            appCard.classList.add('is-hidden');
+            appCard.style.display = 'none';
+        }
+        if (toggleBtn) {
+            toggleBtn.className = 'pb-bottom-fixed-btn is-pill';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>Save on App!</span>';
+            toggleBtn.title = 'Open App Savings';
+        }
+    }
+
+    // Check if top rewards card was dismissed in this session
+    if (sessionStorage.getItem('pb_top_rewards_dismissed') === 'true') {
+        const topCard = document.getElementById('pbTopRewardsCard');
+        const stickyTab = document.getElementById('pbStickySideTab');
+        if (topCard) {
+            topCard.classList.add('is-hidden');
+            topCard.style.display = 'none';
+        }
+        if (stickyTab) stickyTab.style.display = 'none';
+    }
+
     if (localStorage.getItem('pb_rewards_active') === 'true') {
         pbSetRewardsStateActive();
     }
@@ -579,13 +616,19 @@ function pbSetRewardsStateActive() {
 function pbDismissTopCard() {
     const topCard = document.getElementById('pbTopRewardsCard');
     const stickyTab = document.getElementById('pbStickySideTab');
-    if (topCard) topCard.classList.add('is-hidden');
-    if (stickyTab) stickyTab.style.display = 'flex';
+    // Save to sessionStorage so it won't appear again on page reload
+    sessionStorage.setItem('pb_top_rewards_dismissed', 'true');
+    if (topCard) {
+        topCard.classList.add('is-hidden');
+        topCard.style.display = 'none';
+    }
+    if (stickyTab) stickyTab.style.display = 'none';
 }
 
 function pbRestoreTopCard() {
     const topCard = document.getElementById('pbTopRewardsCard');
     const stickyTab = document.getElementById('pbStickySideTab');
+    sessionStorage.removeItem('pb_top_rewards_dismissed');
     if (topCard) {
         topCard.classList.remove('is-hidden');
         topCard.style.display = 'block';
@@ -599,14 +642,21 @@ function pbToggleBottomCard() {
     
     if (pbBottomCardVisible) {
         pbBottomCardVisible = false;
-        if (appCard) appCard.classList.add('is-hidden');
+        // Save to sessionStorage so it won't re-open on reload
+        sessionStorage.setItem('pb_bottom_app_dismissed', 'true');
+        if (appCard) {
+            appCard.classList.add('is-hidden');
+            appCard.style.display = 'none';
+        }
         if (toggleBtn) {
             toggleBtn.className = 'pb-bottom-fixed-btn is-pill';
-            toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>Save more on App!</span>';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>Save on App!</span>';
             toggleBtn.title = 'Open App Savings';
         }
     } else {
         pbBottomCardVisible = true;
+        // User explicitly opened it again
+        sessionStorage.removeItem('pb_bottom_app_dismissed');
         if (appCard) {
             appCard.classList.remove('is-hidden');
             appCard.style.display = 'block';

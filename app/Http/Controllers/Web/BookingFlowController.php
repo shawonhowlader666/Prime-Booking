@@ -363,6 +363,9 @@ class BookingFlowController extends Controller
             \Illuminate\Support\Facades\Log::error("Booking post-processing error: " . $e->getMessage());
         }
 
+        // Store reference in session to authorize guest confirmation view
+        session(['last_booking_ref' => $booking->booking_reference]);
+
         // Route to payment gateway based on selected method
         // Also record the initiated transaction in payment_transactions for audit
         $payVerify = app(\App\Services\PaymentVerificationService::class);
@@ -433,7 +436,23 @@ class BookingFlowController extends Controller
             return;
         }
 
+        if (request()->hasValidSignature()) {
+            session(['last_booking_ref' => $booking->booking_reference]);
+            return;
+        }
+
         if (session('last_booking_ref') === $booking->booking_reference) {
+            return;
+        }
+
+        // Guest verification via matching email or phone parameter
+        if (request()->filled('email') && strtolower(trim((string)request('email'))) === strtolower(trim((string)$booking->guest_email))) {
+            session(['last_booking_ref' => $booking->booking_reference]);
+            return;
+        }
+
+        if (request()->filled('phone') && trim((string)request('phone')) === trim((string)$booking->guest_phone)) {
+            session(['last_booking_ref' => $booking->booking_reference]);
             return;
         }
 

@@ -175,27 +175,26 @@
         </form>
     </div>
     {{-- SAAS DATA TABLE CARD --}}
-    <form action="{{ route('admin.properties.bulk-action') }}" method="POST" id="bulkPropertiesForm">
-        @csrf
-        <div class="data-table-card p-0">
-            <div class="saas-table-toolbar d-flex align-items-center justify-content-between flex-wrap gap-2">
-                <div class="d-flex align-items-center gap-2">
-                    <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-hotel me-1 text-primary"></i> All Inventory Items ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)</h6>
-                    {{-- Bulk Action Dropdown --}}
-                    <div class="d-flex align-items-center gap-1 ms-3">
-                        <select name="bulk_action" class="form-select form-select-sm" style="font-size:12px; width:150px; height:32px;">
-                            <option value="">Bulk Actions...</option>
-                            <option value="approve">✅ Approve Selected</option>
-                            <option value="deactivate">⏸️ Deactivate Selected</option>
-                            <option value="delete">❌ Delete Selected</option>
-                        </select>
-                        <button type="submit" class="btn btn-sm btn-outline-primary fw-bold" style="height:32px; font-size:11.5px;" onclick="return confirm('Apply bulk action to selected properties?')">Apply</button>
-                    </div>
-                </div>
-                <div style="width:240px;">
-                    <input type="text" class="form-control form-control-sm" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
-                </div>
+    <div class="data-table-card p-0">
+        <div class="saas-table-toolbar d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-2">
+                <h6 class="mb-0 fw-bold text-dark"><i class="fa-solid fa-hotel me-1 text-primary"></i> All Inventory Items ({{ isset($properties) ? ($properties->total() ?? count($properties)) : 0 }} Listed)</h6>
+                {{-- Bulk Action Form --}}
+                <form action="{{ route('admin.properties.bulk-action') }}" method="POST" id="bulkPropertiesForm" class="d-flex align-items-center gap-1 ms-3" onsubmit="return handleBulkPropertySubmit(event)">
+                    @csrf
+                    <select name="bulk_action" id="bulkActionSelect" class="form-select form-select-sm" style="font-size:12px; width:150px; height:32px;" required>
+                        <option value="">Bulk Actions...</option>
+                        <option value="approve">✅ Approve Selected</option>
+                        <option value="deactivate">⏸️ Deactivate Selected</option>
+                        <option value="delete">❌ Delete Selected</option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-outline-primary fw-bold" style="height:32px; font-size:11.5px;">Apply</button>
+                </form>
             </div>
+            <div style="width:240px;">
+                <input type="text" class="form-control form-control-sm" placeholder="Quick search properties..." onkeyup="filterTableSearch('inventoryTable', this.value)">
+            </div>
+        </div>
 
             <div class="table-responsive">
                 <table class="table stockifly-data-table align-middle mb-0" id="inventoryTable">
@@ -267,32 +266,15 @@
                                             <i class="fa-solid fa-check"></i>
                                         </button>
                                     </form>
-                                    <button type="button" class="btn btn-sm btn-outline-danger me-1" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" data-bs-toggle="modal" data-bs-target="#rejectModal{{ $p->id }}" title="Reject with Feedback">
+                                    <button type="button" 
+                                            class="btn btn-sm btn-outline-danger me-1" 
+                                            style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" 
+                                            data-id="{{ $p->id }}" 
+                                            data-name="{{ e($p->name) }}" 
+                                            onclick="openRejectPropertyModal(this)" 
+                                            title="Reject with Feedback">
                                         <i class="fa-solid fa-xmark"></i>
                                     </button>
-
-                                    {{-- REJECT MODAL --}}
-                                    <div class="modal fade text-start" id="rejectModal{{ $p->id }}" tabindex="-1" aria-hidden="true">
-                                        <div class="modal-dialog modal-dialog-centered">
-                                            <div class="modal-content" style="border-radius:8px;">
-                                                <form action="{{ route('admin.properties.reject', $p->id) }}" method="POST">
-                                                    @csrf
-                                                    <div class="modal-header border-bottom py-2.5 px-3">
-                                                        <h6 class="modal-title fw-bold text-danger"><i class="fa-solid fa-triangle-exclamation me-1"></i> Reject Property Listing</h6>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body p-3">
-                                                        <p class="mb-2 text-dark" style="font-size:13px;">Please provide rejection feedback for <strong>{{ $p->name }}</strong>:</p>
-                                                        <textarea name="rejection_reason" class="form-control form-control-sm" rows="3" placeholder="e.g. Trade license missing or image quality insufficient..." required style="font-size:12.5px;"></textarea>
-                                                    </div>
-                                                    <div class="modal-footer border-top py-2 px-3">
-                                                        <button type="button" class="btn btn-light btn-sm text-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="submit" class="btn btn-danger btn-sm fw-bold"><i class="fa-solid fa-paper-plane me-1"></i> Submit Rejection</button>
-                                                    </div>
-                                                </form>
-                                            </div>
-                                        </div>
-                                    </div>
                                 @endif
                                 <div class="dropdown action-gear-dropdown d-inline-block">
                                     <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
@@ -374,6 +356,76 @@
                 </div>
             @endif
         </div>
-    </form>
+    </div>
+</div>
+
+{{-- REJECT PROPERTY MODAL (outside table) --}}
+<div class="modal fade text-start" id="rejectPropertyListingModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:6px; border:1px solid #cbd5e1; box-shadow:0 12px 40px rgba(0,0,0,0.18);">
+            <form id="rejectPropertyListingForm" method="POST">
+                @csrf
+                <div class="modal-header border-bottom py-2.5 px-3 bg-light">
+                    <h6 class="modal-title fw-bold text-danger mb-0" style="font-size:14.5px;">
+                        <i class="fa-solid fa-triangle-exclamation me-1.5"></i> Reject Property Listing
+                    </h6>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-3">
+                    <p class="mb-2 text-dark" style="font-size:13px;">Please provide rejection feedback for <strong id="rejectPropertyName" class="text-primary"></strong>:</p>
+                    <textarea name="rejection_reason" id="rejectPropertyReason" class="form-control form-control-sm" rows="3" placeholder="e.g. Trade license missing, details incomplete, or image quality insufficient..." required style="font-size:12.5px; border-radius:4px;"></textarea>
+                </div>
+                <div class="modal-footer border-top py-2 px-3 bg-light">
+                    <button type="button" class="btn btn-light btn-sm text-secondary border fw-semibold" data-bs-dismiss="modal" style="border-radius:4px;">Cancel</button>
+                    <button type="submit" class="btn btn-danger btn-sm fw-bold" style="border-radius:4px;">
+                        <i class="fa-solid fa-paper-plane me-1"></i> Submit Rejection
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function openRejectPropertyModal(btn) {
+    const id = btn.getAttribute('data-id');
+    const name = btn.getAttribute('data-name') || 'Property';
+    document.getElementById('rejectPropertyListingForm').action = '/admin/properties/' + id + '/reject';
+    document.getElementById('rejectPropertyName').textContent = name;
+    document.getElementById('rejectPropertyReason').value = '';
+    new bootstrap.Modal(document.getElementById('rejectPropertyListingModal')).show();
+}
+
+function handleBulkPropertySubmit(e) {
+    const select = document.getElementById('bulkActionSelect');
+    const action = select ? select.value : '';
+    if (!action) {
+        alert('Please select an action from the Bulk Actions dropdown.');
+        e.preventDefault();
+        return false;
+    }
+    const checkedBoxes = document.querySelectorAll('#inventoryTable .tbl-row-check:checked');
+    if (checkedBoxes.length === 0) {
+        alert('Please select at least one property using the checkboxes.');
+        e.preventDefault();
+        return false;
+    }
+    if (!confirm('Apply bulk ' + action.toUpperCase() + ' to ' + checkedBoxes.length + ' selected properties?')) {
+        e.preventDefault();
+        return false;
+    }
+    const form = document.getElementById('bulkPropertiesForm');
+    form.querySelectorAll('input[name="ids[]"]').forEach(el => el.remove());
+    checkedBoxes.forEach(cb => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = 'ids[]';
+        input.value = cb.value;
+        form.appendChild(input);
+    });
+    return true;
+}
+</script>
+@endpush

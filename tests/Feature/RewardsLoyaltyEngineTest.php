@@ -38,10 +38,16 @@ class RewardsLoyaltyEngineTest extends TestCase
             'password' => bcrypt('password'),
         ]);
 
-        $property = Property::first();
-        if (!$property) {
-            $this->markTestSkipped('No properties in database for booking test.');
-        }
+        $property = Property::first() ?? Property::create([
+            'name' => 'Cox Luxury Suites',
+            'slug' => 'cox-luxury-suites-' . uniqid(),
+            'type' => 'hotel',
+            'city' => 'Cox\'s Bazar',
+            'address' => 'Marine Drive',
+            'price_per_night' => 5000,
+            'is_featured' => true,
+            'status' => 'approved',
+        ]);
 
         $booking = Booking::create([
             'booking_reference' => 'TEST-RWD-' . rand(1000, 9999),

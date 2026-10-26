@@ -1,6 +1,11 @@
 @extends('layouts.main', ['activePage' => 'hotels'])
 
 @php
+    $checkIn  = $checkIn  ?? request('check_in',  now()->format('Y-m-d'));
+    $checkOut = $checkOut ?? request('check_out', now()->addDays(2)->format('Y-m-d'));
+    $guests   = $guests   ?? (int) request('guests', 2);
+    $nights   = $nights   ?? max(1, (int) \Carbon\Carbon::parse($checkIn)->diffInDays(\Carbon\Carbon::parse($checkOut)));
+
     $hotelCity = $property->city ?? "Cox's Bazar";
     $formattedPrice = number_format((float)($property->price_per_night ?? 2500), 0);
     $hotelTitle = "{$property->name}, {$hotelCity} (From ৳{$formattedPrice}) 2026 Deals | Prime Booking";

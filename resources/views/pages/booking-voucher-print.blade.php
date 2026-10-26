@@ -253,10 +253,11 @@
 
         {{-- ── Price Summary ── --}}
         @php
-            $vNights   = $booking->nights_count;
+            $addons    = $addons ?? ($booking->addons ?? collect());
+            $vNights   = $booking->nights_count ?? $booking->nights ?? 1;
             $vRate     = $booking->price_per_night > 0 ? $booking->price_per_night : ($booking->property?->price_per_night ?? 12500);
             $vSubtotal = $booking->subtotal > 0 ? $booking->subtotal : ($vRate * $vNights);
-            $vAddons   = $addons->sum('price');
+            $vAddons   = (!empty($addons) && method_exists($addons, 'sum')) ? $addons->sum('price') : 0;
             $vTax      = $booking->tax_amount > 0 ? $booking->tax_amount : round(($vSubtotal + $vAddons) * 0.075);
             $vTotal    = $vSubtotal + $vAddons + $vTax;
         @endphp
@@ -267,7 +268,7 @@
                     <td>Room Rate ({{ $vNights }} night{{ $vNights > 1 ? 's' : '' }} × {{ \App\Services\CurrencyService::format($vRate) }})</td>
                     <td>{{ \App\Services\CurrencyService::format($vSubtotal) }}</td>
                 </tr>
-                @if($addons->isNotEmpty())
+                @if(!empty($addons) && method_exists($addons, 'isNotEmpty') && $addons->isNotEmpty())
                 @foreach($addons as $addon)
                 <tr>
                     <td>{{ $addon->addon_name }}</td>

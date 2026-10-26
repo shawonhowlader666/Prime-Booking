@@ -3,6 +3,25 @@
 @section('title', 'Compare Hotels & Stays | PRIME BOOKING')
 @section('meta_description', 'Compare prices, star ratings, amenities, and guest reviews for top hotels in Bangladesh side-by-side.')
 
+@php
+    $properties = $properties ?? collect();
+    $features = $features ?? [
+        'price_per_night' => 'Price / Night',
+        'star_rating'     => 'Star Rating',
+        'rating_score'    => 'Guest Score',
+        'total_reviews'   => 'Total Reviews',
+        'city'            => 'Destination',
+        'address'         => 'Address & Area',
+        'free_cancel'     => 'Free Cancellation',
+        'no_credit_card'  => 'No Credit Card Needed',
+        'rooms_count'     => 'Available Room Types',
+    ];
+    $standardAmenities = $standardAmenities ?? [
+        'Free Wi-Fi', 'Swimming Pool', 'Air conditioning', 'Free parking',
+        'Fitness center', 'Restaurant', 'Airport transfer', 'Spa'
+    ];
+@endphp
+
 @section('content')
 <div class="py-4" style="background: #f8fafc; min-height: 80vh;">
     <div style="max-width: 1240px; margin: 0 auto; padding: 0 16px;">

@@ -25,7 +25,7 @@
     {{-- Stats Cards Row --}}
     <div class="row g-3 mb-4">
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-primary">
+            <div class="card border-0 shadow-sm rounded-1 p-3 bg-white border-start border-4 border-primary">
                 <div class="text-muted small fw-bold text-uppercase mb-1">Points in Circulation</div>
                 <div class="h4 mb-0 fw-bold text-dark">{{ number_format($stats['total_points_in_circulation']) }} Pts</div>
                 <small class="text-primary fw-semibold">Worth ৳{{ number_format($stats['total_points_in_circulation'] * $stats['point_value_bdt']) }}</small>
@@ -33,7 +33,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-success">
+            <div class="card border-0 shadow-sm rounded-1 p-3 bg-white border-start border-4 border-success">
                 <div class="text-muted small fw-bold text-uppercase mb-1">Total Redeemed Points</div>
                 <div class="h4 mb-0 fw-bold text-dark">{{ number_format($stats['total_points_redeemed']) }} Pts</div>
                 <small class="text-success fw-semibold">৳{{ number_format($stats['total_points_redeemed'] * $stats['point_value_bdt']) }} Disbursed</small>
@@ -41,7 +41,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-warning">
+            <div class="card border-0 shadow-sm rounded-1 p-3 bg-white border-start border-4 border-warning">
                 <div class="text-muted small fw-bold text-uppercase mb-1">Pending Payout Requests</div>
                 <div class="h4 mb-0 fw-bold text-warning">{{ $stats['pending_payouts_count'] }} Requests</div>
                 <small class="text-muted">Total: ৳{{ number_format($stats['pending_payouts_amount'], 2) }}</small>
@@ -49,7 +49,7 @@
         </div>
 
         <div class="col-xl-3 col-md-6">
-            <div class="card border-0 shadow-sm rounded-4 p-3 bg-white border-start border-4 border-info">
+            <div class="card border-0 shadow-sm rounded-1 p-3 bg-white border-start border-4 border-info">
                 <div class="text-muted small fw-bold text-uppercase mb-1">Earning & Value Rate</div>
                 <div class="h5 mb-0 fw-bold text-dark">৳{{ number_format($stats['spend_per_point']) }} = 1 Pt</div>
                 <small class="text-info fw-semibold">1 Pt = ৳{{ number_format($stats['point_value_bdt']) }} | Min: {{ $stats['min_redemption_points'] }} Pts</small>
@@ -58,7 +58,7 @@
     </div>
 
     {{-- Main Payout Requests Table --}}
-    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden mb-4">
+    <div class="card border-0 shadow-sm rounded-1 bg-white overflow-hidden mb-4">
         <div class="card-header bg-white py-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
             <h5 class="mb-0 fw-bold text-dark" style="font-size: 16px;">
                 <i class="fa-solid fa-money-bill-transfer text-primary me-2"></i> {{ __('Cash Payout Requests') }}
@@ -89,7 +89,7 @@
                     <tr>
                         <td class="ps-4">
                             <div class="fw-bold text-dark">#REQ-{{ str_pad($payout->id, 5, '0', STR_PAD_LEFT) }}</div>
-                            <small class="text-muted">{{ $payout->user?->name }} ({{ $payout->user?->email }})</small>
+                            <small class="text-muted">{{ $payout->user?->name ?? 'Registered User' }} ({{ $payout->user?->email ?? 'N/A' }})</small>
                         </td>
                         <td>
                             <div class="fw-bold text-dark">{{ number_format($payout->points) }} Pts</div>
@@ -112,7 +112,7 @@
                             @endif
                         </td>
                         <td>
-                            <small class="text-muted">{{ $payout->created_at->format('d M Y, h:i A') }}</small>
+                            <small class="text-muted">{{ $payout->created_at ? (is_string($payout->created_at) ? $payout->created_at : $payout->created_at->format('d M Y, h:i A')) : 'N/A' }}</small>
                         </td>
                         <td class="text-end pe-4">
                             @if($payout->status === 'pending')
@@ -154,7 +154,7 @@
 @if($payout->status === 'pending')
 <div class="modal fade text-start" id="rejectModal{{ $payout->id }}" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow">
+        <div class="modal-content border-0 shadow" style="border-radius:4px;">
             <form action="{{ route('admin.rewards.reject', $payout->id) }}" method="POST">
                 @csrf
                 <div class="modal-header">
@@ -180,7 +180,7 @@
 {{-- Configure Reward Rules Modal --}}
 <div class="modal fade" id="rewardRulesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content rounded-4 border-0 shadow-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius:4px;">
             <form action="{{ route('admin.rewards.settings.update') }}" method="POST">
                 @csrf
                 <div class="modal-header">

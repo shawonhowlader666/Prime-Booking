@@ -97,6 +97,11 @@ class PropertyDetailController extends Controller
         // Night count for price calculation
         $nights = max(1, (int) \Carbon\Carbon::parse($checkIn)->diffInDays(\Carbon\Carbon::parse($checkOut)));
 
+        // Top-tier Edge & Browser Caching for Hotel Detail (Agoda & Booking.com standard)
+        if (!headers_sent() && !auth()->check()) {
+            header('Cache-Control: public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
+        }
+
         return view('pages.hotel-detail', compact(
             'property',
             'related',

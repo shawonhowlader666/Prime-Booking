@@ -45,13 +45,20 @@
             <div class="col-6 col-md-4 col-lg-2">
                 <h6 style="font-weight: 700; font-size: 14px; color: #1b2631; margin-bottom: 14px;">{{ __('Destinations') }}</h6>
                 <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 10px;">
-                    <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Countries/Territories</a></li>
-                    <li><a href="{{ url('/hotels-in-coxs-bazar') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 500;">Cox's Bazar Hotels</a></li>
+                    <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">All Destinations</a></li>
+                    <li><a href="{{ url('/hotels-in-coxs-bazar') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 600;">Cox's Bazar Hotels</a></li>
                     <li><a href="{{ url('/hotels-in-kolatoli') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Kolatoli Beach Hotels</a></li>
                     <li><a href="{{ url('/hotels-in-inani') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Inani Beach Resorts</a></li>
                     <li><a href="{{ url('/hotels-in-dhaka') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Dhaka Hotels</a></li>
                     <li><a href="{{ url('/hotels-in-sylhet') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Sylhet Resorts</a></li>
                     <li><a href="{{ url('/hotels-in-sajek') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Sajek Valley Cottages</a></li>
+                    <li><a href="{{ url('/hotels-in-kuakata') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Kuakata Sea Beach</a></li>
+                    <li><a href="{{ url('/hotels-in-sundarban') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Sundarbans Ship Cruise</a></li>
+                    <li><a href="{{ url('/hotels-in-tanguar-haor') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Tanguar Haor Houseboats</a></li>
+                    <li><a href="{{ url('/hotels-in-saint-martin') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Saint Martin Island</a></li>
+                    <li><a href="{{ url('/hotels-in-bandarban') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Bandarban Hill Resorts</a></li>
+                    <li><a href="{{ url('/hotels-in-chittagong') }}" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Chittagong Hotels</a></li>
+
                 </ul>
             </div>
 
@@ -157,15 +164,16 @@
                     </ul>
                 </div>
 
-                <!-- Destination Types -->
+                <!-- Destination Types (SEO Key Landing Pages) -->
                 <div class="col-6 col-md-4 col-lg-2">
-                    <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Destination Types</h6>
+                    <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Popular Stays</h6>
                     <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 8px;">
-                        <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Beach Resorts</a></li>
-                        <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Luxury Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Budget Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Airport Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Eco Resorts</a></li>
+                        <li><a href="{{ url('/resorts-in-coxs-bazar') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Cox's Bazar Beach Resorts</a></li>
+                        <li><a href="{{ url('/5-star-hotels-in-coxs-bazar') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">5-Star Luxury Hotels</a></li>
+                        <li><a href="{{ url('/cheap-hotels-in-coxs-bazar') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Cheap Budget Stays</a></li>
+                        <li><a href="{{ url('/hotels-in-tanguar-haor') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Tanguar Haor Houseboat</a></li>
+                        <li><a href="{{ url('/hotels-in-sundarban') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sundarbans Ship Cruise</a></li>
+                        <li><a href="{{ url('/hotels-in-sajek') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sajek Valley Cottages</a></li>
                     </ul>
                 </div>
 

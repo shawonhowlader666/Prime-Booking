@@ -13,3 +13,11 @@ echo "Wishlist AJAX: " . (str_contains($html, 'toggleCardWishlist') ? 'FOUND' : 
 echo "Amenity Badges: " . (str_contains($html, 'Free Wi-Fi') || str_contains($html, 'Breakfast Included') ? 'FOUND' : 'MISSING') . "\n";
 echo "Prime Preferred / Top Rated: " . (str_contains($html, 'PRIME PREFERRED') || str_contains($html, 'TOP RATED') ? 'FOUND' : 'MISSING') . "\n";
 
+$htmlCox = file_get_contents('https://primebooking.com.bd/search?destination=Cox%27s+Bazar', false, $ctx);
+echo "\n--- Cox's Bazar Live Search ---\n";
+echo "Cox HTML Length: " . strlen($htmlCox) . "\n";
+echo "Sea Pearl: " . (str_contains($htmlCox, 'Sea Pearl') ? 'FOUND' : 'MISSING') . "\n";
+echo "Ocean Paradise: " . (str_contains($htmlCox, 'Ocean Paradise') ? 'FOUND' : 'MISSING') . "\n";
+echo "Seagull Hotels: " . (str_contains($htmlCox, 'Seagull Hotels') ? 'FOUND' : 'MISSING') . "\n";
+echo "VIDEO Badge: " . (str_contains($htmlCox, 'VIDEO') ? 'FOUND' : 'MISSING') . "\n";
+

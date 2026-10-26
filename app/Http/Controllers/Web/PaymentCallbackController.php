@@ -50,6 +50,8 @@ class PaymentCallbackController extends Controller
             'booking_status' => 'confirmed',
         ]);
 
+        $this->settlePaymentSuccess($booking, 'bkash');
+
         // Dispatch Confirmation Email (queued)
         try {
             \Illuminate\Support\Facades\Mail::to($booking->guest_email)
@@ -57,6 +59,8 @@ class PaymentCallbackController extends Controller
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Email Queue Warning: ' . $e->getMessage());
         }
+
+        session(['last_booking_ref' => $booking->booking_reference]);
 
         return redirect()
             ->route('booking.confirmation', $booking->booking_reference)
@@ -96,6 +100,8 @@ class PaymentCallbackController extends Controller
                         'status'         => 'confirmed',
                         'booking_status' => 'confirmed',
                     ]);
+                    $this->settlePaymentSuccess($booking, 'bkash');
+                    session(['last_booking_ref' => $booking->booking_reference]);
                     return redirect()->route('booking.confirmation', $booking->booking_reference);
                 }
             }
@@ -131,6 +137,8 @@ class PaymentCallbackController extends Controller
             'booking_status' => 'confirmed',
         ]);
 
+        $this->settlePaymentSuccess($booking, (string)$request->input('card_type', 'card'));
+
         // Dispatch Confirmation Email (queued)
         try {
             \Illuminate\Support\Facades\Mail::to($booking->guest_email)
@@ -138,6 +146,8 @@ class PaymentCallbackController extends Controller
         } catch (\Throwable $e) {
             \Illuminate\Support\Facades\Log::warning('Email Queue Warning: ' . $e->getMessage());
         }
+
+        session(['last_booking_ref' => $booking->booking_reference]);
 
         return redirect()
             ->route('booking.confirmation', $booking->booking_reference)
@@ -177,6 +187,10 @@ class PaymentCallbackController extends Controller
             'booking_status' => 'confirmed',
         ]);
 
+        $this->settlePaymentSuccess($booking, 'sslcommerz');
+
+        session(['last_booking_ref' => $booking->booking_reference]);
+
         return redirect()->route('booking.confirmation', $booking->booking_reference);
     }
 
@@ -214,9 +228,31 @@ class PaymentCallbackController extends Controller
                         'status'         => 'confirmed',
                         'booking_status' => 'confirmed',
                     ]);
+
+                    $this->settlePaymentSuccess($booking, 'sslcommerz');
                 }
             }
         }
         return response('IPN Processed', 200);
+    }
+
+    /**
+     * Microscopic settlement: Syncs general ledger & credits reward loyalty points atomically upon payment confirmation.
+     */
+    private function settlePaymentSuccess(Booking $booking, string $paymentMethod): void
+    {
+        // 1. Auto-record double-entry general ledger
+        try {
+            \App\Services\AccountingService::recordBookingLedger($booking, $paymentMethod);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error("Failed to record accounting ledger for booking {$booking->booking_reference}: " . $e->getMessage());
+        }
+
+        // 2. Auto-credit Prime Rewards points
+        try {
+            app(\App\Services\RewardPointService::class)->creditBookingPoints($booking);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Failed to credit reward points for booking {$booking->booking_reference}: " . $e->getMessage());
+        }
     }
 }

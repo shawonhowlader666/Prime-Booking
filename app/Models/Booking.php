@@ -99,6 +99,29 @@ class Booking extends Model
         $this->attributes['vendor_payout_amount'] = $value;
     }
 
+    protected static function booted(): void
+    {
+        static::saving(function (Booking $booking) {
+            if ($booking->total_price !== null && empty($booking->total_amount)) {
+                $booking->total_amount = $booking->total_price;
+            } elseif ($booking->total_amount !== null && empty($booking->total_price)) {
+                $booking->total_price = $booking->total_amount;
+            }
+
+            if ($booking->status !== null && empty($booking->booking_status)) {
+                $booking->booking_status = $booking->status;
+            } elseif ($booking->booking_status !== null && empty($booking->status)) {
+                $booking->status = $booking->booking_status;
+            }
+
+            if ($booking->nights !== null && empty($booking->nights_count)) {
+                $booking->nights_count = $booking->nights;
+            } elseif ($booking->nights_count !== null && empty($booking->nights)) {
+                $booking->nights = $booking->nights_count;
+            }
+        });
+    }
+
     public function getVendorPayoutAttribute()
     {
         return $this->attributes['vendor_payout_amount'] ?? 0.0;

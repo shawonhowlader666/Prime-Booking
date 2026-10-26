@@ -5,9 +5,9 @@
         background: transparent;
         border: none;
         outline: none;
-        padding: 7px 14px;
+        padding: 8px 18px;
         font-weight: 600;
-        font-size: 13px;
+        font-size: 14.5px;
         color: #475569;
         cursor: pointer;
         display: inline-flex;
@@ -253,11 +253,17 @@
             <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['hotel', 'all', '']) ? 'active' : '' }}" id="tabHotels">
                 <i class="fa-solid fa-building text-primary" style="font-size: 13px;"></i> {{ __('Hotels') }}
             </button>
-            <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['homes', 'home', 'apartment', 'villa', 'homestay']) ? 'active' : '' }}" id="tabHomes">
+            <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['homes', 'home', 'apartment', 'villa']) ? 'active' : '' }}" id="tabHomes">
                 <i class="fa-solid fa-house-chimney text-primary" style="font-size: 13px;"></i> {{ __('Homes & Apts') }}
             </button>
-            <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['longstays', 'long_stay']) ? 'active' : '' }}" id="tabLongStays">
-                <i class="fa-solid fa-calendar-days text-primary" style="font-size: 13px;"></i> {{ __('Long Stays') }}
+            <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['sundarban', 'sundarbans', 'sundarban_ship', 'sundarbans_ship', 'ship']) ? 'active' : '' }}" id="tabSundarbanShip">
+                <i class="fa-solid fa-ship text-primary" style="font-size: 13px;"></i> {{ __('Sundarbans Ship') }}
+            </button>
+            <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['tanguar', 'tanguar_haor', 'tanguar_houseboat', 'houseboat']) ? 'active' : '' }}" id="tabTanguarHouseboat">
+                <i class="fa-solid fa-sailboat text-primary" style="font-size: 13px;"></i> {{ __('Tanguar Haor Houseboat') }}
+            </button>
+            <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['homestay', 'homestays', 'home_stay']) ? 'active' : '' }}" id="tabHomeStay">
+                <i class="fa-solid fa-house-user text-primary" style="font-size: 13px;"></i> {{ __('Home Stay') }}
             </button>
             <button type="button" class="agoda-tab-btn {{ in_array($activeTabType, ['airport', 'transfer']) ? 'active' : '' }}" id="tabAirport">
                 <i class="fa-solid fa-car text-primary" style="font-size: 13px;"></i> {{ __('Airport Transfer') }}
@@ -295,7 +301,7 @@
                     <div class="agoda-input-btn active-border" id="agodaDestinationBoxTrigger">
                         <i class="fa-solid fa-magnifying-glass" style="font-size: 1.3rem; color: #64748b;"></i>
                         <div style="width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;">
-                            <input type="text" id="agodaDestinationInput" name="destination" style="width: 100%; border: none; outline: none; background: transparent; font-size: 15px; font-weight: 500; color: #1e293b;" placeholder="{{ __('Enter a destination or property') }}" value="{{ request('destination', '') }}" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
+                            <input type="text" id="agodaDestinationInput" name="destination" style="width: 100%; border: none; outline: none; background: transparent; font-size: 16px; font-weight: 600; color: #1e293b;" placeholder="{{ __('Enter a destination or property') }}" value="{{ request('destination', '') }}" autocomplete="new-password" autocorrect="off" autocapitalize="off" spellcheck="false">
                             <input type="hidden" name="lat" id="homeGpsLatInput" value="{{ request('lat') }}">
                             <input type="hidden" name="lng" id="homeGpsLngInput" value="{{ request('lng') }}">
                             <i class="fa-solid fa-circle-xmark text-secondary" id="agodaClearDestinationBtn" style="cursor: pointer; font-size: 1.1rem; display: {{ request('destination') ? 'inline-block' : 'none' }};" title="Clear destination"></i>
@@ -381,6 +387,9 @@
                                                 'Bandarban'   => 'Mountain peaks &bull; Trekking',
                                                 'Rangamati'   => 'Kaptai lake &bull; Island stays',
                                                 'Sundarban'   => 'Mangrove forest &bull; River safari',
+                                                'Sundarbans'  => 'Mangrove forest &bull; River cruise',
+                                                'Tanguar Haor'=> 'Haor wetlands &bull; Luxury houseboat',
+                                                'Sunamganj'   => 'Tanguar Haor &bull; Houseboats',
                                                 'Kuakata'     => 'Panoramic beach &bull; Sunrise &amp; Sunset',
                                                 'Sylhet'      => 'Tea gardens &bull; Nature lakes',
                                                 'Cox\'s Bazar'=> 'Longest beach &bull; Ocean view',
@@ -469,13 +478,13 @@
                         <button type="button" class="agoda-input-btn" id="btnCheckInDate" style="flex: 1; min-width: 0;">
                             <i class="fa-solid fa-calendar-days" style="font-size: 1.25rem; color: #2067e1; flex-shrink: 0;"></i>
                             <div style="overflow: hidden; text-align: left;">
-                                <span id="displayCheckInDate" style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis;">{{ date('j M Y', strtotime($rawCheckIn)) }}</span>
-                                <small id="displayCheckInDay" style="color: #64748b; font-size: 11px;">{{ date('l', strtotime($rawCheckIn)) }}</small>
+                                <span id="displayCheckInDate" style="font-weight: 700; color: #1e293b; display: block; font-size: 15px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis;">{{ date('j M Y', strtotime($rawCheckIn)) }}</span>
+                                <small id="displayCheckInDay" style="color: #64748b; font-size: 12px;">{{ date('l', strtotime($rawCheckIn)) }}</small>
                             </div>
                         </button>
 
                         <!-- Agoda Central Connecting Floating Nights Pill -->
-                        <div class="agoda-nights-pill" id="agodaNightsPill" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; font-weight: 700; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.08); pointer-events: none; white-space: nowrap;">
+                        <div class="agoda-nights-pill" id="agodaNightsPill" style="position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); z-index: 5; background: #ffffff; border: 1px solid #cbd5e1; border-radius: 20px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: #1e293b; box-shadow: 0 2px 8px rgba(0,0,0,0.08); pointer-events: none; white-space: nowrap;">
                             <i class="fa-regular fa-moon" style="color: #2067e1; font-size: 11px;"></i>
                             <span id="agodaNightsCount">{{ $initNights }} {{ $initNights === 1 ? 'night' : 'nights' }}</span>
                         </div>
@@ -484,8 +493,8 @@
                         <button type="button" class="agoda-input-btn" id="btnCheckOutDate" style="flex: 1; min-width: 0;">
                             <i class="fa-solid fa-calendar-days" style="font-size: 1.25rem; color: #2067e1; flex-shrink: 0;"></i>
                             <div style="overflow: hidden; text-align: left;">
-                                <span id="displayCheckOutDate" style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis;">{{ date('j M Y', strtotime($rawCheckOut)) }}</span>
-                                <small id="displayCheckOutDay" style="color: #64748b; font-size: 11px;">{{ date('l', strtotime($rawCheckOut)) }}</small>
+                                <span id="displayCheckOutDate" style="font-weight: 700; color: #1e293b; display: block; font-size: 15px; line-height: 1.2; white-space: nowrap; text-overflow: ellipsis;">{{ date('j M Y', strtotime($rawCheckOut)) }}</span>
+                                <small id="displayCheckOutDay" style="color: #64748b; font-size: 12px;">{{ date('l', strtotime($rawCheckOut)) }}</small>
                             </div>
                         </button>
 
@@ -575,8 +584,8 @@
                         <i class="fa-solid fa-user-group" style="font-size: 1.25rem; color: #2067e1; flex-shrink: 0;"></i>
                         <div style="display: flex; align-items: center; justify-content: space-between; width: 100%; text-align: left;">
                             <div>
-                                <span style="font-weight: 700; color: #1e293b; display: block; font-size: 14px; line-height: 1.2;" id="displayAdultsCount">{{ $defaultAdults }} adults{{ $defaultChildren > 0 ? ', ' . $defaultChildren . ' children' : '' }}</span>
-                                <small style="color: #64748b; font-size: 11px;" id="displayRoomsCount">{{ $defaultRooms }} {{ $defaultRooms > 1 ? 'rooms' : 'room' }}</small>
+                                <span style="font-weight: 700; color: #1e293b; display: block; font-size: 15px; line-height: 1.2;" id="displayAdultsCount">{{ $defaultAdults }} adults{{ $defaultChildren > 0 ? ', ' . $defaultChildren . ' children' : '' }}</span>
+                                <small style="color: #64748b; font-size: 12px;" id="displayRoomsCount">{{ $defaultRooms }} {{ $defaultRooms > 1 ? 'rooms' : 'room' }}</small>
                             </div>
                             <i class="fa-solid fa-chevron-down" style="color: #94a3b8; font-size: 0.8rem;"></i>
                         </div>
@@ -1895,13 +1904,15 @@ document.addEventListener('DOMContentLoaded', function() {
     // Tab switching script matching Agoda 100% exact screenshots
     const tabHotels = document.getElementById('tabHotels');
     const tabHomes = document.getElementById('tabHomes');
-    const tabLongStays = document.getElementById('tabLongStays');
+    const tabSundarbanShip = document.getElementById('tabSundarbanShip');
+    const tabTanguarHouseboat = document.getElementById('tabTanguarHouseboat');
+    const tabHomeStay = document.getElementById('tabHomeStay');
     const tabAirport = document.getElementById('tabAirport');
 
     const heroTitle = document.getElementById('bdHeroTitle');
 
     function setActiveTab(activeBtn, searchType, titleText, isAirport = false) {
-        [tabHotels, tabHomes, tabLongStays, tabAirport].forEach(btn => {
+        [tabHotels, tabHomes, tabSundarbanShip, tabTanguarHouseboat, tabHomeStay, tabAirport].forEach(btn => {
             if (btn) btn.classList.remove('active');
         });
         if (activeBtn) activeBtn.classList.add('active');
@@ -1933,16 +1944,53 @@ document.addEventListener('DOMContentLoaded', function() {
     if (tabHomes) tabHomes.addEventListener('click', function() {
         setActiveTab(tabHomes, 'homes', 'VACATION HOMES & APARTMENTS IN BANGLADESH', false);
         const destInput = document.getElementById('agodaDestinationInput');
-        if (destInput) destInput.placeholder = "{{ __('Enter destination, apartment, or homestay') }}";
+        if (destInput) destInput.placeholder = "{{ __('Enter destination, apartment, or villa') }}";
         const checkbox = document.getElementById('entireHomesAgodaMatchExact100');
         const inputEntire = document.getElementById('inputEntireHome');
         if (checkbox) checkbox.checked = true;
         if (inputEntire) inputEntire.value = 1;
     });
-    if (tabLongStays) tabLongStays.addEventListener('click', function() {
-        setActiveTab(tabLongStays, 'longstays', 'MONTHLY & EXTENDED STAYS IN BANGLADESH', false);
+    if (tabSundarbanShip) tabSundarbanShip.addEventListener('click', function() {
+        setActiveTab(tabSundarbanShip, 'sundarban_ship', 'SUNDARBANS SHIP & CRUISE PACKAGES', false);
         const destInput = document.getElementById('agodaDestinationInput');
-        if (destInput) destInput.placeholder = "{{ __('Enter city, area, or villa for long stay') }}";
+        const clearBtn = document.getElementById('agodaClearDestinationBtn');
+        const latInput = document.getElementById('homeGpsLatInput');
+        const lngInput = document.getElementById('homeGpsLngInput');
+        if (latInput) latInput.value = '';
+        if (lngInput) lngInput.value = '';
+        if (destInput) {
+            destInput.value = 'Sundarbans';
+            destInput.placeholder = "{{ __('Search Sundarbans cruise or luxury ship') }}";
+            destInput.focus();
+        }
+        if (clearBtn) clearBtn.style.display = 'inline-block';
+        const destCard = document.getElementById('agodaDestinationPopoverCard');
+        if (destCard) destCard.style.display = 'none';
+    });
+    if (tabTanguarHouseboat) tabTanguarHouseboat.addEventListener('click', function() {
+        setActiveTab(tabTanguarHouseboat, 'tanguar_houseboat', 'TANGUAR HAOR LUXURY HOUSEBOATS', false);
+        const destInput = document.getElementById('agodaDestinationInput');
+        const clearBtn = document.getElementById('agodaClearDestinationBtn');
+        const latInput = document.getElementById('homeGpsLatInput');
+        const lngInput = document.getElementById('homeGpsLngInput');
+        if (latInput) latInput.value = '';
+        if (lngInput) lngInput.value = '';
+        if (destInput) {
+            destInput.value = 'Tanguar Haor';
+            destInput.placeholder = "{{ __('Search Tanguar Haor premium houseboat') }}";
+            destInput.focus();
+        }
+        if (clearBtn) clearBtn.style.display = 'inline-block';
+        const destCard = document.getElementById('agodaDestinationPopoverCard');
+        if (destCard) destCard.style.display = 'none';
+    });
+    if (tabHomeStay) tabHomeStay.addEventListener('click', function() {
+        setActiveTab(tabHomeStay, 'homestay', 'VILLAGE HOMESTAYS & LOCAL COTTAGES', false);
+        const destInput = document.getElementById('agodaDestinationInput');
+        if (destInput) {
+            destInput.placeholder = "{{ __('Enter city, village, or area for homestay') }}";
+            destInput.focus();
+        }
     });
 
     if (tabAirport) tabAirport.addEventListener('click', function() {

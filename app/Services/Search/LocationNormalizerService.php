@@ -55,6 +55,7 @@ class LocationNormalizerService
      */
     private const ALIASES = [
         // Cox's Bazar
+        "cox's bazar"   => "Cox's Bazar",
         'coxsbazar'     => "Cox's Bazar",
         'coxs bazar'    => "Cox's Bazar",
         'cox bazar'     => "Cox's Bazar",
@@ -90,6 +91,12 @@ class LocationNormalizerService
         'জাফলং'          => "Sylhet",
         'tanguar'       => "Sunamganj",
         'টাঙ্গুয়ার'      => "Sunamganj",
+        'tanguar haor'  => "Sunamganj",
+        'tanguar haor houseboat' => "Sunamganj",
+        'টাঙ্গুয়ার হাওর'  => "Sunamganj",
+        'টাঙ্গুয়ার হাওর হাউসবোট' => "Sunamganj",
+        'tanguor hour'  => "Sunamganj",
+        'tanguor hour house board' => "Sunamganj",
 
         // Sundarbans
         'sundarban'     => "Sundarban",
@@ -99,6 +106,13 @@ class LocationNormalizerService
         'সুন্দরবন'        => "Sundarban",
         'mongla'        => "Sundarban",
         'মোংলা'          => "Sundarban",
+        'sundarban ship'         => "Sundarban",
+        'sundarbans ship'        => "Sundarban",
+        'sundarban cruise'       => "Sundarban",
+        'sundarbans cruise'      => "Sundarban",
+        'sundarban ship cruise'  => "Sundarban",
+        'sundarbans ship cruise' => "Sundarban",
+        'sundorbon ship'         => "Sundarban",
 
         // Sajek & Rangamati
         'sajek'         => "Sajek",
@@ -162,17 +176,28 @@ class LocationNormalizerService
             return ['normalized' => '', 'canonical' => null, 'latitude' => null, 'longitude' => null, 'similarity' => 0.0];
         }
 
-        $lower = mb_strtolower($clean, 'UTF-8');
+        // Clean common country or region suffixes (e.g. ", Bangladesh", ", BD", ", Chittagong")
+        $stripped = trim(preg_replace('/[,\s]+(bangladesh|bd)\b/i', '', $clean));
+        if ($stripped === '') {
+            $stripped = $clean;
+        }
+
+        $lower = mb_strtolower($stripped, 'UTF-8');
+        $rawLower = mb_strtolower($clean, 'UTF-8');
 
         // Step 1: Direct Hash Map Lookup (O(1))
         if (isset(self::ALIASES[$lower])) {
             $canonical = self::ALIASES[$lower];
             return $this->buildResult($clean, $canonical, 1.0);
         }
+        if (isset(self::ALIASES[$rawLower])) {
+            $canonical = self::ALIASES[$rawLower];
+            return $this->buildResult($clean, $canonical, 1.0);
+        }
 
         // Step 2: Substring / Prefix matching
         foreach (self::ALIASES as $aliasKey => $target) {
-            if (str_contains($lower, $aliasKey) || str_contains($aliasKey, $lower)) {
+            if (str_contains($lower, $aliasKey) || str_contains($aliasKey, $lower) || str_contains($rawLower, $aliasKey)) {
                 return $this->buildResult($clean, $target, 0.95);
             }
         }

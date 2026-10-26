@@ -66,6 +66,9 @@
                                 <a class="btn btn-outline-primary btn-sm p-1 px-2" href="{{ route('packages.show', $pkg->slug) }}" target="_blank" style="font-size: 11.5px; border-radius: 4px;" title="View Live">
                                     <i class="fa-solid fa-eye"></i> View
                                 </a>
+                                <a class="btn btn-outline-secondary btn-sm p-1 px-2" href="{{ route('vendor.packages.edit', $pkg->id) }}" style="font-size: 11.5px; border-radius: 4px;" title="Edit Package">
+                                    <i class="fa-solid fa-pen-to-square"></i> Edit
+                                </a>
                                 <form action="{{ route('vendor.packages.destroy', $pkg->id) }}" method="POST" class="d-inline m-0" onsubmit="return confirm('Are you sure you want to delete this package?');">
                                     @csrf
                                     @method('DELETE')

@@ -173,9 +173,12 @@ Route::middleware(['throttle:120,1'])->group(function () {
     Route::post('/api/search/log-query', [App\Http\Controllers\Web\AutocompleteController::class, 'logSelection'])->name('search.log.selection');
 });
 
+// Dynamic XML Sitemap for Googlebot & Search Engine Indexing
+Route::get('/sitemap.xml', [\App\Http\Controllers\Web\SitemapController::class, 'index'])->name('sitemap.xml');
 
 Route::get('/search', [SearchController::class, 'index'])->name('search.index');
 Route::get('/hotels', [SearchController::class, 'index'])->name('hotels.index');
+
 
 // High-Priority SEO Destination Landing Pages (Agoda & GoZayaan 1:1 Parity)
 Route::get('/hotels-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
@@ -186,6 +189,34 @@ Route::get('/hotels-in-{destination}', function (string $destination, \App\Http\
     $request->merge(['destination' => $canonicalCity]);
     return $controller->index($request);
 })->name('seo.city.hotels');
+
+// Intent-Based Keyword Landing Pages (Captures 'resorts in...', 'cheap hotels in...', '5 star hotels in...')
+Route::get('/resorts-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
+    $cleanDest = str_replace(['-', '_'], ' ', ucwords($destination));
+    $normalizer = new \App\Services\Search\LocationNormalizerService();
+    $resolved = $normalizer->resolve($cleanDest);
+    $canonicalCity = $resolved['canonical'] ?: $cleanDest;
+    $request->merge(['destination' => $canonicalCity, 'property_type' => ['resort']]);
+    return $controller->index($request);
+})->name('seo.city.resorts');
+
+Route::get('/cheap-hotels-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
+    $cleanDest = str_replace(['-', '_'], ' ', ucwords($destination));
+    $normalizer = new \App\Services\Search\LocationNormalizerService();
+    $resolved = $normalizer->resolve($cleanDest);
+    $canonicalCity = $resolved['canonical'] ?: $cleanDest;
+    $request->merge(['destination' => $canonicalCity, 'sort_by' => 'price_low']);
+    return $controller->index($request);
+})->name('seo.city.cheap');
+
+Route::get('/5-star-hotels-in-{destination}', function (string $destination, \App\Http\Requests\Web\SearchRequest $request, SearchController $controller) {
+    $cleanDest = str_replace(['-', '_'], ' ', ucwords($destination));
+    $normalizer = new \App\Services\Search\LocationNormalizerService();
+    $resolved = $normalizer->resolve($cleanDest);
+    $canonicalCity = $resolved['canonical'] ?: $cleanDest;
+    $request->merge(['destination' => $canonicalCity, 'star_rating' => [5]]);
+    return $controller->index($request);
+})->name('seo.city.5star');
 
 // 301 Canonical Redirect from /hotels/{destination} to /hotels-in-{destination}
 Route::get('/hotels/{destination}', function (string $destination) {
@@ -575,8 +606,23 @@ Route::post('/wishlist/toggle/{id}', function (\Illuminate\Http\Request $request
 })->name('wishlist.toggle.id');
 
 
+// Sidebar Notification Badge: Instant Seen/Dismiss Sync
+Route::post('/api/sidebar-badge/mark-seen', function (\Illuminate\Http\Request $request) {
+    $key = (string) $request->input('key');
+    $user = auth()->user();
+    if ($key && $user) {
+        \App\Services\SidebarBadgeService::markAsSeen((int)$user->id, $key);
+        return response()->json([
+            'status' => 'success',
+            'key'    => $key,
+            'counts' => ($user->role === 'vendor')
+                ? \App\Services\SidebarBadgeService::getVendorCounts((int)$user->id, true)
+                : \App\Services\SidebarBadgeService::getAdminCounts((int)$user->id, true)
+        ]);
+    }
+    return response()->json(['status' => 'ignored']);
+})->middleware('auth')->name('api.sidebar-badge.mark-seen');
 
-// Super Admin Control Panel, SaaS Tenants & Settings Routes
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_admin'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
@@ -1078,17 +1124,15 @@ $adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'portal-access');
 Route::get("/{$adminSecretSlug}", [OAuthController::class, 'showAdminLogin'])->name('admin.login');
 Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
 
-// Trap/Stealth /admin/login — returns 404 for automated bots and scanners
-if ($adminSecretSlug !== 'admin/login') {
-    Route::get('/admin/login', fn() => abort(404));
-    Route::post('/admin/login', fn() => abort(404));
-    Route::get('/admin', function () {
-        if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'super_admin')) {
-            return redirect()->route('admin.dashboard');
-        }
-        abort(404);
-    });
-}
+// Convenient Admin entrance & direct login
+Route::get('/admin/login', [OAuthController::class, 'showAdminLogin']);
+Route::post('/admin/login', [OAuthController::class, 'loginAdmin'])->middleware('throttle:5,1');
+Route::get('/admin', function () {
+    if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'super_admin')) {
+        return redirect()->route('admin.dashboard');
+    }
+    return redirect()->route('admin.login');
+});
 
 // Dedicated Vendor Partner Portal Login Routes
 Route::get('/vendor/login', [OAuthController::class, 'showVendorLogin'])->name('vendor.login');

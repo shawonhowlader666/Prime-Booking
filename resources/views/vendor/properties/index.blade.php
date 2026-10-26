@@ -232,11 +232,11 @@
                                 </a>
 
                                 {{-- Actions Dropdown --}}
-                                <div class="action-gear-dropdown">
-                                    <button class="btn btn-sm btn-light border text-secondary" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="More Actions">
+                                <div class="dropdown action-gear-dropdown d-inline-block position-relative">
+                                    <button class="btn btn-sm btn-light border text-secondary action-3dot-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="More Actions">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
-                                    <div class="dropdown-menu dropdown-menu-end py-1 shadow-sm border" style="font-size:12.5px; min-width:180px;">
+                                    <div class="dropdown-menu dropdown-menu-end py-1 shadow-sm border" style="font-size:12.5px; min-width:180px; z-index:1060;">
                                         <a href="{{ route('vendor.properties.edit', $property->id) }}" class="dropdown-item py-1.5">
                                             <i class="fa-solid fa-pen me-2 text-primary"></i> Edit Property
                                         </a>

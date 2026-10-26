@@ -1,9 +1,9 @@
-{{-- Agoda Recently Viewed Properties Floating Dock & Offcanvas Drawer --}}
+{{-- Agoda Recently Viewed Properties Floating Dock & Offcanvas Drawer (100% 1:1 Parity with media_1791528892879.png) --}}
 <div id="recentlyViewedDock" class="position-fixed bottom-0 end-0 m-3 d-none" style="z-index: 1040;">
-    <button type="button" class="btn btn-dark rounded-pill px-3.5 py-2 shadow-lg fw-bold d-flex align-items-center gap-2" data-bs-toggle="offcanvas" data-bs-target="#recentlyViewedOffcanvas" style="background: #1e293b; border: 1px solid #475569; font-size: 13px;">
-        <i class="fa-solid fa-clock-rotate-left text-primary"></i>
-        <span>Recently Viewed</span>
-        <span class="badge bg-primary rounded-pill" id="recentBadgeCount">0</span>
+    <button type="button" class="btn rounded-pill shadow-lg d-flex align-items-center gap-2 border-0" data-bs-toggle="offcanvas" data-bs-target="#recentlyViewedOffcanvas" style="background: #1c2430; padding: 6px 8px 6px 14px; box-shadow: 0 4px 16px rgba(0,0,0,0.3) !important; cursor: pointer;">
+        <i class="fa-solid fa-clock-rotate-left" style="color: #2067da; font-size: 15px;"></i>
+        <span style="color: #ffffff; font-weight: 700; font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Recently Viewed</span>
+        <span id="recentBadgeCount" style="background: #2067da; color: #ffffff; width: 22px; height: 22px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 11.5px; font-weight: 800;">0</span>
     </button>
 </div>
 
@@ -47,11 +47,13 @@
         const dock = document.getElementById('recentlyViewedDock');
         const badge = document.getElementById('recentBadgeCount');
         const container = document.getElementById('recentItemsContainer');
+        const floatBtns = document.getElementById('agodaFloatingActionsWrap');
 
         if (!dock || !container) return;
 
         if (list.length === 0) {
             dock.classList.add('d-none');
+            if (floatBtns) floatBtns.style.bottom = '20px';
             container.innerHTML = `
                 <div class="text-center py-5 text-secondary">
                     <i class="fa-solid fa-hotel fs-1 text-muted opacity-50 mb-2"></i>
@@ -62,6 +64,7 @@
         }
 
         dock.classList.remove('d-none');
+        if (floatBtns) floatBtns.style.bottom = '68px';
         if (badge) badge.textContent = list.length;
 
         container.innerHTML = list.map(item => `

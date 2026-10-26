@@ -21,6 +21,23 @@ class AccountingApiV1DeepAuditTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected User $admin;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->admin = User::create([
+            'name'     => 'API Audit Admin',
+            'email'    => 'admin.audit@primebooking.com',
+            'password' => bcrypt('password'),
+            'role'     => 'admin',
+            'status'   => 'active',
+        ]);
+
+        $this->actingAs($this->admin, 'sanctum');
+    }
+
     public function test_api_accounts_overview_contract_and_kpis(): void
     {
         $response = $this->getJson('/api/v1/accounts/overview');

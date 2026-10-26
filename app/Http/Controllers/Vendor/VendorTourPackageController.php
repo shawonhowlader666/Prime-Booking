@@ -87,12 +87,14 @@ class VendorTourPackageController extends Controller
         $package = TourPackage::where('vendor_id', auth()->id())->findOrFail($id);
         $validated = $request->validate([
             'title'            => 'required|string|max:255',
-            'destination'      => 'required|string|max:100',
+            'destination'      => 'required|string|max:255',
             'duration_days'    => 'required|integer|min:1',
             'duration_nights'  => 'required|integer|min:0',
             'price_per_person' => 'required|numeric|min:1',
             'discount_price'   => 'nullable|numeric|min:0',
             'featured_image'   => 'nullable|url',
+            'inclusions'       => 'nullable|string',
+            'highlights'       => 'nullable|string',
             'max_seats'        => 'required|integer|min:1',
         ]);
 

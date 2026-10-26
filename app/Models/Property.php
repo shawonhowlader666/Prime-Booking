@@ -82,6 +82,7 @@ class Property extends Model
         'checkin_time', 'checkout_time', 'contact_phone', 'contact_email', 'house_rules',
         'total_floors', 'total_rooms_count', 'year_built', 'languages_spoken', 'pets_policy',
         'rejection_reason', 'approved_at', 'rejected_at', 'cancellation_policy',
+        'feature_snippet', 'ribbon_badge', 'is_sold_out',
     ];
 
     /** @var array<string, string> */
@@ -90,6 +91,7 @@ class Property extends Model
         'amenities'               => 'array',
         'languages_spoken'        => 'array',
         'is_featured'             => 'boolean',
+        'is_sold_out'             => 'boolean',
         'price_per_night'         => 'decimal:2',
         'original_price'          => 'decimal:2',
         'rating_score'            => 'decimal:1',
@@ -116,6 +118,7 @@ class Property extends Model
         'primary_image', 'images', 'video_url',
         'rooms_left', 'location_score', 'free_cancellation', 'no_credit_card_required',
         'amenities', 'is_featured', 'status',
+        'feature_snippet', 'ribbon_badge', 'is_sold_out',
     ];
 
     // ─── MODEL EVENTS ────────────────────────────────────────────────────
@@ -243,11 +246,23 @@ class Property extends Model
 
     // ─── ACCESSORS (PHP 8+ attribute syntax) ─────────────────────────────
 
-    /** Primary display image with a reliable fallback. */
+    /** Primary display image with a reliable fallback and CDN resolution. */
     public function getImageUrlAttribute(): string
     {
-        return $this->primary_image
-            ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+        return media_url(
+            $this->primary_image,
+            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
+        );
+    }
+
+    /** Array of all gallery images resolved via CDN / MediaService. */
+    public function getGalleryUrlsAttribute(): array
+    {
+        $list = is_array($this->images) ? $this->images : [];
+        if (empty($list) && $this->primary_image) {
+            $list = [$this->primary_image];
+        }
+        return array_map(fn($img) => media_url($img), $list);
     }
 
     /** Discount percentage off original price. Null if no discount. */
@@ -288,6 +303,12 @@ class Property extends Model
             $score >= 6.0 => 'Pleasant',
             default       => 'No rating yet',
         };
+    }
+
+    /** Numeric rating accessor fallback to rating_score. */
+    public function getRatingAttribute(): float
+    {
+        return (float) ($this->rating_score ?? 4.8);
     }
 
     /** Returns true if the property has a current discount. */

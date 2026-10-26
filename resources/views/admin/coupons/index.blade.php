@@ -141,7 +141,15 @@
                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
                                     <li>
                                         <button type="button" class="dropdown-item py-1.5 px-3"
-                                            onclick="openEditModal({{ $c->id }}, '{{ $c->code }}', '{{ $c->type }}', {{ $c->amount }}, {{ $c->min_spend ?? 0 }}, {{ $c->usage_limit ?? 0 }}, '{{ $c->expires_at ?? '' }}', '{{ $c->status ?? 'active' }}')">
+                                            data-id="{{ $c->id }}"
+                                            data-code="{{ $c->code }}"
+                                            data-type="{{ $c->type }}"
+                                            data-amount="{{ $c->amount }}"
+                                            data-min-spend="{{ $c->min_spend ?? 0 }}"
+                                            data-usage-limit="{{ $c->usage_limit ?? 0 }}"
+                                            data-expires-at="{{ $c->expires_at ? \Carbon\Carbon::parse($c->expires_at)->format('Y-m-d') : '' }}"
+                                            data-status="{{ $c->status ?? 'active' }}"
+                                            onclick="openEditModal(this)">
                                             <i class="fa-solid fa-pen-to-square text-primary me-2"></i> Edit Coupon Code
                                         </button>
                                     </li>
@@ -317,16 +325,37 @@
 
 @section('scripts')
 <script>
-function openEditModal(id, code, type, amount, minSpend, usageLimit, expiresAt, status) {
-    document.getElementById('editCouponForm').action = '/admin/coupons/' + id;
-    document.getElementById('editModalCode').textContent  = code;
-    document.getElementById('editCode').value       = code;
-    document.getElementById('editType').value       = type;
-    document.getElementById('editAmount').value     = amount;
-    document.getElementById('editMinSpend').value   = minSpend || '';
-    document.getElementById('editUsageLimit').value = usageLimit || '';
-    document.getElementById('editExpiresAt').value  = expiresAt || '';
-    document.getElementById('editStatus').value     = status || 'active';
+function openEditModal(target, code, type, amount, minSpend, usageLimit, expiresAt, status) {
+    let idVal, codeVal, typeVal, amountVal, minSpendVal, usageLimitVal, expiresAtVal, statusVal;
+    if (target && target.dataset && target.dataset.id) {
+        const ds = target.dataset;
+        idVal = ds.id;
+        codeVal = ds.code;
+        typeVal = ds.type;
+        amountVal = ds.amount;
+        minSpendVal = (ds.minSpend && ds.minSpend !== '0') ? ds.minSpend : '';
+        usageLimitVal = (ds.usageLimit && ds.usageLimit !== '0') ? ds.usageLimit : '';
+        expiresAtVal = ds.expiresAt || '';
+        statusVal = ds.status || 'active';
+    } else {
+        idVal = target;
+        codeVal = code;
+        typeVal = type;
+        amountVal = amount;
+        minSpendVal = minSpend || '';
+        usageLimitVal = usageLimit || '';
+        expiresAtVal = expiresAt || '';
+        statusVal = status || 'active';
+    }
+    document.getElementById('editCouponForm').action = '/admin/coupons/' + idVal;
+    document.getElementById('editModalCode').textContent  = codeVal;
+    document.getElementById('editCode').value       = codeVal;
+    document.getElementById('editType').value       = typeVal;
+    document.getElementById('editAmount').value     = amountVal;
+    document.getElementById('editMinSpend').value   = minSpendVal;
+    document.getElementById('editUsageLimit').value = usageLimitVal;
+    document.getElementById('editExpiresAt').value  = expiresAtVal;
+    document.getElementById('editStatus').value     = statusVal;
     new bootstrap.Modal(document.getElementById('editCouponModal')).show();
 }
 

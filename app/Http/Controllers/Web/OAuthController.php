@@ -301,11 +301,20 @@ class OAuthController extends Controller
             'password' => ['required', 'string'],
         ]);
 
-        $email    = trim($request->input('email'));
+        $email    = strtolower(trim((string)$request->input('email')));
         $password = (string)$request->input('password');
         $remember = $request->boolean('remember');
 
-        $user = User::where('email', $email)->first();
+        // Allow shorthand 'admin'
+        if ($email === 'admin') {
+            $email = 'admin@primebooking.com';
+        }
+
+        // Search user with flexible domain matching (.com vs .com.bd)
+        $user = User::where('email', $email)
+            ->orWhere('email', str_replace('.com.bd', '.com', $email))
+            ->orWhere('email', str_replace('.com', '.com.bd', $email))
+            ->first();
 
         $valid = false;
         if ($user && ($user->role === 'admin' || $user->role === 'super_admin')) {
@@ -316,7 +325,11 @@ class OAuthController extends Controller
         }
 
         if (! $valid && ! Auth::attempt(['email' => $email, 'password' => $password], $remember)) {
-            return back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid admin credentials provided.']);
+            // Check fallback with .com vs .com.bd
+            $altEmail = str_contains($email, '.com.bd') ? str_replace('.com.bd', '.com', $email) : str_replace('.com', '.com.bd', $email);
+            if (! Auth::attempt(['email' => $altEmail, 'password' => $password], $remember)) {
+                return back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid admin credentials provided.']);
+            }
         }
 
         /** @var \App\Models\User $user */

@@ -270,11 +270,10 @@ class PageController extends Controller
         }
 
         $deals = \App\Models\Deal::where('is_active', true)->latest('id')->get();
-        $coupons = \App\Models\Coupon::where(function($q) {
-            $q->where('status', 'active')->orWhere('is_active', true);
-        })->where(function($q) {
-            $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
-        })->get();
+        $coupons = \App\Models\Coupon::where('status', 'active')
+            ->where(function($q) {
+                $q->whereNull('expires_at')->orWhere('expires_at', '>=', now());
+            })->get();
 
         return view('pages.deals', [
             'company' => config('company'),

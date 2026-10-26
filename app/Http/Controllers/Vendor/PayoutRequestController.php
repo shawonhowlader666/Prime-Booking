@@ -86,10 +86,13 @@ class PayoutRequestController extends Controller
             return back()->with('error', 'Requested amount exceeds your available balance for withdrawal.');
         }
 
+        $user = auth()->user();
         Payout::create([
             'vendor_id'       => $vendorId,
+            'vendor_name'     => $user->name ?? 'Vendor Partner',
             'amount'          => $validated['amount'],
             'payment_method'  => $validated['payout_method'],
+            'account_details' => $validated['account_details'],
             'account_number'  => $validated['account_details'],
             'status'          => 'pending',
             'requested_at'    => now(),

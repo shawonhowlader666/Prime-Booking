@@ -95,7 +95,13 @@
                             @endif
                         </td>
                         <td style="padding:12px 16px; text-align:right;">
-                            <button type="button" class="btn btn-sm btn-primary fw-bold text-white d-inline-flex align-items-center gap-1" onclick="openReplyModal({{ $inq->id }}, '{{ addslashes($inq->name) }}', '{{ addslashes($inq->message) }}')" style="font-size:11.5px; height:28px; border-radius:4px; background-color:var(--primary); border:none;">
+                            <button type="button" 
+                                    class="btn btn-sm btn-primary fw-bold text-white d-inline-flex align-items-center gap-1" 
+                                    data-id="{{ $inq->id }}" 
+                                    data-name="{{ e($inq->name) }}" 
+                                    data-message="{{ e($inq->message) }}" 
+                                    onclick="openReplyModal(this)" 
+                                    style="font-size:11.5px; height:28px; border-radius:4px; background-color:var(--primary); border:none;">
                                 <i class="fa-solid fa-reply"></i> Reply
                             </button>
                         </td>
@@ -173,7 +179,17 @@
 
 @section('scripts')
 <script>
-function openReplyModal(id, name, msg) {
+function openReplyModal(target, maybeName, maybeMsg) {
+    let id, name, msg;
+    if (typeof target === 'object' && target !== null && target.getAttribute) {
+        id = target.getAttribute('data-id');
+        name = target.getAttribute('data-name') || '';
+        msg = target.getAttribute('data-message') || '';
+    } else {
+        id = target;
+        name = maybeName || '';
+        msg = maybeMsg || '';
+    }
     document.getElementById('replyInquiryForm').action = '/vendor/inquiries/' + id + '/reply';
     document.getElementById('replyGuestName').textContent = name;
     document.getElementById('replyGuestMsg').textContent = '"' + msg + '"';

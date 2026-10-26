@@ -3,6 +3,7 @@
 @php
     use App\Services\CurrencyService;
     $user = auth()->user();
+    $errors = $errors ?? new \Illuminate\Support\ViewErrorBag;
 @endphp
 
 @section('title', 'Secure Booking — ' . $property->name . ' | Prime Booking')

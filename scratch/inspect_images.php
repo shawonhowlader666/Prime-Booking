@@ -1,14 +1,12 @@
 <?php
-$pdo = new PDO("mysql:host=127.0.0.1;port=3307;dbname=prime_aviation", "root", "");
-$stmt = $pdo->query("SELECT id, name, primary_image, images FROM properties LIMIT 5");
-while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-    echo "ID: {$row['id']} | {$row['name']}\n";
-    echo "  primary_image: {$row['primary_image']}\n";
-    echo "  images: {$row['images']}\n\n";
-}
+$files = [
+    'C:/Users/Shawon/.gemini/antigravity-ide/brain/e1680189-52b4-46c7-b0aa-97158fd161a6/.user_uploaded/media_1791837430813.png',
+    'C:/Users/Shawon/.gemini/antigravity-ide/brain/e1680189-52b4-46c7-b0aa-97158fd161a6/.user_uploaded/media_1791837311457.png',
+    'C:/Users/Shawon/.gemini/antigravity-ide/brain/e1680189-52b4-46c7-b0aa-97158fd161a6/.user_uploaded/media_1791837172412.png',
+];
 
-$stmt2 = $pdo->query("SELECT id, name, images FROM rooms LIMIT 5");
-while ($row = $stmt2->fetch(PDO::FETCH_ASSOC)) {
-    echo "Room ID: {$row['id']} | {$row['name']}\n";
-    echo "  images: {$row['images']}\n\n";
+foreach ($files as $f) {
+    if (!file_exists($f)) continue;
+    $img = imagecreatefrompng($f);
+    echo basename($f) . ": " . imagesx($img) . "x" . imagesy($img) . "\n";
 }

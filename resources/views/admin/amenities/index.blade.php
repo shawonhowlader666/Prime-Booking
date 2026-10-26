@@ -147,7 +147,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="text-center py-5" style="background:#ffffff;">
+                        <td colspan="6" class="text-center py-5" style="background:#ffffff;">
                             <div style="max-width:340px; margin:0 auto; padding:24px 0;">
                                 <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
                                     <i class="fa-solid fa-list-check"></i>

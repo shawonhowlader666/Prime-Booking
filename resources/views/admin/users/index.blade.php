@@ -239,7 +239,13 @@
                                         </li>
                                         <li>
                                             <button type="button" class="dropdown-item py-1.5 px-3 text-dark"
-                                                onclick="openEditUserModal({{ $u->id }}, '{{ addslashes($u->name) }}', '{{ addslashes($u->email) }}', '{{ addslashes($u->phone ?? '') }}', '{{ $u->role }}', '{{ $u->status ?? 'active' }}')">
+                                                data-id="{{ $u->id }}"
+                                                data-name="{{ e($u->name) }}"
+                                                data-email="{{ e($u->email) }}"
+                                                data-phone="{{ e($u->phone ?? '') }}"
+                                                data-role="{{ $u->role }}"
+                                                data-status="{{ $u->status ?? 'active' }}"
+                                                onclick="openEditUserModal(this)">
                                                 <i class="fa-solid fa-user-pen text-warning me-2"></i> Quick Edit Account
                                             </button>
                                         </li>
@@ -436,14 +442,30 @@
 
 @section('scripts')
 <script>
-function openEditUserModal(id, name, email, phone, role, status) {
+function openEditUserModal(target, maybeName, maybeEmail, maybePhone, maybeRole, maybeStatus) {
+    let id, name, email, phone, role, status;
+    if (typeof target === 'object' && target !== null && target.getAttribute) {
+        id     = target.getAttribute('data-id');
+        name   = target.getAttribute('data-name') || '';
+        email  = target.getAttribute('data-email') || '';
+        phone  = target.getAttribute('data-phone') || '';
+        role   = target.getAttribute('data-role') || 'customer';
+        status = target.getAttribute('data-status') || 'active';
+    } else {
+        id     = target;
+        name   = maybeName || '';
+        email  = maybeEmail || '';
+        phone  = maybePhone || '';
+        role   = maybeRole || 'customer';
+        status = maybeStatus || 'active';
+    }
     document.getElementById('editUserForm').action = '/admin/users/' + id;
     document.getElementById('editUserModalName').textContent = name;
     document.getElementById('editUserName').value  = name;
     document.getElementById('editUserEmail').value = email;
-    document.getElementById('editUserPhone').value = phone || '';
+    document.getElementById('editUserPhone').value = phone;
     document.getElementById('editUserRole').value  = role;
-    document.getElementById('editUserStatus').value= status || 'active';
+    document.getElementById('editUserStatus').value= status;
     new bootstrap.Modal(document.getElementById('editUserModal')).show();
 }
 

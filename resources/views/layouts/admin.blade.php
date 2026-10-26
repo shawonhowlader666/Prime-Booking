@@ -1617,6 +1617,42 @@
             margin-right: 4px;
         }
 
+        /* ── Enterprise Smart Sidebar Menu Unread Badges ── */
+        .sb-menu-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 19px;
+            height: 18px;
+            padding: 1px 6px;
+            font-size: 10px;
+            font-weight: 700;
+            border-radius: 10px;
+            line-height: 1;
+            letter-spacing: -0.2px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .sb-badge-pulse {
+            animation: sbPulse 2.2s infinite ease-in-out;
+        }
+        @keyframes sbPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); box-shadow: 0 0 8px rgba(24, 144, 255, 0.6); }
+        }
+        .sb-badge-primary { background: #1890ff; color: #ffffff; }
+        .sb-badge-warning { background: #fa8c16; color: #ffffff; }
+        .sb-badge-danger  { background: #ff4d4f; color: #ffffff; }
+        .sb-badge-info    { background: #13c2c2; color: #ffffff; }
+        .sb-badge-success { background: #52c41a; color: #ffffff; }
+
+        /* Strict Zero/Empty Badge Suppression */
+        .sb-menu-badge:empty,
+        .sb-menu-badge.d-none,
+        .sb-menu-badge[data-count="0"] {
+            display: none !important;
+        }
+
         /* Universal Toolbar Button Gap & Padding Normalizer */
         .btn-add-primary, .btn-tbl-copy, .btn-tbl-excel, .btn-export-csv, .btn-export-pdf, .btn-tbl-print, .btn-tbl-col {
             display: inline-flex !important;
@@ -1699,8 +1735,8 @@
 
         <!-- Brand Bar -->
         <div class="sb-brand">
-            <div class="sb-brand-icon">
-                <i class="fa-solid fa-paper-plane"></i>
+            <div class="sb-brand-icon" style="background: transparent; display: flex; align-items: center; justify-content: center; padding: 2px;">
+                <img src="{{ asset('images/logo-icon.png') }}?v=5" alt="Prime Booking" style="width: 28px; height: 28px; object-fit: contain;">
             </div>
             <div>
                 <span class="sb-brand-title">PRIME BOOKING</span>
@@ -1719,6 +1755,10 @@
 
         <!-- Nav Menu -->
         <nav style="padding: 8px 0 60px 0; flex: 1; overflow-y: auto;">
+            @php 
+                \App\Services\SidebarBadgeService::autoMarkCurrentRoute();
+                $adminBadgeCounts = \App\Services\SidebarBadgeService::getAdminCounts(); 
+            @endphp
 
             <div class="sb-section-header">Overview</div>
             <a href="{{ route('admin.dashboard') }}" class="sb-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" data-label="Dashboard">
@@ -1728,42 +1768,62 @@
             <div class="sb-section-header">Core Operations</div>
 
             {{-- 1. Bookings & Reservations --}}
-            @php $isBookingsActive = request()->routeIs('admin.bookings.*', 'admin.inquiries.*', 'admin.reviews.*'); @endphp
+            @php 
+                $isBookingsActive = request()->routeIs('admin.bookings.*', 'admin.inquiries.*', 'admin.reviews.*'); 
+                $resTotalBadge = $adminBadgeCounts['reservations_total'] ?? 0;
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isBookingsActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuBookings" aria-expanded="{{ $isBookingsActive ? 'true' : 'false' }}" data-label="Reservations">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-receipt" style="width:16px;text-align:center;"></i> <span>Reservations</span>
                     </div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-primary sb-badge-pulse {{ $resTotalBadge > 0 ? '' : 'd-none' }}" id="badgeResTotal" data-count="{{ $resTotalBadge }}" style="{{ $resTotalBadge > 0 ? '' : 'display: none !important;' }}">{{ $resTotalBadge > 0 ? $resTotalBadge : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
                 </button>
                 <div class="collapse {{ $isBookingsActive ? 'show' : '' }}" id="menuBookings">
                     <div class="sb-sub-menu">
-                        <a href="{{ route('admin.bookings.index') }}" class="sb-sub-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.bookings.index') }}" data-badge-key="bookings" data-parent-badge-id="badgeResTotal" class="sb-sub-item {{ request()->routeIs('admin.bookings.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Bookings
+                            @php $bCount = $adminBadgeCounts['bookings'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-primary ms-auto {{ $bCount > 0 ? '' : 'd-none' }}" id="badgeAdminBookings" data-count="{{ $bCount }}" style="{{ $bCount > 0 ? '' : 'display: none !important;' }}">{{ $bCount > 0 ? $bCount : '' }}</span>
                         </a>
-                        <a href="{{ route('admin.inquiries.index') }}" class="sb-sub-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.inquiries.index') }}" data-badge-key="inquiries" data-parent-badge-id="badgeResTotal" class="sb-sub-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Inquiries
+                            @php $iCount = $adminBadgeCounts['inquiries'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-warning ms-auto {{ $iCount > 0 ? '' : 'd-none' }}" id="badgeAdminInquiries" data-count="{{ $iCount }}" style="{{ $iCount > 0 ? '' : 'display: none !important;' }}">{{ $iCount > 0 ? $iCount : '' }}</span>
                         </a>
-                        <a href="{{ route('admin.reviews.index') }}" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.reviews.index') }}" data-badge-key="reviews" data-parent-badge-id="badgeResTotal" class="sb-sub-item {{ request()->routeIs('admin.reviews.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Reviews
+                            @php $rCount = $adminBadgeCounts['reviews'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-info ms-auto {{ $rCount > 0 ? '' : 'd-none' }}" id="badgeAdminReviews" data-count="{{ $rCount }}" style="{{ $rCount > 0 ? '' : 'display: none !important;' }}">{{ $rCount > 0 ? $rCount : '' }}</span>
                         </a>
                     </div>
                 </div>
             </div>
 
             {{-- 2. Hotels & Resorts --}}
-            @php $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*', 'admin.rooms.availability*'); @endphp
+            @php 
+                $isPropertiesActive = request()->routeIs('admin.properties.*', 'admin.import-hotels.*', 'admin.rooms.availability*'); 
+                $hotelsTotalBadge = $adminBadgeCounts['hotels_total'] ?? 0;
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isPropertiesActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuProperties" aria-expanded="{{ $isPropertiesActive ? 'true' : 'false' }}" data-label="Hotels &amp; Resorts">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-hotel" style="width:16px;text-align:center;"></i> <span>Hotels &amp; Resorts</span>
                     </div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-warning sb-badge-pulse {{ $hotelsTotalBadge > 0 ? '' : 'd-none' }}" id="badgeHotelsTotal" data-count="{{ $hotelsTotalBadge }}" style="{{ $hotelsTotalBadge > 0 ? '' : 'display: none !important;' }}">{{ $hotelsTotalBadge > 0 ? $hotelsTotalBadge : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
                 </button>
                 <div class="collapse {{ $isPropertiesActive ? 'show' : '' }}" id="menuProperties">
                     <div class="sb-sub-menu">
-                        <a href="{{ route('admin.properties.index') }}" class="sb-sub-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
+                        <a href="{{ route('admin.properties.index') }}" data-badge-key="properties" data-parent-badge-id="badgeHotelsTotal" class="sb-sub-item {{ request()->routeIs('admin.properties.index') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> All Hotels &amp; Resorts
+                            @php $pCount = $adminBadgeCounts['pending_properties'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-warning ms-auto {{ $pCount > 0 ? '' : 'd-none' }}" id="badgeAdminPendingProps" data-count="{{ $pCount }}" style="{{ $pCount > 0 ? '' : 'display: none !important;' }}">{{ $pCount > 0 ? $pCount : '' }}</span>
                         </a>
                         <a href="{{ route('admin.rooms.availability') }}" class="sb-sub-item {{ request()->routeIs('admin.rooms.availability*') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Extranet Room Calendar
@@ -1806,13 +1866,19 @@
             </div>
 
             {{-- 4. Accounts & Finance --}}
-            @php $isFinanceActive = request()->routeIs('admin.accounts.*', 'admin.payouts.*'); @endphp
+            @php 
+                $isFinanceActive = request()->routeIs('admin.accounts.*', 'admin.payouts.*'); 
+                $finTotalBadge = $adminBadgeCounts['finance_total'] ?? 0;
+            @endphp
             <div class="sb-nav-group">
                 <button class="sb-nav-toggle {{ $isFinanceActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuFinance" aria-expanded="{{ $isFinanceActive ? 'true' : 'false' }}" data-label="Accounts &amp; Finance">
                     <div class="d-flex align-items-center gap-2">
                         <i class="fa-solid fa-scale-balanced" style="width:16px;text-align:center;"></i> <span>Accounts &amp; Finance</span>
                     </div>
-                    <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-danger sb-badge-pulse {{ $finTotalBadge > 0 ? '' : 'd-none' }}" id="badgeFinanceTotal" data-count="{{ $finTotalBadge }}" style="{{ $finTotalBadge > 0 ? '' : 'display: none !important;' }}">{{ $finTotalBadge > 0 ? $finTotalBadge : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
                 </button>
                 <div class="collapse {{ $isFinanceActive ? 'show' : '' }}" id="menuFinance">
                     <div class="sb-sub-menu">
@@ -1825,8 +1891,10 @@
                         <a href="{{ route('admin.accounts.vendor-statements') }}" class="sb-sub-item {{ request()->routeIs('admin.accounts.vendor-statements') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Vendor Settlements
                         </a>
-                        <a href="{{ route('admin.payouts.index') }}" class="sb-sub-item {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
+                        <a href="{{ route('admin.payouts.index') }}" data-badge-key="payouts" data-parent-badge-id="badgeFinanceTotal" class="sb-sub-item {{ request()->routeIs('admin.payouts.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Payout Approvals
+                            @php $payCount = $adminBadgeCounts['pending_payouts'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-danger ms-auto {{ $payCount > 0 ? '' : 'd-none' }}" id="badgeAdminPendingPayouts" data-count="{{ $payCount }}" style="{{ $payCount > 0 ? '' : 'display: none !important;' }}">{{ $payCount > 0 ? $payCount : '' }}</span>
                         </a>
                     </div>
                 </div>
@@ -1906,6 +1974,40 @@
                         <a href="{{ route('admin.amenities.index') }}" class="sb-sub-item {{ request()->routeIs('admin.amenities.*') ? 'active' : '' }}">
                             <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Amenities
                         </a>
+                        <a href="{{ route('admin.blog.index') }}" class="sb-sub-item {{ request()->routeIs('admin.blog.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Travel Blog &amp; Stories
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 8. Customer Support & Tickets --}}
+            @php 
+                $isSupportActive = request()->routeIs('admin.support.*', 'admin.inquiries.*'); 
+                $supportTotalBadge = $adminBadgeCounts['support_total'] ?? 0;
+            @endphp
+            <div class="sb-nav-group">
+                <button class="sb-nav-toggle {{ $isSupportActive ? 'active' : '' }}" type="button" data-bs-toggle="collapse" data-bs-target="#menuSupport" aria-expanded="{{ $isSupportActive ? 'true' : 'false' }}" data-label="Helpdesk &amp; Support">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-headset" style="width:16px;text-align:center;"></i> <span>Helpdesk &amp; Support</span>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 ms-auto">
+                        <span class="sb-menu-badge sb-badge-danger sb-badge-pulse {{ $supportTotalBadge > 0 ? '' : 'd-none' }}" id="badgeSupportTotal" data-count="{{ $supportTotalBadge }}" style="{{ $supportTotalBadge > 0 ? '' : 'display: none !important;' }}">{{ $supportTotalBadge > 0 ? $supportTotalBadge : '' }}</span>
+                        <i class="fa-solid fa-chevron-right chevron-icon"></i>
+                    </div>
+                </button>
+                <div class="collapse {{ $isSupportActive ? 'show' : '' }}" id="menuSupport">
+                    <div class="sb-sub-menu">
+                        <a href="{{ route('admin.support.index') }}" data-badge-key="tickets" data-parent-badge-id="badgeSupportTotal" class="sb-sub-item {{ request()->routeIs('admin.support.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Support Tickets
+                            @php $tCount = $adminBadgeCounts['open_tickets'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-danger ms-auto {{ $tCount > 0 ? '' : 'd-none' }}" id="badgeAdminOpenTickets" data-count="{{ $tCount }}" style="{{ $tCount > 0 ? '' : 'display: none !important;' }}">{{ $tCount > 0 ? $tCount : '' }}</span>
+                        </a>
+                        <a href="{{ route('admin.inquiries.index') }}" data-badge-key="inquiries" data-parent-badge-id="badgeSupportTotal" class="sb-sub-item {{ request()->routeIs('admin.inquiries.*') ? 'active' : '' }}">
+                            <i class="fa-solid fa-circle-dot me-1" style="font-size:8px;"></i> Guest Inquiries
+                            @php $inqCount2 = $adminBadgeCounts['inquiries'] ?? 0; @endphp
+                            <span class="sb-menu-badge sb-badge-warning ms-auto {{ $inqCount2 > 0 ? '' : 'd-none' }}" id="badgeAdminInquiries2" data-count="{{ $inqCount2 }}" style="{{ $inqCount2 > 0 ? '' : 'display: none !important;' }}">{{ $inqCount2 > 0 ? $inqCount2 : '' }}</span>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -1913,6 +2015,9 @@
             <div class="sb-section-header">System</div>
             <a href="{{ route('admin.settings.index') }}" class="sb-nav-item {{ request()->routeIs('admin.settings.*', 'admin.site-settings.*', 'admin.gateways.*') ? 'active' : '' }}" data-label="Settings">
                 <i class="fa-solid fa-gear"></i> <span>Settings</span>
+            </a>
+            <a href="{{ route('admin.email-templates.index') }}" class="sb-nav-item {{ request()->routeIs('admin.email-templates.*') ? 'active' : '' }}" data-label="Email Templates">
+                <i class="fa-solid fa-envelope-open-text"></i> <span>Email Templates</span>
             </a>
             <a href="{{ route('admin.activity.index') }}" class="sb-nav-item {{ request()->routeIs('admin.activity.*') ? 'active' : '' }}" data-label="Audit Logs">
                 <i class="fa-solid fa-shield-halved"></i> <span>Activity Audit Logs</span>
@@ -2314,12 +2419,97 @@
         }
     }
 
+    function updateSbBadge(id, count) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        const c = parseInt(count) || 0;
+        if (c > 0) {
+            el.textContent = c > 99 ? '99+' : c;
+            el.style.display = 'inline-flex';
+            el.classList.remove('d-none');
+            el.setAttribute('data-count', c);
+        } else {
+            el.textContent = '';
+            el.style.display = 'none';
+            el.classList.add('d-none');
+            el.setAttribute('data-count', '0');
+        }
+    }
+
+    function dismissSidebarBadge(key, clickedLink) {
+        if (!key) return;
+        if (clickedLink) {
+            const childBadge = clickedLink.querySelector('.sb-menu-badge');
+            if (childBadge) {
+                childBadge.textContent = '';
+                childBadge.style.display = 'none';
+                childBadge.classList.add('d-none');
+                childBadge.setAttribute('data-count', '0');
+            }
+            const parentId = clickedLink.getAttribute('data-parent-badge-id');
+            if (parentId) {
+                const parentEl = document.getElementById(parentId);
+                if (parentEl) {
+                    const cur = parseInt(parentEl.getAttribute('data-count') || parentEl.textContent) || 0;
+                    const next = Math.max(0, cur - 1);
+                    updateSbBadge(parentId, next);
+                }
+            }
+        }
+        document.querySelectorAll(`[data-badge-key="${key}"] .sb-menu-badge`).forEach(b => {
+            b.textContent = '';
+            b.style.display = 'none';
+            b.classList.add('d-none');
+            b.setAttribute('data-count', '0');
+        });
+
+        // Call server to mark high-water mark timestamp
+        const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || '{{ csrf_token() }}';
+        try {
+            fetch('{{ route("api.sidebar-badge.mark-seen") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: JSON.stringify({ key: key }),
+                keepalive: true
+            }).catch(() => {});
+        } catch (e) {}
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('#stockiflySidebar [data-badge-key]').forEach(function(item) {
+            item.addEventListener('click', function() {
+                const key = this.getAttribute('data-badge-key');
+                dismissSidebarBadge(key, this);
+            });
+        });
+    });
+
     function checkLiveAlerts() {
         fetch(`{{ route('admin.api.live-alerts') }}?last_checked=${encodeURIComponent(lastCheckedTime)}`)
             .then(res => res.json())
             .then(data => {
                 if (data && data.status === 'success') {
                     lastCheckedTime = data.timestamp;
+
+                    // Update live sidebar badges
+                    if (data.counts) {
+                        updateSbBadge('badgeResTotal', data.counts.reservations_total);
+                        updateSbBadge('badgeAdminBookings', data.counts.bookings);
+                        updateSbBadge('badgeAdminInquiries', data.counts.inquiries);
+                        updateSbBadge('badgeAdminReviews', data.counts.reviews);
+                        updateSbBadge('badgeHotelsTotal', data.counts.hotels_total);
+                        updateSbBadge('badgeAdminPendingProps', data.counts.pending_properties);
+                        updateSbBadge('badgeFinanceTotal', data.counts.finance_total);
+                        updateSbBadge('badgeAdminPendingPayouts', data.counts.pending_payouts);
+                        updateSbBadge('badgeSupportTotal', data.counts.support_total);
+                        updateSbBadge('badgeAdminOpenTickets', data.counts.open_tickets);
+                        updateSbBadge('badgeAdminInquiries2', data.counts.inquiries);
+                    }
 
                     // Trigger sound chime & visual toast if new reservation arrived
                     if (data.play_chime) {
@@ -2355,6 +2545,7 @@
     @include('admin.import.modal-partial')
 
     @yield('scripts')
+    @stack('scripts')
 </body>
 
 </html>

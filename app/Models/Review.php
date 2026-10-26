@@ -18,12 +18,15 @@ class Review extends Model
         'helpful_count',
         'unhelpful_count',
         'status',
+        'vendor_reply',
+        'replied_at',
     ];
 
     protected $casts = [
         'rating'          => 'float',
         'helpful_count'   => 'integer',
         'unhelpful_count' => 'integer',
+        'replied_at'      => 'datetime',
     ];
 
     public function property()

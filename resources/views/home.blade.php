@@ -1,12 +1,12 @@
 @extends('layouts.main', ['activePage' => 'home'])
 
-@section('title', 'Prime Booking | Hotels, Resorts, Flights & Ship Cruise in Bangladesh | হোটেল বুকিং')
-@section('meta_description', 'Book 2,000+ hotels, beach resorts, ship cruises & domestic flights in Bangladesh at guaranteed lowest prices with instant confirmation & free cancellation. Coxs Bazar, Sajek, Sylhet & Dhaka hotels.')
-@section('meta_keywords', 'hotel booking bangladesh, cheap hotels coxs bazar, sajek valley resort, sylhet hotel booking, dhaka 5 star hotel, hotel booking bd, হোটেল বুকিং বাংলাদেশ')
+@section('title', 'Hotel Booking Bangladesh | Best Hotels & 5-Star Resorts 2026 | Prime Booking')
+@section('meta_description', 'Online hotel booking in Bangladesh. Find & book 2,000+ hotels, beach resorts & luxury stays in Cox\'s Bazar, Sajek, Sylhet & Dhaka from ৳1,500. Instant confirmation, bKash cashback & free cancellation.')
+@section('meta_keywords', 'hotel booking, hotel booking bangladesh, online hotel booking bd, hotels in coxs bazar, coxs bazar hotel booking, cheap hotels coxs bazar, sajek valley resort, sylhet hotel booking, dhaka 5 star hotel, sundarban cruise booking, tanguar haor houseboat, kuakata hotel booking, হোটেল বুকিং বাংলাদেশ, কক্সবাজার হোটেল বুকিং, সাজেক রিসোর্ট, প্রাইম বুকিং')
 @section('canonical_url', 'https://primebooking.com.bd')
-@section('og_title', 'Prime Booking | Lowest Price Hotel & Flight Booking in Bangladesh')
-@section('og_description', 'Book top hotels in Coxs Bazar, Sajek, Sylhet & Dhaka with instant confirmation and free cancellation.')
-@section('og_image', asset('images/logo.png'))
+@section('og_title', 'Hotel Booking Bangladesh | Best Hotels & 5-Star Resorts 2026 | Prime Booking')
+@section('og_description', 'Book top hotels and 5-star beach resorts in Cox\'s Bazar, Sajek, Sylhet & Dhaka with instant confirmation and bKash discount.')
+@section('og_image', asset('android-chrome-512x512.png'))
 
 @section('schema')
 <script type="application/ld+json">
@@ -103,7 +103,7 @@
     </div>
 
     <div class="container text-center" style="position:relative;z-index:50;">
-        <h1 id="bdHeroTitle" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;font-size:26px;letter-spacing:0.5px;color:#ffffff!important;text-transform:uppercase;margin-bottom:14px;text-shadow:0 2px 12px rgba(0,0,0,0.85);transition:opacity 0.5s ease;">
+        <h1 id="bdHeroTitle" style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-weight:800;font-size:28px;letter-spacing:0.5px;color:#ffffff!important;text-transform:uppercase;margin-bottom:14px;text-shadow:0 2px 12px rgba(0,0,0,0.85);transition:opacity 0.5s ease;">
             {{ $siteSettings['site_name'] ?? 'Prime Booking' }} — Hotels, Resorts & Homes
         </h1>
         <div class="hero-search-wrapper" style="position:relative; z-index:100; margin-top:10px; margin-bottom:-110px;">
@@ -118,14 +118,15 @@
 {{-- ============================================================ --}}
 <style>
     .agoda-exact-container {
-        max-width: 1100px;
+        max-width: 1180px;
+        width: 100%;
         margin: 0 auto;
-        padding: 0 16px;
+        padding: 0 20px;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
     .agoda-connected-outer-card {
         background: #ffffff;
-        border: 1px solid #e0e0e0;
+        border: 1px solid #e2e8f0;
         border-radius: 16px;
         overflow: hidden;
         box-shadow: 0 1px 4px rgba(0,0,0,0.02);
@@ -133,8 +134,8 @@
     }
     .agoda-exact-card {
         background: #ffffff;
-        border: 1px solid #e0e0e0;
-        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+        border-radius: 14px;
         padding: 22px 28px;
         box-shadow: none;
         transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -145,62 +146,143 @@
     }
     .agoda-btn-outline-search {
         display: inline-block;
-        border: 1px solid #5392f9;
-        color: #5392f9;
+        border: 1px solid #2067e1;
+        color: #2067e1;
         background: #ffffff;
         border-radius: 24px;
-        padding: 6px 28px;
-        font-weight: 600;
-        font-size: 13.5px;
+        padding: 7px 30px;
+        font-weight: 700;
+        font-size: 14px;
         text-decoration: none;
         line-height: 1.4;
         transition: all 0.15s ease;
     }
     .agoda-btn-outline-search:hover {
         background: #f0f7ff;
-        color: #2067e1;
-        border-color: #2067e1;
+        color: #1a56be;
+        border-color: #1a56be;
+    }
+
+    /* ─── Exact Identical Agoda Continue Planning 2 Cards ─── */
+    .agoda-continue-trip-card {
+        display: inline-flex;
+        align-items: stretch;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        border-radius: 16px;
+        overflow: hidden;
+        width: 270px;
+        min-width: 270px;
+        max-width: 270px;
+        height: 76px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.02);
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        box-sizing: border-box;
+        text-decoration: none !important;
+        flex-shrink: 0;
+    }
+    .agoda-continue-trip-card:hover {
+        border-color: #9ca3af;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+    }
+    .agoda-continue-trip-icon-block {
+        width: 52px;
+        min-width: 52px;
+        max-width: 52px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-sizing: border-box;
+    }
+    .agoda-continue-trip-content {
+        padding: 9px 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        text-align: left;
+        min-width: 0;
+        flex: 1;
+        box-sizing: border-box;
+        background: #ffffff;
+    }
+    .agoda-continue-trip-title {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 14.5px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.25;
+        margin-bottom: 2px;
+        word-break: break-word;
+        letter-spacing: -0.1px;
+    }
+    .agoda-continue-trip-subtitle {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        font-size: 12.5px;
+        color: #6b7280;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        line-height: 1.2;
     }
 </style>
 
 <div class="py-3" style="background: #ffffff; border-bottom: 1px solid #f1f5f9; margin-top: 28px; position: relative; z-index: 1;">
     <div class="agoda-exact-container">
         
-        {{-- Continue planning your trip (Agoda Screenshot 1:1 Parity) --}}
+        {{-- Continue planning your trip (Exact Agoda Screenshot 1:1 Parity) --}}
         <div id="agodaContinuePlanningSection" style="margin-bottom: 24px; text-align: left;">
-            <h5 class="fw-bold mb-2" style="color: #2a2a2e; font-size: 18px; letter-spacing: -0.2px;">
+            <h5 class="fw-bold mb-2.5" style="color: #111827; font-size: 24px; letter-spacing: -0.3px; line-height: 1.25;">
                 Continue planning your trip
             </h5>
             <div class="d-flex align-items-center gap-3 flex-wrap">
-                {{-- Card 1: Stays in City --}}
-                <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" id="cpStaysLink" class="text-decoration-none" style="display: inline-flex; align-items: center; gap: 12px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px 18px; min-width: 250px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.06)';" onmouseout="this.style.borderColor='#e0e0e0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)';">
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #fbe8e4; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fa-solid fa-hotel" style="color: #e11d48; font-size: 17px;"></i>
+                {{-- Card 1: Stays in City (Identical Dimensions, Radius, Padding & Border) --}}
+                <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" id="cpStaysLink" class="agoda-continue-trip-card">
+                    <div class="agoda-continue-trip-icon-block" style="background: #fee9e5;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <rect x="3.5" y="4.5" width="9" height="15" rx="1" fill="#c53829"/>
+                            <rect x="5.5" y="7" width="2" height="2" fill="#fee9e5"/>
+                            <rect x="8.5" y="7" width="2" height="2" fill="#fee9e5"/>
+                            <rect x="5.5" y="10.5" width="2" height="2" fill="#fee9e5"/>
+                            <rect x="8.5" y="10.5" width="2" height="2" fill="#fee9e5"/>
+                            <circle cx="15.5" cy="15.5" r="4" stroke="#c53829" stroke-width="2" fill="#fee9e5"/>
+                            <path d="M18.5 18.5L21.5 21.5" stroke="#c53829" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
                     </div>
-                    <div style="text-align: left;">
-                        <div id="cpStaysTitle" style="font-size: 13.5px; font-weight: 700; color: #2a2a2e; line-height: 1.25; margin-bottom: 2px;">
+                    <div class="agoda-continue-trip-content">
+                        <div id="cpStaysTitle" class="agoda-continue-trip-title">
                             Stays in Cox's Bazar
                         </div>
-                        <div style="font-size: 12px; color: #737373; font-weight: 500; display: flex; align-items: center; gap: 4px;">
+                        <div class="agoda-continue-trip-subtitle">
                             <span id="cpStaysDates">Oct 22 - Oct 23</span>
-                            <span style="color: #94a3b8;">&bull;</span>
-                            <i class="fa-solid fa-user-group" style="font-size: 10px; color: #737373;"></i>
+                            <span style="color: #9ca3af; margin: 0 1px;">&bull;</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="#6b7280" style="margin-top: -1px; flex-shrink: 0;">
+                                <path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/>
+                            </svg>
                             <span id="cpStaysGuests">2</span>
                         </div>
                     </div>
                 </a>
 
-                {{-- Card 2: Find things to do in City --}}
-                <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" id="cpThingsLink" class="text-decoration-none" style="display: inline-flex; align-items: center; gap: 12px; background: #ffffff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 10px 18px; min-width: 260px; transition: all 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.02);" onmouseover="this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 3px 10px rgba(0,0,0,0.06)';" onmouseout="this.style.borderColor='#e0e0e0'; this.style.boxShadow='0 1px 3px rgba(0,0,0,0.02)';">
-                    <div style="width: 40px; height: 40px; border-radius: 8px; background: #f3eed9; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <i class="fa-solid fa-compass" style="color: #856404; font-size: 17px;"></i>
+                {{-- Card 2: Find things to do in City (Identical Dimensions, Radius, Padding & Border) --}}
+                <a href="{{ route('search.index') }}?destination=Cox%27s+Bazar" id="cpThingsLink" class="agoda-continue-trip-card">
+                    <div class="agoda-continue-trip-icon-block" style="background: #f3efd8;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="8" cy="8.5" r="5" stroke="#856404" stroke-width="1.8"/>
+                            <path d="M8 5v7M4.5 8.5h7" stroke="#856404" stroke-width="1.5"/>
+                            <path d="M4 14l4 4" stroke="#856404" stroke-width="1.8"/>
+                            <circle cx="15.5" cy="15.5" r="4" stroke="#856404" stroke-width="2" fill="#f3efd8"/>
+                            <path d="M18.5 18.5L21.5 21.5" stroke="#856404" stroke-width="2.5" stroke-linecap="round"/>
+                        </svg>
                     </div>
-                    <div style="text-align: left;">
-                        <div id="cpThingsTitle" style="font-size: 13.5px; font-weight: 700; color: #2a2a2e; line-height: 1.25; margin-bottom: 2px;">
+                    <div class="agoda-continue-trip-content">
+                        <div id="cpThingsTitle" class="agoda-continue-trip-title">
                             Find things to do in Cox's Bazar
                         </div>
-                        <div id="cpThingsDates" style="font-size: 12px; color: #737373; font-weight: 500;">
-                            Oct 22
+                        <div class="agoda-continue-trip-subtitle">
+                            <span id="cpThingsDates">Oct 22</span>
                         </div>
                     </div>
                 </a>
@@ -254,59 +336,59 @@
         {{-- Unified Agoda Connected Trip Outer Card Container --}}
         <div class="agoda-connected-outer-card">
             
-            {{-- Top Green Banner (Fills top of outer card with 16px top corners) --}}
-            <div class="position-relative overflow-hidden" style="background: linear-gradient(90deg, #d8f3dc 0%, #d8f3dc 65%, #b7e4c7 100%); min-height: 94px; padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;">
-                <div class="position-relative" style="z-index: 2; max-width: 650px;">
-                    <h4 class="fw-bold mb-1" style="color: #1a382b; font-size: 19px; letter-spacing: -0.3px; line-height: 1.25;">
+            {{-- Top Green Banner (Exact Agoda Soft Fade Gradient & Light Mist Blending) --}}
+            <div class="position-relative overflow-hidden" style="background: radial-gradient(ellipse 280px 140px at 90% 50%, #c4efcd 0%, #daf4e2 50%, transparent 80%), linear-gradient(180deg, #c4e7ca 0%, #d8efdc 40%, #edf7ee 78%, #ffffff 100%); min-height: 98px; padding: 24px 32px; display: flex; align-items: center; justify-content: space-between; border-top-left-radius: 16px; border-top-right-radius: 16px;">
+                <div class="position-relative" style="z-index: 2; max-width: 680px;">
+                    <h4 class="fw-bold mb-1" style="color: #1e293b; font-size: 24px; letter-spacing: -0.3px; line-height: 1.25;">
                         {{ auth()->check() ? auth()->user()->name . '! ' : 'PRIME! ' }}You've unlocked Trip Savings deals!
                     </h4>
-                    <p class="mb-0 fw-medium" style="color: #007a3d; font-size: 13.5px;">
+                    <p class="mb-0 fw-semibold" style="color: #007a3d; font-size: 15px;">
                         Save more with Trip Savings
                     </p>
                 </div>
 
                 {{-- Agoda Phone + Trip Savings Pill Illustration --}}
-                <div class="d-none d-md-flex align-items-center position-absolute" style="right: 24px; top: 50%; transform: translateY(-50%); z-index: 1;">
-                    <img src="{{ asset('images/connected-trip/trip-savings-phone.png') }}" alt="Trip Savings" style="height: 80px; object-fit: contain;">
+                <div class="d-none d-md-flex align-items-center position-absolute" style="right: 28px; top: 50%; transform: translateY(-50%); z-index: 1;">
+                    <img src="{{ asset('images/connected-trip/trip-savings-phone.png') }}" alt="Trip Savings" style="height: 84px; object-fit: contain;">
                 </div>
             </div>
 
             {{-- Main Container Body --}}
-            <div style="padding: 24px 28px 28px 28px;">
+            <div style="padding: 24px 32px 32px 32px;">
                 
                 {{-- Section 1: Need more hotels for your trip? --}}
                 <div class="mb-4">
-                    <h5 class="fw-bold mb-2.5" style="color: #2a2a2e; font-size: 18px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
+                    <h5 class="fw-bold mb-2.5" style="color: #1e293b; font-size: 22px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
                     <div class="agoda-exact-card">
                         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3">
                             <div>
                                 {{-- Emerald Green Hotel Icon matching Agoda 1:1 --}}
                                 <div style="margin-bottom: 12px; line-height: 1;">
-                                    <img src="{{ asset('images/connected-trip/hotel-icon.png') }}" alt="Hotel" style="width: 32px; height: 33px; object-fit: contain;">
+                                    <img src="{{ asset('images/connected-trip/hotel-icon.png') }}" alt="Hotel" style="width: 34px; height: 35px; object-fit: contain;">
                                 </div>
                                 
                                 {{-- Badges Row --}}
                                 <div class="d-flex align-items-center gap-2 mb-2">
-                                    <span style="background: #e6f7ec; color: #007a3d; font-size: 11px; font-weight: 700; padding: 2.5px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                                    <span style="background: #e6f7ec; color: #007a3d; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
                                         <svg width="10" height="10" viewBox="0 0 24 24" fill="#007a3d">
                                             <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.2-6.3-4.6-6.3 4.6 2.3-7.2-6-4.6h7.6z"/>
                                         </svg>
                                         Trip Savings
                                     </span>
-                                    <span style="background: #007a3d; color: #ffffff; font-size: 11px; font-weight: 700; padding: 2.5px 8px; border-radius: 4px;">
+                                    <span style="background: #007a3d; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px;">
                                         Up to 5% off
                                     </span>
                                 </div>
 
                                 {{-- Title & Subtitle --}}
-                                <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Book another place to stay</h6>
-                                <p class="small mb-2.5" style="color: #737373; font-size: 12px;">We have unlocked the best deals with Trip Savings</p>
+                                <h6 class="fw-bold mb-1" style="color: #111827; font-size: 16.5px;">Book another place to stay</h6>
+                                <p class="small mb-2.5" style="color: #6b7280; font-size: 14px;">We have unlocked the best deals with Trip Savings</p>
                                 
                                 {{-- Date line with external link icon --}}
-                                <div class="small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 12px; color: #737373;">
+                                <div class="small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 13.5px; color: #4b5563;">
                                     <span>23 Oct - 24 Oct &bull; 2 Adults</span>
-                                    <a href="{{ route('search.index') }}" style="color: #5392f9; text-decoration: none;">
-                                        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+                                    <a href="{{ route('search.index') }}" style="color: #2067e1; text-decoration: none;">
+                                        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px;"></i>
                                     </a>
                                 </div>
                             </div>
@@ -323,28 +405,28 @@
 
                 {{-- Section 2: Plan your journey to your hotel --}}
                 <div>
-                    <h5 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 18px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
-                    <p class="small mb-3" style="color: #737373; font-size: 12.5px;">Book your ride in advance for a hassle-free trip</p>
+                    <h5 class="fw-bold mb-1" style="color: #1e293b; font-size: 22px; letter-spacing: -0.2px;">Plan your journey to your hotel</h5>
+                    <p class="small mb-3" style="color: #6b7280; font-size: 14px;">Book your ride in advance for a hassle-free trip</p>
 
                     <div class="row g-3">
                         {{-- Card A: Airport Transfer --}}
                         <div class="col-md-6">
-                            <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 20px 24px;">
+                            <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 22px 26px;">
                                 <div>
                                     <div style="height: 52px; display: flex; align-items: flex-end; margin-bottom: 12px;">
                                         <img src="{{ asset('images/connected-trip/airport-transfer-car.png') }}" alt="Airport Transfer" style="height: 48px; object-fit: contain;">
                                     </div>
-                                    <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Book your airport transfer</h6>
-                                    <p class="small mb-3" style="color: #737373; font-size: 12px; line-height: 1.35;">Get to your hotel easily and securely</p>
+                                    <h6 class="fw-bold mb-1" style="color: #111827; font-size: 16.5px;">Book your airport transfer</h6>
+                                    <p class="small mb-3" style="color: #6b7280; font-size: 14px; line-height: 1.35;">Get to your hotel easily and securely</p>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between pt-1">
-                                    <div class="small fw-semibold" style="font-size: 12px; color: #737373;">
+                                    <div class="small fw-semibold" style="font-size: 13.5px; color: #4b5563;">
                                         <span>22 Oct &bull; 2 Adults</span>
-                                        <a href="{{ route('transfers.index') }}" style="color: #5392f9; text-decoration: none; margin-left: 3px;">
-                                            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+                                        <a href="{{ route('transfers.index') }}" style="color: #2067e1; text-decoration: none; margin-left: 3px;">
+                                            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px;"></i>
                                         </a>
                                     </div>
-                                    <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 5px 24px; font-size: 13px;">
+                                    <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 6px 26px; font-size: 14px;">
                                         Search
                                     </a>
                                 </div>
@@ -353,22 +435,22 @@
 
                         {{-- Card B: Rent a Car --}}
                         <div class="col-md-6">
-                            <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 20px 24px;">
+                            <div class="agoda-exact-card h-100 d-flex flex-column justify-content-between" style="padding: 22px 26px;">
                                 <div>
                                     <div style="height: 52px; display: flex; align-items: flex-end; margin-bottom: 12px;">
-                                        <img src="{{ asset('images/connected-trip/rent-a-car.png') }}" alt="Rent a Car" style="height: 44px; object-fit: contain;">
+                                        <img src="{{ asset('images/connected-trip/rent-a-car.png') }}" alt="Rent a Car" style="height: 46px; object-fit: contain;">
                                     </div>
-                                    <h6 class="fw-bold mb-1" style="color: #2a2a2e; font-size: 14.5px;">Rent a car</h6>
-                                    <p class="small mb-3" style="color: #737373; font-size: 12px; line-height: 1.35;">Find an ideal ride for your trip</p>
+                                    <h6 class="fw-bold mb-1" style="color: #111827; font-size: 16.5px;">Rent a car</h6>
+                                    <p class="small mb-3" style="color: #6b7280; font-size: 14px; line-height: 1.35;">Find an ideal ride for your trip</p>
                                 </div>
                                 <div class="d-flex align-items-center justify-content-between pt-1">
-                                    <div class="small fw-semibold" style="font-size: 12px; color: #737373;">
+                                    <div class="small fw-semibold" style="font-size: 13.5px; color: #4b5563;">
                                         <span>22 Oct - 23 Oct</span>
-                                        <a href="{{ route('transfers.index') }}" style="color: #5392f9; text-decoration: none; margin-left: 3px;">
-                                            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 10px;"></i>
+                                        <a href="{{ route('transfers.index') }}" style="color: #2067e1; text-decoration: none; margin-left: 3px;">
+                                            <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px;"></i>
                                         </a>
                                     </div>
-                                    <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 5px 24px; font-size: 13px;">
+                                    <a href="{{ route('transfers.index') }}" class="agoda-btn-outline-search" style="padding: 6px 26px; font-size: 13.5px;">
                                         Search
                                     </a>
                                 </div>
@@ -385,10 +467,10 @@
         {{-- ============================================================ --}}
         <div class="mb-4" style="text-align: left;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 18.5px; letter-spacing: -0.2px;">
+                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 24px; letter-spacing: -0.3px;">
                     Flights &amp; Activities Promotions
                 </h5>
-                <a href="{{ route('transfers.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 13.5px; font-weight: 600;">
+                <a href="{{ route('transfers.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 14.5px; font-weight: 600;">
                     View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
                 </a>
             </div>
@@ -504,10 +586,10 @@
         {{-- ============================================================ --}}
         <div class="mb-4" style="text-align: left;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 18.5px; letter-spacing: -0.2px;">
+                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 24px; letter-spacing: -0.3px;">
                     Properties we think you'll like
                 </h5>
-                <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 13.5px; font-weight: 600;">
+                <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 14.5px; font-weight: 600;">
                     View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
                 </a>
             </div>
@@ -538,7 +620,7 @@
                                         Discover BWH Hotels
                                     </div>
                                     <div style="color: rgba(255,255,255,0.85); font-size: 11px; font-weight: 500; line-height: 1.3;">
-                                        Explore Deals Across Thailand
+                                        Explore Deals Across Bangladesh
                                     </div>
                                 </div>
                                 <div style="color: rgba(255,255,255,0.5); font-size: 8.5px;">
@@ -608,10 +690,10 @@
         {{-- ============================================================ --}}
         <div class="mb-4" style="text-align: left;">
             <div class="d-flex justify-content-between align-items-center mb-3">
-                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 18.5px; letter-spacing: -0.2px;">
+                <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 24px; letter-spacing: -0.3px;">
                     Popular destinations outside Bangladesh
                 </h5>
-                <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 13.5px; font-weight: 600;">
+                <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 14.5px; font-weight: 600;">
                     View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
                 </a>
             </div>
@@ -662,7 +744,7 @@
                 <span class="badge bg-danger text-white rounded-pill px-3 py-1.5 fw-bold" style="font-size: 12px; letter-spacing: 0.5px; box-shadow: 0 2px 8px rgba(225, 29, 72, 0.3);">
                     <i class="fa-solid fa-fire me-1"></i> TOP DESTINATIONS
                 </span>
-                <h5 class="fw-bold text-dark mb-0 ms-1" style="font-size: 18px; letter-spacing: -0.3px;">
+                <h5 class="fw-bold text-dark mb-0 ms-1" style="font-size: 24px; letter-spacing: -0.3px;">
                     Explore Popular Travel Destinations in Bangladesh
                 </h5>
             </div>
@@ -806,7 +888,7 @@ document.addEventListener('DOMContentLoaded', function () {
 @if($currentUser && $recentBookings->isNotEmpty())
 <section class="py-4 bg-white">
     <div class="container pt-2 pb-2">
-        <h5 class="fw-bold mb-3" style="color:#0f172a;font-size:19px;">
+        <h5 class="fw-bold mb-3" style="color:#0f172a;font-size:24px;letter-spacing:-0.3px;">
             Continue planning your trip
         </h5>
         <div class="d-flex align-items-center gap-3 flex-wrap">
@@ -959,7 +1041,7 @@ document.addEventListener('DOMContentLoaded', function () {
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
                 <span class="text-primary text-uppercase fw-bold small d-block">Explore Top Cities</span>
-                <h2 class="fw-bold mb-0" style="color:#002d72; font-size: 20px;">Popular Destinations</h2>
+                <h2 class="fw-bold mb-0" style="color:#1e293b; font-size: 24px; letter-spacing:-0.3px;">Popular Destinations</h2>
             </div>
             <a href="{{ route('search.index') }}" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
                 View All <i class="fa-solid fa-arrow-right ms-1"></i>
@@ -1019,7 +1101,7 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
                 <span class="text-primary text-uppercase fw-bold small d-block">Explore Types</span>
-                <h2 class="fw-bold mb-0" style="color:#002d72; font-size: 20px;">Browse Accommodations by Property Type</h2>
+                <h2 class="fw-bold mb-0" style="color:#1e293b; font-size: 24px; letter-spacing:-0.3px;">Browse Accommodations by Property Type</h2>
             </div>
         </div>
 
@@ -1057,7 +1139,7 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
                 <span class="text-primary text-uppercase fw-bold small d-block">Top Picks</span>
-                <h2 class="fw-bold mb-0" style="color:#002d72; font-size: 20px;">Featured Properties</h2>
+                <h2 class="fw-bold mb-0" style="color:#1e293b; font-size: 24px; letter-spacing:-0.3px;">Featured Properties</h2>
             </div>
             <a href="{{ route('search.index') }}" class="btn btn-outline-primary rounded-pill px-4 fw-bold">View All</a>
         </div>
@@ -1115,7 +1197,7 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
         <div class="d-flex justify-content-between align-items-end mb-4">
             <div>
                 <span class="text-primary text-uppercase fw-bold small d-block">Travel Journal</span>
-                <h2 class="fw-bold mb-0" style="color:#002d72; font-size: 20px;">Stories &amp; Inspiration</h2>
+                <h2 class="fw-bold mb-0" style="color:#1e293b; font-size: 24px; letter-spacing:-0.3px;">Stories &amp; Inspiration</h2>
             </div>
             <a href="{{ route('blog.index') }}" class="btn btn-outline-primary rounded-pill px-4 fw-bold">Explore All Stories</a>
         </div>
@@ -1178,6 +1260,93 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
     </div>
 </section>
 @endif
+{{-- ============================================================ --}}
+{{-- POPULAR HOTEL SEARCHES & KEYWORD HUB (Agoda & Booking.com Exact SEO Semantic Architecture) --}}
+{{-- ============================================================ --}}
+<section class="py-5" style="background: #f8fafc; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+    <div class="agoda-exact-container">
+        <div class="mb-4 text-start">
+            <h2 class="fw-bold mb-1 text-dark" style="font-size: 20px; font-family: 'Plus Jakarta Sans', sans-serif;">
+                Popular Hotel Booking Searches in Bangladesh
+            </h2>
+            <p class="text-secondary mb-0" style="font-size: 13px;">
+                Explore top destinations, 5-star beach resorts, and verified accommodations at guaranteed lowest prices.
+            </p>
+        </div>
+
+        <div class="row g-4 mb-4 text-start">
+            {{-- Col 1: Top Destinations --}}
+            <div class="col-12 col-md-4">
+                <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;">
+                    <i class="fa-solid fa-location-dot text-primary me-2"></i>Top Hotel Destinations
+                </h6>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="font-size: 13px;">
+                    <li><a href="{{ url('/hotels-in-coxs-bazar') }}" class="text-decoration-none text-secondary hover-primary">Hotels in Cox's Bazar (19+ Stays)</a></li>
+                    <li><a href="{{ url('/hotels-in-kolatoli') }}" class="text-decoration-none text-secondary hover-primary">Kolatoli Beach Hotels &amp; Suites</a></li>
+                    <li><a href="{{ url('/hotels-in-inani') }}" class="text-decoration-none text-secondary hover-primary">Inani Beach Luxury Resorts</a></li>
+                    <li><a href="{{ url('/hotels-in-dhaka') }}" class="text-decoration-none text-secondary hover-primary">Hotels in Dhaka (Gulshan &amp; Banani)</a></li>
+                    <li><a href="{{ url('/hotels-in-sylhet') }}" class="text-decoration-none text-secondary hover-primary">Sylhet Tea Garden Resorts</a></li>
+                    <li><a href="{{ url('/hotels-in-sajek') }}" class="text-decoration-none text-secondary hover-primary">Sajek Valley Cloud View Cottages</a></li>
+                    <li><a href="{{ url('/hotels-in-kuakata') }}" class="text-decoration-none text-secondary hover-primary">Kuakata Sunset Sea Beach Hotels</a></li>
+                    <li><a href="{{ url('/hotels-in-sreemangal') }}" class="text-decoration-none text-secondary hover-primary">Sreemangal Eco &amp; Nature Stays</a></li>
+                    <li><a href="{{ url('/hotels-in-saint-martin') }}" class="text-decoration-none text-secondary hover-primary">Saint Martin Island Beach Resorts</a></li>
+                    <li><a href="{{ url('/hotels-in-sundarban') }}" class="text-decoration-none text-secondary hover-primary">Sundarbans Ship Cruise Booking</a></li>
+                </ul>
+            </div>
+
+            {{-- Col 2: Top 5-Star Resorts --}}
+            <div class="col-12 col-md-4">
+                <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;">
+                    <i class="fa-solid fa-hotel text-primary me-2"></i>Top 5-Star Resorts &amp; Hotels
+                </h6>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="font-size: 13px;">
+                    <li><a href="{{ url('/hotel/sea-pearl-beach-resort-spa') }}" class="text-decoration-none text-secondary hover-primary">Sea Pearl Beach Resort &amp; Spa (5-Star)</a></li>
+                    <li><a href="{{ url('/hotel/ocean-paradise-hotel-resorts') }}" class="text-decoration-none text-secondary hover-primary">Ocean Paradise Hotel &amp; Resorts</a></li>
+                    <li><a href="{{ url('/hotel/ramada-by-wyndham-coxs-bazar') }}" class="text-decoration-none text-secondary hover-primary">Ramada by Wyndham Cox's Bazar</a></li>
+                    <li><a href="{{ url('/hotel/long-beach-hotel-coxs-bazar') }}" class="text-decoration-none text-secondary hover-primary">Long Beach Hotel Cox's Bazar</a></li>
+                    <li><a href="{{ url('/hotel/hotel-the-cox-today') }}" class="text-decoration-none text-secondary hover-primary">Hotel The Cox Today (Kolatoli)</a></li>
+                    <li><a href="{{ url('/hotel/seagull-hotels-ltd') }}" class="text-decoration-none text-secondary hover-primary">Seagull Hotels Ltd (Sugandha)</a></li>
+                    <li><a href="{{ url('/hotel/dera-resort-spa-coxs-bazar') }}" class="text-decoration-none text-secondary hover-primary">Dera Resort &amp; Spa (Inani Beach)</a></li>
+                    <li><a href="{{ url('/hotel/hotel-suite-sadaf') }}" class="text-decoration-none text-secondary hover-primary">Hotel Suite Sadaf (Marine Drive)</a></li>
+                    <li><a href="{{ url('/hotel/green-nature-resort-suites') }}" class="text-decoration-none text-secondary hover-primary">Green Nature Resort &amp; Suites</a></li>
+                    <li><a href="{{ url('/hotel/grace-cox-smart-hotel') }}" class="text-decoration-none text-secondary hover-primary">Grace Cox Smart Hotel &amp; Stays</a></li>
+                </ul>
+            </div>
+
+            {{-- Col 3: Popular Long-Tail Hotel Queries --}}
+            <div class="col-12 col-md-4">
+                <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;">
+                    <i class="fa-solid fa-magnifying-glass text-primary me-2"></i>Popular Hotel Booking Queries
+                </h6>
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-2" style="font-size: 13px;">
+                    <li><a href="{{ route('search.index', ['destination' => 'Cox\'s Bazar', 'min_price' => 1500, 'max_price' => 4000]) }}" class="text-decoration-none text-secondary hover-primary">Cheap hotels in Cox's Bazar near sea beach</a></li>
+                    <li><a href="{{ route('search.index', ['destination' => 'Cox\'s Bazar', 'star_rating' => [5]]) }}" class="text-decoration-none text-secondary hover-primary">5-star luxury resorts in Cox's Bazar 2026</a></li>
+                    <li><a href="{{ route('search.index', ['destination' => 'Cox\'s Bazar']) }}" class="text-decoration-none text-secondary hover-primary">Couple friendly hotels in Cox's Bazar</a></li>
+                    <li><a href="{{ route('search.index', ['destination' => 'Cox\'s Bazar', 'amenities' => ['swimming_pool']]) }}" class="text-decoration-none text-secondary hover-primary">Hotels with swimming pool &amp; private beach</a></li>
+                    <li><a href="{{ route('search.index', ['destination' => 'Sajek']) }}" class="text-decoration-none text-secondary hover-primary">Sajek Valley best wooden resort booking</a></li>
+                    <li><a href="{{ route('search.index', ['destination' => 'Sylhet']) }}" class="text-decoration-none text-secondary hover-primary">Luxury tea garden resorts in Sreemangal</a></li>
+                    <li><a href="{{ route('search.index', ['destination' => 'Dhaka', 'star_rating' => [5]]) }}" class="text-decoration-none text-secondary hover-primary">5-star hotel in Gulshan &amp; airport transfer</a></li>
+                    <li><a href="{{ url('/hotels-in-coxs-bazar') }}" class="text-decoration-none text-secondary hover-primary">Last minute hotel deals in Cox's Bazar</a></li>
+                    <li><a href="{{ route('deals') }}" class="text-decoration-none text-secondary hover-primary">Hotel booking with bKash discount &amp; coupon</a></li>
+                    <li><a href="{{ route('services') }}?type=houseboat" class="text-decoration-none text-secondary hover-primary">Tanguar Haor luxury houseboat booking</a></li>
+                </ul>
+            </div>
+        </div>
+
+        {{-- Authoritative SEO Content Paragraph (Guaranteed Google Quality Score & Context Authority) --}}
+        <div class="p-4 rounded-3 bg-white border text-start" style="border-color: #e2e8f0 !important;">
+            <h3 class="fw-bold text-dark mb-2" style="font-size: 16px;">
+                Online Hotel Booking in Bangladesh — Guaranteed Lowest Rates on Prime Booking
+            </h3>
+            <p class="text-secondary mb-2" style="font-size: 13.5px; line-height: 1.65;">
+                Welcome to <strong>Prime Booking</strong> (প্রাইম বুকিং), Bangladesh's most trusted online travel platform for booking hotels, luxury beach resorts, eco-cottages, domestic flights, and Sundarbans ship cruises. Whether you are searching for a <strong>5-star luxury resort in Cox's Bazar</strong> like Sea Pearl Beach Resort or Ocean Paradise, a budget-friendly hotel near Kolatoli beach, a scenic cloud-view wooden cottage in <strong>Sajek Valley</strong>, or a tranquil tea garden retreat in <strong>Sylhet &amp; Sreemangal</strong>, Prime Booking offers instant confirmation with transparent pricing and zero hidden fees.
+            </p>
+            <p class="text-secondary mb-0" style="font-size: 13.5px; line-height: 1.65;">
+                Enjoy hassle-free payment via <strong>bKash, Nagad, Visa, and Mastercard</strong>, flexible pay-at-hotel policies, free cancellation on selected stays, and round-the-clock 24/7 dedicated traveler support. For instant reservation assistance, contact our official support hotline at <strong>+880 1606-352642</strong>.
+            </p>
+        </div>
+    </div>
+</section>
 
 {{-- Scroll reveal --}}
 <script>

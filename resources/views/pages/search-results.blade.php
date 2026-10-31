@@ -422,7 +422,7 @@
 
 
 {{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Agoda Screenshot) --}}
-<div class="agoda-coupon-strip" style="background: #ffece8; border-bottom: 1px solid #ffd7d0; padding: 10px 0;">
+<div class="agoda-coupon-strip" style="background: #fff3e0; border-bottom: 1px solid #ffe0b2; padding: 10px 0;">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
         <div class="d-flex align-items-center gap-3">
             {{-- Exact Agoda Tilted Coupon Tag SVG Icon --}}
@@ -433,13 +433,13 @@
                 </svg>
             </div>
             <div>
-                <strong style="color: #2a2a2e; font-size: 15px; font-weight: 700; line-height: 1.25; display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Looking for instant coupons?</strong>
-                <span style="color: #5a5b5e; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Check out our Coupons &amp; Deals page for today's discounts</span>
+                <strong style="color: #2a2a2e; font-size: 14.5px; font-weight: 700; line-height: 1.25; display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! You get an extra 5% OFF today.</strong>
+                <span style="color: #5a5b5e; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Just activate your coupon now to unlock this offer.</span>
             </div>
         </div>
         <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-1.5 fw-bold shadow-xs" style="font-size: 13px; color: #2067e1 !important; border: 1px solid #cbd5e1; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                See all coupons
+            <a href="{{ route('deals') }}" class="btn btn-sm text-white rounded-pill px-4 py-1.5 fw-bold shadow-xs" style="font-size: 13px; background: #ff5722 !important; border: 1px solid #f4511e; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Activate coupon
             </a>
             <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px; line-height: 1; color: #687176 !important;" title="Dismiss">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#687176" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -479,9 +479,9 @@
     }
     @media (min-width: 768px) {
         .agoda-property-card-root {
-            height: 200px !important;
-            min-height: 200px !important;
-            max-height: 200px !important;
+            height: 234px !important;
+            min-height: 234px !important;
+            max-height: 234px !important;
         }
         .agoda-property-card-root.agoda-first-featured-card {
             height: 235px !important;
@@ -503,31 +503,31 @@
             line-height: 1.4 !important;
         }
         .agoda-card-content-wrap {
-            height: 200px !important;
-            min-height: 200px !important;
-            max-height: 200px !important;
+            height: 234px !important;
+            min-height: 234px !important;
+            max-height: 234px !important;
         }
         .agoda-card-photo-col {
             width: 236px !important;
             min-width: 236px !important;
             max-width: 236px !important;
-            height: 200px !important;
-            min-height: 200px !important;
-            max-height: 200px !important;
+            height: 234px !important;
+            min-height: 234px !important;
+            max-height: 234px !important;
         }
         .agoda-card-info-col {
-            height: 200px !important;
-            min-height: 200px !important;
-            max-height: 200px !important;
+            height: 234px !important;
+            min-height: 234px !important;
+            max-height: 234px !important;
             padding: 9px 14px !important;
         }
         .agoda-card-price-col {
             width: 195px !important;
             min-width: 195px !important;
             max-width: 195px !important;
-            height: 200px !important;
-            min-height: 200px !important;
-            max-height: 200px !important;
+            height: 234px !important;
+            min-height: 234px !important;
+            max-height: 234px !important;
             padding: 9px 14px 9px 10px !important;
         }
     }
@@ -630,6 +630,7 @@
                 $destLabel = !empty(trim($destination ?? ''))
                     ? trim($destination)
                     : 'Bangladesh';
+                $curSort = request('sort_by', 'featured');
             @endphp
 
 

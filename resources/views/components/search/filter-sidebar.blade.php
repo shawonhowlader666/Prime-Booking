@@ -103,7 +103,13 @@
                 <input type="hidden" name="lng" value="{{ request('lng') }}">
             @endif
 
-
+            {{-- 2. Agoda Text Search Input (Exact Screenshot Parity) --}}
+            <div class="agoda-filter-group" style="padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                <div class="position-relative">
+                    <i class="fa-solid fa-magnifying-glass position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #687176; font-size: 13px;"></i>
+                    <input type="text" name="name" value="{{ request('name') }}" placeholder="Text search" class="w-100" style="height: 38px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 12px 0 34px; font-size: 13px; color: #2a2a2e; outline: none; transition: all 0.15s ease;" onfocus="this.style.borderColor='#2067e1'; this.style.boxShadow='0 0 0 2px rgba(32,103,225,0.15)';" onblur="this.style.borderColor='#dcdfe4'; this.style.boxShadow='none';" onchange="this.form.submit()">
+                </div>
+            </div>
 
             {{-- 3. Budget Range Slider (Dual Handles + MIN/MAX Boxes with Dashed Separator) --}}
             @php

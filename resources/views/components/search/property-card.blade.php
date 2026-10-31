@@ -333,7 +333,7 @@
 @endphp
 
 <div class="agoda-property-card-root @if($isHighlighted) agoda-first-featured-card @endif" 
-     style="background: {{ $isHighlighted ? '#eaf2fd' : '#ffffff' }} !important; border: 1px solid {{ $isHighlighted ? '#b9d5fb' : '#dcdcdc' }} !important; border-radius: 6px !important; margin-bottom: 16px !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; position: relative !important; cursor: pointer !important; box-sizing: border-box !important; max-width: 790px !important; width: 100% !important; {{ $isHighlighted ? 'height: auto !important; min-height: 235px !important;' : 'height: 200px !important; min-height: 200px !important; max-height: 200px !important;' }}"
+     style="background: {{ $isHighlighted ? '#eaf2fd' : '#ffffff' }} !important; border: 1px solid {{ $isHighlighted ? '#b9d5fb' : '#dcdcdc' }} !important; border-radius: 6px !important; margin-bottom: 16px !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; box-shadow: 0 1px 4px rgba(0,0,0,0.06) !important; position: relative !important; cursor: pointer !important; box-sizing: border-box !important; max-width: 790px !important; width: 100% !important; {{ $isHighlighted ? 'height: auto !important; min-height: 235px !important;' : 'height: 234px !important; min-height: 234px !important; max-height: 234px !important;' }}"
      onclick="if(!event.target.closest('button, a, form, input, select, .carousel-control-prev, .carousel-control-next')){ window.location.href='{{ route('hotels.show', $id) }}'; }">
     
     {{-- Agoda Top Blue Urgency Header Strip INSIDE the card for Card #1 --}}
@@ -343,10 +343,10 @@
     </div>
     @endif
 
-    <div class="agoda-card-content-wrap" style="display: flex !important; flex-direction: row !important; width: 100% !important; height: 200px !important; min-height: 200px !important; max-height: 200px !important; background: {{ $isHighlighted ? '#eaf2fd' : 'transparent' }} !important;">
+    <div class="agoda-card-content-wrap" style="display: flex !important; flex-direction: row !important; width: 100% !important; height: 234px !important; min-height: 234px !important; max-height: 234px !important; background: {{ $isHighlighted ? '#eaf2fd' : 'transparent' }} !important;">
         
         {{-- Column 1: Image Carousel (Fixed 236px x 200px) --}}
-        <div class="agoda-card-photo-col" style="width: 236px !important; min-width: 236px !important; max-width: 236px !important; height: 200px !important; min-height: 200px !important; max-height: 200px !important; position: relative !important; overflow: hidden !important; background: #f0f2f5 !important; flex-shrink: 0 !important;">
+        <div class="agoda-card-photo-col" style="width: 236px !important; min-width: 236px !important; max-width: 236px !important; height: 234px !important; min-height: 234px !important; max-height: 234px !important; position: relative !important; overflow: hidden !important; background: #f0f2f5 !important; flex-shrink: 0 !important;">
             
             {{-- Top Left Ribbon (Agoda Authenticated Ribbon) --}}
             @if($hasRibbon)
@@ -363,7 +363,7 @@
                                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';"
                                  alt="{{ $name }}" 
                                  loading="lazy"
-                                 style="width: 100% !important; height: 200px !important; min-height: 200px !important; max-height: 200px !important; object-fit: cover !important; display: block !important;">
+                                 style="width: 100% !important; height: 234px !important; min-height: 234px !important; max-height: 234px !important; object-fit: cover !important; display: block !important;">
                         </div>
                     @endforeach
                 </div>
@@ -412,7 +412,7 @@
 
         {{-- Column 2: Center Hotel Details (Strictly Controlled Line Count) --}}
         <div class="agoda-card-info-col" 
-             style="flex: 1 1 0% !important; min-width: 0 !important; height: 200px !important; min-height: 200px !important; max-height: 200px !important; padding: 9px 14px 9px 14px !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; text-align: left !important; background: transparent !important; box-sizing: border-box !important; overflow: hidden !important;">
+             style="flex: 1 1 0% !important; min-width: 0 !important; height: 234px !important; min-height: 234px !important; max-height: 234px !important; padding: 9px 14px 9px 14px !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; text-align: left !important; background: transparent !important; box-sizing: border-box !important; overflow: hidden !important;">
             
             <div class="agoda-info-top" style="overflow: hidden !important;">
                 {{-- Line 1: Hotel Title --}}
@@ -510,24 +510,23 @@
 
         {{-- Column 3: Right Price & Review Column (Zero Clipping) --}}
         <div class="agoda-card-price-col" 
-             style="width: 195px !important; min-width: 195px !important; max-width: 195px !important; height: 200px !important; min-height: 200px !important; max-height: 200px !important; padding: 9px 14px 9px 10px !important; text-align: right !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; border-left: 1px solid {{ $isHighlighted ? '#cce1fd' : '#f0f0f0' }} !important; background: transparent !important; flex-shrink: 0 !important; box-sizing: border-box !important; overflow: hidden !important;">
+             style="width: 195px !important; min-width: 195px !important; max-width: 195px !important; height: 234px !important; min-height: 234px !important; max-height: 234px !important; padding: 9px 14px 9px 10px !important; text-align: right !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; border-left: 1px solid {{ $isHighlighted ? '#cce1fd' : '#f0f0f0' }} !important; background: transparent !important; flex-shrink: 0 !important; box-sizing: border-box !important; overflow: hidden !important;">
             
-            {{-- Top Reviews Block --}}
-            <div class="agoda-reviews-top-wrap" style="display: flex !important; flex-direction: column !important; align-items: flex-end !important; line-height: 1.25 !important;">
-                <div class="agoda-score-row" style="display: flex !important; align-items: baseline !important; gap: 4px !important; font-weight: 700 !important; color: #2067e1 !important;">
-                    <span class="agoda-score-num" style="font-size: 15px !important; font-weight: 800 !important;">{{ $score }}</span>
-                    <span class="agoda-score-label" style="font-size: 14px !important; font-weight: 700 !important;">{{ $ratingLabel }}</span>
+            {{-- Top Reviews Block (Agoda 1:1 Solid Blue Score Box) --}}
+            <div class="agoda-reviews-top-wrap" style="display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 8px !important; line-height: 1.2 !important;">
+                <div style="text-align: right !important; line-height: 1.2 !important;">
+                    <span class="agoda-score-label" style="display: block !important; font-size: 13.5px !important; font-weight: 700 !important; color: #2a2a2e !important;">{{ $ratingLabel }}</span>
+                    <span class="agoda-reviews-count" style="font-size: 11px !important; color: #687176 !important; font-weight: 500 !important;">{{ $reviewsCount }} reviews</span>
                 </div>
-                <div class="agoda-reviews-count" style="font-size: 11px !important; color: #687176 !important; font-weight: 500 !important; margin-top: 1px !important;">
-                    {{ $reviewsCount }} reviews
+                <div class="agoda-score-badge-box" style="background: #2067e1 !important; color: #ffffff !important; font-size: 15px !important; font-weight: 800 !important; padding: 5px 8px !important; border-radius: 6px 6px 6px 0 !important; min-width: 38px !important; text-align: center !important; box-shadow: 0 2px 4px rgba(32,103,225,0.25) !important; flex-shrink: 0 !important;">
+                    {{ $score }}
                 </div>
-                {{-- Location score: only if score is high (8.3+) --}}
-                @if($locationScoreNum >= 8.3)
-                <div class="agoda-location-score" style="font-size: 11.5px !important; color: #2a2a2e !important; font-weight: 600 !important; margin-top: 2px !important;">
-                    {{ $locationScore }} Location score
-                </div>
-                @endif
             </div>
+            @if($locationScoreNum >= 8.3)
+            <div class="agoda-location-score" style="font-size: 11px !important; color: #2a2a2e !important; font-weight: 600 !important; margin-top: 2px !important; text-align: right !important;">
+                {{ $locationScore }} Location score
+            </div>
+            @endif
 
             {{-- Bottom Price or Sold Out Block --}}
             <div class="agoda-price-bottom-wrap" style="display: flex !important; flex-direction: column !important; align-items: flex-end !important; justify-content: flex-end !important; text-align: right !important;">
@@ -595,6 +594,14 @@
                         No payment today
                     </div>
                     @endif
+
+                    {{-- Agoda Blue Action CTA Button --}}
+                    <div class="agoda-card-btn-container" style="width: 100% !important; margin-top: 6px !important;">
+                        <a href="{{ route('hotels.show', $id) }}" class="agoda-see-rooms-btn" style="display: flex !important; align-items: center !important; justify-content: center !important; gap: 6px !important; width: 100% !important; height: 34px !important; background: #2067e1 !important; color: #ffffff !important; font-weight: 700 !important; font-size: 12.5px !important; border-radius: 4px !important; text-decoration: none !important; box-shadow: 0 2px 6px rgba(32,103,225,0.3) !important; transition: all 0.15s ease !important;">
+                            <span>See available rooms</span>
+                            <i class="fa-solid fa-chevron-right" style="font-size: 10px !important;"></i>
+                        </a>
+                    </div>
                 @endif
             </div>
         </div>

@@ -430,6 +430,29 @@
 </script>
 
 
+{{-- Full Funnel Coupons Banner (Exact Agoda Parity) --}}
+<div id="fullFunnelBannerTarget" data-testid="fullFunnelBannerTarget">
+    <div id="full-funnel-banner-container" style="background-color: #fff2ed; border-bottom: 1px solid #ffd8cc; padding: 8px 0;">
+        <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <img alt="coupon banner" style="width: 36px; height: 36px; object-fit: contain;" src="https://cdn0.agoda.net/images/emailmarketing/Web_SSR_banner/webbanner_coupon.png" onerror="this.style.display='none'">
+                <div>
+                    <h2 style="font-size: 15px; font-weight: 700; color: #2a2a2e; margin: 0; line-height: 1.2;">Looking for instant coupons?</h2>
+                    <div style="font-size: 13px; color: #505256; margin-top: 2px;">Check out our Coupons &amp; Deals page for today's discounts</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="{{ route('deals') }}" style="height: 36px; padding: 0 20px; border-radius: 9999px; background: #ffffff; border: 1px solid #2067e1; color: #2067e1; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+                    See all coupons
+                </a>
+                <button type="button" onclick="document.getElementById('fullFunnelBannerTarget').style.display='none'" style="background: none; border: none; padding: 6px; cursor: pointer; color: #737373;" title="Close">
+                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 {{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Agoda Screenshot) --}}
 <div class="agoda-coupon-strip" style="background: #fff3e0; border-bottom: 1px solid #ffe0b2; padding: 10px 0;">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">

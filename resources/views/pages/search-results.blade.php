@@ -218,7 +218,7 @@
 @endsection
 
 @push('styles')
-    <link rel="stylesheet" href="{{ asset('css/agoda/agoda-search-exact.css') }}?v=20261104_1">
+    <link rel="stylesheet" href="{{ asset('css/agoda/agoda-search-exact.css') }}?v=20261104_2">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 @endpush
 

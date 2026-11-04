@@ -356,51 +356,110 @@
             {{-- Main Container Body --}}
             <div style="padding: 24px 32px 32px 32px;">
                 
-                {{-- Section 1: Need more hotels for your trip? --}}
-                <div class="mb-4">
-                    <h5 class="fw-bold mb-2.5" style="color: #1e293b; font-size: 22px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
+                {{-- Section 1: Need more hotels for your trip? (Exact Agoda cross-sell carousel) --}}
+                <div class="mb-4" data-component="x-sell-need-more-hotels-for-your-trip">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <h5 class="fw-bold mb-0" style="color: #1e293b; font-size: 20px; letter-spacing: -0.2px;">Need more hotels for your trip?</h5>
+                            <span style="background: #e6f7ec; color: #007a3d; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 4px;">Up to 5% off</span>
+                        </div>
+                        <a href="{{ route('search.index') }}" class="small text-decoration-none fw-semibold" style="color: #2067e1;">View all <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2 mb-3 text-muted small">
+                        <span>{{ request('destination', 'Cox\'s Bazar') }} &bull; {{ date('d M', strtotime('+1 day')) }} - {{ date('d M', strtotime('+2 days')) }} &bull; 2 Adults</span>
+                        <a href="{{ route('search.index') }}" style="color: #2067e1;"><i class="fa-solid fa-pencil" style="font-size: 11px;"></i></a>
+                    </div>
+
+                    @if(isset($featuredProperties) && $featuredProperties->isNotEmpty())
+                    <div class="position-relative">
+                        <div class="d-flex gap-3 overflow-auto pb-2" style="scrollbar-width: thin; scroll-snap-type: x mandatory;">
+                            @foreach($featuredProperties as $prop)
+                                @php
+                                    $rawImg = $prop->primary_image ?: ($prop->image_url ?: null);
+                                    if (!$rawImg && !empty($prop->images)) {
+                                        $parsedImgs = is_string($prop->images) ? json_decode($prop->images, true) : $prop->images;
+                                        $rawImg = $parsedImgs[0] ?? null;
+                                    }
+                                    $cardImg = function_exists('media_url') ? media_url($rawImg) : ($rawImg ? (str_starts_with($rawImg, 'http') ? $rawImg : asset('storage/' . ltrim($rawImg, '/'))) : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
+
+                                    $price = (float)($prop->price_per_night ?? $prop->price ?? 3500);
+                                    $score = (float)($prop->rating_score ?? 8.2);
+                                    $ratingLabel = match(true) {
+                                        $score >= 9.0 => 'Exceptional',
+                                        $score >= 8.5 => 'Superb',
+                                        $score >= 8.0 => 'Excellent',
+                                        $score >= 7.5 => 'Very good',
+                                        default       => 'Good',
+                                    };
+                                    $revCount = (int)($prop->total_reviews ?? $prop->reviews_count ?? 120);
+                                @endphp
+                                <a href="{{ route('hotels.show', $prop->id) }}" class="text-decoration-none text-dark flex-shrink-0" style="width: 176px; scroll-snap-align: start;">
+                                    <div class="card border rounded-4 overflow-hidden h-100 shadow-none" style="border-color: #e2e8f0; transition: transform 0.15s, box-shadow 0.15s; background: #fff;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='';this.style.boxShadow='none';">
+                                        <div class="position-relative" style="height: 110px; width: 100%; background: #f1f5f9;">
+                                            <img src="{{ $cardImg }}" alt="{{ $prop->name }}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';">
+                                            @if($loop->iteration % 2 === 0)
+                                                <div class="position-absolute" style="top: 6px; left: 6px; background: #d93025; color: #fff; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 3px;">
+                                                    <i class="fa-solid fa-bolt me-1"></i>Booked {{ $loop->iteration + 2 }} times today
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="p-2 d-flex flex-column justify-content-between" style="min-height: 130px;">
+                                            <div>
+                                                <div class="fw-bold text-truncate" style="font-size: 13.5px; color: #2a2a2e;" title="{{ $prop->name }}">{{ $prop->name }}</div>
+                                                <div class="d-flex align-items-center gap-1 my-1">
+                                                    @for($s = 0; $s < min(5, max(1, (int)($prop->star_rating ?? 4))); $s++)
+                                                        <i class="fa-solid fa-star" style="color: #ff9900; font-size: 10px;"></i>
+                                                    @endfor
+                                                </div>
+                                                <div class="small text-muted text-truncate" style="font-size: 11.5px;">
+                                                    <i class="fa-solid fa-location-dot me-1"></i>{{ $prop->city ?? 'Cox\'s Bazar' }}
+                                                </div>
+                                                <div class="d-flex align-items-baseline gap-1 mt-1">
+                                                    <span class="fw-bold" style="font-size: 11px; color: #2067e1;">{{ number_format($score, 1) }}</span>
+                                                    <span class="text-muted" style="font-size: 10px;">{{ $ratingLabel }}</span>
+                                                    <span class="text-muted" style="font-size: 9.5px;">({{ number_format($revCount) }})</span>
+                                                </div>
+                                            </div>
+                                            <div class="text-end mt-2 pt-1 border-top">
+                                                <div class="fw-bold" style="font-size: 14.5px; color: #e12d2d; line-height: 1.1;">
+                                                    BDT {{ number_format($price) }}
+                                                </div>
+                                                <span class="text-muted d-block" style="font-size: 9.5px;">Per night before taxes</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                    @else
                     <div class="agoda-exact-card">
                         <div class="d-flex align-items-end justify-content-between flex-wrap gap-3">
                             <div>
-                                {{-- Emerald Green Hotel Icon matching Agoda 1:1 --}}
                                 <div style="margin-bottom: 12px; line-height: 1;">
                                     <img src="{{ asset('images/connected-trip/hotel-icon.png') }}" alt="Hotel" style="width: 34px; height: 35px; object-fit: contain;">
                                 </div>
-                                
-                                {{-- Badges Row --}}
                                 <div class="d-flex align-items-center gap-2 mb-2">
                                     <span style="background: #e6f7ec; color: #007a3d; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
-                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#007a3d">
-                                            <path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.2-6.3-4.6-6.3 4.6 2.3-7.2-6-4.6h7.6z"/>
-                                        </svg>
+                                        <svg width="10" height="10" viewBox="0 0 24 24" fill="#007a3d"><path d="M12 2l2.4 7.4h7.6l-6 4.6 2.3 7.2-6.3-4.6-6.3 4.6 2.3-7.2-6-4.6h7.6z"/></svg>
                                         Trip Savings
                                     </span>
-                                    <span style="background: #007a3d; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px;">
-                                        Up to 5% off
-                                    </span>
+                                    <span style="background: #007a3d; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 3px 8px; border-radius: 4px;">Up to 5% off</span>
                                 </div>
-
-                                {{-- Title & Subtitle --}}
                                 <h6 class="fw-bold mb-1" style="color: #111827; font-size: 16.5px;">Book another place to stay</h6>
                                 <p class="small mb-2.5" style="color: #6b7280; font-size: 14px;">We have unlocked the best deals with Trip Savings</p>
-                                
-                                {{-- Date line with external link icon --}}
                                 <div class="small fw-semibold d-flex align-items-center gap-1.5" style="font-size: 13.5px; color: #4b5563;">
                                     <span>23 Oct - 24 Oct &bull; 2 Adults</span>
-                                    <a href="{{ route('search.index') }}" style="color: #2067e1; text-decoration: none;">
-                                        <i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px;"></i>
-                                    </a>
+                                    <a href="{{ route('search.index') }}" style="color: #2067e1; text-decoration: none;"><i class="fa-solid fa-arrow-up-right-from-square" style="font-size: 11px;"></i></a>
                                 </div>
                             </div>
-
-                            {{-- Search Pill Button --}}
                             <div>
-                                <a href="{{ route('search.index') }}" class="agoda-btn-outline-search">
-                                    Search
-                                </a>
+                                <a href="{{ route('search.index') }}" class="agoda-btn-outline-search">Search</a>
                             </div>
                         </div>
                     </div>
+                    @endif
                 </div>
 
                 {{-- Section 2: Plan your journey to your hotel --}}
@@ -1149,9 +1208,14 @@ $activeTypes = array_filter($propertyTypeConfig, fn($k) => ($propertyTypeCounts[
                 <a href="{{ route('hotels.show', $prop->id) }}" class="text-decoration-none text-dark">
                     <div class="card border-0 shadow-sm rounded-4 overflow-hidden h-100" style="transition:transform .2s,box-shadow .2s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 12px 28px rgba(0,0,0,0.14)'" onmouseout="this.style.transform='';this.style.boxShadow=''">
                         @php
-                            $cardImg = $prop->primary_image ?: ($prop->image_url ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
+                            $rawImg2 = $prop->primary_image ?: ($prop->image_url ?: null);
+                            if (!$rawImg2 && !empty($prop->images)) {
+                                $parsedImgs2 = is_string($prop->images) ? json_decode($prop->images, true) : $prop->images;
+                                $rawImg2 = $parsedImgs2[0] ?? null;
+                            }
+                            $cardImg2 = function_exists('media_url') ? media_url($rawImg2) : ($rawImg2 ? (str_starts_with($rawImg2, 'http') ? $rawImg2 : asset('storage/' . ltrim($rawImg2, '/'))) : 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
                         @endphp
-                        <img src="{{ $cardImg }}" style="height:180px;width:100%;object-fit:cover;" alt="{{ $prop->name }}" loading="lazy">
+                        <img src="{{ $cardImg2 }}" style="height:180px;width:100%;object-fit:cover;" alt="{{ $prop->name }}" loading="lazy">
                         <div class="card-body p-3">
                             <div class="d-flex justify-content-between align-items-start">
                                 <div>

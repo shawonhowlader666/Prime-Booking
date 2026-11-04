@@ -88,6 +88,11 @@
     </div>
 
     <div class="p-3">
+        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
+            <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Filter by</h6>
+            <a href="{{ route('search.index') }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
+        </div>
+
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
             <input type="hidden" name="destination" value="{{ request('destination') }}">
             <input type="hidden" name="search_type" value="{{ request('search_type', 'hotel') }}">
@@ -112,6 +117,54 @@
                 <div class="position-relative">
                     <i class="fa-solid fa-magnifying-glass position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #687176; font-size: 13px;"></i>
                     <input type="text" name="q" id="outerSearchTextInput" value="{{ request('q') ?: request('name') }}" placeholder="Text search" class="w-100" style="height: 38px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 12px 0 34px; font-size: 13px; color: #2a2a2e; outline: none; transition: all 0.15s ease;" onfocus="this.style.borderColor='#2067e1'; this.style.boxShadow='0 0 0 2px rgba(32,103,225,0.15)';" onblur="this.style.borderColor='#dcdfe4'; this.style.boxShadow='none';" onkeydown="if(event.key==='Enter'){event.preventDefault(); triggerSidebarSubmit();}">
+                </div>
+            </div>
+
+            {{-- 2.1 Location / Area Filter (Cascading Dynamic Bangladesh Geo - 1:1 Parity) --}}
+            @php
+                $geoConfig = config('bangladesh-geo.divisions', []);
+                $selectedDivision = (string) request('division', '');
+                $selectedDistrict = (string) request('district', '');
+                $selectedUpazila  = (string) request('upazila', '');
+            @endphp
+            <div class="agoda-filter-group" id="locationFilterWidget" style="padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="agoda-filter-title m-0" style="font-size: 13.5px; font-weight: 700; color: #2a2a2e;">Location / Area</span>
+                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ (!empty($selectedDivision) || !empty($selectedDistrict) || !empty($selectedUpazila)) ? '' : 'd-none' }}" style="font-size: 11.5px; color: #2067e1;">Reset</a>
+                </div>
+
+                <!-- Step 1: Region Select (Default: Select region...) -->
+                <div class="mb-2" id="geoDivisionContainer">
+                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; font-weight: 500; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; color: #2a2a2e; background-color: #ffffff;">
+                        <option value="" {{ empty($selectedDivision) ? 'selected' : '' }}>Select region...</option>
+                        @foreach($geoConfig as $divKey => $divInfo)
+                            <option value="{{ $divKey }}" {{ ($selectedDivision !== '' && $selectedDivision === (string)$divKey) ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <!-- Step 2: City / District Select -->
+                <div class="mb-2 {{ $selectedDivision ? '' : 'd-none' }}" id="geoDistrictContainer">
+                    <select name="district" id="districtSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; font-weight: 500; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; color: #2a2a2e; background-color: #ffffff;">
+                        <option value="">Select city / district...</option>
+                        @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
+                            @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
+                                <option value="{{ $distKey }}" {{ $selectedDistrict === $distKey ? 'selected' : '' }}>{{ $distInfo['name'] }}</option>
+                            @endforeach
+                        @endif
+                    </select>
+                </div>
+
+                <!-- Step 3: Upazila / Area Select -->
+                <div class="{{ ($selectedDivision && $selectedDistrict) ? '' : 'd-none' }}" id="geoUpazilaContainer">
+                    <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; font-weight: 500; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; color: #2a2a2e; background-color: #ffffff;">
+                        <option value="">Select area / spot...</option>
+                        @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
+                            @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
+                                <option value="{{ $upazilaName }}" {{ $selectedUpazila === $upazilaName ? 'selected' : '' }}>{{ $upazilaName }}</option>
+                            @endforeach
+                        @endif
+                    </select>
                 </div>
             </div>
 
@@ -547,6 +600,86 @@
             form.submit();
         });
     };
+
+    // Location / Area cascading engine (1:1 with Agoda Location Picker)
+    var geoData = @json(config('bangladesh-geo.divisions', []));
+    var divisionSelect = document.getElementById('divisionSelectFilter');
+    var districtSelect = document.getElementById('districtSelectFilter');
+    var upazilaSelect  = document.getElementById('upazilaSelectFilter');
+    var districtContainer = document.getElementById('geoDistrictContainer');
+    var upazilaContainer  = document.getElementById('geoUpazilaContainer');
+    var resetBtn = document.getElementById('resetLocationBtn');
+
+    if (divisionSelect) {
+        divisionSelect.addEventListener('change', function() {
+            var selDiv = this.value;
+            districtSelect.innerHTML = '<option value="">Select city / district...</option>';
+            upazilaSelect.innerHTML  = '<option value="">Select area / spot...</option>';
+            if (upazilaContainer) upazilaContainer.classList.add('d-none');
+
+            if (selDiv && geoData[selDiv] && geoData[selDiv].districts) {
+                var dists = geoData[selDiv].districts;
+                for (var dKey in dists) {
+                    var opt = document.createElement('option');
+                    opt.value = dKey;
+                    opt.textContent = dists[dKey].name || dKey;
+                    districtSelect.appendChild(opt);
+                }
+                if (districtContainer) districtContainer.classList.remove('d-none');
+                if (resetBtn) resetBtn.classList.remove('d-none');
+            } else {
+                if (districtContainer) districtContainer.classList.add('d-none');
+                if (!selDiv && resetBtn) resetBtn.classList.add('d-none');
+            }
+            triggerSidebarSubmit();
+        });
+    }
+
+    if (districtSelect) {
+        districtSelect.addEventListener('change', function() {
+            var selDiv = divisionSelect ? divisionSelect.value : '';
+            var selDist = this.value;
+            upazilaSelect.innerHTML = '<option value="">Select area / spot...</option>';
+
+            if (selDiv && selDist && geoData[selDiv] && geoData[selDiv].districts && geoData[selDiv].districts[selDist] && geoData[selDiv].districts[selDist].upazilas) {
+                var upzList = geoData[selDiv].districts[selDist].upazilas;
+                for (var i = 0; i < upzList.length; i++) {
+                    var uName = upzList[i];
+                    var opt = document.createElement('option');
+                    opt.value = uName;
+                    opt.textContent = uName;
+                    upazilaSelect.appendChild(opt);
+                }
+                if (upazilaContainer) upazilaContainer.classList.remove('d-none');
+                if (resetBtn) resetBtn.classList.remove('d-none');
+            } else {
+                if (upazilaContainer) upazilaContainer.classList.add('d-none');
+            }
+            triggerSidebarSubmit();
+        });
+    }
+
+    if (upazilaSelect) {
+        upazilaSelect.addEventListener('change', function() {
+            triggerSidebarSubmit();
+        });
+    }
+
+    if (resetBtn) {
+        resetBtn.addEventListener('click', function() {
+            if (divisionSelect) divisionSelect.value = '';
+            if (districtSelect) {
+                districtSelect.innerHTML = '<option value="">Select city / district...</option>';
+                if (districtContainer) districtContainer.classList.add('d-none');
+            }
+            if (upazilaSelect) {
+                upazilaSelect.innerHTML = '<option value="">Select area / spot...</option>';
+                if (upazilaContainer) upazilaContainer.classList.add('d-none');
+            }
+            resetBtn.classList.add('d-none');
+            triggerSidebarSubmit();
+        });
+    }
 
     // Initialize slider on load
     if (minRange && maxRange) {

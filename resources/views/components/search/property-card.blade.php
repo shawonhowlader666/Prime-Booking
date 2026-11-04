@@ -1,5 +1,53 @@
 @props(['item', 'isFirst' => false, 'isSecond' => false, 'userWishlists' => []])
 
+@once
+<style>
+    .ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0, 
+    .fuICnK, 
+    .ScreenReaderOnly,
+    .visually-hidden-agoda {
+        display: none !important;
+        position: absolute !important;
+        width: 1px !important;
+        height: 1px !important;
+        padding: 0 !important;
+        margin: -1px !important;
+        overflow: hidden !important;
+        clip: rect(0, 0, 0, 0) !important;
+        white-space: nowrap !important;
+        border: 0 !important;
+    }
+    .agoda-address-btn,
+    button.agoda-address-btn {
+        border: none !important;
+        background: transparent !important;
+        padding: 0 !important;
+        outline: none !important;
+        box-shadow: none !important;
+        text-align: left !important;
+        cursor: pointer !important;
+        text-decoration: none !important;
+    }
+    .agoda-address-btn:focus,
+    .agoda-address-btn:active {
+        outline: none !important;
+        box-shadow: none !important;
+        border: none !important;
+    }
+    .PropertyCardBaseJacket {
+        transition: box-shadow 0.2s ease, border-color 0.2s ease !important;
+    }
+    .PropertyCardBaseJacket:hover {
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12) !important;
+        border-color: #b0c9f0 !important;
+    }
+    .PropertyCardBaseJacket:hover .agoda-hotel-title-link h2 {
+        color: #2067e1 !important;
+        text-decoration: underline !important;
+    }
+</style>
+@endonce
+
 @php
     $isObj             = is_object($item);
     $id                = $isObj ? $item->id : ($item['id'] ?? 1);
@@ -301,10 +349,12 @@
                     <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline">
                       <div data-element-name="ssr-property-card-star-rating" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-block abb64-mr-4">
                         <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex">
-                          <span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">{{ $stars }} stars out of 5</span>
+                          <span class="ScreenReaderOnly" style="display: none !important;">{{ $stars }} stars out of 5</span>
                           @for($s = 0; $s < $stars; $s++)
-                            <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline">
-                              <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg>
+                            <span role="img" aria-hidden="true" style="display: inline-flex; align-items: center; margin-right: 2px;">
+                              <svg viewBox="0 0 24 24" width="13" height="13" fill="#ff9800" style="display: inline-block;">
+                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+                              </svg>
                             </span>
                           @endfor
                         </div>
@@ -316,7 +366,7 @@
                 {{-- Location Address with Exact Agoda Highlight Hover Background & Map Trigger --}}
                 <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mt-4">
                   <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline">
-                    <button data-element-name="ssr-property-card-address" type="button" class="TextLink__TextLinkStyled-sc-upxc4y-1 jwdswZ agoda-address-btn" onclick="event.stopPropagation(); event.preventDefault(); openHotelOnMap({{ $id }}, '{{ addslashes($displayName) }}');">
+                    <button data-element-name="ssr-property-card-address" type="button" class="TextLink__TextLinkStyled-sc-upxc4y-1 jwdswZ agoda-address-btn" style="border: 0 !important; background: transparent !important; padding: 0 !important; outline: none !important; box-shadow: none !important; text-align: left; display: inline-flex; align-items: center;" onclick="event.stopPropagation(); event.preventDefault(); openHotelOnMap({{ $id }}, '{{ addslashes($displayName) }}');">
                       <span role="img" aria-hidden="true" style="display: inline-flex; align-items: center; margin-right: 4px;">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="#2067e1" style="display:inline-block; vertical-align:text-top;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5 2.5 2.5z"/></svg>
                       </span>
@@ -382,7 +432,7 @@
           </div>
 
           {{-- 3. EXACT RIGHT PRICING SECTION (Agoda Layout & Typo) --}}
-          <div class="Itemstyled__Item-sc-12uga7p-0 fTvBdC PropertyCard__Section PropertyCard__Section--pricingInfo" style="flex: 0 0 25%; width: 25%; min-height: 220px; box-sizing: border-box;">
+          <div class="Itemstyled__Item-sc-12uga7p-0 fTvBdC PropertyCard__Section PropertyCard__Section--pricingInfo" style="flex: 0 0 25%; width: 25%; min-height: 220px; box-sizing: border-box; border-left: 1px solid #f0f2f5;">
             <div class="abb64-h-full abb64-justify-between abb64-items-end abb64-p-8 abb64-flex abb64-flex-col" data-element-name="property-card-pricing-info" style="min-height: 220px; height: 100%; box-sizing: border-box; padding: 12px 14px 10px 14px;">
               
               {{-- Review Score Box with Agoda Typo --}}

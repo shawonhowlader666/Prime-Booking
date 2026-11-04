@@ -217,15 +217,6 @@
 </script>
 @endsection
 
-@push('styles')
-    <link rel="stylesheet" href="{{ asset('css/agoda/agoda-search-exact.css') }}?v=20261104_2">
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-@endpush
-
-@push('scripts')
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-@endpush
-
 @section('content')
 
 
@@ -241,39 +232,55 @@
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="return validateAndSubmitHeaderSearch(event);" style="width: 100%; margin: 0;">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
-            {{-- 1. Destination Input Box (Clean, No Icon Matching Screenshot) --}}
+            {{-- 1. Destination Input Box with Near Me GPS Button --}}
             <div class="col-12 col-lg-3">
                 <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
+                    <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
                     <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 15px; box-shadow: none;">
                     <input type="hidden" name="lat" id="gpsLatInput" value="{{ request('lat') }}">
                     <input type="hidden" name="lng" id="gpsLngInput" value="{{ request('lng') }}">
+                    <button type="button" class="btn btn-link p-0 text-primary ms-1" title="Search Near My Current GPS Location" onclick="useCurrentLocation()" style="font-size: 15px; text-decoration: none;">
+                        <i class="fa-solid fa-location-crosshairs" id="gpsCrosshairIcon"></i>
+                    </button>
                 </div>
             </div>
 
-            {{-- 2. Agoda Exact Unified Joined Dates Box (Check-in & Check-out with Center Divider, Clean No Calendar Icons) --}}
+            {{-- 2. Agoda Exact Unified Joined Dates Box (Check-in & Check-out with Center Divider) --}}
             <div class="col-12 col-md-6 col-lg-4">
                 <div class="bg-white rounded-3 d-flex align-items-center shadow-xs position-relative overflow-hidden" style="height: 48px;">
                     {{-- Left Half: Check-in --}}
-                    <div class="w-50 px-3 py-1 d-flex flex-column justify-content-center h-100" style="cursor: pointer; border-right: 1px solid #e2e8f0; line-height: 1.25;" onclick="document.getElementById('checkInNativeInput').showPicker();">
-                        <strong class="d-block text-dark text-truncate" id="checkInDisplayDate" style="font-size: 14px;">{{ $checkinCarbon->format('j M Y') }}</strong>
-                        <small class="text-secondary d-block text-truncate" id="checkInDisplayDay" style="font-size: 12px;">{{ $checkinCarbon->format('l') }}</small>
+                    <div class="w-50 px-3 py-1 d-flex align-items-center gap-2 h-100" style="cursor: pointer; border-right: 1px solid #e2e8f0;" onclick="document.getElementById('checkInNativeInput').showPicker();">
+                        <i class="fa-regular fa-calendar-check text-secondary fs-5 flex-shrink-0"></i>
+                        <div style="line-height: 1.15; min-width: 0;" class="overflow-hidden">
+                            <strong class="d-block text-dark text-truncate" id="checkInDisplayDate" style="font-size: 14px;">{{ $checkinCarbon->format('j M Y') }}</strong>
+                            <small class="text-secondary d-block text-truncate" id="checkInDisplayDay" style="font-size: 12px;">{{ $checkinCarbon->format('l') }}</small>
+                        </div>
                         <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
                     </div>
 
                     {{-- Right Half: Check-out --}}
-                    <div class="w-50 px-3 py-1 d-flex flex-column justify-content-center h-100" style="cursor: pointer; line-height: 1.25;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
-                        <strong class="d-block text-dark text-truncate" id="checkOutDisplayDate" style="font-size: 14px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
-                        <small class="text-secondary d-block text-truncate" id="checkOutDisplayDay" style="font-size: 12px;">{{ $checkoutCarbon->format('l') }}</small>
+                    <div class="w-50 px-3 py-1 d-flex align-items-center gap-2 h-100" style="cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
+                        <i class="fa-regular fa-calendar text-secondary fs-5 flex-shrink-0"></i>
+                        <div style="line-height: 1.15; min-width: 0;" class="overflow-hidden">
+                            <strong class="d-block text-dark text-truncate" id="checkOutDisplayDate" style="font-size: 14px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
+                            <small class="text-secondary d-block text-truncate" id="checkOutDisplayDay" style="font-size: 12px;">{{ $checkoutCarbon->format('l') }}</small>
+                        </div>
                         <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; right: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
                     </div>
                 </div>
             </div>
 
-            {{-- 3. Guests & Rooms Box (Clean 2-line Card, No Chevron or Icon Matching Screenshot) --}}
+            {{-- 3. Guests & Rooms Box (Agoda 2-line Card with Chevron & Dropdown) --}}
             <div class="col-12 col-md-4 col-lg-3 position-relative">
-                <div class="bg-white rounded-3 px-3 py-1 d-flex flex-column justify-content-center shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer; line-height: 1.25;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                    <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 14px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
-                    <small class="text-secondary" id="roomCountDisplay" style="font-size: 12px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
+                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                    <div class="d-flex align-items-center gap-2">
+                        <i class="fa-solid fa-users text-secondary fs-5"></i>
+                        <div style="line-height: 1.15;">
+                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 14px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
+                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 12px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-down text-secondary" style="font-size: 11px;"></i>
                 </div>
 
                 {{-- Guests Counter Popover Menu --}}
@@ -414,30 +421,32 @@
 </script>
 
 
-{{-- Full Funnel Coupons Banner (Exact Agoda Parity) --}}
-<div id="fullFunnelBannerTarget" data-testid="fullFunnelBannerTarget">
-    <div id="full-funnel-banner-container" style="background-color: #ffece6; border-bottom: 1px solid #ffd5cc; padding: 8px 0;">
-        <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 16px;">
-                <button type="button" onclick="document.getElementById('fullFunnelBannerTarget').style.display='none'" style="background: none; border: none; padding: 0; cursor: pointer; color: #687176; font-size: 15px; display: flex; align-items: center;" title="Close">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2067e1" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-                <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg); box-shadow: 0 2px 6px rgba(255, 107, 53, 0.35);">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                    </svg>
-                </div>
-                <div>
-                    <strong style="color: #2a2a2e; font-size: 14.5px; font-weight: 700; line-height: 1.25; display: block;">Looking for instant coupons?</strong>
-                    <span style="color: #5a5b5e; font-size: 13px;">Check out our Coupons &amp; Deals page for today's discounts</span>
-                </div>
+{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Agoda Screenshot) --}}
+<div class="agoda-coupon-strip" style="background: #fff3e0; border-bottom: 1px solid #ffe0b2; padding: 10px 0;">
+    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
+        <div class="d-flex align-items-center gap-3">
+            {{-- Exact Agoda Tilted Coupon Tag SVG Icon --}}
+            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; background: #ff5722; border-radius: 8px; color: #ffffff; transform: rotate(-12deg); box-shadow: 0 2px 6px rgba(255, 87, 34, 0.35);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                </svg>
             </div>
             <div>
-                <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-1.5 fw-bold text-primary shadow-xs" style="font-size: 13px; color: #2067e1 !important; border: 1px solid #cbd5e1; text-decoration: none;">
-                    See all coupons
-                </a>
+                <strong style="color: #2a2a2e; font-size: 14.5px; font-weight: 700; line-height: 1.25; display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! You get an extra 5% OFF today.</strong>
+                <span style="color: #5a5b5e; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Just activate your coupon now to unlock this offer.</span>
             </div>
+        </div>
+        <div class="d-flex align-items-center gap-3">
+            <a href="{{ route('deals') }}" class="btn btn-sm text-white rounded-pill px-4 py-1.5 fw-bold shadow-xs" style="font-size: 13px; background: #ff5722 !important; border: 1px solid #f4511e; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                Activate coupon
+            </a>
+            <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px; line-height: 1; color: #687176 !important;" title="Dismiss">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#687176" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+            </button>
         </div>
     </div>
 </div>
@@ -624,26 +633,6 @@
                 $curSort = request('sort_by', 'featured');
             @endphp
 
-
-            {{-- Congratulations! Coupon Banner (Exact Agoda Card Inside Results Column) --}}
-            <div class="agoda-claim-banner-card mb-3" style="max-width: 790px; background-color: #fff6f0; border: 1px solid #ffd8c4; border-radius: 8px; padding: 12px 18px; display: flex; align-items: center; justify-content: space-between; gap: 16px;">
-                <div style="display: flex; align-items: center; gap: 14px;">
-                    <div style="color: #ff5e1f; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                        <svg width="28" height="28" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#ff5e1f">
-                            <path fill-rule="evenodd" d="M16 5v2h1V5h5a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1h-5v-2h-1v2H2a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6V6a1 1 0 0 1 1-1h14zm1 8h-1v2h1v-2zm0-4h-1v2h1V9z"></path>
-                        </svg>
-                    </div>
-                    <div>
-                        <div style="color: #c84510; font-size: 15px; font-weight: 700; line-height: 1.25; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! You get an extra 5% OFF today.</div>
-                        <div style="color: #687176; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin-top: 2px;">Just activate your coupon now to unlock this offer.</div>
-                    </div>
-                </div>
-                <div style="flex-shrink: 0;">
-                    <a href="{{ route('deals') }}" class="btn text-white fw-bold shadow-none" style="background-color: #ff5e1f; border: none; border-radius: 4px; padding: 8px 18px; font-size: 13.5px; text-decoration: none; display: inline-block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                        Activate coupon
-                    </a>
-                </div>
-            </div>
 
             {{-- Clean 1:1 Agoda Results Header Row (Count on Left, Sort Dropdown on Right) --}}
             <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="max-width: 790px;">

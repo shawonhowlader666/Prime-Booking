@@ -18,14 +18,18 @@
     $isSeaCrown        = str_contains($lowerName, 'sea crown') || ($id == 55);
     
     $hasRibbon         = $isBestWestern;
-    $hasStillAvailable = false;
-    $hasBoosted        = $isSeaPearl;
+    $hasStillAvailable = $isBestWestern;
+    $hasBoosted        = $isSeaPearl || $isBestWestern || $isRamada;
     $hasSeaView        = $isSeaPearl || $isSeagull;
     $hasCreditCardNote = $isWindy;
     $hasValuePick      = $isBestWestern || $isSeaPearl || $isSeagull;
 
     // Agoda exact text: "Someone booked X ago"
-    $bookingUrgencyText = null;
+    $bookingUrgencyText = match(true) {
+        $isBestWestern => 'Someone booked 10 hrs ago',
+        $isWindy       => 'Someone booked 12 mins ago',
+        default        => null,
+    };
     
     // Address format: Dynamic city and area (Agoda standard "Area, City - View on map")
     $cityRaw = trim((string)($isObj ? ($item->city ?? '') : ($item['city'] ?? '')));
@@ -186,9 +190,7 @@
 
     // Middle Column USPs
     $customSnippet = trim((string)($isObj ? ($item->feature_snippet ?? '') : ($item['feature_snippet'] ?? '')));
-    if ($isSeaPearl) {
-        $featureSnippet = 'Private Beach Access, Female-Only Pool Section';
-    } elseif ($customSnippet) {
+    if ($customSnippet) {
         $featureSnippet = $customSnippet;
     } else {
         $lowerCity = strtolower($cityStr);
@@ -261,21 +263,21 @@
                 </div>
 
                 {{-- Right Carousel Arrow --}}
-                <div class="agoda-carousel-arrow-wrap agoda-arrow-next {{ $totalImgs <= 1 ? 'is-disabled' : '' }}" id="next_arrow_{{ $id }}" style="position: absolute !important; top: 50% !important; right: 8px !important; transform: translateY(-50%) !important; z-index: 12 !important;">
-                  <button aria-label="Next property image" onclick="event.stopPropagation(); event.preventDefault(); changeAgodaSlide({{ $id }}, 1);" type="button" class="agoda-carousel-nav-btn" style="width: 28px !important; height: 28px !important; border-radius: 50% !important; background: #ffffff !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; padding: 0 !important; outline: none !important;">
+                <div class="agoda-carousel-arrow-wrap agoda-arrow-next {{ $totalImgs <= 1 ? 'is-disabled' : '' }}" id="next_arrow_{{ $id }}">
+                  <button aria-label="Next property image" onclick="event.stopPropagation(); event.preventDefault(); changeAgodaSlide({{ $id }}, 1);" type="button" class="agoda-carousel-nav-btn">
                     <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                   </button>
                 </div>
 
                 {{-- Exact Agoda Bottom Photo Counter Pill --}}
-                <div class="agoda-slide-counter-pill" id="slide_pill_{{ $id }}" style="position: absolute !important; bottom: 10px !important; left: 10px !important; background: rgba(0, 0, 0, 0.54) !important; color: #ffffff !important; font-size: 11px !important; font-weight: 600 !important; line-height: 1 !important; padding: 3px 7px !important; border-radius: 4px !important; pointer-events: none !important; z-index: 10 !important; display: inline-flex !important; align-items: center !important;">
+                <div class="agoda-slide-counter-pill" id="slide_pill_{{ $id }}">
                   <span id="slide_counter_{{ $id }}">1/{{ $totalImgs }}</span>
                 </div>
               </div>
 
               {{-- Exact Agoda Circular Love / Wishlist Button --}}
-              <div class="agoda-heart-wrap" style="position: absolute !important; top: 10px !important; right: 10px !important; z-index: 15 !important;">
-                <button data-testid="save-to-trip-entry-button" aria-label="Save to trip" onclick="event.stopPropagation(); event.preventDefault(); toggleAgodaWishlist({{ $id }}, this);" type="button" class="agoda-heart-btn {{ $isSaved ? 'is-saved' : '' }}" style="width: 32px !important; height: 32px !important; border-radius: 50% !important; background: #ffffff !important; border: none !important; box-shadow: 0 2px 6px rgba(0,0,0,0.22) !important; display: flex !important; align-items: center !important; justify-content: center !important; cursor: pointer !important; padding: 0 !important; outline: none !important;">
+              <div class="agoda-heart-wrap">
+                <button data-testid="save-to-trip-entry-button" aria-label="Save to trip" onclick="event.stopPropagation(); event.preventDefault(); toggleAgodaWishlist({{ $id }}, this);" type="button" class="agoda-heart-btn {{ $isSaved ? 'is-saved' : '' }}">
                   <svg id="wishlist_icon_{{ $id }}" viewBox="0 0 24 24" width="18" height="18" fill="{{ $isSaved ? '#e12d46' : 'none' }}" stroke="{{ $isSaved ? '#e12d46' : '#252c38' }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                   </svg>
@@ -314,7 +316,7 @@
                 {{-- Location Address with Exact Agoda Highlight Hover Background & Map Trigger --}}
                 <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mt-4">
                   <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline">
-                    <button data-element-name="ssr-property-card-address" type="button" class="TextLink__TextLinkStyled-sc-upxc4y-1 jwdswZ agoda-address-btn" onclick="event.stopPropagation(); event.preventDefault(); openHotelOnMap({{ $id }}, '{{ addslashes($displayName) }}');" style="border: none !important; background: transparent !important; outline: none !important; padding: 0 !important; margin: 0 !important; cursor: pointer !important; display: inline-flex !important; align-items: center !important; font-family: inherit !important; box-shadow: none !important;">
+                    <button data-element-name="ssr-property-card-address" type="button" class="TextLink__TextLinkStyled-sc-upxc4y-1 jwdswZ agoda-address-btn" onclick="event.stopPropagation(); event.preventDefault(); openHotelOnMap({{ $id }}, '{{ addslashes($displayName) }}');">
                       <span role="img" aria-hidden="true" style="display: inline-flex; align-items: center; margin-right: 4px;">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="#2067e1" style="display:inline-block; vertical-align:text-top;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5 2.5 2.5z"/></svg>
                       </span>

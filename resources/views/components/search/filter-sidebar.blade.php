@@ -150,27 +150,27 @@
                     {{-- MIN Box --}}
                     <div class="flex-grow-1">
                         <span class="d-block text-dark text-uppercase mb-1" style="font-size: 10px; font-weight: 700;">MIN</span>
-                        <div class="bg-white d-flex align-items-center justify-content-between" style="border: 1px solid #2a2a2e; height: 32px; border-radius: 3px; padding: 0 8px;">
-                            <span style="font-size: 12px; color: #2a2a2e; font-weight: 500;">{{ $currencyCode }}</span>
-                            <input type="number" id="priceMinInput" class="border-0 bg-transparent text-end p-0 m-0 w-100"
-                                style="font-size: 13px; font-weight: 600; color: #2a2a2e; outline: none;"
+                        <div class="bg-white d-flex align-items-center justify-content-between" style="border: 1px solid #737373; height: 34px; border-radius: 4px; padding: 0 10px;">
+                            <span style="font-size: 13px; color: #2a2a2e; font-weight: 500; margin-right: 6px;">{{ $currencyCode }}</span>
+                            <input type="number" id="priceMinInput" class="border-0 bg-transparent text-end p-0 m-0 flex-grow-1"
+                                style="font-size: 13px; font-weight: 600; color: #2a2a2e; outline: none; width: 60px;"
                                 value="{{ $selMin }}" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}"
                                 onchange="syncPriceSliderFromInput(true)">
                         </div>
                     </div>
 
                     {{-- Dashed Separator --}}
-                    <div class="text-muted fw-bold align-self-end flex-shrink-0" style="font-size: 11px; letter-spacing: 0.5px; color: #737373 !important; margin-bottom: 7px;">
+                    <div class="text-muted fw-bold align-self-end flex-shrink-0" style="font-size: 11px; letter-spacing: 0.5px; color: #737373 !important; margin-bottom: 8px;">
                         -------
                     </div>
 
                     {{-- MAX Box --}}
                     <div class="flex-grow-1">
                         <span class="d-block text-dark text-uppercase mb-1" style="font-size: 10px; font-weight: 700;">MAX</span>
-                        <div class="bg-white d-flex align-items-center justify-content-between" style="border: 1px solid #2a2a2e; height: 32px; border-radius: 3px; padding: 0 8px;">
-                            <span style="font-size: 12px; color: #2a2a2e; font-weight: 500;">{{ $currencyCode }}</span>
-                            <input type="number" id="priceMaxInput" class="border-0 bg-transparent text-end p-0 m-0 w-100"
-                                style="font-size: 13px; font-weight: 600; color: #2a2a2e; outline: none;"
+                        <div class="bg-white d-flex align-items-center justify-content-between" style="border: 1px solid #737373; height: 34px; border-radius: 4px; padding: 0 10px;">
+                            <span style="font-size: 13px; color: #2a2a2e; font-weight: 500; margin-right: 6px;">{{ $currencyCode }}</span>
+                            <input type="number" id="priceMaxInput" class="border-0 bg-transparent text-end p-0 m-0 flex-grow-1"
+                                style="font-size: 13px; font-weight: 600; color: #2a2a2e; outline: none; width: 60px;"
                                 value="{{ $selMax }}" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}"
                                 onchange="syncPriceSliderFromInput(true)">
                         </div>
@@ -227,38 +227,6 @@
 
                 $destCity = !empty(trim($destination ?? '')) ? trim($destination) : 'Destination';
             @endphp
-
-            {{-- 5. Section: Neighborhood / Area Selection (Exact Agoda Parity) --}}
-            @php
-                $displayAreas = $popularAreas ?? [];
-                if (empty($displayAreas)) {
-                    $extracted = collect($resultsList)->map(function($p) {
-                        return is_object($p) ? ($p->nearest_landmark ?? null) : ($p['nearest_landmark'] ?? null);
-                    })->filter()->unique()->take(6)->values()->all();
-                    if (!empty($extracted)) {
-                        $displayAreas = $extracted;
-                    }
-                }
-            @endphp
-            @if(!empty($displayAreas) && count($displayAreas) > 0)
-            <div class="agoda-filter-group">
-                <div class="agoda-filter-title">Neighborhood</div>
-                @foreach($displayAreas as $areaName)
-                    @php
-                        $cleanAreaName = trim(preg_replace('/\(.*?\)|\d+\.?\d*\s*(km|m)\b/i', '', $areaName));
-                        $areaCount = collect($resultsList)->filter(function($p) use ($cleanAreaName) {
-                            $addr = is_object($p) ? ($p->address . ' ' . $p->city . ' ' . ($p->nearest_landmark ?? '')) : (($p['address'] ?? '') . ' ' . ($p['city'] ?? '') . ' ' . ($p['nearest_landmark'] ?? ''));
-                            return stripos($addr, $cleanAreaName) !== false;
-                        })->count();
-                        $isChecked = in_array($cleanAreaName, $selAreas) || in_array($areaName, $selAreas) || (request('q') === $cleanAreaName);
-                    @endphp
-                    <label class="agoda-check-row">
-                        <input type="checkbox" name="area[]" value="{{ $cleanAreaName }}" @checked($isChecked) onchange="triggerSidebarSubmit()">
-                        <span class="agoda-check-label">{{ $cleanAreaName }} <span class="agoda-check-count">({{ $areaCount ?: 1 }})</span></span>
-                    </label>
-                @endforeach
-            </div>
-            @endif
 
             {{-- 6. Section: Your filters / Popular filters for {Destination} --}}
             <div class="agoda-filter-group">

@@ -18,18 +18,14 @@
     $isSeaCrown        = str_contains($lowerName, 'sea crown') || ($id == 55);
     
     $hasRibbon         = $isBestWestern;
-    $hasStillAvailable = $isBestWestern;
-    $hasBoosted        = $isSeaPearl || $isBestWestern || $isRamada;
+    $hasStillAvailable = false;
+    $hasBoosted        = $isSeaPearl;
     $hasSeaView        = $isSeaPearl || $isSeagull;
     $hasCreditCardNote = $isWindy;
     $hasValuePick      = $isBestWestern || $isSeaPearl || $isSeagull;
 
     // Agoda exact text: "Someone booked X ago"
-    $bookingUrgencyText = match(true) {
-        $isBestWestern => 'Someone booked 10 hrs ago',
-        $isWindy       => 'Someone booked 12 mins ago',
-        default        => null,
-    };
+    $bookingUrgencyText = null;
     
     // Address format: Dynamic city and area (Agoda standard "Area, City - View on map")
     $cityRaw = trim((string)($isObj ? ($item->city ?? '') : ($item['city'] ?? '')));
@@ -190,7 +186,9 @@
 
     // Middle Column USPs
     $customSnippet = trim((string)($isObj ? ($item->feature_snippet ?? '') : ($item['feature_snippet'] ?? '')));
-    if ($customSnippet) {
+    if ($isSeaPearl) {
+        $featureSnippet = 'Private Beach Access, Female-Only Pool Section';
+    } elseif ($customSnippet) {
         $featureSnippet = $customSnippet;
     } else {
         $lowerCity = strtolower($cityStr);

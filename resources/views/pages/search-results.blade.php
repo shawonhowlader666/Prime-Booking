@@ -241,16 +241,13 @@
         <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="return validateAndSubmitHeaderSearch(event);" style="width: 100%; margin: 0;">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
 
-            {{-- 1. Destination Input Box with Near Me GPS Button --}}
+            {{-- 1. Destination Input Box --}}
             <div class="col-12 col-lg-3">
                 <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
                     <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
                     <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 15px; box-shadow: none;">
                     <input type="hidden" name="lat" id="gpsLatInput" value="{{ request('lat') }}">
                     <input type="hidden" name="lng" id="gpsLngInput" value="{{ request('lng') }}">
-                    <button type="button" class="btn btn-link p-0 text-primary ms-1" title="Search Near My Current GPS Location" onclick="useCurrentLocation()" style="font-size: 15px; text-decoration: none;">
-                        <i class="fa-solid fa-location-crosshairs" id="gpsCrosshairIcon"></i>
-                    </button>
                 </div>
             </div>
 
@@ -432,22 +429,27 @@
 
 {{-- Full Funnel Coupons Banner (Exact Agoda Parity) --}}
 <div id="fullFunnelBannerTarget" data-testid="fullFunnelBannerTarget">
-    <div id="full-funnel-banner-container" style="background-color: #fff2ed; border-bottom: 1px solid #ffd8cc; padding: 8px 0;">
-        <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <img alt="coupon banner" style="width: 36px; height: 36px; object-fit: contain;" src="https://cdn0.agoda.net/images/emailmarketing/Web_SSR_banner/webbanner_coupon.png" onerror="this.style.display='none'">
+    <div id="full-funnel-banner-container" style="background-color: #ffece6; border-bottom: 1px solid #ffd5cc; padding: 8px 0;">
+        <div style="max-width: 1140px; margin: 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 16px;">
+                <button type="button" onclick="document.getElementById('fullFunnelBannerTarget').style.display='none'" style="background: none; border: none; padding: 0; cursor: pointer; color: #687176; font-size: 15px; display: flex; align-items: center;" title="Close">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2067e1" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+                <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 36px; height: 36px; background: #ff6b35; border-radius: 8px; color: #ffffff; transform: rotate(-10deg); box-shadow: 0 2px 6px rgba(255, 107, 53, 0.35);">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
+                        <line x1="7" y1="7" x2="7.01" y2="7"></line>
+                    </svg>
+                </div>
                 <div>
-                    <h2 style="font-size: 15px; font-weight: 700; color: #2a2a2e; margin: 0; line-height: 1.2;">Looking for instant coupons?</h2>
-                    <div style="font-size: 13px; color: #505256; margin-top: 2px;">Check out our Coupons &amp; Deals page for today's discounts</div>
+                    <strong style="color: #2a2a2e; font-size: 14.5px; font-weight: 700; line-height: 1.25; display: block;">Looking for instant coupons?</strong>
+                    <span style="color: #5a5b5e; font-size: 13px;">Check out our Coupons &amp; Deals page for today's discounts</span>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <a href="{{ route('deals') }}" style="height: 36px; padding: 0 20px; border-radius: 9999px; background: #ffffff; border: 1px solid #2067e1; color: #2067e1; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+            <div>
+                <a href="{{ route('deals') }}" class="btn btn-sm bg-white rounded-pill px-4 py-1.5 fw-bold text-primary shadow-xs" style="font-size: 13px; color: #2067e1 !important; border: 1px solid #cbd5e1; text-decoration: none;">
                     See all coupons
                 </a>
-                <button type="button" onclick="document.getElementById('fullFunnelBannerTarget').style.display='none'" style="background: none; border: none; padding: 6px; cursor: pointer; color: #737373;" title="Close">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
             </div>
         </div>
     </div>

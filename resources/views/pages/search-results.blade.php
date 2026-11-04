@@ -344,9 +344,9 @@
 
                             {{-- Blue SEARCH Button --}}
                             <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex" style="width: 162px;">
-                                <button data-selenium="searchButton" data-element-name="search-button" data-active-pressed="true" type="submit" class="abb64-box abb64-bg-product-primary abb64-fill-generic-base-inverted abb64-text-generic-base-inverted abb64-w-full abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-mt-2 abb64-px-24 abb64-py-12 abb64-rounded-base abb64-border-0 abb64-interactive-style abb64-interactive-primary abb64-focus-ring-interactive-border abb64-interactive-bg" style="min-height: 44px; border-radius: 9999px;">
+                                <button data-selenium="searchButton" data-element-name="search-button" data-active-pressed="true" type="submit" class="abb64-box abb64-fill-generic-base-inverted abb64-text-generic-base-inverted abb64-w-full abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-mt-2 abb64-px-24 abb64-py-12 abb64-rounded-base abb64-border-0 abb64-interactive-style abb64-interactive-primary abb64-focus-ring-interactive-border abb64-interactive-bg" style="min-height: 44px; border-radius: 9999px; background-color: #2067e1 !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(32, 103, 225, 0.4);">
                                     <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row">
-                                        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jXHxke" style="font-weight: 700; font-size: 15px; color: #fff;">SEARCH</span>
+                                        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jXHxke" style="font-weight: 700; font-size: 15px; color: #ffffff !important; letter-spacing: 0.5px;">SEARCH</span>
                                     </div>
                                 </button>
                             </div>

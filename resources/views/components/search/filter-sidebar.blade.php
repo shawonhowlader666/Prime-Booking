@@ -58,10 +58,6 @@
         cursor: pointer;
         margin: 0;
         font-weight: 400;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        width: 100%;
     }
     .agoda-check-count {
         color: #737373;
@@ -74,7 +70,7 @@
 <div class="card border-0 rounded-3 overflow-hidden mb-4 bg-white" style="border: 1px solid #e5e7eb !important; border-radius: 6px !important;">
     
     {{-- 1. Official Agoda Map Entry Card (Exact Agoda Screenshot) --}}
-    <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 125px; cursor: pointer; border-radius: 6px 6px 0 0; background: #ffffff; border-bottom: 1px solid #e5e7eb;" onclick="openAgodaMapModal()" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to search on map">
+    <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 125px; cursor: pointer; border-radius: 6px 6px 0 0; background: #ffffff; border-bottom: 1px solid #e5e7eb;" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to search on map">
         <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" onerror="this.onerror=null; this.src='https://cdn6.agoda.net/images/MAPS-1213/default/bkg-map-entry.svg';" alt="Map" style="width: 100%; height: 85px; object-fit: cover; display: block;">
         {{-- Centered Red Map Pin --}}
         <div class="position-absolute" style="top: 20px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;">
@@ -88,11 +84,6 @@
     </div>
 
     <div class="p-3">
-        <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
-            <h6 class="fw-bold mb-0 text-dark" style="font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Filter by</h6>
-            <a href="{{ route('search.index') }}" class="text-decoration-none fw-bold" style="font-size: 11.5px; color: #2067e1;">CLEAR ALL</a>
-        </div>
-
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
             <input type="hidden" name="destination" value="{{ request('destination') }}">
             <input type="hidden" name="search_type" value="{{ request('search_type', 'hotel') }}">
@@ -116,67 +107,17 @@
             <div class="agoda-filter-group" style="padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
                 <div class="position-relative">
                     <i class="fa-solid fa-magnifying-glass position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #687176; font-size: 13px;"></i>
-                    <input type="text" name="q" id="outerSearchTextInput" value="{{ request('q') ?: request('name') }}" placeholder="Text search" class="w-100" style="height: 38px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 12px 0 34px; font-size: 13px; color: #2a2a2e; outline: none; transition: all 0.15s ease;" onfocus="this.style.borderColor='#2067e1'; this.style.boxShadow='0 0 0 2px rgba(32,103,225,0.15)';" onblur="this.style.borderColor='#dcdfe4'; this.style.boxShadow='none';" onkeydown="if(event.key==='Enter'){event.preventDefault(); triggerSidebarSubmit();}">
-                </div>
-            </div>
-
-            {{-- 2.1 Location / Area Filter (Cascading Dynamic Bangladesh Geo - 1:1 Parity) --}}
-            @php
-                $geoConfig = config('bangladesh-geo.divisions', []);
-                $selectedDivision = (string) request('division', '');
-                $selectedDistrict = (string) request('district', '');
-                $selectedUpazila  = (string) request('upazila', '');
-            @endphp
-            <div class="agoda-filter-group" id="locationFilterWidget" style="padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="agoda-filter-title m-0" style="font-size: 13.5px; font-weight: 700; color: #2a2a2e;">Location / Area</span>
-                    <a href="javascript:void(0);" id="resetLocationBtn" class="text-decoration-none fw-bold {{ (!empty($selectedDivision) || !empty($selectedDistrict) || !empty($selectedUpazila)) ? '' : 'd-none' }}" style="font-size: 11.5px; color: #2067e1;">Reset</a>
-                </div>
-
-                <!-- Step 1: Region Select (Default: Select region...) -->
-                <div class="mb-2" id="geoDivisionContainer">
-                    <select name="division" id="divisionSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; font-weight: 500; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; color: #2a2a2e; background-color: #ffffff;">
-                        <option value="" {{ empty($selectedDivision) ? 'selected' : '' }}>Select region...</option>
-                        @foreach($geoConfig as $divKey => $divInfo)
-                            <option value="{{ $divKey }}" {{ ($selectedDivision !== '' && $selectedDivision === (string)$divKey) ? 'selected' : '' }}>{{ $divInfo['name'] }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Step 2: City / District Select -->
-                <div class="mb-2 {{ $selectedDivision ? '' : 'd-none' }}" id="geoDistrictContainer">
-                    <select name="district" id="districtSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; font-weight: 500; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; color: #2a2a2e; background-color: #ffffff;">
-                        <option value="">Select city / district...</option>
-                        @if($selectedDivision && isset($geoConfig[$selectedDivision]['districts']))
-                            @foreach($geoConfig[$selectedDivision]['districts'] as $distKey => $distInfo)
-                                <option value="{{ $distKey }}" {{ $selectedDistrict === $distKey ? 'selected' : '' }}>{{ $distInfo['name'] }}</option>
-                            @endforeach
-                        @endif
-                    </select>
-                </div>
-
-                <!-- Step 3: Upazila / Area Select -->
-                <div class="{{ ($selectedDivision && $selectedDistrict) ? '' : 'd-none' }}" id="geoUpazilaContainer">
-                    <select name="upazila" id="upazilaSelectFilter" class="form-select form-select-sm" style="font-size: 12.5px; font-weight: 500; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; color: #2a2a2e; background-color: #ffffff;">
-                        <option value="">Select area / spot...</option>
-                        @if($selectedDivision && $selectedDistrict && isset($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas']))
-                            @foreach($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] as $upazilaName)
-                                <option value="{{ $upazilaName }}" {{ $selectedUpazila === $upazilaName ? 'selected' : '' }}>{{ $upazilaName }}</option>
-                            @endforeach
-                        @endif
-                    </select>
+                    <input type="text" name="name" value="{{ request('name') }}" placeholder="Text search" class="w-100" style="height: 38px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 12px 0 34px; font-size: 13px; color: #2a2a2e; outline: none; transition: all 0.15s ease;" onfocus="this.style.borderColor='#2067e1'; this.style.boxShadow='0 0 0 2px rgba(32,103,225,0.15)';" onblur="this.style.borderColor='#dcdfe4'; this.style.boxShadow='none';" onchange="this.form.submit()">
                 </div>
             </div>
 
             {{-- 3. Budget Range Slider (Dual Handles + MIN/MAX Boxes with Dashed Separator) --}}
             @php
-                $dbMinPrice = (int)($priceRange['min'] ?? 500);
-                $dbMaxPrice = (int)($priceRange['max'] ?? 50000);
-                if ($dbMinPrice <= 0) $dbMinPrice = 500;
-                if ($dbMaxPrice <= $dbMinPrice) $dbMaxPrice = 50000;
+                $dbMinPrice = (int)($priceRange['min'] ?? 0);
+                $dbMaxPrice = (int)($priceRange['max'] ?? 280);
                 $selMin = (int)request('min_price', $dbMinPrice);
                 $selMax = (int)request('max_price', $dbMaxPrice);
-                $currencyCode = session('currency', 'BDT');
+                $currencyCode = \App\Helpers\CurrencyHelper::current();
             @endphp
             <div class="agoda-filter-group" id="priceSliderWidget">
                 <div class="agoda-filter-title">Your budget (per night)</div>
@@ -185,11 +126,11 @@
                 <div class="position-relative mt-3 mb-3" style="height: 24px;" id="dualRangeContainer">
                     <div id="dualRangeTrack" style="position:absolute;top:50%;left:0;right:0;height:4px;background:#e2e8f0;border-radius:2px;transform:translateY(-50%);"></div>
                     <div id="dualRangeActive" style="position:absolute;top:50%;height:4px;background:#2067e1;border-radius:2px;transform:translateY(-50%);"></div>
-                    <input type="range" id="priceMinRange" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}" step="100"
+                    <input type="range" id="priceMinRange" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}" step="1"
                         value="{{ $selMin }}"
                         style="position:absolute;width:100%;top:50%;transform:translateY(-50%);opacity:0;cursor:pointer;z-index:3;height:24px;"
                         oninput="syncPriceSliderFromRange()">
-                    <input type="range" id="priceMaxRange" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}" step="100"
+                    <input type="range" id="priceMaxRange" min="{{ $dbMinPrice }}" max="{{ $dbMaxPrice }}" step="1"
                         value="{{ $selMax }}"
                         style="position:absolute;width:100%;top:50%;transform:translateY(-50%);opacity:0;cursor:pointer;z-index:3;height:24px;"
                         oninput="syncPriceSliderFromRange()">
@@ -230,11 +171,6 @@
                     </div>
                 </div>
 
-                {{-- Price range subtitle --}}
-                <div class="text-muted small mt-2" style="font-size: 11.5px;">
-                    Price range: {{ $currencyCode }} <span id="priceRangeReadout">{{ number_format($selMin) }} to {{ number_format($selMax) }}</span>
-                </div>
-
                 <input type="hidden" name="min_price" id="minPriceHidden" value="{{ $selMin }}">
                 <input type="hidden" name="max_price" id="maxPriceHidden" value="{{ $selMax }}">
             </div>
@@ -246,7 +182,6 @@
                 $sRatings     = (array) request('star_rating', []);
                 $pTypes       = (array) request('property_type', []);
                 $selAmenities = (array) request('amenities', []);
-                $selAreas     = (array) request('area', []);
 
                 $getStarCount = function($stars) use ($resultsList) {
                     return collect($resultsList)->filter(function($p) use ($stars) {
@@ -278,54 +213,12 @@
                     })->count();
                 };
 
-                $destCity = !empty(trim($destination ?? '')) ? trim($destination) : 'Destination';
+                $destCity = !empty(trim($destination ?? '')) ? trim($destination) : 'Cox\'s Bazar';
             @endphp
 
-            {{-- 5. Section: Neighborhood / Area Selection (Exact Agoda Parity) --}}
-            @php
-                $displayAreas = $popularAreas ?? [];
-                if (empty($displayAreas)) {
-                    $extracted = collect($resultsList)->map(function($p) {
-                        return is_object($p) ? ($p->nearest_landmark ?? null) : ($p['nearest_landmark'] ?? null);
-                    })->filter()->unique()->take(6)->values()->all();
-                    if (!empty($extracted)) {
-                        $displayAreas = $extracted;
-                    }
-                }
-            @endphp
-            @if(!empty($displayAreas) && count($displayAreas) > 0)
+            {{-- 5. Section: Popular filters for {Destination} (Exact Agoda Parity directly under Budget) --}}
             <div class="agoda-filter-group">
-                <div class="agoda-filter-title">Neighborhood</div>
-                @foreach($displayAreas as $areaName)
-                    @php
-                        $cleanAreaName = trim(preg_replace('/\(.*?\)|\d+\.?\d*\s*(km|m)\b/i', '', $areaName));
-                        $areaCount = collect($resultsList)->filter(function($p) use ($cleanAreaName) {
-                            $addr = is_object($p) ? ($p->address . ' ' . $p->city . ' ' . ($p->nearest_landmark ?? '')) : (($p['address'] ?? '') . ' ' . ($p['city'] ?? '') . ' ' . ($p['nearest_landmark'] ?? ''));
-                            return stripos($addr, $cleanAreaName) !== false;
-                        })->count();
-                        $isChecked = in_array($cleanAreaName, $selAreas) || in_array($areaName, $selAreas) || (request('q') === $cleanAreaName);
-                    @endphp
-                    <label class="agoda-check-row">
-                        <input type="checkbox" name="area[]" value="{{ $cleanAreaName }}" @checked($isChecked) onchange="triggerSidebarSubmit()">
-                        <span class="agoda-check-label">{{ $cleanAreaName }} <span class="agoda-check-count">({{ $areaCount ?: 1 }})</span></span>
-                    </label>
-                @endforeach
-            </div>
-            @endif
-
-            {{-- 6. Section: Your filters / Popular filters for {Destination} --}}
-            <div class="agoda-filter-group">
-                <div class="agoda-filter-title">Your filters</div>
-
-                <label class="agoda-check-row">
-                    <input type="checkbox" name="amenities[]" value="Family/child friendly" @checked(in_array('Family/child friendly', $selAmenities)) onchange="triggerSidebarSubmit()">
-                    <span class="agoda-check-label">Family/child friendly</span>
-                </label>
-
-                <label class="agoda-check-row">
-                    <input type="checkbox" name="amenities[]" value="Non-smoking" @checked(in_array('Non-smoking', $selAmenities)) onchange="triggerSidebarSubmit()">
-                    <span class="agoda-check-label">Non-smoking</span>
-                </label>
+                <div class="agoda-filter-title">Popular filters for {{ $destCity }}</div>
 
                 <label class="agoda-check-row">
                     <input type="checkbox" name="free_cancel" value="1" @checked(request('free_cancel')) onchange="triggerSidebarSubmit()">
@@ -339,12 +232,12 @@
 
                 <label class="agoda-check-row">
                     <input type="checkbox" name="amenities[]" value="Swimming pool" @checked(in_array('Swimming pool', $selAmenities)) onchange="triggerSidebarSubmit()">
-                    <span class="agoda-check-label">Swimming pool <span class="agoda-check-count">({{ $getAmenityCount('pool') }})</span></span>
+                    <span class="agoda-check-label">Swimming pool</span>
                 </label>
 
                 <label class="agoda-check-row">
                     <input type="checkbox" name="amenities[]" value="Free WiFi" @checked(in_array('Free WiFi', $selAmenities)) onchange="triggerSidebarSubmit()">
-                    <span class="agoda-check-label">Free Wi-Fi <span class="agoda-check-count">({{ $getAmenityCount('wifi') }})</span></span>
+                    <span class="agoda-check-label">Free Wi-Fi</span>
                 </label>
 
                 <label class="agoda-check-row">
@@ -358,8 +251,13 @@
                 </label>
 
                 <label class="agoda-check-row">
-                    <input type="checkbox" name="amenities[]" value="Balcony/terrace" @checked(in_array('Balcony/terrace', $selAmenities)) onchange="triggerSidebarSubmit()">
-                    <span class="agoda-check-label">Balcony/terrace</span>
+                    <input type="checkbox" name="luxe" value="1" @checked(request('luxe')) onchange="triggerSidebarSubmit()">
+                    <span class="agoda-check-label">Prime Luxe</span>
+                </label>
+
+                <label class="agoda-check-row">
+                    <input type="checkbox" name="amenities[]" value="Restaurant" @checked(in_array('Restaurant', $selAmenities)) onchange="triggerSidebarSubmit()">
+                    <span class="agoda-check-label">Restaurants</span>
                 </label>
             </div>
 
@@ -390,6 +288,13 @@
                     <span class="agoda-check-label">Villa <span class="agoda-check-count">({{ $getTypeCount('villa') }})</span></span>
                 </label>
                 @endif
+
+                @if($getTypeCount('guest') > 0)
+                <label class="agoda-check-row">
+                    <input type="checkbox" name="property_type[]" value="guest_house" @checked(in_array('guest_house', $pTypes)) onchange="triggerSidebarSubmit()">
+                    <span class="agoda-check-label">Guest house / Bed &amp; Breakfast <span class="agoda-check-count">({{ $getTypeCount('guest') }})</span></span>
+                </label>
+                @endif
             </div>
 
             {{-- 8. Section: Star rating (Exact Agoda 5, 4, 3, 2, 1 Stars) --}}
@@ -404,13 +309,16 @@
                     1 => ['label' => '1 star',  'stars' => '★'],
                 ] as $starVal => $starInfo)
                 @php $sCount = $getStarCount($starVal); @endphp
+                @if($sCount > 0)
                 <label class="agoda-check-row">
                     <input type="checkbox" name="star_rating[]" value="{{ $starVal }}" @checked(in_array($starVal, $sRatings)) onchange="triggerSidebarSubmit()">
                     <span class="agoda-check-label">
-                        <span><span style="color: #ffb200; font-size: 12px; margin-right: 2px;">{{ $starInfo['stars'] }}</span> {{ $starInfo['label'] }}</span>
+                        <span style="color: #ffb200; font-size: 12px; margin-right: 2px;">{{ $starInfo['stars'] }}</span>
+                        {{ $starInfo['label'] }}
                         <span class="agoda-check-count">({{ $sCount }})</span>
                     </span>
                 </label>
+                @endif
                 @endforeach
             </div>
 
@@ -473,46 +381,38 @@
     var maxInput = document.getElementById('priceMaxInput');
     var minHidden = document.getElementById('minPriceHidden');
     var maxHidden = document.getElementById('maxPriceHidden');
-    var readout = document.getElementById('priceRangeReadout');
     var debounceTimer;
 
     window.syncPriceSliderFromRange = function() {
-        if (!minRange || !maxRange) return;
         var min = parseInt(minRange.value) || 0;
         var max = parseInt(maxRange.value) || 0;
         var rangeMin = parseInt(minRange.min) || 0;
-        var rangeMax = parseInt(minRange.max) || 50000;
+        var rangeMax = parseInt(minRange.max) || 280;
 
-        if (min > max - 100) { min = max - 100; minRange.value = min; }
-        if (max < min + 100) { max = min + 100; maxRange.value = max; }
+        if (min > max - 1) { min = max - 1; minRange.value = min; }
+        if (max < min + 1) { max = min + 1; maxRange.value = max; }
 
         var pMin = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
         var pMax = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
 
-        if (thumbMin) thumbMin.style.left = pMin + '%';
-        if (thumbMax) thumbMax.style.left = pMax + '%';
-        if (activeBar) {
-            activeBar.style.left  = pMin + '%';
-            activeBar.style.width = (pMax - pMin) + '%';
-        }
+        thumbMin.style.left = pMin + '%';
+        thumbMax.style.left = pMax + '%';
+        activeBar.style.left  = pMin + '%';
+        activeBar.style.width = (pMax - pMin) + '%';
 
-        if (minInput) minInput.value = min;
-        if (maxInput) maxInput.value = max;
-        if (minHidden) minHidden.value = min;
-        if (maxHidden) maxHidden.value = max;
-        if (readout) {
-            readout.textContent = min.toLocaleString() + ' to ' + max.toLocaleString();
-        }
+        minInput.value = min;
+        maxInput.value = max;
+        minHidden.value = min;
+        maxHidden.value = max;
 
         triggerDebouncedSearch();
     };
 
     window.syncPriceSliderFromInput = function(immediate) {
-        if (!minInput || !maxInput || !minRange || !maxRange) return;
         var min = parseInt(minInput.value) || 0;
         var max = parseInt(maxInput.value) || 0;
         var rangeMin = parseInt(minRange.min) || 0;
-        var rangeMax = parseInt(minRange.max) || 50000;
+        var rangeMax = parseInt(minRange.max) || 280;
 
         if (min < rangeMin) min = rangeMin;
         if (max > rangeMax) max = rangeMax;
@@ -526,18 +426,13 @@
         var pMin = ((min - rangeMin) / (rangeMax - rangeMin)) * 100;
         var pMax = ((max - rangeMin) / (rangeMax - rangeMin)) * 100;
 
-        if (thumbMin) thumbMin.style.left = pMin + '%';
-        if (thumbMax) thumbMax.style.left = pMax + '%';
-        if (activeBar) {
-            activeBar.style.left  = pMin + '%';
-            activeBar.style.width = (pMax - pMin) + '%';
-        }
+        thumbMin.style.left = pMin + '%';
+        thumbMax.style.left = pMax + '%';
+        activeBar.style.left  = pMin + '%';
+        activeBar.style.width = (pMax - pMin) + '%';
 
-        if (minHidden) minHidden.value = min;
-        if (maxHidden) maxHidden.value = max;
-        if (readout) {
-            readout.textContent = min.toLocaleString() + ' to ' + max.toLocaleString();
-        }
+        minHidden.value = min;
+        maxHidden.value = max;
 
         if (immediate) {
             triggerSidebarSubmit();
@@ -555,7 +450,7 @@
 
     window.triggerSidebarSubmit = function() {
         var form = document.getElementById('filterSidebarForm');
-        var resultsContainer = document.getElementById('searchResultsContainer') || document.getElementById('contentContainer') || document.querySelector('.hotel-list-container');
+        var resultsContainer = document.getElementById('searchResultsContainer');
         if (!resultsContainer || !form) {
             if (form) form.submit();
             return;
@@ -580,16 +475,17 @@
         .then(function(html) {
             var parser = new DOMParser();
             var doc = parser.parseFromString(html, 'text/html');
-            
-            var newFeed = doc.getElementById('searchResultsContainer') || doc.getElementById('contentContainer') || doc.querySelector('.hotel-list-container');
-            if (newFeed && resultsContainer) {
+            var newFeed = doc.getElementById('searchResultsContainer');
+            if (newFeed) {
                 resultsContainer.innerHTML = newFeed.innerHTML;
+                if (typeof window.initAgodaInfiniteScroll === 'function') {
+                    window.initAgodaInfiniteScroll();
+                }
             }
-            
-            var newCount = doc.querySelector('[data-element-name="properties-available-text"]') || doc.getElementById('resultsCount');
-            var curCount = document.querySelector('[data-element-name="properties-available-text"]') || document.getElementById('resultsCount');
+            var newCount = doc.getElementById('resultsCount');
+            var curCount = document.getElementById('resultsCount');
             if (newCount && curCount) {
-                curCount.innerHTML = newCount.innerHTML;
+                curCount.textContent = newCount.textContent;
             }
             resultsContainer.style.opacity = '1';
             history.pushState(null, '', targetUrl);
@@ -597,93 +493,11 @@
         .catch(function(err) {
             console.error('Sidebar AJAX error:', err);
             resultsContainer.style.opacity = '1';
-            form.submit();
         });
     };
 
-    // Location / Area cascading engine (1:1 with Agoda Location Picker)
-    var geoData = @json(config('bangladesh-geo.divisions', []));
-    var divisionSelect = document.getElementById('divisionSelectFilter');
-    var districtSelect = document.getElementById('districtSelectFilter');
-    var upazilaSelect  = document.getElementById('upazilaSelectFilter');
-    var districtContainer = document.getElementById('geoDistrictContainer');
-    var upazilaContainer  = document.getElementById('geoUpazilaContainer');
-    var resetBtn = document.getElementById('resetLocationBtn');
 
-    if (divisionSelect) {
-        divisionSelect.addEventListener('change', function() {
-            var selDiv = this.value;
-            districtSelect.innerHTML = '<option value="">Select city / district...</option>';
-            upazilaSelect.innerHTML  = '<option value="">Select area / spot...</option>';
-            if (upazilaContainer) upazilaContainer.classList.add('d-none');
-
-            if (selDiv && geoData[selDiv] && geoData[selDiv].districts) {
-                var dists = geoData[selDiv].districts;
-                for (var dKey in dists) {
-                    var opt = document.createElement('option');
-                    opt.value = dKey;
-                    opt.textContent = dists[dKey].name || dKey;
-                    districtSelect.appendChild(opt);
-                }
-                if (districtContainer) districtContainer.classList.remove('d-none');
-                if (resetBtn) resetBtn.classList.remove('d-none');
-            } else {
-                if (districtContainer) districtContainer.classList.add('d-none');
-                if (!selDiv && resetBtn) resetBtn.classList.add('d-none');
-            }
-            triggerSidebarSubmit();
-        });
-    }
-
-    if (districtSelect) {
-        districtSelect.addEventListener('change', function() {
-            var selDiv = divisionSelect ? divisionSelect.value : '';
-            var selDist = this.value;
-            upazilaSelect.innerHTML = '<option value="">Select area / spot...</option>';
-
-            if (selDiv && selDist && geoData[selDiv] && geoData[selDiv].districts && geoData[selDiv].districts[selDist] && geoData[selDiv].districts[selDist].upazilas) {
-                var upzList = geoData[selDiv].districts[selDist].upazilas;
-                for (var i = 0; i < upzList.length; i++) {
-                    var uName = upzList[i];
-                    var opt = document.createElement('option');
-                    opt.value = uName;
-                    opt.textContent = uName;
-                    upazilaSelect.appendChild(opt);
-                }
-                if (upazilaContainer) upazilaContainer.classList.remove('d-none');
-                if (resetBtn) resetBtn.classList.remove('d-none');
-            } else {
-                if (upazilaContainer) upazilaContainer.classList.add('d-none');
-            }
-            triggerSidebarSubmit();
-        });
-    }
-
-    if (upazilaSelect) {
-        upazilaSelect.addEventListener('change', function() {
-            triggerSidebarSubmit();
-        });
-    }
-
-    if (resetBtn) {
-        resetBtn.addEventListener('click', function() {
-            if (divisionSelect) divisionSelect.value = '';
-            if (districtSelect) {
-                districtSelect.innerHTML = '<option value="">Select city / district...</option>';
-                if (districtContainer) districtContainer.classList.add('d-none');
-            }
-            if (upazilaSelect) {
-                upazilaSelect.innerHTML = '<option value="">Select area / spot...</option>';
-                if (upazilaContainer) upazilaContainer.classList.add('d-none');
-            }
-            resetBtn.classList.add('d-none');
-            triggerSidebarSubmit();
-        });
-    }
-
-    // Initialize slider on load
-    if (minRange && maxRange) {
-        syncPriceSliderFromRange();
-    }
+    // Initialize slider thumb positions
+    syncPriceSliderFromRange();
 })();
 </script>

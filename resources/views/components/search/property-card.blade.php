@@ -24,9 +24,9 @@
     $hasCreditCardNote = $isWindy;
     $hasValuePick      = $isBestWestern || $isSeaPearl || $isSeagull;
 
-    // Agoda exact text: "Someone booked X ago"
+    // Agoda exact text: "Someone booked X ago" or "Booked X times today"
     $bookingUrgencyText = match(true) {
-        $isBestWestern => 'Someone booked 10 hrs ago',
+        $isBestWestern => 'Booked 15 times today',
         $isWindy       => 'Someone booked 12 mins ago',
         default        => null,
     };
@@ -51,17 +51,17 @@
     $origPriceVal      = $isObj ? ($item->original_price ?? null) : ($item['original_price'] ?? null);
     
     if ($isSeaPearl) {
-        $price = ($currencyCode === 'USD') ? '56' : '8,500';
-        $origPrice = ($currencyCode === 'USD') ? '152' : '22,900';
+        $price = ($currencyCode === 'USD') ? '75' : '8,500';
+        $origPrice = ($currencyCode === 'USD') ? '205' : '22,900';
         $discount = 63;
     } elseif ($isWindy) {
         $price = ($currencyCode === 'USD') ? '37' : '3,400';
         $origPrice = null;
         $discount = null;
     } elseif ($isBestWestern) {
-        $price = ($currencyCode === 'USD') ? '44' : '6,500';
-        $origPrice = ($currencyCode === 'USD') ? '140' : '15,000';
-        $discount = 69;
+        $price = ($currencyCode === 'USD') ? '60' : '6,500';
+        $origPrice = ($currencyCode === 'USD') ? '175' : '15,000';
+        $discount = ($currencyCode === 'USD') ? 66 : 69;
     } elseif ($isSeaCrown) {
         $price = ($currencyCode === 'USD') ? '32' : '2,833';
         $origPrice = null;
@@ -78,7 +78,7 @@
     if ($isSeaPearl) {
         $score = '7.8';
         $ratingLabel = 'Very good';
-        $reviewsCount = '425';
+        $reviewsCount = '426';
         $hasLocScore = false;
         $locScore = null;
     } elseif ($isWindy) {
@@ -90,7 +90,7 @@
     } elseif ($isBestWestern) {
         $score = '8.1';
         $ratingLabel = 'Excellent';
-        $reviewsCount = '520';
+        $reviewsCount = '521';
         $hasLocScore = true;
         $locScore = '8.3';
     } elseif ($isSeaCrown) {
@@ -287,8 +287,8 @@
           </div>
 
           {{-- 2. EXACT MIDDLE INFO SECTION --}}
-          <div class="Itemstyled__Item-sc-12uga7p-0 eKqvXe PropertyCard__Section PropertyCard__Section--propertyInfo" style="flex: 0 0 41.6667%; width: 41.6667%; height: 220px; min-height: 220px; max-height: 220px; box-sizing: border-box; overflow: hidden;">
-            <div data-element-name="property-card-info" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-h-full abb64-flex abb64-flex-col abb64-justify-between abb64-px-12 abb64-pb-8 abb64-pt-0" style="height: 220px; min-height: 220px; box-sizing: border-box;">
+          <div class="Itemstyled__Item-sc-12uga7p-0 eKqvXe PropertyCard__Section PropertyCard__Section--propertyInfo" style="flex: 0 0 41.6667%; width: 41.6667%; min-height: 220px; box-sizing: border-box;">
+            <div data-element-name="property-card-info" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-h-full abb64-flex abb64-flex-col abb64-justify-between abb64-px-12 abb64-pb-8 abb64-pt-0" style="min-height: 220px; height: 100%; box-sizing: border-box;">
               <div data-element-name="property-info-private-host" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mb-4"></div>
               <header data-element-name="property-info-header" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mb-4 abb64-pt-4">
                 <div class="abb64-box sc-fBWQRz hOlxRE abb64-fill-inherit abb64-text-inherit">
@@ -330,7 +330,7 @@
                 <aside data-element-name="ssr-property-card-badge" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row abb64-flex-wrap abb64-mr-4" style="gap: 4px; display: flex; align-items: center; flex-wrap: wrap;">
                   @if($hasStillAvailable)
                     <div class="abb64-box abb64-bg-feedback-negative abb64-fill-inherit abb64-text-generic-base-inverted abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background-color: #e12d2d; padding: 2px 8px; border-radius: 2px; display: inline-flex; align-items: center;">
-                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN hCiawa" style="color: #fff; font-size: 11px; font-weight: 700;">2 still available</span>
+                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN hCiawa" style="color: #fff; font-size: 11px; font-weight: 700;">5 still available</span>
                     </div>
                   @endif
                   @if(!empty($bookingUrgencyText))
@@ -382,8 +382,8 @@
           </div>
 
           {{-- 3. EXACT RIGHT PRICING SECTION (Agoda Layout & Typo) --}}
-          <div class="Itemstyled__Item-sc-12uga7p-0 fTvBdC PropertyCard__Section PropertyCard__Section--pricingInfo" style="flex: 0 0 25%; width: 25%; height: 220px; min-height: 220px; max-height: 220px; box-sizing: border-box; overflow: hidden;">
-            <div class="abb64-h-full abb64-justify-between abb64-items-end abb64-p-8 abb64-flex abb64-flex-col" data-element-name="property-card-pricing-info" style="height: 220px; min-height: 220px; box-sizing: border-box; padding: 12px 14px 10px 14px;">
+          <div class="Itemstyled__Item-sc-12uga7p-0 fTvBdC PropertyCard__Section PropertyCard__Section--pricingInfo" style="flex: 0 0 25%; width: 25%; min-height: 220px; box-sizing: border-box;">
+            <div class="abb64-h-full abb64-justify-between abb64-items-end abb64-p-8 abb64-flex abb64-flex-col" data-element-name="property-card-pricing-info" style="min-height: 220px; height: 100%; box-sizing: border-box; padding: 12px 14px 10px 14px;">
               
               {{-- Review Score Box with Agoda Typo --}}
               <div class="Box-sc-kv6pi1-0 krcUda PropertyCard__PricingHeadliner" style="text-align: right; width: 100%;">
@@ -461,6 +461,13 @@
 
                 <div class="PropertyCard__PricingTopMessages" style="margin-top: 3px; text-align: right;">
                   <span class="Spanstyled__SpanStyled-sc-16tp9kb-0 hbNSOv kite-js-Span" data-selenium="per-night-begins-with" style="color: #687176; font-size: 11px; white-space: nowrap;">Per night before taxes and fees</span>
+                </div>
+
+                {{-- Agoda Blue CTA Button (Exact 1:1 Parity with Image 2) --}}
+                <div class="mt-2" style="width: 100%;">
+                  <button type="button" class="btn text-white w-100 fw-bold shadow-none" style="background-color: #2067e1; border: none; border-radius: 6px; padding: 7px 16px; font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                    Check availability
+                  </button>
                 </div>
               </div>
 

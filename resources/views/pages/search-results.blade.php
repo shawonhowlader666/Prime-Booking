@@ -444,36 +444,6 @@
     </div>
 </div>
 
-{{-- 3. Agoda Coupon Deals Strip Banner (Exact 1:1 Parity with Agoda Screenshot) --}}
-<div class="agoda-coupon-strip" style="background: #fff3e0; border-bottom: 1px solid #ffe0b2; padding: 10px 0;">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-2" style="max-width: 1140px; margin: 0 auto; padding: 0 20px;">
-        <div class="d-flex align-items-center gap-3">
-            {{-- Exact Agoda Tilted Coupon Tag SVG Icon --}}
-            <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 38px; height: 38px; background: #ff5722; border-radius: 8px; color: #ffffff; transform: rotate(-12deg); box-shadow: 0 2px 6px rgba(255, 87, 34, 0.35);">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-                    <line x1="7" y1="7" x2="7.01" y2="7"></line>
-                </svg>
-            </div>
-            <div>
-                <strong style="color: #2a2a2e; font-size: 14.5px; font-weight: 700; line-height: 1.25; display: block; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Congratulations! You get an extra 5% OFF today.</strong>
-                <span style="color: #5a5b5e; font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">Just activate your coupon now to unlock this offer.</span>
-            </div>
-        </div>
-        <div class="d-flex align-items-center gap-3">
-            <a href="{{ route('deals') }}" class="btn btn-sm text-white rounded-pill px-4 py-1.5 fw-bold shadow-xs" style="font-size: 13px; background: #ff5722 !important; border: 1px solid #f4511e; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                Activate coupon
-            </a>
-            <button type="button" class="btn btn-link p-0 text-secondary text-decoration-none" onclick="this.closest('.agoda-coupon-strip').style.display='none';" style="font-size: 18px; line-height: 1; color: #687176 !important;" title="Dismiss">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#687176" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="18" y1="6" x2="6" y2="18"></line>
-                    <line x1="6" y1="6" x2="18" y2="18"></line>
-                </svg>
-            </button>
-        </div>
-    </div>
-</div>
-
 {{-- 4. Main Search Results Layout (Centered, Equal Left/Right Padding, Compact Card Width) --}}
 <style>
     @media (min-width: 992px) {
@@ -658,14 +628,14 @@
 
 
             {{-- Clean 1:1 Agoda Results Header Row (Count on Left, Sort Dropdown on Right) --}}
-            <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2" style="max-width: 790px;">
+            <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2" style="max-width: 790px;">
                 <h1 class="fw-bold text-dark m-0" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; line-height: 1.25;">
                     @if($liveTotal === 0)
                         No properties found in {{ $destLabel }}
                     @elseif(!empty($searchResults['radius_expanded']))
-                        <span id="resultsCount">{{ $liveTotal }}</span> {{ $liveTotal === 1 ? 'property' : 'properties' }} found near {{ $destLabel }}
+                        {{ $destLabel }}: <span id="resultsCount">{{ $liveTotal }}</span> properties near {{ $destLabel }}
                     @else
-                        <span id="resultsCount">{{ $liveTotal }}</span> {{ $liveTotal === 1 ? 'property' : 'properties' }} in {{ $destLabel }}
+                        {{ $destLabel }}: <span id="resultsCount">{{ $liveTotal }}</span> properties
                     @endif
                 </h1>
                 <div class="d-flex align-items-center gap-2">
@@ -713,6 +683,14 @@
                         <input type="hidden" name="sort_by" id="sortByHiddenInput" value="{{ $curSort }}">
                     </div>
                 </div>
+            </div>
+
+            {{-- Agoda Subheader: Popular properties for your trip (Exact Image 2 Parity) --}}
+            <div class="d-flex align-items-center gap-2 mb-3 mt-1" style="font-size: 15px; font-weight: 700; color: #2a2a2e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                <span style="color: #e12d2d; display: inline-flex; align-items: center;">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="#e12d2d"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5 2.5 2.5z"/></svg>
+                </span>
+                <span>Popular properties for your trip</span>
             </div>
 
             <script>

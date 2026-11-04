@@ -73,16 +73,17 @@
 
 <div class="card border-0 rounded-3 overflow-hidden mb-4 bg-white" style="border: 1px solid #e5e7eb !important; border-radius: 6px !important;">
     
-    {{-- 1. Official Agoda Map Entry Card (Exact Agoda Screenshot) --}}
-    <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 125px; cursor: pointer; border-radius: 6px 6px 0 0; background: #ffffff; border-bottom: 1px solid #e5e7eb;" onclick="openAgodaMapModal()" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to search on map">
-        <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" onerror="this.onerror=null; this.src='https://cdn6.agoda.net/images/MAPS-1213/default/bkg-map-entry.svg';" alt="Map" style="width: 100%; height: 85px; object-fit: cover; display: block;">
+    {{-- 1. Official Agoda Map Entry Card (Exact Agoda Image 2 Parity) --}}
+    <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 112px; cursor: pointer; border-radius: 6px 6px 0 0; background: #e8ecf2; border-bottom: 1px solid #e5e7eb;" onclick="openAgodaMapModal()" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to see area map">
+        <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" onerror="this.onerror=null; this.src='https://cdn6.agoda.net/images/MAPS-1213/default/bkg-map-entry.svg';" alt="Map" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         {{-- Centered Red Map Pin --}}
-        <div class="position-absolute" style="top: 20px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;">
-            <i class="fa-solid fa-location-dot" style="font-size: 30px; color: #e03126; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));"></i>
+        <div class="position-absolute" style="top: 14px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;">
+            <i class="fa-solid fa-location-dot" style="font-size: 26px; color: #e03126; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));"></i>
         </div>
-        <div style="background: #ffffff; height: 40px; display: flex; align-items: center; justify-content: center;">
-            <span style="font-weight: 700; font-size: 13.5px; color: #2a2a2e; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                SEARCH ON MAP
+        {{-- SEE AREA White Pill Button --}}
+        <div class="position-absolute" style="bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 10;">
+            <span style="background: #ffffff; color: #2a2a2e; font-weight: 700; font-size: 12px; padding: 4px 16px; border-radius: 9999px; box-shadow: 0 1px 4px rgba(0,0,0,0.18); display: inline-block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                SEE AREA
             </span>
         </div>
     </div>
@@ -106,14 +107,6 @@
             @if(request('lng'))
                 <input type="hidden" name="lng" value="{{ request('lng') }}">
             @endif
-
-            {{-- 2. Agoda Text Search Input (Exact Screenshot Parity) --}}
-            <div class="agoda-filter-group" style="padding-bottom: 14px; margin-bottom: 16px; border-bottom: 1px solid #e5e7eb;">
-                <div class="position-relative">
-                    <i class="fa-solid fa-magnifying-glass position-absolute" style="left: 12px; top: 50%; transform: translateY(-50%); color: #687176; font-size: 13px;"></i>
-                    <input type="text" name="q" id="outerSearchTextInput" value="{{ request('q') ?: request('name') }}" placeholder="Text search" class="w-100" style="height: 38px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 12px 0 34px; font-size: 13px; color: #2a2a2e; outline: none; transition: all 0.15s ease;" onfocus="this.style.borderColor='#2067e1'; this.style.boxShadow='0 0 0 2px rgba(32,103,225,0.15)';" onblur="this.style.borderColor='#dcdfe4'; this.style.boxShadow='none';" onkeydown="if(event.key==='Enter'){event.preventDefault(); triggerSidebarSubmit();}">
-                </div>
-            </div>
 
             {{-- 3. Budget Range Slider (Dual Handles + MIN/MAX Boxes with Dashed Separator) --}}
             @php
@@ -260,9 +253,9 @@
             </div>
             @endif
 
-            {{-- 6. Section: Your filters / Popular filters for {Destination} --}}
+            {{-- 6. Section: Popular filters for {Destination} (Exact Agoda Image 2 Parity) --}}
             <div class="agoda-filter-group">
-                <div class="agoda-filter-title">Your filters</div>
+                <div class="agoda-filter-title">Popular filters for {{ $destCity }}</div>
 
                 <label class="agoda-check-row">
                     <input type="checkbox" name="amenities[]" value="Family/child friendly" @checked(in_array('Family/child friendly', $selAmenities)) onchange="triggerSidebarSubmit()">
@@ -272,6 +265,21 @@
                 <label class="agoda-check-row">
                     <input type="checkbox" name="amenities[]" value="Non-smoking" @checked(in_array('Non-smoking', $selAmenities)) onchange="triggerSidebarSubmit()">
                     <span class="agoda-check-label">Non-smoking</span>
+                </label>
+
+                <label class="agoda-check-row">
+                    <input type="checkbox" name="amenities[]" value="Pets allowed" @checked(in_array('Pets allowed', $selAmenities)) onchange="triggerSidebarSubmit()">
+                    <span class="agoda-check-label">Pets allowed</span>
+                </label>
+
+                <label class="agoda-check-row">
+                    <input type="checkbox" name="guest_rating[]" value="7" @checked(in_array(7, $gRatings)) onchange="triggerSidebarSubmit()">
+                    <span class="agoda-check-label">Location: 7+ Very good</span>
+                </label>
+
+                <label class="agoda-check-row">
+                    <input type="checkbox" name="area[]" value="{{ $destCity }}" @checked(in_array($destCity, $selAreas)) onchange="triggerSidebarSubmit()">
+                    <span class="agoda-check-label">{{ $destCity }}</span>
                 </label>
 
                 <label class="agoda-check-row">

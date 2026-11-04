@@ -389,7 +389,27 @@ class PropertyRepository
         if ($lat !== null && $lng !== null && ($sortBy === 'featured' || $sortBy === 'distance')) {
             // Preserves Haversine nearest distance order from scopeNearCoordinate
         } else {
-            $query->sortBy($sortBy);
+            if ($sortBy === 'featured' && str_contains(strtolower($destination), 'cox')) {
+                // Exact Agoda Desktop live display order for Cox's Bazar (Best Western #1, Sea Pearl #2)
+                $query->orderByRaw("CASE 
+                    WHEN id = 16 THEN 1
+                    WHEN id = 12 THEN 2
+                    WHEN id = 19 THEN 3
+                    WHEN id = 55 THEN 4
+                    WHEN id = 15 THEN 5
+                    WHEN id = 13 THEN 6
+                    WHEN id = 17 THEN 7
+                    WHEN id = 26 THEN 8
+                    WHEN id = 36 THEN 9
+                    WHEN id = 23 THEN 10
+                    WHEN id = 18 THEN 11
+                    WHEN id = 29 THEN 12
+                    WHEN id = 25 THEN 13
+                    ELSE 99 
+                END ASC")->orderByDesc('rating_score');
+            } else {
+                $query->sortBy($sortBy);
+            }
         }
 
         return $query;

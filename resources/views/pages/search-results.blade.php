@@ -1486,18 +1486,23 @@
             if (!modalEl) return;
             var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
             modal.show();
-            setTimeout(function() {
-                if (window.focusProperty) {
-                    window.focusProperty(id);
-                }
-                if (window.highlightMarker) {
-                    window.highlightMarker(id);
-                }
-                var card = document.getElementById('mapCard_' + id);
-                if (card) {
-                    card.scrollIntoView({behavior: 'smooth', block: 'center'});
-                }
-            }, 450);
+            if (id) {
+                setTimeout(function() {
+                    if (window.focusProperty) {
+                        window.focusProperty(id);
+                    }
+                    if (window.highlightMarker) {
+                        window.highlightMarker(id);
+                    }
+                    var card = document.getElementById('mapCard_' + id);
+                    if (card) {
+                        card.scrollIntoView({behavior: 'smooth', block: 'center'});
+                    }
+                }, 450);
+            }
+        };
+        window.openAgodaMapModal = function(id) {
+            window.openHotelOnMap(id);
         };
 
         window.onMapSliderChange = function(val) {

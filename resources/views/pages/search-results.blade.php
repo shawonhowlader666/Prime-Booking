@@ -217,109 +217,143 @@
 </script>
 @endsection
 
+@push('styles')
+    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1297-81103bc3ecd4.css" rel="stylesheet">
+    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5132-7d6f3e76125d.css" rel="stylesheet">
+    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/search-d7c52cdf705c.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1467-2ed4d1bb3553.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/dynamic-search-bundle-coreBundle-4048fc571f65.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/6522-d51775bfe82d.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2253-804a78cf4607.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/7487-0447de72b94b.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2911-78b9810a6dd7.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5004-1036beaf8ac3.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2483-e3942a16cf2e.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4170-2e4ec80e1a0c.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/6843-fa506b71dc5d.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5837-827d4d74e66a.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1860-9a2263b2a60a.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2481-1393f55b7097.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/8564-5fc754378659.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4490-830fbdcdd63c.css">
+@endpush
+
 @section('content')
 
 
-{{-- 2. Agoda Compact Subheader Search Bar (Screenshot 1:1 Exact Parity) --}}
+{{-- 2. Agoda Official Search Box Subheader (100% Downloaded Agoda Code & Classes) --}}
 @php
     $checkinCarbon = \Carbon\Carbon::parse($checkIn ?: now());
     $checkoutCarbon = \Carbon\Carbon::parse($checkOut ?: now()->addDays(7));
     $guestCount = intval($guests ?: 2);
     $roomsCount = intval(request('rooms', 1));
 @endphp
-<div id="stickyAgodaSearchSubheader" style="background-color: #1d2b45; padding: 10px 0; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 1025; box-shadow: 0 4px 15px rgba(0,0,0,0.18);">
-    <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px;">
-        <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" id="searchHeaderForm" onsubmit="return validateAndSubmitHeaderSearch(event);" style="width: 100%; margin: 0;">
+<div id="stickyAgodaSearchSubheader" style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 1025; box-shadow: 0 4px 15px rgba(0,0,0,0.18);">
+    <div style="max-width: 1140px; margin: 0 auto; padding: 0 24px;">
+        <form action="{{ route('search.index') }}" method="GET" id="searchHeaderForm" onsubmit="return validateAndSubmitHeaderSearch(event);" style="margin: 0; width: 100%;">
             <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
+            <div class="SearchBoxContainer SearchBoxContainer--AllRooms SearchBoxContainer--compact SearchBoxContainer--noanimation SearchBoxContainer--ImproveTextSearch" id="SearchBoxContainer" data-selenium="normal-property-searchbox">
+                <div class="Searchbox Searchbox--horizontal" data-selenium="searchBox">
+                    <div class="Searchbox__wrapper">
+                        <div class="abb64-flex-1 abb64-content-center abb64-flex abb64-flex-row">
+                            
+                            {{-- Autocomplete Destination Input --}}
+                            <div tabindex="-1" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--autocomplete" data-selenium="autocomplete-box" data-element-name="autocomplete-box" data-element-value="prefilled" id="autocomplete-box">
+                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper">
+                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-search-box" data-selenium="ficon-icon-box"></i></span>
+                                    <div class="IconBox__child" data-selenium="icon-box-child">
+                                        <input aria-label="Enter a destination or property" role="combobox" aria-expanded="false" data-selenium="textInput" tabindex="0" type="text" class="SearchBoxTextEditor SearchBoxTextEditor--autocomplete" placeholder="Enter a destination or property" id="mainDestInput" name="destination" value="{{ $destination }}" autocomplete="off">
+                                    </div>
+                                </div>
+                            </div>
 
-            {{-- 1. Destination Input Box with Near Me GPS Button --}}
-            <div class="col-12 col-lg-3">
-                <div class="bg-white rounded-3 d-flex align-items-center px-3 shadow-xs position-relative" style="height: 48px;">
-                    <i class="fa-solid fa-magnifying-glass text-secondary me-2 fs-6"></i>
-                    <input type="text" name="destination" id="mainDestInput" class="form-control border-0 p-0 fw-bold text-dark" value="{{ $destination }}" placeholder="Enter destination or property" style="font-size: 15px; box-shadow: none;">
-                    <input type="hidden" name="lat" id="gpsLatInput" value="{{ request('lat') }}">
-                    <input type="hidden" name="lng" id="gpsLngInput" value="{{ request('lng') }}">
-                    <button type="button" class="btn btn-link p-0 text-primary ms-1" title="Search Near My Current GPS Location" onclick="useCurrentLocation()" style="font-size: 15px; text-decoration: none;">
-                        <i class="fa-solid fa-location-crosshairs" id="gpsCrosshairIcon"></i>
-                    </button>
+                            {{-- Check-In Date Box --}}
+                            <div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--checkIn IconBox--focussable" data-element-name="check-in-box" role="button" aria-expanded="false" id="check-in-box" onclick="document.getElementById('checkInNativeInput').showPicker();" style="cursor: pointer;">
+                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper">
+                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-check-in" data-selenium="ficon-icon-box"></i></span>
+                                    <div class="IconBox__child" data-selenium="icon-box-child">
+                                        <div data-selenium="checkInBox" class="SearchBoxTextDescription SearchBoxTextDescription--checkIn SearchBoxTextDescription--focussable">
+                                            <div class="SearchBoxTextDescription__title" id="checkInDisplayDate" data-selenium="checkInText">{{ $checkinCarbon->format('j M Y') }}</div>
+                                            <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="checkInDisplayDay">{{ $checkinCarbon->format('l') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" style="position: absolute; opacity: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
+                            </div>
+
+                            {{-- Check-Out Date Box --}}
+                            <div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--checkOut IconBox--focussable" data-element-name="check-out-box" role="button" aria-expanded="false" id="check-out-box" onclick="document.getElementById('checkOutNativeInput').showPicker();" style="cursor: pointer;">
+                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper">
+                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-check-out" data-selenium="ficon-icon-box"></i></span>
+                                    <div class="IconBox__child" data-selenium="icon-box-child">
+                                        <div data-selenium="checkOutBox" class="SearchBoxTextDescription SearchBoxTextDescription--checkOut SearchBoxTextDescription--focussable">
+                                            <div class="SearchBoxTextDescription__title" id="checkOutDisplayDate" data-selenium="checkOutText">{{ $checkoutCarbon->format('j M Y') }}</div>
+                                            <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="checkOutDisplayDay">{{ $checkoutCarbon->format('l') }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" style="position: absolute; opacity: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
+                            </div>
+
+                            {{-- Occupancy / Guests Box --}}
+                            <div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--occupancy IconBox--focussable dropdown position-relative" data-element-name="occupancy-box" role="button" id="occupancy-box">
+                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="cursor: pointer; width: 100%;">
+                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-travelers" data-selenium="ficon-icon-box"></i></span>
+                                    <div class="IconBox__child" data-selenium="icon-box-child">
+                                        <div data-selenium="occupancyBox" class="SearchBoxTextDescription SearchBoxTextDescription--occupancy">
+                                            <div class="SearchBoxTextDescription__title">
+                                                <span data-selenium="adultValue" class="abb64-box abb64-fill-inherit abb64-text-inherit" id="guestCountDisplay">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</span>
+                                            </div>
+                                            <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" data-selenium="roomValue" id="roomCountDisplay">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</span>
+                                            <div class="SearchBoxTextDescription__child"><i class="ficon ficon-12 ficon-thin-arrow-down"></i></div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {{-- Guests Counter Popover Menu --}}
+                                <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1050;">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <div>
+                                            <strong class="d-block text-dark" style="font-size: 14px;">Adults</strong>
+                                            <small class="text-muted" style="font-size: 12px;">Ages 18 or above</small>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', -1);">-</button>
+                                            <input type="hidden" name="guests" id="guestsHiddenInput" value="{{ $guestCount }}">
+                                            <span class="fw-bold px-1" id="guestsValText">{{ $guestCount }}</span>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', 1);">+</button>
+                                        </div>
+                                    </div>
+                                    <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
+                                        <div>
+                                            <strong class="d-block text-dark" style="font-size: 14px;">Rooms</strong>
+                                            <small class="text-muted" style="font-size: 12px;">Total units needed</small>
+                                        </div>
+                                        <div class="d-flex align-items-center gap-2">
+                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', -1);">-</button>
+                                            <input type="hidden" name="rooms" id="roomsHiddenInput" value="{{ $roomsCount }}">
+                                            <span class="fw-bold px-1" id="roomsValText">{{ $roomsCount }}</span>
+                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', 1);">+</button>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1; font-size: 13.5px;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
+                                        Done
+                                    </button>
+                                </div>
+                            </div>
+
+                            {{-- Blue SEARCH Button --}}
+                            <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex" style="width: 162px;">
+                                <button data-selenium="searchButton" data-element-name="search-button" data-active-pressed="true" type="submit" class="abb64-box abb64-bg-product-primary abb64-fill-generic-base-inverted abb64-text-generic-base-inverted abb64-w-full abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-mt-2 abb64-px-24 abb64-py-12 abb64-rounded-base abb64-border-0 abb64-interactive-style abb64-interactive-primary abb64-focus-ring-interactive-border abb64-interactive-bg" style="min-height: 44px; border-radius: 9999px;">
+                                    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row">
+                                        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jXHxke" style="font-weight: 700; font-size: 15px; color: #fff;">SEARCH</span>
+                                    </div>
+                                </button>
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            {{-- 2. Agoda Exact Unified Joined Dates Box (Check-in & Check-out with Center Divider) --}}
-            <div class="col-12 col-md-6 col-lg-4">
-                <div class="bg-white rounded-3 d-flex align-items-center shadow-xs position-relative overflow-hidden" style="height: 48px;">
-                    {{-- Left Half: Check-in --}}
-                    <div class="w-50 px-3 py-1 d-flex align-items-center gap-2 h-100" style="cursor: pointer; border-right: 1px solid #e2e8f0;" onclick="document.getElementById('checkInNativeInput').showPicker();">
-                        <i class="fa-regular fa-calendar-check text-secondary fs-5 flex-shrink-0"></i>
-                        <div style="line-height: 1.15; min-width: 0;" class="overflow-hidden">
-                            <strong class="d-block text-dark text-truncate" id="checkInDisplayDate" style="font-size: 14px;">{{ $checkinCarbon->format('j M Y') }}</strong>
-                            <small class="text-secondary d-block text-truncate" id="checkInDisplayDay" style="font-size: 12px;">{{ $checkinCarbon->format('l') }}</small>
-                        </div>
-                        <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
-                    </div>
-
-                    {{-- Right Half: Check-out --}}
-                    <div class="w-50 px-3 py-1 d-flex align-items-center gap-2 h-100" style="cursor: pointer;" onclick="document.getElementById('checkOutNativeInput').showPicker();">
-                        <i class="fa-regular fa-calendar text-secondary fs-5 flex-shrink-0"></i>
-                        <div style="line-height: 1.15; min-width: 0;" class="overflow-hidden">
-                            <strong class="d-block text-dark text-truncate" id="checkOutDisplayDate" style="font-size: 14px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
-                            <small class="text-secondary d-block text-truncate" id="checkOutDisplayDay" style="font-size: 12px;">{{ $checkoutCarbon->format('l') }}</small>
-                        </div>
-                        <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; right: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
-                    </div>
-                </div>
-            </div>
-
-            {{-- 3. Guests & Rooms Box (Agoda 2-line Card with Chevron & Dropdown) --}}
-            <div class="col-12 col-md-4 col-lg-3 position-relative">
-                <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle" style="height: 48px; cursor: pointer;" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                    <div class="d-flex align-items-center gap-2">
-                        <i class="fa-solid fa-users text-secondary fs-5"></i>
-                        <div style="line-height: 1.15;">
-                            <strong class="d-block text-dark" id="guestCountDisplay" style="font-size: 14px;">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</strong>
-                            <small class="text-secondary" id="roomCountDisplay" style="font-size: 12px;">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</small>
-                        </div>
-                    </div>
-                    <i class="fa-solid fa-chevron-down text-secondary" style="font-size: 11px;"></i>
-                </div>
-
-                {{-- Guests Counter Popover Menu --}}
-                <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1050;">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <div>
-                            <strong class="d-block text-dark" style="font-size: 14px;">Adults</strong>
-                            <small class="text-muted" style="font-size: 12px;">Ages 18 or above</small>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', -1);">-</button>
-                            <input type="hidden" name="guests" id="guestsHiddenInput" value="{{ $guestCount }}">
-                            <span class="fw-bold px-1" id="guestsValText">{{ $guestCount }}</span>
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', 1);">+</button>
-                        </div>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
-                        <div>
-                            <strong class="d-block text-dark" style="font-size: 14px;">Rooms</strong>
-                            <small class="text-muted" style="font-size: 12px;">Total units needed</small>
-                        </div>
-                        <div class="d-flex align-items-center gap-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', -1);">-</button>
-                            <input type="hidden" name="rooms" id="roomsHiddenInput" value="{{ $roomsCount }}">
-                            <span class="fw-bold px-1" id="roomsValText">{{ $roomsCount }}</span>
-                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', 1);">+</button>
-                        </div>
-                    </div>
-                    <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1; font-size: 13.5px;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
-                        Done
-                    </button>
-                </div>
-            </div>
-
-            {{-- 5. Search Blue Button (Agoda 3D Pill Radius) --}}
-            <div class="col-12 col-md-2 col-lg-2">
-                <button type="submit" class="btn text-white w-100 fw-bold" style="background: linear-gradient(180deg, #2b75ec 0%, #1660d5 100%); border: 1px solid #1455be; box-shadow: 0 4px 14px rgba(22, 96, 213, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.28); height: 48px; font-size: 15px; font-weight: 800; letter-spacing: 0.6px; border-radius: 9999px !important; transition: all 0.15s ease;">
-                    SEARCH
-                </button>
             </div>
         </form>
     </div>

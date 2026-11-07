@@ -375,15 +375,26 @@
                                                     ->toArray();
                                             });
 
-                                            $intlCityNames = ['Singapore', 'Kuala Lumpur', 'Bangkok', 'Dubai', 'Makkah'];
+                                            // Filter out any accidental non-BD destinations and keep 100% Bangladesh stays
+                                            $intlCityNames = ['Singapore', 'Kuala Lumpur', 'Bangkok', 'Dubai', 'Makkah', 'London', 'Paris', 'New York'];
                                             $bdDbCities = array_values(array_filter($allDbCities, fn($c) => !in_array($c['name'], $intlCityNames)));
-                                            $liveIntlCities = array_values(array_filter($allDbCities, fn($c) => in_array($c['name'], $intlCityNames)));
 
                                             $liveBdCities = array_slice($bdDbCities, 0, 6);
                                             $remainingBdCities = array_slice($bdDbCities, 6);
 
+                                            // Fallback nature destinations if database has few cities
+                                            $fallbackNature = [
+                                                ['name' => 'Sajek Valley', 'count' => 12, 'desc' => 'Cloud valley &bull; Scenic cottages'],
+                                                ['name' => 'Bandarban', 'count' => 18, 'desc' => 'Mountain peaks &bull; Hill resorts'],
+                                                ['name' => 'Sreemangal', 'count' => 15, 'desc' => 'Tea gardens &bull; Eco-lodges'],
+                                                ['name' => 'Saint Martin', 'count' => 10, 'desc' => 'Coral island &bull; Ocean view stays'],
+                                                ['name' => 'Kuakata', 'count' => 14, 'desc' => 'Sunrise &amp; sunset beach hotels'],
+                                                ['name' => 'Sundarbans', 'count' => 8, 'desc' => 'Mangrove forest &bull; Luxury ship cruise'],
+                                            ];
+
                                             $natureTags = [
                                                 'Sajek'       => 'Cloud valley &bull; Scenic hills',
+                                                'Sajek Valley'=> 'Cloud valley &bull; Scenic hills',
                                                 'Bandarban'   => 'Mountain peaks &bull; Trekking',
                                                 'Rangamati'   => 'Kaptai lake &bull; Island stays',
                                                 'Sundarban'   => 'Mangrove forest &bull; River safari',
@@ -395,16 +406,17 @@
                                                 'Cox\'s Bazar'=> 'Longest beach &bull; Ocean view',
                                                 'Dhaka'       => 'Capital city &bull; Business &amp; Luxury',
                                                 'Chittagong'  => 'Port city &bull; Foy\'s Lake &amp; Hills',
-                                                'Sreemangal'  => 'Scenic nature &bull; Holiday stay',
+                                                'Sreemangal'  => 'Tea capital &bull; Eco resort stay',
+                                                'Saint Martin'=> 'Coral island &bull; Beach cottages',
                                             ];
 
-                                            $allLiveCitiesForJs = array_map(function($c) use ($intlCityNames) {
+                                            $allLiveCitiesForJs = array_map(function($c) {
                                                 return [
                                                     'city' => $c['name'],
-                                                    'country' => in_array($c['name'], $intlCityNames) ? ($c['name'] === 'Singapore' ? 'Singapore' : 'Malaysia') : 'Bangladesh',
+                                                    'country' => 'Bangladesh',
                                                     'type' => 'City'
                                                 ];
-                                            }, $allDbCities);
+                                            }, $bdDbCities);
                                             @endphp
                                             @foreach($liveBdCities as $c)
                                             <div data-destination="{{ $c['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
@@ -415,33 +427,30 @@
                                         </div>
                                     </div>
 
-                                    <!-- Right Column: 100% Real Database Driven Escapes + Real Intl -->
+                                    <!-- Right Column: 100% Bangladesh Scenic & Hill Escapes -->
                                     <div style="display: flex; flex-direction: column; justify-content: space-between;">
                                         <div>
-                                            <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 12px;">Scenic &amp; Hill Escapes</div>
+                                            <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-bottom: 12px;">Scenic Hill &amp; Nature Escapes</div>
                                             <div style="display: flex; flex-direction: column; gap: 10px;">
-                                                @foreach($remainingBdCities as $rem)
-                                                <div data-destination="{{ $rem['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
-                                                    <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $rem['name'] }}</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">({{ number_format($rem['count']) }})</span></div>
-                                                    <div style="font-size: 11px; color: #78716c; margin-top: 1px;">{!! $natureTags[$rem['name']] ?? 'Scenic nature &bull; Holiday stay' !!}</div>
-                                                </div>
-                                                @endforeach
+                                                @if(count($remainingBdCities) > 0)
+                                                    @foreach($remainingBdCities as $rem)
+                                                    <div data-destination="{{ $rem['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
+                                                        <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $rem['name'] }}</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">({{ number_format($rem['count']) }})</span></div>
+                                                        <div style="font-size: 11px; color: #78716c; margin-top: 1px;">{!! $natureTags[$rem['name']] ?? 'Scenic nature &bull; Holiday stay' !!}</div>
+                                                    </div>
+                                                    @endforeach
+                                                @else
+                                                    @foreach($fallbackNature as $fn)
+                                                    <div data-destination="{{ $fn['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
+                                                        <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $fn['name'] }}</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">({{ number_format($fn['count']) }})</span></div>
+                                                        <div style="font-size: 11px; color: #78716c; margin-top: 1px;">{!! $fn['desc'] !!}</div>
+                                                    </div>
+                                                    @endforeach
+                                                @endif
                                             </div>
-
-                                            @if(!empty($liveIntlCities))
-                                            <div style="font-size: 13px; font-weight: 500; color: #64748b; margin-top: 14px; margin-bottom: 8px;">International Destinations</div>
-                                            <div style="display: flex; flex-direction: column; gap: 8px;">
-                                                @foreach($liveIntlCities as $intl)
-                                                <div data-destination="{{ $intl['name'] }}" onclick="selectDestination(this.getAttribute('data-destination'))" class="agoda-popover-item" style="cursor: pointer; padding: 6px 8px; border-radius: 6px; transition: background 0.15s ease;" onmouseover="this.style.background='#f0f7ff'" onmouseout="this.style.background='transparent'">
-                                                    <div style="font-size: 13.5px; color: #1e293b; line-height: 1.25;"><span style="font-weight: 700;">{{ $intl['name'] }}</span> <span style="color: #64748b; font-weight: 400; font-size: 12.5px;">({{ number_format($intl['count']) }})</span></div>
-                                                    <div style="font-size: 11px; color: #78716c; margin-top: 1px;">{{ $intl['name'] === 'Singapore' ? 'Singapore' : 'Malaysia' }} &bull; Luxury stays</div>
-                                                </div>
-                                                @endforeach
-                                            </div>
-                                            @endif
                                         </div>
                                         <div style="text-align: right; margin-top: 12px;">
-                                            <a href="{{ route('search.index') }}" style="font-size: 12.5px; font-weight: 600; color: #2067e1; text-decoration: none;">View all {{ array_sum(array_column($allDbCities, 'count')) }} stays <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a>
+                                            <a href="{{ route('search.index') }}" style="font-size: 12.5px; font-weight: 600; color: #2067e1; text-decoration: none;">View all stays <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i></a>
                                         </div>
                                     </div>
                                 </div>

@@ -397,7 +397,7 @@
                                 <a href="{{ route('hotels.show', $prop->id) }}" class="text-decoration-none text-dark flex-shrink-0" style="width: 176px; scroll-snap-align: start;">
                                     <div class="card border rounded-4 overflow-hidden h-100 shadow-none" style="border-color: #e2e8f0; transition: transform 0.15s, box-shadow 0.15s; background: #fff;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='';this.style.boxShadow='none';">
                                         <div class="position-relative" style="height: 110px; width: 100%; background: #f1f5f9;">
-                                            <img src="{{ $cardImg }}" alt="{{ $prop->name }}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy" onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';">
+                                            <img src="{{ $cardImg }}" alt="{{ $prop->name }}" style="width: 100%; height: 100%; object-fit: cover;" loading="lazy">
                                             @if($loop->iteration % 2 === 0)
                                                 <div class="position-absolute" style="top: 6px; left: 6px; background: #d93025; color: #fff; font-size: 9.5px; font-weight: 700; padding: 2px 6px; border-radius: 3px;">
                                                     <i class="fa-solid fa-bolt me-1"></i>Booked {{ $loop->iteration + 2 }} times today
@@ -703,7 +703,7 @@
                             </div>
 
                             <div style="color: #ffffff; font-size: 18px; font-weight: 900; letter-spacing: -0.2px; line-height: 1.2; text-shadow: 0 2px 8px rgba(0,0,0,0.5);">
-                                Agoda's Top Stays!
+                                Prime's Top Stays!
                             </div>
 
                             <div style="color: rgba(255,255,255,0.65); font-size: 9px; margin-top: 6px;">
@@ -745,12 +745,12 @@
         </div>
 
         {{-- ============================================================ --}}
-        {{-- POPULAR DESTINATIONS OUTSIDE BANGLADESH (Agoda 1:1 Parity)   --}}
+        {{-- POPULAR HOLIDAY DESTINATIONS IN BANGLADESH                   --}}
         {{-- ============================================================ --}}
         <div class="mb-4" style="text-align: left;">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="fw-bold mb-0" style="color: #2a2a2e; font-size: 24px; letter-spacing: -0.3px;">
-                    Popular destinations outside Bangladesh
+                    Popular holiday destinations in Bangladesh
                 </h5>
                 <a href="{{ route('search.index') }}" class="text-decoration-none" style="color: #5392f9; font-size: 14.5px; font-weight: 600;">
                     View all <i class="fa-solid fa-chevron-right ms-1" style="font-size: 10px;"></i>
@@ -760,16 +760,19 @@
             <div style="position: relative;">
                 <div id="agodaIntlDestCarousel" style="display: flex; gap: 14px; overflow-x: auto; scroll-behavior: smooth; scrollbar-width: none; -ms-overflow-style: none; padding-bottom: 6px;">
                     @php
-                        $intlDests = [
-                            ['name' => 'Bangkok', 'country' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=300&q=80', 'count' => '3,450 accommodations'],
-                            ['name' => 'Kuala Lumpur', 'country' => 'Malaysia', 'img' => 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=300&q=80', 'count' => '2,180 accommodations'],
-                            ['name' => 'Singapore', 'country' => 'Singapore', 'img' => 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=300&q=80', 'count' => '940 accommodations'],
-                            ['name' => 'Dubai', 'country' => 'United Arab Emirates', 'img' => 'https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=300&q=80', 'count' => '1,820 accommodations'],
-                            ['name' => 'Kolkata', 'country' => 'India', 'img' => 'https://images.unsplash.com/photo-1558431382-27e303142255?auto=format&fit=crop&w=300&q=80', 'count' => '1,150 accommodations'],
-                            ['name' => 'Kathmandu', 'country' => 'Nepal', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=80', 'count' => '680 accommodations'],
+                        $bdPopularDests = [
+                            ['name' => 'Cox\'s Bazar', 'region' => 'Chittagong', 'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=300&q=80', 'count' => 'Beach resorts & hotels'],
+                            ['name' => 'Sajek Valley', 'region' => 'Rangamati', 'img' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=300&q=80', 'count' => 'Cloud view cottages'],
+                            ['name' => 'Sreemangal', 'region' => 'Moulvibazar', 'img' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=300&q=80', 'count' => 'Tea garden eco-stays'],
+                            ['name' => 'Sylhet', 'region' => 'Sylhet', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=300&q=80', 'count' => 'Nature & lake retreats'],
+                            ['name' => 'Bandarban', 'region' => 'Hill Tracts', 'img' => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=300&q=80', 'count' => 'Mountain peak resorts'],
+                            ['name' => 'Saint Martin', 'region' => 'Bay of Bengal', 'img' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=300&q=80', 'count' => 'Coral island beach stays'],
+                            ['name' => 'Kuakata', 'region' => 'Patuakhali', 'img' => 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=300&q=80', 'count' => 'Sunrise & sunset hotels'],
+                            ['name' => 'Sundarbans', 'region' => 'Khulna', 'img' => 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=300&q=80', 'count' => 'Luxury ship cruises'],
+                            ['name' => 'Dhaka', 'region' => 'Capital', 'img' => 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=300&q=80', 'count' => '5-Star city luxury'],
                         ];
                     @endphp
-                    @foreach($intlDests as $idst)
+                    @foreach($bdPopularDests as $idst)
                     <a href="{{ route('search.index') }}?destination={{ urlencode($idst['name']) }}" class="text-decoration-none flex-shrink-0" style="display: block; width: 170px;">
                         <div style="background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.08)';" onmouseout="this.style.transform='none'; this.style.boxShadow='none';">
                             <img src="{{ $idst['img'] }}" alt="{{ $idst['name'] }}" style="width: 100%; height: 110px; object-fit: cover;">

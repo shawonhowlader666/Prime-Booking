@@ -1,12 +1,13 @@
-@extends('layouts.main', ['activePage' => 'services'])
-
 @php
-    $dest = trim($destination ?? '');
-    $destLabel = !empty($dest) ? $dest : 'Bangladesh';
+    $dest = trim($destination ?? request('destination', ''));
+    $destLabel = !empty($dest) ? $dest : "Cox's Bazar";
     
     // Result counts
     $merged = $searchResults['merged_results'] ?? [];
-    $totalCount = isset($searchResults['paginator']) ? $searchResults['paginator']->total() : count($merged);
+    $paginator = $searchResults['paginator'] ?? null;
+    $totalCount = isset($paginator) ? $paginator->total() : count($merged);
+    $currentPage = isset($paginator) ? $paginator->currentPage() : 1;
+    $lastPage = isset($paginator) ? max(1, $paginator->lastPage()) : 1;
     
     // Extract dynamic highlights, prices, and Schema items
     $prices = [];
@@ -22,2178 +23,637 @@
         if (!empty($mName) && count($hotelNames) < 5) {
             $hotelNames[] = $mName;
         }
-
-        // Schema item data (up to top 15 properties for Google rich snippets)
-        if ($idx < 15 && !empty($mName)) {
-            $mSlug = $mIsObj ? ($mItem->slug ?? null) : ($mItem['slug'] ?? null);
-            $mId = $mIsObj ? ($mItem->id ?? 1) : ($mItem['id'] ?? 1);
-            $mUrl = !empty($mSlug) ? url("/hotel/{$mSlug}") : url("/hotels/{$mId}");
-            $rawImg = $mIsObj ? ($mItem->primary_image ?? null) : ($mItem['primary_image'] ?? null);
-            $mImg = !empty($rawImg) ? (str_starts_with($rawImg, 'http') ? $rawImg : url($rawImg)) : url('/android-chrome-512x512.png');
-            $mScore = (float)($mIsObj ? ($mItem->rating_score ?? $mItem->rating ?? 8.5) : ($mItem['rating_score'] ?? $mItem['rating'] ?? 8.5));
-            $mReviews = (int)($mIsObj ? ($mItem->total_reviews ?? $mItem->reviews_count ?? 15) : ($mItem['total_reviews'] ?? $mItem['reviews_count'] ?? 15));
-            $mCity = $mIsObj ? ($mItem->city ?? $destLabel) : ($mItem['city'] ?? $destLabel);
-            $mAddress = $mIsObj ? ($mItem->address ?? $mCity) : ($mItem['address'] ?? $mCity);
-            $mStars = (int)($mIsObj ? ($mItem->star_rating ?? 4) : ($mItem['star_rating'] ?? 4));
-
-            $schemaItems[] = [
-                chr(64) . 'type' => 'ListItem',
-                'position' => $idx + 1,
-                'item' => [
-                    chr(64) . 'type' => 'Hotel',
-                    'name' => $mName,
-                    'image' => $mImg,
-                    'url' => $mUrl,
-                    'priceRange' => $mPrice > 0 ? 'BDT ' . number_format($mPrice, 0) : 'BDT 2,500 - 15,000',
-                    'starRating' => [
-                        chr(64) . 'type' => 'Rating',
-                        'ratingValue' => $mStars ?: 4,
-                    ],
-                    'aggregateRating' => [
-                        chr(64) . 'type' => 'AggregateRating',
-                        'ratingValue' => number_format($mScore, 1),
-                        'bestRating' => '10',
-                        'reviewCount' => max(1, $mReviews),
-                    ],
-                    'address' => [
-                        chr(64) . 'type' => 'PostalAddress',
-                        'streetAddress' => $mAddress,
-                        'addressLocality' => $mCity,
-                        'addressCountry' => 'BD',
-                    ],
-                ]
-            ];
-        }
     }
     
-    $minFoundPrice = !empty($prices) ? min($prices) : 2500;
+    $minFoundPrice = !empty($prices) ? min($prices) : 2388;
+    $maxFoundPrice = !empty($prices) ? max($prices) : 11017;
     $minPriceText = '৳' . number_format($minFoundPrice, 0);
-    $hotelHighlights = !empty($hotelNames) ? implode(', ', $hotelNames) : 'Sea Pearl, Ocean Paradise, Sayeman Beach Resort';
-    
-    $intent = request('seo_intent') ?? (request()->routeIs('seo.city.cheap') ? 'cheap' : (request()->routeIs('seo.city.resorts') ? 'resort' : (request()->routeIs('seo.city.5star') ? '5star' : null)));
-    $isResort = $intent === 'resort' || in_array('resort', (array)request('property_type', [])) || request('type') === 'resort';
-    $isCheap = $intent === 'cheap' || request('sort_by') === 'price_low' || (request('max_price') && (float)request('max_price') <= 3500);
-    $is5Star = $intent === '5star' || in_array(5, (array)request('star_rating', [])) || in_array('5', (array)request('star_rating', []));
+    $hotelHighlights = !empty($hotelNames) ? implode(', ', $hotelNames) : 'Sea Pearl, Ocean Paradise, Seagull Hotel';
 
-    // Dynamic Meta Title & Snippets (Engineered for Google #1 SERP Rankings & Max CTR)
-    $radiusExpanded = !empty($searchResults['radius_expanded']);
-    $expandedRadiusKm = (int)($searchResults['expanded_radius_km'] ?? 45);
-
-    if (!empty($dest)) {
-        if ($totalCount === 0) {
-            $metaTitle = "Hotels in {$dest} | Find Verified Stays - Prime Booking";
-            $metaDesc = "Looking for hotels in {$dest}? Currently no direct stays are registered in {$dest}. Explore top-rated hotels, beach resorts & stays across Bangladesh on Prime Booking.";
-        } elseif ($radiusExpanded) {
-            $metaTitle = "{$totalCount} Hotels near {$dest} (Within {$expandedRadiusKm} km) | Prime Booking";
-            $metaDesc = "Find {$totalCount} verified hotels and stays near {$dest} within {$expandedRadiusKm} km. Instant reservation confirmation, bKash discount & free cancellation on Prime Booking.";
-        } elseif ($isCheap) {
-            $metaTitle = "Cheap Hotels in {$dest} (From {$minPriceText}/Night) | Budget Stays 2026 - Prime Booking";
-            $metaDesc = "Find verified cheap & budget-friendly hotels in {$dest} starting from {$minPriceText}/night. Clean rooms, free WiFi, bKash discount & free cancellation on Prime Booking.";
-        } elseif ($isResort) {
-            $metaTitle = "Best Luxury Resorts in {$dest} 2026 (Sea View & Pool) | Prime Booking";
-            $metaDesc = "Book top luxury resorts & beach stays in {$dest}. {$hotelHighlights}. Swimming pool, private beach access, breakfast & up to 45% discount on Prime Booking.";
-        } elseif ($is5Star) {
-            $metaTitle = "Top 5-Star Hotels & Luxury Resorts in {$dest} 2026 | Prime Booking";
-            $metaDesc = "Experience 5-star world-class hospitality in {$dest}. Compare {$hotelHighlights} with infinity pool, spa, ocean view & instant bKash booking.";
-        } else {
-            $metaTitle = "{$totalCount} Best Hotels in {$dest} 2026 (From {$minPriceText}) | Prime Booking";
-            $metaDesc = "Most booked hotels & resorts in {$dest}: {$hotelHighlights}. Book top stays from {$minPriceText}/night with instant confirmation, bKash discount & free cancellation on Prime Booking.";
-        }
-        $metaKeywords = "hotels in " . strtolower($dest) . ", best resorts in " . strtolower($dest) . ", 5 star hotel " . strtolower($dest) . ", cheap hotels " . strtolower($dest) . ", budget hotel " . strtolower($dest) . ", sea view hotel " . strtolower($dest) . ", hotel booking bangladesh, " . strtolower($dest) . " হোটেল বুকিং, কম খরচে " . strtolower($dest) . " হোটেল, ৫ তারকা রিসোর্ট, প্রাইম বুকিং";
-        $canonicalUrl = url('/hotels-in-' . \Illuminate\Support\Str::slug($dest));
-    } else {
-        $metaTitle = "Top Hotels, Luxury Resorts & Stays Across Bangladesh 2026 | Prime Booking";
-        $metaDesc = "Find and book 2,000+ top hotels, resorts, Sundarbans cruises & Tanguar Haor houseboats across Bangladesh. Guaranteed lowest prices, verified guest reviews & instant bKash booking.";
-        $metaKeywords = "hotel booking bangladesh, online hotel booking bd, resorts in bangladesh, coxs bazar hotels, sajek resort, sylhet hotels, dhaka hotel booking, sundarbans ship, tanguar haor houseboat, হোটেল বুকিং বাংলাদেশ, প্রাইম বুকিং";
-        $canonicalUrl = route('search.index');
-    }
-
-    $ogImage = (!empty($schemaItems[0]['item']['image'])) 
-        ? $schemaItems[0]['item']['image'] 
-        : url('/android-chrome-512x512.png');
-@endphp
-
-@section('title', $metaTitle)
-@section('meta_description', $metaDesc)
-@section('meta_keywords', $metaKeywords)
-@section('canonical_url', $canonicalUrl)
-@section('og_title', $metaTitle)
-@section('og_description', $metaDesc)
-@section('og_image', $ogImage)
-
-@if(!empty($dest))
-@section('extra_meta')
-    <meta name="geo.placename" content="{{ $dest }}, Bangladesh">
-    <meta name="geo.region" content="BD">
-@endsection
-@endif
-
-
-@section('schema')
-<script type="application/ld+json">
-{!! json_encode([
-    chr(64) . 'context' => 'https://schema.org',
-    chr(64) . 'graph' => array_values(array_filter([
-        // 1. BreadcrumbList Schema
-        [
-            chr(64) . 'type' => 'BreadcrumbList',
-            'itemListElement' => array_values(array_filter([
-                [
-                    chr(64) . 'type' => 'ListItem',
-                    'position' => 1,
-                    'name' => 'Home',
-                    'item' => url('/'),
-                ],
-                [
-                    chr(64) . 'type' => 'ListItem',
-                    'position' => 2,
-                    'name' => 'Hotels in Bangladesh',
-                    'item' => url('/hotels'),
-                ],
-                !empty($dest) ? [
-                    chr(64) . 'type' => 'ListItem',
-                    'position' => 3,
-                    'name' => "Hotels in {$dest}",
-                    'item' => $canonicalUrl,
-                ] : null,
-            ])),
-        ],
-        // 2. ItemList Schema (Rich snippet carousel & price list)
-        (!empty($schemaItems) && $totalCount > 0) ? [
-            chr(64) . 'type' => 'ItemList',
-            'name' => !empty($dest) ? "Best Hotels & Resorts in {$dest}" : 'Top Hotels in Bangladesh',
-            'description' => "Verified best rates on luxury resorts and boutique hotels in {$destLabel}, Bangladesh.",
-            'numberOfItems' => count($schemaItems),
-            'itemListElement' => $schemaItems,
-        ] : null,
-        // 3. FAQPage Schema (Triggers Google Rich FAQ Accordion in Search Results!)
-        (!empty($dest) && $totalCount > 0) ? [
-            chr(64) . 'type' => 'FAQPage',
-            'mainEntity' => [
-                [
-                    chr(64) . 'type' => 'Question',
-                    'name' => "What are the best hotels to stay in {$dest}?",
-                    'acceptedAnswer' => [
-                        chr(64) . 'type' => 'Answer',
-                        'text' => "The top rated and most popular hotels in {$dest} on Prime Booking include {$hotelHighlights}, offering premium amenities, scenic views, and 24/7 hospitality.",
-                    ],
-                ],
-                [
-                    chr(64) . 'type' => 'Question',
-                    'name' => "How much does it cost to book a hotel in {$dest}?",
-                    'acceptedAnswer' => [
-                        chr(64) . 'type' => 'Answer',
-                        'text' => "Hotel prices in {$dest} start from as low as {$minPriceText} per night on Prime Booking, with exclusive seasonal discounts and instant bKash cashback offers.",
-                    ],
-                ],
-                [
-                    chr(64) . 'type' => 'Question',
-                    'name' => "Are there 5-star luxury resorts in {$dest} with swimming pools?",
-                    'acceptedAnswer' => [
-                        chr(64) . 'type' => 'Answer',
-                        'text' => "Yes, premier properties in {$dest} such as Sea Pearl Beach Resort & Spa, Ocean Paradise, and Long Beach Hotel feature world-class infinity swimming pools, private beach access, multi-cuisine restaurants, and wellness spas.",
-                    ],
-                ],
-                [
-                    chr(64) . 'type' => 'Question',
-                    'name' => "Can I book hotels in {$dest} with bKash and free cancellation?",
-                    'acceptedAnswer' => [
-                        chr(64) . 'type' => 'Answer',
-                        'text' => "Yes, Prime Booking provides free cancellation and pay-at-hotel options along with 100% instant bKash, Nagad, and card payments on selected properties in {$dest}.",
-                    ],
-                ],
-                [
-                    chr(64) . 'type' => 'Question',
-                    'name' => "{$dest}-এ হোটেল বা রিসোর্ট বুকিং করার সেরা উপায় কোনটি?",
-                    'acceptedAnswer' => [
-                        chr(64) . 'type' => 'Answer',
-                        'text' => "প্রাইম বুকিং (Prime Booking) থেকে বিকাশ বা নগদে সবচেয়ে কম খরচে সেরা ডিসকাউন্টে {$dest}-এর শীর্ষ হোটেল ও রিসোর্ট সহজে বুক করা যায়।",
-                    ],
-                ],
-            ],
-        ] : null,
-    ])),
-], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT) !!}
-</script>
-@endsection
-
-@push('styles')
-    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1297-81103bc3ecd4.css" rel="stylesheet">
-    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5132-7d6f3e76125d.css" rel="stylesheet">
-    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/search-d7c52cdf705c.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1467-2ed4d1bb3553.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/dynamic-search-bundle-coreBundle-4048fc571f65.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/6522-d51775bfe82d.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2253-804a78cf4607.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/7487-0447de72b94b.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2911-78b9810a6dd7.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5004-1036beaf8ac3.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2483-e3942a16cf2e.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4170-2e4ec80e1a0c.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/6843-fa506b71dc5d.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5837-827d4d74e66a.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1860-9a2263b2a60a.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2481-1393f55b7097.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/8564-5fc754378659.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4490-830fbdcdd63c.css">
-@endpush
-
-@section('content')
-
-
-{{-- 2. Agoda Official Search Box Subheader (100% Downloaded Agoda Code & Classes) --}}
-@php
     $checkinCarbon = \Carbon\Carbon::parse($checkIn ?: now());
     $checkoutCarbon = \Carbon\Carbon::parse($checkOut ?: now()->addDays(7));
     $guestCount = intval($guests ?: 2);
     $roomsCount = intval(request('rooms', 1));
+    $currencyCode = \App\Helpers\CurrencyHelper::current();
+    
+    $metaTitle = "{$destLabel}: {$totalCount} properties found - Prime Booking";
+    $metaDesc = "Find and book top rated hotels, luxury beach resorts, and budget stays in {$destLabel} on Prime Booking. Best guaranteed rates in BDT.";
+    $canonicalUrl = route('search.index', request()->all());
 @endphp
-<div id="stickyAgodaSearchSubheader" style="background-color: #1d2b45; padding: 12px 0; border-bottom: 1px solid #334155; position: sticky; top: 0; z-index: 1025; box-shadow: 0 4px 15px rgba(0,0,0,0.18);">
-    <div style="max-width: 1140px; margin: 0 auto; padding: 0 24px;">
-        <form action="{{ route('search.index') }}" method="GET" id="searchHeaderForm" onsubmit="return validateAndSubmitHeaderSearch(event);" style="margin: 0; width: 100%;">
-            <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
-            <div class="SearchBoxContainer SearchBoxContainer--AllRooms SearchBoxContainer--compact SearchBoxContainer--noanimation SearchBoxContainer--ImproveTextSearch" id="SearchBoxContainer" data-selenium="normal-property-searchbox">
-                <div class="Searchbox Searchbox--horizontal" data-selenium="searchBox">
-                    <div class="Searchbox__wrapper">
-                        <div class="abb64-flex-1 abb64-content-center abb64-flex abb64-flex-row">
-                            
-                            {{-- Autocomplete Destination Input --}}
-                            <div tabindex="-1" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--autocomplete" data-selenium="autocomplete-box" data-element-name="autocomplete-box" data-element-value="prefilled" id="autocomplete-box">
-                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper">
-                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-search-box" data-selenium="ficon-icon-box"></i></span>
-                                    <div class="IconBox__child" data-selenium="icon-box-child">
-                                        <input aria-label="Enter a destination or property" role="combobox" aria-expanded="false" data-selenium="textInput" tabindex="0" type="text" class="SearchBoxTextEditor SearchBoxTextEditor--autocomplete" placeholder="Enter a destination or property" id="mainDestInput" name="destination" value="{{ $destination }}" autocomplete="off">
-                                    </div>
-                                </div>
-                            </div>
 
-                            {{-- Check-In Date Box --}}
-                            <div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--checkIn IconBox--focussable" data-element-name="check-in-box" role="button" aria-expanded="false" id="check-in-box" onclick="document.getElementById('checkInNativeInput').showPicker();" style="cursor: pointer;">
-                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper">
-                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-check-in" data-selenium="ficon-icon-box"></i></span>
-                                    <div class="IconBox__child" data-selenium="icon-box-child">
-                                        <div data-selenium="checkInBox" class="SearchBoxTextDescription SearchBoxTextDescription--checkIn SearchBoxTextDescription--focussable">
-                                            <div class="SearchBoxTextDescription__title" id="checkInDisplayDate" data-selenium="checkInText">{{ $checkinCarbon->format('j M Y') }}</div>
-                                            <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="checkInDisplayDay">{{ $checkinCarbon->format('l') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <input type="date" name="check_in" id="checkInNativeInput" value="{{ $checkinCarbon->format('Y-m-d') }}" style="position: absolute; opacity: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkIn', this.value);">
-                            </div>
+<html lang="en" kite-lang="en" class="chrome no-js" dir="ltr"><head><style id="react-aria-pressable-style">@layer {
+  [data-react-aria-pressable] {
+    touch-action: pan-x pan-y pinch-zoom;
+  }
+}</style>
+    <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+        <meta name="referrer" content="origin-when-cross-origin">
+    
+    <title>Prime Booking | Hotels in {{ $destination ?? "Cox's Bazar" }} | Best Price Guarantee!</title>
+    <link rel="icon" href="/favicon.ico">
 
-                            {{-- Check-Out Date Box --}}
-                            <div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--checkOut IconBox--focussable" data-element-name="check-out-box" role="button" aria-expanded="false" id="check-out-box" onclick="document.getElementById('checkOutNativeInput').showPicker();" style="cursor: pointer;">
-                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper">
-                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-check-out" data-selenium="ficon-icon-box"></i></span>
-                                    <div class="IconBox__child" data-selenium="icon-box-child">
-                                        <div data-selenium="checkOutBox" class="SearchBoxTextDescription SearchBoxTextDescription--checkOut SearchBoxTextDescription--focussable">
-                                            <div class="SearchBoxTextDescription__title" id="checkOutDisplayDate" data-selenium="checkOutText">{{ $checkoutCarbon->format('j M Y') }}</div>
-                                            <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="checkOutDisplayDay">{{ $checkoutCarbon->format('l') }}</span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <input type="date" name="check_out" id="checkOutNativeInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" style="position: absolute; opacity: 0; width: 1px; height: 1px;" onchange="updateSearchDateDisplay('checkOut', this.value);">
-                            </div>
-
-                            {{-- Occupancy / Guests Box --}}
-                            <div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--occupancy IconBox--focussable dropdown position-relative" data-element-name="occupancy-box" role="button" id="occupancy-box">
-                                <div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper dropdown-toggle" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false" style="cursor: pointer; width: 100%;">
-                                    <span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-travelers" data-selenium="ficon-icon-box"></i></span>
-                                    <div class="IconBox__child" data-selenium="icon-box-child">
-                                        <div data-selenium="occupancyBox" class="SearchBoxTextDescription SearchBoxTextDescription--occupancy">
-                                            <div class="SearchBoxTextDescription__title">
-                                                <span data-selenium="adultValue" class="abb64-box abb64-fill-inherit abb64-text-inherit" id="guestCountDisplay">{{ $guestCount }} adult{{ $guestCount > 1 ? 's' : '' }}</span>
-                                            </div>
-                                            <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" data-selenium="roomValue" id="roomCountDisplay">{{ $roomsCount }} room{{ $roomsCount > 1 ? 's' : '' }}</span>
-                                            <div class="SearchBoxTextDescription__child"><i class="ficon ficon-12 ficon-thin-arrow-down"></i></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {{-- Guests Counter Popover Menu --}}
-                                <div class="dropdown-menu p-3 shadow-lg border-0 rounded-3 mt-2" style="width: 280px; z-index: 1050;">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <div>
-                                            <strong class="d-block text-dark" style="font-size: 14px;">Adults</strong>
-                                            <small class="text-muted" style="font-size: 12px;">Ages 18 or above</small>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', -1);">-</button>
-                                            <input type="hidden" name="guests" id="guestsHiddenInput" value="{{ $guestCount }}">
-                                            <span class="fw-bold px-1" id="guestsValText">{{ $guestCount }}</span>
-                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('guests', 1);">+</button>
-                                        </div>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center mb-3 border-top pt-2">
-                                        <div>
-                                            <strong class="d-block text-dark" style="font-size: 14px;">Rooms</strong>
-                                            <small class="text-muted" style="font-size: 12px;">Total units needed</small>
-                                        </div>
-                                        <div class="d-flex align-items-center gap-2">
-                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', -1);">-</button>
-                                            <input type="hidden" name="rooms" id="roomsHiddenInput" value="{{ $roomsCount }}">
-                                            <span class="fw-bold px-1" id="roomsValText">{{ $roomsCount }}</span>
-                                            <button type="button" class="btn btn-outline-secondary btn-sm rounded-circle p-0 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;" onclick="adjustGuestCounter('rooms', 1);">+</button>
-                                        </div>
-                                    </div>
-                                    <button type="button" class="btn text-white w-100 btn-sm fw-bold rounded-2" style="background: #2067e1; font-size: 13.5px;" onclick="bootstrap.Dropdown.getInstance(this.closest('.position-relative').querySelector('.dropdown-toggle')).hide();">
-                                        Done
-                                    </button>
-                                </div>
-                            </div>
-
-                            {{-- Blue SEARCH Button --}}
-                            <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex" style="width: 162px;">
-                                <button data-selenium="searchButton" data-element-name="search-button" data-active-pressed="true" type="submit" class="abb64-box abb64-fill-generic-base-inverted abb64-text-generic-base-inverted abb64-w-full abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-mt-2 abb64-px-24 abb64-py-12 abb64-rounded-base abb64-border-0 abb64-interactive-style abb64-interactive-primary abb64-focus-ring-interactive-border abb64-interactive-bg" style="min-height: 44px; border-radius: 9999px; background-color: #2067e1 !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(32, 103, 225, 0.4);">
-                                    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row">
-                                        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jXHxke" style="font-weight: 700; font-size: 15px; color: #ffffff !important; letter-spacing: 0.5px;">SEARCH</span>
-                                    </div>
-                                </button>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-<script>
-    const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    function updateSearchDateDisplay(type, dateStr) {
-        if (!dateStr) return;
-        const d = new Date(dateStr);
-        if (isNaN(d.getTime())) return;
-
-        const formattedDate = `${d.getDate()} ${monthNames[d.getMonth()]} ${d.getFullYear()}`;
-        const formattedDay = dayNames[d.getDay()];
-
-        if (type === 'checkIn') {
-            document.getElementById('checkInDisplayDate').textContent = formattedDate;
-            document.getElementById('checkInDisplayDay').textContent = formattedDay;
-        } else {
-            document.getElementById('checkOutDisplayDate').textContent = formattedDate;
-            document.getElementById('checkOutDisplayDay').textContent = formattedDay;
-        }
-    }
-
-    function adjustGuestCounter(field, delta) {
-        if (field === 'guests') {
-            const inp = document.getElementById('guestsHiddenInput');
-            let val = Math.max(1, Math.min(30, (parseInt(inp.value) || 2) + delta));
-            inp.value = val;
-            document.getElementById('guestsValText').textContent = val;
-            document.getElementById('guestCountDisplay').textContent = `${val} adult${val > 1 ? 's' : ''}`;
-        } else if (field === 'rooms') {
-            const inp = document.getElementById('roomsHiddenInput');
-            let val = Math.max(1, Math.min(10, (parseInt(inp.value) || 1) + delta));
-            inp.value = val;
-            document.getElementById('roomsValText').textContent = val;
-            document.getElementById('roomCountDisplay').textContent = `${val} room${val > 1 ? 's' : ''}`;
-        }
-    }
-
-    function useCurrentLocation() {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser.");
-            return;
-        }
-        const destInput = document.getElementById('mainDestInput');
-        const icon = document.getElementById('gpsCrosshairIcon');
-        const origPlaceholder = destInput ? destInput.placeholder : '';
-        if (destInput) destInput.placeholder = "Detecting your GPS location...";
-        if (icon) icon.className = "fa-solid fa-spinner fa-spin";
-
-        navigator.geolocation.getCurrentPosition(function(pos) {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-            const latInput = document.getElementById('gpsLatInput');
-            const lngInput = document.getElementById('gpsLngInput');
-            if (latInput) latInput.value = lat;
-            if (lngInput) lngInput.value = lng;
-            if (destInput) destInput.value = "Near My Location";
-
-            // Instant client-side reverse geocoding with fast 650ms timeout
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 650);
-
-            fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=en`, { signal: controller.signal })
-                .then(r => r.json())
-                .then(data => {
-                    clearTimeout(timeoutId);
-                    const area = data.locality || data.city || data.principalSubdivision;
-                    if (area && destInput) {
-                        destInput.value = area;
-                    }
-                })
-                .catch(() => {})
-                .finally(() => {
-                    if (icon) icon.className = "fa-solid fa-location-crosshairs";
-                    const form = document.getElementById('searchHeaderForm');
-                    if (form) form.submit();
-                });
-        }, function(err) {
-            // Silent IP Geolocation Fallback if GPS is blocked or denied
-            fetch('https://api.bigdatacloud.net/data/reverse-geocode-client?localityLanguage=en')
-                .then(r => r.json())
-                .then(data => {
-                    const city = data.city || data.principalSubdivision || "Dhaka";
-                    if (destInput) destInput.value = city;
-                    const form = document.getElementById('searchHeaderForm');
-                    if (form) form.submit();
-                })
-                .catch(() => {
-                    if (destInput) destInput.placeholder = origPlaceholder;
-                    if (icon) icon.className = "fa-solid fa-location-crosshairs";
-                    alert("Location access denied. Please type your destination city.");
-                });
-        }, { timeout: 10000, enableHighAccuracy: true });
-    }
-</script>
+    
 
 
-{{-- Full Funnel Coupons Banner (Exact Agoda Parity) --}}
-<div id="fullFunnelBannerTarget" data-testid="fullFunnelBannerTarget">
-    <div id="full-funnel-banner-container" style="background-color: #fff2ed; border-bottom: 1px solid #ffd8cc; padding: 8px 0;">
-        <div style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between;">
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <img alt="coupon banner" style="width: 36px; height: 36px; object-fit: contain;" src="https://cdn0.agoda.net/images/emailmarketing/Web_SSR_banner/webbanner_coupon.png" onerror="this.style.display='none'">
-                <div>
-                    <h2 style="font-size: 15px; font-weight: 700; color: #2a2a2e; margin: 0; line-height: 1.2;">Looking for instant coupons?</h2>
-                    <div style="font-size: 13px; color: #505256; margin-top: 2px;">Check out our Coupons &amp; Deals page for today's discounts</div>
-                </div>
-            </div>
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <a href="{{ route('deals') }}" style="height: 36px; padding: 0 20px; border-radius: 9999px; background: #ffffff; border: 1px solid #2067e1; color: #2067e1; font-weight: 700; font-size: 13px; display: inline-flex; align-items: center; text-decoration: none; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
-                    See all coupons
-                </a>
-                <button type="button" onclick="document.getElementById('fullFunnelBannerTarget').style.display='none'" style="background: none; border: none; padding: 6px; cursor: pointer; color: #737373;" title="Close">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
-{{-- 4. Main Search Results Layout (Centered, Equal Left/Right Padding, Compact Card Width) --}}
-<style>
-    @media (min-width: 992px) {
-        .agoda-filter-sidebar-col {
-            width: 260px !important;
-            flex: 0 0 260px !important;
-            max-width: 260px !important;
-        }
-        .agoda-results-col {
-            width: calc(100% - 260px) !important;
-            flex: 0 0 calc(100% - 260px) !important;
-            max-width: calc(100% - 260px) !important;
-        }
-    }
+<style type="text/css" data-selenium="critical-css">
+    @-webkit-keyframes unripple{to{transform:scale(5)}}@-webkit-keyframes wave-300{0%{transform:translateX(-300px)}50%{transform:translateX(0)}to{transform:translateX(300px)}}@-webkit-keyframes wave-265{0%{transform:translateX(-265px)}50%{transform:translateX(0)}to{transform:translateX(265px)}}@-webkit-keyframes wave-180{0%{transform:translateX(-180px)}50%{transform:translateX(0)}to{transform:translateX(180px)}}@-webkit-keyframes wave-125{0%{transform:translateX(-125px)}50%{transform:translateX(0)}to{transform:translateX(125px)}}@-webkit-keyframes supplier-1-slide-in{0%{opacity:0;transform:translateX(24px)}12%,99%{opacity:1;transform:translateX(0)}to{opacity:0}}@-webkit-keyframes supplier-2-slide-in{0%,12%{opacity:0;transform:translateX(24px)}24%,99%{opacity:1;transform:translateX(0)}to{opacity:0}}@-webkit-keyframes supplier-3-slide-in{0%,24%{opacity:0;transform:translateX(24px)}36%,99%{opacity:1;transform:translateX(0)}to{opacity:0}}@-webkit-keyframes supplier-4-slide-in{0%,36%{opacity:0;transform:translateX(24px)}48%,99%{opacity:1;transform:translateX(0)}to{opacity:0}}@-webkit-keyframes supplier-5-slide-in{0%,48%{opacity:0;transform:translateX(24px)}60%,99%{opacity:1;transform:translateX(0)}to{opacity:0}}@-webkit-keyframes supplier-6-slide-in{0%,60%{opacity:0;transform:translateX(24px)}72%,99%{opacity:1;transform:translateX(0)}to{opacity:0}}@-webkit-keyframes prev{0%{transform:translate3d(0,0,0)}to{transform:translate3d(0,-3px,0)}}@-webkit-keyframes active{0%{transform:translate3d(0,3px,0)}to{transform:translate3d(0,0,0)}}@-webkit-keyframes pin-red-drop{0%{bottom:200%}66%{bottom:50%;transform:scale(.8) rotate(10deg)}to{bottom:57%;transform:scale(1) rotate(10deg)}}@-webkit-keyframes pin-blue-drop-1{0%{bottom:200%}66%{bottom:41%;transform:scaleY(.8)}to{bottom:48%;transform:scale(1)}}@-webkit-keyframes pin-blue-drop-2{0%{bottom:200%}66%{bottom:52%;transform:scaleY(.8)}to{bottom:59%;transform:scale(1)}}@-webkit-keyframes pin-blue-drop-3{0%{bottom:200%}66%{bottom:37%;transform:scaleY(.8)}to{bottom:44%;transform:scale(1)}}@-webkit-keyframes pin-blue-drop-4{0%{bottom:200%}66%{bottom:52%;transform:scaleY(.8)}to{bottom:59%;transform:scale(1)}}*{box-sizing:border-box}figure,header,nav{display:block}img{border:0;vertical-align:middle}hr{box-sizing:content-box;height:0;border-image:initial;border-left:0;border-right:0;border-top:1px solid #eee}button,input{font:inherit;margin:0}button{overflow:visible;text-transform:none;-webkit-appearance:button}html{font-size:62.5%;text-size-adjust:100%;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+    body,dd{line-height:1.42857}button,input{font-family:inherit}a{color:#0283df;cursor:pointer;text-decoration:none}body,figure{margin:0}h4{line-height:1.1}p{margin:0 0 9px}ol,ul{margin-top:0;list-style:none;outline:0;padding:0}ol{margin-bottom:9px;list-style-type:none}dd{margin-left:0}ol ol,ol ul{margin-bottom:0}ol>li{border-bottom:none}[hidden]{display:none}.btn,.form-control{background-image:none}.form-control{height:40px;font-size:14px;background-color:#fff;padding:6px 12px;line-height:1.42857}.btn{margin-bottom:0;text-align:center;vertical-align:middle;touch-action:manipulation;cursor:pointer;white-space:nowrap;user-select:none;display:inline-block;line-height:1.4;font-weight:700;border-radius:3px;outline:0;border:0}.btn-primary{color:#fff;background-color:#0283df}.media-object{display:block}.modal{display:none}.pull-right{float:right}.hide{display:none}.flag{background-image:url(https://cdn6.agoda.net/images/desktop/bg-sprite-flags.png);background-repeat-x:no-repeat;background-repeat-y:no-repeat;display:inline-block;line-height:0;font-size:0;speak:none}.flag-18{width:24px;height:18px;vertical-align:text-top}.flag-18-us{background-position-x:-240px;background-position-y:-460px}.ficon-12{font-size:12px}.ficon-14{font-size:14px}.ficon-20{font-size:20px}.ficon{font-family:icons;vertical-align:middle;line-height:1;font-style:normal;speak:none;text-transform:none;-webkit-font-smoothing:antialiased;margin-bottom:3px;font-weight:400;display:inline-block;text-decoration:inherit}.oneline-searchbox-container{background-color:#515b62}.hotel-item-box{display:block;width:100%;height:100%;position:relative}.hotel-info{width:100%}.room-rate{text-align:right}.hotel-price-container{width:100%}.ssr-search-result-item{position:relative;display:block;min-height:220px;color:#000;padding:10px 5px}.filter-items{position:relative;padding-bottom:20px;overflow:hidden}.filter-menu{color:#333;cursor:text;font-size:1.4rem;font-weight:700;padding:18px 10px 7px 0}.filter-item-react{font-size:1.2rem;cursor:pointer;color:#5a5b5b;padding-top:4px;padding-bottom:3px;margin-top:1px;overflow:hidden}.filter-item-info{position:relative;padding-left:26px;line-height:1.8;cursor:pointer}.showMapBtns{top:0;right:0;color:#0283df;font-weight:700;text-align:center;display:block;white-space:nowrap;font-size:1.4rem}.map-legend-position-container{display:none}.container-agoda{margin-right:auto;margin-left:auto;padding-left:20px;padding-right:20px;clear:both}.navbar-menu{list-style-type:none;float:right;height:60px}.navbar-menu-item{display:block}.ssr-breadcrum{margin-left:0;margin-right:0}@media screen and (max-width:1100px){.ssr-container{width:100%;min-width:0}}.loading-panel{display:block}.container-agoda{width:980px}@media screen and (min-width:1175px){.container-agoda{width:1140px}}.form-control{color:#666;text-align:left}.language-menu-item,.main-header{position:relative}.main-header{height:60px;color:#666}.navbar-menu{display:block;text-align:center;line-height:normal;position:relative;margin:0;padding:0}.menu-saparator-right{position:relative;margin-right:21px}.l-col-3{width:25%}.l-col-4{width:33.3333%}.l-col-8{width:66.6667%}.l-col-9{width:75%}.l-col-12{width:100%}.ReviewScore{position:relative;text-align:center;vertical-align:middle}.SearchBoxTextDescription{color:#333;font-size:14px;padding:5px 0}.SearchBoxTextDescription__desc,.SearchBoxTextDescription__title{text-overflow:ellipsis}.SearchBoxTextDescription__title{white-space:nowrap;font-weight:600;overflow:hidden}.SearchBoxTextDescription__desc{line-height:1.25;color:#999}.SearchBoxTextDescription__child{position:absolute}.IconBox{display:inline-block;vertical-align:top;position:relative;background-color:#fff;cursor:pointer;box-shadow:rgba(0,0,0,.07) 0 4px 10px 0;margin:0 5px 0 0}.IconBox__child{display:inline-block;width:calc(100% - 60px)}.IconBox__icon{display:inline-block;vertical-align:middle;margin-bottom:0;padding:13px}.IconBox__wrapper{position:relative}.IconBox--checkIn{margin-right:0}.Searchbox{width:100%}.Searchbox__searchButton{position:relative;width:130px;background-color:#488bf8;font-size:14px;color:#fff;text-transform:uppercase;box-shadow:rgba(0,0,0,.2) 0 4px 10px 3px;cursor:pointer;border:0;border-radius:3px;overflow:hidden;padding:10px 0}@media screen and (max-width:1100px){.Searchbox__searchButton{width:100px;padding:10px 0}}.Searchbox__searchButton__text{font-weight:400}.Searchbox__searchButton--active{z-index:0}.Searchbox__searchButton--active>*,.Searchbox__wrapper,.rc-slider{position:relative}.rc-slider{height:14px;touch-action:none;border-radius:6px;padding:5px 0}.rc-slider,.rc-slider *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}.rc-slider-rail,.rc-slider-track{position:absolute;border-radius:6px}.rc-slider-rail{width:100%;background-color:#e9e9e9}.rc-slider-track{left:0}.rc-slider-handle{position:absolute;margin-left:-7px;margin-top:-5px;cursor:-webkit-grab;background-color:#fff;touch-action:pan-x;border-radius:50%}.rc-slider-step{position:absolute;width:100%;height:4px;background:0 0}.rc-slider{margin-left:7px;width:92%}.rc-slider-handle{width:20px;height:20px;border:1px solid #53b7ff}.rc-slider-track{background-color:#0283df}.rc-slider-rail,.rc-slider-track{height:2.5px;top:8px}.rc-slider-dot{display:none}.range-slider-label{display:inline-block}.histogram-bar{display:inline-block;background-color:#e0ecff}.filter-box{position:relative}.filteritem-prefix{font-weight:700;margin-right:10px;color:#333}.SearchBoxContainer{position:relative;margin:0 auto}@media screen and (max-width:1100px){.SearchBoxContainer{width:940px}}.FlightsFrameContainer--hidden,.filter-item-info input{display:none}.SearchBoxContainer--compact{min-height:70px}.oneline-searchbox{display:block;position:relative;font-size:0}.availability-message__text p,.oneline-searchbox-container{margin-bottom:0}.property-info-container{min-height:70px}.hotel-review-container{top:0}.discount-ribbon{position:relative;color:#fff;float:right;text-align:center;line-height:1;right:-2px;font-weight:700;border-radius:2px;margin:0;padding:5px 16px}.ssr-search-result-item{padding-top:7px;padding-bottom:7px}.bg-red{background-color:#ee595d}.star-orange{color:#ffa726}.info-icon{cursor:pointer;margin-bottom:0}.staticMapPanel{position:relative;width:100%;height:100%;min-height:80px;border-radius:3px;padding:0}.captionOverImage{position:absolute;display:block;bottom:10%;left:0;right:0;font-size:1.6rem;font-weight:700;color:#3c3c3c;text-transform:uppercase}.staticMapPanel{transition:box-shadow,.2s,ease-in-out}.ssr-placeholder{position:fixed;left:0;right:0;bottom:0;z-index:200;background:#fff;transition:opacity .3s ease-in-out}.ssr-placeholder-transparent{background:rgba(0,0,0,0);}.top-filter-placeholder{margin-left:-1px;margin-right:-1px;height:133px;position:relative;font-size:0;border:1px solid #dcdbdc}.top-filter-placeholder__cell{box-sizing:border-box;width:25%;height:100%;display:inline-block;vertical-align:top;padding:10px 15px 8px;border-left:1px solid #dcdbdc}.map-placeholder__higher{width:100%;height:105px;background-color:#e9ebee}.map-placeholder{width:100%;height:105px;background-color:#e9ebee}.placeholder-title-header{width:103px;height:12px;background-color:#e9ebee;margin-bottom:12px}.placeholder-title-header--sidebar{margin-bottom:22px}.list-filter-placeholder__checkbox{width:16px;height:16px;background-color:#fff;display:inline-block;vertical-align:top;border:1px solid #e8e8e8;border-radius:2px}.list-filter-placeholder__title{width:64px;height:12px;background-color:#e9ebee;display:inline-block;vertical-align:top;margin-left:8px;margin-top:2px}.list-filter-placeholder__row{margin-bottom:7px}.list-filter-placeholder--sidebar{border-bottom:1px solid #e8e8e8;padding:20px 0 17px}.histogram-placeholder{height:50px;margin-top:40px;border-bottom:2px solid #4d8ef8}.histogram-placeholder__bar{width:4%;background-color:#e0ecff;display:inline-block;vertical-align:bottom}.text-filter-placeholder{margin-top:-3px;height:40px;width:240px;border:1px solid #e8e8e8}@media (max-width:1024px){.text-filter-placeholder{width:200px}}.property-list-placeholder{margin-top:24px}.property-list-placeholder__item{margin-bottom:15px;display:inline-block;width:100%;height:100%;clear:both;border:1px solid #ddd}.box{position:relative;background:#e9ebee;overflow:hidden}.box__full{width:100%;height:229px}.box__fixed{height:15px;margin:0 0 13px}.box__fixed--300{width:300px}.box__fixed--180{width:180px}.box__fixed--125{width:125px}.placeholder-text__title{font-weight:600;color:#737373}.placeholder__animation-container{display:block;margin-top:10px}.placeholder__animation-container--supplier{width:100%}.placeholder__animation__supplier{margin-right:24px;display:inline-block;opacity:0}.placeholder__animation__supplier_agoda{max-width:75px}.orange-yellow{color:#f99e00}.cor-container-display{color:#646464;font-weight:700}.dropdown-wrapper{cursor:pointer}.sort-bar{width:100%;height:50px;display:table;margin-bottom:10px;background-color:#fff;border:1px solid #ddd}.sort-bar__toggle-label{line-height:12px}.sort-bar__description-wrapper{opacity:0}.sort-bar__toggle-description{position:absolute;top:0;left:0;display:block;text-transform:none;font-size:10px;line-height:10px;opacity:0;color:#777;transition:opacity .15s linear}.sort-bar__toggle-description--selected{opacity:1;color:#fff;background-color:#5392f9;transition:opacity .15s linear .15s}.sort-bar__divider{display:block;margin-top:0;height:50px;border-right:1px solid #ddd}.availability-message{width:100%;margin-bottom:15px;display:block;background-color:#fff3e0;position:relative;padding:10px 10px 10px 34px}.availability-message__text{display:inline-block;word-wrap:normal;float:none;width:calc(100% - 150px);vertical-align:middle;padding:0}.availability-message__gauge{vertical-align:middle;display:inline-block;padding:0 25px}.half-gauge{position:relative;width:100px;height:50px;overflow:hidden}.half-gauge-container{position:relative;width:100px;margin:auto}.half-gauge__label{display:block;position:absolute;top:auto;bottom:0;width:100%;font-size:20px;line-height:15px;color:#f99e00;text-align:center;z-index:1}.half-gauge__range{width:100px;height:50px;display:block;z-index:1;background-color:#ccc;border-radius:100px 100px 0 0}.half-gauge__level{position:absolute;z-index:0;width:100px;height:50px;background-color:#f99e00;transform-origin:center top 0;will-change:transform;border-radius:0 0 100px 100px}.filter-menu{overflow:hidden}.list-filter__dots-wrapper{position:absolute;bottom:0;left:1px;right:1px;height:28px;text-align:center;background:#fff;transition:all .15s linear}.list-filter__dots{margin:auto}.list-filter__dot{vertical-align:middle;width:4px;height:4px;background-color:#999;display:inline-block;cursor:pointer;border-radius:50%;margin:0 1px}.filter-list ul,.list-filter__items{list-style-type:none;margin:0;padding:3px}.property-name-text-editor{border-radius:0}.filters-list{position:relative}.filters-wrapper--horizontal{height:133px;z-index:110;position:relative}.filters-container{margin-bottom:30px}.filters-container--horizontal{margin-top:-1px;position:absolute;right:-1px;left:-1px}.filter-box{margin-bottom:2px;border-bottom:none;border-top:1px solid #e8e8e8}.filter-box--horizontal{display:inline-block;vertical-align:top;margin-bottom:-1px;margin-right:-1px;max-height:133px;min-height:133px;width:calc(25% + 1px);background:#fff;border-bottom:1px solid #dcdbdc;border-image:initial;border-left:1px solid #dcdbdc;border-right:1px solid #dcdbdc;overflow:hidden;padding:0 15px 8px;border-top:none}.sticky-filters{width:278px;top:85px;padding:0 12px 0 0}.sticky-filters__btn{font-size:14px;width:100%;text-align:center;max-width:none;white-space:normal;padding:10px}@media (max-width:1099px){.sticky-filters{width:238px}}.sticky-box{position:fixed}.pill-container{position:relative;height:19px;max-width:100%;padding-right:0;font-weight:700;font-size:1.1rem;display:inline-block;zoom:1;background-color:#fff;overflow:hidden;white-space:nowrap}.pill-item{display:inline-block;zoom:1;vertical-align:top;border-right:none;padding:0 5px;border-left:1px solid #eee}.pill-item--teaser{font-size:12px;line-height:19px;padding:0 8px 0 5px}.pill-item__icon{font-size:1.2rem;vertical-align:baseline}.pill-item__text{display:inline-block;text-overflow:ellipsis;vertical-align:top;overflow:hidden}.starAreaLine{line-height:100%;margin-bottom:8px}.ItemScroller{position:relative;overflow:hidden}.ItemScroller__item{position:absolute;opacity:0;visibility:hidden;transition:visibility 200ms,opacity 200ms}.ItemScroller__item--active{opacity:1;visibility:visible;animation:active 200ms}.ItemScroller__item--prev{animation:prev 200ms}.supplier-info-container{clear:both;padding-right:13px}.ReviewSection{padding-top:8px;text-align:right}.ReviewSection-item{display:inline-block;vertical-align:top;text-align:right;max-width:100px}.ReviewSection-scoreText{font-weight:600;font-size:12px;color:#333;word-wrap:break-word}.ReviewSection-count{font-weight:600;font-size:12px;color:#777}.ReviewSection-score{margin-left:5px}.property-card-content{border:1px solid #ddd;transition:box-shadow .2s ease-in-out}.ssr-search-result{clear:both}.animateMapWrapper,.form-group dd{position:relative}.static-map-pin-blue{position:absolute}.static-map-pin-red{position:absolute;bottom:57%;left:47%;transform:rotate(10deg)}.static-map-paper{width:100%;height:100%;border-radius:3px}.flatFilter-container{margin-bottom:10px}.flatFilter__label{color:#666;font-size:1.3rem;font-weight:700;display:inline-block;margin:0 2px 0 0}.flatFilter__list{display:inline-block;list-style-type:none;margin:0}.flatFilter__item{cursor:pointer;display:inline-block;font-size:1.2rem;font-weight:600;color:#666;border-right:1px solid #666;list-style:none;padding:0 10px;text-decoration:none}.flatFilter__item__preText{margin-left:7px;font-weight:700}.row::after,.row::before{content:" ";display:table}.row::after{clear:both}.navbar-header::after,.navbar-header::before{content:" ";display:table}.navbar-header::after{clear:both}.clearfix::after,.clearfix::before{content:" ";display:table}.clearfix::after{clear:both}header.navbar-agoda{margin:0 auto}.room-rate .price-container .price,.ssr-search-result-item h3{font-weight:700}.filter-list ul{margin:0 0 22px;padding:0}.filter-items ul,.sort-bar>a i{padding-left:0}.filter-menu i{font-size:1.2rem}.property-name input{display:inline;width:100%}.navbar-menu-item a,.oneline-searchbox>dl{position:relative;display:inline-block}.navbar-menu-item>a{display:block}@media (min-width:1100px){body .container-agoda{width:1100px;padding:0}}@media (max-width:1024px){body .container-agoda{width:940px;padding:0}}li.navbar-menu-item{float:left;width:auto;list-style:none;border:0}.menu-saparator-right::after{height:40px;top:10px;content:" ";position:absolute;z-index:1;border-right:1px solid #eee;right:-12px}.l-row::after,.l-row::before{content:" ";display:table}.l-row::after{clear:both}.ReviewScore i{position:inherit;color:#488bf8;font-weight:500;line-height:44px;margin-left:0}.ReviewScore span{position:absolute;color:#fff;right:0;left:0;font-weight:600;line-height:44px}.IconBox--checkOut::before{position:absolute;top:0;width:5px;height:100%;background:#fff}.IconBox--checkOut::after{position:absolute;top:10px;bottom:10px;border-right:1px solid #ccc}.Searchbox__searchButton--active::before{content:"";position:absolute;top:50%;left:50%;width:5%;padding-top:5%;transform:translate(-50%,-50%) scale(0);opacity:0;background:#84b5fe;border-radius:50%;transition:transform .3s ease-out,opacity .3s ease-out,-webkit-transform .3s ease-out}.range-slider-label span,.sort-bar>a{font-size:1.2rem;color:#5a5b5b;font-weight:600}.filteritem-prefix i{font-weight:400;font-size:1.3rem}.oneline-searchbox>dl{vertical-align:top;font-weight:400;padding:0}.box::after{content:" ";display:block;position:absolute;top:0;bottom:0;width:100%;height:100%;transform:translateX(0);background:#dddfe2}.box__full::after{animation:wave-265 1.5s ease-in-out infinite}.box__fixed--300::after{animation:wave-300 1.5s ease-in-out infinite}.box__fixed--180::after{animation:wave-180 1.5s ease-in-out infinite}.box__fixed--125::after{animation:wave-125 1.5s ease-in-out infinite}.sort-bar>a{position:relative;display:table-cell;vertical-align:middle;font-weight:700;text-align:left;color:#777;text-transform:uppercase;padding:0 10px}.sort-bar_col-5>a{width:18%}.sort-bar__toggle-link i{opacity:0;transition:opacity .15s linear}.availability-message__text span{color:#f99e00;font-weight:700}.half-gauge__range::after{position:absolute;top:6px;left:6px;z-index:1;width:88px;height:62px;content:"";background-color:#fff3e0;border-radius:100px 100px 0 0}.list-filter__dots-wrapper::before{content:"";display:inline-block;vertical-align:middle;height:100%}.urgency-messaging-container::after{content:"";display:table;clear:both}.ReviewSection-score i{font-size:54px}.ReviewSection-score span{font-size:20px;margin-left:2px}.ficon-aps-lock::before{content:"\f126"}.ficon-arrow-big-down::before{content:"\f128"}.ficon-book-now-pay-later::before{content:"\f14f"}.ficon-breakfast::before{content:"\f158"}.ficon-check-in::before{content:"\f183"}.ficon-check-out::before{content:"\f184"}.ficon-free-cancellation::before{content:"\f232"}.ficon-high-to-low::before{content:"\f258"}.ficon-human-large::before{content:"\f26a"}.ficon-icon-arrow-down::before{content:"\f26e"}.ficon-info-with-circle::before{content:"\f279"}.ficon-low-to-high::before{content:"\f2a7"}.ficon-metro-subway-station::before{content:"\f2c1"}.ficon-pay-at-the-place::before{content:"\f2ff"}.ficon-pin-star::before{content:"\f321"}.ficon-review-icon::before{content:"\f356"}.ficon-search-box::before{content:"\f370"}.ficon-star-1::before{content:"\f3d9"}.ficon-star-2::before{content:"\f3db"}.ficon-star-3::before{content:"\f3dd"}.ficon-star-35::before{content:"\f3de"}.ficon-star-4::before{content:"\f3df"}.ficon-star-5::before{content:"\f3e1"}.ficon-thin-arrow-down::before{content:"\f3f5"}.ficon-thin-arrow-left::before{content:"\f3f6"}.ficon-train-station::before{content:"\f416"}.ficon-travelers::before{content:"\f41d"}.navbar-menu-item a::before{right:37%}.navbar-menu-item a::after{right:38%}.navbar-menu-item>a::after,.navbar-menu-item>a::before{content:" ";display:table}.navbar-menu-item>a::after{clear:both}.sort-bar>a i{font-size:1rem;width:10px;height:10px;margin-right:3px;color:#777}.hotel-item-box .hotel-price-promo-container{position:absolute;right:0;height:100%;min-height:200px;background:#f8f8f9}.hotel-item-box>.media-box{position:absolute;left:0}.room-rate .price-container{zoom:1;padding-left:5px}.ssr-search-result-item .hotel-info{line-height:1.8}.ssr-search-result-item .hotel-name{line-height:1}.filter-item-info .checkbox-icon{width:16px;height:16px;text-align:center;line-height:1;position:absolute;top:3px;left:0;background:#fff;border:1px solid #e8e8e8;border-radius:2px}.CAPTCHA-CSS .captcha-error,.CAPTCHA-CSS .captcha-feedback-warning,.CAPTCHA-CSS .captcha-loading{display:none}.navbar-menu-item.sign-in-up{min-width:130px}.main-header .logo{float:left}.main-header .logo-with-header-links{margin:0 21px 0 0;padding:11px 10px 0 0}.navbar-header .header-links-container{display:inline-block;position:relative;margin:0}.SearchBoxTextDescription--searchText .SearchBoxTextDescription__desc{color:#488bf8}.filter-item-react .filter-item-info{display:block}.filter-item-react .filteritem-prefix{min-width:44px;text-align:left}.Searchbox--horizontal .IconBox--autocomplete{width:361px}@media screen and (max-width:1100px){.Searchbox--horizontal .IconBox--autocomplete{width:270px}}.Searchbox--horizontal .IconBox--occupancy{width:240px}@media screen and (max-width:1100px){.Searchbox--horizontal .IconBox--occupancy{width:200px}}.SearchBoxContainer--compact:not(.SearchBoxContainer--sticky){width:100%}.SearchBoxContainer--compact .IconBox--autocomplete,.SearchBoxContainer--compact .IconBox--checkIn,.SearchBoxContainer--compact .IconBox--checkOut,.SearchBoxContainer--compact .IconBox--occupancy{height:48px;padding:0 5px}.SearchBoxContainer--compact .IconBox--checkIn,.SearchBoxContainer--compact .IconBox--checkOut{width:177px}.SearchBoxContainer--compact .IconBox--checkIn,.oneline-searchbox-compact.oneline-searchbox .dates.dates.checkin{border-right:1px solid #999}.SearchBoxContainer--compact .SearchBoxTextDescription__child{top:14px}.SearchBoxContainer--compact .SearchBoxTextDescription--checkIn,.SearchBoxContainer--compact .SearchBoxTextDescription--checkOut{width:115px}.SearchBoxContainer--compact .Searchbox{max-height:70px;top:0;left:0;background-color:#20274d;animation:none;padding:11px 0}.SearchBoxContainer--compact .Searchbox__searchButton,.oneline-searchbox-compact.oneline-searchbox .actions button{height:48px}.SearchBoxContainer--compact .Searchbox__wrapper{width:1100px;margin:0 auto}@media screen and (max-width:1100px){.SearchBoxContainer--compact .Searchbox__wrapper{width:940px}}.oneline-searchbox .oneline-search-button{background-color:#488bf8;font-weight:700;position:relative;box-shadow:rgba(0,0,0,.2) 0 4px 10px 3px;overflow:hidden;padding:0}.oneline-searchbox .dates,.oneline-searchbox .occupancy,.oneline-searchbox .search{display:table;height:48px;background-color:#fff;font-size:13px;cursor:pointer;border:0}.oneline-searchbox .search{width:360px}@media screen and (max-width:1100px){.oneline-searchbox .search{width:270px}}.oneline-searchbox .occupancy{width:240px}@media screen and (max-width:1100px){.oneline-searchbox .occupancy{width:200px}}.property-info-container .hotel-name{zoom:1;font-size:1.6rem;display:inline;color:#3c3c3c;padding:0;text-decoration:none}.property-info-container .areacity-name{font-size:1.2rem;color:#0283df;font-weight:700}.property-info-container .star-rating{margin-right:3px}.hotel-review-container .property-review-container{text-align:right;padding-right:1px;color:#0283df}.hotel-review-container .review-score-container{font-size:1.6rem;font-weight:700}.hotel-review-container .review-item{padding:0 2px}.hotel-review-container .review-score-label{padding-right:3px;word-wrap:break-word;line-height:.8;display:inline;position:initial;top:initial;left:initial;width:initial;text-align:initial;color:inherit;font-size:inherit;font-weight:inherit}.hotel-price-promo-container .hotel-price-container{position:absolute;top:auto;bottom:10px;right:-4px;text-align:right}.hotel-price-promo-container .room-rate{clear:both;padding:5px 13px 0 5px}.LOGIN-CSS .facebook-login .link-account #link-account-ask-email-content.popup-login .respond-warning,.LOGIN-CSS .facebook-login .link-account #link-account-ask-name-content.popup-login .respond-warning,.hotel-price-promo-container .price-container,.hotel-price-promo-container .rpn-container{display:block}.hotel-price-promo-container .per-night-begins-with{font-size:1rem;color:#a0a0a0}#reviewscoreFilterList .filteritem-prefix,.hotel-list-container .ficon{margin-right:3px}.ssr-search-result .hotel-item-box{padding:0 180px 0 246px}.ssr-search-result-item .hotel-item-box{background-color:#f7f7f7;min-height:264px;transition:box-shadow .2s ease-in-out} .ssr-placeholder{top:60px}.top-filter-placeholder__cell:first-child{border-left:none}.list-filter-placeholder--sidebar .list-filter-placeholder__checkbox{margin:0}.list-filter-placeholder--sidebar .list-filter-placeholder__row{margin-left:3px;margin-bottom:11px}.box__fixed:first-child{margin-top:17px} .placeholder-text__title{font-size:18px}.placeholder__animation__supplier:nth-child(1){animation:supplier-1-slide-in 2s linear infinite}.placeholder__animation__supplier:nth-child(2){animation:supplier-2-slide-in 2s linear infinite}.placeholder__animation__supplier:nth-child(3){animation:supplier-3-slide-in 2s linear infinite}.placeholder__animation__supplier:nth-child(4){animation:supplier-4-slide-in 2s linear infinite}.placeholder__animation__supplier:nth-child(5){animation:supplier-5-slide-in 2s linear infinite}.placeholder__animation__supplier:nth-child(6){animation:supplier-6-slide-in 2s linear infinite}.hotel-item-box .property-review-container{padding-top:3px}.cor-container-display .crossout-line{color:#646464}.property-name-text-editor:not(:focus){border:1px solid #ccc}#searchPageLeftColumn .filter-list.filter-list-react ul,.filters-container--horizontal .filters-list{margin-bottom:0}.filter-box--horizontal:first-child{margin-left:-1px;width:calc(25% + 2px)}.filter-box--horizontal:last-child{margin-right:-1px}.filter-box--horizontal.text-filter{overflow:visible}.filter-box--horizontal .filter-menu{padding-top:6px;padding-right:0}.filter-box--horizontal .property-name{padding-top:0}.filter-box--horizontal .filter-items{padding-bottom:0}.filter-box--horizontal .filter-options{display:none}.filter-box--horizontal .filter-item-react{padding-top:0;padding-bottom:2px;margin-top:0}.filter-box--hoverable+.filter-box{border-left:1px solid #dcdbdc}.filter-box--horizontal.filter-box--hoverable{will-change:max-height;z-index:1;transition:all .15s linear}.filter-box:last-child{border-bottom:1px solid #e8e8e8}.sticky-filters .showMapBtns{margin-bottom:12px}.property-info-container .hotel-name{margin:0 10px 0 0}.pill-item.pill-item--label{position:relative;padding-left:8px;border-bottom-left-radius:2px;border-top-left-radius:2px;color:#fff;margin-right:0;border-left:none}.pill-item:nth-child(2){padding-left:8px;border-left:none}.pill-item:last-child{padding-right:8px;border-bottom-right-radius:2px;border-top-right-radius:2px}.pill-container.pill-green{color:#63c355}.pill-container.pill-orange{color:#f57c00}.urgency-messaging-container .people-looking{color:#ee595d;display:block}.urgency-messaging-container .ItemScroller{height:24px}.urgency-messaging-container .ItemScroller__item{width:365px;font-size:14px;text-overflow:ellipsis;white-space:nowrap;color:#555;overflow:hidden}@media screen and (max-width:1100px){.urgency-messaging-container .ItemScroller__item{width:240px}}.aps-peek-box .aps-peek-content{display:inline-block;background-color:#eee;border:.5px solid #ccc;border-radius:3px;padding:0 6px}.supplier-info-container .supplier-info{font-size:1rem;color:#a0a0a0}.hotel-price-container.reduced-line-height{line-height:1.7rem}.property-card .property-card-image{min-width:264px;min-height:194px}.property-card .thumbnail-item{float:left;width:82px;height:67px;border-right:3px solid #fff;overflow:hidden}.property-card .thumbnail-item-list{padding-top:3px}.ssr-search-result-item .property-card-content{box-shadow:rgba(0,0,0,.12) 0 2px 2px 0}.static-map-pin-blue.pin-blue-1{bottom:48%;left:27%}.static-map-pin-blue.pin-blue-2{bottom:59%;left:43%}.static-map-pin-blue.pin-blue-3{bottom:44%;left:53%}.static-map-pin-blue.pin-blue-4{bottom:59%;left:62%}.staticMapPanel .staticMapContainer{margin:0}.animateMapWrapper:not(.animated){overflow:hidden}.flatFilter__item:last-child{border-right:none}.main-header .logo img{width:89px;height:37px}li.navbar-menu-item.sign-in-up{padding-left:10px}html[dir=ltr] .l-row{margin-left:-16px}html[dir=ltr] [class*=l-col-]{float:left;padding-left:16px}html[dir=ltr] .SearchBoxTextDescription__child{right:15px}li.filter-box .range-slider-label{margin:0 8px 10px 2px}li.filter-box .rc-slider{margin-top:-8px}.SearchBoxContainer--compact .IconBox--checkOut::after,.SearchBoxContainer--compact .IconBox--checkOut::before,.SearchBoxContainer--compact .SearchBoxTextDescription--checkOut::after,.oneline-searchbox-compact.oneline-searchbox .dates.dates.checkin::after,.oneline-searchbox-compact.oneline-searchbox .dates.dates.checkout::after{content:none}.oneline-searchbox .oneline-search-button::before{content:"";position:absolute;transform:scale(0);height:30px;width:30px;top:0;left:0;bottom:0;right:0;opacity:0;background:#84b5fe;border-radius:100%;margin:auto;transition:transform .1s ease-out,opacity .1s ease-out,-webkit-transform .1s ease-out}.oneline-searchbox .dates i,.oneline-searchbox .occupancy i,.oneline-searchbox .search i{display:table-cell;padding:13px;font-weight:400}.oneline-searchbox .actions button{width:130px}@media screen and (max-width:1100px){.oneline-searchbox .actions button{width:100px}}.hotel-price-promo-container .rpn-container span{display:inline}body .ssr-container{margin-top:0}.sort-bar>a .icon-wrapper{position:absolute;top:17px;right:6px}.sort-bar>a.dropdown-wrapper{padding-right:20px}.sort-bar>a.selected{color:#fff;background-color:#5392f9}.sort-bar>a.sort-bar__header{width:10%;background-color:#f7f7f7;border-right:1px solid #ddd;padding:0 12px}@media (max-width:1024px) and (min-width:768px){.sort-bar_col-5>a.sort-bar__header{width:8%}.sort-bar_col-5>a:nth-child(2){width:10%}.sort-bar_col-5>a:nth-child(4){width:19%}.sort-bar_col-5>a:nth-child(6){width:21%}.sort-bar_col-5>a:nth-child(8){width:26%}.sort-bar_col-5>a:last-child{width:16%}}.sort-bar__toggle-link i:nth-child(1){color:#777}.sort-bar__toggle-link i:nth-child(2){color:#488bf8}.availability-message__percent span.book-percent-number{display:block;font-weight:700;line-height:20px;font-size:24px}.availability-message__percent span.book-percent-text{line-height:10px;font-size:10px;display:block}html[dir=ltr] .half-gauge__level--percentage-60{transform:rotate(108deg)}html[dir=ltr] .ficon-info-with-circle{margin-left:5px}.filter-box--horizontal .filter-items>ul{padding-top:0;padding-left:0}.pill-item.pill-item--label::after{position:absolute;top:0;right:-6px;width:0;height:0;content:"";border-right:6px solid transparent}a.staticMapPanel.showMapBtns{border:1px solid #d6d6d6}li.navbar-menu-item a.anchor{font-size:13px;font-weight:700;line-height:60px;min-width:44px;zoom:1;cursor:pointer;color:rgba(0,0,0,.75);padding:0}html[dir=ltr] .IconBox--checkOut::before{left:-5px}html[dir=ltr] .IconBox--checkOut::after{left:0}.sort-bar>a:last-of-type span{border-right:none}.navbar-menu-item>.language .flag,.oneline-searchbox-container #oneline-searchbox.oneline-searchbox .form-group.no-space{margin-right:0}#cxl_hover,#signin-popup.LOGIN-CSS .modal-signin.modal-signin-favorite .modal-container-right-content.hide,.LOGIN-CSS .popup-login .feedback-warning,.LOGIN-CSS .popup-login .respond-warning{display:none}.navbar-header .header-links-container .underline-link{width:0;bottom:0;opacity:0;z-index:1;position:absolute;border-bottom:4px solid #488bf8;margin:0;transition:all .2s ease-in-out}.Searchbox .IconBox--autocomplete .IconBox__child,.Searchbox .IconBox--checkIn .IconBox__child,.Searchbox .IconBox--checkOut .IconBox__child,.Searchbox .IconBox--occupancy .IconBox__child{vertical-align:middle}.oneline-searchbox .dates.checkout{border-left:0}.oneline-searchbox .dates .date{display:table-cell;width:100%;height:100%}.oneline-searchbox-compact.oneline-searchbox .dates{width:177px;box-shadow:none;padding:0 5px}.oneline-searchbox-compact.oneline-searchbox .occupancy,.oneline-searchbox-compact.oneline-searchbox .search{box-shadow:none;padding:0 5px}.property-info-container .areacity-name .ficon-pin-star{margin-bottom:2px}.hotel-price-promo-container .hotel-price-container .currency,.hotel-price-promo-container .hotel-price-container .price{font-size:2.2rem}.hotel-price-promo-container .hotel-price-container .currency{font-weight:300}.hotel-price-promo-container .hotel-price-container .dark-gray2{color:#a0a0a0}.hotel-price-promo-container .hotel-price-container .soft-red{color:#ee595d}.ssr-search-result-item .hotel-item-box .hotel-info{background-color:#f7f7f7;position:relative;min-height:264px;padding:7px 15px}.hotel-list-container .hotel-item-box .hotel-price-promo-container{width:180px;background-color:#fff;padding:0 8px 8px}.cor-container-display .price.dark-gray-text{color:#646464}.filter-box:not(.filter-box--emphasized):first-child{border-top:none}.aps-peek-box .aps-peek-content .aps-peek-icon{display:inline-block;color:#ccc;font-weight:700;margin:0 6px 5px 0}.aps-peek-box .aps-peek-content .aps-peek-price{padding-top:2px;font-size:20px;display:inline-block;text-align:right;color:#ccc;font-weight:700}.property-card .property-card-image .showcase-image{background-image:url(https://cdn5.agoda.net/images/mvc/default/bg-picture.png);background-position-x:center;background-position-y:center;background-repeat-x:no-repeat;background-repeat-y:no-repeat;background-color:#d6d6d6}.property-card .property-card-image .thumbnail-showcase{position:relative;width:246px;height:194px;overflow:hidden}.property-card .thumbnail-item:last-of-type{border-right:none}.property-card .thumbnail-item .thumbnail-image{position:relative;width:100%;height:100%;background-size:cover;background-repeat-x:no-repeat;background-repeat-y:no-repeat;background-position-x:50%;background-position-y:50%;background-color:#d6d6d6}.ssr-search-result-item .property-card-content .hotel-item-box{border:0}.animateMapWrapper.animating .static-map-pin-red{animation-timing-function:cubic-bezier(.5,0,.7,1);animation-duration:.3s;animation-name:pin-red-drop}.animateMapWrapper.animating .pin-blue-1{animation-name:pin-blue-drop-1;animation-delay:.4s}.animateMapWrapper.animating .pin-blue-2{animation-name:pin-blue-drop-2;animation-delay:.5s}.animateMapWrapper.animating .pin-blue-3{animation-name:pin-blue-drop-3;animation-delay:.1s}.animateMapWrapper.animating .pin-blue-4{animation-name:pin-blue-drop-4;animation-delay:.2s}.navbar-header .header-links-container li.header-links{position:static;border:0}.navbar-header .header-links-container li.header-links-active{font-weight:700}li.navbar-menu-item.sign-in-up .signin-up-combined{line-height:normal;margin:0;padding:0}@media only screen and (max-width:768px){.main-header .logo img.secondary{display:none}}html[dir=ltr] .SearchBoxTextDescription--occupancy .SearchBoxTextDescription__title{padding-right:34px}.filteritem-prefix i.ficon.star-orange{margin-right:-5px}.filter-item-react .filteritem-prefix i.ficon.star-orange,html[dir=ltr] .SearchBoxContainer--compact .IconBox--autocomplete{margin-left:0}.oneline-searchbox .dates.checkin::after{top:0;height:100%;position:absolute;right:0;z-index:2;border-right:1px solid #ccc}.oneline-searchbox .dates.checkout::after{position:absolute;left:-5px;top:0;width:5px;height:100%;z-index:1;background:#fff}.availability-message__percent span.book-percent-number:first-child{margin-bottom:2px}.pill-container.pill-green li:first-child{background-color:#63c355}.pill-container.pill-orange li:first-child{background-color:#f57c00}.property-card .thumbnail-item .thumbnail-image::after{content:"";position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;background:#000}.animateMapWrapper.animating img[class*=pin-blue-]{animation-timing-function:cubic-bezier(.5,0,.7,1);animation-duration:.3s}.pill-container.pill-green li:first-child::after{border-top:20px solid #63c355}.pill-container.pill-orange li:first-child::after{border-top:20px solid #f57c00}.ssr-search-result-item .hotel-item-box .hotel-info .urgency-messaging-container{}.property-card .property-card-image .thumbnail-showcase .showcase-image{position:absolute;top:0;width:100%;height:auto;min-height:194px;transition:opacity .2s ease-in}li.navbar-menu-item.sign-in-up .signin-up-combined.clear-min-width{min-width:initial}li.navbar-menu-item.sign-in-up .signin-up-combined .hollow{color:#488bf8;width:auto}li.navbar-menu-item.sign-in-up .signin-up-combined .solid{width:auto;border:1px solid #488bf8} .navbar-header .header-links-container li.header-links a.header-links-text{color:rgba(0,0,0,.75);padding:0 10px}li.navbar-menu-item.sign-in-up .signin-up-combined.clear-min-width>a{min-width:initial}li.navbar-menu-item.sign-in-up .signin-up-combined a.signin-text{margin-right:10px;margin-left:0;line-height:60px;font-size:13px;font-weight:600;text-transform:uppercase;border:0;padding:0}li.navbar-menu-item.sign-in-up .signin-up-combined a.signup-text{margin-left:10px;line-height:1;font-size:13px;font-weight:700;color:#488bf8;text-transform:uppercase;z-index:0;background:#fff;overflow:hidden;padding:13px 7px;transition:background .2s ease-in}li.navbar-menu-item.sign-in-up .signin-up-combined a.signup-text::before{content:"";position:absolute;color:#488bf8;transform:scale(0);height:40px;width:40px;top:0;left:0;bottom:0;right:0;opacity:0;animation:unripple .3s ease-out reverse;background:#488bf8;border-radius:100%;margin:auto;transition:opacity .3s ease-in}li.navbar-menu-item.sign-in-up .signin-up-combined a.signup-text span{position:relative;transition:color .2s ease-in}.desktop.chrome .property-card .thumbnail-item .thumbnail-image{transform:rotate(.001deg);transition:all .3s ease-in-out}@media (max-width:1100px){#header-taxi-menu-item{display:none}}#PriceFilterRange,#joinedFilterList{position:relative}#joinedFilterList .filter-list{overflow:inherit}#filterNameList .filter-items{position:relative;padding-bottom:20px;overflow:inherit}#filterNameList .property-name-input-box{padding-right:5px;overflow:inherit}#transportationFilterList .filteritem-prefix i{margin-right:0;font-size:1.6rem}.oneline-searchbox-container #oneline-searchbox.oneline-searchbox{width:auto;height:auto;z-index:3;background:0 0;margin:0 auto;padding:11px 0}#searchPageLeftColumn .filter-list.filter-list-react,.oneline-searchbox-container #oneline-searchbox.oneline-searchbox>dl{margin:0}.oneline-searchbox-container #oneline-searchbox.oneline-searchbox .form-group{margin-bottom:0;margin-right:5px}.oneline-searchbox-container #oneline-searchbox.oneline-searchbox .oneline-search-button{font-size:14px;border-radius:3px}@media screen and (max-width:1100px),(-webkit-min-device-pixel-ratio:0){.oneline-searchbox-container #oneline-searchbox.oneline-searchbox .oneline-search-button{width:90px}}@media screen and (min-width:1100px){.oneline-searchbox-container #oneline-searchbox.oneline-searchbox .oneline-search-button{width:130px}}.oneline-searchbox-container #oneline-searchbox.oneline-searchbox>dl:last-of-type{margin-right:0}.oneline-searchbox-container #oneline-searchbox.oneline-searchbox>dl:first-of-type{margin-left:0}#searchPageReactRoot{min-height:100vh;}
+    .sticky-filters .showMapBtns{margin-bottom:unset}
+    .ficon{display:none}
+
+    /* Mobile Responsive Overrides */
     @media (max-width: 991.98px) {
-        .agoda-results-col {
+        body .container-agoda, .container-agoda {
             width: 100% !important;
-            flex: 0 0 100% !important;
             max-width: 100% !important;
+            padding-left: 10px !important;
+            padding-right: 10px !important;
         }
-    }
-    .agoda-property-card-root {
-        max-width: 790px !important;
-        margin-left: 0;
-        margin-right: auto;
-    }
-    @media (min-width: 768px) {
-        .agoda-property-card-root {
-            height: 234px !important;
-            min-height: 234px !important;
-            max-height: 234px !important;
+        #searchPageLeftColumn {
+            display: none !important;
         }
-        .agoda-property-card-root.agoda-first-featured-card {
-            height: 235px !important;
-            min-height: 235px !important;
-            max-height: 235px !important;
-            background: #eaf2fd !important;
-            border-color: #b9d5fb !important;
-        }
-        .agoda-card-blue-strip {
-            background: #1f4ba4 !important;
-            color: #ffffff !important;
-            font-size: 13.5px !important;
-            font-weight: 500 !important;
-            padding: 7px 14px !important;
+        #searchPageRightColumn {
             width: 100% !important;
-            display: flex !important;
-            align-items: center !important;
-            box-sizing: border-box !important;
-            line-height: 1.4 !important;
+            max-width: 100% !important;
+            float: none !important;
+            padding-left: 0 !important;
+            padding-right: 0 !important;
         }
-        .agoda-card-content-wrap {
-            height: 234px !important;
-            min-height: 234px !important;
-            max-height: 234px !important;
+        .main-column, .l-row {
+            margin-left: 0 !important;
+            margin-right: 0 !important;
+            width: 100% !important;
         }
-        .agoda-card-photo-col {
-            width: 236px !important;
-            min-width: 236px !important;
-            max-width: 236px !important;
-            height: 234px !important;
-            min-height: 234px !important;
-            max-height: 234px !important;
+        .Header__LogoAndLinks__Links,
+        .Header__Actions__ListYourPlace,
+        .Header__Actions__CreateAccount,
+        #page-header a[href*="register"],
+        #page-header button[data-element-name="header-list-your-place-button"] {
+            display: none !important;
         }
-        .agoda-card-info-col {
-            height: 234px !important;
-            min-height: 234px !important;
-            max-height: 234px !important;
-            padding: 9px 14px !important;
+        #page-header .Headerstyled__HeaderSection-sc-vtperc-0 {
+            padding: 0 10px !important;
         }
-        .agoda-card-price-col {
-            width: 195px !important;
-            min-width: 195px !important;
-            max-width: 195px !important;
-            height: 234px !important;
-            min-height: 234px !important;
-            max-height: 234px !important;
-            padding: 9px 14px 9px 10px !important;
+        #topbar,
+        #topbar .topbar-wrapper,
+        #topbar .Searchbox,
+        #topbar .SearchBoxContainer,
+        #topbar .SearchBoxContainer--compact,
+        #topbar .SearchBoxContainer--compact .Searchbox {
+            max-height: none !important;
+            height: auto !important;
+            min-height: auto !important;
+            padding-bottom: 12px !important;
         }
-    }
-    .agoda-sticky-sidebar::-webkit-scrollbar {
-        width: 4px;
-    }
-    .agoda-sticky-sidebar::-webkit-scrollbar-track {
-        background: #f1f5f9;
-        border-radius: 4px;
-    }
-    .agoda-sticky-sidebar::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-    }
-    .agoda-sticky-sidebar::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
-    }
-
-    /* Agoda-Exact Horizontal Shimmer Wave Animation (Right to Left sweep) */
-    @keyframes agodaShimmerWave {
-        0% {
-            background-position: 250% 0;
+        #topbar .SearchBoxContainer,
+        #topbar .Searchbox__wrapper {
+            width: 100% !important;
         }
-        100% {
-            background-position: -250% 0;
+        #topbar .abb64-flex-row {
+            flex-wrap: wrap !important;
+            gap: 6px !important;
         }
-    }
-    .agoda-shimmer {
-        background: linear-gradient(90deg, #f1f5f9 0%, #e2e8f0 30%, #ffffff 50%, #e2e8f0 70%, #f1f5f9 100%);
-        background-size: 250% 100%;
-        animation: agodaShimmerWave 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    }
-    .agoda-skeleton-card {
-        max-width: 790px !important;
-        margin-left: 0;
-        margin-right: auto;
-    }
-    @keyframes fadeInUpCard {
-        from {
-            opacity: 0;
-            transform: translateY(12px);
+        #topbar .IconBox--autocomplete {
+            width: 100% !important;
+            margin-right: 0 !important;
+            margin-bottom: 6px !important;
         }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+        #topbar .IconBox--checkIn {
+            width: calc(50% - 3px) !important;
+            margin-right: 0 !important;
+            margin-bottom: 6px !important;
+        }
+        #topbar .IconBox--checkOut {
+            width: calc(50% - 3px) !important;
+            margin-right: 0 !important;
+            margin-bottom: 6px !important;
+        }
+        #topbar .IconBox--occupancy {
+            width: 100% !important;
+            margin-right: 0 !important;
+            margin-bottom: 6px !important;
+        }
+        #topbar .abb64-inline-flex {
+            width: 100% !important;
+        }
+        #topbar button[data-selenium="searchButton"] {
+            width: 100% !important;
+        }
+        #sort-bar > div {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+        }
+        #sort-bar > div > div:last-child {
+            width: 100% !important;
+        }
+        .hotel-list-container {
+            padding-left: 0 !important;
+            margin-left: 0 !important;
+        }
+        #sideColumnInfo, .redirectToApp, #fullFunnelBannerTarget {
+            display: none !important;
         }
     }
 </style>
-<div style="max-width: 1120px; margin: 0 auto; padding: 22px 24px 48px 24px;">
-    <div class="row g-3">
+
+<style>.ssr-placeholder {top: 60px } .theme-citius .ssr-placeholder {top: 0} .ssr-placeholder--hidden {opacity: 0} .ssr-placeholder .oneline-searchbox-container {margin-bottom: 0 }</style>
+
+<style>.c-btn,.c-checkbox,.c-icon{display:inline-block}.c-btn{height:40px;padding:0 40px;border:1px solid transparent;border-radius:3px;font-size:14px;font-weight:700;line-height:38px;vertical-align:middle;outline:0;white-space:nowrap;user-select:none;text-align:center;text-decoration:none;transition:all .3s ease}.hidden{display:none!important;visibility:hidden!important}.LogoAndLinksMenu__LogoContainer{display:inline-block;position:relative;line-height:60px}.LogoAndLinksMenu__AgodaLink{display:inline-block}.LogoAndLinksMenu__AgodaLogo{width:89px;height:37px}.LogoAndLinksMenu__AgodaSecondaryLogo{display:none}.LinkContainer,.LinkContainer__Link,.LogoAndLinksMenu__AgodaSecondaryLogo--loaded{display:inline-block}html[dir=ltr] .LogoAndLinksMenu__AgodaSecondaryLogo{margin-left:13px}html[dir=rtl] .LogoAndLinksMenu__AgodaSecondaryLogo{margin-right:13px}.LogoAndLinksMenu__PartnerLogo{margin-left:11px}.LinkContainer{position:relative;margin-bottom:0}html[dir=ltr] .LinkContainer{margin-left:30px}html[dir=rtl] .LinkContainer{margin-right:30px}.LinkContainer::before{position:absolute;bottom:10px;top:10px;border-right:1px solid #eee;content:' '}html[dir=ltr] .LinkContainer::before{left:-10px}html[dir=rtl] .LinkContainer::before{right:-10px}.LinkContainer__LinkWrapper{display:inline-block;cursor:pointer}.LinkContainer__Link{padding:0 10px;font-weight:700;line-height:60px;min-width:44px}.LinkContainer__Link:focus,.LinkContainer__Link:link,.LinkContainer__Link:visited{color:rgba(0,0,0,.75);text-decoration:none}.LinkContainer__Link:hover{color:#488BF8;text-decoration:none}.LinkContainer__Highlight{position:absolute;margin:0;bottom:0;border-bottom:4px solid #488BF8;transition:all .2s ease-in-out;z-index:-1}.header-container{display:-webkit-box;display:-webkit-flex;display:-ms-flexbox;display:flex;padding:0 16px}.header-container__item--left{-webkit-box-flex:0;-webkit-flex:none;-ms-flex:none;flex:none}.header-container__item--right{-webkit-box-flex:1;-webkit-flex:1;-ms-flex:1;flex:1;display:-webkit-inline-box;display:-webkit-inline-flex;display:-ms-inline-flexbox;display:inline-flex;-webkit-box-pack:end;-webkit-justify-content:flex-end;-ms-flex-pack:end;justify-content:flex-end;position:relative}.header-container__item--right a{color:#333;text-decoration:none}.header-container__space{-webkit-box-flex:0;-webkit-flex:none;-ms-flex:none;flex:none;width:130px}.header-dropdown>*{display:inline-block;vertical-align:middle;margin:0 4px;line-height:60px}.header-dropdown__user-icon-container{position:relative}.header-container__item--logged-in .header-dropdown__user-icon-container{min-width:50px}.header-dropdown__fb-image{width:40px;height:40px;border-radius:20px}.header-dropdown__user-icon{font-size:1.7rem;font-weight:700;font-style:normal;width:30px;height:30px;line-height:30px}[class*=bg-user-icon-].header-dropdown__user-icon{display:inline-block}html[dir=ltr] .header-dropdown__user-icon--noti{right:-5px}html[dir=rtl] .header-dropdown__user-icon--noti{left:-5px}i.header-dropdown__user-icon--noti{float:initial;line-height:30px;margin:initial}i.header-dropdown__user-icon--noti span{padding:initial}.header-dropdown__user-icon--fb{position:relative;width:40px;height:40px;display:inline-block}.header-dropdown__notification-badge{display:inline-block;min-width:15px;padding:1px 3px;position:relative;top:-15px;color:#fff;text-align:center;border:1px solid #fff;line-height:11px;font-size:10px;background-color:#E44746;border-radius:10px}html[dir=ltr] .header-dropdown__notification-badge{right:5px}html[dir=rtl] .header-dropdown__notification-badge{left:5px}.header-dropdown__giftcard{color:#d68100}.header-dropdown__giftcard i{margin:0 4px}.header-dropdown__hamburger{font-weight:700;margin-bottom:0;padding:0 10px;line-height:60px}.header-menu__subgroup-container--lc-panel{box-shadow:0 4px 10px 0 rgba(0,0,0,.12);padding:0;background:#fff;border:1px solid #ccc;top:64px;z-index:1000;width:685px}.ReactModalPortal .header-menu__subgroup-container--lc-panel{max-height:85vh;overflow-y:auto}.header-menu{margin:0}.header-menu__subgroup-container--lc-panel .header-menu__subgroup{padding:8px 16px;color:#333;line-height:1.9rem}.header-menu__subgroup-container--lc-panel .header-menu__item{display:inline-block;width:33.33333%;line-height:1.9rem;padding:0;border-bottom:1px solid #eee}.header-menu__subgroup-container--lc-panel .header-menu__item.selected a{background-color:#f8f8f8}.header-menu__subgroup-container--lc-panel .header-menu__item a{display:inline-block;line-height:1.9rem;list-style:none;text-decoration:none;font-size:12px;padding:9px 12px}.header-menu__subgroup-container--lc-panel .header-menu__item a:hover{color:#488BF8;background-color:#f8f8f8}html[dir=ltr] .header-menu--master .header-menu__subgroup-container--lc-panel::before,html[dir=rtl] .header-menu--master .header-menu__subgroup-container--lc-panel::before{content:'';width:10px;height:10px;background-color:#f5f5f5;border-left:1px solid #ccc;border-top:1px solid #ccc;position:absolute;top:-4px;display:block}.header-menu__subgroup-container--lc-panel .header-menu__item--last-row{border-bottom:none}html[dir=ltr] .header-menu--master .header-menu__subgroup-container--lc-panel::before{-webkit-transform:rotate(45deg);transform:rotate(45deg);right:175px}html[dir=rtl] .header-menu--master .header-menu__subgroup-container--lc-panel::before{-webkit-transform:rotate(45deg);transform:rotate(45deg);left:175px}.header__loading-panel,.loading-panel--qrcode{box-shadow:0 4px 10px 0 rgba(0,0,0,.12);top:64px;z-index:1000}.header-menu__subgroup-container--lc-panel .header-menu__group{display:block}.header-menu__subgroup-container--lc-panel .header-menu__item a{width:95%}.ReactModal__Content--header-modal .header-menu__subgroup-container--lc-panel .header-menu__item a{color:#333;text-decoration:none}.header__loading-panel{padding:0;background:#fff;border:1px solid #ccc;width:685px;height:290px}html[dir=ltr] .header-menu--master .header__loading-panel::before,html[dir=rtl] .header-menu--master .header__loading-panel::before{content:'';width:10px;height:10px;background-color:#fff;border-left:1px solid #ccc;border-top:1px solid #ccc;display:block;top:-4px;position:absolute}.header__loading-panel .header-menu__subgroup{padding:8px 16px;color:#333;line-height:1.9rem}html[dir=ltr] .header-menu--master .header__loading-panel::before{-webkit-transform:rotate(45deg);transform:rotate(45deg);right:175px}html[dir=rtl] .header-menu--master .header__loading-panel::before{-webkit-transform:rotate(45deg);transform:rotate(45deg);left:175px}.header__loading-panel .brand-agoda-loader{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);-moz-transform:translate(-50%,-50%);-o-transform:translate(-50%,-50%);-ms-transform:translate(-50%,-50%);-webkit-transform:translate(-50%,-50%)}.language-trigger{display:inline-block}.header-menu--master .language-trigger__icon.flag-18{margin:0}html[dir=ltr] .header-menu--slave .currency-trigger__text,html[dir=ltr] .header-menu--slave .language-trigger__icon,html[dir=ltr] .header-menu__subgroup-container--currency .header-menu__item .currency__text{margin-right:15px}html[dir=rtl] .header-menu--slave .currency-trigger__text,html[dir=rtl] .header-menu--slave .language-trigger__icon,html[dir=rtl] .header-menu__subgroup-container--currency .header-menu__item .currency__text{margin-left:15px}.header-menu--master .header-menu__subgroup-container--lc-group>.header-menu__group-header,.header-menu--master .language-trigger__text{display:none}.currency-trigger{display:inline-block}.header-menu--slave .currency-trigger__text{width:24px;text-align:center;display:inline-block}.currency-trigger__secondary-text{text-overflow:ellipsis;display:inline-block;max-width:150px;white-space:nowrap;overflow:hidden;vertical-align:bottom}.header-menu--master .currency-trigger__secondary-text,.header-menu--master .header-menu__subgroup-container--currency .currency-overlay__secondary-text{display:none}.header-menu__subgroup-container--currency .header-menu__item .currency__text{color:#488BF8;width:13.5%;display:inline-block}.header-menu__slave::before{content:'';border-left:1px solid #EEE;margin:10px;vertical-align:top}.header-menu::before{content:'';display:inline-block;width:1px;height:100%}.header-menu--master{height:60px;overflow:hidden}.header-menu--master.header-menu--reverse-order > li:not(:first-child)::after{content:'';display:inline-block;border-left:1px solid #EEEEEE;height:40px;vertical-align:top;margin:10px}.header-menu--master.header-menu--reverse-order > li:not(:first-child) > .header-menu__subgroup-container{display:inline-block}html[dir=ltr] .header-menu--master.header-menu--reverse-order > .header-menu__item,html[dir=ltr] .header-menu--master.header-menu--reverse-order > .header-menu__group,html[dir=ltr] .header-menu--master.header-menu--reverse-order::before{float:right}html[dir=rtl] .header-menu--master.header-menu--reverse-order > .header-menu__item,html[dir=rtl] .header-menu--master.header-menu--reverse-order > .header-menu__group,html[dir=rtl] .header-menu--master.header-menu--reverse-order::before{float:left}.header-menu--master.header-menu--ascending-order{min-width:100px}html[dir=ltr] .header-menu--master.header-menu--ascending-order{text-align:right}html[dir=rtl] .header-menu--master.header-menu--ascending-order{text-align:left}.header-container__item--logged-in .header-menu--master.header-menu--ascending-order > li::after{content:'';display:inline-block;border-left:1px solid #EEEEEE;height:40px;vertical-align:top;margin:10px}.header-container__item--logged-in .header-menu--master.header-menu--ascending-order > li > .header-menu__subgroup-container{display:inline-block}.header-container__item--not-log-in .header-menu--master.header-menu--ascending-order > li:not(:last-child)::after{content:'';display:inline-block;border-left:1px solid #EEEEEE;height:40px;vertical-align:top;margin:10px}.header-container__item--not-log-in .header-menu--master.header-menu--ascending-order > li:not(:last-child) > .header-menu__subgroup-container{display:inline-block}.header-menu--master .header-menu__group{vertical-align:top}.header-menu--master .header-menu__item{padding:0 10px;line-height:60px}.header-menu--master .Popup{position:absolute;z-index:1000}.header-menu__group,.header-menu__item,.header-menu__slave{display:inline-block}.header-menu__group-header{padding:14px 26px;height:40px;text-transform:uppercase;color:gray;background:#f5f5f5;font-size:90%;display:block;font-weight:400;line-height:1.1}.header-menu__slave{vertical-align:top;-webkit-box-flex:0;-webkit-flex:none;-ms-flex:none;flex:none;cursor:pointer}.header-menu__slave::before{display:inline-block;height:40px}.header-menu__slave>*{display:inline-block}.header-menu__slave--hide-separator::before{border-color:transparent}.header-menu__slave--without-separator::before{content:none}.header-menu__slave .header-menu__group{display:block}.header-menu__slave .header-menu__item{display:block;line-height:1.43}.header-menu__slave .header-menu__item a{display:block;padding:10px 0}.header-menu__subgroup-container ul.radio-group{display:table}.header-menu__subgroup-container li.radio-option{display:table-cell;height:100%;vertical-align:top;border-left:8px solid transparent}html[dir=rtl] .header-menu__subgroup-container li.radio-option{border-left:0;border-right:8px solid transparent}.header-menu__subgroup-container li.radio-option.selected{background-color:#f8f8f8}.ReactModal__Content--header-modal{-webkit-transform:translate(-50%,-50%);transform:translate(-50%,-50%);position:absolute}.ReactModal__close-button{display:block;margin-bottom:15px;color:#ccc;font-weight:600;cursor:pointer}html[dir=ltr] .ReactModal__close-button{text-align:right}html[dir=rtl] .ReactModal__close-button{text-align:left}.header-menu__subgroup-container--lc-group .Popup__content{position:static}.header-menu--master .qrcode-trigger__icon{margin:0}html[dir=ltr] .header-menu--slave .qrcode-trigger__icon{margin-right:15px}html[dir=rtl] .header-menu--slave .qrcode-trigger__icon{margin-left:15px}.header-menu--master .header-menu__subgroup-container--cn-group>.header-menu__group-header,.header-menu--master .qrcode-trigger__text{display:none}.loading-panel--qrcode{background:#fff;border:1px solid #ccc;width:140px;height:188px;line-height:10px;padding:10px;text-align:center}html[dir=ltr] .header-menu--master .loading-panel--qrcode::before,html[dir=rtl] .header-menu--master .loading-panel--qrcode::before{content:'';width:10px;height:10px;background-color:#fff;border-left:1px solid #ccc;border-top:1px solid #ccc;display:block;position:absolute;top:-4px}.header-menu--master .header-menu__subgroup-container--login-group .header-menu__group-header{display:none}.header-menu--master .header-menu__subgroup-container--login-group .signup-button{padding:0 7px}.header-menu--master .header-menu__subgroup-container--login-group .signin-button{padding:0}.signin-button,.signout-button,.signup-button{text-transform:uppercase;vertical-align:unset}.header-menu--slave .signin-button,.header-menu--slave .signout-button,.header-menu--slave .signup-button{width:100%;margin:5px 0}.c-btn--outline-primary{border-color:#5392f9;background-color:#fff;color:#5392f9}.signin-button.c-btn--outline-primary,.signout-button.c-btn--outline-primary,.signup-button.c-btn--outline-primary{position:relative;overflow:hidden;z-index:0}.signin-button.c-btn--outline-primary>*,.signout-button.c-btn--outline-primary>*,.signup-button.c-btn--outline-primary>*{position:relative}.signin-button.c-btn--transparent,.signout-button.c-btn--transparent,.signup-button.c-btn--transparent{border:none;background:0 0;color:#488bf8}.loading-panel--qrcode .header-menu__subgroup{padding:8px 16px;color:#333;line-height:1.9rem}html[dir=ltr] .header-menu--master .loading-panel--qrcode::before{-webkit-transform:rotate(45deg);transform:rotate(45deg);right:70px}html[dir=rtl] .header-menu--master .loading-panel--qrcode::before{-webkit-transform:rotate(45deg);transform:rotate(45deg);left:70px}.loading-panel--qrcode .description{padding:10px 0;line-height:18px;font-weight:700;font-size:12px}.loading-panel--qrcode .wechat-qrcode-hd{width:100%;height:100%;background-size:contain;background-repeat:no-repeat;background-image:url(//cdn6.agoda.net/images/CW-271/default/qrcode-wechat-v1.png)}.loading-panel--qrcode .app-download-qrcode-hd{width:100%;height:100%;background-size:contain;background-repeat:no-repeat;background-image:url(//cdn6.agoda.net/images/CW-7/default/qrcode-agoda.png)}.theme-japanican .LogoAndLinksMenu__Logo,.theme-japanican .LogoAndLinksMenu__AgodaLogo {width: 210px;height: 23px;}html[lang=cn] .theme-japanican .LogoAndLinksMenu__Logo,html[lang=cn] .theme-japanican .LogoAndLinksMenu__AgodaLogo {width: 89px;height: 36px;}html[lang=tw] .theme-japanican .LogoAndLinksMenu__Logo,html[lang=tw] .theme-japanican .LogoAndLinksMenu__AgodaLogo {width: 107px;height: 36px;}html[lang=kr] .theme-japanican .LogoAndLinksMenu__Logo,html[lang=kr] .theme-japanican .LogoAndLinksMenu__AgodaLogo {width: 111px;height: 36px;}html[lang=kr] .theme-japanican .LogoAndLinksMenu__Logo,html[lang=kr] .theme-japanican .LogoAndLinksMenu__AgodaLogo {width: 111px;height: 36px;} .theme-rurubu .LogoAndLinksMenu__Logo,.theme-rurubu .LogoAndLinksMenu__AgodaLogo {width: 190px;height: 36px;},.theme-clubtravel .LogoAndLinksMenu__AgodaLogo {width: 192px;height: 40px;},.theme-lottedfs .LogoAndLinksMenu__AgodaLogo {width: 35px;height: 32px;}</style>
+
+<style>.travel-with-kids-container{display:none;}</style>
+
+<style>.full-funnel-placeholder{position:relative;height:60px;width:100%;background-color:#f7f7f7;display:inline-block;} .full-funnel-banner{display:none}</style>
+
+<style>.tab-filter-placeholder::after,.tab-filter-placeholder::before,.tab-filter-placeholder__item:not(.tab-filter-placeholder__item--selected){border-bottom:1px solid #dddfe2}html[dir=ltr] .tab-filter-placeholder::after,html[dir=ltr] .tab-filter-placeholder__item{border-left:1px solid #dddfe2}html[dir=rtl] .tab-filter-placeholder::after,html[dir=rtl] .tab-filter-placeholder__item{border-right:1px solid #dddfe2}.tab-filter-placeholder{display:flex;height:56px;margin:30px 0}.ie9 .tab-filter-placeholder{display:table}.tab-filter-placeholder__item{width:220px;border-top:1px solid #dddfe2;display:flex;align-items:center;justify-content:center}.ie9 .tab-filter-placeholder__item{display:table-cell;text-align:center;vertical-align:middle}.tab-filter-placeholder__item--selected{border-top-width:5px}.tab-filter-placeholder__title{width:70px;height:14px;background:#e9ebee}.ie9 .tab-filter-placeholder__title{margin:auto}.tab-filter-placeholder::before{content:'';min-width:10px}.tab-filter-placeholder::after{content:'';flex-grow:1}.ie9 .tab-filter-placeholder::after{width:100%} </style>
+
+<style type="text/css">.Searchbox .IconBox{ border-radius: 6px; } .Searchbox .IconBox--checkIn{border-radius: 6px 0 0 6px; margin: 0; } html[dir=rtl] .Searchbox .IconBox--checkIn{border-radius: 0 6px 6px 0; margin: 0;} .Searchbox .IconBox--checkOut{border-radius: 0 6px 6px 0; margin: 0;} html[dir=rtl] .Searchbox .IconBox--checkOut{border-radius: 6px 0 0 6px; margin: 0 1px 0 0} .Searchbox .IconBox--autocomplete{ margin: 0 3px;} .Searchbox .IconBox--occupancy{margin: 0 3px;}</style>
+
+<style type="text/css">.side-filter-container-placeholder {margin-top: 20px;border: 1px solid #dcdbdc;} .side-filter-container-placeholder .side-filter-title-placeholder {padding: 13px;border-bottom: 1px solid #dcdbdc;} .side-filter-container-placeholder .side-filter-title-placeholder__text {width: 70%;height: 24px;background-color: #e9ebee;} .side-filter-container-placeholder .side-filter-cell-placeholder {padding: 20px 14px 0 14px;} .side-filter-container-placeholder .placeholder-title-header--sidebar {margin-bottom: 17px;} .side-filter-container-placeholder .list-filter-placeholder--sidebar {padding: 0 0 8px 0;}</style>
+
+
+    <link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1444-76aee892951d.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1297-da94764ae787.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4754-c334e52610a7.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/7311-188a0c4d0179.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5132-8448d60da369.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/8140-85725b62765c.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/9565-effe454bf681.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/3852-dd14c62e38a3.js" as="script"><link rel="preload" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/search-9a09eeb2f114.js" as="script">
+
+
+    <link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1297-81103bc3ecd4.css" rel="stylesheet" onerror="loadErrorHandler.call(this, event)"><link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5132-7d6f3e76125d.css" rel="stylesheet" onerror="loadErrorHandler.call(this, event)"><link href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/search-d7c52cdf705c.css" rel="stylesheet" onerror="loadErrorHandler.call(this, event)">
+
+
+    <link rel="preconnect" href="https://cdn6.agoda.net">
+    <link rel="preconnect" href="//pix6.agoda.net">
+
+
+    
+
+
+
+
+
+
+
             
-            {{-- Left Filter Sidebar (Exact Agoda 270px Width, Desktop Sticky Scroll) --}}
-            <div class="col-12 col-lg-3 d-none d-lg-block agoda-filter-sidebar-col">
-                <div class="agoda-sticky-sidebar" style="position: sticky; top: 76px; max-height: calc(100vh - 86px); overflow-y: auto; scrollbar-width: thin; padding-right: 4px;">
-                    @include('components.search.filter-sidebar')
-                </div>
-            </div>
-
-            {{-- Right Results Feed (Exact Agoda 830px Width Desktop, 100% Width Mobile) --}}
-            <div class="col-12 col-lg-9 agoda-results-col" id="searchResultsContainer">
-
-
-
-            {{-- 3.6 Auto-Radius Expander Notice Banner (Only shown when genuine nearby stays exist <= 45km) --}}
-            @if(!empty($searchResults['radius_expanded']) && $liveTotal > 0)
-            <div class="alert d-flex align-items-center gap-3 rounded-3 mb-3 p-3 shadow-xs border-0" style="background: #eff6ff; border: 1px solid #bfdbfe !important;">
-                <div class="d-flex align-items-center justify-content-center flex-shrink-0 text-white rounded-circle" style="width: 38px; height: 38px; font-size: 15px; background: linear-gradient(135deg, #2563eb, #1d4ed8);">
-                    <i class="fa-solid fa-location-crosshairs"></i>
-                </div>
-                <div style="font-size: 12.5px; line-height: 1.35;">
-                    <strong class="text-dark d-block mb-0.5" style="font-size: 13px;">Showing stays near {{ $destLabel }} (within {{ (int)$searchResults['expanded_radius_km'] }} km)</strong>
-                    <span class="text-secondary">No direct hotels were found in {{ $destLabel }}. We found {{ $liveTotal }} available {{ $liveTotal === 1 ? 'stay' : 'stays' }} within {{ (int)$searchResults['expanded_radius_km'] }} km of your searched location.</span>
-                </div>
-            </div>
-            @endif
-
-            {{--
-                ════════════════════════════════════════════════
-                POPULAR AREAS PILLS — 100% DATABASE-DRIVEN
-                Source: SearchController::getPopularAreasForDestination()
-                Queries: nearest_landmark + city fields from real properties
-                Cache: 10 min per destination key
-                Zero hardcoded city/area names.
-                ════════════════════════════════════════════════
-            --}}
-
-
-
-            {{-- Results Header & AJAX Sort Dropdown (no full page reload) --}}
-            @php
-                // Accurate live count: use paginator total (true DB count),
-                // fall back to merged_results count (for API fallback mode).
-                $liveTotal = $searchResults['paginator']->total() > 0
-                    ? $searchResults['paginator']->total()
-                    : count($searchResults['merged_results'] ?? []);
-
-                // Smart destination label:
-                // If no destination typed, show "Bangladesh" (all active props).
-                // If destination typed, show it exactly as searched.
-                $destLabel = !empty(trim($destination ?? ''))
-                    ? trim($destination)
-                    : 'Bangladesh';
-                $curSort = request('sort_by', 'featured');
-            @endphp
-
-
-            {{-- Clean 1:1 Agoda Results Header Row (Count on Left, Sort Dropdown on Right) --}}
-            <div class="d-flex justify-content-between align-items-center mb-1 flex-wrap gap-2" style="max-width: 790px;">
-                <h1 class="fw-bold text-dark m-0" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 20px; line-height: 1.25;">
-                    @if($liveTotal === 0)
-                        No properties found in {{ $destLabel }}
-                    @elseif(!empty($searchResults['radius_expanded']))
-                        {{ $destLabel }}: <span id="resultsCount">{{ $liveTotal }}</span> properties near {{ $destLabel }}
-                    @else
-                        {{ $destLabel }}: <span id="resultsCount">{{ $liveTotal }}</span> properties
-                    @endif
-                </h1>
-                <div class="d-flex align-items-center gap-2">
-                    {{-- Mobile: Show Filters toggle --}}
-                    <button class="btn btn-outline-secondary btn-sm rounded-pill fw-bold d-lg-none" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileFilterOffcanvas" aria-controls="mobileFilterOffcanvas" style="font-size:12px;">
-                        <i class="fa-solid fa-sliders me-1"></i> Filters
-                    </button>
-                    
-                    {{-- Exact Agoda Custom Sort Dropdown --}}
-                    @php
-                        $curSort = request('sort_by', 'featured');
-                        $sortLabels = [
-                            'featured'   => 'Best match',
-                            'price_low'  => 'Lowest price',
-                            'price_high' => 'Highest price',
-                            'rating'     => 'Top guest ratings',
-                            'newest'     => 'Newest listings',
-                        ];
-                        $curLabel = $sortLabels[$curSort] ?? 'Best match';
-                    @endphp
-                    <div class="dropdown position-relative" id="agodaSortDropdownWrap">
-                        <button class="btn bg-white rounded-3 d-flex align-items-center justify-content-between shadow-xs dropdown-toggle text-dark fw-semibold" 
-                                type="button" 
-                                id="agodaSortDropdownBtn" 
-                                data-bs-toggle="dropdown" 
-                                aria-expanded="false" 
-                                style="width: 220px; height: 42px; border: 1.5px solid #cbd5e1; font-size: 14px; padding: 0 14px;">
-                            <span>Sort by: <strong class="fw-bold">{{ $curLabel }}</strong></span>
-                        </button>
-                        <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-3 py-2 mt-1" aria-labelledby="agodaSortDropdownBtn" style="width: 220px; box-shadow: 0 10px 25px rgba(0,0,0,0.15) !important;">
-                            @foreach($sortLabels as $sKey => $sTitle)
-                            <li>
-                                <a class="dropdown-item py-2 px-3 d-flex align-items-center justify-content-between text-dark fw-semibold {{ $curSort === $sKey ? 'active bg-light' : '' }}" 
-                                   href="javascript:void(0)" 
-                                   onclick="applyAgodaSort('{{ $sKey }}')" 
-                                   style="font-size: 14px; {{ $curSort === $sKey ? 'color: #2067e1 !important; font-weight: 700;' : '' }}">
-                                    <span>{{ $sTitle }}</span>
-                                    @if($curSort === $sKey)
-                                        <i class="fa-solid fa-check text-primary" style="font-size: 13px;"></i>
-                                    @endif
-                                </a>
-                            </li>
-                            @endforeach
-                        </ul>
-                        <input type="hidden" name="sort_by" id="sortByHiddenInput" value="{{ $curSort }}">
-                    </div>
-                </div>
-            </div>
-
-            {{-- Agoda Subheader: Popular properties for your trip (Exact Image 2 Parity) --}}
-            <div class="d-flex align-items-center gap-2 mb-3 mt-1" style="font-size: 15px; font-weight: 700; color: #2a2a2e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                <span style="color: #e12d2d; display: inline-flex; align-items: center;">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="#e12d2d"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5 2.5 2.5z"/></svg>
-                </span>
-                <span>Popular properties for your trip</span>
-            </div>
-
-            <script>
-                function applyAgodaSort(val) {
-                    const form = document.getElementById('searchHeaderForm') || document.querySelector('form[action*="search"]');
-                    let sortInput = document.getElementById('sortByHiddenInput');
-                    if (!sortInput) {
-                        sortInput = document.createElement('input');
-                        sortInput.type = 'hidden';
-                        sortInput.name = 'sort_by';
-                        sortInput.id = 'sortByHiddenInput';
-                        if (form) form.appendChild(sortInput);
-                    }
-                    sortInput.value = val;
-                    
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('sort_by', val);
-                    window.location.href = url.toString();
-                }
-            </script>
-
-
-
-            {{-- Property Cards Grid --}}
-            <div class="d-flex flex-column gap-3" id="propertyCardsFeed"
-                 data-current-page="{{ isset($searchResults['paginator']) ? $searchResults['paginator']->currentPage() : 1 }}"
-                 data-last-page="{{ isset($searchResults['paginator']) ? $searchResults['paginator']->lastPage() : 1 }}"
-                 data-total="{{ $liveTotal }}">
-                @forelse($searchResults['merged_results'] as $item)
-                    @include('components.search.property-card', ['item' => $item, 'isFirst' => $loop->first])
-                @empty
-                    <div class="card border-0 shadow-xs rounded-4 p-5 text-center bg-white my-3" style="border: 1px solid #e2e8f0 !important;">
-                        <div class="mb-3 text-muted"><i class="fa-solid fa-hotel fs-1 opacity-25"></i></div>
-                        <h5 class="fw-bold text-dark mb-1">No properties found in "{{ $destination ?: 'this area' }}"</h5>
-                        <p class="text-secondary small mb-3">There are no available properties matching your search criteria.</p>
-                        <div>
-                            <a href="{{ route('search.index') }}" class="btn text-white fw-bold px-4 py-2" style="background-color: #2067e1; border-radius: 6px; font-size: 13px;">Clear All Filters</a>
-                        </div>
-                    </div>
-                @endforelse
-            </div>
-
-            {{-- Agoda-Style Infinite Scroll Skeleton Shimmer Placeholders (shown when fetching next page) --}}
-            <div id="infiniteScrollSkeletonContainer" class="d-none flex-column gap-3 mt-3">
-                @include('components.search.property-card-skeleton')
-                @include('components.search.property-card-skeleton')
-            </div>
-
-            {{-- Infinite Scroll Sentinel Trigger (Observed by IntersectionObserver) --}}
-            <div id="infiniteScrollSentinel" style="height: 15px; margin: 15px 0;"></div>
-
-            {{-- All Caught Up / End of Results Indicator --}}
-            <div id="infiniteScrollEndMessage" class="d-none text-center my-4 py-3 px-4 rounded-4 bg-white border" style="max-width: 790px; border-color: #e2e8f0 !important;">
-                <div class="d-inline-flex align-items-center justify-content-center text-primary bg-primary-subtle rounded-circle mb-2" style="width: 38px; height: 38px;">
-                    <i class="fa-solid fa-check fs-6"></i>
-                </div>
-                <h6 class="fw-bold text-dark mb-1" style="font-size: 14px;">You've seen all available stays in {{ $destLabel }}</h6>
-                <p class="text-secondary small mb-0">Total {{ $liveTotal }} properties displayed. Change your travel dates or filters to explore more.</p>
-            </div>
-
-            {{-- Fallback numeric pagination for JavaScript-disabled browsers only --}}
-            <noscript>
-                @if(isset($searchResults['paginator']) && $searchResults['paginator']->hasPages())
-                    <div class="mt-4 d-flex justify-content-center" id="paginationContainer">
-                        {{ $searchResults['paginator']->appends(request()->query())->links('vendor.pagination.prime-booking') }}
-                    </div>
-                @endif
-            </noscript>
-
-            {{-- SEO Breadcrumbs Navigation (Positioned at bottom per modern travel UI standards) --}}
-            <nav aria-label="breadcrumb" class="mt-4 mb-2">
-                <ol class="breadcrumb mb-0" style="font-size: 12.5px;">
-                    <li class="breadcrumb-item"><a href="{{ url('/') }}" class="text-decoration-none text-secondary">Home</a></li>
-                    <li class="breadcrumb-item"><a href="{{ url('/hotels') }}" class="text-decoration-none text-secondary">Hotels</a></li>
-                    @if(!empty($dest))
-                        <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">Hotels in {{ $dest }}</li>
-                    @else
-                        <li class="breadcrumb-item active text-dark fw-bold" aria-current="page">Bangladesh Stays</li>
-                    @endif
-                </ol>
-            </nav>
-
-            @if($liveTotal > 0)
-            <div class="mt-3 p-4 rounded-4 bg-white border shadow-xs" style="border-color: #e2e8f0 !important;">
-                <h3 class="fw-bold text-dark mb-3" style="font-size: 19px; font-family: 'Plus Jakarta Sans', sans-serif;">
-                    <i class="fa-solid fa-umbrella-beach text-primary me-2"></i>Guide to Booking the Best Hotels in {{ $destLabel }}
-                </h3>
-                <p class="text-secondary mb-4" style="font-size: 14px; line-height: 1.65;">
-                    Whether you are planning a relaxing vacation, a romantic honeymoon, or a business trip, {{ $destLabel }} offers an incredible selection of accommodations. With Prime Booking, discover guaranteed lowest rates on 5-star beachfront resorts, modern city hotels, and budget-friendly guest houses. Enjoy instant reservation confirmation, transparent pricing with no hidden charges, and exclusive bKash cashback discounts.
-                </p>
-
-                <div class="row g-3 mb-4">
-                    <div class="col-12 col-md-4">
-                        <div class="p-3 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="fa-solid fa-shield-halved text-success fs-5"></i>
-                                <strong class="text-dark" style="font-size: 14px;">100% Verified Stays</strong>
-                            </div>
-                            <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.4;">Every property in {{ $destLabel }} is personally inspected with authentic guest reviews.</small>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="p-3 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="fa-solid fa-bolt text-warning fs-5"></i>
-                                <strong class="text-dark" style="font-size: 14px;">Instant Confirmation</strong>
-                            </div>
-                            <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.4;">Receive immediate booking vouchers via SMS and email with zero waiting time.</small>
-                        </div>
-                    </div>
-                    <div class="col-12 col-md-4">
-                        <div class="p-3 rounded-3 h-100" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                            <div class="d-flex align-items-center gap-2 mb-2">
-                                <i class="fa-solid fa-wallet text-primary fs-5"></i>
-                                <strong class="text-dark" style="font-size: 14px;">Flexible Payment</strong>
-                            </div>
-                            <small class="text-secondary d-block" style="font-size: 12.5px; line-height: 1.4;">Pay seamlessly using bKash, Nagad, Visa/Mastercard or select Pay-at-Hotel options.</small>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Destination Travel FAQ Accordion --}}
-                <h4 class="fw-bold text-dark mb-3" style="font-size: 16px;">
-                    <i class="fa-solid fa-circle-question text-secondary me-2"></i>Frequently Asked Questions about {{ $destLabel }} Hotels
-                </h4>
-                <div class="accordion accordion-flush" id="seoDestFaqAccordion">
-                    <div class="accordion-item border-bottom">
-                        <h2 class="accordion-header" id="faqHeading1">
-                            <button class="accordion-button collapsed px-0 fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse1" aria-expanded="false" aria-controls="faqCollapse1" style="font-size: 14px;">
-                                Which are the top luxury resorts in {{ $destLabel }}?
-                            </button>
-                        </h2>
-                        <div id="faqCollapse1" class="accordion-collapse collapse" aria-labelledby="faqHeading1" data-bs-parent="#seoDestFaqAccordion">
-                            <div class="accordion-body px-0 text-secondary" style="font-size: 13.5px; line-height: 1.6;">
-                                The most popular luxury and 5-star properties in {{ $destLabel }} include {{ $hotelHighlights }}. These hotels feature premium amenities such as private beach access, infinity swimming pools, complimentary buffet breakfast, and wellness spas.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item border-bottom">
-                        <h2 class="accordion-header" id="faqHeading2">
-                            <button class="accordion-button collapsed px-0 fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse2" aria-expanded="false" aria-controls="faqCollapse2" style="font-size: 14px;">
-                                What is the starting price for hotel rooms in {{ $destLabel }}?
-                            </button>
-                        </h2>
-                        <div id="faqCollapse2" class="accordion-collapse collapse" aria-labelledby="faqHeading2" data-bs-parent="#seoDestFaqAccordion">
-                            <div class="accordion-body px-0 text-secondary" style="font-size: 13.5px; line-height: 1.6;">
-                                Budget and deluxe hotel rooms in {{ $destLabel }} start from approximately {{ $minPriceText }} per night on Prime Booking. Rates vary based on season, sea view category, and weekend travel dates.
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="accordion-item">
-                        <h2 class="accordion-header" id="faqHeading3">
-                            <button class="accordion-button collapsed px-0 fw-semibold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#faqCollapse3" aria-expanded="false" aria-controls="faqCollapse3" style="font-size: 14px;">
-                                Does Prime Booking offer free cancellation in {{ $destLabel }}?
-                            </button>
-                        </h2>
-                        <div id="faqCollapse3" class="accordion-collapse collapse" aria-labelledby="faqHeading3" data-bs-parent="#seoDestFaqAccordion">
-                            <div class="accordion-body px-0 text-secondary" style="font-size: 13.5px; line-height: 1.6;">
-                                Yes! Most partner hotels and resorts in {{ $destLabel }} provide Free Cancellation up to 24–48 hours prior to your check-in date. Filter by "Free Cancellation" on the left sidebar to browse refundable stays.
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            @endif
-
-
-        </div>
-
-    </div>
-</div>
-
-{{-- Agoda Floating Action Buttons on Bottom Right (100% Vector SVG & Optical Parity) --}}
-<div class="d-none d-md-flex flex-column gap-2 position-fixed" id="agodaFloatingActionsWrap" style="bottom: 68px; right: 20px; z-index: 1045; transition: bottom 0.25s ease;">
-    {{-- 1. Business / Trips Briefcase Button --}}
-    <a href="{{ route('services') }}" 
-       class="btn p-0 rounded-circle d-flex align-items-center justify-content-center shadow-md agoda-floating-action-btn" 
-       style="width: 42px; height: 42px; min-width: 42px; background: #2067da; border: none; text-decoration: none; box-shadow: 0 4px 12px rgba(32, 103, 218, 0.35); transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" 
-       title="Prime Booking for Business & Trips"
-       onmouseover="this.style.transform='scale(1.08)'; this.style.backgroundColor='#1656c4';"
-       onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2067da';">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
-            <path d="M9 4C9 3.44772 9.44772 3 10 3H14C14.5523 3 15 3.44772 15 4V6H9V4Z" fill="#ffffff"/>
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M3 7.5C3 6.67157 3.67157 6 4.5 6H19.5C20.3284 6 21 6.67157 21 7.5V11H3V7.5ZM3 12.5V18.5C3 19.3284 3.67157 20 4.5 20H19.5C20.3284 20 21 19.3284 21 18.5V12.5H14.5V13.5C14.5 14.0523 14.0523 14.5 13.5 14.5H10.5C9.94772 14.5 9.5 14.0523 9.5 13.5V12.5H3Z" fill="#ffffff"/>
-        </svg>
-    </a>
-
-    {{-- 2. Mobile App Download Button --}}
-    <a href="javascript:void(0)" 
-       onclick="alert('Prime Booking Mobile App coming soon on Android & iOS!')" 
-       class="btn p-0 rounded-circle d-flex align-items-center justify-content-center shadow-md agoda-floating-action-btn" 
-       style="width: 42px; height: 42px; min-width: 42px; background: #2067da; border: none; text-decoration: none; box-shadow: 0 4px 12px rgba(32, 103, 218, 0.35); transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;" 
-       title="Download Prime Booking App"
-       onmouseover="this.style.transform='scale(1.08)'; this.style.backgroundColor='#1656c4';"
-       onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='#2067da';">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="display: block;">
-            <path fill-rule="evenodd" clip-rule="evenodd" d="M6 3C4.89543 3 4 3.89543 4 5V19C4 20.1046 4.89543 21 6 21H18C19.1046 21 20 20.1046 20 19V5C20 3.89543 19.1046 3 18 3H6ZM6 5.5C6 5.22386 6.22386 5 6.5 5H17.5C17.7761 5 18 5.22386 18 5.5V16H6V5.5ZM12 19.25C12.5523 19.25 13 18.8023 13 18.25C13 17.6977 12.5523 17.25 12 17.25C11.4477 17.25 11 17.6977 11 18.25C11 18.8023 11.4477 19.25 12 19.25Z" fill="#ffffff"/>
-        </svg>
-    </a>
-
-    {{-- 3. Agoda Exact Back to Top Scroll Button (Fades in when scrolled down) --}}
-    <button type="button" 
-       id="agodaBackToTopBtn" 
-       onclick="window.scrollTo({top: 0, behavior: 'smooth'})"
-       class="btn p-0 rounded-circle d-flex align-items-center justify-content-center shadow-md agoda-floating-action-btn d-none" 
-       style="width: 42px; height: 42px; min-width: 42px; background: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.2s ease; cursor: pointer;" 
-       title="Back to Top"
-       onmouseover="this.style.transform='scale(1.08)'; this.style.borderColor='#2067da'; this.style.boxShadow='0 6px 16px rgba(32,103,218,0.25)';"
-       onmouseout="this.style.transform='scale(1)'; this.style.borderColor='#cbd5e1'; this.style.boxShadow='0 4px 12px rgba(0,0,0,0.15)';">
-        <i class="fa-solid fa-chevron-up text-dark" style="font-size: 14px;"></i>
-    </button>
-</div>
-
-<script>
-    window.addEventListener('scroll', function() {
-        var btt = document.getElementById('agodaBackToTopBtn');
-        if (btt) {
-            if (window.scrollY > 350) {
-                btt.classList.remove('d-none');
-            } else {
-                btt.classList.add('d-none');
-            }
-        }
-    }, { passive: true });
-</script>
-
-@php
-    $currCode = \App\Helpers\CurrencyHelper::current();
-    $userLat = (isset($lat) && is_numeric($lat)) ? (float)$lat : ((request('lat') && is_numeric(request('lat'))) ? (float)request('lat') : null);
-    $userLng = (isset($lng) && is_numeric($lng)) ? (float)$lng : ((request('lng') && is_numeric(request('lng'))) ? (float)request('lng') : null);
-
-    // City coordinate mappings for Bangladesh
-    $cityCoords = [
-        'dhaka'         => [23.8103, 90.4125],
-        'chattogram'    => [22.3569, 91.7832],
-        'chittagong'    => [22.3569, 91.7832],
-        "cox's bazar"   => [21.4272, 91.9782],
-        'sylhet'        => [24.8949, 91.8687],
-        'khulna'        => [22.8456, 89.5403],
-        'rajshahi'      => [24.3745, 88.6042],
-        'barishal'      => [22.7010, 90.3535],
-        'barisal'       => [22.7010, 90.3535],
-        'rangpur'       => [25.7439, 89.2752],
-        'mymensingh'    => [24.7471, 90.4203],
-        'sreemangal'    => [24.3065, 91.7296],
-        'sajek'         => [23.3820, 92.2938],
-        'sajek valley'  => [23.3820, 92.2938],
-        'sundarban'     => [22.4833, 89.6000],
-        'sundarbans'    => [22.4833, 89.6000],
-        'mongla'        => [22.4833, 89.6000],
-        'kuakata'       => [21.8167, 90.1167],
-        'bandarban'     => [22.1953, 92.2184],
-    ];
-
-    $destKey = strtolower(trim((string)($destination ?? '')));
-    $destCoords = $cityCoords[$destKey] ?? null;
-
-    // National default center: Dhaka, Bangladesh
-    $defaultLat = $destCoords ? $destCoords[0] : 23.8103;
-    $defaultLng = $destCoords ? $destCoords[1] : 90.4125;
-
-    $mapProperties = collect($searchResults['merged_results'])->map(function($p, $idx) use ($defaultLat, $defaultLng, $currCode, $userLat, $userLng, $cityCoords) {
-        $isObj       = is_object($p);
-        $id          = $isObj ? ($p->id ?? $idx + 1) : ($p['id'] ?? $idx + 1);
-        $name        = $isObj ? ($p->name ?? 'Property') : ($p['name'] ?? 'Property');
-        $slug        = $isObj ? ($p->slug ?? $p->id ?? 1) : ($p['slug'] ?? $p['id'] ?? 1);
-        $rawPriceBDT = (float)($isObj ? ($p->price_per_night ?? $p->price ?? 0) : ($p['price_per_night'] ?? $p['price'] ?? 0));
-        if ($rawPriceBDT <= 0) $rawPriceBDT = 3500;
-        $convertedPrice = round(\App\Services\CurrencyService::convert($rawPriceBDT, $currCode), 2);
-        $formattedPrice = \App\Services\CurrencyService::format($rawPriceBDT);
-        $city        = $isObj ? ($p->city ?? $p->address ?? 'Bangladesh') : ($p['city'] ?? $p['address'] ?? 'Bangladesh');
-        $image       = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
-        $score       = (float)($isObj ? ($p->rating_score ?? 8.5) : ($p['rating_score'] ?? 8.5));
-        $reviews     = (int)($isObj ? ($p->total_reviews ?? 4) : ($p['total_reviews'] ?? 4));
-        $lat         = (float)($isObj ? ($p->latitude  ?? 0) : ($p['latitude']  ?? 0));
-        $lng         = (float)($isObj ? ($p->longitude ?? 0) : ($p['longitude'] ?? 0));
-        $hasGps      = ($lat !== 0.0 && $lng !== 0.0);
-
-        // Fallback: If property has no GPS coordinates, resolve accurately from its city name
-        if (!$hasGps) {
-            $cKey = strtolower(trim((string)$city));
-            if (isset($cityCoords[$cKey])) {
-                $lat = $cityCoords[$cKey][0];
-                $lng = $cityCoords[$cKey][1];
-                $hasGps = true;
-            } else {
-                foreach ($cityCoords as $k => $cPoint) {
-                    if (str_contains($cKey, $k)) {
-                        $lat = $cPoint[0];
-                        $lng = $cPoint[1];
-                        $hasGps = true;
-                        break;
-                    }
-                }
-            }
-        }
-
-        $type        = $isObj ? ($p->type ?? 'hotel') : ($p['type'] ?? 'hotel');
-        $freeCancel  = (bool)($isObj ? ($p->free_cancellation ?? true) : ($p['free_cancellation'] ?? true));
-        $payLater    = (bool)($isObj ? ($p->no_credit_card_required ?? true) : ($p['no_credit_card_required'] ?? true));
         
-        $distanceKm  = $isObj ? ($p->distance_km ?? null) : ($p['distance_km'] ?? null);
-        if ($distanceKm === null && $userLat && $userLng && $lat != 0 && $lng != 0) {
-            $dLat = deg2rad($userLat - $lat);
-            $dLng = deg2rad($userLng - $lng);
-            $a = sin($dLat / 2) * sin($dLat / 2) + cos(deg2rad($lat)) * cos(deg2rad($userLat)) * sin($dLng / 2) * sin($dLng / 2);
-            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-            $distanceKm = round(6371 * $c, 1);
+<link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1467-2ed4d1bb3553.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/dynamic-search-bundle-coreBundle-4048fc571f65.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/6522-d51775bfe82d.css"><style data-styled="active" data-styled-version="5.3.11"></style><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2253-804a78cf4607.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/7487-0447de72b94b.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2911-78b9810a6dd7.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5004-1036beaf8ac3.css"><style data-kite-js="" data-kite-js-version-core="0.0.1"></style><style type="text/css">.ConsentBanner {
+  bottom: 0;
+  position: fixed;
+  z-index: 1010;
+  padding: 13px;
+  background: #F0F3F9;
+  box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between; }
+  @media (max-width: 768px) {
+    .ConsentBanner {
+      display: block;
+      padding: 10px 16px;
+      background: #F7F9FC; } }
+  .ConsentBanner img {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: block; }
+  .ConsentBanner .Text {
+    color: #24262C;
+    width: 77%; }
+    @media (max-width: 768px) {
+      .ConsentBanner .Text {
+        width: auto; } }
+    .ConsentBanner .Text__Title {
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 25px; }
+    .ConsentBanner .Text__Description {
+      font-weight: 376;
+      font-size: 14px;
+      line-height: 16px; }
+  .ConsentBanner .BtnContainer {
+    position: relative;
+    height: 35px;
+    margin: auto;
+    display: flex; }
+    html[dir=rtl] .ConsentBanner .BtnContainer {
+      order: 0; }
+    @media (max-width: 768px) {
+      .ConsentBanner .BtnContainer {
+        height: 6vh;
+        padding: 9px 0px;
+        margin: unset; } }
+    .ConsentBanner .BtnContainer .CookieSettingBtn {
+      height: 30px;
+      color: #3E6CEA;
+      font-weight: 400;
+      border: none;
+      background: none;
+      margin: auto 18px; }
+      @media (max-width: 768px) {
+        .ConsentBanner .BtnContainer .CookieSettingBtn {
+          position: absolute;
+          margin: auto; } }
+    .ConsentBanner .BtnContainer .BtnPair {
+      display: flex;
+      flex-direction: column-reverse;
+      margin: auto;
+      transform: translateY(-16px); }
+      @media (max-width: 768px) {
+        .ConsentBanner .BtnContainer .BtnPair {
+          position: absolute;
+          right: 0;
+          transform: none;
+          display: block; }
+          html[dir=rtl] .ConsentBanner .BtnContainer .BtnPair {
+            left: 0;
+            right: auto; } }
+      .ConsentBanner .BtnContainer .BtnPair__RejectBtn {
+        background: #FFFFFF;
+        border: 1px solid #3E6CEA;
+        border-radius: 16px;
+        width: 84px;
+        height: 30px;
+        color: #3E6CEA;
+        font-weight: 500; }
+        @media (max-width: 768px) {
+          .ConsentBanner .BtnContainer .BtnPair__RejectBtn {
+            margin-right: 7px; } }
+        html[dir=rtl] .ConsentBanner .BtnContainer .BtnPair__RejectBtn {
+          float: left;
+          margin-left: 7px; }
+      .ConsentBanner .BtnContainer .BtnPair__AcceptBtn {
+        width: 84px;
+        height: 30px;
+        background: #3E6CEA;
+        border-radius: 16px;
+        margin-bottom: 6px;
+        color: #FFFFFF;
+        border: 1px solid #3E6CEA;
+        font-weight: 500; }
+</style><style type="text/css">.ConsentBannerFunctionalOnly {
+  bottom: 0;
+  position: fixed;
+  z-index: 1010;
+  padding: 13px;
+  background: #F0F3F9;
+  box-shadow: 0px 2px 7px rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%; }
+  @media (max-width: 768px) {
+    .ConsentBannerFunctionalOnly {
+      display: block;
+      padding: 10px 16px;
+      background: #F7F9FC; } }
+  .ConsentBannerFunctionalOnly img {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: block; }
+  .ConsentBannerFunctionalOnly .Text {
+    color: #24262C;
+    width: 77%; }
+    @media (max-width: 768px) {
+      .ConsentBannerFunctionalOnly .Text {
+        width: auto; } }
+    .ConsentBannerFunctionalOnly .Text__Title {
+      font-weight: 500;
+      font-size: 16px;
+      line-height: 25px; }
+    .ConsentBannerFunctionalOnly .Text__Description {
+      font-weight: 376;
+      font-size: 14px;
+      line-height: 16px; }
+  .ConsentBannerFunctionalOnly .BtnContainer {
+    position: relative;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center; }
+    html[dir=rtl] .ConsentBannerFunctionalOnly .BtnContainer {
+      order: 0; }
+    @media (max-width: 768px) {
+      .ConsentBannerFunctionalOnly .BtnContainer {
+        height: 6vh;
+        padding: 9px 0px;
+        margin: unset;
+        display: flex;
+        justify-content: flex-end; } }
+    .ConsentBannerFunctionalOnly .BtnContainer .BtnPair {
+      display: flex;
+      flex-direction: column-reverse;
+      margin: auto; }
+      @media (max-width: 768px) {
+        .ConsentBannerFunctionalOnly .BtnContainer .BtnPair {
+          position: absolute;
+          right: 0;
+          transform: none;
+          display: block; }
+          html[dir=rtl] .ConsentBannerFunctionalOnly .BtnContainer .BtnPair {
+            left: 0;
+            right: auto; } }
+      .ConsentBannerFunctionalOnly .BtnContainer .BtnPair__RejectBtn {
+        background: #FFFFFF;
+        border: 1px solid #3E6CEA;
+        border-radius: 16px;
+        width: 84px;
+        height: 30px;
+        color: #3E6CEA;
+        font-weight: 500; }
+        @media (max-width: 768px) {
+          .ConsentBannerFunctionalOnly .BtnContainer .BtnPair__RejectBtn {
+            margin-right: 7px; } }
+        html[dir=rtl] .ConsentBannerFunctionalOnly .BtnContainer .BtnPair__RejectBtn {
+          float: left;
+          margin-left: 7px; }
+</style><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2483-e3942a16cf2e.css"><style id="googleidentityservice_button_styles">.qJTHM{-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;color:#202124;direction:ltr;-webkit-touch-callout:none;font-family:Roboto-Regular,arial,sans-serif;-webkit-font-smoothing:antialiased;font-weight:400;margin:0;overflow:hidden;-webkit-text-size-adjust:100%}.ynRLnc{left:-9999px;position:absolute;top:-9999px}.L6cTce{display:none}.bltWBb{overflow-wrap:break-word;word-break:break-word}.hSRGPd{color:#1a73e8;cursor:pointer;font-weight:500;text-decoration:none}.Bz112c-W3lGp{height:16px;width:16px}.Bz112c-E3DyYd{height:20px;width:20px}.Bz112c-r9oPif{height:24px;width:24px}.Bz112c-u2z5K{height:36px;width:36px}.Bz112c-uaxL4e{border-radius:10px}.LgbsSe-Bz112c{display:block}.S9gUrf-YoZ4jf{border:none;margin:0;padding:0}.S9gUrf-YoZ4jf *{border:none;margin:0;padding:0}.fFW7wc-ibnC6b>.aZ2wEe>div{border-color:#4285f4}.P1ekSe-ZMv3u{-webkit-transition:height .2s linear;transition:height .2s linear}.P1ekSe-ZMv3u>div:first-child{background-color:#1a73e8!important;-webkit-transition:width .3s linear;transition:width .3s linear}.P1ekSe-ZMv3u>div:nth-child(2){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.P1ekSe-ZMv3u>div:nth-child(3){background-image:-webkit-gradient(linear,left top,right top,from(rgba(255,255,255,.7)),to(rgba(255,255,255,.7))),-webkit-gradient(linear,left top,right top,from(#1a73e8),to(#1a73e8))!important;background-image:-webkit-linear-gradient(left,rgba(255,255,255,.7),rgba(255,255,255,.7)),-webkit-linear-gradient(left,#1a73e8,#1a73e8)!important;background-image:linear-gradient(90deg,rgba(255,255,255,.7),rgba(255,255,255,.7)),linear-gradient(90deg,#1a73e8,#1a73e8)!important}.haAclf{display:inline-block}.nsm7Bb-HzV7m-LgbsSe{border-radius:4px;box-sizing:border-box;-webkit-transition:background-color .218s,border-color .218s;transition:background-color .218s,border-color .218s;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;-webkit-appearance:none;background-color:#fff;background-image:none;border:1px solid #dadce0;color:#3c4043;cursor:pointer;font-family:Google Sans,arial,sans-serif;font-size:.875rem;height:40px;letter-spacing:.25px;outline:none;overflow:hidden;padding:0 12px;position:relative;text-align:center;vertical-align:middle;white-space:nowrap;width:auto}.nsm7Bb-HzV7m-LgbsSe.TzA9Ye-LgbsSe{font-size:14px}@media screen and (-ms-high-contrast:active){.nsm7Bb-HzV7m-LgbsSe{border:2px solid windowText;color:windowText}}@media screen and (preferes-contrast:more){.nsm7Bb-HzV7m-LgbsSe{color:#000}}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe{font-size:.875rem;height:32px;letter-spacing:.25px;padding:0 10px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.TzA9Ye-LgbsSe{font-size:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe{font-size:.6875rem;height:20px;letter-spacing:.3px;padding:0 8px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.TzA9Ye-LgbsSe{font-size:11px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe{padding:0;width:40px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe{width:32px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe{width:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK{border-radius:20px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.pSzOP-SxQuSe{border-radius:16px}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK.purZT-SxQuSe{border-radius:10px}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc{border:1px solid #8e918f;background-color:#131314;color:#e3e3e3}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc{border:none;color:#fff}.nsm7Bb-HzV7m-LgbsSe.MFS4be-v3pZbf-Ia7Qfc{background-color:#1a73e8}.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{background-color:#202124;color:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.MFS4be-JaPV2b-Ia7Qfc{color:#fff}}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:18px;margin-right:8px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:14px;min-width:14px;width:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{height:10px;min-width:10px;width:10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin-left:8px;margin-right:-4px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:10px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:8px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c{padding:4px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:3px;border-bottom-left-radius:3px;display:-webkit-box;display:-webkit-flex;display:flex;-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center;-webkit-box-align:center;-webkit-align-items:center;align-items:center;background-color:#fff;height:36px;margin-left:-10px;margin-right:12px;min-width:36px;width:36px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c,.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf .nsm7Bb-HzV7m-LgbsSe-Bz112c{margin:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:28px;margin-left:-8px;margin-right:10px;min-width:28px;width:28px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{height:16px;margin-left:-6px;margin-right:8px;min-width:16px;width:16px}.nsm7Bb-HzV7m-LgbsSe.Bz112c-LgbsSe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:3px;margin-left:2px;margin-right:0;padding:0}.nsm7Bb-HzV7m-LgbsSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.nsm7Bb-HzV7m-LgbsSe.pSzOP-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:14px}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:8px}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-bN97Pc-sM5MNb{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;-webkit-flex-direction:row;-webkit-box-orient:horizontal;-webkit-box-direction:normal;flex-direction:row;-webkit-box-pack:justify;-webkit-justify-content:space-between;justify-content:space-between;-webkit-flex-wrap:nowrap;flex-wrap:nowrap;height:100%;position:relative;width:100%}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX{-webkit-box-pack:center;-webkit-justify-content:center;justify-content:center}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:1;-webkit-box-flex:1;flex-grow:1;font-family:Google Sans,arial,sans-serif;font-weight:500;overflow:hidden;text-overflow:ellipsis;vertical-align:top}.nsm7Bb-HzV7m-LgbsSe.purZT-SxQuSe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-weight:300}.nsm7Bb-HzV7m-LgbsSe .oXtfBe-l4eHX .nsm7Bb-HzV7m-LgbsSe-BPrWId{-webkit-flex-grow:0;-webkit-box-flex:0;flex-grow:0}.nsm7Bb-HzV7m-LgbsSe .nsm7Bb-HzV7m-LgbsSe-MJoBVe{-webkit-transition:background-color .218s;transition:background-color .218s;bottom:0;left:0;position:absolute;right:0;top:0}.nsm7Bb-HzV7m-LgbsSe:focus,.nsm7Bb-HzV7m-LgbsSe:hover{box-shadow:none;border-color:rgb(210,227,252);outline:none}.nsm7Bb-HzV7m-LgbsSe:focus-within{outline:2px solid #00639b;border-color:transparent}.nsm7Bb-HzV7m-LgbsSe:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.08)}.nsm7Bb-HzV7m-LgbsSe:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(66,133,244,.1)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.08)}.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.i5vt6e-to915-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.12)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:hover .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.24)}.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:active .nsm7Bb-HzV7m-LgbsSe-MJoBVe,.nsm7Bb-HzV7m-LgbsSe.MFS4be-Ia7Qfc:focus .nsm7Bb-HzV7m-LgbsSe-MJoBVe{background:rgba(255,255,255,.32)}.nsm7Bb-HzV7m-LgbsSe .n1UuX-DkfjY{border-radius:50%;display:-webkit-box;display:-webkit-flex;display:flex;height:20px;margin-left:-4px;margin-right:8px;min-width:20px;width:20px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId{font-family:Roboto;font-size:12px;text-align:left}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .fmcmS,.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .ssJRIf{overflow:hidden;text-overflow:ellipsis}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{display:-webkit-box;display:-webkit-flex;display:flex;-webkit-align-items:center;-webkit-box-align:center;align-items:center;color:#5f6368;fill:#5f6368;font-size:11px;font-weight:400}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.i5vt6e-to915-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#c4c7c5;fill:#c4c7c5}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#e8eaed;fill:#e8eaed}@media screen and (prefers-contrast:more){.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff,.nsm7Bb-HzV7m-LgbsSe.jVeSEe.MFS4be-Ia7Qfc .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff{color:#000;fill:#000}}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-BPrWId .K4efff .Bz112c{height:18px;margin:-3px -3px -3px 2px;min-width:18px;width:18px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-top-left-radius:0;border-bottom-left-radius:0;border-top-right-radius:3px;border-bottom-right-radius:3px;margin-left:12px;margin-right:-10px}.nsm7Bb-HzV7m-LgbsSe.jVeSEe.JGcpL-RbRzK .nsm7Bb-HzV7m-LgbsSe-Bz112c-haAclf{border-radius:18px}.L5Fo6c-sM5MNb{border:0;display:block;left:0;position:relative;top:0}.L5Fo6c-bF1uUb{border-radius:4px;bottom:0;cursor:pointer;left:0;position:absolute;right:0;top:0}.L5Fo6c-bF1uUb:focus{border:none;outline:none}sentinel{}</style><link id="googleidentityservice" type="text/css" media="all" href="https://accounts.google.com/gsi/style" rel="stylesheet"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4170-2e4ec80e1a0c.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/6843-fa506b71dc5d.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/5837-827d4d74e66a.css"><link rel="home" href="https://www.agoda.com/" data-react-helmet="true"><meta name="robots" content="noindex, nofollow" data-react-helmet="true"><meta name="description" content="Find hotels in Cox&amp;#39;s Bazar, Bangladesh and explore top accommodation in the city. Check out star rating and review score before you book!" data-react-helmet="true"><meta name="keywords" content="11 Best Hotels in Cox&amp;#39;s Bazar, Bangladesh" data-react-helmet="true"><meta property="og:site_name" content="Agoda.com" data-react-helmet="true"><meta property="og:locale" content="en-us" data-react-helmet="true"><meta property="og:url" content="https://www.agoda.com/search" data-react-helmet="true"><meta property="og:type" content="place" data-react-helmet="true"><meta property="og:street_address" content="" data-react-helmet="true"><meta property="og:title" content="Agoda | Hotels in Cox&amp;#39;s Bazar | Best Price Guarantee!" data-react-helmet="true"><meta property="og:description" content="Find hotels in Cox&amp;#39;s Bazar, Bangladesh and explore top accommodation in the city. Check out star rating and review score before you book!" data-react-helmet="true"><meta property="og:image" content="https://cdn6.agoda.net/images/mvc/default/agoda-logo-flat-2019.png" data-react-helmet="true"><meta property="og:image:alt" content="" data-react-helmet="true"><meta property="fb:app_id" content="161134343906646" data-react-helmet="true"><meta name="twitter:card" content="summary" data-react-helmet="true"><meta name="twitter:site" content="@agoda" data-react-helmet="true"><meta name="twitter:creator" content="@agoda" data-react-helmet="true"><meta name="twitter:title" content="Agoda | Hotels in Cox&amp;#39;s Bazar | Best Price Guarantee!" data-react-helmet="true"><meta name="twitter:description" content="Find hotels in Cox&amp;#39;s Bazar, Bangladesh and explore top accommodation in the city. Check out star rating and review score before you book!" data-react-helmet="true"><meta name="twitter:url" content="https://www.agoda.com/search" data-react-helmet="true"><meta name="twitter:image" content="https://cdn6.agoda.net/images/mvc/default/agoda-logo-flat-2019.png" data-react-helmet="true"><meta name="apple-ios-itunes-app" content="app-id=440676901" data-react-helmet="true"><meta name="google-play-app" content="com.agoda.mobile.consumer" data-react-helmet="true"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/1860-9a2263b2a60a.css"><meta http-equiv="origin-trial" content="AlK2UR5SkAlj8jjdEc9p3F3xuFYlF6LYjAML3EOqw1g26eCwWPjdmecULvBH5MVPoqKYrOfPhYVL71xAXI1IBQoAAAB8eyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3NTgwNjcxOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv="origin-trial" content="Amm8/NmvvQfhwCib6I7ZsmUxiSCfOxWxHayJwyU1r3gRIItzr7bNQid6O8ZYaE1GSQTa69WwhPC9flq/oYkRBwsAAACCeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiV2ViVmlld1hSZXF1ZXN0ZWRXaXRoRGVwcmVjYXRpb24iLCJleHBpcnkiOjE3NTgwNjcxOTksImlzU3ViZG9tYWluIjp0cnVlfQ=="><meta http-equiv="origin-trial" content="A9nrunKdU5m96PSN1XsSGr3qOP0lvPFUB2AiAylCDlN5DTl17uDFkpQuHj1AFtgWLxpLaiBZuhrtb2WOu7ofHwEAAACKeyJvcmlnaW4iOiJodHRwczovL2RvdWJsZWNsaWNrLm5ldDo0NDMiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElNdWx0aW1vZGFsSW5wdXQiLCJleHBpcnkiOjE3NzQzMTA0MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A93bovR+QVXNx2/38qDbmeYYf1wdte9EO37K9eMq3r+541qo0byhYU899BhPB7Cv9QqD7wIbR1B6OAc9kEfYCA4AAACQeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXN5bmRpY2F0aW9uLmNvbTo0NDMiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElNdWx0aW1vZGFsSW5wdXQiLCJleHBpcnkiOjE3NzQzMTA0MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><meta http-equiv="origin-trial" content="A1S5fojrAunSDrFbD8OfGmFHdRFZymSM/1ss3G+NEttCLfHkXvlcF6LGLH8Mo5PakLO1sCASXU1/gQf6XGuTBgwAAACQeyJvcmlnaW4iOiJodHRwczovL2dvb2dsZXRhZ3NlcnZpY2VzLmNvbTo0NDMiLCJmZWF0dXJlIjoiQUlQcm9tcHRBUElNdWx0aW1vZGFsSW5wdXQiLCJleHBpcnkiOjE3NzQzMTA0MDAsImlzU3ViZG9tYWluIjp0cnVlLCJpc1RoaXJkUGFydHkiOnRydWV9"><link href="https://securepubads.g.doubleclick.net/pagead/managed/dict/m202610290101/gpt" rel="compression-dictionary"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/2481-1393f55b7097.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/8564-5fc754378659.css"><link rel="stylesheet" type="text/css" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4490-830fbdcdd63c.css">
+    <title>{{ $metaTitle }}</title>
+    <meta name="description" content="{{ $metaDesc }}">
+    <link rel="canonical" href="{{ $canonicalUrl }}">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ $canonicalUrl }}">
+    <meta property="og:title" content="{{ $metaTitle }}">
+    <meta property="og:description" content="{{ $metaDesc }}">
+    <meta property="og:image" content="{{ url('/android-chrome-512x512.png') }}">
+    <meta property="og:site_name" content="Prime Booking">
+    <link rel="shortcut icon" href="{{ asset('favicon.ico') }}">
+    <link rel="stylesheet" href="{{ asset('css/agoda/agoda-search-master-bundle.css') }}?v={{ time() }}">
+    <link rel="stylesheet" href="{{ asset('css/agoda/agoda-search-exact.css') }}?v={{ time() }}">
+    <style>
+        .fuICnK, [class*="ScreenReaderOnly"] { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+        .ftJhvu { flex: 0 0 33.3333% !important; max-width: 33.3333% !important; width: 33.3333% !important; }
+        .eKqvXe { flex: 0 0 41.6667% !important; max-width: 41.6667% !important; width: 41.6667% !important; }
+        .fTvBdC { flex: 0 0 25.0000% !important; max-width: 25.0000% !important; width: 25.0000% !important; }
+        .full-funnel-banner { display: flex !important; align-items: center !important; }
+        .full-funnel-background { display: block !important; width: 100% !important; background: linear-gradient(88deg, #ffe8d6, #fed5d5) !important; }
+
+        /* Agoda Mobile 1:1 Responsive Overrides */
+        @media (max-width: 991.98px) {
+            html, body {
+                overflow-x: hidden !important;
+                width: 100% !important;
+            }
+            .container-agoda {
+                width: 100% !important;
+                max-width: 100% !important;
+                padding: 0 10px !important;
+            }
+            .SearchBoxContainer, .Searchbox__wrapper {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .Searchbox--horizontal .abb64-flex-row {
+                flex-direction: column !important;
+                gap: 8px !important;
+            }
+            .Searchbox--horizontal .IconBox,
+            .Searchbox--horizontal .IconBox--autocomplete,
+            .Searchbox--horizontal .IconBox--occupancy,
+            .SearchBoxContainer--compact .IconBox--checkIn,
+            .SearchBoxContainer--compact .IconBox--checkOut,
+            .Searchbox .IconBox {
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .Searchbox .abb64-inline-flex {
+                width: 100% !important;
+            }
+            .TopBarContainer, #topbar {
+                position: static !important;
+            }
+            #searchPageLeftColumn {
+                display: none !important;
+            }
+            .l-col-9, .l-col-8, .main-column > div:not(#searchPageLeftColumn),
+            div[class*="Headerstyled__RightContainer"] {
+                width: 100% !important;
+                max-width: 100% !important;
+                float: none !important;
+            }
+            .ssr-container, .l-row, .main-column {
+                width: 100% !important;
+                max-width: 100% !important;
+                display: block !important;
+            }
+            /* Stack Property Cards Vertically on Mobile */
+            .ftJhvu, .eKqvXe, .fTvBdC {
+                flex: 0 0 100% !important;
+                max-width: 100% !important;
+                width: 100% !important;
+            }
+            .fTvBdC {
+                border-top: 1px solid #f1f5f9 !important;
+                padding-top: 10px !important;
+            }
+            .ssr-search-result-item {
+                padding: 8px 0 !important;
+            }
+            header#page-header {
+                overflow-x: hidden !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            .Header__LogoAndLinks__Links {
+                display: none !important;
+            }
+            #fullFunnelBannerTarget, .full-funnel-background, .full-funnel-banner-with-close {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow: hidden !important;
+            }
+            .full-funnel-header-sub {
+                word-break: break-word !important;
+            }
+        }
+    </style>
+</head>
+
+<body class="NewSSR desktop AVENGERS-2892 AVENGERS-2888 AVENGERS-3602 AVENGERS-3989 TRIPWL-1417 ltr themed theme-agoda ads-agoda ads-agoda-deprecateInaccessibleColor ads-agoda-isInteractiveStateImproved window-loaded" style="margin-right: 0px; position: relative;"><noscript>
+      <iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5TXL8JK&gtm_auth=&gtm_preview=&gtm_cookies_win=x"
+        height="0" width="0" style="display:none;visibility:hidden" id="tag-manager"></iframe></noscript>
+    <div id="mockDataEnabled" value="False"></div>
+    <div id="login-react-popup"></div>
+    <div id="login-react-root"></div>
+    <div id="pointsmax-panel-react-root" data-hotel-id="" data-signin-landing=""></div>
+
+    <input id="backwardRequestVerificationToken" name="backwardRequestVerificationToken" type="hidden" value="oYKqRyKVa/TxUbbQx9dGY0eztKS3Pki0FUT1bt+4b0Q=:YKoNvrYQYi4pi2BdfVFDnWdvqsk=">
+
+<input id="requestVerificationToken" name="requestVerificationToken" type="hidden" value="CfDJ8Dkuqwv-0VhLoFfD8dw7lYyhgLAIbTiSMvhGp8wQHPVKPyJ4HTCNSNzS7ugNAED9zz3yiTpBwmgJiuWIA_BgPk37p8tAAo-LiEzigxtXowVhEFLzxJukaabCDUjQSORdGYHMQfbmZSd7EniU3VCk5wk">
+
+
+    <style>
+        .backgroundSpace {
+            position: absolute;
+            top: 0;
+            left: 0;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
         }
 
-        return [
-            'id'            => $id,
-            'name'          => $name,
-            'price_raw'     => $convertedPrice,
-            'price'         => $formattedPrice,
-            'city'          => $city,
-            'image'         => $image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500',
-            'score'         => $score > 0 ? number_format($score, 1) : '8.8',
-            'rating_text'   => $score >= 9 ? 'Exceptional' : ($score >= 8 ? 'Excellent' : 'Very Good'),
-            'reviews'       => $reviews,
-            'url'           => route('property.show', $slug),
-            'lat'           => $lat,
-            'lng'           => $lng,
-            'has_gps'       => $hasGps,
-            'distance_km'   => $distanceKm !== null ? round((float)$distanceKm, 1) : null,
-            'distance_text' => $distanceKm !== null ? round((float)$distanceKm, 1) . ' km from your location' : null,
-            'type'          => ucfirst($type),
-            'free_cancel'   => $freeCancel,
-            'pay_later'     => $payLater,
-        ];
-    });
-
-    $maxConvertedPrice = ceil(($mapProperties->max('price_raw') ?: 5000) * 1.25);
-    if ($maxConvertedPrice < 10000 && $currCode === 'BDT') {
-        $maxConvertedPrice = 50000;
-    }
-
-    $gpsProps = $mapProperties->where('has_gps', true);
-    if ($userLat && $userLng) {
-        // Priority 1: User's GPS location
-        $centerLat = $userLat;
-        $centerLng = $userLng;
-    } elseif ($gpsProps->count() > 0) {
-        // Priority 2: Centroid of results
-        $centerLat = $gpsProps->avg('lat');
-        $centerLng = $gpsProps->avg('lng');
-    } else {
-        // Priority 3 / 4: Destination city or National capital (Dhaka)
-        $centerLat = $defaultLat;
-        $centerLng = $defaultLng;
-    }
-
-    // Scatter properties that lack exact coordinates around center
-    $mapProperties = $mapProperties->map(function($p, $idx) use ($centerLat, $centerLng) {
-        if (!$p['has_gps']) {
-            $latOffset = (($idx % 5) - 2) * 0.012;
-            $lngOffset = (($idx % 2 === 0 ? 1 : -1) * (($idx % 4) + 1)) * 0.009;
-            $p['lat'] = round($centerLat + $latOffset, 6);
-            $p['lng'] = round($centerLng + $lngOffset, 6);
+        .backgroundContainer {
+            width: 90vw;
+            height: 90vh;
         }
-        return $p;
-    });
-@endphp
+    </style>
+    <div class="backgroundSpace" data-lcp="false">
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <div class="backgroundContainer"></div>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+ 
+
+        <div id="consent-banner-container"></div>
+
+
+
+<div id="pointsmax-panel-react-root" data-hotel-id="" data-signin-landing=""></div>
+
+
+
+<div class="hide" id="page-identification" data-page="NewSSR" data-device="desktop"></div>
+<div id="seo-data"></div>
+
+
+
+
+
+
+    
+
+
+
+
 
 <style>
-    #agodaMapFilterCol::-webkit-scrollbar, #agodaMapCardsCol::-webkit-scrollbar {
-        width: 5px;
+    .no-scroll {
+        overflow-y: hidden;
     }
-    #agodaMapFilterCol::-webkit-scrollbar-track, #agodaMapCardsCol::-webkit-scrollbar-track {
-        background: #f8fafc;
-    }
-    #agodaMapFilterCol::-webkit-scrollbar-thumb, #agodaMapCardsCol::-webkit-scrollbar-thumb {
-        background: #cbd5e1;
-        border-radius: 4px;
-    }
-    #agodaMapFilterCol::-webkit-scrollbar-thumb:hover, #agodaMapCardsCol::-webkit-scrollbar-thumb:hover {
-        background: #94a3b8;
+    .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
     }
 </style>
 
-{{-- Interactive Leaflet OpenStreetMap Agoda-Exact Split-Screen Modal (100% Exact 1:1 Parity with Agoda.com) --}}
-<div class="modal fade" id="interactiveMapModal" tabindex="-1" aria-hidden="true" style="backdrop-filter: blur(4px); background: rgba(0, 0, 0, 0.7);">
-    <div class="modal-dialog modal-dialog-centered" style="width: 96vw; max-width: 1540px; height: 95vh; margin: 2.5vh auto;">
-        <div class="modal-content border-0 overflow-hidden" style="height: 100%; border-radius: 0 !important; box-shadow: 0 25px 65px rgba(0, 0, 0, 0.6); background: #ffffff;">
-            
-            {{-- Top Modal Bar: Hide filters & Close X (Agoda Exact) --}}
-            <div class="d-flex justify-content-between align-items-center px-4 bg-white border-bottom" style="z-index: 1050; height: 48px; border-color: #e2e8f0 !important;">
-                <div class="d-flex align-items-center">
-                    <button type="button" class="btn btn-sm rounded-pill px-3 py-1 fw-bold d-flex align-items-center" id="toggleMapFilterSidebarBtn" style="border: 1px solid #bfdbfe; color: #2067e1; font-size: 12px; background: #f0f7ff;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 6px;">
-                            <line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line>
-                        </svg>
-                        <span id="toggleFilterBtnText">Hide filters</span>
-                    </button>
-                </div>
-                <div>
-                    <button type="button" class="btn btn-link p-0 text-primary fs-4 text-decoration-none d-flex align-items-center justify-content-center" data-bs-dismiss="modal" aria-label="Close" style="color: #2067e1 !important; line-height: 1; width: 30px; height: 30px;">
-                        <i class="fa-solid fa-xmark"></i>
-                    </button>
-                </div>
-            </div>
+    <style>
+        /* Keep the hydrated package summary behind the overlay for its entire fade-out. */
+        #ssrPlaceholder ~ #searchPageReactRoot #reactSearchPage.package #topbar {
+            visibility: hidden;
+        }
 
-            {{-- Main Split View Container (3 Panels) --}}
-            <div class="modal-body p-0 d-flex overflow-hidden" style="height: calc(100% - 48px);">
-                
-                {{-- Panel 1: Left Filter Sidebar (Collapsible - Agoda 1:1 Complete Parity) --}}
-                <div id="agodaMapFilterCol" class="bg-white border-end overflow-y-auto" style="width: 280px; min-width: 280px; padding: 16px 20px !important; flex-shrink: 0; transition: all 0.3s ease; border-color: #e2e8f0 !important;">
-                    
-                    {{-- Text Search --}}
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center rounded-pill" style="background: #f8fafc; height: 38px; padding: 0 12px; border: 1px solid #cbd5e1;">
-                            <i class="fa-solid fa-magnifying-glass text-secondary" style="font-size: 13px; margin-right: 8px; flex-shrink: 0;"></i>
-                            <input type="text" id="mapSearchInput" class="border-0 bg-transparent w-100 shadow-none text-dark fw-medium" placeholder="Text search" style="font-size: 12.5px; outline: none; padding: 0;" onkeyup="filterMapItems()">
-                        </div>
-                    </div>
+        /* Release only this summary if the placeholder's transition end event is missed. */
+        #ssrPlaceholder.ssr-placeholder--hidden ~ #searchPageReactRoot #reactSearchPage.package #topbar {
+            animation: reveal-packages-search-summary 1ms linear 400ms forwards;
+        }
 
-                    {{-- Budget Slider with Dual Side-by-Side Bordered Box Display (Agoda 1:1 Parity) --}}
-                    <div class="mb-3 pb-2.5 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <label class="fw-bold text-dark d-block mb-1.5" style="font-size: 13px;">Your budget (per night)</label>
-                        <input type="range" id="mapPriceRange" class="form-range my-2" min="0" max="{{ $maxConvertedPrice ?? 1000 }}" step="{{ ($maxConvertedPrice ?? 1000) > 5000 ? 100 : 5 }}" value="{{ $maxConvertedPrice ?? 1000 }}" oninput="onMapSliderChange(this.value);">
-                        
-                        <div class="d-flex align-items-center justify-content-between gap-1.5 mt-1">
-                            <div class="flex-grow-1" style="min-width: 0;">
-                                <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 9.5px; letter-spacing: 0.5px; line-height: 1;">MIN</span>
-                                <div class="border rounded-1 d-flex align-items-center justify-content-between bg-white" style="border: 1.5px solid #0f172a !important; height: 30px; padding: 0 8px; box-sizing: border-box;">
-                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px; flex-shrink: 0; line-height: 1;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                    <input type="number" id="mapMinBudgetInput" class="form-control border-0 shadow-none fw-bold text-end text-dark p-0 m-0" value="0" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent; height: 100%;" oninput="onMapTypedBudgetChange()">
-                                </div>
-                            </div>
-                            <div class="text-muted fw-bold align-self-end flex-shrink-0" style="font-size: 10px; letter-spacing: 0.5px; color: #94a3b8 !important; margin-bottom: 7px;">
-                                -------
-                            </div>
-                            <div class="flex-grow-1" style="min-width: 0;">
-                                <span class="d-block fw-bold text-dark text-uppercase mb-1" style="font-size: 9.5px; letter-spacing: 0.5px; line-height: 1;">MAX</span>
-                                <div class="border rounded-1 d-flex align-items-center justify-content-between bg-white" style="border: 1.5px solid #2067e1 !important; height: 30px; padding: 0 8px; box-shadow: 0 0 0 1px #2067e1; box-sizing: border-box;">
-                                    <span class="text-dark fw-bold" style="font-size: 11px; margin-right: 4px; flex-shrink: 0; line-height: 1;">{{ \App\Helpers\CurrencyHelper::current() }}</span>
-                                    <input type="number" id="mapMaxBudgetInput" class="form-control border-0 shadow-none fw-bold text-end text-primary p-0 m-0" value="{{ $maxConvertedPrice ?? 1000 }}" min="0" max="1000000" style="font-size: 12px; width: 100%; background: transparent; height: 100%;" oninput="onMapTypedBudgetChange()">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        @keyframes reveal-packages-search-summary {
+            to {
+                visibility: visible;
+            }
+        }
+    </style>
 
-                    {{-- Your active filters with 1-click Clear --}}
-                    <div class="d-flex justify-content-between align-items-center mb-2 pb-1">
-                        <span class="fw-bold text-dark" style="font-size: 12.5px;">Your filters</span>
-                        <a href="javascript:void(0);" onclick="clearAllMapFilters();" class="text-primary text-decoration-none fw-bold" style="font-size: 11px;">CLEAR</a>
-                    </div>
-                    <div id="activeMapFiltersBadgeContainer" class="mb-2.5 d-flex flex-wrap gap-1">
-                        {{-- Populated dynamically via JS --}}
-                    </div>
 
-                    {{-- 1. Popular Filters --}}
-                    <div class="mb-3 pb-2.5 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size: 12.5px;">Popular filters for {{ $destination ?: 'Bangladesh' }}</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="breakfast" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Breakfast included</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="free_cancel" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Free cancellation</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="pay_later" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Pay at the hotel</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="rating_8" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Guest rating: 8+ Excellent</span>
-                                <span class="text-muted small">({{ max(1, (int)(count($searchResults['merged_results']) * 0.7)) }})</span>
-                            </label>
-                        </div>
-                    </div>
 
-                    {{-- 2. Property Type --}}
-                    <div class="mb-3 pb-2.5 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size: 12.5px;">Property type</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_entire" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Entire homes &amp; apartments</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_apartment" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Apartment/Flat</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check" value="type_hotel" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Hotels &amp; Resorts</span>
-                                <span class="text-muted small">({{ count($searchResults['merged_results']) }})</span>
-                            </label>
-                        </div>
-                    </div>
+<div id="css-dummy"></div>
 
-                    {{-- 3. Room Amenities --}}
-                    <div class="mb-3 pb-2.5 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <label class="fw-bold text-dark d-block mb-2" style="font-size: 12.5px;">Room amenities</label>
-                        <div class="d-flex flex-column gap-2">
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="ac" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Air conditioning</span>
-                                <span class="text-muted small">(5)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="washing_machine" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Washing machine</span>
-                                <span class="text-muted small">(4)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="heating" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Heating</span>
-                                <span class="text-muted small">(5)</span>
-                            </label>
-                            <label class="d-flex align-items-center justify-content-between text-dark" style="font-size: 12px; cursor: pointer;">
-                                <span class="d-flex align-items-center"><input type="checkbox" class="form-check-input m-0 map-filter-check map-amenity-check" value="wifi" onchange="filterMapItems()" style="width: 15px; height: 15px; margin-right: 8px !important;"> Free Wi-Fi</span>
-                                <span class="text-muted small">(12)</span>
-                            </label>
-                        </div>
-                    </div>
 
-                </div>
 
-                {{-- Panel 2: Center Scrollable Horizontal Property Cards (Agoda 1:1 Parity) --}}
-                <div id="agodaMapCardsCol" class="bg-white border-end overflow-y-auto" style="width: 460px; min-width: 460px; padding: 16px 20px !important; flex-shrink: 0; border-color: #e2e8f0 !important;">
-                    
-                    {{-- Header with Result Count, Nights, and Floating Sort Box --}}
-                    <div class="mb-2.5 pb-2 border-bottom" style="border-color: #f1f5f9 !important;">
-                        <div class="fw-bold text-dark" style="font-size: 14.5px; margin-bottom: 2px;">
-                            <span id="visibleCardsCount">{{ count($searchResults['merged_results']) }}</span> properties available
-                        </div>
-                        <div class="text-secondary d-flex align-items-center gap-1.5 mb-2" style="font-size: 11.5px; color: #64748b !important;">
-                            <i class="fa-regular fa-calendar" style="font-size: 11px; margin-right: 4px;"></i> {{ $checkinCarbon->diffInDays($checkoutCarbon) }} nights ({{ $checkinCarbon->format('M j') }} – {{ $checkoutCarbon->format('M j') }})
-                        </div>
-                        <div class="position-relative mt-1">
-                            <label style="position: absolute; top: -7px; left: 10px; background: #ffffff; padding: 0 4px; font-size: 10px; font-weight: 600; color: #64748b; z-index: 1;">Sort by</label>
-                            <select id="mapSortSelect" class="form-select form-select-sm fw-bold text-dark shadow-none" style="height: 38px; border-radius: 4px; border-color: #cbd5e1; font-size: 12.5px; padding-left: 10px;" onchange="sortMapItems(this.value)">
-                                <option value="recommended">Recommended</option>
-                                <option value="price_low">Lowest price first</option>
-                                <option value="rating_high">Guest rating</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    {{-- Dynamic Property Cards List --}}
-                    <div id="agodaMapCardsList" class="d-flex flex-column gap-2">
-                        {{-- Injected dynamically via JS as Horizontal Agoda Cards --}}
-                    </div>
-                </div>
-
-                {{-- Panel 3: Right Full Height Interactive Map --}}
-                <div class="flex-grow-1 position-relative h-100" style="background:#e5e7eb;">
-                    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-                    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-                    {{-- Floating Map Search Pill (Agoda Exact UI Positioned at Top Left of Map Canvas) --}}
-                    <div class="position-absolute" style="top: 18px; left: 18px; z-index: 1000; width: 290px;">
-                        <div class="bg-white rounded-pill d-flex align-items-center border" style="height: 44px; padding: 0 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.14); border-color: #cbd5e1 !important;">
-                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#2067e1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px; min-width: 17px;">
-                                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                            </svg>
-                            <input type="text" id="mapHeaderSearchInput" class="border-0 bg-transparent w-100 text-dark fw-medium" placeholder="Search on map..." autocomplete="off" style="outline:none; font-size:13px; padding: 0;" onkeyup="handleMapSearchAutocomplete(this.value)">
-                            <button type="button" class="btn btn-link p-0 text-muted d-none ms-2" id="clearMapSearchBtn" onclick="clearMapSearch()" style="text-decoration:none;"><i class="fa-solid fa-circle-xmark fs-6"></i></button>
-                        </div>
-
-                        {{-- Agoda 1:1 Smart Location Dropdown (Auto-suggests Cities, Districts, Landmarks & Railway Stations) --}}
-                        <div id="agodaMapSuggestDropdown" class="bg-white rounded-3 shadow-lg border mt-1.5 overflow-hidden d-none" style="max-height: 280px; overflow-y: auto; border-color: #cbd5e1 !important;">
-                            <div id="agodaMapSuggestList" class="py-1"></div>
-                        </div>
-                    </div>
-
-                    <div id="agodaMapContainer" style="width: 100%; height: 100%; z-index: 1;"></div>
-                </div>
-
-            </div>
-        </div>
+<header id="page-header"><section data-element-name="header-container-section" data-selenium="header-container-section" class="Headerstyled__HeaderSection-sc-vtperc-0 fyCga-D"><div data-element-name="header-left-section" data-selenium="header-left-section" class="Box-sc-kv6pi1-0 kGmOyP"><nav class="Header__LogoAndLinks"><div class="Box-sc-kv6pi1-0 PrimaryLogo__PrimaryLogoWrapper-sc-111tzin-0 eirVlt lcqCvH Header__LogoAndLinks__PrimaryLogo"><a href="{{ url('/') }}" class="Header__LogoAndLinks__PrimaryLogo__LogoLink" aria-label="Prime Booking logo Home link" data-element-name="primary-logo"><div class="Box-sc-kv6pi1-0 jsTHYe" style="display: flex; align-items: center;"><img src="{{ asset('images/logo-brand.png') }}" style="height: 32px; width: auto; object-fit: contain;" alt="Prime Booking"></div></a></div><div class="Box-sc-kv6pi1-0 LinkContainerstyled__LinkContainerStyled-sc-1iblxzq-8 lhYHNm kHnLKl Header__LogoAndLinks__Links" linkscount="8" data-element-name="header-link-container" data-selenium="header-link-container"><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-hotels"><a href="/" class="" data-element-name="header-hotels-links" data-selenium="header-hotels"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Hotels &amp; Homes</span></a></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-transportation"><div class="MenuLinkstyled__BadgeContainer-sc-rfzdfl-1 iaLHVP"><div class="Box-sc-kv6pi1-0 iCpMWZ Badgestyled__BadgeStyled-sc-110jpdn-0 gIbXsK MenuLink__MenuBadgeStyled-sc-8it71c-0 kBwZcI"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 cutlhX kite-js-Typography ">New!</span></div></div><div class="LinkContainerstyled__DroneEllipsisLinkStyled-sc-1iblxzq-4 bUFuFX"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-1      "><a class="" data-element-name="header-transportation-links" data-selenium="header-transportation" role="button" aria-expanded="false" tabindex="0"><div class="abb64-flex abb64-flex-row"><span class="MenuLinkstyled__DropdownContainer-sc-rfzdfl-2 cZiOcy"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Transport</span></span><div class="abb64-mx-8 abb64-justify-center abb64-items-center abb64-px-0 abb64-py-0 abb64-flex abb64-flex-row"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="" style="width: 12px; height: 12px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/ebd4b0d9.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></div></div></a></div></div></div></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-activities"><a href="https://www.getyourguide.com/?partner_id=HYFZ1GI&amp;cmp=desktop" target="_blank" class="" data-element-name="header-activities-links" data-selenium="header-activities"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Things to do</span></a></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-deals"><a href="/deals" target="_blank" class="" data-element-name="header-deals-links" data-selenium="header-deals"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Coupons &amp; Deals</span></a></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-apartments"><a href="/apartments" target="_blank" class="" data-element-name="header-apartments-links" data-selenium="header-apartments"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Apartments</span></a></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-esim"><a href="/clickouts/esim?source=desktop&amp;medium=-1&amp;campaign=header_esim_link&amp;currency=USD" target="_blank" class="" data-element-name="header-esim-links" data-selenium="header-esim"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">eSIM</span></a></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-travel-guides"><a href="/travel-guides" target="_blank" class="" data-element-name="header-travel-guides-links" data-selenium="header-travel-guides"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Travel Guides</span></a></div></div><div class="LinkContainerstyled__LinkStyled-sc-1iblxzq-1 fgYoAL"><div class="LinkContainerstyled__MenuItemContainer-sc-1iblxzq-0 fkNAwX Header__LogoAndLinks__Links__Links" data-selenium="header-travel-tips"><a href="/traveltips/" target="_blank" class="" data-element-name="header-travel-tips-links" data-selenium="header-travel-tips"><span class="Typographystyled__TypographyStyled-sc-j18mtu-0 aXOsA kite-js-Typography __text">Travel Itineraries</span></a></div></div><div class="LinkContainerstyled__DroneEllipsisLinkStyled-sc-1iblxzq-4 bUFuFX"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-1      "><div class="abb64-box LinkContainerstyled__DroneEllipsisIconContainer-sc-1iblxzq-7 fbuKcD abb64-fill-inherit abb64-text-inherit      "><button aria-label="Travel menu" aria-expanded="false" type="button" class="abb64-box abb64-bg-generic-base-transparent abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-pl-24   abb64-border-0   "><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/6714c51c.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></button></div></div></div></div></div></nav></div><div data-element-name="header-right-section" data-selenium="header-right-section" class="Box-sc-kv6pi1-0 Headerstyled__RightContainer-sc-vtperc-1 QXKtQ gsqccF" style="min-width: min-content; flex: 1 1 0%;"><div data-testid="responsive-action-bar" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-min-w-min abb64-items-center abb64-flex abb64-justify-end abb64-overflow-visible abb64-px-8      " style="height: 60px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-none      " style="height: 60px; display: none;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-min-w-fit abb64-self-center abb64-whitespace-nowrap      "><button data-element-name="header-list-your-place-button" data-selenium="header-list-your-place-button" type="button" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-product-primary abb64-text-product-primary abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-px-24 abb64-py-12  abb64-rounded-base abb64-border-1  abb64-interactive  " style="height: 44px; --interactive-color: 32, 103, 218; --interactive-color-primary: var(--ads-colors-primary-base-intent); --color-neutral-4: var(--ads-colors-generic-base-inverted);"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bkxKct">List your place</span></div></button></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-none      " style="height: 60px; display: flex;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-none      " style="height: 60px;"><div data-testid="header-box" role="button" tabindex="0" aria-label="Language in English" aria-describedby="language-container-selected-language-desc" data-element-name="language-container-selected-language" data-selenium="language-container-selected-language" data-value="en-us" class="Box-sc-kv6pi1-0 jcGjhQ" data-mimir-element-data="agoda-layout"><div class="HeaderItem__HeaderItemContainer-sc-1xwqe53-0 bxrBfG"><img class="Flag__StyledCdnIcon-sc-nifs7d-0 jaaQex" src="https://cdn6.agoda.net/images/mobile/flag-us@2x.png" alt="English" width="26" height="auto"></div><span id="language-container-selected-language-desc" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">Select your language</span></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-none      " style="height: 60px;"><div data-testid="header-box" role="button" tabindex="0" aria-label="Price display in US Dollar" aria-describedby="currency-container-selected-currency-desc" data-element-name="currency-container-selected-currency" data-selenium="currency-container-selected-currency" data-value="USD" class="Box-sc-kv6pi1-0 jcGjhQ" data-mimir-element-data="agoda-layout"><div class="HeaderItem__HeaderItemContainer-sc-1xwqe53-0 bxrBfG"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN dOLNKL">BDT</span></div></div><span id="currency-container-selected-currency-desc" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">Select your currency</span></div></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-none      " style="height: 60px; display: flex;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-none" style="height: 60px;">
+@auth
+    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-items-center" style="margin-left: 12px;">
+        <a href="{{ route('user.dashboard') }}" style="color: #2a2a2e; font-weight: 600; font-size: 14px; text-decoration: none; display: flex; align-items: center; gap: 6px;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span>{{ Auth::user()->name }}</span>
+        </a>
     </div>
-</div>
+@else
+    <a href="{{ route('login') }}" class="abb64-box abb64-bg-generic-base-transparent abb64-fill-product-primary abb64-text-product-primary abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-mr-8 abb64-px-24 abb64-py-12 abb64-rounded-base abb64-border-0 abb64-interactive" style="height: 44px; text-decoration: none; display: flex; align-items: center;">
+        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bkxKct" style="color: #2067e1; font-weight: 600;">Sign in</span>
+    </a>
+    <a href="{{ route('register') }}" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-product-primary abb64-text-product-primary abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-px-24 abb64-py-12 abb64-rounded-base abb64-border-1 abb64-interactive" style="height: 44px; text-decoration: none; display: flex; align-items: center; border: 1.5px solid #d1d5db;">
+        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bkxKct" style="color: #2067e1; font-weight: 600;">Create account</span>
+    </a>
+@endauth
+</div></div></div><div data-testid="fixed-marker" class="abb64-box abb64-fill-inherit abb64-text-inherit      " style="width: 1px;"></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-content-end abb64-self-center abb64-flex abb64-mx-8 abb64-my-0      "></div><div class="Box-sc-kv6pi1-0 flviCy"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-1      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-1      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-1      "><button aria-label="Account Menu" data-element-name="header-hamburger-menu" data-selenium="header-hamburger-menu" aria-haspopup="listbox" aria-expanded="false" tabindex="0" type="button" class="abb64-box abb64-bg-generic-base-transparent abb64-fill-product-primary abb64-text-product-primary abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-px-12 abb64-py-12  abb64-rounded-max abb64-border-0  abb64-interactive  " style="width: 44px; height: 44px; --interactive-color: 32, 103, 218; --interactive-color-primary: var(--ads-colors-primary-base-intent); --color-neutral-4: var(--ads-colors-generic-base-inverted);"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/3094a487.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></button></div></div></div></div></div></section></header>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        var allProperties = @json($mapProperties);
-        var currentFiltered = [...allProperties];
-        var mapModal = document.getElementById('interactiveMapModal');
-        var mapInitialized = false;
-        var map;
-        var miniMap;
-        var markersMap = {};
+<div id="searchPageReactRoot"><div id="reactSearchPage" class="SearchPage" style=""><div class="TopBarContainer"><div id="topbar" class="topbar-wrapper show-search" data-testid="topbar"><form action="{{ route('search.index') }}" method="GET" id="searchHeaderForm">
+    <input type="hidden" name="search_type" value="{{ $searchType ?? 'hotel' }}">
+    <input type="hidden" name="check_in" id="checkInHiddenInput" value="{{ $checkinCarbon->format('Y-m-d') }}">
+    <input type="hidden" name="check_out" id="checkOutHiddenInput" value="{{ $checkoutCarbon->format('Y-m-d') }}">
+    <input type="hidden" name="guests" id="guestsHiddenInput" value="{{ $guestCount }}">
+    <input type="hidden" name="rooms" id="roomsHiddenInput" value="{{ $roomsCount }}">
+    <input type="date" id="checkInNativePicker" style="position:absolute; opacity:0; pointer-events:none;" value="{{ $checkinCarbon->format('Y-m-d') }}" onchange="document.getElementById('checkInHiddenInput').value=this.value; updateSearchDateDisplay('checkIn', this.value);">
+    <input type="date" id="checkOutNativePicker" style="position:absolute; opacity:0; pointer-events:none;" value="{{ $checkoutCarbon->format('Y-m-d') }}" onchange="document.getElementById('checkOutHiddenInput').value=this.value; updateSearchDateDisplay('checkOut', this.value);">
+<div class="SearchBoxContainer SearchBoxContainer--AllRooms SearchBoxContainer--compact SearchBoxContainer--noanimation SearchBoxContainer--ImproveTextSearch" id="SearchBoxContainer" data-selenium="normal-property-searchbox"><div class="Searchbox Searchbox--horizontal" data-selenium="searchBox"><div class="Searchbox__wrapper"><div class="abb64-flex-1 abb64-content-center abb64-flex abb64-flex-row"><div tabindex="-1" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--autocomplete" data-selenium="autocomplete-box" data-element-name="autocomplete-box" data-element-value="prefilled" id="autocomplete-box"><div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper"><span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-search-box" data-selenium="ficon-icon-box"></i></span><div class="IconBox__child" data-selenium="icon-box-child"><input aria-label="Enter a destination or property" role="combobox" aria-expanded="false" aria-controls="search-box-autocomplete-id" aria-describedby="instruction-text" data-selenium="textInput" tabindex="0" type="text" class="SearchBoxTextEditor SearchBoxTextEditor--autocomplete" placeholder="Enter a destination or property" id="textInput" aria-autocomplete="list" aria-haspopup="listbox" value="{{ $destLabel }}" name="destination" id="mainDestInput"><span id="instruction-text" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">Begin typing property name or keyword to search, use arrow keys or tab key to navigate, press Enter to select</span></div></div></div><div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--checkIn IconBox--focussable" data-element-name="check-in-box" role="button" aria-expanded="false" aria-label="Check-in 11 Nov 2026 Wednesday" id="check-in-box" onclick="document.getElementById('checkInNativePicker').showPicker();" style="cursor: pointer;"><div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper"><span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-check-in" data-selenium="ficon-icon-box"></i></span><div class="IconBox__child" data-selenium="icon-box-child"><div data-selenium="checkInBox" data-date="2026-11-11" class="SearchBoxTextDescription SearchBoxTextDescription--checkIn SearchBoxTextDescription--focussable"><div class="SearchBoxTextDescription__title" data-selenium="checkInText" id="checkInDisplayDate">{{ $checkinCarbon->format('j M Y') }}</div><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="checkInDisplayDay">{{ $checkinCarbon->format('l') }}</span></div></div></div></div><div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--checkOut IconBox--focussable" data-element-name="check-out-box" role="button" aria-expanded="false" aria-label="Check-out 13 Nov 2026 Friday" id="check-out-box" onclick="document.getElementById('checkOutNativePicker').showPicker();" style="cursor: pointer;"><div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper"><span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-check-out" data-selenium="ficon-icon-box"></i></span><div class="IconBox__child" data-selenium="icon-box-child"><div data-selenium="checkOutBox" data-date="2026-11-13" class="SearchBoxTextDescription SearchBoxTextDescription--checkOut SearchBoxTextDescription--focussable"><div class="SearchBoxTextDescription__title" data-selenium="checkOutText" id="checkOutDisplayDate">{{ $checkoutCarbon->format('j M Y') }}</div><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="checkOutDisplayDay">{{ $checkoutCarbon->format('l') }}</span></div></div></div></div><div tabindex="0" class="Box-sc-kv6pi1-0 sc-fUnMCh bxexcZ jDzUYD IconBox IconBox--occupancy IconBox--focussable" data-element-name="occupancy-box" role="button" aria-expanded="false" aria-label="Guests and rooms 2&nbsp;adults 1&nbsp;room" id="occupancy-box" onclick="toggleOccupancyDropdown(event)" style="cursor: pointer; position: relative;"><div class="Box-sc-kv6pi1-0 krcUda IconBox__wrapper"><span tabindex="-1"><i class="ficon IconBox__icon ficon-20 ficon-travelers" data-selenium="ficon-icon-box"></i></span><div class="IconBox__child" data-selenium="icon-box-child"><div data-selenium="occupancyBox" data-value="1" class="SearchBoxTextDescription SearchBoxTextDescription--occupancy"><div class="SearchBoxTextDescription__title"><span data-selenium="adultValue" class="abb64-box abb64-fill-inherit abb64-text-inherit" id="adultsDisplayVal">{{ $guestCount }}&nbsp;adult{{ $guestCount > 1 ? 's' : '' }}</span></div><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" data-selenium="roomValue" class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDkwZu" id="roomsDisplayVal">{{ $roomsCount }}&nbsp;room{{ $roomsCount > 1 ? 's' : '' }}</span><div class="SearchBoxTextDescription__child"><i class="ficon ficon ficon-12 ficon-thin-arrow-down"></i></div></div></div></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex      " style="width: 162px;"><button data-selenium="searchButton" data-element-name="search-button" data-active-pressed="true" type="submit" class="abb64-box abb64-bg-product-primary abb64-fill-generic-base-inverted abb64-text-generic-base-inverted abb64-w-full abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-mt-2 abb64-px-24 abb64-py-12  abb64-rounded-base abb64-border-0   abb64-interactive-style abb64-interactive-primary abb64-focus-ring-interactive-border abb64-interactive-bg  " style="min-height: 44px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jXHxke">SEARCH</span></div></button></div></div></div></div><noscript></noscript> </div></form></div><div class="TopBarContainer__Buffer TopBarContainer__Buffer--moveFilterToLeftSidebar" data-testid="bufferBetweenTopBarAndFullFunnelBannerTarget"></div><div id="fullFunnelBannerTarget" data-testid="fullFunnelBannerTarget"><div id="full-funnel-banner-container"><div class="full-funnel-background full-funnel-static full-funnel-orange-pink accessible-contrast" data-selenium="full-funnel-banner"><div class="full-funnel-banner-with-close"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-float-right abb64-mt-8      "><button aria-label="Close" data-element-name="full-funnel-banner-close-drone" type="button" class="abb64-box abb64-bg-generic-base-transparent abb64-fill-product-primary abb64-text-product-primary abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-px-12 abb64-py-12  abb64-rounded-max abb64-border-0  abb64-interactive  " style="width: 44px; height: 44px; --interactive-color: 32, 103, 218; --interactive-color-primary: var(--ads-colors-primary-base-intent); --color-neutral-4: var(--ads-colors-generic-base-inverted);"><svg role="img" aria-hidden="true" opacity="1" class="sc-dcJsrY Iconstyled__IconStyled-sc-1fugtov-0  hMRXsE"><use href="#9523eea2"></use></svg></button></div><div class="full-funnel-banner" data-selenium="full-funnel-banner-inner" data-element-name="full-funnel-banner"><img alt="null image" class="full-funnel-image" src="https://cdn0.agoda.net/images/emailmarketing/Web_SSR_banner/webbanner_coupon.png"><div class="full-funnel-header no-theme"><h2 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN dgzjZX" data-testid="full-funnel-banner-header-title">Looking for instant coupons?</h2><div class="full-funnel-header-sub"><span class="full-funnel-header-sub-text">	
+Check out our Coupons &amp; Deals page for today's discounts</span></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-absolute      " style="transform: translateY(-50%); top: 50%; right: 0px;"><a target="_blank" href="{{ route('deals') }}" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-product-primary abb64-text-product-primary abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-no-underline abb64-px-24 abb64-py-12  abb64-rounded-base abb64-border-1  abb64-interactive  " style="height: 44px; --interactive-color: 32, 103, 218; --interactive-color-primary: var(--ads-colors-primary-base-intent); --color-neutral-4: var(--ads-colors-generic-base-inverted);"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bkxKct">	
+See all coupons</span></div></a></div></div></div></div></div></div></div><div class="container-agoda SearchPage--smallscreen"><div class="ssr-container"><div class="l-row"><div class="main-column"><div id="searchPageLeftColumn" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-1/4 abb64-h-screen abb64-flex abb64-flex-col abb64-float-left abb64-overflow-scroll abb64-sticky abb64-pb-32 abb64-pl-16 abb64-gap-16      " style="top: 20px;"><div data-selenium="staticMapContainer" class="topLeftStaticMapContainer" data-element-name="static-map-container"><div class="staticMapGroup" data-element-name="static-map-group"><div class="showMapBtns staticMapPanel hasTravelersUsingMap" data-element-name="show-map-btn"><figure data-element-name="static-map-figure"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-justify-center      "><button type="button" class="abb64-box abb64-bg-generic-base-transparent abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-p-0   abb64-border-0   "><img loading="eager" alt="See area" src="https://cdn6.agoda.net/images/Avengers/MapPreview.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  eddCVS"><div class="abb64-absolute abb64-flex abb64-flex-row" style="bottom: calc(50% - 15px); left: calc(50% - 15px);"><img loading="lazy" alt="" srcset="https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg?s=16x 16w, https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg?s=116x 116w, https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg?s=375x 375w, https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg?s=600x 600w, https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg?s=800x 800w, https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg?s=1024x 1024w" src="https://cdn6.agoda.net/images/MAPS-1213/default/img-map-pin-red.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  eexRNv" sizes="30px"></div></button><div class="abb64-mt-48 abb64-absolute"><button role="button" data-element-name="static-map-button" data-element-id="static-map-button-5bb4c5ba-e358-4b53-b2c3-5c7b12edfa87" type="button" class="abb64-box TextLink__TextLinkButtonStyled-sc-upxc4y-2 eAyiAB abb64-interactive-style abb64-interactive-generic abb64-inverted-focus-ring-interactive-focusonly abb64-interactive-bg  abb64-bg-generic-base-transparent abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-outline-none abb64-text-start abb64-p-0   abb64-border-0   " data-mimir-element-data="dictator"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN kjGfos TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="SEE AREA">SEE AREA</span></button></div></div></figure></div></div></div><h2 class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">Filter by</h2><div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><div data-element-name="search-filter-text-search" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-1      "><div id="instruction-search-filter-text-search" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-hidden      ">Begin typing property name or keyword to search, use arrow keys or tab key to navigate, press Enter to select</div><span aria-live="assertive" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">0 results found</span><div tabindex="-1" class="abb64-box SearchField__SearchFieldContainer-sc-1s2srj9-0 egXhOk abb64-bg-generic-base-background abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-row abb64-isolate abb64-px-12" style="min-height: 36px; height: 36px; border-radius: 9999px; border: 1.5px solid #2067e1; background: #f0f6ff; padding: 0 14px; box-sizing: border-box;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full" style="z-index: 1;"><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN kLHmij" data-testid="typography-type-1" style="margin: 0;"><div class="abb64-box FormFieldstyled__SkeletonInputContainerStyled-sc-11x6xcu-3 Nkmog abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-items-center abb64-flex abb64-relative" style="gap: 8px; height: 34px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-cursor-text abb64-flex abb64-whitespace-nowrap abb64-border-0" style="padding: 0;"><span class="abb64-box ads-input-icon-container abb64-fill-generic-base-default abb64-text-generic-base-default abb64-inline-flex"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: flex; align-items: center;"><svg viewBox="0 0 1 1" role="presentation" style="width: 15px; height: 15px; fill: #2067e1; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/4c9f843e.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/4c9f843e.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2067e1"></rect></svg></span></span></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-stretch abb64-flex abb64-flex-col abb64-flex-1 abb64-relative"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN kLHmij"><input aria-describedby="instruction-search-filter-text-search" aria-haspopup="listbox" aria-autocomplete="list" aria-controls="results-search-filter-text-search" aria-expanded="false" role="combobox" aria-label="Text search" type="text" class="abb64-box InputBase__StyledBox-sc-53odve-0 jCJveY abb64-w-full abb64-border-0" value="" placeholder="Text search" style="padding: 0 !important; height: 32px !important; font-size: 13.5px !important; color: #1e293b !important; background: transparent !important; outline: none !important; border: none !important;"></span></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-cursor-text abb64-flex abb64-whitespace-nowrap abb64-gap-2   abb64-border-0   "><button tabindex="-1" aria-hidden="true" type="button" class="abb64-box abb64-bg-generic-base-transparent abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-flex abb64-pointer-events-none abb64-p-2   abb64-border-0   " style="opacity: 0;" aria-label="Clear"><span class="abb64-box ads-input-action ads-input-icon-container  abb64-fill-generic-base-default abb64-text-generic-base-default abb64-inline-flex      "><span role="img" class="abb64-inline-flex abb64-align-baseline" aria-label="Clear"><svg viewBox="0 0 1 1" role="presentation" class="" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/422f4913.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></span></button></div></div></p></div></div></div></div></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" id="SideBarLocationFilters" role="region" aria-label="Search filter" data-testid="SideBarLocationFilters"><div data-testid="skip-link-container" tabindex="0" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-absolute abb64-p-8      " style="top: -100%; left: 0px; z-index: 1200;"><a data-testid="skip-link-button" tabindex="0" target="_self" href="#contentContainer" data-active-pressed="true" class="abb64-box abb64-bg-generic-base-surface abb64-fill-product-primary abb64-shadow-bottom-m abb64-text-product-primary abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-no-underline abb64-px-12  abb64-rounded-base    abb64-interactive-style abb64-interactive-primary abb64-inverted-focus-ring-interactive-border abb64-interactive-bg  " style="height: 28px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex abb64-flex-row      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN uzrnd">Skip to main content</span></div></a></div><span id="search-filter-sr-only" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">Making a selection within this region will cause content on this page to change. Product listings will update as each option is selected.</span><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><div class="abb64-gap-24 abb64-flex abb64-flex-col"><div id="PriceFilterRange" class="abb64-box sidebar abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-gap-12      "><div role="group" id="price-filter-group" aria-labelledby="price-filter-header" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-gap-24      "><div class="abb64-w-full abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 bDojij eUqYnr" data-selenium="priceFilterTitle" id="price-filter-header">Your budget (per night)</h3></div><div class="abb64-w-full abb64-gap-16 abb64-flex abb64-flex-col"><div class="abb64-flex abb64-flex-col abb64-w-full abb64-gap-4 abb64-isolate" data-element-name="search-filter-pricerange-searchbox" data-element-index="0" data-element-value="0" data-element-filteruikey="pricefilterrange" data-recommendation_type="31"><div class="abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-border-1 abb64-border-solid abb64-flex abb64-items-center abb64-rounded-8 abb64-w-full abb64-px-12 abb64-gap-4 abb64-relative abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border " data-active-pressed="true" data-has-label="true" style="min-height: 36px;"><div class="abb64-pointer-events-auto abb64-absolute abb64-px-4" style="z-index: 1; left: 8px; top: -10.0234px; background: linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-surface) calc(50% - 1px)), linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-transparent) calc(50% - 1px)); max-width: 228px;"><label for="price_box_0" class="abb64-flex abb64-gap-2 abb64-items-center" id="price_box_0-label"><div class="abb64-inline-flex abb64-items-start abb64-gap-2" id="price_box_0-label" for="price_box_0"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN crMijh">MIN</span></div></label></div><div class="abb64-shrink-0" style="max-width: 30%;"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fPoEHb">BDT</span></div><input class="abb64-border-0 abb64-outline-none abb64-w-full abb64-placeholder--text-color abb64-text-generic-base-default abb64-bg-generic-base-transparent" id="price_box_0" aria-describedby="price_box_0-helper price_box_0-char-counter" aria-label="Minimum price in US Dollar" data-testid="price_box_0" data-skip-style="true" aria-required="false" aria-invalid="false" type="text" inputmode="numeric" value="{{ $minFoundPrice }}" style="--placeholder-text-color: var(--ads-colors-generic-base-subtle); font-size: 16px; font-weight: 400; line-height: 19px; font-family: inherit; min-height: inherit;"></div></div><div class="abb64-flex abb64-flex-col abb64-w-full abb64-gap-4 abb64-isolate" data-element-name="search-filter-pricerange-searchbox" data-element-index="1" data-element-value="420" data-element-filteruikey="pricefilterrange" data-recommendation_type="31"><div class="abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-border-1 abb64-border-solid abb64-flex abb64-items-center abb64-rounded-8 abb64-w-full abb64-px-12 abb64-gap-4 abb64-relative abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border " data-active-pressed="true" data-has-label="true" style="min-height: 36px;"><div class="abb64-pointer-events-auto abb64-absolute abb64-px-4" style="z-index: 1; left: 8px; top: -10.0234px; background: linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-surface) calc(50% - 1px)), linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-transparent) calc(50% - 1px)); max-width: 228px;"><label for="price_box_1" class="abb64-flex abb64-gap-2 abb64-items-center" id="price_box_1-label"><div class="abb64-inline-flex abb64-items-start abb64-gap-2" id="price_box_1-label" for="price_box_1"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN crMijh">MAX</span></div></label></div><div class="abb64-shrink-0" style="max-width: 30%;"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fPoEHb">BDT</span></div><input class="abb64-border-0 abb64-outline-none abb64-w-full abb64-placeholder--text-color abb64-text-generic-base-default abb64-bg-generic-base-transparent" id="price_box_1" aria-describedby="price_box_1-helper price_box_1-char-counter" aria-label="Maximum price in US Dollar" data-testid="price_box_1" data-skip-style="true" aria-required="false" aria-invalid="false" type="text" inputmode="numeric" value="{{ $maxFoundPrice }}" style="--placeholder-text-color: var(--ads-colors-generic-base-subtle); font-size: 16px; font-weight: 400; line-height: 19px; font-family: inherit; min-height: inherit;"></div></div></div><div class="filter-box--horizontal--RangeSliderContainer" data-rule="action: search filter checkbox click" data-element-name="search-filter-price" data-min-price="0" data-max-price="420" data-recommendation_type="31" action-element-value="0,22" action-element-index="0"><div><div data-element-name="search-filter-price" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-flex abb64-flex-col abb64--mt-8      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" id="d1ac2cfaa50d08">Price range: BDT {{ number_format($minFoundPrice) }} to BDT {{ number_format($maxFoundPrice) }}</p><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-cursor-pointer abb64-flex abb64-relative abb64--mb-8      " style="height: 44px;"><input type="range" data-index="0" min="0" max="22" aria-valuetext="0 USD" aria-label="Minimum price in US Dollar" aria-disabled="false" class="Sliderstyled__SliderInput-sc-xg7ss4-0 kScGGB" value="0"><input type="range" data-index="1" min="0" max="22" aria-valuetext="420 USD" aria-label="Maximum price in US Dollar" aria-disabled="false" class="Sliderstyled__SliderInput-sc-xg7ss4-0 cEKSQK" value="22"></div></div></div></div></div></div></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    "></div><div class="abb64-gap-12 abb64-flex abb64-flex-col"><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-RecommendedByDestinationCity" data-testid="filter-menu-RecommendedByDestinationCity" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Popular filters for Cox's Bazar</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="0" data-element-value="89" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Family/child friendly" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Family/child friendly</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="1" data-element-value="15" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Non-smoking" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Non-smoking</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="2" data-element-value="24" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Pets allowed" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Pets allowed</span></span></span></div></label></li><li><label data-component="search-filter-reviewlocationscore" data-element-name="search-filter-reviewlocationscore" data-element-index="3" data-element-value="7" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Location: 7+ Very good" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Location: 7+ Very good</span></span></span></div></label></li><li><label data-component="search-filter-hotelareaid" data-element-name="search-filter-hotelareaid" data-element-index="4" data-element-value="496021" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Cox's Bazar" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-wrap abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Cox's Bazar</span></span></span></div></label></li><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="5" data-element-value="49499" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Free cancellation" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Free cancellation</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="6" data-element-value="43" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Balcony/terrace" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Balcony/terrace</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="7" data-element-value="86" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Refrigerator" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Refrigerator</span></span></span></div></label></li></ul></fieldset></div></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-Availability" data-testid="filter-menu-Availability" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Availability</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-availability" data-element-name="search-filter-availability" data-element-index="0" data-element-value="1" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" data-element-id="search-filter-availability-2b3badcd-45f9-481b-87ab-99fd92315712" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      " data-mimir-element-data="agoda-com-spa-mobile::accommodation-desktop-clientside"><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Show only available properties" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Show only available properties</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-AccomdType" data-testid="filter-menu-AccomdType" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Stay type</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-accommodationtype" data-element-name="search-filter-accommodationtype" data-element-index="1" data-element-value="34" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Hotel 75 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Hotel</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="75 items"> (75)</span></span></span></div></label></li><li><label data-component="search-filter-accommodationtype" data-element-name="search-filter-accommodationtype" data-element-index="2" data-element-value="37" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Resort 5 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Resort</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="5 items"> (5)</span></span></span></div></label></li><li><label data-component="search-filter-accommodationtype" data-element-name="search-filter-accommodationtype" data-element-index="3" data-element-value="120" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Serviced apartment 2 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Serviced apartment</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="2 items"> (2)</span></span></span></div></label></li><li><label data-component="search-filter-accommodationtype" data-element-name="search-filter-accommodationtype" data-element-index="4" data-element-value="32" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Guesthouse/bed and breakfast 1 item" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Guesthouse/bed and breakfast</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="1 item"> (1)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-Area" data-testid="filter-menu-Area" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Neighborhood</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline      "><div data-element-name="search-filter-hotelareaid" data-element-index="0" data-element-value="496021" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline      "><label data-component="search-filter-hotelareaid" data-element-name="search-filter-hotelareaid" data-element-index="0" data-element-value="496021" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Cox's Bazar 83 items" type="checkbox" tabindex="0" aria-describedby="af89a8483dee48" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-wrap abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Cox's Bazar</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="83 items"> (83)</span></span></span></div></label></div><span id="af89a8483dee48" role="tooltip" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK"><span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">tooltip</span><div class="abb64-box abb64-fill-generic-base-inverted abb64-text-generic-base-inverted      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-block      " style="width: 230px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit      "><div class="Box-sc-kv6pi1-0 EJVBH"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-overflow-hidden  abb64-rounded-4    " style="width: 230px; height: 94px;"><img src="//pix6.agoda.net/geo/city/671817/1_671817_02.jpg?ca=6&amp;ce=1&amp;s=240x160&amp;ar=2:1" width="100%" height="100%" alt="" style="object-fit: cover;"></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-p-12      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-text-start      "><div class="Gridstyled__GridStyled-sc-dfh2k0-0 eHVOws"><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 keFkxQ kite-js-Typography ">Cox's Bazar area has:</p></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-text-start abb64-mt-4      "><div wrap="nowrap" class="Gridstyled__GridStyled-sc-dfh2k0-0 dgrDaE"><div class="Itemstyled__Item-sc-12uga7p-0 jKZBth"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="SvgIconstyled__SvgIconStyled-sc-1i6f60b-0 hdAaz"><path fill-rule="evenodd" d="M12 1c4.418 0 8 3.644 8 8.138a8.205 8.205 0 0 1-1.087 4.1l-6.074 9.332a1 1 0 0 1-1.677 0l-6.074-9.333A8.206 8.206 0 0 1 4 9.138C4 4.644 7.582 1 12 1zm0 4a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7z"></path></svg></div><div class="Itemstyled__Item-sc-12uga7p-0 jKZBth"><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 dplhH kite-js-Typography ">Cox's Bazar Airport</p></div></div></div><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mt-12      "><div spacing="NONE" class="Gridstyled__GridStyled-sc-dfh2k0-0 DyODM"><div class="Itemstyled__Item-sc-12uga7p-0 jKZBth"><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bDIaBH">8.3</p></div><div class="Itemstyled__Item-sc-12uga7p-0 jKZBth"><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 gJTOAb kite-js-Typography "> /10</p></div></div><div class="Gridstyled__GridStyled-sc-dfh2k0-0 eHVOws"><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 gJTOAb kite-js-Typography ">Location score</p></div></div></div></div></div></div></span></div></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-PaymentOptions" data-testid="filter-menu-PaymentOptions" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Payment options</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="0" data-element-value="49499" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Free cancellation 29 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Free cancellation</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="29 items"> (29)</span></span></span></div></label></li><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="1" data-element-value="56649" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Pay at the hotel 67 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Pay at the hotel</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="67 items"> (67)</span></span></span></div></label></li><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="2" data-element-value="52770" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Book now, pay later 5 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Book now, pay later</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="5 items"> (5)</span></span></span></div></label></li><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="3" data-element-value="84640" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Pay now 6 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Pay now</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="6 items"> (6)</span></span></span></div></label></li><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="4" data-element-value="80031" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Book without credit card 17 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Book without credit card</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="17 items"> (17)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-StarRatingWithLuxury" data-testid="filter-menu-StarRatingWithLuxury" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Star rating</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-starratingwithluxury" data-element-name="search-filter-starratingwithluxury" data-element-index="0" data-element-value="5" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" data-element-id="search-filter-starratingwithluxury-39e05e6d-3363-466f-a7e7-0941b66ad457" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      " data-mimir-element-data="dictator"><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label=" 5-Star rating 4 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-my-auto      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK"> 5-Star rating 4 items</span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></div></div><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text"></span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="4 items"> (4)</span></span></span></div></label></li><li><label data-component="search-filter-starratingwithluxury" data-element-name="search-filter-starratingwithluxury" data-element-index="1" data-element-value="4" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" data-element-id="search-filter-starratingwithluxury-af27049f-a133-4d23-a781-84ba80717aa6" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      " data-mimir-element-data="dictator"><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label=" 4-Star rating 10 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-my-auto      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK"> 4-Star rating 10 items</span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></div></div><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text"></span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="10 items"> (10)</span></span></span></div></label></li><li><label data-component="search-filter-starratingwithluxury" data-element-name="search-filter-starratingwithluxury" data-element-index="2" data-element-value="3" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" data-element-id="search-filter-starratingwithluxury-655c642d-707a-4daa-b6f8-82ed6b487793" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      " data-mimir-element-data="dictator"><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label=" 3-Star rating 32 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-my-auto      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK"> 3-Star rating 32 items</span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></div></div><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text"></span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="32 items"> (32)</span></span></span></div></label></li><li><label data-component="search-filter-starratingwithluxury" data-element-name="search-filter-starratingwithluxury" data-element-index="3" data-element-value="2" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" data-element-id="search-filter-starratingwithluxury-93c4451c-fe1e-4f5d-94a1-28e4f3524e63" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      " data-mimir-element-data="dictator"><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label=" 2-Star rating 16 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-my-auto      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK"> 2-Star rating 16 items</span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></div></div><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text"></span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="16 items"> (16)</span></span></span></div></label></li><li><label data-component="search-filter-starratingwithluxury" data-element-name="search-filter-starratingwithluxury" data-element-index="4" data-element-value="1" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" data-element-id="search-filter-starratingwithluxury-d680a7a0-19ea-46be-91c5-83362d8ea844" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      " data-mimir-element-data="dictator"><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label=" 1-Star rating 4 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-my-auto      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><span class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK"> 1-Star rating 4 items</span><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></div></div><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text"></span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="4 items"> (4)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-RoomOffers" data-testid="filter-menu-RoomOffers" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Room offers</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-roombenefits" data-element-name="search-filter-roombenefits" data-element-index="0" data-element-value="78322" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Breakfast included 48 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Breakfast included</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="48 items"> (48)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-Facilities" data-testid="filter-menu-Facilities" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Property facilities</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="0" data-element-value="93" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Swimming pool 9 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Swimming pool</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="9 items"> (9)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="1" data-element-value="90" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Internet 46 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Internet</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="46 items"> (46)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="2" data-element-value="80" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Car park 64 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Car park</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="64 items"> (64)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="3" data-element-value="17" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Airport transfer 21 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Airport transfer</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="21 items"> (21)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="4" data-element-value="92" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Gym/fitness 9 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Gym/fitness</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="9 items"> (9)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="5" data-element-value="116" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Front desk [24-hour] 62 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Front desk [24-hour]</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="62 items"> (62)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="6" data-element-value="89" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Family/child friendly 49 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Family/child friendly</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="49 items"> (49)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="7" data-element-value="15" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Non-smoking 37 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Non-smoking</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="37 items"> (37)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="8" data-element-value="91" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Spa/sauna 7 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Spa/sauna</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="7 items"> (7)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="9" data-element-value="11" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Restaurants 48 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Restaurants</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="48 items"> (48)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="10" data-element-value="83" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Smoking area 15 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Smoking area</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="15 items"> (15)</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="11" data-element-value="24" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Pets allowed 8 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Pets allowed</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="8 items"> (8)</span></span></span></div></label></li></ul></fieldset><button aria-label="Show 3 more for Property facilities" data-element-name="filter-less" data-element-index="7" data-element-value="Facilities" data-value="Facilities" type="button" class="abb64-box TextLink__TextLinkButtonStyled-sc-upxc4y-2 eAyiAB abb64-interactive-style abb64-interactive-generic abb64-inverted-focus-ring-interactive-focusonly abb64-interactive-bg  abb64-bg-generic-base-transparent abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-outline-none abb64-text-start abb64-p-0   abb64-border-0   "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fYnpnI TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Show 3 more">Show 3 more<span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-ml-4"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-primary" style="width: 16px; height: 16px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/ebd4b0d9.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></span></button></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-ReviewScores" data-testid="filter-menu-ReviewScores" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Guest rating</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-reviewscore" data-element-name="search-filter-reviewscore" data-element-index="0" data-element-value="9" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="9+ Exceptional 4 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">9+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Exceptional</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="4 items"> (4)</span></span></span></div></label></li><li><label data-component="search-filter-reviewscore" data-element-name="search-filter-reviewscore" data-element-index="1" data-element-value="8" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="8+ Excellent 17 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">8+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Excellent</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="17 items"> (17)</span></span></span></div></label></li><li><label data-component="search-filter-reviewscore" data-element-name="search-filter-reviewscore" data-element-index="2" data-element-value="7" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="7+ Very good 28 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">7+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Very good</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="28 items"> (28)</span></span></span></div></label></li><li><label data-component="search-filter-reviewscore" data-element-name="search-filter-reviewscore" data-element-index="3" data-element-value="6" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="6+ Good 46 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">6+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Good</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="46 items"> (46)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-RoomAmenities" data-testid="filter-menu-RoomAmenities" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Room amenities</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="0" data-element-value="43" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Balcony/terrace 44 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Balcony/terrace</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="44 items"> (44)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="1" data-element-value="35" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="TV 20 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">TV</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="20 items"> (20)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="2" data-element-value="37" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Bathtub 16 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Bathtub</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="16 items"> (16)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="3" data-element-value="47" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Coffee/tea maker 15 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Coffee/tea maker</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="15 items"> (15)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="4" data-element-value="86" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Refrigerator 13 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Refrigerator</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="13 items"> (13)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="5" data-element-value="25" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Air conditioning 10 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Air conditioning</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="10 items"> (10)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="6" data-element-value="31" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Internet access 5 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Internet access</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="5 items"> (5)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="7" data-element-value="42" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Kitchen 2 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Kitchen</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="2 items"> (2)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="8" data-element-value="33" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Ironing facilities 2 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Ironing facilities</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="2 items"> (2)</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="9" data-element-value="87" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Washing machine 2 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Washing machine</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="2 items"> (2)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-CityCenterDistance" data-testid="filter-menu-CityCenterDistance" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Distance to center</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-citycenterdistance" data-element-name="search-filter-citycenterdistance" data-element-index="0" data-element-value="0" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Inside city center 0 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Inside city center</span></span></span></div></label></li><li><label data-component="search-filter-citycenterdistance" data-element-name="search-filter-citycenterdistance" data-element-index="1" data-element-value="1" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="&lt;2 km to center 0 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">&lt;2 km to center</span></span></span></div></label></li><li><label data-component="search-filter-citycenterdistance" data-element-name="search-filter-citycenterdistance" data-element-index="2" data-element-value="2" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="2-5 km to center 0 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">2-5 km to center</span></span></span></div></label></li><li><label data-component="search-filter-citycenterdistance" data-element-name="search-filter-citycenterdistance" data-element-index="3" data-element-value="3" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="5-10 km to center 0 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">5-10 km to center</span></span></span></div></label></li><li><label data-component="search-filter-citycenterdistance" data-element-name="search-filter-citycenterdistance" data-element-index="4" data-element-value="4" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="&gt;10 km to center 0 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">&gt;10 km to center</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-GroupedBedTypes" data-testid="filter-menu-GroupedBedTypes" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Bed type</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-groupedbedtypes" data-element-name="search-filter-groupedbedtypes" data-element-index="0" data-element-value="2" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Double 66 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Double</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="66 items"> (66)</span></span></span></div></label></li><li><label data-component="search-filter-groupedbedtypes" data-element-name="search-filter-groupedbedtypes" data-element-index="1" data-element-value="1" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Single/twin 36 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Single/twin</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="36 items"> (36)</span></span></span></div></label></li><li><label data-component="search-filter-groupedbedtypes" data-element-name="search-filter-groupedbedtypes" data-element-index="2" data-element-value="4" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Queen 20 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Queen</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="20 items"> (20)</span></span></span></div></label></li><li><label data-component="search-filter-groupedbedtypes" data-element-name="search-filter-groupedbedtypes" data-element-index="3" data-element-value="5" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="King 19 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">King</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="19 items"> (19)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-PopularForFamily" data-testid="filter-menu-PopularForFamily" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Popular with families</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-kidsstayforfree" data-element-name="search-filter-kidsstayforfree" data-element-index="0" data-element-value="250691" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Kids stay for free 0 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Kids stay for free</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-LocationScore" data-testid="filter-menu-LocationScore" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Location rating</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-reviewlocationscore" data-element-name="search-filter-reviewlocationscore" data-element-index="0" data-element-value="9" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="9+ Exceptional 7 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">9+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Exceptional</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="7 items"> (7)</span></span></span></div></label></li><li><label data-component="search-filter-reviewlocationscore" data-element-name="search-filter-reviewlocationscore" data-element-index="1" data-element-value="8" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="8+ Excellent 22 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">8+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Excellent</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="22 items"> (22)</span></span></span></div></label></li><li><label data-component="search-filter-reviewlocationscore" data-element-name="search-filter-reviewlocationscore" data-element-index="2" data-element-value="7" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="2" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-max    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="7+ Very good 36 items" type="radio" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box RadioButtonstyled__RadioButtonStyled-sc-1cxijc0-0 iHyFky abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-max abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span class="abb64-box abb64-fill-inherit abb64-text-inherit      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB">7+</p></span><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Very good</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="36 items"> (36)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><div role="group" aria-labelledby="filter-menu-TripPurpose" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-gap-12      "><div id="filter-menu-TripPurpose" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-start abb64-flex abb64-justify-between      "><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Looking for something special?</h3></div><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-row abb64-flex-wrap abb64-mb-0 abb64-gap-12      "><li class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex abb64-mr-8      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-relative      "><button selection="unselected" aria-pressed="false" label="Great for Families" leadingicon="fill.people.family2" data-element-name="search-filter-trip-purpose-great-for-families" data-element-index="0" data-element-value="false" aria-label="Great for Families" data-active-pressed="true" type="button" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-generic-base-default abb64-text-generic-base-default abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-row abb64-justify-center abb64-whitespace-nowrap abb64-px-16 abb64-py-4  abb64-rounded-base abb64-border-1   abb64-interactive-style abb64-interactive-generic abb64-inverted-focus-ring-interactive-border abb64-interactive-bg  " style="min-height: 36px;"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-8"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-generic-base-default" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/7576e6ba.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gccxux">Great for Families</span></div></button></div></li><li class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex abb64-mr-8      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-relative      "><button selection="unselected" aria-pressed="false" label="Great for Groups" leadingicon="fill.people.group-star" data-element-name="search-filter-trip-purpose-great-for-groups" data-element-index="1" data-element-value="false" aria-label="Great for Groups" data-active-pressed="true" type="button" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-generic-base-default abb64-text-generic-base-default abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-row abb64-justify-center abb64-whitespace-nowrap abb64-px-16 abb64-py-4  abb64-rounded-base abb64-border-1   abb64-interactive-style abb64-interactive-generic abb64-inverted-focus-ring-interactive-border abb64-interactive-bg  " style="min-height: 36px;"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-8"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-generic-base-default" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/b58b11f0.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gccxux">Great for Groups</span></div></button></div></li><li class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex abb64-mr-8      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-relative      "><button selection="unselected" aria-pressed="false" label="Workation Friendly" leadingicon="fill.amenity.bag-business" data-element-name="search-filter-trip-purpose-workation-friendly" data-element-index="2" data-element-value="false" aria-label="Workation Friendly" data-active-pressed="true" type="button" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-generic-base-default abb64-text-generic-base-default abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-row abb64-justify-center abb64-whitespace-nowrap abb64-px-16 abb64-py-4  abb64-rounded-base abb64-border-1   abb64-interactive-style abb64-interactive-generic abb64-inverted-focus-ring-interactive-border abb64-interactive-bg  " style="min-height: 36px;"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-8"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-generic-base-default" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/fff555b7.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gccxux">Workation Friendly</span></div></button></div></li><li class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline-flex abb64-mr-8      "><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-relative      "><button selection="unselected" aria-pressed="false" label="Pets Allowed" leadingicon="fill.facility.pet" data-element-name="search-filter-trip-purpose-pets-allowed" data-element-index="3" data-element-value="false" aria-label="Pets Allowed" data-active-pressed="true" type="button" class="abb64-box abb64-bg-generic-base-surface abb64-border-generic-base-default abb64-fill-generic-base-default abb64-text-generic-base-default abb64-items-center abb64-border-solid abb64-cursor-pointer abb64-flex abb64-flex-row abb64-justify-center abb64-whitespace-nowrap abb64-px-16 abb64-py-4  abb64-rounded-base abb64-border-1   abb64-interactive-style abb64-interactive-generic abb64-inverted-focus-ring-interactive-border abb64-interactive-bg  " style="min-height: 36px;"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-8"><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-generic-base-default" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/72c8fd33.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex      "><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gccxux">Pets Allowed</span></div></button></div></li></ul></div></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-NumberOfBedrooms" data-testid="filter-menu-NumberOfBedrooms" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Number of bedrooms</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-numberofbedrooms" data-element-name="search-filter-numberofbedrooms" data-element-index="0" data-element-value="1" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="1 bedroom/studio 69 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">1 bedroom/studio</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="69 items"> (69)</span></span></span></div></label></li><li><label data-component="search-filter-numberofbedrooms" data-element-name="search-filter-numberofbedrooms" data-element-index="1" data-element-value="2" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="2 bedrooms 21 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">2 bedrooms</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="21 items"> (21)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-Beachs" data-testid="filter-menu-Beachs" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Beach access</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-beachaccesstypeids" data-element-name="search-filter-beachaccesstypeids" data-element-index="0" data-element-value="1" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Private beach 2 items" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Private beach</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="2 items"> (2)</span></span></span></div></label></li></ul></fieldset></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    " style=""></div><div class="abb64-gap-16 abb64-flex abb64-flex-col" style=""><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-BrandsAndChains" data-testid="filter-menu-BrandsAndChains" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Popular hotel brands</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-hotelchainid" data-element-name="search-filter-hotelchainid" data-element-index="0" data-element-value="6" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Best Western International 1 item" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Best Western International</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="1 item"> (1)</span></span></span></div></label></li><li><label data-component="search-filter-hotelchainid" data-element-name="search-filter-hotelchainid" data-element-index="1" data-element-value="339" data-is-selected="false" data-recommendation_type="-1" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Wyndham Hotels &amp; Resorts 1 item" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Wyndham Hotels &amp; Resorts</span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN havBPU" data-selenium="filter-count" aria-label="1 item"> (1)</span></span></span></div></label></li></ul></fieldset></div></div><div id="stickyBoxFilters" class="abb64-box sticky-box sticky-filters sticky-box--moveFilterToLeftSidebar abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-fixed abb64-invisible abb64-p-0 abb64-pr-16 abb64-gap-16 translateDown" style="transition: transform 0.1s; top: 85px;"><div class="abb64-gap-24 abb64-flex abb64-flex-col"><div id="PriceFilterRange" class="abb64-box sidebar abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-gap-12      "><div role="group" id="price-filter-group" aria-labelledby="price-filter-header" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-gap-24      "><div class="abb64-w-full abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 bDojij eUqYnr" data-selenium="priceFilterTitle" id="price-filter-header">Your budget (per night)</h3></div><div class="abb64-w-full abb64-gap-16 abb64-flex abb64-flex-col"><div class="abb64-flex abb64-flex-col abb64-w-full abb64-gap-4 abb64-isolate" data-element-name="search-filter-pricerange-searchbox" data-element-index="0" data-element-value="0" data-element-filteruikey="pricefilterrange" data-recommendation_type="31"><div class="abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-border-1 abb64-border-solid abb64-flex abb64-items-center abb64-rounded-8 abb64-w-full abb64-px-12 abb64-gap-4 abb64-relative abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border " data-active-pressed="true" data-has-label="true" style="min-height: 36px;"><div class="abb64-pointer-events-auto abb64-absolute abb64-px-4" style="z-index: 1; left: 8px; top: -10.0234px; background: linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-surface) calc(50% - 1px)), linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-transparent) calc(50% - 1px)); max-width: 246px;"><label for="price_box_0" class="abb64-flex abb64-gap-2 abb64-items-center" id="price_box_0-label"><div class="abb64-inline-flex abb64-items-start abb64-gap-2" id="price_box_0-label" for="price_box_0"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN crMijh">MIN</span></div></label></div><div class="abb64-shrink-0" style="max-width: 30%;"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fPoEHb">BDT</span></div><input class="abb64-border-0 abb64-outline-none abb64-w-full abb64-placeholder--text-color abb64-text-generic-base-default abb64-bg-generic-base-transparent" id="price_box_0" aria-describedby="price_box_0-helper price_box_0-char-counter" aria-label="Minimum price in US Dollar" data-testid="price_box_0" data-skip-style="true" aria-required="false" aria-invalid="false" type="text" inputmode="numeric" value="{{ $minFoundPrice }}" style="--placeholder-text-color: var(--ads-colors-generic-base-subtle); font-size: 16px; font-weight: 400; line-height: 19px; font-family: inherit; min-height: inherit;"></div></div><div class="abb64-flex abb64-flex-col abb64-w-full abb64-gap-4 abb64-isolate" data-element-name="search-filter-pricerange-searchbox" data-element-index="1" data-element-value="420" data-element-filteruikey="pricefilterrange" data-recommendation_type="31"><div class="abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-border-1 abb64-border-solid abb64-flex abb64-items-center abb64-rounded-8 abb64-w-full abb64-px-12 abb64-gap-4 abb64-relative abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border " data-active-pressed="true" data-has-label="true" style="min-height: 36px;"><div class="abb64-pointer-events-auto abb64-absolute abb64-px-4" style="z-index: 1; left: 8px; top: -10.0234px; background: linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-surface) calc(50% - 1px)), linear-gradient(to bottom, var(--ads-bg-generic-base-surface) calc(50% + 1px), var(--ads-bg-generic-base-transparent) calc(50% - 1px)); max-width: 246px;"><label for="price_box_1" class="abb64-flex abb64-gap-2 abb64-items-center" id="price_box_1-label"><div class="abb64-inline-flex abb64-items-start abb64-gap-2" id="price_box_1-label" for="price_box_1"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN crMijh">MAX</span></div></label></div><div class="abb64-shrink-0" style="max-width: 30%;"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fPoEHb">BDT</span></div><input class="abb64-border-0 abb64-outline-none abb64-w-full abb64-placeholder--text-color abb64-text-generic-base-default abb64-bg-generic-base-transparent" id="price_box_1" aria-describedby="price_box_1-helper price_box_1-char-counter" aria-label="Maximum price in US Dollar" data-testid="price_box_1" data-skip-style="true" aria-required="false" aria-invalid="false" type="text" inputmode="numeric" value="{{ $maxFoundPrice }}" style="--placeholder-text-color: var(--ads-colors-generic-base-subtle); font-size: 16px; font-weight: 400; line-height: 19px; font-family: inherit; min-height: inherit;"></div></div></div><div class="filter-box--horizontal--RangeSliderContainer" data-rule="action: search filter checkbox click" data-element-name="search-filter-price" data-min-price="0" data-max-price="420" data-recommendation_type="31" action-element-value="0,22" action-element-index="0"><div><div data-element-name="search-filter-price" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-flex abb64-flex-col abb64--mt-8      "><p class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" id="1f9478dd009d48">Price range: BDT {{ number_format($minFoundPrice) }} to BDT {{ number_format($maxFoundPrice) }}</p><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-cursor-pointer abb64-flex abb64-relative abb64--mb-8      " style="height: 44px;"><input type="range" data-index="0" min="0" max="22" aria-valuetext="0 USD" aria-label="Minimum price in US Dollar" aria-disabled="false" class="Sliderstyled__SliderInput-sc-xg7ss4-0 kScGGB" value="0"><input type="range" data-index="1" min="0" max="22" aria-valuetext="420 USD" aria-label="Maximum price in US Dollar" aria-disabled="false" class="Sliderstyled__SliderInput-sc-xg7ss4-0 cEKSQK" value="22"></div></div></div></div></div></div></div><div role="separator" aria-orientation="horizontal" class="abb64-box abb64-border-generic-base-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-0 abb64-border-solid   abb64-border-t-1 abb64-border-r-0 abb64-border-b-0 abb64-border-l-0    "></div><div class="abb64-gap-12 abb64-flex abb64-flex-col"><fieldset class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-border-none abb64-flex abb64-m-0 abb64-p-0      "><legend id="filter-menu-RecommendedByDestinationCity" data-testid="filter-menu-RecommendedByDestinationCity" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-mb-12 abb64-p-0      "><div class="abb64-justify-between abb64-items-start abb64-flex abb64-flex-row"><h3 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN izpDJP">Popular filters for Cox's Bazar</h3></div></legend><ul class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-col abb64-mb-0 abb64-gap-12      "><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="0" data-element-value="89" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Family/child friendly" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Family/child friendly</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="1" data-element-value="15" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Non-smoking" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Non-smoking</span></span></span></div></label></li><li><label data-component="search-filter-hotelfacilities" data-element-name="search-filter-hotelfacilities" data-element-index="2" data-element-value="24" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Pets allowed" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Pets allowed</span></span></span></div></label></li><li><label data-component="search-filter-reviewlocationscore" data-element-name="search-filter-reviewlocationscore" data-element-index="3" data-element-value="7" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Location: 7+ Very good" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Location: 7+ Very good</span></span></span></div></label></li><li><label data-component="search-filter-hotelareaid" data-element-name="search-filter-hotelareaid" data-element-index="4" data-element-value="496021" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Cox's Bazar" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-flex-wrap abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Cox's Bazar</span></span></span></div></label></li><li><label data-component="search-filter-paymentoptions" data-element-name="search-filter-paymentoptions" data-element-index="5" data-element-value="49499" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Free cancellation" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Free cancellation</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="6" data-element-value="43" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Balcony/terrace" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Balcony/terrace</span></span></span></div></label></li><li><label data-component="search-filter-roomamenities" data-element-name="search-filter-roomamenities" data-element-index="7" data-element-value="86" data-is-selected="false" data-recommendation_type="31" data-action-element-type="1" data-action-element-feature="-1" class="abb64-box abb64-fill-generic-base-default abb64-text-generic-base-default abb64-cursor-pointer abb64-flex      "><div data-active-pressed="true" class="abb64-box Inputstyled__InputContainerStyled-sc-1yd74ix-0 abb64-fill-inherit abb64-text-inherit abb64-cursor-pointer abb64-relative abb64-mr-8  abb64-rounded-2    abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border  " style="width: 20px; min-width: 20px; height: 20px; min-height: 20px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-h-full      "><input aria-label="Refrigerator" type="checkbox" class="Inputstyled__InputStyled-sc-1yd74ix-1 hGYtLZ"><div class="abb64-box Checkboxstyled__CheckboxStyled-sc-1melmzp-0 bcPPFU abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-fill-inherit abb64-text-inherit abb64-border-solid  abb64-rounded-2 abb64-border-2   "></div><div class="abb64-box Inputstyled__OverlayStyled-sc-1yd74ix-2 kPRtQy abb64-bg-product-primary abb64-fill-inherit abb64-text-inherit  abb64-rounded-base    "></div></div></div><div style="margin-top: calc(1.5px); display: flex; flex-direction: row;"><span aria-hidden="true" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-baseline abb64-flex abb64-gap-x-4      "><span><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN jnMXhB" data-selenium="filter-item-text">Refrigerator</span></span></span></div></label></li></ul></fieldset></div></div></div><div id="searchPageRightColumn" class="l-col-9"><div id="contentContainer"><div data-policy-eligible-actions="search-ubt-availability-message|messaging-banner|family-mode-banner" data-correlation-id="" role="region" aria-label="Announcement" data-element-name="hero-banner-container" data-element-value="messaging-banner" class="abb64-box abb64-fill-inherit abb64-text-inherit      " style=""><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mb-12      "><div data-element-name="messaging-banner" data-element-index="0" data-element-value="claim-discount" class="Box-sc-kv6pi1-0 krcUda Bannerstyled__BannerContainer-sc-eh76yq-0 kYiFjp"><div class="Box-sc-kv6pi1-0 eIkUxy"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex      "><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="SvgIconstyled__SvgIconStyled-sc-1i6f60b-0 fFlpzG"><path fill-rule="evenodd" d="M16 5v2h1V5h5a1 1 0 0 1 1 1v3a3 3 0 0 0 0 6v3a1 1 0 0 1-1 1h-5v-2h-1v2H2a1 1 0 0 1-1-1v-3a3 3 0 0 0 0-6V6a1 1 0 0 1 1-1h14zm1 8h-1v2h1v-2zm0-4h-1v2h1V9z"></path></svg></div><div class="Box-sc-kv6pi1-0 fWXSeW"><div class="Box-sc-kv6pi1-0 jQvQJb"><h5 class="Typographystyled__TypographyStyled-sc-j18mtu-0 eskIcE kite-js-Typography ">Congratulations! You get an extra 5% OFF today.</h5></div><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 jGiVLx kite-js-Typography "> Just activate your coupon now to unlock this offer.</p></div><div class="Bannerstyled__ButtonGroup-sc-eh76yq-1 dBpXGB"><button color="warning" class="Buttonstyled__ButtonStyled-sc-5gjk6l-0 kVcfFS"><div class="BaseButtonstyled__HiddenToggler-sc-12j2fzo-2 jpxjOF"><div class="Box-sc-kv6pi1-0 krcUda"><span class="Spanstyled__SpanStyled-sc-16tp9kb-0 kIaLZk kite-js-Span ">Activate coupon</span></div></div></button></div></div></div></div></div><div id="sort-bar"><div class="abb64-mb-8 abb64-mt-24 abb64-w-full abb64-justify-between abb64-items-center abb64-gap-16 abb64-flex abb64-flex-row" data-element-name="sort-bar-dropdown-container"><div class="abb64-shrink-0"><h1 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN dgzjZX" data-element-name="properties-available-text">Cox's Bazar: 83 properties</h1></div><div class="abb64-shrink-0" style="width: 290px;"><div class="abb64-flex abb64-flex-col abb64-w-full abb64-gap-4 abb64-isolate"><div class="abb64-bg-generic-base-surface abb64-border-generic-state-inactive abb64-border-1 abb64-border-solid abb64-flex abb64-items-center abb64-rounded-8 abb64-w-full abb64-px-12 abb64-gap-4 abb64-relative abb64-interactive-style abb64-interactive-generic abb64-focus-ring-interactive-within abb64-focus-ring-interactive-border " data-active-pressed="true" data-has-label="false" style="min-height: 42px;"><button type="button" tabindex="0" data-react-aria-pressable="true" id="react-aria6733394701-:r4:" aria-haspopup="true" aria-expanded="false" class="abb64-border-0 abb64-outline-none abb64-w-full abb64-placeholder--text-color abb64-flex abb64-items-center abb64-justify-between abb64-h-auto abb64-p-0 abb64-text-start abb64-gap-8 abb64-bg-generic-base-transparent" role="combobox" aria-required="false" aria-readonly="false" aria-invalid="false" aria-label="Sort by: Best match" data-element-name="search-sort-dropdown" aria-describedby="react-aria6733394701-:r4:-helper" style="--placeholder-text-color: var(--ads-colors-generic-base-subtle); font-size: 16px; font-weight: 400; line-height: 19px; font-family: inherit; min-height: inherit;"><div class="abb64-flex abb64-items-center abb64-gap-8"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN glEzmC">Sort by: Best match</span></div><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><span class="abb64-inline-flex abb64-items-start"><span aria-hidden="true" class="abb64-inline-flex abb64-w-0 abb64-overflow-clip abb64-invisible"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN kLHmij">|</span></span><svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-generic-base-subtle" style="width: 17.6719px; height: 17.6719px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/6a5aff21.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></span></button></div></div></div></div></div><ol class="hotel-list-container">
+    @forelse($merged as $idx => $hotel)
+        @include('components.search.property-card', ['item' => $hotel, 'isFirst' => ($idx === 0)])
+    @empty
+        <li class="abb64-p-32 abb64-text-center abb64-bg-generic-base-surface abb64-rounded-8 abb64-border-1" style="border: 1px solid #e2e8f0; list-style: none; margin: 20px 0; padding: 40px; text-align: center; background: #ffffff;">
+            <h3 style="font-size: 20px; font-weight: 700; color: #2a2a2e; margin-bottom: 8px;">No properties found matching your criteria in {{ $destLabel }}</h3>
+            <p style="color: #687176; font-size: 14px; margin-bottom: 20px;">Try adjusting your filters, budget, or dates to find available rooms.</p>
+            <a href="{{ route('search.index', ['destination' => $destLabel]) }}" style="background: #2067e1; color: #fff; padding: 10px 24px; border-radius: 9999px; text-decoration: none; font-weight: 600; font-size: 14px; display: inline-block;">Reset All Filters</a>
+        </li>
+    @endforelse
+</ol><span role="status" aria-live="polite" data-testid="search-result-update" class="ScreenReaderOnly__ScreenReaderOnlyStyled-sc-szxtre-0 fuICnK">Search results updated. 49 properties found.</span></div><div class="clearfix pagination-panel" data-selenium="pagination-panel" style=""><div><div id="paginationContainer" class="pagination-grid" data-selenium="pagination"><div class="abb64-justify-start abb64-flex abb64-flex-row"></div><div class="abb64-justify-center abb64-items-center abb64-flex abb64-flex-row"><span id="paginationPageCount" class="pagination2__text" data-selenium="pagination-text">Page {{ $currentPage }} of {{ $lastPage }}</span></div><div class="abb64-justify-end abb64-flex abb64-flex-row"></div></div></div></div></div><div class="row ssr-breadcrumb" id="breadcrumb"><div class="col-xs-12"><div class="clearfix"><nav aria-label="breadcrumbs"><ul class="BreadCrumb-hotel  breadcrumb-full" itemscope="" itemtype="http://schema.org/BreadcrumbList" data-selenium="hotel-breadcrumbs-list"><li class="BreadCrumb-hotel_item breadcrumb-connector-scss relative" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" data-element-name="breadcrumbs-item"><div><a class="breadcrumb-link" href="/?asq=u2qcklxwzru5nduxj0kof3t91go8joyymxagy8fkbh1bn0lgatyh25sdxoy34qb9acnleoltatuhim2mqhqv%2bjolbiee93pob23ww1kq2e1oghgbfesfwib3to%2f5lv05d0cotqroa1y4%2be2%2bs0i0tmpqolfyv7t9nw1pykg4yn3ilpmpluermwv1ukikfuye3t80epl5apu2kcdgnqfh92dcftwipzx3%2bx5adxiivdmomoqix%2fexlcsw27yz2udz" data-selenium="breadcrumb-link" itemprop="item"><div class="breadcrumb-regionName" data-selenium="breadcrumb-region-name" itemprop="name">Home</div></a></div><meta itemprop="position" content="1"></li><li class="BreadCrumb-hotel_item breadcrumb-connector-scss relative" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" data-element-name="breadcrumbs-item"><div><a class="breadcrumb-link" href="/world.html?asq=u2qcklxwzru5nduxj0kof3t91go8joyymxagy8fkbh1bn0lgatyh25sdxoy34qb9acnleoltatuhim2mqhqv%2bjolbiee93pob23ww1kq2e1oghgbfesfwib3to%2f5lv05d0cotqroa1y4%2be2%2bs0i0tmpqolfyv7t9nw1pykg4yn3ilpmpluermwv1ukikfuye3t80epl5apu2kcdgnqfh92dcftwipzx3%2bx5adxiivdmomoqix%2fexlcsw27yz2udz" data-selenium="breadcrumb-link" itemprop="item"><div class="breadcrumb-regionName" data-selenium="breadcrumb-region-name" itemprop="name">World</div></a><div class="breadcrumb-regionCount" data-selenium="breadcrumb-region-count"><span>(</span><span>6,312,786</span><span>)</span></div></div><meta itemprop="position" content="2"></li><li class="BreadCrumb-hotel_item breadcrumb-connector-scss relative" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" data-element-name="breadcrumbs-item"><div><a class="breadcrumb-link" href="/country/bangladesh.html?asq=u2qcklxwzru5nduxj0kof3t91go8joyymxagy8fkbh1bn0lgatyh25sdxoy34qb9acnleoltatuhim2mqhqv%2bjolbiee93pob23ww1kq2e1oghgbfesfwib3to%2f5lv05d0cotqroa1y4%2be2%2bs0i0tmpqolfyv7t9nw1pykg4yn3ilpmpluermwv1ukikfuye3t80epl5apu2kcdgnqfh92dcftwipzx3%2bx5adxiivdmomoqix%2fexlcsw27yz2udz" data-selenium="breadcrumb-link" itemprop="item"><div class="breadcrumb-regionName" data-selenium="breadcrumb-region-name" itemprop="name">Bangladesh</div></a><div class="breadcrumb-regionCount" data-selenium="breadcrumb-region-count"><span>(</span><span>1,855</span><span>)</span></div></div><meta itemprop="position" content="3"></li><li class="BreadCrumb-hotel_item breadcrumb-connector-scss relative" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" data-element-name="breadcrumbs-item"><div><a class="breadcrumb-link" href="/region/chittagong-division-bd.html?asq=u2qcklxwzru5nduxj0kof3t91go8joyymxagy8fkbh1bn0lgatyh25sdxoy34qb9acnleoltatuhim2mqhqv%2bjolbiee93pob23ww1kq2e1oghgbfesfwib3to%2f5lv05d0cotqroa1y4%2be2%2bs0i0tmpqolfyv7t9nw1pykg4yn3ilpmpluermwv1ukikfuye3t80epl5apu2kcdgnqfh92dcftwipzx3%2bx5adxiivdmomoqix%2fexlcsw27yz2udz" data-selenium="breadcrumb-link" itemprop="item"><div class="breadcrumb-regionName" data-selenium="breadcrumb-region-name" itemprop="name">Chittagong Division</div></a><div class="breadcrumb-regionCount" data-selenium="breadcrumb-region-count"><span>(</span><span>0</span><span>)</span></div></div><meta itemprop="position" content="4"></li><li class="BreadCrumb-hotel_item breadcrumb-connector-scss relative" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" data-element-name="breadcrumbs-item"><div><a class="breadcrumb-link" href="/city/cox-s-bazar-bd.html?asq=u2qcklxwzru5nduxj0kof3t91go8joyymxagy8fkbh1bn0lgatyh25sdxoy34qb9acnleoltatuhim2mqhqv%2bjolbiee93pob23ww1kq2e1oghgbfesfwib3to%2f5lv05d0cotqroa1y4%2be2%2bs0i0tmpqolfyv7t9nw1pykg4yn3ilpmpluermwv1ukikfuye3t80epl5apu2kcdgnqfh92dcftwipzx3%2bx5adxiivdmomoqix%2fexlcsw27yz2udz" data-selenium="breadcrumb-link" itemprop="item"><div class="breadcrumb-regionName" data-selenium="breadcrumb-region-name" itemprop="name">Cox's Bazar</div></a><div class="breadcrumb-regionCount" data-selenium="breadcrumb-region-count"><span>(</span><span>118</span><span>)</span></div></div><meta itemprop="position" content="5"></li><li class="BreadCrumb-hotel_item breadcrumb-connector-scss relative" itemprop="itemListElement" itemscope="" itemtype="http://schema.org/ListItem" data-element-name="breadcrumbs-item"><div><div class="breadcrumb-regionName" data-selenium="breadcrumb-region-name" itemprop="name"></div></div><meta itemprop="position" content="6"></li></ul></nav></div></div></div><div class="popup-maps-root"></div></div><div class="ad-column"><div class="AdsContainer AdsContainer--sizeS" data-testid="ads-banner-side-container"><div id="div-gpt-ad-1581655850769-0" data-element-name="ads-vertical-banner" class="AdsBanner sc-jsJBEP csZLff AdsSlot1" data-element-index="1" data-google-query-id="CIPs4p635JcDFV_chAAdouMiZg" style="display: none;"><div id="google_ads_iframe_/3102/Agoda.com_Hotels/Agoda_hotel_WEB_SSR_160x600_1_0__container__" style="border: 0pt; width: 160px; height: 0px;"></div></div><div id="div-gpt-ad-1581655880570-0" data-element-name="ads-vertical-banner" class="AdsBanner sc-jsJBEP csZLff AdsSlot2 sticky" data-element-index="2" data-google-query-id="CITs4p635JcDFV_chAAdouMiZg" style="display: none;"><div id="google_ads_iframe_/3102/Agoda.com_Hotels/Agoda_hotel_WEB_SSR_160x600_2_0__container__" style="border: 0pt; width: 160px; height: 600px;"></div></div></div></div></div></div><div id="sideColumnInfo" class="Box-sc-kv6pi1-0 krcUda"><div class="abb64-fixed abb64-flex abb64-flex-col" style="bottom: 62px; right: 29px; z-index: 100;"><div class="abb64-w-full abb64-flex abb64-flex-col" data-testid="save-to-trip-floating-content" data-element-name="save-to-trip-floating-content"><div class="abb64-self-end abb64-flex abb64-flex-col" data-testid="save-to-trip-floating-content-button" data-element-name="save-to-trip-floating-content-button"><button aria-label="My Trips" data-component="my-trips-floating-button" data-testid="my-trips-floating-button" data-element-name="my-trips-floating-action-button" data-element-id="my-trips-floating-action-button-01872b46-cce1-4bde-a177-e8959bf1049f" data-active-pressed="true" type="button" class="abb64-box abb64-bg-product-primary abb64-fill-generic-base-inverted abb64-shadow-bottom-m abb64-text-generic-base-inverted abb64-items-center abb64-cursor-pointer abb64-flex abb64-flex-col abb64-justify-center abb64-px-12 abb64-py-12  abb64-rounded-max abb64-border-0   abb64-interactive-style abb64-interactive-primary abb64-focus-ring-interactive-border abb64-interactive-bg  " style="width: 44px; height: 44px;" data-mimir-element-data="unified-saved"><span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline"><svg viewBox="0 0 1 1" role="presentation" class="" style="width: 20px; height: 20px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/4a22653a.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg></span></button></div></div></div><div data-element-name="redirect-to-app" class="Box-sc-kv6pi1-0 fDkzXz redirectToApp"><div role="button" tabindex="0" data-element-name="redirect-to-app-qr" class="Box-sc-kv6pi1-0 hkJfID redirectToAppBar" aria-label="Download App" style="transition: width 500ms;"><svg width="1em" height="1em" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="SvgIconstyled__SvgIconStyled-sc-1i6f60b-0 gAmtww redirect-icon"><path fill-rule="evenodd" d="M17 1a2 2 0 0 1 2 2v18a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h10zm-3.5 19h-3a.5.5 0 0 0-.09.992l.09.008h3a.5.5 0 0 0 .09-.992L13.5 20zM17 4H7v14h10V4z"></path></svg><span class="Spanstyled__SpanStyled-sc-16tp9kb-0 cFzggl kite-js-Span text" style="position: fixed; visibility: hidden;">Download App</span></div></div></div></div></div></div>
+<div id="page-backdrop" data-selenium="backdrop" class="hide"></div>
 
-        // ── 1. Mini Sidebar Map Live Scatter Renderer ──
-        var miniMapEl = document.getElementById('agodaMiniSidebarMap');
-        if (miniMapEl) {
-            try {
-                miniMap = L.map('agodaMiniSidebarMap', {
-                    center: [{{ $centerLat }}, {{ $centerLng }}],
-                    zoom: 11,
-                    zoomControl: false,
-                    attributionControl: false,
-                    dragging: false,
-                    touchZoom: false,
-                    doubleClickZoom: false,
-                    scrollWheelZoom: false,
-                    boxZoom: false,
-                    keyboard: false
-                });
 
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    maxZoom: 18
-                }).addTo(miniMap);
 
-                var userLat = {{ $userLat ?: 'null' }};
-                var userLng = {{ $userLng ?: 'null' }};
 
-                if (userLat && userLng) {
-                    var userPulseIcon = L.divIcon({
-                        className: 'user-mini-pulse',
-                        html: '<div style="width:14px;height:14px;background:#2563eb;border:2.5px solid #ffffff;border-radius:50%;box-shadow:0 0 0 4px rgba(37,99,235,0.35);"></div>',
-                        iconSize: [14, 14],
-                        iconAnchor: [7, 7]
-                    });
-                    L.marker([userLat, userLng], {icon: userPulseIcon, zIndexOffset: 10000}).addTo(miniMap);
-                }
+    
+    <div id="react-footer"><footer class="Footer" data-selenium="footer" data-element-name="footer"><section data-testid="footer-links-section"><div class="abb64-bg-generic-base-background"><div class="abb64-mx-auto abb64-px-16 abb64-py-48 abb64-flex abb64-flex-row" style="max-width: 1132px;"><div class="Grid__GridStyled-sc-30ivvs-0 atyvM"><div class="GridItem__GridItemStyled-sc-3btv1u-0 fYnIak"><h2 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 hGTtRH NSKrK">Help</h2><ul class="abb64-p-0 abb64-list-none"><li class="abb64-py-4"><a href="/info/contact.html" target="" data-selenium="footer-contact-us" data-element-name="contact-us-footer" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Help center">Help center</span></a></li><li class="abb64-py-4"><a href="/info/contact.html" target="" data-selenium="footer-faqs" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="FAQs">FAQs</span></a></li><li class="abb64-py-4"><a href="/info/privacy.html" target="_blank" data-selenium="footer-privacy-policy" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Privacy policy">Privacy policy</span></a></li><li class="abb64-py-4"><a href="/info/privacy.html#cookies" target="_blank" data-selenium="footer-cookie-policy" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Cookie policy">Cookie policy</span></a></li><li class="abb64-py-4"><a href="/info/termsofuse.html" target="_blank" data-selenium="footer-terms-of-service" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Terms of use">Terms of use</span></a></li><li class="abb64-py-4"><a href="/info/eu-digital-services-act.html" target="_blank" data-selenium="eu-digital-services-act" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Digital Services Act (EU)">Digital Services Act (EU)</span></a></li><li class="abb64-py-4"><a href="/info/eu-digital-services-act.html#CM" target="_blank" data-selenium="content-guideline-and-reporting" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Content guidelines &amp; reporting">Content guidelines &amp; reporting</span></a></li><li class="abb64-py-4"><a href="//www.bookingholdings.com/modern-slavery-statement/" target="_blank" data-selenium="modern-slavery-statement" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Modern Slavery Statement">Modern Slavery Statement</span></a></li></ul></div><div class="GridItem__GridItemStyled-sc-3btv1u-0 fYnIak"><h2 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 hGTtRH NSKrK">Company</h2><ul class="abb64-p-0 abb64-list-none"><li class="abb64-py-4"><a href="/about-agoda" target="_blank" data-selenium="footer-new-about-us" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="About us">About us</span></a></li><li class="abb64-py-4"><a href="//careersatagoda.com" target="_blank" data-selenium="footer-careers" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Careers">Careers</span></a></li><li class="abb64-py-4"><a href="//mediaroom.agoda.com" target="_blank" data-selenium="footer-media" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Press">Press</span></a></li><li class="abb64-py-4"><a href="/blog" target="_blank" data-selenium="footer-blog" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Featured Guides">Featured Guides</span></a></li><li class="abb64-py-4"><a href="//www.agoda.com/pointsmax.html" target="" data-selenium="footer-pointsmax" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="PointsMAX">PointsMAX</span></a></li></ul></div><div class="GridItem__GridItemStyled-sc-3btv1u-0 fYnIak"><h2 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 hGTtRH NSKrK">Destinations</h2><ul class="abb64-p-0 abb64-list-none"><li class="abb64-py-4"><a href="//www.agoda.com/world.html" target="" data-selenium="footer-destination-countries" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Countries/Territories">Countries/Territories</span></a></li><li class="abb64-py-4"><a href="//www.agoda.com/flights/world.html" target="" data-selenium="footer-flights-all-routes" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="All Flight Routes">All Flight Routes</span></a></li></ul></div><div class="GridItem__GridItemStyled-sc-3btv1u-0 fYnIak"><h2 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 hGTtRH NSKrK">Partner with us</h2><ul class="abb64-p-0 abb64-list-none"><li class="abb64-py-4"><a href="////portal.agoda.com" target="_blank" data-selenium="footer-partner-hotels" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="YCS partner portal">YCS partner portal</span></a></li><li class="abb64-py-4"><a href="//partnerhub.agoda.com/" target="_blank" data-selenium="footer-partner-hub" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Partner Hub">Partner Hub</span></a></li><li class="abb64-py-4"><a href="//partnerhub.agoda.com/advertising-solutions/" target="_blank" data-selenium="footer-partner-advertise" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Advertise on Agoda">Advertise on Agoda</span></a></li><li class="abb64-py-4"><a href="////partners.agoda.com/index.html" target="_blank" data-selenium="footer-partner-affiliates" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Affiliates">Affiliates</span></a></li><li class="abb64-py-4"><a href="//developer.agoda.com/" target="_blank" data-selenium="footer-partner-affiliates" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Agoda API Documentation">Agoda API Documentation</span></a></li></ul></div><div class="GridItem__GridItemStyled-sc-3btv1u-0 fYnIak"><h2 class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 hGTtRH NSKrK">Get the app</h2><ul class="abb64-p-0 abb64-list-none"><li class="abb64-py-4"><a href="//app.appsflyer.com/id440676901?pid=direct&amp;c=hotel_page_footer&amp;af_siteid=1716632&amp;site_id=1716632&amp;af_sub1=desktop" target="" data-selenium="footer-mobile-app-ios" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="iOS app">iOS app</span></a></li><li class="abb64-py-4"><a href="//app.appsflyer.com/com.agoda.mobile.consumer?pid=direct&amp;c=hotel_page_footer&amp;af_siteid=1716632&amp;site_id=1716632&amp;af_sub1=desktop" target="" data-selenium="footer-mobile-app-andriod" data-element-name="" class="TextLink__TextLinkStyled-sc-upxc4y-1 lnPPFO"><span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fyEmQU TextLink__TextStyled-sc-upxc4y-0 hXIeCX" label="Android app">Android app</span></a></li></ul></div></div></div></div></section><div data-element-name="agoda-footer" data-element-id="agoda-footer-4866b3b0-b94e-447b-9914-125f332a1bfa" data-mimir-element-data="dictator"></div><section data-selenium="footer-copyright-section" data-element-name="footer-copyright-section" data-element-id="footer-copyright-section-ef5384ed-a2d1-41a2-be5f-d5714fa4a477" data-mimir-element-data="dictator"><div class="Box-sc-kv6pi1-0 iZcZXU Copyrights-content"><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 gmyuLG kite-js-Typography " data-component="copyrights-info" data-nosnippet="false">All material herein © 2005–2026 Agoda Company Pte. Ltd. All Rights Reserved.</p><p class="Typographystyled__TypographyStyled-sc-j18mtu-0 gmyuLG kite-js-Typography " data-component="copyrights-info">Agoda is part of Booking Holdings Inc., the world leader in online travel &amp; related services.</p><div class="Box-sc-kv6pi1-0 krcUda BrandsContainer" style="margin: 35px auto 50px;"><div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-flex abb64-flex-wrap abb64-justify-between abb64-m-auto      " style="max-width: 1132px;"><div class="abb64-m-auto abb64-mr-0 abb64-ml-0" data-element-name="footer-logo" data-element-id="footer-logo-3a3970eb-fab5-4464-bd4f-1db30f7d67ed" style="width: 144px; height: 48px;" data-mimir-element-data="dictator"><img loading="lazy" alt="Agoda logo" srcset="https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg?s=16x 16w, https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg?s=116x 116w, https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg?s=375x 375w, https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg?s=600x 600w, https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg?s=800x 800w, https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg?s=1024x 1024w" src="https://cdn6.agoda.net/images/Footer/agoda-logo-white2.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  gbvLHM" sizes="144px"></div><div class="abb64-m-auto abb64-mr-0 abb64-ml-0" data-element-name="footer-logo" data-element-id="footer-logo-ca470dc5-bc8d-43c5-9a8f-37cd1c5b5ff8" style="width: 144px; height: 48px;" data-mimir-element-data="dictator"><img loading="lazy" alt="Priceline logo" srcset="https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg?s=16x 16w, https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg?s=116x 116w, https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg?s=375x 375w, https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg?s=600x 600w, https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg?s=800x 800w, https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg?s=1024x 1024w" src="https://cdn6.agoda.net/images/Footer/priceline-logo-white2.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  gbvLHM" sizes="144px"></div><div class="abb64-m-auto abb64-mr-0 abb64-ml-0" data-element-name="footer-logo" data-element-id="footer-logo-0a4f35dc-2137-4a9f-87eb-505fe36e5533" style="width: 144px; height: 48px;" data-mimir-element-data="dictator"><img loading="lazy" alt="Kayak logo" srcset="https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg?s=16x 16w, https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg?s=116x 116w, https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg?s=375x 375w, https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg?s=600x 600w, https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg?s=800x 800w, https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg?s=1024x 1024w" src="https://cdn6.agoda.net/images/Footer/kayak-logo-white2.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  gbvLHM" sizes="144px"></div><div class="abb64-m-auto abb64-mr-0 abb64-ml-0" data-element-name="footer-logo" data-element-id="footer-logo-1f258a11-af1b-4e4d-b039-0440e8241a41" style="width: 144px;" data-mimir-element-data="dictator"><img loading="lazy" alt="Booking.com logo" srcset="https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg?s=16x 16w, https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg?s=116x 116w, https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg?s=375x 375w, https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg?s=600x 600w, https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg?s=800x 800w, https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg?s=1024x 1024w" src="https://cdn6.agoda.net/images/Footer/Booking_Com_Logotype_Aug2020_White.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  eINQpe" sizes="111px"></div><div class="abb64-m-auto abb64-mr-0 abb64-ml-0" data-element-name="footer-logo" data-element-id="footer-logo-48b69c6c-5378-4bea-baf0-2eadf20fc47a" style="width: 144px; height: 48px;" data-mimir-element-data="dictator"><img loading="lazy" alt="Open Table logo" srcset="https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg?s=16x 16w, https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg?s=116x 116w, https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg?s=375x 375w, https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg?s=600x 600w, https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg?s=800x 800w, https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg?s=1024x 1024w" src="https://cdn6.agoda.net/images/Footer/open-table-logo-white2.svg" class="sc-eqUAAy Imagestyled__ImageStyled-sc-zu5jhi-1  gbvLHM" sizes="144px"></div></div></div></div></section></footer></div>
+ 
 
-                allProperties.forEach(function(item) {
-                    var dotIcon = L.divIcon({
-                        className: 'agoda-mini-dot',
-                        html: '<div style="width:9px;height:9px;background:#2067e1;border:1.5px solid #ffffff;border-radius:50%;box-shadow:0 1px 4px rgba(0,0,0,0.4);"></div>',
-                        iconSize: [9, 9],
-                        iconAnchor: [4.5, 4.5]
-                    });
-                    L.marker([item.lat, item.lng], {icon: dotIcon}).addTo(miniMap);
-                });
-            } catch(e) {
-                console.warn('MiniMap init:', e);
-            }
-        }
 
-        // ── 2. Render Left Column Property Cards ──
-        window.renderMapCards = function(items) {
-            var container = document.getElementById('agodaMapCardsList');
-            var countEl = document.getElementById('visibleCardsCount');
-            var modalCount = document.getElementById('mapModalPropertyCount');
-            if (countEl) countEl.textContent = items.length;
-            if (modalCount) modalCount.textContent = items.length;
-            if (!container) return;
+    
 
-            if (items.length === 0) {
-                container.innerHTML = '<div class="text-center p-4 text-muted" style="font-size:12.5px;"><i class="fa-solid fa-hotel fs-3 mb-2 opacity-50"></i><br>No properties found matching filter.</div>';
-                return;
-            }
+    
+    
+    
 
-            var html = '';
-            items.forEach(function(item, idx) {
-                var isFirst = (idx === 0);
-                var distBadge = item.distance_text ? `<div style="color: #2067e1; font-size: 10.5px; font-weight: 700; margin-top: 1px;"><i class="fa-solid fa-location-crosshairs me-1"></i>${item.distance_text}</div>` : '';
-                html += `
-                    <div class="card agoda-map-card" id="mapCard_${item.id}" style="border: 1.5px solid ${isFirst ? '#2067e1' : '#e2e8f0'}; border-radius: 4px; cursor: pointer; background: #ffffff; display: flex; flex-direction: row; height: 145px; margin-bottom: 8px; transition: all 0.15s ease; overflow: hidden; position: relative; ${isFirst ? 'box-shadow: 0 2px 10px rgba(32, 103, 225, 0.14);' : ''}" onmouseenter="highlightMarker(${item.id})" onmouseleave="unhighlightMarker(${item.id})" onclick="window.open('${item.url}', '_blank')">
-                        <!-- Left Hotel Photo (135px width, 100% height) -->
-                        <div style="width: 135px; min-width: 135px; height: 100%; position: relative; overflow: hidden; background: #f1f5f9;">
-                            <img src="${item.image}" alt="${item.name}" style="width: 100%; height: 100%; object-fit: cover;">
-                            <button type="button" class="btn position-absolute top-0 end-0 m-1 p-0 rounded-circle" style="background: rgba(255,255,255,0.92); border: none; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 5;" onclick="event.stopPropagation(); toggleMapCardWishlist(this, ${item.id})" title="Save to wishlist">
-                                <i class="fa-regular fa-heart text-danger" style="font-size: 11px;"></i>
-                            </button>
-                        </div>
-                        <!-- Right Info -->
-                        <div style="flex: 1; padding: 8px 12px; display: flex; flex-direction: column; justify-content: space-between; min-width: 0;">
-                            <div>
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 6px;">
-                                    <h6 style="font-size: 13.5px; font-weight: 700; color: #1e293b; margin: 0; line-height: 1.25; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;" title="${item.name}">${item.name}</h6>
-                                    <div style="text-align: right; flex-shrink: 0;">
-                                        <div style="font-size: 14.5px; font-weight: 800; color: #1e293b; line-height: 1;">${item.price}</div>
-                                        <div style="font-size: 9px; color: #64748b; margin-top: 2px; line-height: 1.1;">Per night before taxes<br>and fees</div>
-                                    </div>
-                                </div>
-                                <div style="color: #f59e0b; font-size: 10.5px; margin-top: 1px; letter-spacing: 0.5px;">★★★</div>
-                                ${distBadge}
-                                <div style="margin-top: 2px;">
-                                    <span style="color: #2067e1; font-size: 13px; font-weight: 800;">${item.score} ${item.rating_text}</span>
-                                    <div style="font-size: 10.5px; color: #64748b;">${item.reviews} reviews</div>
-                                </div>
-                            </div>
-                            <div style="margin-top: 2px;">
-                                ${item.free_cancel ? '<div style="color: #15803d; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px;"><span style="display: inline-block; width: 5px; height: 5px; background: #15803d; border-radius: 50%;"></span> Free cancellation</div>' : ''}
-                                <div style="color: #15803d; font-size: 11px; font-weight: 600; display: flex; align-items: center; gap: 5px; margin-top: 1px;"><span style="display: inline-block; width: 5px; height: 5px; background: #15803d; border-radius: 50%;"></span> Breakfast</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        };
 
-        // ── Wishlist toggle in map modal cards ──
-        window.toggleMapCardWishlist = function(btn, propertyId) {
-            var icon = btn.querySelector('i');
-            var isWished = icon.classList.contains('fa-solid');
-            // Optimistic UI toggle
-            if (isWished) {
-                icon.classList.replace('fa-solid', 'fa-regular');
-                icon.classList.remove('text-danger');
-                btn.style.background = 'rgba(255,255,255,0.85)';
-            } else {
-                icon.classList.replace('fa-regular', 'fa-solid');
-                icon.classList.add('text-danger');
-                btn.style.background = 'rgba(255,255,255,0.95)';
-            }
-            fetch('/wishlist/toggle/' + propertyId, {
-                method: 'POST',
-                headers: { 
-                    'X-CSRF-TOKEN': document.querySelector('meta[name=csrf-token]')?.content || '', 
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(function(res) {
-                if (res.status === 401) {
-                    window.location.href = '/login';
-                    return;
-                }
-                return res.json();
-            })
-            .then(function(data) {
-                if (data && typeof data.is_wishlisted !== 'undefined') {
-                    if (data.is_wishlisted) {
-                        icon.className = 'fa-solid fa-heart text-danger';
-                    } else {
-                        icon.className = 'fa-regular fa-heart text-dark';
-                    }
-                }
-            })
-            .catch(function() {});
-        };
 
-        // ── 3. Highlighting and Marker Popups (Agoda 1:1 Parity) ──
-        window.highlightMarker = function(id) {
-            // Highlight Marker Pin on Map (Agoda Blue Active)
-            if (markersMap[id]) {
-                var el = markersMap[id].getElement();
-                if (el) {
-                    var badge = el.querySelector('.custom-agoda-pin-inner');
-                    if (badge) {
-                        badge.style.backgroundColor = '#2067e1';
-                        badge.style.color = '#ffffff';
-                        badge.style.borderColor = '#ffffff';
-                        badge.style.transform = 'scale(1.12)';
-                        badge.style.boxShadow = '0 6px 18px rgba(32, 103, 225, 0.45)';
-                        badge.style.zIndex = '9999';
-                    }
-                }
-            }
 
-            // Highlight Property Card
-            var card = document.getElementById('mapCard_' + id);
-            if (card) {
-                card.style.borderColor = '#2067e1';
-                card.style.borderWidth = '2px';
-                card.style.boxShadow = '0 6px 20px rgba(32, 103, 225, 0.15)';
-            }
-        };
+<div class="ReactModalPortal"></div><div class="ReactModalPortal"></div><link rel="prefetch" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/4754-c334e52610a7.js" as="script"><link rel="prefetch" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/7311-188a0c4d0179.js" as="script"><link rel="prefetch" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/8140-85725b62765c.js" as="script"><link rel="prefetch" href="https://cdn6.agoda.net/cdn-accom-web/js/assets/browser-bundle/ADSEFF-1308=A/property-4d8a141127db.js" as="script"><div id="drone-icon-container" style="display: none;"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><symbol id="9523eea2" viewBox="0 0 24 24"><g clip-path="url(#clip0_2_8378)"><path fill-rule="evenodd" clip-rule="evenodd" d="m3.666 2.643.082.071L12 10.966l8.253-8.252a.73.73 0 0 1 1.104.952l-.071.082L13.034 12l8.252 8.253a.731.731 0 0 1-.952 1.104l-.081-.071L12 13.034l-8.252 8.252a.73.73 0 0 1-1.105-.952l.071-.081L10.966 12 2.714 3.748a.73.73 0 0 1 .952-1.105Z"></path></g><defs><clipPath id="clip0_2_8378"><path d="M0 0h24v24H0z"></path></clipPath></defs></symbol></svg></div>
+        
 
-        window.unhighlightMarker = function(id) {
-            // Restore Marker Pin on Map
-            if (markersMap[id]) {
-                var el = markersMap[id].getElement();
-                if (el) {
-                    var badge = el.querySelector('.custom-agoda-pin-inner');
-                    if (badge) {
-                        badge.style.backgroundColor = '#ffffff';
-                        badge.style.color = '#2067e1';
-                        badge.style.borderColor = '#2067e1';
-                        badge.style.transform = 'scale(1)';
-                        badge.style.boxShadow = '0 2px 8px rgba(0,0,0,0.12)';
-                        badge.style.zIndex = '1';
-                    }
-                }
-            }
 
-            // Restore Property Card
-            var card = document.getElementById('mapCard_' + id);
-            if (card) {
-                card.style.borderColor = '#e2e8f0';
-                card.style.borderWidth = '1px';
-                card.style.boxShadow = 'none';
-            }
-        };
 
-        window.focusProperty = function(id) {
-            var prop = allProperties.find(p => p.id == id);
-            if (prop && map) {
-                map.setView([prop.lat, prop.lng], 16, {animate: true});
-                if (markersMap[id]) markersMap[id].openPopup();
-            }
-        };
 
-        window.openHotelOnMap = function(id) {
-            var modalEl = document.getElementById('interactiveMapModal');
-            if (!modalEl) return;
-            var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-            modal.show();
-            if (id) {
-                setTimeout(function() {
-                    if (window.focusProperty) {
-                        window.focusProperty(id);
-                    }
-                    if (window.highlightMarker) {
-                        window.highlightMarker(id);
-                    }
-                    var card = document.getElementById('mapCard_' + id);
-                    if (card) {
-                        card.scrollIntoView({behavior: 'smooth', block: 'center'});
-                    }
-                }, 450);
-            }
-        };
-        window.openAgodaMapModal = function(id) {
-            window.openHotelOnMap(id);
-        };
 
-        window.onMapSliderChange = function(val) {
-            var maxInput = document.getElementById('mapMaxBudgetInput');
-            if (maxInput) maxInput.value = val;
-            filterMapItems();
-        };
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1316427267036611&amp;ev=PageView&amp;noscript=1"></noscript>
 
-        window.onMapTypedBudgetChange = function() {
-            var maxVal = parseFloat(document.getElementById('mapMaxBudgetInput')?.value || 0);
-            var slider = document.getElementById('mapPriceRange');
-            if (slider && !isNaN(maxVal) && maxVal > 0) {
-                slider.value = maxVal;
-            }
-            filterMapItems();
-        };
 
-        // ── 4. Filter and Sorting Algorithms (Agoda 1:1 Complete Parity) ──
-        window.filterMapItems = function() {
-            var query = (document.getElementById('mapSearchInput')?.value || '').toLowerCase().trim();
-            var minBudget = parseFloat(document.getElementById('mapMinBudgetInput')?.value || 0);
-            var maxBudget = parseFloat(document.getElementById('mapMaxBudgetInput')?.value || 999999);
-            var checks = Array.from(document.querySelectorAll('.map-filter-check:checked')).map(c => c.value);
-            var guestRatingRadio = document.querySelector('.map-filter-radio:checked')?.value;
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=1575005197414001&amp;ev=PageView&amp;noscript=1"></noscript>
 
-            // Render active filter badges at top of sidebar
-            var badgeContainer = document.getElementById('activeMapFiltersBadgeContainer');
-            if (badgeContainer) {
-                var badgesHtml = '';
-                checks.forEach(function(val) {
-                    var el = document.querySelector(`.map-filter-check[value="${val}"]`);
-                    var label = el ? el.parentElement.textContent.trim() : val;
-                    badgesHtml += `
-                        <span class="badge d-inline-flex align-items-center gap-1.5 px-2 py-1" style="background:#e0edff; color:#2067e1; font-weight:600; font-size:11px; border-radius:14px;">
-                            ${label} <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="uncheckFilter('${val}')"></i>
-                        </span>
-                    `;
-                });
-                badgeContainer.innerHTML = badgesHtml;
-            }
-
-            currentFiltered = allProperties.filter(function(item) {
-                if (query && !item.name.toLowerCase().includes(query) && !item.city.toLowerCase().includes(query)) return false;
-                if (item.price_raw < minBudget || item.price_raw > maxBudget) return false;
-                if (checks.includes('free_cancel') && !item.free_cancel) return false;
-                if (checks.includes('pay_later') && !item.pay_later) return false;
-                if (checks.includes('rating_8') && parseFloat(item.score) < 8.0) return false;
-                if (guestRatingRadio && parseFloat(item.score) < parseFloat(guestRatingRadio)) return false;
-                if (checks.includes('type_hotel') && !item.type.toLowerCase().includes('hotel')) return false;
-                if (checks.includes('type_apartment') && !item.type.toLowerCase().includes('apartment')) return false;
-                if (checks.includes('type_entire') && !item.type.toLowerCase().includes('entire') && !item.type.toLowerCase().includes('villa')) return false;
-                if (checks.includes('area_chittagong') && !item.city.toLowerCase().includes('chittagong') && !item.city.toLowerCase().includes('chattogram')) return false;
-                if (checks.includes('area_kotwali') && !item.name.toLowerCase().includes('kotwali') && !item.city.toLowerCase().includes('kotwali')) return false;
-                return true;
-            });
-
-            renderMapCards(currentFiltered);
-            updateMapMarkers(currentFiltered);
-        };
-
-        window.updateMapMarkers = function(items) {
-            if (!map || !markersMap) return;
-            var visibleIds = new Set(items.map(function(i) { return i.id; }));
-            Object.keys(markersMap).forEach(function(id) {
-                var m = markersMap[id];
-                if (!m) return;
-                var el = m.getElement();
-                if (visibleIds.has(parseInt(id)) || visibleIds.has(id)) {
-                    if (!map.hasLayer(m)) map.addLayer(m);
-                    if (el) el.style.display = 'block';
-                } else {
-                    if (el) el.style.display = 'none';
-                }
-            });
-        };
-
-        window.uncheckFilter = function(val) {
-            var el = document.querySelector(`.map-filter-check[value="${val}"]`);
-            if (el) {
-                el.checked = false;
-                filterMapItems();
-            }
-        };
-
-        window.clearAllMapFilters = function() {
-            document.querySelectorAll('.map-filter-check').forEach(c => c.checked = false);
-            document.querySelectorAll('.map-filter-radio').forEach(r => r.checked = false);
-            var searchInput = document.getElementById('mapSearchInput');
-            var headerSearch = document.getElementById('mapHeaderSearchInput');
-            var priceRange = document.getElementById('mapPriceRange');
-            var minInput = document.getElementById('mapMinBudgetInput');
-            var maxInput = document.getElementById('mapMaxBudgetInput');
-            if (searchInput) searchInput.value = '';
-            if (headerSearch) headerSearch.value = '';
-            if (minInput) minInput.value = 0;
-            if (maxInput) maxInput.value = {{ $maxConvertedPrice ?? 1000 }};
-            if (priceRange) priceRange.value = {{ $maxConvertedPrice ?? 1000 }};
-            filterMapItems();
-        };
-
-        window.sortMapItems = function(sortType) {
-            if (sortType === 'price_low') {
-                currentFiltered.sort((a, b) => a.price_raw - b.price_raw);
-            } else if (sortType === 'rating_high') {
-                currentFiltered.sort((a, b) => b.score - a.score);
-            } else {
-                currentFiltered.sort((a, b) => a.id - b.id);
-            }
-            renderMapCards(currentFiltered);
-        };
-
-        // ── 6. Agoda-Exact Smart Location Autocomplete Engine ──
-        var geoLocations = [
-            { name: "Kaptai", subtitle: "Bangladesh", type: "city", lat: 22.4967, lng: 92.2244 },
-            { name: "Kolkata", subtitle: "West Bengal, India", type: "city", lat: 22.5726, lng: 88.3639 },
-            { name: "Khagrachari", subtitle: "Bangladesh", type: "city", lat: 23.1322, lng: 91.9490 },
-            { name: "Kaptai Lake", subtitle: "Bangladesh", type: "landmark", lat: 22.4967, lng: 92.2244 },
-            { name: "Khulna", subtitle: "Bangladesh", type: "city", lat: 22.8456, lng: 89.5403 },
-            { name: "Khulna City", subtitle: "Khulna, Bangladesh", type: "city", lat: 22.8456, lng: 89.5403 },
-            { name: "Khulna Division", subtitle: "Bangladesh", type: "division", lat: 22.8456, lng: 89.5403 },
-            { name: "Khulna Railway Station", subtitle: "Jashore Road, Khulna, Bangladesh", type: "station", lat: 22.8200, lng: 89.5500 },
-            { name: "Chattogram", subtitle: "Chittagong Division, Bangladesh", type: "city", lat: 22.3569, lng: 91.7832 },
-            { name: "Cox's Bazar", subtitle: "Chittagong Division, Bangladesh", type: "city", lat: 21.4272, lng: 92.0058 },
-            { name: "Dhaka", subtitle: "Dhaka Division, Bangladesh", type: "city", lat: 23.8103, lng: 90.4125 },
-            { name: "Sylhet", subtitle: "Sylhet Division, Bangladesh", type: "city", lat: 24.8949, lng: 91.8687 },
-            { name: "Sreemangal", subtitle: "Moulvibazar, Sylhet, Bangladesh", type: "city", lat: 24.3065, lng: 91.7296 },
-            { name: "Kuakata", subtitle: "Patuakhali, Barishal, Bangladesh", type: "city", lat: 21.8167, lng: 90.1167 },
-            { name: "Bandarban", subtitle: "Chittagong Hill Tracts, Bangladesh", type: "city", lat: 22.1953, lng: 92.2184 },
-            { name: "Rangamati", subtitle: "Chittagong Hill Tracts, Bangladesh", type: "city", lat: 22.6533, lng: 92.1789 },
-            { name: "Saint Martin's Island", subtitle: "Bay of Bengal, Cox's Bazar", type: "landmark", lat: 20.6273, lng: 92.3225 },
-            { name: "Agrabad Commercial Area", subtitle: "Chattogram, Bangladesh", type: "landmark", lat: 22.3275, lng: 91.8123 },
-            { name: "GEC Circle", subtitle: "Chattogram, Bangladesh", type: "landmark", lat: 22.3587, lng: 91.8214 },
-            { name: "Gulshan-2", subtitle: "Dhaka, Bangladesh", type: "landmark", lat: 23.7925, lng: 90.4167 }
-        ];
-
-        window.handleMapSearchAutocomplete = function(val) {
-            var clearBtn = document.getElementById('clearMapSearchBtn');
-            var dropdown = document.getElementById('agodaMapSuggestDropdown');
-            var list = document.getElementById('agodaMapSuggestList');
-            var sideSearch = document.getElementById('mapSearchInput');
-            if (sideSearch) sideSearch.value = val;
-
-            if (!val || val.trim().length === 0) {
-                if (clearBtn) clearBtn.classList.add('d-none');
-                if (dropdown) dropdown.classList.add('d-none');
-                filterMapItems();
-                return;
-            }
-
-            if (clearBtn) clearBtn.classList.remove('d-none');
-            var query = val.toLowerCase().trim();
-
-            // 1. Instant match from current search results
-            var matchedProps = allProperties.filter(p => p.name.toLowerCase().includes(query) || p.city.toLowerCase().includes(query));
-            var matchedGeos = geoLocations.filter(g => g.name.toLowerCase().includes(query) || g.subtitle.toLowerCase().includes(query));
-
-            var results = [];
-            matchedProps.slice(0, 5).forEach(p => results.push({ title: p.name, subtitle: p.city + ' • ' + p.price, id: p.id, lat: p.lat, lng: p.lng, isProp: true }));
-            matchedGeos.forEach(g => results.push({ title: g.name, subtitle: g.subtitle, lat: g.lat, lng: g.lng, isGeo: true }));
-
-            // 2. Fetch live REST API suggestions across database
-            fetch(`/api/v1/suggestions?q=${encodeURIComponent(query)}`)
-                .then(r => r.json())
-                .then(res => {
-                    var apiItems = res?.data || res || [];
-                    if (Array.isArray(apiItems)) {
-                        apiItems.forEach(item => {
-                            var title = item.title || item.name;
-                            if (title && !results.some(r => r.title.toLowerCase() === title.toLowerCase())) {
-                                results.push({
-                                    title: title,
-                                    subtitle: item.subtitle || item.city || 'Bangladesh',
-                                    lat: parseFloat(item.latitude || item.lat || 23.8103),
-                                    lng: parseFloat(item.longitude || item.lng || 90.4125),
-                                    id: item.id || null,
-                                    isProp: item.type === 'hotel'
-                                });
-                            }
-                        });
-                    }
-                    renderSuggestions(results);
-                })
-                .catch(() => {
-                    renderSuggestions(results);
-                });
-
-            function renderSuggestions(resList) {
-                if (resList.length === 0) {
-                    if (dropdown) dropdown.classList.add('d-none');
-                } else {
-                    var html = '';
-                    resList.slice(0, 8).forEach(function(r) {
-                        html += `
-                            <div class="px-3 py-2 agoda-suggest-item" style="cursor:pointer; border-bottom:1px solid #f1f5f9; transition:background 0.15s;" onmouseenter="this.style.background='#f8fafc'" onmouseleave="this.style.background='transparent'" onclick="selectMapSuggestion('${r.title.replace(/'/g, "\\'")}', ${r.lat}, ${r.lng}, ${r.id || 'null'})">
-                                <div class="fw-bold text-dark" style="font-size:13.5px; font-family:'Plus Jakarta Sans',sans-serif; color:#0f172a;">${r.title}</div>
-                                <small class="text-secondary d-block" style="font-size:11px; line-height:1.2;">${r.subtitle}</small>
-                            </div>
-                        `;
-                    });
-                    if (list) list.innerHTML = html;
-                    if (dropdown) dropdown.classList.remove('d-none');
-                }
-            }
-
-            filterMapItems();
-        };
-
-        window.selectMapSuggestion = function(title, lat, lng, propId) {
-            var headerInput = document.getElementById('mapHeaderSearchInput');
-            var sideInput = document.getElementById('mapSearchInput');
-            var dropdown = document.getElementById('agodaMapSuggestDropdown');
-
-            if (headerInput) headerInput.value = title;
-            if (sideInput) sideInput.value = title;
-            if (dropdown) dropdown.classList.add('d-none');
-
-            if (map && lat && lng) {
-                map.setView([lat, lng], propId ? 16 : 14, { animate: true });
-                if (propId && markersMap[propId]) {
-                    markersMap[propId].openPopup();
-                }
-            }
-            filterMapItems();
-        };
-
-        window.clearMapSearch = function() {
-            var headerInput = document.getElementById('mapHeaderSearchInput');
-            var sideInput = document.getElementById('mapSearchInput');
-            var clearBtn = document.getElementById('clearMapSearchBtn');
-            var dropdown = document.getElementById('agodaMapSuggestDropdown');
-
-            if (headerInput) headerInput.value = '';
-            if (sideInput) sideInput.value = '';
-            if (clearBtn) clearBtn.classList.add('d-none');
-            if (dropdown) dropdown.classList.add('d-none');
-            filterMapItems();
-        };
-
-        // ── 5. Master Modal Initialization & Toggle ──
-        var filterCol = document.getElementById('agodaMapFilterCol');
-        var toggleBtn = document.getElementById('toggleMapFilterSidebarBtn');
-        var toggleText = document.getElementById('toggleFilterBtnText');
-        if (toggleBtn) {
-            toggleBtn.addEventListener('click', function() {
-                if (filterCol.style.display === 'none') {
-                    filterCol.style.display = 'block';
-                    toggleText.textContent = 'Hide filters';
-                } else {
-                    filterCol.style.display = 'none';
-                    toggleText.textContent = 'Show filters';
-                }
-                setTimeout(() => map && map.invalidateSize(), 300);
-            });
-        }
-
-        mapModal.addEventListener('shown.bs.modal', function () {
-            renderMapCards(allProperties);
-
-            if (!mapInitialized) {
-                map = L.map('agodaMapContainer', {zoomControl: false}).setView([{{ $centerLat }}, {{ $centerLng }}], 13);
-                L.control.zoom({position: 'bottomright'}).addTo(map);
-
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                    attribution: '&copy; OpenStreetMap contributors | PRIME BOOKING'
-                }).addTo(map);
-
-                if (userLat && userLng) {
-                    var mainUserIcon = L.divIcon({
-                        className: 'main-user-pulse',
-                        html: '<div style="position:relative;width:22px;height:22px;"><div style="position:absolute;width:22px;height:22px;background:rgba(37,99,235,0.25);border-radius:50%;"></div><div style="position:absolute;top:3px;left:3px;width:16px;height:16px;background:#2563eb;border:2.5px solid #ffffff;border-radius:50%;box-shadow:0 2px 8px rgba(0,0,0,0.35);"></div></div>',
-                        iconSize: [22, 22],
-                        iconAnchor: [11, 11]
-                    });
-                    L.marker([userLat, userLng], {icon: mainUserIcon, zIndexOffset: 10000})
-                        .addTo(map)
-                        .bindPopup("<div class='p-1 text-center' style='font-size:12px;font-family:sans-serif;'>📍 <strong>Your Current Location</strong></div>");
-                }
-
-                allProperties.forEach(function(item) {
-                    var isSoldOut = item.price_raw <= 0 || item.price.includes('N/A');
-                    var pinHtml = isSoldOut 
-                        ? '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#64748b;font-weight:700;font-size:11px;padding:3px 8px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:1.5px solid #cbd5e1;cursor:pointer;white-space:nowrap;transition:all 0.2s;">Sold out</div>'
-                        : '<div class="custom-agoda-pin-inner" style="background:#ffffff;color:#2067e1;font-weight:800;font-size:11.5px;padding:3px 9px;border-radius:18px;box-shadow:0 2px 8px rgba(0,0,0,0.12);border:1.5px solid #2067e1;cursor:pointer;white-space:nowrap;transition:all 0.2s;">' + item.price + '</div>';
-
-                    var customIcon = L.divIcon({
-                        className: 'custom-agoda-price-pin',
-                        html: pinHtml,
-                        iconSize: [80, 28],
-                        iconAnchor: [40, 14]
-                    });
-
-                    var popupContent = `
-                        <div style="width:200px;font-family:'Plus Jakarta Sans',sans-serif;">
-                            <img src="${item.image}" style="width:100%;height:100px;object-fit:cover;border-radius:6px;margin-bottom:6px;">
-                            <div style="font-weight:700;font-size:12.5px;color:#0f172a;line-height:1.2;margin-bottom:3px;">${item.name}</div>
-                            <div style="font-size:11px;color:#64748b;margin-bottom:6px;"><i class="fa-solid fa-location-dot text-danger me-1"></i>${item.city}</div>
-                            <div style="display:flex;justify-content:space-between;align-items:center;">
-                                <span style="background:#2067e1;color:#fff;font-weight:700;font-size:11px;padding:2px 6px;border-radius:4px;">${item.score}</span>
-                                <span style="font-weight:800;font-size:13.5px;color:#0f172a;">${item.price}</span>
-                            </div>
-                            <a href="${item.url}" target="_blank" style="display:block;text-align:center;background:#16a34a;color:#fff;font-weight:700;font-size:11px;padding:5px 0;border-radius:6px;text-decoration:none;margin-top:8px;">View Details →</a>
-                        </div>
-                    `;
-
-                    var m = L.marker([item.lat, item.lng], {icon: customIcon})
-                        .addTo(map)
-                        .bindPopup(popupContent);
-
-                    m.on('click', function() {
-                        var card = document.getElementById('mapCard_' + item.id);
-                        if (card) card.scrollIntoView({behavior: 'smooth', block: 'center'});
-                    });
-
-                    markersMap[item.id] = m;
-                });
-
-                if (Object.keys(markersMap).length > 0) {
-                    try {
-                        var group = new L.featureGroup(Object.values(markersMap));
-                        map.fitBounds(group.getBounds().pad(0.12));
-                    } catch(e) {}
-                }
-
-                // Viewport dynamic sync + "Search as I move the map" toggle
-                map.on('moveend', function() {
-                    var bounds = map.getBounds();
-                    var inViewport = currentFiltered.filter(function(i) { return bounds.contains([i.lat, i.lng]); });
-                    var countEl = document.getElementById('visibleCardsCount');
-                    if (countEl) countEl.textContent = inViewport.length;
-
-                    // If "Search as I move" toggle is on, re-render cards to viewport only
-                    var moveToggle = document.getElementById('searchAsIMoveToggle');
-                    if (moveToggle && moveToggle.checked) {
-                        renderMapCards(inViewport);
-                        // Also dim markers outside viewport
-                        Object.keys(markersMap).forEach(function(id) {
-                            var prop = allProperties.find(function(p) { return p.id == id; });
-                            var el = markersMap[id].getElement();
-                            if (!el) return;
-                            var badge = el.querySelector('.custom-agoda-pin-inner');
-                            if (!badge) return;
-                            var inView = prop && bounds.contains([prop.lat, prop.lng]);
-                            badge.style.opacity = inView ? '1' : '0.35';
-                        });
-                    }
-                });
-
-                mapInitialized = true;
-            } else {
-                map.invalidateSize();
-            }
-        });
-    });
-</script>
-
-{{-- Mobile Off-Canvas Filter Drawer --}}
-<div class="offcanvas offcanvas-start" tabindex="-1" id="mobileFilterOffcanvas" aria-labelledby="mobileFilterOffcanvasLabel" style="width: min(360px, 90vw);">
-    <div class="offcanvas-header border-bottom" style="background:#1d2b45;">
-        <h6 class="offcanvas-title text-white fw-bold m-0" id="mobileFilterOffcanvasLabel">
-            <i class="fa-solid fa-sliders me-2"></i>Filter Results
-        </h6>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
-    </div>
-    <div class="offcanvas-body p-0">
-        @include('components.search.filter-sidebar')
-    </div>
-</div>
-
-{{-- JSON-LD Structured Data for SEO (ItemList + Hotel schema) --}}
-@php
-    $jsonLdItems = collect($searchResults['merged_results'])->take(10)->map(function($p, $idx) {
-        $isObj = is_object($p);
-        $name  = $isObj ? ($p->name ?? '') : ($p['name'] ?? '');
-        $url   = $isObj ? route('property.show', $p->slug ?? $p->id) : route('property.show', $p['slug'] ?? $p['id'] ?? 1);
-        $img   = $isObj ? ($p->primary_image ?? '') : ($p['primary_image'] ?? '');
-        $price = (float)($isObj ? ($p->price_per_night ?? 0) : ($p['price_per_night'] ?? 0));
-        return [
-            '@type'    => 'ListItem',
-            'position' => $idx + 1,
-            'item'     => [
-                '@type'       => 'Hotel',
-                'name'        => $name,
-                'url'         => $url,
-                'image'       => $img ?: null,
-                'priceRange'  => $price > 0 ? ('৳' . number_format($price)) : null,
-            ],
-        ];
-    })->values()->toArray();
-
-    $jsonLdData = [
-        '@context'        => 'https://schema.org',
-        '@type'           => 'ItemList',
-        'name'            => 'Hotels & Stays in ' . ($destination ?: 'Bangladesh'),
-        'description'     => 'Search results for ' . ($searchResults['total_count'] ?? 0) . ' hotels and stays in ' . ($destination ?: 'Bangladesh') . ' on PRIME BOOKING',
-        'numberOfItems'   => count($jsonLdItems),
-        'itemListElement' => $jsonLdItems,
-    ];
-@endphp
-@if(count($jsonLdItems))
-<script type="application/ld+json">
-{!! json_encode($jsonLdData, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
-</script>
-@endif
-
-
-
-{{-- Destination Autocomplete + AJAX Sort JS --}}
-<script>
-(function() {
-    // ── A. Destination autocomplete on top search bar ──────────────────────────
-    var destInput = document.getElementById('mainDestInput');
-    var acDropdown = null;
-    var acTimer = null;
-
-    if (destInput) {
-        acDropdown = document.createElement('div');
-        acDropdown.id = 'topBarAcDropdown';
-        acDropdown.className = 'position-absolute bg-white rounded-3 shadow-lg border mt-1 d-none';
-        acDropdown.style.cssText = 'z-index:2000; width:340px; max-height:340px; overflow-y:auto; top:100%; left:0;';
-        destInput.closest('.position-relative').appendChild(acDropdown);
-
-        destInput.addEventListener('input', function() {
-            clearTimeout(acTimer);
-            var q = this.value.trim();
-            if (q.length < 1) { acDropdown.classList.add('d-none'); return; }
-            acTimer = setTimeout(function() { fetchAcSuggestions(q); }, 200);
-        });
-
-        destInput.addEventListener('blur', function() {
-            setTimeout(function() { acDropdown.classList.add('d-none'); }, 200);
-        });
-    }
-
-    function fetchAcSuggestions(q) {
-        fetch('/api/search/autocomplete?q=' + encodeURIComponent(q) + '&search_type={{ $searchType ?? "hotel" }}')
-            .then(function(r) { return r.json(); })
-            .then(function(data) {
-                var locs = (data.data && data.data.locations) ? data.data.locations : (data.locations || []);
-                var props = (data.data && data.data.properties) ? data.data.properties : (data.properties || []);
-                renderTopAcDropdown(locs, props, q);
-            }).catch(function() {});
-    }
-
-    function renderTopAcDropdown(locs, props, q) {
-        if (!acDropdown) return;
-        if (!locs.length && !props.length) { acDropdown.classList.add('d-none'); return; }
-        var html = '';
-        var iconMap = { city:'fa-city', landmark:'fa-location-dot', country:'fa-globe', station:'fa-train' };
-        if (locs.length) {
-            html += '<div class="px-3 pt-2 pb-1" style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;">DESTINATIONS</div>';
-            locs.slice(0, 5).forEach(function(l) {
-                var icon = iconMap[l.type] || 'fa-location-dot';
-                html += '<div class="px-3 py-2" style="cursor:pointer;border-bottom:1px solid #f1f5f9;" '
-                    + 'onmousedown="selectTopAcItem(' + JSON.stringify(l.city||l.name||l.destination) + ')" '
-                    + 'onmouseenter="this.style.background=\'#f8fafc\'" onmouseleave="this.style.background=\'transparent\'">'
-                    + '<div class="d-flex align-items-center gap-2">'
-                    + '<span style="width:28px;height:28px;background:#e0edff;border-radius:6px;display:flex;align-items:center;justify-content:center;"><i class="fa-solid ' + icon + ' text-primary" style="font-size:12px;"></i></span>'
-                    + '<div><div class="fw-bold text-dark" style="font-size:13px;">' + (l.city||l.name||l.destination) + '</div>'
-                    + '<small class="text-muted" style="font-size:11px;">' + (l.country||l.subtitle||'') + (l.property_count ? ' • '+l.property_count+' properties' : '') + '</small></div>'
-                    + '</div></div>';
-            });
-        }
-        if (props.length) {
-            html += '<div class="px-3 pt-2 pb-1" style="font-size:10px;font-weight:700;color:#94a3b8;letter-spacing:1px;">PROPERTIES</div>';
-            props.slice(0, 3).forEach(function(p) {
-                html += '<div class="px-3 py-2" style="cursor:pointer;" '
-                    + 'onmousedown="selectTopAcItem(' + JSON.stringify(p.name) + ')" '
-                    + 'onmouseenter="this.style.background=\'#f8fafc\'" onmouseleave="this.style.background=\'transparent\'">'
-                    + '<div class="d-flex align-items-center gap-2">'
-                    + (p.image ? '<img src="'+p.image+'" style="width:32px;height:32px;border-radius:4px;object-fit:cover;">' : '<span style="width:32px;height:32px;background:#f1f5f9;border-radius:4px;display:inline-block;"></span>')
-                    + '<div><div class="fw-bold text-dark" style="font-size:13px;">' + p.name + '</div>'
-                    + '<small class="text-muted" style="font-size:11px;">' + (p.city||'') + (p.price ? ' • from '+p.price : '') + '</small></div>'
-                    + '</div></div>';
-            });
-        }
-        acDropdown.innerHTML = html;
-        acDropdown.classList.remove('d-none');
-    }
-
-    window.selectTopAcItem = function(val) {
-        if (destInput) { destInput.value = val; }
-        if (acDropdown) acDropdown.classList.add('d-none');
-        document.getElementById('searchHeaderForm').submit();
-    };
-
-    // ── B. AJAX Sort (no full page reload) ───────────────────────────────────
-    var sortSelect = document.getElementById('sortBySelect');
-    if (sortSelect) {
-        sortSelect.addEventListener('change', function() {
-            var filterForm = document.getElementById('filterSidebarForm');
-            var resultsContainer = document.getElementById('searchResultsContainer');
-            if (!resultsContainer || !filterForm) { return; }
-
-            var params = new URLSearchParams();
-            var fd = new FormData(filterForm);
-            for (var pair of fd.entries()) { if (pair[1]) params.append(pair[0], pair[1]); }
-            params.set('sort_by', sortSelect.value);
-            params.delete('page');
-
-            var url = filterForm.action + '?' + params.toString();
-            resultsContainer.style.opacity = '0.4';
-            resultsContainer.style.transition = 'opacity 0.15s';
-
-            fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
-                .then(function(r) { return r.text(); })
-                .then(function(html) {
-                    var doc = new DOMParser().parseFromString(html, 'text/html');
-                    var fresh = doc.getElementById('searchResultsContainer');
-                    if (fresh) {
-                        resultsContainer.innerHTML = fresh.innerHTML;
-                        if (typeof window.initAgodaInfiniteScroll === 'function') {
-                            window.initAgodaInfiniteScroll();
-                        }
-                    }
-                    resultsContainer.style.opacity = '1';
-                    history.pushState(null, '', url);
-                }).catch(function() { resultsContainer.style.opacity = '1'; });
-        });
-    }
-
-    // ── C. Agoda-Exact Infinite Scroll with Shimmer Skeleton Loader ──────────
-    window.initAgodaInfiniteScroll = function() {
-        var feed = document.getElementById('propertyCardsFeed');
-        var sentinel = document.getElementById('infiniteScrollSentinel');
-        var skeleton = document.getElementById('infiniteScrollSkeletonContainer');
-        var endMsg = document.getElementById('infiniteScrollEndMessage');
-
-        if (!feed || !sentinel) return;
-
-        if (window._agodaScrollObserver) {
-            window._agodaScrollObserver.disconnect();
-            window._agodaScrollObserver = null;
-        }
-
-        var currentPage = parseInt(feed.getAttribute('data-current-page') || '1', 10);
-        var lastPage = parseInt(feed.getAttribute('data-last-page') || '1', 10);
-        var totalCount = parseInt(feed.getAttribute('data-total') || '0', 10);
-        var isLoading = false;
-        var hasMore = currentPage < lastPage;
-
-        if (!hasMore) {
-            if (endMsg && totalCount > 0) endMsg.classList.remove('d-none');
-            if (skeleton) skeleton.classList.add('d-none');
-            return;
-        } else {
-            if (endMsg) endMsg.classList.add('d-none');
-        }
-
-        function fetchNextBatch() {
-            if (isLoading || !hasMore) return;
-            isLoading = true;
-
-            if (skeleton) skeleton.classList.remove('d-none');
-
-            var nextPage = currentPage + 1;
-            var fetchUrl = new URL(window.location.href);
-            fetchUrl.searchParams.set('page', nextPage);
-            fetchUrl.searchParams.set('ajax_scroll', '1');
-
-            fetch(fetchUrl.toString(), {
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'X-Infinite-Scroll': 'true',
-                    'Accept': 'application/json'
-                }
-            })
-            .then(function(res) {
-                if (!res.ok) throw new Error('Network response error');
-                return res.json();
-            })
-            .then(function(data) {
-                if (skeleton) skeleton.classList.add('d-none');
-
-                if (data && data.success && data.html) {
-                    var tempDiv = document.createElement('div');
-                    tempDiv.innerHTML = data.html;
-
-                    while (tempDiv.firstChild) {
-                        var child = tempDiv.firstChild;
-                        if (child.nodeType === 1) {
-                            child.style.animation = 'fadeInUpCard 0.35s ease-out';
-                        }
-                        feed.appendChild(child);
-                    }
-
-                    currentPage = data.current_page || nextPage;
-                    hasMore = Boolean(data.has_more);
-                    feed.setAttribute('data-current-page', currentPage);
-
-                    var displayUrl = new URL(window.location.href);
-                    displayUrl.searchParams.set('page', currentPage);
-                    history.replaceState(null, '', displayUrl.toString());
-
-                    if (!hasMore) {
-                        if (endMsg) endMsg.classList.remove('d-none');
-                        if (window._agodaScrollObserver && sentinel) {
-                            window._agodaScrollObserver.unobserve(sentinel);
-                        }
-                    }
-                } else {
-                    hasMore = false;
-                    if (endMsg) endMsg.classList.remove('d-none');
-                }
-                isLoading = false;
-            })
-            .catch(function(err) {
-                console.error('Agoda Infinite Scroll Error:', err);
-                if (skeleton) skeleton.classList.add('d-none');
-                isLoading = false;
-            });
-        }
-
-        window._agodaScrollObserver = new IntersectionObserver(function(entries) {
-            if (entries[0] && entries[0].isIntersecting && hasMore && !isLoading) {
-                fetchNextBatch();
-            }
-        }, {
-            root: null,
-            rootMargin: '350px',
-            threshold: 0.05
-        });
-
-        window._agodaScrollObserver.observe(sentinel);
-    };
-
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', window.initAgodaInfiniteScroll);
-    } else {
-        window.initAgodaInfiniteScroll();
-    }
-})();
-
-function validateAndSubmitHeaderSearch(e) {
-    var destInput = document.getElementById('mainDestInput');
-    var destVal = destInput ? destInput.value.trim() : '';
-    var latInput = document.getElementById('gpsLatInput');
-    var hasGps = latInput && latInput.value.trim() !== '';
-
-    if (!destVal && !hasGps) {
-        if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        if (typeof window.showAgodaEmptyDestinationModal === 'function') {
-            window.showAgodaEmptyDestinationModal();
-        }
-        return false;
-    }
-
-    if (typeof window.showAgodaSearchLoading === 'function') {
-        window.showAgodaSearchLoading();
-    }
-    return true;
-}
-
-</script>
-
-@endsection
-
+        <iframe height="0" width="0" style="display: none; visibility: hidden;"></iframe><div id="criteo-tags-div" style="display: none;"></div><div id="batBeacon266062190742" style="width: 0px; height: 0px; display: none; visibility: hidden;"><img id="batBeacon284952698077" width="0" height="0" alt="" src="https://bat.bing.com/action/0?ti=4002941&amp;tm=gtm002&amp;Ver=2&amp;mid=32d251ca-f353-4b97-9ef6-fab8255ec0bb&amp;bo=1&amp;sid=d6c99b60d49311f1a7296578c3a23df7&amp;vid=ff7177e08acf11f18fc15503082b654f&amp;vids=0&amp;msclkid=N&amp;uach=pv%3D19.0.0&amp;pi=918639831&amp;lg=en-US&amp;sw=1366&amp;sh=768&amp;sc=24&amp;tl=Agoda%20%7C%20Hotels%20in%20Cox%26%2339%3Bs%20Bazar%20%7C%20Best%20Price%20Guarantee!&amp;kw=11%20Best%20Hotels%20in%20Cox%26%2339%3Bs%20Bazar,%20Bangladesh&amp;p=https%3A%2F%2Fwww.agoda.com%2Fsearch%3Fguid%3Dae8cc4d8-844f-447e-81ed-fd4029265e5a%26lastSearchedCity%3D0%26asq%3Du2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9ACNLeOLTATUHiM2mqhQV%252BlwFLHMQG9MaS3cwQ4CbJ%252FMqz7TZTjTGjb%252Fi5Smky4LjG5stZZscvjQurvqGHKlLj9kf4DIXUt2JTIKBxukundVeLBYGGFzPUVesCLL3Xn02pe6OcJHA1Ya775pwXvZ4uw%253D%253D%26city%3D671817%26tick%3D639290087073%26locale%3Den-us%26ckuid%3Dd182723a-f800-418d-a5c9-ab2f54e980cf%26prid%3D0%26currency%3DUSD%26correlationId%3Db23d5ae0-6b20-4d77-8f3d-85b02676b334%26analyticsSessionId%3D-1979663284090463759%26pageTypeId%3D1%26realLanguageId%3D1%26languageId%3D1%26origin%3DBD%26stateCode%3D27%26cid%3D-1%26userId%3Dd182723a-f800-418d-a5c9-ab2f54e980cf%26whitelabelid%3D1%26loginLvl%3D0%26storefrontId%3D3%26currencyId%3D7%26currencyCode%3DUSD%26htmlLanguage%3Den-us%26cultureInfoName%3Den-us%26machineName%3Dsg-pc-6g-cronos-spa-acm-web-689db887d5-264bl%26trafficGroupId%3D4%26trafficSubGroupId%3D4%26aid%3D130243%26useFullPageLogin%3Dtrue%26cttp%3D4%26isRealUser%3Dtrue%26mode%3Dproduction%26browserFamily%3DChrome%26cdnDomain%3Dagoda.net%26checkIn%3D2026-11-11%26checkOut%3D2026-11-13%26rooms%3D1%26adults%3D2%26children%3D0%26priceCur%3DUSD%26los%3D2%26textToSearch%3DCox%2527s%2BBazar%26travellerType%3D1%26familyMode%3Doff%26ds%3DBtK%252FIgZSbA7PqWtr%26productType%3D-1%26sort%3DagodaRecommended&amp;r=https%3A%2F%2Fwww.agoda.com%2F%3Fds%3DBtK%252FIgZSbA7PqWtr&amp;lt=1398&amp;evt=pageLoad&amp;sv=2&amp;cdb=AQAQ&amp;rn=633975" style="width: 0px; height: 0px; display: none; visibility: hidden;"></div><iframe id="universal_pixel_digs3ma" height="0" width="0" hidden="" src="https://insight.adsrvr.org/track/cei?advertiser_id=6rpe73j&amp;cookie_sync=1&amp;upv=3.0.0&amp;upid=digs3ma&amp;ref=https%3A%2F%2Fwww.agoda.com%2Fsearch%3Fguid%3Dae8cc4d8-844f-447e-81ed-fd4029265e5a%26lastSearchedCity%3D0%26asq%3Du2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9ACNLeOLTATUHiM2mqhQV%252BlwFLHMQG9MaS3cwQ4CbJ%252FMqz7TZTjTGjb%252Fi5Smky4LjG5stZZscvjQurvqGHKlLj9kf4DIXUt2JTIKBxukundVeLBYGGFzPUVesCLL3Xn02pe6OcJHA1Ya775pwXvZ4uw%253D%253D%26city%3D671817%26tick%3D639290087073%26locale%3Den-us%26ckuid%3Dd182723a-f800-418d-a5c9-ab2f54e980cf%26prid%3D0%26currency%3DUSD%26correlationId%3Db23d5ae0-6b20-4d77-8f3d-85b02676b334%26analyticsSessionId%3D-1979663284090463759%26pageTypeId%3D1%26realLanguageId%3D1%26languageId%3D1%26origin%3DBD%26stateCode%3D27%26cid%3D-1%26userId%3Dd182723a-f800-418d-a5c9-ab2f54e980cf%26whitelabelid%3D1%26loginLvl%3D0%26storefrontId%3D3%26currencyId%3D7%26currencyCode%3DUSD%26htmlLanguage%3Den-us%26cultureInfoName%3Den-us%26machineName%3Dsg-pc-6g-cronos-spa-acm-web-689db887d5-264bl%26trafficGroupId%3D4%26trafficSubGroupId%3D4%26aid%3D130243%26useFullPageLogin%3Dtrue%26cttp%3D4%26isRealUser%3Dtrue%26mode%3Dproduction%26browserFamily%3DChrome%26cdnDomain%3Dagoda.net%26checkIn%3D2026-11-11%26checkOut%3D2026-11-13%26rooms%3D1%26adults%3D2%26children%3D0%26priceCur%3DUSD%26los%3D2%26textToSearch%3DCox%2527s%2BBazar%26travellerType%3D1%26familyMode%3Doff%26ds%3DBtK%252FIgZSbA7PqWtr%26productType%3D-1%26sort%3DagodaRecommended" title="TTD Universal Pixel"></iframe><iframe src="https://www.google.com/recaptcha/api2/aframe" width="0" height="0" style="display: none;"></iframe></body><iframe id="goog_plcm_frame" src="https://cm.g.doubleclick.net/partnerpixels?url=https%3A%2F%2Fwww.agoda.com%2Fsearch%3Fguid%3Dae8cc4d8-844f-447e-81ed-fd4029265e5a%26lastSearchedCity%3D0%26asq%3Du2qcKLxwzRU5NDuxJ0kOF3T91go8JoYYMxAgy8FkBH1BN0lGAtYH25sdXoy34qb9ACNLeOLTATUHiM2mqhQV%252BlwFLHMQG9MaS3cwQ4CbJ%252FMqz7TZTjTGjb%252Fi5Smky4LjG5stZZscvjQurvqGHKlLj9kf4DIXUt2JTIKBxukundVeLBYGGFzPUVesCLL3Xn02pe6OcJHA1Ya775pwXvZ4uw%253D%253D%26city%3D671817%26tick%3D639290087073%26locale%3Den-us%26ckuid%3Dd182723a-f800-418d-a5c9-ab2f54e980cf%26prid%3D0%26currency%3DUSD%26correlationId%3Db23d5ae0-6b20-4d77-8f3d-85b02676b334%26analyticsSessionId%3D-1979663284090463759%26pageTypeId%3D1%26realLanguageId%3D1%26languageId%3D1%26origin%3DBD%26stateCode%3D27%26cid%3D-1%26userId%3Dd182723a-f800-418d-a5c9-ab2f54e980cf%26whitelabelid%3D1%26loginLvl%3D0%26storefrontId%3D3%26currencyId%3D7%26currencyCode%3DUSD%26htmlLanguage%3Den-us%26cultureInfoName%3Den-us%26machineName%3Dsg-pc-6g-cronos-spa-acm-web-689db887d5-264bl%26trafficGroupId%3D4%26trafficSubGroupId%3D4%26aid%3D130243%26useFullPageLogin%3Dtrue%26cttp%3D4%26isRealUser%3Dtrue%26mode%3Dproduction%26browserFamily%3DChrome%26cdnDomain%3Dagoda.net%26checkIn%3D2026-11-11%26checkOut%3D2026-11-13%26rooms%3D1%26adults%3D2%26children%3D0%26priceCur%3DUSD%26los%3D2%26textToSearch%3DCox%2527s%2BBazar%26travellerType%3D1%26familyMode%3Doff%26ds%3DBtK%252FIgZSbA7PqWtr%26productType%3D-1%26sort%3DagodaRecommended" style="display: none;"></iframe></html>

@@ -126,54 +126,8 @@
     ];
     while ($gallery->count() < 7) { $gallery->push($fallbacks[$gallery->count() % count($fallbacks)]); }
     
-    // Dynamic Agoda Photo Categorization Collection
-    $galleryCategorized = [
-        'all' => [],
-        'rooms' => [],
-        'property_views' => [],
-        'facilities' => [],
-        'other' => []
-    ];
-
-    if ($property->rooms && $property->rooms->count() > 0) {
-        foreach ($property->rooms as $r) {
-            if (is_array($r->images)) {
-                foreach ($r->images as $rImg) {
-                    $item = ['url' => $rImg, 'title' => $r->name . ' - Room Interior', 'category' => 'Rooms', 'cat_key' => 'rooms'];
-                    $galleryCategorized['rooms'][] = $item;
-                    $galleryCategorized['all'][] = $item;
-                }
-            }
-        }
-    }
-
-    foreach ($gallery as $idx => $gUrl) {
-        if ($idx % 2 === 0) {
-            $item = ['url' => $gUrl, 'title' => $property->name . ' - Property View', 'category' => 'Property views', 'cat_key' => 'property_views'];
-            $galleryCategorized['property_views'][] = $item;
-        } else {
-            $item = ['url' => $gUrl, 'title' => $property->name . ' - Facilities & Dining', 'category' => 'Facilities', 'cat_key' => 'facilities'];
-            $galleryCategorized['facilities'][] = $item;
-        }
-        $galleryCategorized['all'][] = $item;
-    }
-
-    if (empty($galleryCategorized['rooms'])) {
-        $rFallbacks = [
-            ['url' => 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=1200&q=80', 'title' => 'Deluxe Bedroom', 'category' => 'Rooms', 'cat_key' => 'rooms'],
-            ['url' => 'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=1200&q=80', 'title' => 'Executive Suite', 'category' => 'Rooms', 'cat_key' => 'rooms']
-        ];
-        $galleryCategorized['rooms'] = $rFallbacks;
-        $galleryCategorized['all'] = array_merge($galleryCategorized['all'], $rFallbacks);
-    }
-
-    if (empty($galleryCategorized['other'])) {
-        $oFallbacks = [
-            ['url' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80', 'title' => 'Lobby & Reception Area', 'category' => 'Other', 'cat_key' => 'other']
-        ];
-        $galleryCategorized['other'] = $oFallbacks;
-        $galleryCategorized['all'] = array_merge($galleryCategorized['all'], $oFallbacks);
-    }
+    // Dynamic Agoda Photo & Video Categorization Collection (Encapsulated on Property Model)
+    $galleryCategorized = $property->categorized_gallery;
 
     $amenitiesList = is_array($property->amenities) && count($property->amenities) > 0
         ? $property->amenities
@@ -198,14 +152,34 @@
     @endpush
 @endif
 
+@push('head')
+    <!-- HLS.js for Seamless High-Performance Video Tour Streaming -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1"></script>
+@endpush
+
 @section('content')
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
     
+    /* Ensure silky-smooth document viewport scrolling */
+    html {
+        overflow-x: hidden;
+    }
+    body {
+        overflow-x: clip !important;
+        overflow-y: visible !important;
+    }
+    body.modal-open {
+        overflow: hidden !important;
+    }
+
     /* Agoda 1:1 Ultra-Premium Detail Page Styling */
     .detail-page-wrapper { 
         background: #ffffff; 
         min-height: 100vh; 
+        width: 100%;
+        overflow-x: clip;
+        overflow-y: visible;
         font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
         color: #111827 !important; 
         -webkit-font-smoothing: antialiased;
@@ -265,10 +239,14 @@
 
     /* Agoda Room Listing Unified Card */
     .agoda-room-listing-card {
+        border: 1px solid #d5dbe5 !important;
         border-radius: 12px !important;
+        overflow: hidden !important;
         margin-bottom: 24px !important;
         display: block !important;
         clear: both !important;
+        background: #ffffff !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03) !important;
     }
 
     /* Agoda 1:1 Exact Sold Out / Unavailable Room Card */
@@ -455,9 +433,37 @@
     }
 
     /* 📱 100% Comprehensive Responsive Mobile, Tablet & Desktop Adjustments */
+    @media (min-width: 1400px) {
+        .agoda-page-container {
+            max-width: 1240px;
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 991.98px) {
+        .agoda-hero-mosaic-wrap {
+            height: 300px !important;
+        }
+        .agoda-room-left-col .room-photo-carousel {
+            height: 230px !important;
+        }
+    }
+
     @media (max-width: 991.98px) {
-        .hero-main-img-box { height: 260px; border-radius: 12px; }
-        .hero-thumb-img-box { height: 130px; }
+        .agoda-detail-mobile-search-bar {
+            position: sticky !important;
+            top: 0 !important;
+            z-index: 1030 !important;
+        }
+        .hero-col-main {
+            flex: 0 0 100% !important;
+            width: 100% !important;
+            border-radius: 8px !important;
+        }
+        .hero-col-main video,
+        .hero-col-main iframe,
+        .hero-col-main img {
+            border-radius: 8px !important;
+        }
         .agoda-sticky-nav-bar { top: 0 !important; }
         .agoda-room-offer-grid > .border-end { border-right: none !important; border-bottom: 1px solid #e2e8f0; padding-bottom: 12px; margin-bottom: 12px; }
         .agoda-room-offer-grid > .text-end { text-align: left !important; }
@@ -469,19 +475,49 @@
         #agodaSlideshowActiveImg { max-height: 48vh !important; max-width: 96% !important; }
     }
 
-    @media (max-width: 768px) {
+    @media (max-width: 767.98px) {
         .agoda-page-container {
-            padding-left: 16px;
-            padding-right: 16px;
+            padding-left: 12px !important;
+            padding-right: 12px !important;
         }
-        .hero-main-img-box { height: 230px; }
-        .agoda-detail-search-bar { padding: 8px 0; }
-        .agoda-nav-item { padding: 12px 14px; font-size: 12.5px; }
+        .agoda-hero-mosaic-wrap {
+            height: 220px !important;
+        }
+        .agoda-room-left-col .room-photo-carousel {
+            height: 195px !important;
+        }
+        .agoda-nav-item { padding: 10px 12px; font-size: 13px; }
         .agoda-modal-cat-tab { padding: 8px 10px; font-size: 12px; }
+
+        /* Room Offer Sub-Columns on Mobile */
+        .agoda-room-subcol-price {
+            border-right: none !important;
+            border-top: 1px solid #f1f5f9 !important;
+            border-bottom: 1px solid #f1f5f9 !important;
+            text-align: left !important;
+            align-items: flex-start !important;
+            padding: 14px 16px !important;
+        }
+        .agoda-room-subcol-price .d-flex.justify-content-end {
+            justify-content: flex-start !important;
+        }
+        .agoda-room-subcol-price .ms-auto {
+            margin-left: 0 !important;
+        }
+        .agoda-room-subcol-book {
+            padding: 14px 16px !important;
+        }
+        .agoda-room-subcol-book .agoda-room-pill-btn {
+            height: 40px !important;
+        }
+        .agoda-room-subcol-book .btn-primary {
+            height: 44px !important;
+            font-size: 14.5px !important;
+        }
     }
 
     @media (max-width: 575.98px) {
-        .hero-main-img-box { height: 210px; border-radius: 10px; }
+        .agoda-hero-mosaic-wrap { height: 200px !important; }
         #agodaDetailStickyBottomBar .d-flex { flex-direction: column; align-items: flex-start !important; gap: 8px !important; }
         #agodaDetailStickyBottomBar .d-flex:last-child { width: 100%; justify-content: space-between; }
         .agoda-filmstrip-thumb { width: 60px !important; height: 42px !important; }
@@ -489,8 +525,14 @@
     }
 
     /* Agoda Modal Tab & Filmstrip Styling (1:1 Parity) */
-    .agoda-modal-cat-tab { background: transparent; border: none; font-size: 13.5px; font-weight: 600; color: #64748b; padding: 10px 14px; border-bottom: 2.5px solid transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
-    .agoda-modal-cat-tab:hover, .agoda-modal-cat-tab.active { color: #2067e1; border-bottom-color: #2067e1; font-weight: 700; }
+    /* Agoda Modal Tab & Mode Button Styling (High Contrast & Clear Hover States) */
+    .agoda-gallery-mode-btn { background: #f1f5f9 !important; border: 1px solid #cbd5e1 !important; color: #1e293b !important; font-size: 12.5px !important; font-weight: 700 !important; transition: all 0.2s ease !important; cursor: pointer; }
+    .agoda-gallery-mode-btn:hover, .agoda-gallery-mode-btn:focus, .agoda-gallery-mode-btn:active { background: #2067e1 !important; color: #ffffff !important; border-color: #2067e1 !important; }
+    .agoda-gallery-mode-btn:hover *, .agoda-gallery-mode-btn:focus *, .agoda-gallery-mode-btn:active * { color: #ffffff !important; }
+    
+    .agoda-modal-cat-tab { background: transparent; border: none; font-size: 13.5px; font-weight: 600; color: #475569 !important; padding: 10px 14px; border-bottom: 2.5px solid transparent; cursor: pointer; white-space: nowrap; transition: all 0.2s ease; }
+    .agoda-modal-cat-tab:hover { color: #2067e1 !important; background: #f8fafc; }
+    .agoda-modal-cat-tab.active { color: #2067e1 !important; border-bottom-color: #2067e1 !important; font-weight: 700 !important; }
     .agoda-grid-photo-card { transition: transform 0.2s ease; }
     .agoda-grid-photo-card:hover .agoda-grid-img { transform: scale(1.045); filter: brightness(1.05); }
     .agoda-grid-photo-card:hover .agoda-grid-overlay { opacity: 1 !important; }
@@ -518,7 +560,7 @@
                     @elseif($property->status === 'pending')
                         <span class="badge bg-warning text-dark px-2 py-1 ms-1">Pending Approval</span>
                     @elseif($property->status === 'rejected')
-                        <span class="badge bg-danger text-white px-2 py-1 ms-1">Rejected</span>
+                        <span class="badge bg-danger rounded-0">Rejected</span>
                     @else
                         <span class="badge bg-secondary text-white px-2 py-1 ms-1">{{ ucfirst($property->status) }}</span>
                     @endif
@@ -554,8 +596,9 @@
     </div>
     @endif
 
-    {{-- 1. Agoda Subheader Compact Search Bar (Matching Screenshot Exact 1:1 Parity) --}}
-    <div class="agoda-detail-search-bar shadow-xs" style="background: #0f294d; padding: 10px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
+    {{-- 1. Agoda Subheader Search Bar (Desktop: 1-Row Inline Bar | Mobile & Tablet: Sleek Expandable Capsule Pill) --}}
+    {{-- Desktop View (>= 992px) --}}
+    <div class="d-none d-lg-block agoda-detail-search-bar shadow-xs" style="background: #0f294d; padding: 10px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
         <div class="agoda-page-container">
             <form action="{{ route('search.index') }}" method="GET" class="row g-2 align-items-center" onsubmit="showAgodaSearchLoading();">
                 {{-- 1. Destination Input --}}
@@ -644,17 +687,97 @@
         </div>
     </div>
 
+    {{-- Mobile & Tablet View (< 992px) - Authentic Agoda Compact Capsule Bar --}}
+    <div class="d-lg-none agoda-detail-mobile-search-bar" style="background: #0f294d; padding: 8px 0; position: sticky; top: {{ !empty($isPreview) ? '52px' : '0' }}; z-index: 1030;">
+        <div class="agoda-page-container">
+            <div class="bg-white rounded-pill px-3 py-1.5 d-flex align-items-center justify-content-between shadow-xs" style="min-height: 44px; cursor: pointer;" onclick="toggleMobileSearchCollapse();">
+                <div class="d-flex align-items-center gap-2 overflow-hidden me-2">
+                    <x-agoda-icon name="search" size="17" color="#1b62dc" class="flex-shrink-0" />
+                    <div class="text-truncate" style="line-height: 1.25;">
+                        <div class="text-dark fw-bold text-truncate" style="font-size: 13px;">{{ $property->name }}</div>
+                        <div class="text-secondary text-truncate" style="font-size: 11px;">
+                            {{ $checkinCarbon->format('j M') }} – {{ $checkoutCarbon->format('j M') }} • {{ $guestStr }}
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-sm text-white rounded-pill px-3 py-1 fw-bold flex-shrink-0" style="background-color: #1b62dc; font-size: 11.5px; letter-spacing: 0.3px;">
+                    Change <i class="fa-solid fa-chevron-down ms-1" style="font-size: 9px;" id="mobileSearchCollapseIcon"></i>
+                </button>
+            </div>
+
+            {{-- Collapsible mobile full form when user taps Change --}}
+            <div id="mobileDetailSearchCollapse" class="d-none mt-2 pt-2 border-top border-white-50">
+                <form action="{{ route('search.index') }}" method="GET" class="d-flex flex-column gap-2" onsubmit="showAgodaSearchLoading();">
+                    <div class="input-group bg-white rounded-3 overflow-hidden shadow-xs" style="height: 44px;">
+                        <span class="input-group-text bg-white border-0 text-secondary ps-3 pe-2"><x-agoda-icon name="search" size="18" color="#475569" /></span>
+                        <input type="text" name="destination" class="form-control border-0 fw-semibold text-dark ps-1" value="{{ $property->name }}" placeholder="Enter a destination or property" style="font-size: 13.5px; height: 44px;">
+                    </div>
+                    <div class="bg-white rounded-3 d-flex align-items-center overflow-hidden shadow-xs position-relative" style="height: 44px;">
+                        <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="border-right: 1px solid #cbd5e1; cursor: pointer;" onclick="document.getElementById('mCheckInInput').showPicker ? document.getElementById('mCheckInInput').showPicker() : document.getElementById('mCheckInInput').focus();">
+                            <x-agoda-icon name="calendar" size="18" color="#475569" />
+                            <div style="line-height: 1.15;">
+                                <strong class="d-block text-dark" style="font-size: 12px;">{{ $checkinCarbon->format('j M Y') }}</strong>
+                                <small class="text-secondary" style="font-size: 10.5px;">{{ $checkinCarbon->format('l') }}</small>
+                            </div>
+                        </div>
+                        <input type="date" name="check_in" id="mCheckInInput" value="{{ $checkinCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; left: 0; width: 1px; height: 1px;">
+
+                        <div class="flex-fill px-3 py-1 d-flex align-items-center gap-2" style="cursor: pointer;" onclick="document.getElementById('mCheckOutInput').showPicker ? document.getElementById('mCheckOutInput').showPicker() : document.getElementById('mCheckOutInput').focus();">
+                            <x-agoda-icon name="calendar" size="18" color="#475569" />
+                            <div style="line-height: 1.15;">
+                                <strong class="d-block text-dark" style="font-size: 12px;">{{ $checkoutCarbon->format('j M Y') }}</strong>
+                                <small class="text-secondary" style="font-size: 10.5px;">{{ $checkoutCarbon->format('l') }}</small>
+                            </div>
+                        </div>
+                        <input type="date" name="check_out" id="mCheckOutInput" value="{{ $checkoutCarbon->format('Y-m-d') }}" class="position-absolute opacity-0" style="bottom: 0; right: 0; width: 1px; height: 1px;">
+                    </div>
+
+                    <div class="bg-white rounded-3 px-3 py-1 d-flex align-items-center justify-content-between shadow-xs" style="height: 44px;">
+                        <div class="d-flex align-items-center gap-2">
+                            <x-agoda-icon name="users" size="18" color="#475569" />
+                            <div style="line-height: 1.15;">
+                                <strong class="d-block text-dark" style="font-size: 12px;">{{ $guestStr }}</strong>
+                                <small class="text-secondary" style="font-size: 10.5px;">{{ $roomsCountStr }}</small>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="text-muted" style="font-size: 11px;">Adults:</span>
+                                <input type="number" name="adults" value="{{ $adultsCount ?? 2 }}" min="1" max="10" class="form-control form-control-sm text-center fw-bold p-1" style="width: 48px; height: 32px;">
+                            </div>
+                            <div class="d-flex align-items-center gap-1">
+                                <span class="text-muted" style="font-size: 11px;">Rooms:</span>
+                                <input type="number" name="rooms" value="{{ $roomsCountVal ?? 1 }}" min="1" max="8" class="form-control form-control-sm text-center fw-bold p-1" style="width: 48px; height: 32px;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn text-white w-100 fw-bold shadow-sm d-flex align-items-center justify-content-center" style="background-color: #1b62dc; height: 44px; font-size: 14px; font-weight: 700; border-radius: 4px; letter-spacing: 0.5px;">
+                        SEARCH
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="agoda-page-container pt-2">
 
         {{-- 2. Breadcrumb Strip (Screenshot Exact Parity) --}}
-        <div class="d-flex justify-content-between align-items-center mb-2" style="font-size: 12px; padding: 2px 0;">
-            <div class="text-secondary">
-                <a href="{{ route('home') }}" class="text-primary text-decoration-none">Home</a> <span class="text-muted mx-1">&gt;</span> 
-                <a href="{{ route('search.index') }}?destination=Bangladesh" class="text-primary text-decoration-none">Bangladesh Hotels</a> <span class="text-muted">(1,851)</span> <span class="text-muted mx-1">&gt;</span> 
-                <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-primary text-decoration-none">{{ $property->city ?: 'Dhaka' }} Hotels</a> <span class="text-muted">(538)</span> <span class="text-muted mx-1">&gt;</span> 
-                <span class="text-dark fw-normal">Book {{ $property->name }}</span>
+        <div class="d-flex justify-content-between align-items-center mb-2 overflow-hidden" style="font-size: 12px; padding: 2px 0;">
+            <div class="text-secondary text-truncate me-2">
+                <a href="{{ route('home') }}" class="text-primary text-decoration-none">Home</a> 
+                <span class="text-muted mx-1">&gt;</span> 
+                <span class="d-none d-sm-inline">
+                    <a href="{{ route('search.index') }}?destination=Bangladesh" class="text-primary text-decoration-none">Bangladesh Hotels</a> 
+                    <span class="text-muted">(1,851)</span> 
+                    <span class="text-muted mx-1">&gt;</span> 
+                </span>
+                <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-primary text-decoration-none">{{ $property->city ?: 'Dhaka' }} Hotels</a> 
+                <span class="d-none d-sm-inline text-muted">(538)</span> 
+                <span class="text-muted mx-1">&gt;</span> 
+                <span class="text-dark fw-normal text-truncate d-inline-block align-bottom" style="max-width: 220px;">Book {{ $property->name }}</span>
             </div>
-            <div>
+            <div class="d-none d-md-block flex-shrink-0">
                 <a href="{{ route('search.index') }}?destination={{ urlencode($property->city) }}" class="text-primary text-decoration-none fw-bold" style="font-size: 12px;">See all properties in {{ $property->city ?: 'Dhaka' }}</a>
             </div>
         </div>
@@ -671,10 +794,10 @@
         @endphp
 
         {{-- 3. Hero Photo Collage 4-Column Mosaic (1:1 Exact Agoda Screenshot 2 Parity) --}}
-        <div class="mb-2 position-relative" style="border-radius: 8px; overflow: hidden; height: 315px; -webkit-mask-image: -webkit-radial-gradient(white, black); transform: translateZ(0); background: #ffffff;">
+        <div class="mb-2 position-relative agoda-hero-mosaic-wrap" style="border-radius: 8px; overflow: hidden; height: 315px; -webkit-mask-image: -webkit-radial-gradient(white, black); transform: translateZ(0); background: #ffffff;">
             <div class="d-flex flex-column flex-lg-row h-100" style="gap: 4px;">
                 {{-- Column 1: Left Hero Video / Main Image (~38% width) --}}
-                <div class="position-relative overflow-hidden" style="flex: 0 0 calc(38% - 3px); height: 100%; border-radius: 8px 0 0 8px; -webkit-mask-image: -webkit-radial-gradient(white, black); cursor: pointer; background: #0f172a;">
+                <div class="position-relative overflow-hidden hero-col-main" style="flex: 0 0 calc(38% - 3px); height: 100%; border-radius: 8px 0 0 8px; -webkit-mask-image: -webkit-radial-gradient(white, black); cursor: pointer; background: #0f172a;">
                     @if($hasVideo)
                         @if($isYoutube)
                             <div class="w-100 h-100 position-relative overflow-hidden" style="border-radius: 8px 0 0 8px;">
@@ -684,10 +807,16 @@
                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                                         style="pointer-events: none; transform: scale(1.05); border-radius: 8px 0 0 8px;">
                                 </iframe>
-                                <div class="position-absolute w-100 h-100 top-0 start-0" style="cursor: pointer; border-radius: 8px 0 0 8px;" data-bs-toggle="modal" data-bs-target="#galleryModal" title="Click to open photos"></div>
+                                <div class="position-absolute w-100 h-100 top-0 start-0" style="cursor: pointer; border-radius: 8px 0 0 8px;" onclick="openAgodaSlideshow(0);" title="Click to open photos"></div>
                             </div>
                         @else
                             <div class="w-100 h-100 position-relative overflow-hidden" id="heroVideoContainer" style="border-radius: 8px 0 0 8px;">
+                                {{-- Prime Booking Official Video Tour Watermark / Badge --}}
+                                <div class="position-absolute top-0 start-0 m-3 d-flex align-items-center gap-2 px-3 py-1.5 rounded-pill shadow-sm" style="background: rgba(15, 23, 42, 0.82); backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.25); z-index: 12; pointer-events: none;">
+                                    <img src="/storage/branding/1_Prime Booking Final Logo.png" alt="Prime Booking" style="height: 18px; width: auto; object-fit: contain;">
+                                    <span style="color: #ffffff; font-size: 11px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase;">Official Tour</span>
+                                </div>
+
                                 <video id="heroDetailAutoplayVideo" 
                                        class="w-100 h-100" 
                                        style="object-fit: cover; cursor: pointer; border-radius: 8px 0 0 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);" 
@@ -697,8 +826,7 @@
                                        playsinline 
                                        preload="auto"
                                        poster="{{ $gallery[0] }}"
-                                       data-bs-toggle="modal" 
-                                       data-bs-target="#galleryModal"
+                                       onclick="openAgodaSlideshow(0);"
                                        title="Click to view photos">
                                     <source src="{{ media_url($videoUrl) }}" type="video/mp4">
                                     <source src="{{ media_url($videoUrl) }}" type="video/quicktime">
@@ -717,12 +845,12 @@
                             </div>
                         @endif
                     @else
-                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover; border-radius: 8px 0 0 8px; transition: transform 0.4s ease;" alt="{{ $property->name }}" data-bs-toggle="modal" data-bs-target="#galleryModal" fetchpriority="high" loading="eager">
+                        <img src="{{ $gallery[0] }}" class="w-100 h-100" style="object-fit: cover; border-radius: 8px 0 0 8px; transition: transform 0.4s ease; cursor: pointer;" alt="{{ $property->name }}" onclick="openAgodaSlideshow(0);" fetchpriority="high" loading="eager">
                     @endif
 
                     {{-- Bottom Action Button on Hero (Positioned at bottom right) --}}
-                    <div class="position-absolute bottom-0 end-0 m-3" style="z-index: 10;" onclick="event.stopPropagation();">
-                        <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12px; padding: 6px 16px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1; color: #1e293b;" data-bs-toggle="modal" data-bs-target="#galleryModal">
+                    <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;" onclick="event.stopPropagation();">
+                        <button type="button" class="btn btn-light btn-sm fw-bold rounded-pill shadow-sm d-inline-flex align-items-center" style="font-size: 12px; padding: 6px 16px; background: rgba(255,255,255,0.95); border: 1px solid #cbd5e1; color: #1e293b;" onclick="openAgodaSlideshow(0);">
                             <i class="fa-solid fa-camera text-primary me-2" style="font-size: 13px;"></i>
                             <span>See all photos</span>
                         </button>
@@ -730,32 +858,32 @@
                 </div>
 
                 {{-- Column 2: 2 Stacked Images (~20.66% width) --}}
-                <div class="d-none d-lg-flex flex-column" style="flex: 0 0 calc(20.66% - 3px); height: 100%; gap: 4px;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                <div class="d-none d-lg-flex flex-column" style="flex: 0 0 calc(20.66% - 3px); height: 100%; gap: 4px;">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;" onclick="openAgodaSlideshow(1);">
                         <img loading="lazy" decoding="async" src="{{ $gallery[1] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} Highlight">
                     </div>
-                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;" onclick="openAgodaSlideshow(2);">
                         <img loading="lazy" decoding="async" src="{{ $gallery[2] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} Room">
                     </div>
                 </div>
 
                 {{-- Column 3: 2 Stacked Images (~20.66% width) --}}
-                <div class="d-none d-lg-flex flex-column" style="flex: 0 0 calc(20.66% - 3px); height: 100%; gap: 4px;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                <div class="d-none d-lg-flex flex-column" style="flex: 0 0 calc(20.66% - 3px); height: 100%; gap: 4px;">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;" onclick="openAgodaSlideshow(3);">
                         <img loading="lazy" decoding="async" src="{{ $gallery[3] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} View 1">
                     </div>
-                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a;" onclick="openAgodaSlideshow(4);">
                         <img loading="lazy" decoding="async" src="{{ $gallery[4] }}" class="w-100 h-100" style="object-fit: cover; transition: transform 0.4s ease;" alt="{{ $property->name }} View 2">
                     </div>
                 </div>
 
                 {{-- Column 4: 2 Stacked Images (Remaining ~20.66% width) --}}
-                <div class="d-none d-lg-flex flex-column flex-fill" style="height: 100%; gap: 4px;" data-bs-toggle="modal" data-bs-target="#galleryModal">
-                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a; border-top-right-radius: 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);">
+                <div class="d-none d-lg-flex flex-column flex-fill" style="height: 100%; gap: 4px;">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a; border-top-right-radius: 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);" onclick="openAgodaSlideshow(5);">
                         <img loading="lazy" decoding="async" src="{{ $gallery[5] }}" class="w-100 h-100" style="object-fit: cover; border-top-right-radius: 8px; transition: transform 0.4s ease;" alt="{{ $property->name }} View 3">
                     </div>
-                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a; border-bottom-right-radius: 8px; -webkit-mask-image: -webkit-radial-gradient(white, black);">
-                        <img loading="lazy" decoding="async" src="{{ $gallery[6] }}" class="w-100 h-100" style="object-fit: cover; border-bottom-right-radius: 8px; transition: transform 0.4s ease;" alt="{{ $property->name }} View 4">
+                    <div class="position-relative overflow-hidden" style="height: calc(50% - 2px); cursor: pointer; background: #0f172a; border-radius: 0 !important; -webkit-mask-image: -webkit-radial-gradient(white, black);" onclick="openAgodaSlideshow(6);">
+                        <img loading="lazy" decoding="async" src="{{ $gallery[6] }}" class="w-100 h-100" style="object-fit: cover; border-radius: 0 !important; transition: transform 0.4s ease;" alt="{{ $property->name }} View 4">
                     </div>
                 </div>
             </div>
@@ -766,29 +894,14 @@
     <div id="agodaStickyNavWrapper" class="agoda-sticky-nav-wrapper" style="margin-top: 8px; margin-bottom: 16px;">
         <div class="agoda-page-container">
             <div class="agoda-sticky-nav-card d-flex align-items-center justify-content-between p-0" style="border: 1px solid #dddfe2; border-radius: 4px; background: #ffffff; height: 46px;">
-                <div class="d-flex align-items-center gap-1 overflow-x-auto ps-3 pe-2" style="scrollbar-width: none;">
+                <div class="d-flex align-items-center gap-1 overflow-x-auto ps-3 pe-3 w-100" style="scrollbar-width: none;">
                     <a href="#overview" class="agoda-nav-item active" style="color: #2067e1 !important; border-bottom: 3px solid #2067e1; font-weight: 700; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Overview</a>
                     <a href="#rooms" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Rooms</a>
                     <a href="#recommendations" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Trip recommendations</a>
                     <a href="#facilities" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Facilities</a>
                     <a href="#reviews" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Reviews</a>
                     <a href="#location" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Location</a>
-                    <button type="button" class="btn btn-light btn-sm rounded-circle d-flex align-items-center justify-content-center p-0 ms-1 flex-shrink-0" style="width: 24px; height: 24px; border: 1px solid #dddfe2; color: #475569; background: #ffffff;" onclick="document.querySelector('#agodaStickyNavWrapper .overflow-x-auto')?.scrollBy({left: 150, behavior: 'smooth'});">
-                        <i class="fa-solid fa-chevron-right" style="font-size: 10px;"></i>
-                    </button>
-                </div>
-                <div class="d-none d-md-flex align-items-center gap-3 pe-3 py-1 flex-shrink-0">
-                    <div class="text-end d-flex align-items-baseline gap-1">
-                        <span style="font-size: 12px; color: #64748b; font-weight: 500;">from</span>
-                        <strong style="color: #e11d48; font-size: 19px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">{!! format_price($property->price_per_night) !!}</strong>
-                    </div>
-                    <a href="#rooms" class="btn text-white fw-bold rounded-pill text-uppercase shadow-xs" style="background-color: #2067e1; font-size: 12px; font-weight: 800; letter-spacing: 0.5px; padding: 7px 20px;">
-                        VIEW THIS DEAL
-                    </a>
-                    <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="text-decoration-none d-flex align-items-center gap-1 ms-1 text-dark fw-semibold" style="font-size: 12.5px; white-space: nowrap;">
-                        <span>Back to Top</span>
-                        <i class="fa-solid fa-arrow-up" style="font-size: 11px;"></i>
-                    </a>
+                    <a href="#policies" class="agoda-nav-item" style="color: #475569 !important; padding: 12px 16px; font-size: 13.5px; text-decoration: none; white-space: nowrap;">Policies</a>
                 </div>
             </div>
         </div>
@@ -834,6 +947,121 @@
                     <div class="d-inline-flex align-items-center flex-wrap" style="font-size: 12.5px; color: #2a2a2e; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.4; margin-top: 2px;">
                         <span>{{ $property->address ?: ($property->city . ', Bangladesh') }} - </span>
                         <a href="#location" class="fw-bold text-uppercase text-decoration-none ms-1" style="color: #0b66c2; font-size: 12px; font-weight: 700; letter-spacing: 0.2px;" onclick="event.preventDefault(); document.getElementById('location')?.scrollIntoView({behavior:'smooth', block:'center'});">SEE MAP</a>
+                    </div>
+                </div>
+
+                {{-- Right Card 1: Review Score Box with Sub-scores AND Customer Review Snippets (Agoda 1:1 Parity) --}}
+                @php
+                    $cleanScoreVal = (float)($property->sub_scores['cleanliness'] ?? 8.2);
+                    $facScoreVal = (float)($property->sub_scores['facilities'] ?? 7.8);
+                    $servScoreVal = (float)($property->sub_scores['service'] ?? 7.8);
+                    $valScoreVal = (float)($property->sub_scores['value'] ?? 7.5);
+                @endphp
+                <div id="reviews" class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 16px !important; background: #ffffff;">
+                    {{-- Header: Score Badge + Summary + See All --}}
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        {{-- Blue Rating Badge (Agoda Speech Bubble: 3 rounded corners, bottom-left sharp 0px) --}}
+                        <div class="d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0" style="width: 48px; height: 44px; background-color: #2067e1; border-radius: 14px 14px 14px 0 !important; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1;">
+                            {{ $score }}
+                        </div>
+                        {{-- Rating Summary & Review Count --}}
+                        <div class="flex-grow-1" style="line-height: 1.25;">
+                            <div class="d-flex align-items-baseline justify-content-between">
+                                <strong style="font-size: 17px; font-weight: 700; color: #2067e1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                    {{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : ($scoreNum >= 7 ? 'Very good' : 'Good')) }}
+                                </strong>
+                                <a href="#reviews" class="text-decoration-none" style="color: #2067e1; font-size: 13px; font-weight: 600;">See all</a>
+                            </div>
+                            <div class="mt-0.5" style="font-size: 13px; color: #536279; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                {{ $revCount }} {{ $property->total_reviews == 1 ? 'review' : 'reviews' }}
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- 2x2 Sub-scores Grid with Blue Numbers and Progress Bars ("niche dag") --}}
+                    <div class="row g-2 mb-3" style="font-size: 12px; line-height: 1.4;">
+                        {{-- Cleanliness --}}
+                        <div class="col-6 pe-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Cleanliness</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($cleanScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
+                                <div style="width: {{ min(100, max(10, round(($cleanScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+
+                        {{-- Facilities --}}
+                        <div class="col-6 ps-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Facilities</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($facScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
+                                <div style="width: {{ min(100, max(10, round(($facScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+
+                        {{-- Service --}}
+                        <div class="col-6 pe-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Service</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($servScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: {{ min(100, max(10, round(($servScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+
+                        {{-- Value for money --}}
+                        <div class="col-6 ps-2">
+                            <div class="d-flex justify-content-between align-items-center mb-1">
+                                <span style="color: #1e293b; font-size: 12px;">Value for money</span>
+                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($valScoreVal, 1) }}</span>
+                            </div>
+                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
+                                <div style="width: {{ min(100, max(10, round(($valScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- Customer Review Snippets Track (Inside this same Card!) --}}
+                    <div class="position-relative mt-2 pt-1">
+                        <div class="d-flex gap-2 overflow-hidden align-items-stretch" style="margin-right: -4px;">
+                            {{-- Snippet Card 1 --}}
+                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff;">
+                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
+                                    Great Location, Impeccably<br>Clean – Highly Recommended!
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
+                                    {{-- BD Flag Badge --}}
+                                    <span class="d-inline-flex align-items-center justify-content-center" style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
+                                        <span style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
+                                    </span>
+                                    <strong class="text-dark" style="font-weight: 700; color: #1e293b;">MD I.</strong>
+                                    <span style="color: #64748b;">Bangladesh</span>
+                                </div>
+                            </div>
+
+                            {{-- Snippet Card 2 (Peeking) --}}
+                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff; opacity: 0.95;">
+                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
+                                    Services ...<br>also ...
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
+                                    <span class="d-inline-flex align-items-center justify-content-center" style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
+                                        <span style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
+                                    </span>
+                                    <strong class="text-dark" style="font-weight: 700; color: #1e293b;">Sha...</strong>
+                                    <span style="color: #64748b;">Bangladesh</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Circular Next Button Overlapping --}}
+                        <button type="button" class="btn btn-light rounded-circle position-absolute top-50 d-flex align-items-center justify-content-center p-0" style="right: 8px; transform: translateY(-50%); width: 28px; height: 28px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.18); z-index: 5;" onclick="document.getElementById('reviews')?.scrollIntoView({behavior:'smooth'});" title="View more reviews">
+                            <i class="fa-solid fa-chevron-right" style="font-size: 11px; color: #1e293b;"></i>
+                        </button>
                     </div>
                 </div>
 
@@ -901,7 +1129,7 @@
 
                     {{-- Horizontal Scrollable Sub-cards (Food & Drinks, Wellness, Activities, Sports & Entertainment) --}}
                     <div class="position-relative">
-                        <div id="staycationScrollTrack" class="d-flex align-items-stretch overflow-hidden" style="gap: 12px; scroll-behavior: smooth; padding-bottom: 2px;">
+                        <div id="staycationScrollTrack" class="d-flex align-items-stretch overflow-x-auto" style="gap: 12px; scroll-behavior: smooth; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
                             
                             {{-- Card 1: Food and Drinks --}}
                             <div class="d-flex flex-column justify-content-between" style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
@@ -1083,123 +1311,59 @@
             {{-- Right Column Sidebar Widgets --}}
             <div class="col-lg-4 d-flex flex-column">
                 
-                {{-- Right Card 1: Review Score Box with Sub-scores AND Customer Review Snippets (Agoda 1:1 Parity) --}}
+                {{-- Right Card 1: Sticky Mini Deal Card (Agoda 1:1 Parity with Screenshots 2 & 3) --}}
                 @php
-                    $cleanScoreVal = (float)($property->sub_scores['cleanliness'] ?? 8.2);
-                    $facScoreVal = (float)($property->sub_scores['facilities'] ?? 7.8);
-                    $servScoreVal = (float)($property->sub_scores['service'] ?? 7.8);
-                    $valScoreVal = (float)($property->sub_scores['value'] ?? 7.5);
+                    $firstRoom = $property->rooms->first();
+                    $dealPrice = $firstRoom ? $firstRoom->price_per_night : $property->price_per_night;
+                    $dealRoomName = $firstRoom ? $firstRoom->name : 'Deluxe Room with Sea View and Balcony';
+                    $dealThumb = !empty($firstRoom->images) && is_array($firstRoom->images) && count($firstRoom->images) > 0 
+                        ? media_url($firstRoom->images[0]) 
+                        : ($gallery[1] ?? $gallery[0]);
                 @endphp
-                <div id="reviews" class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 16px !important; background: #ffffff;">
-                    {{-- Header: Score Badge + Summary + See All --}}
-                    <div class="d-flex align-items-center gap-3 mb-3">
-                        {{-- Blue Rating Badge (Agoda Speech Bubble: 3 rounded corners, bottom-left sharp 0px) --}}
-                        <div class="d-flex align-items-center justify-content-center text-white fw-bold flex-shrink-0" style="width: 48px; height: 44px; background-color: #2067e1; border-radius: 14px 14px 14px 0 !important; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; line-height: 1;">
-                            {{ $score }}
-                        </div>
-                        {{-- Rating Summary & Review Count --}}
-                        <div class="flex-grow-1" style="line-height: 1.25;">
-                            <div class="d-flex align-items-baseline justify-content-between">
-                                <strong style="font-size: 17px; font-weight: 700; color: #2067e1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                    {{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : ($scoreNum >= 7 ? 'Very good' : 'Good')) }}
+                <div class="card agoda-card-border mb-3 position-relative" style="border: 1px solid #dddfe2 !important; border-radius: 6px !important; padding: 16px !important; background: #ffffff; box-shadow: 0 1px 4px rgba(0,0,0,0.05);">
+                    <div class="d-flex align-items-start justify-content-between gap-3 mb-2">
+                        <div>
+                            <div class="d-flex align-items-baseline gap-1.5">
+                                <span style="font-size: 11px; font-weight: 700; color: #dc2626; text-transform: uppercase;">From</span>
+                                <strong style="color: #e11d48; font-size: 20px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; line-height: 1;">
+                                    {!! format_price($dealPrice) !!}
                                 </strong>
-                                <a href="#reviews" class="text-decoration-none" style="color: #2067e1; font-size: 13px; font-weight: 600;">See all</a>
                             </div>
-                            <div class="mt-0.5" style="font-size: 13px; color: #536279; font-weight: 400; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                {{ $revCount }} {{ $property->total_reviews == 1 ? 'review' : 'reviews' }}
+                            <div style="font-size: 11.5px; color: #64748b; margin-top: 3px;">
+                                Per night before taxes &amp; fees
                             </div>
+                        </div>
+                        <div class="flex-shrink-0 position-relative rounded-2 overflow-hidden" style="width: 76px; height: 54px; border: 1px solid #e2e8f0;">
+                            <img src="{{ $dealThumb }}" class="w-100 h-100 object-fit-cover" alt="{{ $dealRoomName }}" loading="lazy">
                         </div>
                     </div>
 
-                    {{-- 2x2 Sub-scores Grid with Blue Numbers and Progress Bars ("niche dag") --}}
-                    <div class="row g-2 mb-3" style="font-size: 12px; line-height: 1.4;">
-                        {{-- Cleanliness --}}
-                        <div class="col-6 pe-2">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span style="color: #1e293b; font-size: 12px;">Cleanliness</span>
-                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($cleanScoreVal, 1) }}</span>
-                            </div>
-                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
-                                <div style="width: {{ min(100, max(10, round(($cleanScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
-                            </div>
-                        </div>
+                    <div class="fw-bold text-dark mb-1" style="font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.35;">
+                        {{ $dealRoomName }}
+                    </div>
 
-                        {{-- Facilities --}}
-                        <div class="col-6 ps-2">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span style="color: #1e293b; font-size: 12px;">Facilities</span>
-                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($facScoreVal, 1) }}</span>
-                            </div>
-                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
-                                <div style="width: {{ min(100, max(10, round(($facScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
-                            </div>
+                    <div class="d-flex flex-column gap-1 my-2" style="font-size: 12px;">
+                        <div class="text-secondary d-flex align-items-center gap-1.5">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="#64748b"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                            <span>2 adults</span>
                         </div>
-
-                        {{-- Service --}}
-                        <div class="col-6 pe-2">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span style="color: #1e293b; font-size: 12px;">Service</span>
-                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($servScoreVal, 1) }}</span>
-                            </div>
-                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-                                <div style="width: {{ min(100, max(10, round(($servScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
-                            </div>
+                        <div class="d-flex align-items-center gap-1.5" style="color: #16a34a; font-weight: 600;">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="#16a34a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                            <span>Your kid can stay for FREE!</span>
                         </div>
-
-                        {{-- Value for money --}}
-                        <div class="col-6 ps-2">
-                            <div class="d-flex justify-content-between align-items-center mb-1">
-                                <span style="color: #1e293b; font-size: 12px;">Value for money</span>
-                                <span style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($valScoreVal, 1) }}</span>
-                            </div>
-                            <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-                                <div style="width: {{ min(100, max(10, round(($valScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;"></div>
-                            </div>
+                        <div class="d-flex align-items-center gap-1.5" style="color: #16a34a; font-weight: 600;">
+                            <svg viewBox="0 0 24 24" width="13" height="13" fill="#16a34a"><path d="M11 9H9V2H7v7H5V2H3v7c0 2.12 1.66 3.84 3.75 3.97V22h2.5v-9.03C11.34 12.84 13 11.12 13 9V2h-2v7zm5-3v8h2.5v8H21V2c-2.76 0-5 2.24-5 4z"/></svg>
+                            <span>Breakfast included</span>
                         </div>
                     </div>
 
-                    {{-- Customer Review Snippets Track (Inside this same Card!) --}}
-                    <div class="position-relative mt-2 pt-1">
-                        <div class="d-flex gap-2 overflow-hidden align-items-stretch" style="margin-right: -4px;">
-                            {{-- Snippet Card 1 --}}
-                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff;">
-                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
-                                    Great Location, Impeccably<br>Clean – Highly Recommended!
-                                </div>
-                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
-                                    {{-- BD Flag Badge --}}
-                                    <span class="d-inline-flex align-items-center justify-content-center" style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
-                                        <span style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
-                                    </span>
-                                    <strong class="text-dark" style="font-weight: 700; color: #1e293b;">MD I.</strong>
-                                    <span style="color: #64748b;">Bangladesh</span>
-                                </div>
-                            </div>
-
-                            {{-- Snippet Card 2 (Peeking) --}}
-                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff; opacity: 0.95;">
-                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
-                                    Services ...<br>also ...
-                                </div>
-                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
-                                    <span class="d-inline-flex align-items-center justify-content-center" style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
-                                        <span style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
-                                    </span>
-                                    <strong class="text-dark" style="font-weight: 700; color: #1e293b;">Sha...</strong>
-                                    <span style="color: #64748b;">Bangladesh</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Circular Next Button Overlapping --}}
-                        <button type="button" class="btn btn-light rounded-circle position-absolute top-50 d-flex align-items-center justify-content-center p-0" style="right: 8px; transform: translateY(-50%); width: 28px; height: 28px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.18); z-index: 5;" onclick="document.getElementById('reviews')?.scrollIntoView({behavior:'smooth'});" title="View more reviews">
-                            <i class="fa-solid fa-chevron-right" style="font-size: 11px; color: #1e293b;"></i>
-                        </button>
-                    </div>
+                    <a href="#rooms" class="btn btn-primary w-100 fw-bold py-2 mt-2 shadow-xs d-flex align-items-center justify-content-center" style="background-color: #2067e1; border: none; border-radius: 6px; font-size: 13.5px; letter-spacing: 0.2px;">
+                        More options
+                    </a>
                 </div>
 
                 {{-- Right Card 2: Interactive Location & Map Card (Agoda 1:1 Parity) --}}
-                <div id="location" class="card agoda-card-border overflow-hidden mb-4 flex-grow-1 d-flex flex-column" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; background: #ffffff;">
+                <div id="sidebarLocationCard" class="card agoda-card-border overflow-hidden mb-4 d-flex flex-column" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; background: #ffffff;">
                     {{-- Map Preview Container --}}
                     <div style="padding: 12px 12px 0 12px;">
                         <div class="position-relative text-center overflow-hidden" style="height: 130px; border-radius: 4px; background: #eef2f6; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal" title="Click to view full interactive map">
@@ -1226,86 +1390,230 @@
                     </div>
 
                     {{-- Card Inner Content (Stretches full height to keep 'See nearby places' anchored to bottom) --}}
-                    <div class="d-flex flex-column flex-grow-1" style="padding: 14px 16px;">
+                    <div class="d-flex flex-column flex-grow-1" style="padding: 18px 20px 16px 20px;">
                         <div class="mb-2">
-                            <h4 class="fw-bold mb-0" style="font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 800; color: #1e293b;">
-                                8.0 Excellent
+                            <h4 class="fw-bold mb-0" style="font-size: 17px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 700; color: #111827;">
+                                {{ number_format((float)($property->location_score ?? 8.8), 1) }} {{ ($property->location_score ?? 8.8) >= 8.5 ? 'Excellent' : 'Very good' }}
                             </h4>
-                            <div class="mt-0.5" style="font-size: 13px; color: #64748b !important; font-weight: 400;">
+                            <div class="mt-0.5" style="font-size: 12.5px; color: #64748b !important; font-weight: 400;">
                                 Location rating score
                             </div>
                         </div>
                         
                         <div class="d-flex align-items-center gap-2 mb-3" style="font-size: 13.5px; color: #0f172a; font-weight: 700;">
-                            <i class="fa-solid fa-ribbon text-dark fs-6 flex-shrink-0" style="color: #000000 !important;"></i>
-                            <span>Excellent location</span>
+                            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
+                                <circle cx="12" cy="8" r="6"/>
+                                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+                            </svg>
+                            <span>{{ ($property->location_score ?? 8.8) >= 8.5 ? 'Excellent location' : 'Great location' }}</span>
                         </div>
 
                         {{-- Parking Row (Agoda 1:1 Match) --}}
-                        <div class="d-flex align-items-center justify-content-between py-2 border-top" style="font-size: 13px; border-color: #e2e8f0 !important;">
-                            <div class="d-flex align-items-center gap-2">
-                                <i class="fa-solid fa-square-parking text-secondary fs-6"></i>
-                                <span style="color: #1e293b; font-weight: 500;">Parking</span>
+                        <div class="d-flex align-items-center justify-content-between py-2.5 border-top" style="font-size: 13px; border-color: #e2e8f0 !important;">
+                            <div class="d-flex align-items-center" style="gap: 10px;">
+                                <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 20px; height: 20px;">
+                                    <svg viewBox="0 0 24 24" width="16" height="16" fill="#64748b"><rect x="3" y="3" width="18" height="18" rx="4" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/><path d="M9 7h4a3 3 0 0 1 0 6H9v4H7V7h2zm0 4h4a1 1 0 0 0 0-2H9v2z" fill="#64748b"/></svg>
+                                </span>
+                                <span style="color: #1e293b; font-weight: 600; font-size: 13px;">Parking</span>
                             </div>
                             <span style="color: #00805a; font-weight: 700; font-size: 13px; letter-spacing: 0.3px;">FREE</span>
                         </div>
 
-                        <div class="border-top pt-2.5 d-flex flex-column flex-grow-1 justify-content-between" style="border-color: #e2e8f0 !important;">
+                        <div class="border-top pt-2 d-flex flex-column flex-grow-1 justify-content-between" style="border-color: #e2e8f0 !important;">
                             @php
-                                $cityLower = strtolower((string)($property->city ?? 'cox'));
-                                if (str_contains($cityLower, 'cox') || str_contains(strtolower($property->name ?? ''), 'pearl') || str_contains(strtolower($property->name ?? ''), 'seagull')) {
-                                    $transportList = [
-                                        ['name' => "Inani Beach", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Himchari National Park", 'dist' => '14.2 km', 'icon' => 'tree'],
-                                        ['name' => "Cox's Bazar Airport", 'dist' => '35.7 km', 'icon' => 'plane'],
-                                        ['name' => "Shah Amanat International Airport", 'dist' => '125.2 km', 'icon' => 'plane'],
-                                        ['name' => "Sittwe Airport", 'dist' => '140.1 km', 'icon' => 'plane'],
-                                        ['name' => "Kyaukpyu Airport", 'dist' => '244.6 km', 'icon' => 'plane'],
-                                    ];
-                                } elseif (str_contains($cityLower, 'chittagong')) {
-                                    $transportList = [
-                                        ['name' => "Patenga Beach", 'dist' => '14.0 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Foy's Lake", 'dist' => '6.5 km', 'icon' => 'tree'],
-                                        ['name' => "Shah Amanat International Airport", 'dist' => '12.4 km', 'icon' => 'plane'],
-                                        ['name' => "Cox's Bazar Airport", 'dist' => '125.2 km', 'icon' => 'plane'],
-                                        ['name' => "Hazrat Shahjalal International Airport", 'dist' => '242.0 km', 'icon' => 'plane'],
-                                    ];
-                                } else {
-                                    $transportList = [
-                                        ['name' => "National Parliament House", 'dist' => '4.2 km', 'icon' => 'tree'],
-                                        ['name' => "Gulshan Lake Park", 'dist' => '2.5 km', 'icon' => 'tree'],
-                                        ['name' => "Hazrat Shahjalal International Airport", 'dist' => '11.8 km', 'icon' => 'plane'],
-                                        ['name' => "Shah Amanat International Airport", 'dist' => '242.0 km', 'icon' => 'plane'],
-                                        ['name' => "Cox's Bazar Airport", 'dist' => '392.5 km', 'icon' => 'plane'],
+                                $propCity = strtolower((string)($property->city ?? ''));
+                                $propAddress = strtolower((string)($property->address ?? ''));
+                                $propName = strtolower((string)($property->name ?? ''));
+                                $nearestLmk = $property->nearest_landmark ?? null;
+
+                                $transportList = [];
+
+                                // 1. If property has nearest_landmark specified in admin/DB, place it first!
+                                if (!empty($nearestLmk)) {
+                                    $transportList[] = [
+                                        'name' => $nearestLmk,
+                                        'dist' => '0.2 km',
+                                        'icon' => 'umbrella-beach'
                                     ];
                                 }
+
+                                // COX'S BAZAR HOTELS: Distinguish Kolatoli/Sugandha/City Center vs Inani Beach vs Himchari
+                                if (str_contains($propCity, 'cox') || str_contains($propAddress, 'cox') || str_contains($propAddress, 'kolatoli') || str_contains($propAddress, 'inani') || str_contains($propName, 'heritage') || str_contains($propName, 'pearl') || str_contains($propName, 'seagull') || str_contains($propName, 'sayeman')) {
+                                    $isInani = str_contains($propAddress, 'inani') || str_contains($propName, 'pearl') || str_contains($propName, 'royal tulip');
+                                    $isLaboni = str_contains($propAddress, 'laboni') || str_contains($propName, 'seagull') || str_contains($propName, 'ocean paradise');
+
+                                    if ($isInani) {
+                                        // Inani Area
+                                        $landmarks = [
+                                            ['name' => "Inani Beach (Coral Beach)", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Marine Drive (Inani Section)", 'dist' => '0.3 km', 'icon' => 'road'],
+                                            ['name' => "Himchari National Park", 'dist' => '14.2 km', 'icon' => 'tree'],
+                                            ['name' => "Kolatoli Beach Point", 'dist' => '22.5 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Cox's Bazar Airport (CXB)", 'dist' => '26.8 km', 'icon' => 'plane'],
+                                            ['name' => "Laboni Beach Market", 'dist' => '25.0 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Shah Amanat International Airport", 'dist' => '145.0 km', 'icon' => 'plane'],
+                                        ];
+                                    } elseif ($isLaboni) {
+                                        // Laboni Beach Area
+                                        $landmarks = [
+                                            ['name' => "Laboni Beach Point", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Burmese Market", 'dist' => '0.8 km', 'icon' => 'landmark'],
+                                            ['name' => "Sugandha Beach Point", 'dist' => '1.2 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Cox's Bazar Airport (CXB)", 'dist' => '2.8 km', 'icon' => 'plane'],
+                                            ['name' => "Kolatoli Beach", 'dist' => '2.1 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Himchari Waterfall", 'dist' => '10.5 km', 'icon' => 'tree'],
+                                            ['name' => "Inani Beach", 'dist' => '24.5 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Shah Amanat International Airport", 'dist' => '122.0 km', 'icon' => 'plane'],
+                                        ];
+                                    } else {
+                                        // Kolatoli / Sugandha / Main Hotel Zone (Best Western Heritage, Sayeman, Long Beach, etc.)
+                                        $landmarks = [
+                                            ['name' => "Kolatoli Beach Point", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Marine Drive Starting Point", 'dist' => '0.3 km', 'icon' => 'road'],
+                                            ['name' => "Sugandha Beach Point", 'dist' => '1.1 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Laboni Beach Point", 'dist' => '2.4 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Cox's Bazar Airport (CXB)", 'dist' => '3.8 km', 'icon' => 'plane'],
+                                            ['name' => "Himchari National Park", 'dist' => '8.6 km', 'icon' => 'tree'],
+                                            ['name' => "Radiant Fish World", 'dist' => '3.2 km', 'icon' => 'landmark'],
+                                            ['name' => "Inani Beach", 'dist' => '22.4 km', 'icon' => 'umbrella-beach'],
+                                            ['name' => "Shah Amanat International Airport", 'dist' => '125.0 km', 'icon' => 'plane'],
+                                        ];
+                                    }
+                                } elseif (str_contains($propCity, 'dhaka') || str_contains($propAddress, 'dhaka') || str_contains($propAddress, 'gulshan') || str_contains($propAddress, 'banani') || str_contains($propAddress, 'uttara')) {
+                                    $isGulshan = str_contains($propAddress, 'gulshan') || str_contains($propAddress, 'banani');
+                                    $isUttara = str_contains($propAddress, 'uttara') || str_contains($propAddress, 'airport');
+
+                                    if ($isGulshan) {
+                                        $landmarks = [
+                                            ['name' => "Gulshan 2 Circle", 'dist' => '0.5 km', 'icon' => 'landmark'],
+                                            ['name' => "Gulshan Lake Park", 'dist' => '0.8 km', 'icon' => 'tree'],
+                                            ['name' => "Banani Road 11 (Dining Hub)", 'dist' => '1.2 km', 'icon' => 'landmark'],
+                                            ['name' => "Jamuna Future Park", 'dist' => '3.8 km', 'icon' => 'landmark'],
+                                            ['name' => "Hatirjheel Promenade", 'dist' => '3.4 km', 'icon' => 'tree'],
+                                            ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '7.8 km', 'icon' => 'plane'],
+                                            ['name' => "Dhaka Cantonment Station", 'dist' => '5.2 km', 'icon' => 'road'],
+                                            ['name' => "Kamalapur Railway Station", 'dist' => '9.5 km', 'icon' => 'road'],
+                                        ];
+                                    } elseif ($isUttara) {
+                                        $landmarks = [
+                                            ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '2.1 km', 'icon' => 'plane'],
+                                            ['name' => "Uttara Sector 3 Lake Park", 'dist' => '0.9 km', 'icon' => 'tree'],
+                                            ['name' => "Airport Railway Station", 'dist' => '1.8 km', 'icon' => 'road'],
+                                            ['name' => "Jamuna Future Park", 'dist' => '5.5 km', 'icon' => 'landmark'],
+                                            ['name' => "Gulshan 2 Circle", 'dist' => '8.2 km', 'icon' => 'landmark'],
+                                            ['name' => "Dhaka Elevated Expressway", 'dist' => '1.2 km', 'icon' => 'road'],
+                                        ];
+                                    } else {
+                                        // Central Dhaka / Dhanmondi / Motijheel / Panthapath
+                                        $landmarks = [
+                                            ['name' => "Dhanmondi Lake", 'dist' => '1.2 km', 'icon' => 'tree'],
+                                            ['name' => "National Parliament House", 'dist' => '2.5 km', 'icon' => 'landmark'],
+                                            ['name' => "Bashundhara City Mall", 'dist' => '1.5 km', 'icon' => 'landmark'],
+                                            ['name' => "Lalbagh Fort", 'dist' => '3.8 km', 'icon' => 'landmark'],
+                                            ['name' => "Kamalapur Railway Station", 'dist' => '4.2 km', 'icon' => 'road'],
+                                            ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '13.5 km', 'icon' => 'plane'],
+                                        ];
+                                    }
+                                } elseif (str_contains($propCity, 'chittagong') || str_contains($propCity, 'chattogram') || str_contains($propAddress, 'chittagong') || str_contains($propAddress, 'chattogram')) {
+                                    $landmarks = [
+                                        ['name' => "GEC Circle / Nasirabad", 'dist' => '0.6 km', 'icon' => 'landmark'],
+                                        ['name' => "Chittagong War Cemetery", 'dist' => '1.8 km', 'icon' => 'landmark'],
+                                        ['name' => "Foy's Lake & Concord Amusement Park", 'dist' => '3.5 km', 'icon' => 'tree'],
+                                        ['name' => "Chittagong Railway Station", 'dist' => '2.8 km', 'icon' => 'road'],
+                                        ['name' => "Naval Beach / Karnaphuli River", 'dist' => '8.5 km', 'icon' => 'umbrella-beach'],
+                                        ['name' => "Shah Amanat International Airport (CGP)", 'dist' => '12.4 km', 'icon' => 'plane'],
+                                        ['name' => "Patenga Sea Beach", 'dist' => '14.2 km', 'icon' => 'umbrella-beach'],
+                                    ];
+                                } elseif (str_contains($propCity, 'sylhet') || str_contains($propAddress, 'sylhet') || str_contains($propCity, 'sreemangal') || str_contains($propAddress, 'sreemangal')) {
+                                    if (str_contains($propCity, 'sreemangal') || str_contains($propAddress, 'sreemangal')) {
+                                        $landmarks = [
+                                            ['name' => "Lawachara National Park", 'dist' => '4.5 km', 'icon' => 'tree'],
+                                            ['name' => "Madhabpur Lake & Tea Estate", 'dist' => '12.0 km', 'icon' => 'tree'],
+                                            ['name' => "Baikka Beel Wetland Sanctuary", 'dist' => '15.5 km', 'icon' => 'tree'],
+                                            ['name' => "Sreemangal Railway Station", 'dist' => '2.2 km', 'icon' => 'road'],
+                                            ['name' => "Osmani International Airport (ZYL)", 'dist' => '88.0 km', 'icon' => 'plane'],
+                                        ];
+                                    } else {
+                                        $landmarks = [
+                                            ['name' => "Hazrat Shah Jalal Mazar Sharif", 'dist' => '1.2 km', 'icon' => 'landmark'],
+                                            ['name' => "Keane Bridge & Surma River", 'dist' => '1.8 km', 'icon' => 'landmark'],
+                                            ['name' => "Shah Paran Mazar Sharif", 'dist' => '6.8 km', 'icon' => 'landmark'],
+                                            ['name' => "Osmani International Airport (ZYL)", 'dist' => '7.5 km', 'icon' => 'plane'],
+                                            ['name' => "Malnicherra Tea Estate", 'dist' => '5.2 km', 'icon' => 'tree'],
+                                            ['name' => "Ratargul Swamp Forest", 'dist' => '22.0 km', 'icon' => 'tree'],
+                                            ['name' => "Jaflong Zero Point", 'dist' => '54.0 km', 'icon' => 'umbrella-beach'],
+                                        ];
+                                    }
+                                } elseif (str_contains($propCity, 'kuakata') || str_contains($propAddress, 'kuakata')) {
+                                    $landmarks = [
+                                        ['name' => "Kuakata Sea Beach (Sunrise Point)", 'dist' => '0.3 km', 'icon' => 'umbrella-beach'],
+                                        ['name' => "Jhaubon & Eco Park", 'dist' => '2.5 km', 'icon' => 'tree'],
+                                        ['name' => "Fatrar Char (Mangrove Forest)", 'dist' => '8.0 km', 'icon' => 'tree'],
+                                        ['name' => "Barishal Airport (BZL)", 'dist' => '102.0 km', 'icon' => 'plane'],
+                                        ['name' => "Hazrat Shahjalal International Airport", 'dist' => '295.0 km', 'icon' => 'plane'],
+                                    ];
+                                } else {
+                                    $cName = $property->city ?: 'City Center';
+                                    $landmarks = [
+                                        ['name' => $cName . " Central Plaza", 'dist' => '0.8 km', 'icon' => 'landmark'],
+                                        ['name' => $cName . " Public Park", 'dist' => '1.5 km', 'icon' => 'tree'],
+                                        ['name' => $cName . " Central Bus Terminal", 'dist' => '2.4 km', 'icon' => 'road'],
+                                        ['name' => $cName . " Main Railway Station", 'dist' => '3.5 km', 'icon' => 'road'],
+                                        ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '45.0 km', 'icon' => 'plane'],
+                                    ];
+                                }
+
+                                foreach ($landmarks as $lm) {
+                                    $already = false;
+                                    $lmLower = strtolower($lm['name']);
+                                    foreach ($transportList as $ex) {
+                                        $exLower = strtolower($ex['name']);
+                                        if ($lmLower === $exLower || 
+                                            (str_contains($lmLower, 'kolatoli') && str_contains($exLower, 'kolatoli')) ||
+                                            (str_contains($lmLower, 'inani') && str_contains($exLower, 'inani')) ||
+                                            (str_contains($lmLower, 'laboni') && str_contains($exLower, 'laboni')) ||
+                                            (str_contains($lmLower, 'airport') && str_contains($exLower, 'airport') && str_contains($lmLower, 'cox') && str_contains($exLower, 'cox'))) {
+                                            $already = true;
+                                            break;
+                                        }
+                                    }
+                                    if (!$already) {
+                                        $transportList[] = $lm;
+                                    }
+                                }
+                                $transportList = array_slice($transportList, 0, 7);
                             @endphp
                             
                             {{-- Airports & Transportation List (Exact Agoda Parity) --}}
-                            <div class="d-flex flex-column gap-2.5 pt-1" style="font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                            <div class="d-flex flex-column pt-1" style="font-size: 13px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                                 @foreach($transportList as $tp)
-                                <div class="d-flex align-items-center justify-content-between" style="color: #2a2a2e;">
-                                    <div class="d-flex align-items-center gap-2 text-truncate pe-2">
-                                        @if(($tp['icon'] ?? 'plane') === 'umbrella-beach')
-                                        <i class="fa-solid fa-umbrella-beach text-secondary fs-6 flex-shrink-0" style="width: 15px;"></i>
-                                        @elseif(($tp['icon'] ?? 'plane') === 'tree')
-                                        <i class="fa-solid fa-tree text-secondary fs-6 flex-shrink-0" style="width: 15px;"></i>
-                                        @else
-                                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0">
-                                            <path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3.5c-.5-.5-2.5 0-4 1.5L13.5 8.5 5.3 6.7c-.8-.2-1.6.1-2.1.7l-.2.3c-.4.5-.4 1.2 0 1.6l5.7 4.2-3.1 3.1-2.4-.6c-.4-.1-.8 0-1.1.3l-.2.2c-.3.3-.3.8 0 1.1l2.3 2.3c.3.3.8.3 1.1 0l.2-.2c.3-.3.4-.7.3-1.1l-.6-2.4 3.1-3.1 4.2 5.7c.4.4 1.1.4 1.6 0l.3-.2c.6-.5.9-1.3.7-2.1z"/>
-                                        </svg>
-                                        @endif
-                                        <span class="text-truncate" style="color: #2a2a2e; font-size: 13px; font-weight: 400;">{{ $tp['name'] }}</span>
+                                <div class="d-flex align-items-center justify-content-between py-2 border-top" style="color: #2a2a2e; border-color: #f1f5f9 !important;">
+                                    <div class="d-flex align-items-center text-truncate pe-2" style="gap: 10px;">
+                                        <span class="d-inline-flex align-items-center justify-content-center flex-shrink-0" style="width: 20px; height: 20px;">
+                                            @if(($tp['icon'] ?? 'plane') === 'umbrella-beach')
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#64748b"><path d="M12 2C6.48 2 2 6.48 2 12c0 3.09 1.41 5.86 3.65 7.69l1.24-1.57C5.2 16.65 4 14.47 4 12c0-4.08 3.06-7.44 7-7.93V20h2V4.07c3.94.49 7 3.85 7 7.93 0 2.47-1.2 4.65-2.89 6.12l1.24 1.57C20.59 17.86 22 15.09 22 12c0-5.52-4.48-10-10-10z"/></svg>
+                                            @elseif(($tp['icon'] ?? 'plane') === 'tree')
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#64748b"><path d="M12 2L4 14h3v6h10v-6h3L12 2z"/></svg>
+                                            @elseif(($tp['icon'] ?? 'plane') === 'road')
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#64748b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19L8 5"/><path d="M20 19L16 5"/><line x1="12" y1="8" x2="12" y2="10"/><line x1="12" y1="14" x2="12" y2="16"/></svg>
+                                            @elseif(($tp['icon'] ?? 'plane') === 'landmark')
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#64748b"><path d="M12 2L2 7v2h20V7L12 2zm-8 7h2v9H4V9zm5 0h2v9H9V9zm5 0h2v9h-2V9zm5 0h2v9h-2V9zM2 20v2h20v-2H2z"/></svg>
+                                            @else
+                                            <svg viewBox="0 0 24 24" width="16" height="16" fill="#64748b"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
+                                            @endif
+                                        </span>
+                                        <span class="text-truncate" style="color: #222222; font-size: 13.5px; font-weight: 500;">{{ $tp['name'] }}</span>
                                     </div>
-                                    <span class="flex-shrink-0 text-end" style="color: #2a2a2e; font-size: 13px; font-weight: 400;">{{ $tp['dist'] }}</span>
+                                    <span class="flex-shrink-0 text-end" style="color: #475569; font-size: 13px; font-weight: 600;">{{ $tp['dist'] }}</span>
                                 </div>
                                 @endforeach
                             </div>
 
                             {{-- See Nearby Places Link (Pinned to bottom of the card) --}}
                             <div class="d-flex justify-content-end pt-3 mt-auto">
-                                <a href="javascript:void(0)" class="text-decoration-none fw-bold" style="color: #2067e1; font-size: 13.5px;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal">
-                                    See nearby places
+                                <a href="javascript:void(0)" class="text-decoration-none fw-bold d-inline-flex align-items-center gap-1" style="color: #0b66c2; font-size: 13.5px;" data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal">
+                                    <span>See nearby places</span>
+                                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0b66c2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
                                 </a>
                             </div>
                         </div>
@@ -1509,6 +1817,8 @@
             <div class="d-flex flex-column" id="available_rooms_list">
                 @forelse($property->rooms as $rIdx => $room)
                 @php
+                    $rNameLower = strtolower($room->name ?? '');
+                    $rViewLower = strtolower((string)($room->view_type ?? ''));
                     $rAdults = $room->max_adults ?: 2;
                     $rKids = $room->max_children ?: 1;
                     $rSizeStr = $room->formatted_size ?: '37 m²/398 ft²';
@@ -1573,12 +1883,16 @@
                     if (empty($rImages)) {
                         $rImages = ['https://cdn6.agoda.net/images/accommodation/other/default.jpg'];
                     }
-                    $rImages = array_values($rImages);
+                    $rImages = array_values(array_map(function($img) {
+                        return media_url($img, asset('images/agoda/sea_pearl_resort.jpg'));
+                    }, $rImages));
 
                     // Dynamic Pricing & Discount Calculations
                     $roomPrice = (float)($room->price_per_night ?: 3500);
                     $discountPercent1 = 18;
-                    if (!empty($property->discount_percentage) && $property->discount_percentage > 0) {
+                    if (!empty($property->discount_percent) && $property->discount_percent > 0) {
+                        $discountPercent1 = (int)$property->discount_percent;
+                    } elseif (!empty($property->discount_percentage) && $property->discount_percentage > 0) {
                         $discountPercent1 = (int)$property->discount_percentage;
                     }
                     $origPrice1 = round($roomPrice / (1 - ($discountPercent1 / 100)));
@@ -1628,8 +1942,9 @@
                              id="roomCarousel_{{ $room->id ?? $rIdx }}"
                              data-images='@json($rImages)'
                              data-index="0"
-                             style="width: 220px; height: 135px; border-radius: 8px !important; cursor: pointer;">
-                            <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                             style="width: 220px; height: 135px; border-radius: 8px !important; cursor: pointer;"
+                             onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');">
+                            <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}">
                             <span class="room-photo-counter position-absolute bottom-0 start-0 m-2 text-white d-inline-flex align-items-center" style="background: rgba(0,0,0,0.65); font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 8px; line-height: 1.2;">1/{{ count($rImages) }}</span>
                             @if(count($rImages) > 1)
                             <button type="button" class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y me-2 d-flex align-items-center justify-content-center p-0" style="width: 26px; height: 26px; border: 1px solid #dddfe2; background: rgba(255,255,255,0.95); z-index: 5;" title="Next Photo" onclick="nextRoomPhoto(this, event)">
@@ -1640,7 +1955,7 @@
 
                         {{-- Middle: Room Title & Subtitle Specs --}}
                         <div class="flex-grow-1 px-md-3 py-1 soldout-info-box">
-                            <h4 class="mb-1" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 700; color: #111827; line-height: 1.3; cursor: pointer;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                            <h4 class="mb-1" style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 18px; font-weight: 700; color: #111827; line-height: 1.3; cursor: pointer;" onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');">
                                 {{ $room->name }}
                             </h4>
                             <div class="d-flex align-items-center flex-wrap gap-2" style="font-size: 13px; line-height: 1.4; color: #555555; font-weight: 500; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -1652,7 +1967,7 @@
                                 <span>{{ $rView }}</span>
                                 @endif
                             </div>
-                            <a href="javascript:void(0)" class="text-decoration-none d-inline-block mt-2" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #1668e3; font-size: 12px; font-weight: 600;">
+                            <a href="javascript:void(0)" class="text-decoration-none d-inline-block mt-2" onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');" style="color: #1668e3; font-size: 12px; font-weight: 600;">
                                 Room photos and details
                             </a>
                         </div>
@@ -1675,6 +1990,7 @@
                 </div>
                 @else
                 <div class="agoda-room-listing-card mb-4"
+                    id="room_card_{{ $room->id ?? $rIdx }}"
                     data-nonsmoking="{{ $isNonSmoking ? 'true' : 'false' }}"
                     data-breakfast="{{ $hasBreakfast ? 'true' : 'false' }}"
                     data-freecancel="{{ $hasFreeCancel ? 'true' : 'false' }}"
@@ -1699,8 +2015,9 @@
                                      id="roomCarousel_{{ $room->id ?? $rIdx }}"
                                      data-images='@json($rImages)'
                                      data-index="0"
-                                     style="height: 195px; border-radius: 6px !important; cursor: pointer;">
-                                    <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">
+                                     style="height: 195px; border-radius: 6px !important; cursor: pointer;"
+                                     onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');">
+                                    <img src="{{ $rImages[0] ?? '' }}" class="w-100 h-100 room-carousel-img" style="object-fit: cover;" alt="{{ $room->name }}">
                                     
                                     {{-- Real Inventory Dynamic Urgency Badges --}}
                                     @if($availableRoomsLeft <= 0)
@@ -1720,20 +2037,16 @@
                                         <i class="fa-solid fa-fire me-1" style="font-size: 10px;"></i> Only 3 rooms left!
                                     </span>
                                     @elseif($isLowestInProperty || $rIdx === 0)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-tag me-1" style="font-size: 10px;"></i> Our last room!
-                                    </span>
-                                    @elseif($rIdx === 1)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-thumbs-up me-1" style="font-size: 10px;"></i> Top Value
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #ba2a26; color: #ffffff; font-size: 11px; border-radius: 0 !important; padding: 3px 8px; line-height: 1.2; z-index: 4;">
+                                        Our last 4!
                                     </span>
                                     @elseif($rIdx === 2)
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #8038a8; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-heart me-1" style="font-size: 10px;"></i> Most Popular
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #873dc2; color: #ffffff; font-size: 11px; border-radius: 0 !important; padding: 3px 8px; line-height: 1.2; z-index: 4;">
+                                        Our last few!
                                     </span>
-                                    @else
-                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #0b66c2; font-size: 11px; border-radius: 3px; padding: 2.5px 7px; line-height: 1.2; z-index: 4;">
-                                        <i class="fa-solid fa-star me-1" style="font-size: 10px;"></i> Recommended
+                                    @elseif($rIdx === 5)
+                                    <span class="position-absolute top-0 start-0 m-2 text-white fw-bold d-inline-flex align-items-center" style="background: #d97706; color: #ffffff; font-size: 11px; border-radius: 0 !important; padding: 3px 8px; line-height: 1.2; z-index: 4;">
+                                        High Demand!
                                     </span>
                                     @endif
                                     <span class="room-photo-counter position-absolute bottom-0 start-0 m-2 text-white d-inline-flex align-items-center" style="background: rgba(0,0,0,0.65); font-size: 11px; font-weight: 700; border-radius: 12px; padding: 2px 8px; line-height: 1.2;">1/{{ count($rImages) }}</span>
@@ -1747,11 +2060,11 @@
                                     @endif
                                 </div>
                                 
-                                <a href="javascript:void(0)" class="text-decoration-none d-block mb-1.5" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}" style="color: #1668e3; font-size: 13px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
+                                <a href="javascript:void(0)" class="text-decoration-none d-block mb-1.5" onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');" style="color: #1668e3; font-size: 13px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
                                     Room photos and details
                                 </a>
 
-                                <h4 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 19px; font-weight: 700; color: #222222; margin-top: 2px; margin-bottom: 6px; line-height: 1.25;">
+                                <h4 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 19px; font-weight: 700; color: #222222; margin-top: 2px; margin-bottom: 6px; line-height: 1.25; cursor: pointer;" onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');">
                                     {{ $room->name }}
                                 </h4>
                                 
@@ -1761,6 +2074,34 @@
                                     <span>Max {{ $rAdults }} adults</span> 
                                     <span style="color: #cbd5e1; margin: 0 7px;">|</span> 
                                     <span>{{ $rBedStr }}</span>
+                                </div>
+
+                                {{-- Agoda Authentic Purple Badges (Dynamic Per Room) --}}
+                                <div class="d-flex flex-wrap align-items-center my-2" style="gap: 6px;">
+                                    @if($isLowestInProperty || $rIdx === 0 || !empty($room->is_recommended))
+                                    <span style="background-color: #873dc2; color: #ffffff; border-radius: 0 !important; padding: 3px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2;">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" fill="#ffffff" style="display:block; margin-right: 4px;"><path d="M2 20h2c.55 0 1-.45 1-1v-9c0-.55-.45-1-1-1H2v11zm19.83-7.12c.11-.25.17-.52.17-.8V11c0-1.1-.9-2-2-2h-5.5l.92-4.65c.05-.22.02-.46-.08-.66a1.01 1.01 0 0 0-.69-.59c-.22-.05-.46-.02-.66.08L9 6.24V19h10c.8 0 1.52-.48 1.83-1.21l2-4.91z"/></svg>
+                                        Recommended
+                                    </span>
+                                    @endif
+
+                                    @if($isFamily || $rAdults >= 3)
+                                    <span style="background-color: #873dc2; color: #ffffff; border-radius: 0 !important; padding: 3px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2;">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" fill="#ffffff" style="display:block; margin-right: 4px;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                        Great for Families
+                                    </span>
+                                    @elseif($rIdx === 0 || $rIdx === 1 || ($rKids > 0 && $rAdults <= 2))
+                                    <span style="background-color: #873dc2; color: #ffffff; border-radius: 0 !important; padding: 3px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2;">
+                                        Your kids can stay for FREE!
+                                    </span>
+                                    @endif
+
+                                    @if(($isKing || $isQueen || str_contains($rNameLower, 'couple') || str_contains($rNameLower, 'sea')) && ($isLowestInProperty || $rIdx === 0 || $rIdx === 3))
+                                    <span style="background-color: #873dc2; color: #ffffff; border-radius: 0 !important; padding: 3px 8px; font-size: 11.5px; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; line-height: 1.2;">
+                                        <svg viewBox="0 0 24 24" width="12" height="12" fill="#ffffff" style="display:block; margin-right: 4px;"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                                        Preferred by Couples
+                                    </span>
+                                    @endif
                                 </div>
 
                                 {{-- Agoda Aspect Rating Engine (Matching Agoda 1:1) --}}
@@ -1869,7 +2210,7 @@
                                     <div class="col-6 d-flex flex-column" style="gap: 7px;">
                                         @foreach($agodaFacilitiesCol1 as $facName)
                                             @php $icon = $detectIcon($facName); @endphp
-                                            <div class="d-flex align-items-center gap-2 text-nowrap" style="color: #222222;">
+                                            <div class="d-flex align-items-center text-nowrap" style="color: #222222; gap: 8px;">
                                                 @if($icon === 'view')
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="m3 16 5-5c.9-.9 2.1-.9 3 0l7 7"/><path d="m14 14 1-1c.9-.9 2.1-.9 3 0l3 3"/></svg>
                                                 @elseif($icon === 'wifi')
@@ -1902,7 +2243,7 @@
                                     <div class="col-6 d-flex flex-column" style="gap: 7px;">
                                         @foreach($agodaFacilitiesCol2 as $facName)
                                             @php $icon = $detectIcon($facName); @endphp
-                                            <div class="d-flex align-items-center gap-2 text-nowrap" style="color: #222222;">
+                                            <div class="d-flex align-items-center text-nowrap" style="color: #222222; gap: 8px;">
                                                 @if($icon === 'bath')
                                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3d4551" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" class="flex-shrink-0"><path d="M7 12h10a2 2 0 0 1 2 2v2a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-2a2 2 0 0 1 2-2z"/><path d="M5 12V6a2 2 0 0 1 2-2h1"/></svg>
                                                 @elseif($icon === 'shower')
@@ -1933,10 +2274,28 @@
                                 
                                 {{-- OFFER 1 CARD (Standalone White Card - Agoda 1:1 Full-Height when Single Offer) --}}
                                 <div class="flex-grow-1 {{ $hasSecondOffer ? '' : 'h-100' }} d-flex flex-column justify-content-start" style="background: #ffffff; border: 1px solid #cdd4de; border-radius: 12px; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.02); font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; position: relative;">
-                                    {{-- Agoda Signature Red Ribbon matching Image 3 --}}
-                                    <div style="background: #c52924; color: #ffffff; font-size: 11px; font-weight: 700; padding: 3px 12px; border-bottom-right-radius: 8px; width: fit-content; line-height: 1.3; letter-spacing: 0.2px;">
-                                        15% off today! Lowest price
+                                    {{-- Agoda Signature Top Banner (100% Full Width across card to the right) --}}
+                                    @if(!empty($room->ribbon_badge))
+                                    <div style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
+                                        {{ $room->ribbon_badge }}
                                     </div>
+                                    @elseif($isLowestInProperty || $rIdx === 0)
+                                    <div style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
+                                        {{ $discountPercent1 }}% off today! Lowest price available!
+                                    </div>
+                                    @elseif($rIdx === 1)
+                                    <div style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
+                                        Special Member Deal! Save {{ $discountPercent1 }}%
+                                    </div>
+                                    @elseif($rIdx === 2)
+                                    <div style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
+                                        Prime Exclusive Deal! Save {{ max(10, $discountPercent1 - 2) }}%
+                                    </div>
+                                    @elseif($rIdx === 3)
+                                    <div style="background: #1e5cb3; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
+                                        Best Value for Couples
+                                    </div>
+                                    @endif
                                     <div class="row g-0 align-items-stretch flex-grow-1 h-100">
                                         {{-- Sub-col 1: Benefits List --}}
                                         <div class="col-md-5 d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '16px 20px' }} !important;">
@@ -2009,12 +2368,12 @@
                                                 <span>PRIME EXCLUSIVE - {{ \App\Services\CurrencyService::format(35) }} off!</span>
                                             </div>
                                             <div>
-                                                <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">See details</a>
+                                                <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');">See details</a>
                                             </div>
                                         </div>
 
                                             {{-- Sub-col 2: Price Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '16px 20px' }} !important;">
+                                            <div class="col-md-4 agoda-room-subcol-price text-end d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '16px 20px' }} !important;">
                                                 @if($isLowestInProperty || $rIdx === 0)
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
                                                     <span class="d-inline-flex align-items-center justify-content-center rounded-circle" style="width: 13px; height: 13px; border: 1px solid #737373; color: #737373; font-size: 8.5px; font-weight: 700; margin-right: 2px;">i</span>
@@ -2025,7 +2384,7 @@
                                                     <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
                                                 </div>
                                                 <div class="fw-bold" style="color: #ba2a26; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
-                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
+                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span><span class="agoda-final-price-num">{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}</span>
                                                 </div>
                                                 @else
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
@@ -2036,14 +2395,14 @@
                                                     <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher1) }} applied
                                                 </div>
                                                 <div class="fw-bold" style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
-                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}
+                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span><span class="agoda-final-price-num">{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}</span>
                                                 </div>
                                                 @endif
-                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
+                                                <div class="agoda-price-unit-text" style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
                                             </div>
 
                                             {{-- Sub-col 3: Book Action --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-start" style="padding: {{ $hasSecondOffer ? '14px 16px' : '16px 18px' }} !important;">
+                                            <div class="col-md-3 agoda-room-subcol-book text-end d-flex flex-column align-items-stretch justify-content-start" style="padding: {{ $hasSecondOffer ? '14px 16px' : '16px 18px' }} !important;">
                                                 <div class="mb-2 position-relative agoda-room-selector-wrapper text-start">
                                                     <button type="button" 
                                                             class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
@@ -2149,12 +2508,12 @@
                                                     <span>PRIME EXCLUSIVE - {{ \App\Services\CurrencyService::format(41) }} off!</span>
                                                 </div>
                                                 <div>
-                                                    <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" data-bs-toggle="modal" data-bs-target="#roomDetailModal_{{ $room->id ?? $rIdx }}">See details</a>
+                                                    <a href="javascript:void(0)" class="text-decoration-none" style="color: #0b66c2; font-size: 13px; font-weight: 700;" onclick="openAgodaRoomGallery('{{ $room->id ?? $rIdx }}', '{{ addslashes($room->name) }}');">See details</a>
                                                 </div>
                                             </div>
 
                                             {{-- Sub-col 2: Pricing Breakdown --}}
-                                            <div class="col-md-4 text-end d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
+                                            <div class="col-md-4 agoda-room-subcol-price text-end d-flex flex-column justify-content-start" style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5" style="font-size: 12.5px; color: #737373;">
                                                     <span style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice2) }}</span>
                                                 </div>
@@ -2163,13 +2522,13 @@
                                                     <x-agoda-icon name="cash" size="12" color="#007a50" /> {{ \App\Services\CurrencyService::format($voucher2) }} applied
                                                 </div>
                                                 <div class="fw-bold" style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
-                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span>{{ number_format(\App\Services\CurrencyService::convert($finalPrice2)) }}
+                                                    <span style="font-size: 14px; font-weight: 700; margin-right: 2px;">{{ \App\Services\CurrencyService::currentCode() }}</span><span class="agoda-final-price-num">{{ number_format(\App\Services\CurrencyService::convert($finalPrice2)) }}</span>
                                                 </div>
-                                                <div style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
+                                                <div class="agoda-price-unit-text" style="font-size: 11.5px; color: #64748b; margin-top: 4px;">Per night before taxes &amp; fees</div>
                                             </div>
 
                                             {{-- Sub-col 3: Book Action (2-line Button + Urgency matching Screenshot 2) --}}
-                                            <div class="col-md-3 text-end d-flex flex-column align-items-stretch justify-content-start" style="padding: 14px 16px !important;">
+                                            <div class="col-md-3 agoda-room-subcol-book text-end d-flex flex-column align-items-stretch justify-content-start" style="padding: 14px 16px !important;">
                                                 <div class="mb-2 position-relative agoda-room-selector-wrapper text-start">
                                                     <button type="button" 
                                                             class="w-100 bg-white d-flex align-items-center justify-content-center gap-2 agoda-room-pill-btn" 
@@ -2228,61 +2587,61 @@
                 </div>
                 @endif
 
-                {{-- Room Details & Photo Gallery Lightbox Modal (Agoda Standard) --}}
+                {{-- Room Details & Photo Gallery Lightbox Modal (Agoda Standard 1:1 Matching User Screenshot) --}}
                 <div class="modal fade" id="roomDetailModal_{{ $room->id ?? $rIdx }}" tabindex="-1" aria-hidden="true">
                     <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
-                        <div class="modal-content border-0 shadow-lg rounded-4 overflow-hidden">
-                            <div class="modal-header border-bottom py-3 px-4 bg-light">
+                        <div class="modal-content border-0 shadow-2xl rounded-4 overflow-hidden">
+                            <div class="modal-header border-bottom py-3 px-4 bg-white d-flex align-items-center justify-content-between">
                                 <div>
-                                    <h5 class="modal-title fw-bold text-dark mb-0" style="font-size: 17px; font-family: 'Plus Jakarta Sans', sans-serif;">{{ $room->name }}</h5>
-                                    <small class="text-muted" style="font-size: 12px;">{{ $rSizeStr }} • Max {{ $rAdults }} Adults • {{ $rBedStr }}</small>
+                                    <h5 class="modal-title fw-bold text-dark mb-0.5" style="font-size: 18px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">{{ $room->name }}</h5>
+                                    <small class="text-secondary" style="font-size: 12.5px;">{{ $rSizeStr }} • Max {{ $rAdults }} Adults • {{ $rBedStr }}</small>
                                 </div>
                                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                             </div>
                             <div class="modal-body p-4">
                                 {{-- Room High-Res Image Gallery & Thumbnail Selector --}}
-                                <div class="rounded-3 overflow-hidden mb-3 position-relative" style="height: 320px; background: #0f172a;" id="roomModalMainBox_{{ $room->id ?? $rIdx }}">
-                                    <img id="roomModalActiveImg_{{ $room->id ?? $rIdx }}" src="{{ $rImages[0] ?? ($room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '')) }}" class="w-100 h-100" style="object-fit: cover; transition: opacity 0.25s ease;" alt="{{ $room->name }}">
-                                    <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 start-0 m-3 px-3 py-1.5" style="font-size: 12px; border-radius: 20px;">
-                                        <i class="fa-solid fa-camera me-1"></i> Verified High-Res Room Photo (<span id="roomModalCounter_{{ $room->id ?? $rIdx }}">1/{{ count($rImages) }}</span>)
-                                    </span>
+                                <div class="rounded-3 overflow-hidden mb-2.5 position-relative" style="height: 380px; background: #0f172a;" id="roomModalMainBox_{{ $room->id ?? $rIdx }}">
+                                    <img id="roomModalActiveImg_{{ $room->id ?? $rIdx }}" src="{{ $rImages[0] ?? ($room->primary_image ?: ($gallery[$rIdx % count($gallery)] ?? '')) }}" class="w-100 h-100" style="object-fit: cover; transition: opacity 0.2s ease;" alt="{{ $room->name }}">
+                                    <div class="position-absolute bottom-0 start-0 m-3 d-flex align-items-center gap-1.5 px-3 py-1.5 rounded-pill shadow-sm" style="background: rgba(0,0,0,0.72); backdrop-filter: blur(4px); color: #ffffff; font-size: 11.5px; font-weight: 600; z-index: 5;">
+                                        <i class="fa-solid fa-camera me-1"></i> <span id="roomModalCounter_{{ $room->id ?? $rIdx }}">Verified High-Res Room Photo (1/{{ count($rImages) }})</span>
+                                    </div>
                                 </div>
                                 @if(count($rImages) > 1)
                                 <div class="d-flex align-items-center gap-2 mb-4 overflow-x-auto pb-1" style="scrollbar-width: thin;">
                                     @foreach($rImages as $rImgIdx => $rImgUrl)
-                                    <div class="flex-shrink-0 rounded-2 overflow-hidden border {{ $rImgIdx === 0 ? 'border-primary' : 'border-light-subtle' }}" 
-                                         style="width: 72px; height: 50px; cursor: pointer; opacity: {{ $rImgIdx === 0 ? '1' : '0.7' }}; transition: all 0.2s;"
-                                         onclick="var mImg=document.getElementById('roomModalActiveImg_{{ $room->id ?? $rIdx }}'); if(mImg){ mImg.style.opacity='0'; setTimeout(function(){ mImg.src='{{ $rImgUrl }}'; mImg.style.opacity='1'; }, 150); } var c=document.getElementById('roomModalCounter_{{ $room->id ?? $rIdx }}'); if(c){ c.innerText='{{ $rImgIdx + 1 }}/{{ count($rImages) }}'; } this.parentElement.querySelectorAll('.flex-shrink-0').forEach(function(el){ el.style.opacity='0.7'; el.classList.remove('border-primary'); }); this.style.opacity='1'; this.classList.add('border-primary');">
+                                    <div class="flex-shrink-0 room-modal-thumb rounded-2 overflow-hidden" 
+                                         style="width: 76px; height: 52px; cursor: pointer; border: 2px solid {{ $rImgIdx === 0 ? '#2067e1' : '#cbd5e1' }}; opacity: {{ $rImgIdx === 0 ? '1' : '0.7' }}; transition: all 0.2s;"
+                                         onclick="switchRoomModalPhoto({{ $room->id ?? $rIdx }}, '{{ $rImgUrl }}', {{ $rImgIdx + 1 }}, {{ count($rImages) }}, this);">
                                         <img src="{{ $rImgUrl }}" class="w-100 h-100 object-fit-cover" alt="Photo {{ $rImgIdx + 1 }}" loading="lazy">
                                     </div>
                                     @endforeach
                                 </div>
                                 @endif
 
-                                <div class="row g-4">
+                                <div class="row g-4 pt-1">
                                     {{-- Left: Key Room Specs --}}
                                     <div class="col-md-6 border-end pe-md-4">
                                         <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-bed text-primary me-2"></i> Room Layout &amp; Bedding</h6>
                                         <ul class="list-unstyled d-flex flex-column gap-2 text-secondary mb-4" style="font-size: 13px;">
-                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-ruler-combined text-muted" style="width: 16px;"></i> <span>Room Area: <strong>{{ $rSizeStr }}</strong></span></li>
-                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-bed text-muted" style="width: 16px;"></i> <span>Bed Config: <strong>{{ $rBedStr }}</strong></span></li>
-                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-mountain-sun text-muted" style="width: 16px;"></i> <span>View: <strong>{{ $rView }}</strong></span></li>
-                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-building text-muted" style="width: 16px;"></i> <span>Outdoor: <strong>{{ $rBalcony }}</strong></span></li>
-                                            <li class="d-flex align-items-center gap-2"><i class="fa-solid fa-ban-smoking text-danger" style="width: 16px;"></i> <span>Smoking: <strong>{{ $rSmoking }}</strong></span></li>
+                                            <li class="d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-ruler-combined text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Room Area: <strong>{{ $rSizeStr }}</strong></span></li>
+                                            <li class="d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-bed text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Bed Config: <strong>{{ $rBedStr }}</strong></span></li>
+                                            <li class="d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-mountain-sun text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>View: <strong>{{ $rView }}</strong></span></li>
+                                            <li class="d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-building text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Outdoor: <strong>{{ $rBalcony }}</strong></span></li>
+                                            <li class="d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-ban-smoking text-danger flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Smoking: <strong>{{ $rSmoking }}</strong></span></li>
                                         </ul>
 
                                         <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-shield-halved text-success me-2"></i> Policies &amp; Inclusions</h6>
                                         <ul class="list-unstyled d-flex flex-column gap-2 text-secondary" style="font-size: 13px;">
-                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold">
-                                                <i class="fa-solid fa-circle-check"></i> 
+                                            <li class="d-flex align-items-center text-success fw-semibold" style="gap: 8px;">
+                                                <i class="fa-solid fa-circle-check flex-shrink-0" style="margin-right: 8px;"></i> 
                                                 <span>{{ $room->breakfast_included ? 'Free Breakfast Included' : 'Breakfast available at hotel' }}</span>
                                             </li>
-                                            <li class="d-flex align-items-center gap-2 text-success fw-semibold">
-                                                <i class="fa-solid fa-circle-check"></i> 
+                                            <li class="d-flex align-items-center text-success fw-semibold" style="gap: 8px;">
+                                                <i class="fa-solid fa-circle-check flex-shrink-0" style="margin-right: 8px;"></i> 
                                                 <span>{{ $room->free_cancellation ? 'Free Cancellation Available' : 'Standard cancellation policy' }}</span>
                                             </li>
-                                            <li class="d-flex align-items-center gap-2 text-primary fw-semibold">
-                                                <i class="fa-solid fa-circle-check"></i> 
+                                            <li class="d-flex align-items-center text-primary fw-semibold" style="gap: 8px;">
+                                                <i class="fa-solid fa-circle-check flex-shrink-0" style="margin-right: 8px;"></i> 
                                                 <span>{{ $room->pay_at_hotel ? 'Pay at Hotel Accepted' : 'Instant Confirmation' }}</span>
                                             </li>
                                         </ul>
@@ -2298,8 +2657,8 @@
                                                 ];
                                             @endphp
                                             @foreach(array_slice($displayFacs, 0, 10) as $fItem)
-                                            <div class="col-6 d-flex align-items-center gap-1.5 text-truncate">
-                                                <i class="fa-solid fa-check text-success" style="font-size: 11px;"></i>
+                                             <div class="col-6 d-flex align-items-center text-truncate" style="gap: 8px;">
+                                                <i class="fa-solid fa-check text-success flex-shrink-0" style="font-size: 11px; margin-right: 8px;"></i>
                                                 <span class="text-truncate">{{ $fItem }}</span>
                                             </div>
                                             @endforeach
@@ -2307,23 +2666,26 @@
 
                                         <h6 class="fw-bold text-dark mb-3" style="font-size: 14px;"><i class="fa-solid fa-bath text-info me-2"></i> Bathroom &amp; Extras</h6>
                                         <div class="row g-2 text-secondary" style="font-size: 12.5px;">
-                                            <div class="col-6"><i class="fa-solid fa-shower text-muted me-1.5"></i> {{ $rBathrooms }} Private Bath</div>
-                                            <div class="col-6"><i class="fa-solid fa-temperature-arrow-up text-muted me-1.5"></i> Hot Water</div>
-                                            <div class="col-6"><i class="fa-solid fa-pump-soap text-muted me-1.5"></i> Toiletries</div>
-                                            <div class="col-6"><i class="fa-solid fa-shirt text-muted me-1.5"></i> Towels &amp; Linens</div>
+                                            <div class="col-6 d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-shower text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>{{ $rBathrooms }} Private Bath</span></div>
+                                            <div class="col-6 d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-temperature-arrow-up text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Hot Water</span></div>
+                                            <div class="col-6 d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-pump-soap text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Toiletries</span></div>
+                                            <div class="col-6 d-flex align-items-center" style="gap: 8px;"><i class="fa-solid fa-shirt text-muted flex-shrink-0" style="width: 16px; margin-right: 8px;"></i> <span>Towels &amp; Linens</span></div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                            <div class="modal-footer border-top py-3 px-4 bg-light d-flex align-items-center justify-content-between">
-                                <div>
-                                    <span class="text-secondary small d-block" style="font-size: 11px;">Starting from</span>
-                                    <strong class="text-danger fw-bold" style="font-size: 21px;">৳{{ number_format((float)($room->price_per_night ?? 2500)) }} <small class="text-secondary fw-normal" style="font-size: 12px;">/ night</small></strong>
+                            <div class="modal-footer border-top py-3 px-4 bg-white d-flex align-items-center justify-content-between">
+                                <div class="d-flex flex-column" style="line-height: 1.2;">
+                                    <span class="text-secondary small" style="font-size: 11px;">Starting from</span>
+                                    <div class="d-flex align-items-baseline gap-1">
+                                        <strong class="text-danger fw-bold" style="font-size: 22px; color: #ba2a26 !important;">৳{{ number_format((float)($room->price_per_night ?? 2500)) }}</strong>
+                                        <span class="text-secondary" style="font-size: 12.5px;">/ night</span>
+                                    </div>
                                 </div>
                                 <div class="d-flex gap-2">
-                                    <button type="button" class="btn btn-light fw-bold px-3 py-2 border" data-bs-dismiss="modal" style="font-size: 13px;">Close</button>
-                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn btn-primary fw-bold px-4 py-2" style="background: #2067e1; font-size: 13px; border-radius: 6px;">
-                                        Book this Room
+                                    <button type="button" class="btn btn-outline-secondary fw-bold px-3 py-2 border" data-bs-dismiss="modal" style="font-size: 13px; border-radius: 6px; border-color: #cbd5e1;">Close</button>
+                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}" class="btn btn-primary fw-bold px-4 py-2" style="background: #1b62dc; font-size: 13.5px; border-radius: 6px;">
+                                        Book this room
                                     </a>
                                 </div>
                             </div>
@@ -2675,58 +3037,7 @@
             </div>
         </div>
 
-        {{-- 11. Location Section Card (Agoda 1:1 Carbon Copy Screenshot Parity) --}}
-        <div id="location" class="card bg-white mb-4 shadow-none" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 22px 24px !important;">
-            <div class="d-flex justify-content-between align-items-baseline mb-3">
-                <div>
-                    <h4 class="fw-bold text-dark mb-1" style="font-size: 18px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: #0f172a;">Location</h4>
-                    <p class="text-secondary mb-0" style="font-size: 13px; color: #64748b;">
-                        {{ $property->address ?: '259 Nawab Sirajuddaula Road, Kotwali, Chittagong, Bangladesh, 4203' }}
-                    </p>
-                </div>
-                <div class="text-end flex-shrink-0 ms-3">
-                    <strong class="d-block" style="color: #2067e1; font-size: 13.5px; font-weight: 800;">Exceptional {{ number_format((float)($property->sub_scores['location'] ?? 10.0), 1) }}</strong>
-                    <span class="text-secondary" style="font-size: 11.5px; color: #64748b;">Location</span>
-                </div>
-            </div>
 
-            {{-- Agoda Official Pixel-Perfect Traveler Girl Looking at Map Artwork --}}
-            <div class="text-center py-2 my-1 position-relative d-flex justify-content-center align-items-center" style="min-height: 140px;">
-                <img src="{{ asset('assets/images/location-traveler.png') }}" 
-                     alt="Location Map Explorer" 
-                     class="img-fluid" 
-                     style="max-width: 280px; height: auto; object-fit: contain;">
-            </div>
-        </div>
-
-        {{-- 12. Property Policies Section Card (Screenshot Parity) --}}
-        <div id="policies" class="card border-0 shadow-xs rounded-3 p-4 bg-white mb-4">
-            <h5 class="fw-bold text-dark mb-3" style="font-size: 18px; font-family: 'Plus Jakarta Sans', sans-serif;">Property policies</h5>
-            
-            <div class="mb-4">
-                <strong class="d-block text-dark mb-2" style="font-size: 14px;">Others</strong>
-                <ul class="text-secondary mb-2 ps-3" style="font-size: 13px; line-height: 1.6;">
-                    <li class="mb-1">When booking more than 5 rooms, different policies and additional supplements may apply.</li>
-                    <li>Extra beds, if available, are dependent on the room you choose. Please ask the property for more details.</li>
-                </ul>
-            </div>
-
-            <div class="border-top pt-4 mb-4">
-                <h6 class="fw-bold text-dark mb-3" style="font-size: 15px;">Some helpful facts</h6>
-                <strong class="d-block text-dark mb-2" style="font-size: 13.5px;">Check-in/Check-out</strong>
-                <div class="row g-2 text-secondary" style="font-size: 13px;">
-                    <div class="col-md-6"><i class="fa-solid fa-key me-2 text-muted"></i> Check-in from: <strong>12:00 PM</strong></div>
-                    <div class="col-md-6"><i class="fa-solid fa-key me-2 text-muted"></i> Check-out until: <strong>12:00 PM</strong></div>
-                    <div class="col-md-6"><i class="fa-solid fa-key me-2 text-muted"></i> Check-out from: <strong>08:00 AM</strong></div>
-                    <div class="col-md-6"><i class="fa-solid fa-key me-2 text-muted"></i> Check-in until: <strong>11:00 PM</strong></div>
-                </div>
-            </div>
-
-            <div class="border-top pt-4">
-                <h6 class="fw-bold text-dark mb-2" style="font-size: 15px;">Property announcements</h6>
-                <p class="text-secondary mb-0" style="font-size: 13px;">Managed by verified partner host</p>
-            </div>
-        </div>
 
         {{-- 13. Reviews Section Card (Agoda 1:1 Exact Carbon Copy Parity) --}}
         <div id="reviews" class="card bg-white mb-4 shadow-none" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px 28px !important;">
@@ -2995,7 +3306,7 @@
                     <div>
                         <h4 class="fw-bold text-dark mb-2" style="font-size: 24px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: #1e293b;">Check in. Step out.</h4>
                         <p class="text-secondary mb-3" style="font-size: 13px; line-height: 1.5; color: #475569;">
-                            Experiences on Agoda. Because your room is just the beginning.
+                            Experiences on Prime Booking. Because your room is just the beginning.
                         </p>
                         <div class="d-flex align-items-center gap-2 mb-4 text-dark" style="font-size: 13.5px; font-weight: 600;">
                             <i class="fa-solid fa-person-walking-luggage" style="color: #0f172a; font-size: 16px;"></i>
@@ -3013,10 +3324,12 @@
 
                 {{-- Right Interactive Map with Agoda Floating Property Pin Card --}}
                 <div class="col-lg-7 col-md-6 position-relative p-0 overflow-hidden" style="min-height: 240px; background: #e5e3df;">
-                    {{-- Real Map Background Embed or Leaflet Map Layer --}}
+                    {{-- OpenStreetMap Universal Interactive Map Embed (100% Reliable, Never Blocked) --}}
                     @php
-                        $mapLat = $property->latitude ?? 22.3569;
-                        $mapLng = $property->longitude ?? 91.7832;
+                        $mapLat = (float)($property->latitude ?: 21.4272);
+                        $mapLng = (float)($property->longitude ?: 92.0058);
+                        $osmBbox = ($mapLng - 0.018) . '%2C' . ($mapLat - 0.012) . '%2C' . ($mapLng + 0.018) . '%2C' . ($mapLat + 0.012);
+                        $osmEmbedUrl = "https://www.openstreetmap.org/export/embed.html?bbox={$osmBbox}&layer=mapnik&marker={$mapLat}%2C{$mapLng}";
                     @endphp
                     <iframe 
                         width="100%" 
@@ -3024,8 +3337,7 @@
                         style="border:0; min-height: 260px; filter: saturate(1.1) contrast(1.05);" 
                         loading="lazy" 
                         allowfullscreen 
-                        referrerpolicy="no-referrer-when-downgrade" 
-                        src="https://maps.google.com/maps?q={{ $mapLat }},{{ $mapLng }}&hl=en&z=15&output=embed">
+                        src="{{ $osmEmbedUrl }}">
                     </iframe>
 
                     {{-- Agoda Floating White Property Card Pin on Map --}}
@@ -3148,27 +3460,30 @@
             </div>
         </div>
 
-        {{-- 15. Top Destinations Section (Screenshot Parity) --}}
+        {{-- 15. Top Destinations Section (100% Authentic Bangladesh Destinations) --}}
         <div class="mb-4">
-            <h5 class="fw-bold text-dark mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">Top destinations</h5>
-            <div class="d-flex gap-3 overflow-x-auto pb-2">
+            <h5 class="fw-bold text-dark mb-3" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 20px;">Top destinations in Bangladesh</h5>
+            <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: thin;">
                 @php
                     $destinations = [
-                        ['name' => 'United States', 'img' => 'https://images.unsplash.com/photo-1506146332389-18140dc7b2fb?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Malaysia', 'img' => 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'India', 'img' => 'https://images.unsplash.com/photo-1524492412937-b28074a5d7da?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Philippines', 'img' => 'https://images.unsplash.com/photo-1518509562904-e7ef99cdcc86?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Indonesia', 'img' => 'https://images.unsplash.com/photo-1537996194471-e657df975ab4?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Singapore', 'img' => 'https://images.unsplash.com/photo-1525625293386-3f8f99389edd?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Thailand', 'img' => 'https://images.unsplash.com/photo-1508009603885-50cf7c579365?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'China', 'img' => 'https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Cox\'s Bazar', 'tag' => 'Beach resort capital', 'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Sajek Valley', 'tag' => 'Kingdom of clouds', 'img' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Sylhet', 'tag' => 'Tea gardens & lakes', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Sreemangal', 'tag' => 'Rainforest stays', 'img' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Bandarban', 'tag' => 'Misty hill peaks', 'img' => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Saint Martin', 'tag' => 'Coral island paradise', 'img' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Kuakata', 'tag' => 'Sunrise & sunset beach', 'img' => 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Sundarbans', 'tag' => 'Mangrove safari cruise', 'img' => 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Dhaka', 'tag' => 'Capital & 5-star hotels', 'img' => 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Rangamati', 'tag' => 'Kaptai lake & hills', 'img' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'],
                     ];
                 @endphp
                 @foreach($destinations as $dest)
                 <a href="{{ route('search.index') }}?destination={{ urlencode($dest['name']) }}" class="card border-0 shadow-xs rounded-3 overflow-hidden text-decoration-none text-white flex-shrink-0" style="width: 170px; height: 120px; position: relative;">
                     <img src="{{ $dest['img'] }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $dest['name'] }}">
                     <div class="position-absolute bottom-0 start-0 w-100 p-2" style="background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);">
-                        <strong class="d-block text-white mb-0" style="font-size: 13.5px;">{{ $dest['name'] }}</strong>
+                        <strong class="d-block text-white mb-0" style="font-size: 13.5px; line-height: 1.2;">{{ $dest['name'] }}</strong>
+                        <small class="d-block text-white-50" style="font-size: 10px; margin-top: 1px;">{{ $dest['tag'] }}</small>
                     </div>
                 </a>
                 @endforeach
@@ -3197,44 +3512,50 @@
 
             <div class="row g-4">
                 <div class="col-lg-5">
-                    <div class="p-3 bg-light rounded-3 mb-3 border">
-                        <strong class="d-block text-dark mb-1" style="font-size: 13.5px;"><i class="fa-solid fa-building me-1 text-primary"></i> Full Address:</strong>
-                        <p class="text-secondary mb-2" style="font-size: 12.5px; line-height: 1.5;">
+                    <div class="p-3.5 bg-light rounded-3 mb-3 border">
+                        <div class="d-flex align-items-center gap-2.5 text-dark mb-1.5" style="font-size: 13.5px; font-weight: 700;">
+                            <i class="fa-solid fa-location-dot text-primary flex-shrink-0" style="width: 18px; font-size: 15px; text-align: center;"></i>
+                            <span>Full Address:</span>
+                        </div>
+                        <p class="text-secondary mb-2.5" style="font-size: 13px; line-height: 1.5; padding-left: 26px;">
                             {{ $property->address ?: ($property->city . ', Bangladesh') }}
                             @if(!empty($property->postal_code)) - {{ $property->postal_code }} @endif
                         </p>
 
                         @if(!empty($property->nearest_landmark))
-                        <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top">
-                            <i class="fa-solid fa-map-pin text-danger fs-6"></i>
+                        <div class="d-flex align-items-center gap-2.5 mt-2.5 pt-2.5 border-top">
+                            <i class="fa-solid fa-map-pin text-danger flex-shrink-0" style="width: 18px; font-size: 15px; text-align: center;"></i>
                             <div>
                                 <small class="text-muted d-block" style="font-size: 11px;">Prominent Landmark</small>
-                                <strong class="text-dark" style="font-size: 12.5px;">{{ $property->nearest_landmark }}</strong>
+                                <strong class="text-dark" style="font-size: 13px;">{{ $property->nearest_landmark }}</strong>
                             </div>
                         </div>
                         @endif
 
                         @if(!empty($property->latitude) && !empty($property->longitude))
-                        <div class="d-flex align-items-center gap-2 mt-2 pt-2 border-top">
-                            <i class="fa-solid fa-satellite text-info fs-6"></i>
+                        <div class="d-flex align-items-center gap-2.5 mt-2.5 pt-2.5 border-top">
+                            <i class="fa-solid fa-satellite text-info flex-shrink-0" style="width: 18px; font-size: 15px; text-align: center;"></i>
                             <div>
                                 <small class="text-muted d-block" style="font-size: 11px;">GPS Coordinates</small>
-                                <code class="text-dark fw-bold" style="font-size: 11.5px;">{{ $property->latitude }}, {{ $property->longitude }}</code>
+                                <code class="text-dark fw-bold" style="font-size: 12px;">{{ $property->latitude }}, {{ $property->longitude }}</code>
                             </div>
                         </div>
                         @endif
 
                         {{-- Proximity Breakdown (Walking & Driving Estimation) --}}
-                        <div class="mt-3 pt-3 border-top">
-                            <strong class="d-block text-dark mb-2" style="font-size: 12.5px;"><i class="fa-solid fa-person-walking me-1 text-primary"></i> Proximity &amp; Travel Highlights:</strong>
-                            <div class="d-flex flex-column gap-1.5">
+                        <div class="mt-3.5 pt-3 border-top">
+                            <div class="d-flex align-items-center gap-2.5 text-dark mb-2.5" style="font-size: 13px; font-weight: 700;">
+                                <i class="fa-solid fa-person-walking text-primary flex-shrink-0" style="width: 18px; font-size: 15px; text-align: center;"></i>
+                                <span>Proximity &amp; Travel Highlights:</span>
+                            </div>
+                            <div class="d-flex flex-column gap-2">
                                 @foreach($property->proximity_breakdown as $prox)
-                                <div class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-white border" style="font-size: 11.5px;">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <i class="{{ $prox['icon'] }}"></i>
+                                <div class="d-flex align-items-center justify-content-between p-2.5 rounded-2 bg-white border" style="font-size: 12.5px;">
+                                    <div class="d-flex align-items-center gap-2.5">
+                                        <i class="{{ $prox['icon'] }} flex-shrink-0" style="width: 18px; text-align: center; font-size: 13.5px;"></i>
                                         <span class="text-dark fw-semibold">{{ $prox['name'] }}</span>
                                     </div>
-                                    <span class="badge bg-light text-dark border fw-bold" style="font-size: 10.5px;">
+                                    <span class="badge bg-light text-dark border fw-bold px-2 py-1" style="font-size: 11px;">
                                         {{ $prox['distance'] }} ({{ $prox['time_est'] }})
                                     </span>
                                 </div>
@@ -3244,17 +3565,20 @@
                     </div>
 
                     @if(!empty($property->contact_phone) || !empty($property->contact_email))
-                    <div class="p-3 bg-light rounded-3 border">
-                        <strong class="d-block text-dark mb-2" style="font-size: 13px;"><i class="fa-solid fa-headset me-1 text-success"></i> Hotel Direct Contacts:</strong>
+                    <div class="p-3.5 bg-light rounded-3 border">
+                        <div class="d-flex align-items-center gap-2.5 text-dark mb-2.5" style="font-size: 13px; font-weight: 700;">
+                            <i class="fa-solid fa-headset text-success flex-shrink-0" style="width: 18px; font-size: 15px; text-align: center;"></i>
+                            <span>Hotel Direct Contacts:</span>
+                        </div>
                         @if(!empty($property->contact_phone))
-                        <div class="d-flex align-items-center gap-2 text-secondary mb-1" style="font-size: 12.5px;">
-                            <i class="fa-solid fa-phone text-muted" style="width: 14px;"></i>
+                        <div class="d-flex align-items-center gap-2.5 text-secondary mb-2" style="font-size: 13px; padding-left: 26px;">
+                            <i class="fa-solid fa-phone text-muted flex-shrink-0" style="width: 16px; text-align: center;"></i>
                             <a href="tel:{{ $property->contact_phone }}" class="text-dark text-decoration-none fw-semibold">{{ $property->contact_phone }}</a>
                         </div>
                         @endif
                         @if(!empty($property->contact_email))
-                        <div class="d-flex align-items-center gap-2 text-secondary" style="font-size: 12.5px;">
-                            <i class="fa-solid fa-envelope text-muted" style="width: 14px;"></i>
+                        <div class="d-flex align-items-center gap-2.5 text-secondary" style="font-size: 13px; padding-left: 26px;">
+                            <i class="fa-solid fa-envelope text-muted flex-shrink-0" style="width: 16px; text-align: center;"></i>
                             <a href="mailto:{{ $property->contact_email }}" class="text-dark text-decoration-none">{{ $property->contact_email }}</a>
                         </div>
                         @endif
@@ -3263,14 +3587,24 @@
                 </div>
 
                 <div class="col-lg-7">
-                    <div class="rounded-3 overflow-hidden border shadow-xs" style="height: 240px; background: #e2e8f0; position: relative;">
-                        @if(!empty($property->map_embed_url))
-                            <iframe src="{{ $property->map_embed_url }}" width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy"></iframe>
-                        @elseif(!empty($property->latitude) && !empty($property->longitude))
-                            <iframe width="100%" height="100%" style="border:0;" loading="lazy" src="https://maps.google.com/maps?q={{ $property->latitude }},{{ $property->longitude }}&hl=en&z=15&output=embed"></iframe>
-                        @else
-                            <iframe width="100%" height="100%" style="border:0;" loading="lazy" src="https://maps.google.com/maps?q={{ urlencode(($property->name . ' ' . $property->city . ' Bangladesh')) }}&hl=en&z=14&output=embed"></iframe>
-                        @endif
+                    @php
+                        $mapLat = (float)($property->latitude ?? 21.4272);
+                        $mapLng = (float)($property->longitude ?? 92.0058);
+                    @endphp
+                    <div class="rounded-3 overflow-hidden border shadow-xs h-100 position-relative" style="min-height: 420px; background: #e2e8f0;">
+                        <iframe width="100%" height="100%" style="border:0; min-height: 420px; width: 100%; display: block;" loading="lazy" src="https://www.openstreetmap.org/export/embed.html?bbox={{ $mapLng - 0.02 }}%2C{{ $mapLat - 0.012 }}%2C{{ $mapLng + 0.02 }}%2C{{ $mapLat + 0.012 }}&layer=mapnik&marker={{ $mapLat }}%2C{{ $mapLng }}"></iframe>
+
+                        {{-- Floating Custom Pin Banner on Map --}}
+                        <div class="position-absolute bottom-0 start-0 m-3 p-2.5 bg-white rounded-3 shadow border d-flex align-items-center gap-2.5" style="z-index: 10; max-width: 85%;">
+                            <i class="fa-solid fa-location-dot text-danger fs-5 flex-shrink-0"></i>
+                            <div class="text-truncate">
+                                <strong class="d-block text-dark text-truncate" style="font-size: 13px;">{{ $property->name }}</strong>
+                                <small class="text-muted text-truncate d-block" style="font-size: 11.5px;">{{ $property->address ?: $property->city }}</small>
+                            </div>
+                            <a href="https://www.google.com/maps/search/?api=1&query={{ $mapsQuery }}" target="_blank" rel="noopener" class="btn btn-primary btn-sm ms-2 flex-shrink-0 fw-bold px-2.5 py-1" style="font-size: 11.5px; border-radius: 4px;">
+                                Open Maps
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -3308,7 +3642,7 @@
                 <div class="col-md-3 col-6">
                     <div class="p-3 bg-light rounded-3 border h-100">
                         <div class="d-flex align-items-center gap-2 mb-1">
-                            <i class="fa-solid fa-ban-smoking text-warning"></i>
+                            <i class="fa-solid fa-calendar-check text-success"></i>
                             <small class="text-muted fw-bold" style="font-size: 11px; text-transform: uppercase;">Cancellation</small>
                         </div>
                         <strong class="text-dark d-block" style="font-size: 13px;">
@@ -3337,31 +3671,37 @@
                 <h6 class="fw-bold text-dark mb-3" style="font-size: 15px;">Some helpful facts</h6>
                 <div class="row g-3">
                     <div class="col-md-4 col-sm-6">
-                        <div class="d-flex align-items-start gap-2.5">
-                            <i class="fa-solid fa-clock text-primary fs-5 mt-0.5"></i>
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 38px; height: 38px; background: #eff6ff; color: #2563eb; font-size: 16px;">
+                                <i class="fa-solid fa-clock"></i>
+                            </div>
                             <div>
-                                <small class="text-muted d-block fw-bold" style="font-size: 11.5px; text-transform: uppercase;">Check-in / Check-out</small>
-                                <span class="text-dark d-block fw-semibold" style="font-size: 13px;">Check-in from: {{ $property->checkin_time ?: '14:00' }}</span>
+                                <small class="text-muted d-block fw-bold mb-0.5" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Check-in / Check-out</small>
+                                <span class="text-dark d-block fw-semibold" style="font-size: 13.5px;">Check-in from: {{ $property->checkin_time ?: '14:00' }}</span>
                                 <span class="text-secondary d-block" style="font-size: 12px;">Check-out until: {{ $property->checkout_time ?: '12:00' }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
-                        <div class="d-flex align-items-start gap-2.5">
-                            <i class="fa-solid fa-car-side text-success fs-5 mt-0.5"></i>
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 38px; height: 38px; background: #f0fdf4; color: #16a34a; font-size: 16px;">
+                                <i class="fa-solid fa-car-side"></i>
+                            </div>
                             <div>
-                                <small class="text-muted d-block fw-bold" style="font-size: 11.5px; text-transform: uppercase;">Getting around</small>
-                                <span class="text-dark d-block fw-semibold" style="font-size: 13px;">Distance from center: {{ $property->nearest_landmark ?: '0.5 km' }}</span>
+                                <small class="text-muted d-block fw-bold mb-0.5" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">Getting around</small>
+                                <span class="text-dark d-block fw-semibold" style="font-size: 13.5px;">Distance from center: {{ $property->nearest_landmark ?: '0.5 km' }}</span>
                                 <span class="text-secondary d-block" style="font-size: 12px;">Airport travel time: ~20 mins</span>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4 col-sm-6">
-                        <div class="d-flex align-items-start gap-2.5">
-                            <i class="fa-solid fa-building text-info fs-5 mt-0.5"></i>
+                        <div class="d-flex align-items-start gap-3">
+                            <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 38px; height: 38px; background: #fdf4ff; color: #9333ea; font-size: 16px;">
+                                <i class="fa-solid fa-building"></i>
+                            </div>
                             <div>
-                                <small class="text-muted d-block fw-bold" style="font-size: 11.5px; text-transform: uppercase;">The property</small>
-                                <span class="text-dark d-block fw-semibold" style="font-size: 13px;">Total Rooms: {{ $property->total_rooms_count ?: ($property->rooms->count() ?: 10) }} • Floors: {{ $property->total_floors ?: 8 }}</span>
+                                <small class="text-muted d-block fw-bold mb-0.5" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px;">The property</small>
+                                <span class="text-dark d-block fw-semibold" style="font-size: 13.5px;">Total Rooms: {{ $property->total_rooms_count ?: ($property->rooms->count() ?: 10) }} • Floors: {{ $property->total_floors ?: 8 }}</span>
                                 <span class="text-secondary d-block" style="font-size: 12px;">
                                     {{ $property->pets_policy ?: 'Pets Not Allowed' }} • {{ is_array($property->languages_spoken) ? implode(', ', $property->languages_spoken) : 'English, Bengali' }}
                                 </span>
@@ -3371,10 +3711,168 @@
                 </div>
             </div>
 
+            @php
+                $houseRules = null;
+                $cleanRuleText = function($txt) {
+                    if (!is_string($txt)) return $txt;
+                    $s = trim(str_replace(["\u{202f}", "\u{201f}", "\u{00a0}", "â€¯", "â€œ", "â€ "], [' ', '', ' ', ' ', '"', '"'], $txt));
+                    $s = preg_replace('/\s*\([^)]*\d+:\d+[^)]*\)/u', '', $s);
+                    return $s;
+                };
+
+
+
+
+                $rawRules = $property->house_rules;
+                if (!empty($rawRules)) {
+                    if (is_array($rawRules)) {
+                        $houseRules = $rawRules;
+                    } elseif (is_string($rawRules)) {
+                        $curr = trim($rawRules);
+                        for ($i = 0; $i < 3; $i++) {
+                            $dec = json_decode($curr, true);
+                            if (is_array($dec)) {
+                                $houseRules = $dec;
+                                break;
+                            } elseif (is_string($dec)) {
+                                $curr = trim($dec);
+                            } else {
+                                $decAlt = json_decode(html_entity_decode(stripslashes($curr)), true);
+                                if (is_array($decAlt)) {
+                                    $houseRules = $decAlt;
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            @endphp
             @if(!empty($property->house_rules))
-            <div class="mt-3 p-3 bg-light rounded-3 border">
-                <strong class="d-block text-dark mb-1" style="font-size: 13px;"><i class="fa-solid fa-list-check me-1 text-primary"></i> Special House Rules:</strong>
-                <p class="text-secondary mb-0" style="font-size: 12.5px; line-height: 1.5; white-space: pre-line;">{{ $property->house_rules }}</p>
+            <div class="mt-4 p-3.5 bg-light rounded-3 border">
+                <div class="d-flex align-items-center gap-2.5 text-dark mb-3">
+                    <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 32px; height: 32px; background: #eff6ff; color: #2563eb;">
+                        <i class="fa-solid fa-list-check" style="font-size: 13px;"></i>
+                    </div>
+                    <strong style="font-size: 14px;">Special House Rules</strong>
+                </div>
+                
+                @if($houseRules && is_array($houseRules))
+                    <div class="row g-3">
+                        @if(!empty($houseRules['check_in']) || !empty($houseRules['check_out']))
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3 h-100 shadow-xs" style="border-color: #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background: #eff6ff; color: #2563eb; font-size: 15px;">
+                                    <i class="fa-solid fa-clock"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted fw-bold d-block" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;">Check-in &amp; Check-out Times</small>
+                                    <span class="text-dark fw-semibold" style="font-size: 13px; line-height: 1.4;">
+                                        @if(!empty($houseRules['check_in'])) Check-in: {{ $cleanRuleText($houseRules['check_in']) }} @endif
+                                        @if(!empty($houseRules['check_in']) && !empty($houseRules['check_out'])) • @endif
+                                        @if(!empty($houseRules['check_out'])) Check-out: {{ $cleanRuleText($houseRules['check_out']) }} @endif
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!empty($houseRules['children_and_beds']))
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3 h-100 shadow-xs" style="border-color: #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background: #f0fdf4; color: #16a34a; font-size: 15px;">
+                                    <i class="fa-solid fa-child-reaching"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted fw-bold d-block" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;">Children &amp; Extra Beds</small>
+                                    <span class="text-dark fw-semibold" style="font-size: 13px; line-height: 1.4;">{{ $cleanRuleText($houseRules['children_and_beds']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!empty($houseRules['smoking']))
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3 h-100 shadow-xs" style="border-color: #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background: #fffbeb; color: #d97706; font-size: 15px;">
+                                    <i class="fa-solid fa-ban-smoking"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted fw-bold d-block" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;">Smoking Policy</small>
+                                    <span class="text-dark fw-semibold" style="font-size: 13px; line-height: 1.4;">{{ $cleanRuleText($houseRules['smoking']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!empty($houseRules['pets']))
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3 h-100 shadow-xs" style="border-color: #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background: #f8fafc; color: #64748b; font-size: 15px;">
+                                    <i class="fa-solid fa-paw"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted fw-bold d-block" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;">Pet Policy</small>
+                                    <span class="text-dark fw-semibold" style="font-size: 13px; line-height: 1.4;">{{ $cleanRuleText($houseRules['pets']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!empty($houseRules['accepted_payments']))
+                        <div class="col-md-6">
+                            <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3 h-100 shadow-xs" style="border-color: #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background: #f0fdf4; color: #0d9488; font-size: 15px;">
+                                    <i class="fa-solid fa-credit-card"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted fw-bold d-block" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;">Accepted Payments</small>
+                                    <span class="text-dark fw-semibold" style="font-size: 13px; line-height: 1.4;">{{ $cleanRuleText($houseRules['accepted_payments']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        @if(!empty($houseRules['cancellation']))
+                        <div class="col-12">
+                            <div class="p-3 bg-white rounded-3 border d-flex align-items-center gap-3 shadow-xs" style="border-color: #e2e8f0 !important;">
+                                <div class="d-flex align-items-center justify-content-center rounded-circle flex-shrink-0" style="width: 36px; height: 36px; background: #eff6ff; color: #0284c7; font-size: 15px;">
+                                    <i class="fa-solid fa-circle-info"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted fw-bold d-block" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px;">Cancellation Details</small>
+                                    <span class="text-dark fw-semibold" style="font-size: 13px; line-height: 1.4;">{{ $cleanRuleText($houseRules['cancellation']) }}</span>
+                                </div>
+                            </div>
+                        </div>
+                        @endif
+
+                        {{-- Dynamic loop for any additional custom rules --}}
+                        @foreach($houseRules as $rKey => $rVal)
+                            @if(!in_array($rKey, ['check_in', 'check_out', 'children_and_beds', 'smoking', 'pets', 'accepted_payments', 'cancellation']) && !empty($rVal) && is_string($rVal))
+                            <div class="col-md-6">
+                                <div class="p-2.5 bg-white rounded-2 border d-flex align-items-start gap-2.5 h-100">
+                                    <i class="fa-solid fa-circle-check text-primary mt-1 flex-shrink-0" style="width: 16px; text-align: center;"></i>
+                                    <div>
+                                        <small class="text-muted fw-bold d-block text-capitalize" style="font-size: 11px;">{{ str_replace('_', ' ', $rKey) }}</small>
+                                        <span class="text-dark" style="font-size: 12.5px; line-height: 1.4;">{{ $cleanRuleText($rVal) }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @else
+                    @php
+                        // In case of non-JSON plain text, clean and display cleanly
+                        $plainRules = $cleanRuleText((string)$property->house_rules);
+                        if (str_starts_with($plainRules, '{') && str_ends_with($plainRules, '}')) {
+                            // Extract key values if JSON decode completely failed
+                            $plainRules = preg_replace('/["{}\[\]]/', '', $plainRules);
+                            $plainRules = str_replace(',', "\n", $plainRules);
+                        }
+                    @endphp
+                    <p class="text-secondary mb-0" style="font-size: 13px; line-height: 1.5; white-space: pre-line;">{{ $plainRules }}</p>
+                @endif
             </div>
             @endif
 
@@ -3612,158 +4110,534 @@
 
 </div>
 </div>
+{{-- AGODA 1:1 EXACT PHOTO GALLERY LIGHTBOX MODAL (OFFICIAL AGODA SPEC) --}}
+<style id="agodaOfficialModalStyles">
+    #galleryModal {
+        z-index: 100050 !important;
+        padding: 0 !important;
+        background-color: rgba(0, 0, 0, 0.76) !important;
+    }
+    .modal-backdrop.show {
+        z-index: 100040 !important;
+        background-color: rgba(0, 0, 0, 0.76) !important;
+        backdrop-filter: blur(4px);
+    }
+    /* Strictly suppress any toaster, fab, or floating buttons when modal is open */
+    body.modal-open #social-proof-toast,
+    body.modal-open #socialProofToaster,
+    body.modal-open .toast,
+    body.modal-open .toast-container,
+    body.modal-open .social-proof-toast-wrapper,
+    body.modal-open .btn-floating,
+    body.modal-open .agoda-fab-container,
+    body.modal-open .agoda-floating-bottom-bar,
+    body.modal-open .position-fixed.bottom-0 {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+    
+    #galleryModal .modal-dialog {
+        max-width: 1328px !important;
+        width: 95vw !important;
+        height: 87vh !important;
+        margin: 40px auto !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    #galleryModal .modal-content {
+        width: 100% !important;
+        height: 100% !important;
+        background-color: #1a202c !important;
+        border-radius: 12px !important;
+        border: none !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.75) !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+    }
 
-{{-- Agoda 1:1 Dual-Mode Full-Screen Photo Gallery Modal (Grid & Slideshow Views) --}}
+    /* Agoda Header Bar */
+    .agoda-gal-header {
+        background-color: #ffffff;
+        min-height: 52px;
+        height: 52px;
+        border-bottom: 1px solid #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 16px;
+        flex-shrink: 0;
+        z-index: 20;
+    }
+    .agoda-gal-pill-btn {
+        background: #ffffff;
+        border: 1px solid rgba(94, 107, 130, 0.32);
+        border-radius: 999px;
+        height: 28px;
+        padding: 0 12px;
+        color: #2067da;
+        font-size: 13px;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        outline: none;
+        flex-shrink: 0;
+    }
+    .agoda-gal-pill-btn:hover {
+        background: #f8fafc;
+        border-color: #2067da;
+    }
+    .agoda-gal-tab-list {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        white-space: nowrap;
+        margin-left: 12px;
+    }
+    .agoda-gal-tab-list::-webkit-scrollbar {
+        display: none;
+    }
+    .agoda-gal-tab-item {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        color: #5e6b82;
+        font-size: 13px;
+        font-weight: 500;
+        padding: 15px 12px 13px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.15s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    .agoda-gal-tab-item:hover {
+        color: #2067da;
+    }
+    .agoda-gal-tab-item.active {
+        color: #2067da;
+        font-weight: 700;
+        border-bottom: 2px solid #2067da;
+    }
+    .agoda-gal-header-cta {
+        background: #2067da;
+        color: #ffffff;
+        border: none;
+        border-radius: 4px;
+        height: 32px;
+        padding: 0 16px;
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-right: 12px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        transition: background 0.15s ease;
+    }
+    .agoda-gal-header-cta:hover {
+        background: #1952af;
+    }
+    .agoda-gal-close-btn {
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        border: none;
+        background: transparent;
+        color: #2067da;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: background 0.15s ease;
+        padding: 0;
+        flex-shrink: 0;
+    }
+    .agoda-gal-close-btn:hover {
+        background: rgba(32, 103, 218, 0.08);
+    }
+
+    /* Agoda Stage (Slideshow Mode) */
+    .agoda-gal-stage-wrapper {
+        flex: 1;
+        min-height: 0;
+        position: relative;
+        background-color: #1a202c;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+    }
+    .agoda-gal-stage-img {
+        max-width: 100%;
+        max-height: 100%;
+        width: auto;
+        height: auto;
+        object-fit: contain;
+        display: block;
+        margin: auto;
+        user-select: none;
+    }
+    .agoda-gal-nav-arrow {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: #ffffff;
+        border: none;
+        box-shadow: 0 2px 7px rgba(4, 7, 10, 0.28);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 15;
+        color: #252c38;
+        transition: transform 0.15s ease, background 0.15s ease;
+    }
+    .agoda-gal-nav-arrow:hover {
+        background: #f8fafc;
+        transform: translateY(-50%) scale(1.05);
+    }
+    .agoda-gal-nav-arrow.prev {
+        left: 8px;
+    }
+    .agoda-gal-nav-arrow.next {
+        right: 8px;
+    }
+    .agoda-gal-stage-caption {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: rgba(4, 7, 10, 0.85);
+        color: #ffffff;
+        padding: 12px 24px;
+        font-size: 14.5px;
+        font-weight: 600;
+        letter-spacing: 0.2px;
+        z-index: 10;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        box-sizing: border-box;
+    }
+
+    /* Agoda Filmstrip (Bottom Bar) */
+    .agoda-gal-filmstrip-bar {
+        background-color: #141922;
+        height: 76px;
+        padding: 6px 16px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-shrink: 0;
+        z-index: 20;
+        position: relative;
+    }
+    .agoda-gal-filmstrip-toggle {
+        width: 76px;
+        height: 64px;
+        flex-shrink: 0;
+        background: #222933;
+        border: none;
+        border-radius: 3px;
+        color: #ffffff;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 4px;
+        cursor: pointer;
+        transition: background 0.15s ease;
+    }
+    .agoda-gal-filmstrip-toggle:hover {
+        background: #2a3442;
+    }
+    .agoda-gal-filmstrip-toggle span {
+        font-size: 11px;
+        font-weight: 600;
+        color: #cbd5e1;
+    }
+    .agoda-gal-filmstrip-track {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        overflow-x: auto;
+        flex: 1;
+        height: 100%;
+        scrollbar-width: none;
+        scroll-behavior: smooth;
+    }
+    .agoda-gal-filmstrip-track::-webkit-scrollbar {
+        display: none;
+    }
+    .agoda-gal-thumb {
+        width: 98px;
+        height: 64px;
+        flex-shrink: 0;
+        border-radius: 2px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 2px solid transparent;
+        opacity: 0.65;
+        position: relative;
+        transition: all 0.15s ease;
+        background: #000;
+    }
+    .agoda-gal-thumb:hover {
+        opacity: 0.95;
+    }
+    .agoda-gal-thumb.active {
+        border: 2px solid #2067da !important;
+        opacity: 1 !important;
+        box-shadow: 0 4px 10px rgba(4, 7, 10, 0.4);
+    }
+    .agoda-gal-thumb img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+    .agoda-gal-filmstrip-next-btn {
+        position: absolute;
+        right: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 34px;
+        height: 34px;
+        border-radius: 50%;
+        background: #ffffff;
+        box-shadow: 0 2px 7px rgba(4, 7, 10, 0.35);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        z-index: 10;
+        color: #252c38;
+        transition: transform 0.15s ease;
+    }
+    .agoda-gal-filmstrip-next-btn:hover {
+        transform: translateY(-50%) scale(1.08);
+    }
+
+    /* Agoda Grid View Mode (When toggled to Grid) */
+    .agoda-gal-grid-wrapper {
+        flex: 1;
+        min-height: 0;
+        background-color: #f8fafc;
+        overflow-y: auto;
+        padding: 20px;
+    }
+    .agoda-gal-grid-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 12px;
+    }
+    .agoda-gal-grid-card {
+        border-radius: 6px;
+        overflow: hidden;
+        position: relative;
+        aspect-ratio: 4 / 3;
+        cursor: pointer;
+        background: #1e293b;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+        transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .agoda-gal-grid-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.16);
+    }
+    .agoda-gal-grid-card img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+</style>
+
 <div class="modal fade" id="galleryModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-fullscreen">
-        <div class="modal-content border-0 rounded-0 bg-white d-flex flex-column" style="height: 100vh;">
+    <div class="modal-dialog">
+        <div class="modal-content">
             
-            {{-- 1. Top Header Bar with Mode Switch, Category Tabs, and Close Button --}}
-            <div class="modal-header border-bottom py-2.5 px-4 bg-white d-flex align-items-center justify-content-between flex-shrink-0" style="min-height: 56px; z-index: 1055;">
-                <div class="d-flex align-items-center gap-3">
-                    {{-- Mode Toggle Button: [Slideshow] in Grid Mode, [Gallery] in Slideshow Mode --}}
-                    <button type="button" class="btn btn-outline-primary btn-sm rounded-pill fw-bold px-3 py-1.5 d-flex align-items-center gap-1.5 shadow-xs" id="agodaGalleryModeToggleBtn" onclick="toggleAgodaGalleryMode();" style="font-size: 12.5px; border-color: #cbd5e1; color: #2067e1;">
-                        <i class="fa-solid fa-play" id="agodaGalleryModeIcon"></i>
-                        <span id="agodaGalleryModeText">Slideshow</span>
+            {{-- AGODA HEADER BAR --}}
+            <div class="agoda-gal-header">
+                <div class="d-flex align-items-center flex-grow-1 overflow-hidden pe-2">
+                    {{-- Toggle Pill Button: [ ⊞ Gallery ] or [ 🖼 Slideshow view ] --}}
+                    <button type="button" class="agoda-gal-pill-btn" id="agodaGalToggleBtn" onclick="toggleAgodaViewMode();">
+                        <span id="agodaGalToggleIcon" style="width: 15px; height: 15px; display: inline-flex; align-items: center;">
+                            <svg style="width:15px;height:15px;fill:currentColor;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g clip-path="url(#clip0_20510_6772)"><path d="M14.5 3a2 2 0 0 0-2 2v4.5a2 2 0 0 0 2 2H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4.5ZM14.5 12.5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2H19a2 2 0 0 0 2-2v-4.5a2 2 0 0 0-2-2h-4.5ZM3 14.5a2 2 0 0 1 2-2h4.5a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4.5ZM5 3a2 2 0 0 0-2 2v4.5a2 2 0 0 0 2 2h4.5a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5Z"/></g><defs><clipPath id="clip0_20510_6772"><path d="M0 0h24v24H0z"/></clipPath></defs></svg>
+                        </span>
+                        <span id="agodaGalToggleText">Gallery</span>
                     </button>
 
-                    {{-- Category Navigation Tabs --}}
-                    <div class="d-flex align-items-center gap-1 overflow-x-auto" style="scrollbar-width: none;">
-                        <button type="button" class="agoda-modal-cat-tab active" data-cat="all" onclick="filterAgodaGallery('all', this);">
+                    {{-- Agoda Category Tabs --}}
+                    <div class="agoda-gal-tab-list" id="agodaGalTabsRow">
+                        <button type="button" class="agoda-gal-tab-item active" data-cat="all" onclick="filterAgodaGallery('all', this);">
                             All ({{ count($galleryCategorized['all']) }})
                         </button>
-                        <button type="button" class="agoda-modal-cat-tab" data-cat="rooms" onclick="filterAgodaGallery('rooms', this);">
+                        @if(count($galleryCategorized['videos']) > 0)
+                        <button type="button" class="agoda-gal-tab-item" data-cat="videos" onclick="filterAgodaGallery('videos', this);">
+                            Video ({{ count($galleryCategorized['videos']) }})
+                        </button>
+                        @endif
+                        @if(count($galleryCategorized['rooms']) > 0)
+                        <button type="button" class="agoda-gal-tab-item" data-cat="rooms" onclick="filterAgodaGallery('rooms', this);">
                             Rooms ({{ count($galleryCategorized['rooms']) }})
                         </button>
-                        <button type="button" class="agoda-modal-cat-tab" data-cat="property_views" onclick="filterAgodaGallery('property_views', this);">
+                        @endif
+                        @if(count($galleryCategorized['property_views']) > 0)
+                        <button type="button" class="agoda-gal-tab-item" data-cat="property_views" onclick="filterAgodaGallery('property_views', this);">
                             Property views ({{ count($galleryCategorized['property_views']) }})
                         </button>
-                        <button type="button" class="agoda-modal-cat-tab" data-cat="facilities" onclick="filterAgodaGallery('facilities', this);">
+                        @endif
+                        @if(count($galleryCategorized['facilities']) > 0)
+                        <button type="button" class="agoda-gal-tab-item" data-cat="facilities" onclick="filterAgodaGallery('facilities', this);">
                             Facilities ({{ count($galleryCategorized['facilities']) }})
                         </button>
-                        <button type="button" class="agoda-modal-cat-tab" data-cat="other" onclick="filterAgodaGallery('other', this);">
+                        @endif
+                        @if(count($galleryCategorized['dining']) > 0)
+                        <button type="button" class="agoda-gal-tab-item" data-cat="dining" onclick="filterAgodaGallery('dining', this);">
+                            Dining ({{ count($galleryCategorized['dining']) }})
+                        </button>
+                        @endif
+                        @if(count($galleryCategorized['other'] ?? []) > 0)
+                        <button type="button" class="agoda-gal-tab-item" data-cat="other" onclick="filterAgodaGallery('other', this);">
                             Other ({{ count($galleryCategorized['other']) }})
                         </button>
-                    </div>
-                </div>
-
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
-            {{-- 2. Modal Body: 75% Left Main Stage + 25% Right Sidebar --}}
-            <div class="modal-body p-0 d-flex flex-grow-1 overflow-hidden">
-                
-                {{-- Left Stage Viewport --}}
-                <div class="flex-grow-1 d-flex flex-column position-relative overflow-hidden" style="background: #f1f5f9;" id="agodaGalleryLeftStage">
-                    
-                    {{-- VIEW A: Grid View (Default: 3-column scrollable thumbnail grid) --}}
-                    <div id="agodaGalleryGridView" class="p-3 overflow-y-auto w-100 h-100">
-                        <div class="row g-2.5" id="agodaGalleryGridItemsContainer">
-                            @foreach($galleryCategorized['all'] as $gIdx => $gItem)
-                            <div class="col-6 col-md-4 agoda-grid-photo-card" data-category="{{ $gItem['cat_key'] }}" onclick="openAgodaSlideshow({{ $gIdx }});">
-                                <div class="rounded-3 overflow-hidden shadow-xs bg-dark position-relative ratio ratio-4x3" style="cursor: pointer;">
-                                    <img src="{{ $gItem['url'] }}" class="w-100 h-100 object-fit-cover agoda-grid-img" alt="{{ $gItem['title'] }}" loading="lazy">
-                                    <div class="position-absolute bottom-0 start-0 w-100 p-2 text-white small opacity-0 agoda-grid-overlay" style="background: linear-gradient(to top, rgba(0,0,0,0.7), transparent); transition: opacity 0.2s;">
-                                        <span class="badge bg-dark bg-opacity-75" style="font-size: 10px;">{{ $gItem['category'] }}</span>
-                                    </div>
-                                </div>
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-
-                    {{-- VIEW B: Slideshow View (Large Centered Stage + Filmstrip) --}}
-                    <div id="agodaGallerySlideshowView" class="w-100 h-100 d-none flex-column position-relative" style="background: #0f172a;">
-                        
-                        {{-- Centered Large Photo Stage --}}
-                        <div class="flex-grow-1 d-flex align-items-center justify-content-center position-relative p-3 overflow-hidden">
-                            <img id="agodaSlideshowActiveImg" src="{{ $galleryCategorized['all'][0]['url'] ?? '' }}" class="img-fluid rounded-2 shadow-lg" style="max-height: 68vh; max-width: 90%; object-fit: contain; transition: all 0.25s ease;" alt="Slideshow Active">
-
-                            {{-- Left Prev Arrow Button --}}
-                            <button type="button" class="btn btn-light rounded-circle shadow-lg position-absolute top-50 start-0 translate-middle-y ms-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; z-index: 10; border: 1px solid #cbd5e1;" onclick="prevAgodaSlide();">
-                                <i class="fa-solid fa-chevron-left text-dark fs-5"></i>
-                            </button>
-
-                            {{-- Right Next Arrow Button --}}
-                            <button type="button" class="btn btn-light rounded-circle shadow-lg position-absolute top-50 end-0 translate-middle-y me-3 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px; z-index: 10; border: 1px solid #cbd5e1;" onclick="nextAgodaSlide();">
-                                <i class="fa-solid fa-chevron-right text-dark fs-5"></i>
-                            </button>
-
-                            {{-- Bottom Left Category Tag --}}
-                            <div class="position-absolute bottom-0 start-0 m-3" style="z-index: 10;">
-                                <span class="badge bg-black bg-opacity-75 text-white px-3 py-1.5 rounded-pill shadow-xs fw-semibold" id="agodaSlideshowCategoryBadge" style="font-size: 12px;">
-                                    Facilities
-                                </span>
-                            </div>
-                        </div>
-
-                        {{-- Bottom Thumbnail Filmstrip Carousel --}}
-                        <div class="py-2 px-3 bg-black bg-opacity-90 border-top border-secondary border-opacity-25 flex-shrink-0 d-flex align-items-center gap-2 overflow-x-auto position-relative" id="agodaFilmstripContainer" style="scrollbar-width: thin;">
-                            @foreach($galleryCategorized['all'] as $fIdx => $fItem)
-                            <div class="agoda-filmstrip-thumb flex-shrink-0 @if($fIdx === 0) active @endif" data-index="{{ $fIdx }}" data-category="{{ $fItem['cat_key'] }}" onclick="openAgodaSlideshow({{ $fIdx }});" style="width: 76px; height: 52px; cursor: pointer; border-radius: 4px; overflow: hidden; border: 2px solid transparent; transition: all 0.2s;">
-                                <img src="{{ $fItem['url'] }}" class="w-100 h-100 object-fit-cover" alt="Thumb {{ $fIdx }}" loading="lazy" decoding="async">
-                            </div>
-                            @endforeach
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Right Sidebar Panel (Agoda Parity: Things you'll love + Price + Booking CTA) --}}
-                <div class="agoda-modal-sidebar bg-white border-start p-4 d-flex flex-column justify-content-between flex-shrink-0 overflow-y-auto" style="width: 320px; z-index: 1050;">
-                    <div>
-                        <h6 class="fw-bold text-dark mb-3" style="font-size: 15px; font-family: 'Plus Jakarta Sans', sans-serif;">
-                            Things you'll love
-                        </h6>
-                        <div class="d-flex flex-column gap-2.5 mb-4" style="font-size: 13px; color: #334155;">
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="fa-solid fa-wifi text-secondary" style="width: 16px;"></i>
-                                <span>Free Wi-Fi in all rooms!</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="fa-solid fa-hot-tub-person text-secondary" style="width: 16px;"></i>
-                                <span>Swimming pool &amp; Hot tub</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="fa-solid fa-snowflake text-secondary" style="width: 16px;"></i>
-                                <span>Air conditioning</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="fa-solid fa-door-open text-secondary" style="width: 16px;"></i>
-                                <span>Balcony/terrace</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-2.5">
-                                <i class="fa-solid fa-utensils text-secondary" style="width: 16px;"></i>
-                                <span>Breakfast &amp; Restaurant</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Bottom Pricing & CTA Area --}}
-                    <div class="pt-3 border-top">
-                        @if(!empty($property->original_price) && $property->original_price > $property->price_per_night)
-                        @php
-                            $discountPct = round((($property->original_price - $property->price_per_night) / $property->original_price) * 100);
-                        @endphp
-                        <span class="badge bg-danger fw-bold px-2 py-1 mb-1.5" style="font-size: 11px;">
-                            {{ $discountPct }}% OFF TODAY
-                        </span>
                         @endif
-                        <div class="d-flex align-items-baseline justify-content-between mb-3">
-                            <span class="text-secondary small" style="font-size: 12px;">Starts from</span>
-                            <div class="text-end">
-                                <strong style="color: #d93025; font-size: 20px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif;">
-                                    {{ CurrencyService::format($property->price_per_night) }}
-                                </strong>
-                                <small class="text-muted d-block" style="font-size: 11px;">per night</small>
-                            </div>
-                        </div>
-                        <a href="#rooms" class="btn btn-primary w-100 fw-bold rounded-pill py-2.5 shadow-sm d-flex align-items-center justify-content-center" style="background-color: #2067e1; font-size: 14px;" data-bs-dismiss="modal">
-                            See available rooms
-                        </a>
                     </div>
                 </div>
 
+                {{-- Right Side: Agoda Enter dates CTA & Close Button ✕ --}}
+                <div class="d-flex align-items-center flex-shrink-0">
+                    <button type="button" class="agoda-gal-header-cta" onclick="document.querySelector('#available_rooms_list')?.scrollIntoView({behavior: 'smooth'}); bootstrap.Modal.getInstance(document.getElementById('galleryModal'))?.hide();">
+                        Enter dates
+                    </button>
+                    <button type="button" class="agoda-gal-close-btn" data-bs-dismiss="modal" aria-label="Close">
+                        <span style="width: 18px; height: 18px; display: inline-flex; align-items: center;">
+                            <svg style="width:18px;height:18px;fill:currentColor;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M18.723 4.22a.75.75 0 0 1 1.06 1.06l-6.72 6.721 6.721 6.722a.75.75 0 0 1-1.06 1.06l-6.722-6.72-6.722 6.72a.75.75 0 0 1-1.06-1.06l6.721-6.721-6.72-6.721a.75.75 0 1 1 1.06-1.06l6.72 6.72 6.722-6.72Z"/></svg>
+
+                        </span>
+                    </button>
+                </div>
             </div>
+
+            {{-- 1. SLIDESHOW VIEW (Default Agoda 1:1 view) --}}
+            <div id="agodaSlideshowSection" class="w-100 flex-grow-1 d-flex flex-column" style="min-height: 0;">
+                
+                {{-- Main Photo Stage --}}
+                <div class="agoda-gal-stage-wrapper">
+                    {{-- Previous Chevron Button --}}
+                    <button type="button" class="agoda-gal-nav-arrow prev" id="agodaGalPrevBtn" onclick="navigateAgodaSlide(-1);" aria-label="Previous image">
+                        <span style="width: 16px; height: 16px; display: inline-flex; align-items: center;">
+                            <svg style="width:16px;height:16px;fill:currentColor;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.057 12.141a.2.2 0 0 1 0-.282l6.713-6.723c.49-.49.49-1.28 0-1.769a1.248 1.248 0 0 0-1.768 0L6.439 10.94a1.5 1.5 0 0 0 0 2.122l7.563 7.572c.49.49 1.278.49 1.768 0s.49-1.28 0-1.769l-6.713-6.723Z"/></svg>
+
+                        </span>
+                    </button>
+
+                    {{-- Next Chevron Button --}}
+                    <button type="button" class="agoda-gal-nav-arrow next" id="agodaGalNextBtn" onclick="navigateAgodaSlide(1);" aria-label="Next image">
+                        <span style="width: 16px; height: 16px; display: inline-flex; align-items: center;">
+                            <svg style="width:16px;height:16px;fill:currentColor;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.011 11.857a.2.2 0 0 1 0 .283l-6.713 6.723c-.49.49-.49 1.279 0 1.768.49.49 1.28.49 1.769 0l7.562-7.572a1.5 1.5 0 0 0 0-2.121L9.067 3.366a1.248 1.248 0 0 0-1.769 0c-.49.49-.49 1.279 0 1.768l6.713 6.723Z"/></svg>
+
+                        </span>
+                    </button>
+
+                    {{-- Active Stage Image --}}
+                    @php
+                        $initItem = $galleryCategorized['all'][0] ?? null;
+                        $initIsVideo = !empty($initItem) && (($initItem['type'] ?? '') === 'video');
+                        $initImg = $initIsVideo ? ($initItem['poster'] ?? ($galleryCategorized['all'][1]['url'] ?? '')) : ($initItem['url'] ?? '');
+                    @endphp
+                    <img id="agodaActiveStagePhoto" src="{{ $initImg }}" class="agoda-gal-stage-img {{ $initIsVideo ? 'd-none' : '' }}" alt="Hotel Photo">
+
+                    {{-- Active Stage Video Container --}}
+                    <div id="agodaActiveStageVideoWrap" class="{{ $initIsVideo ? '' : 'd-none' }} w-100 h-100 position-relative d-flex align-items-center justify-content-center" style="background: #000; cursor: pointer;" onclick="toggleAgodaActiveVideo(event)">
+                        <video id="agodaActiveStageVideo" 
+                               src="{{ $initIsVideo ? $initItem['url'] : '' }}" 
+                               poster="{{ $initItem['poster'] ?? '' }}" 
+                               controls 
+                               playsinline 
+                               muted 
+                               autoplay
+                               preload="auto" 
+                               style="width: 100%; height: 100%; max-height: calc(87vh - 128px); object-fit: contain; background: #000; display: block;">
+                        </video>
+                        {{-- Prominent Play Overlay Button when Paused --}}
+                        <div id="agodaVideoPlayOverlay" class="position-absolute top-50 start-50 translate-middle d-none align-items-center justify-content-center text-white" style="width: 72px; height: 72px; border-radius: 50%; background: rgba(0,0,0,0.68); box-shadow: 0 4px 20px rgba(0,0,0,0.5); pointer-events: none; z-index: 5;">
+                            <i class="fa-solid fa-play fa-2x ms-1" style="color: #ffffff;"></i>
+                        </div>
+                    </div>
+
+                    {{-- Agoda Black Translucent Caption Bar with Exact Agoda Counter (e.g. 3 / 69) --}}
+                    <div class="agoda-gal-stage-caption">
+                        <span id="agodaStageCaptionText" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 80%;">{{ $initItem['title'] ?? $property->name }}</span>
+                        <span id="agodaStageCounterText" class="badge bg-dark bg-opacity-75 text-white fw-semibold px-2.5 py-1 ms-auto flex-shrink-0" style="font-size:12.5px; font-family:-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:0.5px;">1 / {{ count($galleryCategorized['all']) }}</span>
+                    </div>
+                </div>
+
+                {{-- Agoda Filmstrip (Bottom Bar) --}}
+                <div class="agoda-gal-filmstrip-bar">
+                    {{-- Left Dark Gallery Button --}}
+                    <button type="button" class="agoda-gal-filmstrip-toggle" onclick="toggleAgodaViewMode();" title="View all photos in Grid">
+                        <span style="width: 16px; height: 16px; display: inline-flex; align-items: center; color: #cbd5e1;">
+                            <svg style="width:16px;height:16px;fill:currentColor;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g clip-path="url(#clip0_20510_6772)"><path d="M14.5 3a2 2 0 0 0-2 2v4.5a2 2 0 0 0 2 2H19a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-4.5ZM14.5 12.5a2 2 0 0 0-2 2V19a2 2 0 0 0 2 2H19a2 2 0 0 0 2-2v-4.5a2 2 0 0 0-2-2h-4.5ZM3 14.5a2 2 0 0 1 2-2h4.5a2 2 0 0 1 2 2V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4.5ZM5 3a2 2 0 0 0-2 2v4.5a2 2 0 0 0 2 2h4.5a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H5Z"/></g><defs><clipPath id="clip0_20510_6772"><path d="M0 0h24v24H0z"/></clipPath></defs></svg>
+                        </span>
+                        <span>Gallery</span>
+                    </button>
+
+                    {{-- Filmstrip Thumbnails Track --}}
+                    <div class="agoda-gal-filmstrip-track" id="agodaFilmstripTrack">
+                        @foreach($galleryCategorized['all'] as $fIdx => $fItem)
+                        <div class="agoda-gal-thumb @if($fIdx === 0) active @endif" data-index="{{ $fIdx }}" data-cat="{{ $fItem['cat_key'] }}" data-room-id="{{ $fItem['room_id'] ?? '' }}" onclick="openAgodaSlideshow({{ $fIdx }});">
+                            <img src="{{ !empty($fItem['thumb']) ? $fItem['thumb'] : ($fItem['poster'] ?? $fItem['url']) }}" alt="{{ $fItem['title'] }}" loading="lazy">
+                            @if(($fItem['type'] ?? '') === 'video')
+                            <div class="position-absolute top-50 start-50 translate-middle text-white" style="background: rgba(0,0,0,0.6); border-radius: 50%; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; font-size: 10px;">
+                                <i class="fa-solid fa-play"></i>
+                            </div>
+                            @endif
+                        </div>
+                        @endforeach
+                    </div>
+
+                    {{-- Right Scroll Arrow for Filmstrip Track --}}
+                    <button type="button" class="agoda-gal-filmstrip-next-btn" onclick="document.getElementById('agodaFilmstripTrack').scrollBy({left: 300, behavior: 'smooth'});" aria-label="Scroll thumbnails right">
+                        <span style="width: 16px; height: 16px; display: inline-flex; align-items: center;">
+                            <svg style="width:16px;height:16px;fill:currentColor;" version="1.1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M14.011 11.857a.2.2 0 0 1 0 .283l-6.713 6.723c-.49.49-.49 1.279 0 1.768.49.49 1.28.49 1.769 0l7.562-7.572a1.5 1.5 0 0 0 0-2.121L9.067 3.366a1.248 1.248 0 0 0-1.769 0c-.49.49-.49 1.279 0 1.768l6.713 6.723Z"/></svg>
+                        </span>
+                    </button>
+                </div>
+            </div>
+
+            {{-- 2. GRID VIEW (Agoda Grid View Mode) --}}
+            <div id="agodaGridSection" class="agoda-gal-grid-wrapper d-none">
+                <div class="agoda-gal-grid-container" id="agodaGridCardsTrack">
+                    @foreach($galleryCategorized['all'] as $gIdx => $gItem)
+                    <div class="agoda-gal-grid-card" data-cat="{{ $gItem['cat_key'] }}" data-room-id="{{ $gItem['room_id'] ?? '' }}" onclick="openAgodaSlideshow({{ $gIdx }});">
+                        <img src="{{ !empty($gItem['thumb']) ? $gItem['thumb'] : ($gItem['poster'] ?? $gItem['url']) }}" alt="{{ $gItem['title'] }}" loading="lazy">
+                        @if(($gItem['type'] ?? '') === 'video')
+                        <div class="position-absolute top-50 start-50 translate-middle text-white" style="background: rgba(0,0,0,0.65); border-radius: 50%; width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; font-size: 18px;">
+                            <i class="fa-solid fa-play"></i>
+                        </div>
+                        @endif
+                    </div>
+                    @endforeach
+                </div>
+            </div>
+
         </div>
     </div>
 </div>
@@ -3792,11 +4666,19 @@
                 </div>
             </div>
             <div class="modal-body p-0 position-relative" style="height: 550px; background: #e2e8f0;">
-                @if(!empty($property->map_embed_url))
-                    <iframe src="{{ $property->map_embed_url }}" class="w-100 h-100 border-0" allowfullscreen loading="lazy"></iframe>
-                @else
-                    <iframe src="https://maps.google.com/maps?q={{ $lat }},{{ $lng }}&hl=en&z=15&output=embed" class="w-100 h-100 border-0" allowfullscreen loading="lazy"></iframe>
-                @endif
+                @php
+                    $mLat = (float)($lat ?: 21.4272);
+                    $mLng = (float)($lng ?: 92.0058);
+                    $mOsmBbox = ($mLng - 0.02) . '%2C' . ($mLat - 0.015) . '%2C' . ($mLng + 0.02) . '%2C' . ($mLat + 0.015);
+                    $mOsmUrl = "https://www.openstreetmap.org/export/embed.html?bbox={$mOsmBbox}&layer=mapnik&marker={$mLat}%2C{$mLng}";
+                @endphp
+                @php
+        $rawEmbed = $property->map_embed_url ?? '';
+        $isSafeGoogleEmbed = str_contains($rawEmbed, 'output=embed') || str_contains($rawEmbed, 'google.com/maps/embed');
+        $isOsmEmbed = str_contains($rawEmbed, 'openstreetmap.org');
+        $finalMapUrl = ($isSafeGoogleEmbed || $isOsmEmbed) ? $rawEmbed : "https://maps.google.com/maps?q={$mLat},{$mLng}&hl=en&z=15&output=embed";
+    @endphp
+    <iframe src="{{ $finalMapUrl }}" class="w-100 h-100 border-0" allowfullscreen loading="lazy"></iframe>
 
                 {{-- Floating Property Mini Card (Agoda Style) --}}
                 <div class="position-absolute top-0 start-0 m-3 bg-white p-3 rounded-3 shadow-lg border" style="max-width: 320px; z-index: 10; border-color: #cbd5e1 !important;">
@@ -4080,6 +4962,25 @@
         }
     }
 
+    function toggleMobileSearchCollapse() {
+        var collapseEl = document.getElementById('mobileDetailSearchCollapse');
+        var iconEl = document.getElementById('mobileSearchCollapseIcon');
+        if (!collapseEl) return;
+        if (collapseEl.classList.contains('d-none')) {
+            collapseEl.classList.remove('d-none');
+            if (iconEl) {
+                iconEl.classList.remove('fa-chevron-down');
+                iconEl.classList.add('fa-chevron-up');
+            }
+        } else {
+            collapseEl.classList.add('d-none');
+            if (iconEl) {
+                iconEl.classList.remove('fa-chevron-up');
+                iconEl.classList.add('fa-chevron-down');
+            }
+        }
+    }
+
     function adjustDetailCounter(type, delta) {
         if (type === 'adults') {
             let input = document.getElementById('detailAdultsInput');
@@ -4124,7 +5025,7 @@
     // ─── Agoda 1:1 Dual-Mode Gallery Manager ───
     const agodaGalleryItems = @json($galleryCategorized['all']);
     let agodaGalleryCurrentIdx = 0;
-    let agodaGalleryMode = 'grid'; // 'grid' or 'slideshow'
+    let agodaGalleryMode = 'slideshow'; // Default to Slideshow matching 1:1 screenshot
     let agodaGalleryActiveCat = 'all';
 
     function toggleAgodaGalleryMode() {
@@ -4149,7 +5050,7 @@
                 slideView.classList.add('d-flex');
             }
             if (modeText) modeText.textContent = 'Gallery';
-            if (modeIcon) modeIcon.className = 'fa-solid fa-table-cells';
+            if (modeIcon) modeIcon.className = 'fa-solid fa-table-cells text-primary';
             renderAgodaSlideshow(agodaGalleryCurrentIdx);
         } else {
             if (slideView) {
@@ -4158,73 +5059,407 @@
             }
             if (gridView) gridView.classList.remove('d-none');
             if (modeText) modeText.textContent = 'Slideshow';
-            if (modeIcon) modeIcon.className = 'fa-solid fa-play';
+            if (modeIcon) modeIcon.className = 'fa-solid fa-play text-primary';
         }
     }
 
-    function openAgodaSlideshow(index) {
-        agodaGalleryCurrentIdx = index;
-        setAgodaGalleryMode('slideshow');
+        // Official Agoda Modal State & Functionality
+    window.agodaGalleryCurrentIdx = 0;
+    window.agodaGalleryActiveCat = 'all';
+    window.agodaGalleryMode = 'slideshow'; // 'slideshow' | 'grid'
+
+    function toggleAgodaViewMode(forceMode) {
+        if (forceMode) {
+            window.agodaGalleryMode = forceMode;
+        } else {
+            window.agodaGalleryMode = (window.agodaGalleryMode === 'slideshow') ? 'grid' : 'slideshow';
+        }
+
+        const slideshowSec = document.getElementById('agodaSlideshowSection');
+        const gridSec = document.getElementById('agodaGridSection');
+        const toggleText = document.getElementById('agodaGalToggleText');
+
+        if (window.agodaGalleryMode === 'grid') {
+            if (slideshowSec) slideshowSec.classList.add('d-none');
+            if (gridSec) gridSec.classList.remove('d-none');
+            if (toggleText) toggleText.textContent = 'Slideshow view';
+        } else {
+            if (gridSec) gridSec.classList.add('d-none');
+            if (slideshowSec) slideshowSec.classList.remove('d-none');
+            if (toggleText) toggleText.textContent = 'Gallery';
+        }
+    }
+
+    function openAgodaSlideshow(index, category = 'all') {
+        const modalEl = document.getElementById('galleryModal');
+        if (modalEl) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            } else if (window.$ && typeof window.$.fn.modal === 'function') {
+                window.$(modalEl).modal('show');
+            } else {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        toggleAgodaViewMode('slideshow');
+
+        // If regular category is selected, hide the specific room tab if active
+        if (category && !category.startsWith('room_')) {
+            const roomTab = document.getElementById('agodaGalRoomSpecificTab');
+            if (roomTab) roomTab.style.display = 'none';
+        }
+
+        if (category && category !== 'all') {
+            const catTab = document.querySelector('.agoda-gal-tab-item[data-cat="' + category + '"]');
+            if (catTab) {
+                filterAgodaGallery(category, catTab);
+                return;
+            }
+        }
+
         renderAgodaSlideshow(index);
+    }
+
+    // Agoda Room-Specific Gallery Opener: opens official gallery filtered to this room
+    window.openAgodaRoomGallery = function(roomId, roomName) {
+        const modalEl = document.getElementById('galleryModal');
+        if (modalEl) {
+            if (typeof bootstrap !== 'undefined' && bootstrap.Modal) {
+                bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            } else if (window.$ && typeof window.$.fn.modal === 'function') {
+                window.$(modalEl).modal('show');
+            } else {
+                modalEl.classList.add('show');
+                modalEl.style.display = 'block';
+                document.body.classList.add('modal-open');
+            }
+        }
+
+        toggleAgodaViewMode('slideshow');
+
+        window.agodaGalleryActiveRoomName = roomName;
+        const rIdStr = String(roomId);
+
+        // Find all thumbnails matching this room
+        let matchingThumbs = Array.from(document.querySelectorAll(`.agoda-gal-thumb[data-room-id="${rIdStr}"]`));
+        if (matchingThumbs.length === 0 && roomName) {
+            matchingThumbs = Array.from(document.querySelectorAll('.agoda-gal-thumb')).filter(t => {
+                const img = t.querySelector('img');
+                return img && img.alt && img.alt.toLowerCase().includes(roomName.toLowerCase());
+            });
+        }
+
+        const roomCount = matchingThumbs.length;
+
+        // Manage Dynamic Room Tab Pill in Tabs Row
+        const tabsRow = document.getElementById('agodaGalTabsRow');
+        let roomTab = document.getElementById('agodaGalRoomSpecificTab');
+        if (!roomTab && tabsRow) {
+            roomTab = document.createElement('button');
+            roomTab.type = 'button';
+            roomTab.id = 'agodaGalRoomSpecificTab';
+            roomTab.className = 'agoda-gal-tab-item';
+            const roomsTab = tabsRow.querySelector('.agoda-gal-tab-item[data-cat="rooms"]');
+            if (roomsTab && roomsTab.nextSibling) {
+                tabsRow.insertBefore(roomTab, roomsTab.nextSibling);
+            } else {
+                tabsRow.appendChild(roomTab);
+            }
+        }
+
+        const catKey = 'room_' + rIdStr;
+        if (roomTab) {
+            roomTab.setAttribute('data-cat', catKey);
+            roomTab.setAttribute('data-room-id', rIdStr);
+            roomTab.innerHTML = `<i class="fa-solid fa-bed me-1.5" style="font-size:11px;"></i> ${roomName} (${roomCount > 0 ? roomCount : 1})`;
+            roomTab.style.display = 'inline-flex';
+            roomTab.style.alignItems = 'center';
+            roomTab.onclick = function() {
+                filterAgodaGallery(catKey, this, rIdStr, roomName);
+            };
+        }
+
+        // Update Top Right Header CTA Button to "Book this room"
+        const headerCta = document.querySelector('.agoda-gal-header-cta');
+        if (headerCta) {
+            headerCta.innerHTML = `<i class="fa-solid fa-check me-1"></i> Book this room`;
+            headerCta.onclick = function() {
+                const targetCard = document.getElementById('room_card_' + rIdStr) || document.getElementById('available_rooms_list');
+                if (targetCard) targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                const mInstance = bootstrap.Modal.getInstance(document.getElementById('galleryModal'));
+                if (mInstance) mInstance.hide();
+            };
+        }
+
+        filterAgodaGallery(catKey, roomTab, rIdStr, roomName);
+    };
+
+    function toggleAgodaActiveVideo(e) {
+        if (e && e.target && e.target.tagName === 'VIDEO' && e.offsetY > e.target.clientHeight - 45) {
+            return; // clicked native controls bar
+        }
+        const v = document.getElementById('agodaActiveStageVideo');
+        const overlay = document.getElementById('agodaVideoPlayOverlay');
+        if (!v) return;
+        if (v.paused) {
+            v.play().catch(() => {});
+            if (overlay) overlay.classList.add('d-none');
+        } else {
+            v.pause();
+            if (overlay) overlay.classList.remove('d-none');
+        }
     }
 
     function renderAgodaSlideshow(index) {
         if (!agodaGalleryItems || agodaGalleryItems.length === 0) return;
-        if (index < 0) index = agodaGalleryItems.length - 1;
-        if (index >= agodaGalleryItems.length) index = 0;
+        if (index < 0) index = 0;
+        if (index >= agodaGalleryItems.length) index = agodaGalleryItems.length - 1;
 
-        agodaGalleryCurrentIdx = index;
+        window.agodaGalleryCurrentIdx = index;
         const item = agodaGalleryItems[index];
 
-        const activeImg = document.getElementById('agodaSlideshowActiveImg');
-        const badge = document.getElementById('agodaSlideshowCategoryBadge');
-        if (activeImg) activeImg.src = item.url;
-        if (badge) badge.textContent = item.category || 'Photo';
+        const activeImg = document.getElementById('agodaActiveStagePhoto');
+        const videoWrap = document.getElementById('agodaActiveStageVideoWrap');
+        const activeVideo = document.getElementById('agodaActiveStageVideo');
+        const videoOverlay = document.getElementById('agodaVideoPlayOverlay');
+        const captionText = document.getElementById('agodaStageCaptionText');
+        const prevBtn = document.getElementById('agodaGalPrevBtn');
+        const nextBtn = document.getElementById('agodaGalNextBtn');
 
-        // Update active filmstrip thumbnail
-        document.querySelectorAll('.agoda-filmstrip-thumb').forEach(thumb => {
-            const tIdx = parseInt(thumb.getAttribute('data-index'));
-            if (tIdx === index) {
-                thumb.classList.add('active');
-                thumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        // Agoda shows ONLY the room or photo title cleanly in the caption
+        if (captionText) {
+            if (window.agodaGalleryActiveCat && window.agodaGalleryActiveCat.startsWith('room_') && window.agodaGalleryActiveRoomName) {
+                captionText.textContent = window.agodaGalleryActiveRoomName;
             } else {
-                thumb.classList.remove('active');
+                captionText.textContent = item.title || item.category || '{{ addslashes($property->name) }}';
             }
-        });
+        }
+
+        // Check position among visible thumbnails in current tab
+        const visibleThumbs = Array.from(document.querySelectorAll('.agoda-gal-thumb')).filter(el => el.style.display !== 'none');
+        const visibleIndices = visibleThumbs.map(el => parseInt(el.getAttribute('data-index')));
+        const currentPos = visibleIndices.indexOf(index);
+
+        const counterText = document.getElementById('agodaStageCounterText');
+        if (counterText && visibleIndices.length > 0) {
+            const curNum = (currentPos >= 0) ? (currentPos + 1) : 1;
+            counterText.textContent = curNum + ' / ' + visibleIndices.length;
+        }
+
+        if (prevBtn) {
+            prevBtn.style.display = (currentPos <= 0) ? 'none' : 'flex';
+        }
+        if (nextBtn) {
+            nextBtn.style.display = (currentPos >= visibleIndices.length - 1 || visibleIndices.length <= 1) ? 'none' : 'flex';
+        }
+
+        if (item.type === 'video') {
+            if (activeImg) activeImg.classList.add('d-none');
+            if (videoWrap) videoWrap.classList.remove('d-none');
+            if (activeVideo) {
+                const cleanItemUrl = item.url.split('?')[0];
+                const currentSrc = (activeVideo.currentSrc || activeVideo.src || '').split('?')[0];
+                if (!currentSrc.includes(cleanItemUrl.replace(/https?:\/\/[^\/]+/, ''))) {
+                    activeVideo.src = item.url;
+                }
+                if (item.poster) activeVideo.poster = item.poster;
+                activeVideo.muted = true;
+                if (videoOverlay) videoOverlay.classList.add('d-none');
+                
+                var playPromise = activeVideo.play();
+                if (playPromise !== undefined) {
+                    playPromise.catch(function(err) {
+                        console.log('Video autoplay prevented, showing play overlay:', err);
+                        if (videoOverlay) videoOverlay.classList.remove('d-none');
+                    });
+                }
+            }
+        } else {
+            if (activeVideo) {
+                activeVideo.pause();
+            }
+            if (videoWrap) videoWrap.classList.add('d-none');
+            if (videoOverlay) videoOverlay.classList.add('d-none');
+            if (activeImg) {
+                activeImg.classList.remove('d-none');
+                activeImg.src = item.url;
+            }
+        }
+
+        // Highlight active thumbnail with Agoda's blue border
+        document.querySelectorAll('.agoda-gal-thumb').forEach(el => el.classList.remove('active'));
+        const activeThumb = document.querySelector('.agoda-gal-thumb[data-index="' + index + '"]');
+        if (activeThumb) {
+            activeThumb.classList.add('active');
+            activeThumb.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        }
     }
 
-    function prevAgodaSlide() {
-        renderAgodaSlideshow(agodaGalleryCurrentIdx - 1);
+    function navigateAgodaSlide(delta) {
+        const visibleThumbs = Array.from(document.querySelectorAll('.agoda-gal-thumb')).filter(el => el.style.display !== 'none');
+        if (visibleThumbs.length === 0) return;
+
+        const visibleIndices = visibleThumbs.map(el => parseInt(el.getAttribute('data-index')));
+        let currentPos = visibleIndices.indexOf(window.agodaGalleryCurrentIdx);
+
+        if (currentPos === -1) {
+            renderAgodaSlideshow(visibleIndices[0]);
+            return;
+        }
+
+        let newPos = currentPos + delta;
+        if (newPos < 0) newPos = 0;
+        if (newPos >= visibleIndices.length) newPos = visibleIndices.length - 1;
+
+        renderAgodaSlideshow(visibleIndices[newPos]);
     }
 
-    function nextAgodaSlide() {
-        renderAgodaSlideshow(agodaGalleryCurrentIdx + 1);
-    }
+    function nextAgodaSlide() { navigateAgodaSlide(1); }
+    function prevAgodaSlide() { navigateAgodaSlide(-1); }
 
-    function filterAgodaGallery(catKey, tabElement) {
-        agodaGalleryActiveCat = catKey;
-        document.querySelectorAll('.agoda-modal-cat-tab').forEach(t => t.classList.remove('active'));
-        if (tabElement) tabElement.classList.add('active');
+    function filterAgodaGallery(catKey, tabElement, roomId = null, roomName = null) {
+        window.agodaGalleryActiveCat = catKey;
+        document.querySelectorAll('.agoda-gal-tab-item').forEach(t => t.classList.remove('active'));
+        if (tabElement) {
+            tabElement.classList.add('active');
+        } else {
+            const matchTab = document.querySelector('.agoda-gal-tab-item[data-cat="' + catKey + '"]');
+            if (matchTab) matchTab.classList.add('active');
+        }
 
-        // Filter Grid View items
-        document.querySelectorAll('.agoda-grid-photo-card').forEach(card => {
-            const c = card.getAttribute('data-category');
-            if (catKey === 'all' || c === catKey) {
-                card.classList.remove('d-none');
+        const isRoomSpecific = (typeof catKey === 'string' && catKey.startsWith('room_'));
+        const targetRoomId = roomId || (isRoomSpecific ? catKey.replace('room_', '') : null);
+
+        // Reset Header CTA button if user switches back to general categories
+        const headerCta = document.querySelector('.agoda-gal-header-cta');
+        if (!isRoomSpecific && headerCta) {
+            headerCta.textContent = 'Enter dates';
+            headerCta.onclick = function() {
+                document.querySelector('#available_rooms_list')?.scrollIntoView({ behavior: 'smooth' });
+                bootstrap.Modal.getInstance(document.getElementById('galleryModal'))?.hide();
+            };
+        }
+
+        const hasDirectIdMatch = isRoomSpecific && targetRoomId && document.querySelectorAll(`.agoda-gal-thumb[data-room-id="${targetRoomId}"]`).length > 0;
+
+        // Filter Grid View cards
+        document.querySelectorAll('.agoda-gal-grid-card').forEach(card => {
+            const c = card.getAttribute('data-cat');
+            const rId = card.getAttribute('data-room-id');
+            let show = false;
+            if (isRoomSpecific) {
+                if (hasDirectIdMatch) {
+                    show = (rId && String(rId) === String(targetRoomId));
+                } else {
+                    show = Boolean(roomName && card.querySelector('img')?.alt?.toLowerCase().includes(roomName.toLowerCase()));
+                }
             } else {
-                card.classList.add('d-none');
+                show = (catKey === 'all' || c === catKey);
+            }
+            card.style.display = show ? '' : 'none';
+        });
+
+        // Filter Filmstrip thumbs
+        let firstVisibleIdx = null;
+        document.querySelectorAll('.agoda-gal-thumb').forEach(thumb => {
+            const c = thumb.getAttribute('data-cat');
+            const rId = thumb.getAttribute('data-room-id');
+            let show = false;
+            if (isRoomSpecific) {
+                if (hasDirectIdMatch) {
+                    show = (rId && String(rId) === String(targetRoomId));
+                } else {
+                    show = Boolean(roomName && thumb.querySelector('img')?.alt?.toLowerCase().includes(roomName.toLowerCase()));
+                }
+            } else {
+                show = (catKey === 'all' || c === catKey);
+            }
+            if (show) {
+                thumb.style.display = '';
+                if (firstVisibleIdx === null) {
+                    firstVisibleIdx = parseInt(thumb.getAttribute('data-index'));
+                }
+            } else {
+                thumb.style.display = 'none';
             }
         });
 
-        // Filter Filmstrip items
-        document.querySelectorAll('.agoda-filmstrip-thumb').forEach(thumb => {
-            const c = thumb.getAttribute('data-category');
-            if (catKey === 'all' || c === catKey) {
-                thumb.classList.remove('d-none');
-            } else {
-                thumb.classList.add('d-none');
-            }
-        });
+        // Scroll filmstrip to beginning
+        const filmstrip = document.getElementById('agodaFilmstripTrack');
+        if (filmstrip) filmstrip.scrollLeft = 0;
+
+        // Auto jump to first image/video in this category
+        if (firstVisibleIdx !== null) {
+            renderAgodaSlideshow(firstVisibleIdx);
+        }
+    }
+
+    // Modal show/hide event listeners
+    document.addEventListener('DOMContentLoaded', function () {
+        const galModal = document.getElementById('galleryModal');
+        const activeVideo = document.getElementById('agodaActiveStageVideo');
+        const videoOverlay = document.getElementById('agodaVideoPlayOverlay');
+
+        if (activeVideo && videoOverlay) {
+            activeVideo.addEventListener('play', function() {
+                videoOverlay.classList.add('d-none');
+            });
+            activeVideo.addEventListener('pause', function() {
+                videoOverlay.classList.remove('d-none');
+            });
+            activeVideo.addEventListener('ended', function() {
+                videoOverlay.classList.remove('d-none');
+            });
+        }
+
+        if (galModal) {
+            galModal.addEventListener('shown.bs.modal', function () {
+                renderAgodaSlideshow(window.agodaGalleryCurrentIdx || 0);
+            });
+            galModal.addEventListener('hidden.bs.modal', function () {
+                if (activeVideo) {
+                    activeVideo.pause();
+                }
+            });
+        }
+    });
+
+    // Keyboard Arrow keys
+    document.addEventListener('keydown', function(e) {
+        const modal = document.getElementById('galleryModal');
+        if (!modal || !modal.classList.contains('show')) return;
+        if (e.key === 'ArrowLeft') {
+            navigateAgodaSlide(-1);
+        } else if (e.key === 'ArrowRight') {
+            navigateAgodaSlide(1);
+        }
+    });
+
+
+    function switchRoomModalPhoto(roomId, imgUrl, currentIdx, totalCount, thumbEl) {
+        var mImg = document.getElementById('roomModalActiveImg_' + roomId);
+        if (mImg) {
+            mImg.style.opacity = '0.35';
+            setTimeout(function() {
+                mImg.src = imgUrl;
+                mImg.style.opacity = '1';
+            }, 120);
+        }
+        var c = document.getElementById('roomModalCounter_' + roomId);
+        if (c) {
+            c.textContent = 'Verified High-Res Room Photo (' + currentIdx + '/' + totalCount + ')';
+        }
+        if (thumbEl && thumbEl.parentElement) {
+            thumbEl.parentElement.querySelectorAll('.room-modal-thumb').forEach(function(el) {
+                el.style.opacity = '0.7';
+                el.style.borderColor = '#cbd5e1';
+            });
+            thumbEl.style.opacity = '1';
+            thumbEl.style.borderColor = '#2067e1';
+        }
     }
 
     // Keyboard Arrow Keys Navigation for Agoda Slideshow
@@ -4879,7 +6114,7 @@
 </div>
 
 {{-- Agoda Floating Deals / Cart Trigger Button (Bottom Right) --}}
-<a href="#rooms" class="btn btn-primary rounded-circle shadow-lg position-fixed d-flex align-items-center justify-content-center text-white text-decoration-none" style="bottom: 24px; right: 24px; width: 48px; height: 48px; z-index: 1050; background-color: #2067e1; border: none; box-shadow: 0 4px 14px rgba(32,103,225,0.4) !important;" title="View deals" onclick="document.getElementById('rooms')?.scrollIntoView({behavior:'smooth'}); return false;">
+<a href="#rooms" class="btn btn-primary rounded-circle shadow-lg position-fixed d-none d-md-flex align-items-center justify-content-center text-white text-decoration-none" style="bottom: 24px; right: 24px; width: 48px; height: 48px; z-index: 1050; background-color: #2067e1; border: none; box-shadow: 0 4px 14px rgba(32,103,225,0.4) !important;" title="View deals" onclick="document.getElementById('rooms')?.scrollIntoView({behavior:'smooth'}); return false;">
     <i class="fa-solid fa-suitcase-rolling fs-5"></i>
 </a>
 
@@ -5185,6 +6420,18 @@ document.addEventListener('DOMContentLoaded', function() {
 </div>
 
 {{-- Agoda Signature Support & Chat Widget (1:1 Exact Parity with Screenshot 2) --}}
+<style>
+@media (max-width: 767.98px) {
+    #agodaQuickAnswersWrapper {
+        bottom: 76px !important;
+        right: 16px !important;
+    }
+    #quickAnswersCard {
+        width: calc(100vw - 32px) !important;
+        max-width: 335px !important;
+    }
+}
+</style>
 <div id="agodaQuickAnswersWrapper" class="position-fixed" style="bottom: 24px; right: 24px; z-index: 1080;">
     
     {{-- Quick Answers Interactive Chat Window (Agoda Screenshot 1:1 Parity) --}}
@@ -5476,13 +6723,32 @@ function selectAgodaRoomCount(itemEl, count, label) {
     // Update Book button URL in the same column
     const col = wrapper.closest('.col-md-3') || wrapper.parentElement;
     if (col) {
-        const bookBtn = col.querySelector('a[href*="booking.form"]');
+        const bookBtn = col.querySelector('.agoda-book-btn') || col.querySelector('a[href*="/book/"]') || col.querySelector('a[href*="booking.form"]');
         if (bookBtn) {
             try {
                 const url = new URL(bookBtn.href, window.location.origin);
                 url.searchParams.set('rooms', count);
                 bookBtn.href = url.pathname + url.search;
             } catch(e) {}
+        }
+
+        // Dynamically recalculate price for selected room count
+        const row = col.closest('.row') || col.parentElement;
+        if (row) {
+            const priceNumEl = row.querySelector('.agoda-final-price-num');
+            const unitEl = row.querySelector('.agoda-price-unit-text');
+            if (priceNumEl) {
+                if (!priceNumEl.hasAttribute('data-base-price')) {
+                    const rawVal = parseFloat(priceNumEl.textContent.replace(/[^0-9.]/g, '')) || 0;
+                    priceNumEl.setAttribute('data-base-price', rawVal);
+                }
+                const base = parseFloat(priceNumEl.getAttribute('data-base-price')) || 0;
+                const multiplied = Math.round(base * count);
+                priceNumEl.textContent = multiplied.toLocaleString('en-US');
+                if (unitEl) {
+                    unitEl.textContent = count > 1 ? `Total for ${count} rooms / night before taxes` : 'Per night before taxes & fees';
+                }
+            }
         }
     }
     

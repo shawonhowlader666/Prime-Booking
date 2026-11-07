@@ -139,28 +139,29 @@
                     </ul>
                 </div>
 
-                <!-- Countries & Territories -->
+                <!-- Beach & Islands (100% Bangladesh) -->
                 <div class="col-6 col-md-4 col-lg-2">
-                    <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Countries &amp; Territories</h6>
+                    <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Beach &amp; Islands</h6>
                     <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 8px;">
-                        <li><a href="{{ route('search.index') }}?destination=Bangladesh" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Bangladesh</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=India" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">India</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Thailand" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Thailand</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=UAE" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">UAE</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Malaysia" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Malaysia</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Singapore" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Singapore</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Cox\'s Bazar') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Cox's Bazar Sea Beach</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Inani Beach') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Inani Marine Drive</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Saint Martin') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Saint Martin's Island</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Kuakata') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Kuakata Sunset Beach</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Kolatoli Beach') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Kolatoli Beach Hotels</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Patenga') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Patenga Coastal Stays</a></li>
                     </ul>
                 </div>
 
-                <!-- Europe -->
+                <!-- Hill & Nature Escapes (100% Bangladesh) -->
                 <div class="col-6 col-md-4 col-lg-2">
-                    <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Europe</h6>
+                    <h6 style="font-weight: 700; font-size: 13px; color: #ffffff; margin-bottom: 12px; letter-spacing: 0.2px;">Hills &amp; Nature</h6>
                     <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 8px;">
-                        <li><a href="{{ route('search.index') }}?destination=London" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">London Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Paris" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Paris Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Rome" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Rome Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Amsterdam" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Amsterdam Hotels</a></li>
-                        <li><a href="{{ route('search.index') }}?destination=Barcelona" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Barcelona Hotels</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Sajek Valley') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sajek Valley Cottages</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Sreemangal') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sreemangal Tea Estates</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Bandarban') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Bandarban Nilgiri Stays</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Rangamati') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Rangamati Kaptai Lake</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Tanguar Haor') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Tanguar Haor Houseboats</a></li>
+                        <li><a href="{{ route('search.index') }}?destination={{ urlencode('Sundarbans') }}" style="text-decoration: none; font-size: 12px; color: #cbd5e1; transition: color 0.2s;" onmouseover="this.style.color='#60a5fa'" onmouseout="this.style.color='#cbd5e1'">Sundarbans Mangrove Safari</a></li>
                     </ul>
                 </div>
 

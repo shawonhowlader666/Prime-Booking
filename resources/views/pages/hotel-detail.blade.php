@@ -3345,9 +3345,12 @@
                         src="{{ $osmEmbedUrl }}">
                     </iframe>
 
-                    {{-- Agoda Floating White Property Card Pin on Map --}}
+                    {{-- Agoda Floating White Property Card Pin on Map (Interactive & Opens Full Map Modal) --}}
                     <div class="position-absolute top-50 start-50 translate-middle shadow-lg rounded-2 bg-white d-flex align-items-center gap-2 p-1.5 pe-3" 
-                         style="z-index: 10; border: 1px solid #cbd5e1; max-width: 90%; pointer-events: auto;">
+                         style="z-index: 10; border: 1px solid #cbd5e1; max-width: 90%; pointer-events: auto; cursor: pointer; transition: transform 0.2s ease, box-shadow 0.2s ease;" 
+                         data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal" title="Click to view full interactive map"
+                         onmouseover="this.style.transform='translate(-50%, -52%)'; this.style.boxShadow='0 12px 28px rgba(0,0,0,0.2)';" 
+                         onmouseout="this.style.transform='translate(-50%, -50%)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.12)';">
                         <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}" 
                              alt="{{ $property->name }}" 
                              style="width: 54px; height: 42px; object-fit: cover; border-radius: 4px; flex-shrink: 0;"
@@ -3419,57 +3422,6 @@
                 <div class="col-md-3 col-6"><div class="p-2.5 bg-light rounded-3 border d-flex align-items-center gap-2"><i class="fa-solid fa-headset text-primary"></i> <span class="fw-semibold text-dark" style="font-size:12.5px;">24/7 Front Desk</span></div></div>
             </div>
             @endif
-        </div>
-
-        {{-- 14. Check in. Step out. Map Experience Banner (Screenshot Parity) --}}
-        <div class="card border-0 shadow-xs rounded-3 overflow-hidden bg-white mb-4">
-            <div class="row g-0">
-                <div class="col-lg-5 p-4 d-flex flex-column justify-content-center bg-white">
-                    <h4 class="fw-bold text-dark mb-2" style="font-family: 'Plus Jakarta Sans', sans-serif; font-size: 22px;">
-                        Check in. Step out.
-                    </h4>
-                    <p class="text-secondary small mb-3" style="font-size: 13px;">
-                        Experiences on Prime Booking. Because your room is just the beginning.
-                    </p>
-                    <div class="text-success fw-bold small mb-4" style="font-size: 12.5px;">
-                        <i class="fa-solid fa-location-dot me-1"></i> Excellent location
-                    </div>
-                    <div>
-                        <a href="{{ route('services') }}" class="btn text-white fw-bold px-4 py-2.5 rounded-pill shadow-xs" style="background-color: #2067e1; font-size: 13px;">
-                            SHOW EXPERIENCES
-                        </a>
-                    </div>
-                </div>
-                <div class="col-lg-7 position-relative" style="min-height: 200px; background: #e2e8f0;">
-                    <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-                        <rect width="100%" height="100%" fill="#cbd5e1"/>
-                        <path d="M 0 50 L 300 50 L 300 150 L 0 150 Z" fill="#93c47d" opacity="0.6"/>
-                        <line x1="50" y1="0" x2="50" y2="200" stroke="#ffffff" stroke-width="6"/>
-                        <line x1="180" y1="0" x2="180" y2="200" stroke="#ffffff" stroke-width="6"/>
-                        <line x1="0" y1="100" x2="400" y2="100" stroke="#ffffff" stroke-width="6"/>
-                    </svg>
-
-                    {{-- Property Pin Tooltip --}}
-                    <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 10;">
-                        <div class="bg-white rounded-3 shadow-md p-2 d-flex align-items-center gap-2" style="border: 1px solid #cbd5e1; width: 260px;">
-                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}" 
-                                 class="rounded-2" 
-                                 style="width: 45px; height: 45px; object-fit: cover; flex-shrink: 0;" 
-                                 alt="{{ $property->name }}"
-                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
-                            <div class="text-truncate">
-                                <strong class="d-block text-dark text-truncate" style="font-size: 12px; max-width: 180px;">{{ $property->name }}</strong>
-                                <small class="text-primary fw-bold" style="font-size: 11px;">| {{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }} {{ number_format((float)($property->rating_score ?? 8.9), 1) }}</small>
-                            </div>
-                        </div>
-                        <div class="text-center mt-1">
-                            <span class="badge rounded-circle p-2 bg-primary text-white shadow-sm" style="font-size: 14px; background-color: #2067e1 !important;">
-                                <i class="fa-solid fa-bed"></i>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         {{-- 15. Top Destinations Section (100% Authentic Bangladesh Destinations) --}}

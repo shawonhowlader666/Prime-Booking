@@ -126,6 +126,11 @@
     ];
     while ($gallery->count() < 7) { $gallery->push($fallbacks[$gallery->count() % count($fallbacks)]); }
     
+    // Convert all gallery images to fully-qualified public / storage URLs (Zero broken image paths)
+    $gallery = $gallery->map(function($img) {
+        return media_url($img, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80');
+    })->values();
+    
     // Dynamic Agoda Photo & Video Categorization Collection (Encapsulated on Property Model)
     $galleryCategorized = $property->categorized_gallery;
 
@@ -3343,17 +3348,20 @@
                     {{-- Agoda Floating White Property Card Pin on Map --}}
                     <div class="position-absolute top-50 start-50 translate-middle shadow-lg rounded-2 bg-white d-flex align-items-center gap-2 p-1.5 pe-3" 
                          style="z-index: 10; border: 1px solid #cbd5e1; max-width: 90%; pointer-events: auto;">
-                        <img src="{{ $gallery[0] ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80' }}" 
+                        <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}" 
                              alt="{{ $property->name }}" 
-                             style="width: 54px; height: 42px; object-fit: cover; border-radius: 4px;">
+                             style="width: 54px; height: 42px; object-fit: cover; border-radius: 4px; flex-shrink: 0;"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
                         <div style="line-height: 1.25;">
                             <strong class="d-block text-dark text-truncate" style="font-size: 12.5px; font-weight: 700; max-width: 260px;">
                                 {{ $property->name }}
                             </strong>
                             <div class="d-flex align-items-center gap-1.5 mt-0.5" style="font-size: 11px;">
-                                <span class="text-warning">★★★</span>
+                                <span class="text-warning">
+                                    @for($i=0; $i < max(1, min(5, (int)($property->star_rating ?? 3))); $i++)★@endfor
+                                </span>
                                 <span class="text-muted">|</span>
-                                <span class="text-secondary fw-semibold">Exceptional {{ number_format((float)($property->sub_scores['location'] ?? 10.0), 1) }}</span>
+                                <span class="text-secondary fw-semibold">{{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }} {{ number_format((float)($property->sub_scores['location'] ?? $scoreNum), 1) }}</span>
                             </div>
                         </div>
                     </div>
@@ -3444,10 +3452,14 @@
                     {{-- Property Pin Tooltip --}}
                     <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 10;">
                         <div class="bg-white rounded-3 shadow-md p-2 d-flex align-items-center gap-2" style="border: 1px solid #cbd5e1; width: 260px;">
-                            <img src="{{ $gallery[0] }}" class="rounded-2" style="width: 45px; height: 45px; object-fit: cover;" alt="Tooltip Thumb">
-                            <div>
+                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}" 
+                                 class="rounded-2" 
+                                 style="width: 45px; height: 45px; object-fit: cover; flex-shrink: 0;" 
+                                 alt="{{ $property->name }}"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
+                            <div class="text-truncate">
                                 <strong class="d-block text-dark text-truncate" style="font-size: 12px; max-width: 180px;">{{ $property->name }}</strong>
-                                <small class="text-primary fw-bold" style="font-size: 11px;">| Excellent 8.9</small>
+                                <small class="text-primary fw-bold" style="font-size: 11px;">| {{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }} {{ number_format((float)($property->rating_score ?? 8.9), 1) }}</small>
                             </div>
                         </div>
                         <div class="text-center mt-1">
@@ -3596,7 +3608,10 @@
 
                         {{-- Floating Custom Pin Banner on Map --}}
                         <div class="position-absolute bottom-0 start-0 m-3 p-2.5 bg-white rounded-3 shadow border d-flex align-items-center gap-2.5" style="z-index: 10; max-width: 85%;">
-                            <i class="fa-solid fa-location-dot text-danger fs-5 flex-shrink-0"></i>
+                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}" 
+                                 style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0;" 
+                                 alt="{{ $property->name }}"
+                                 onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
                             <div class="text-truncate">
                                 <strong class="d-block text-dark text-truncate" style="font-size: 13px;">{{ $property->name }}</strong>
                                 <small class="text-muted text-truncate d-block" style="font-size: 11.5px;">{{ $property->address ?: $property->city }}</small>
@@ -4683,13 +4698,17 @@
                 {{-- Floating Property Mini Card (Agoda Style) --}}
                 <div class="position-absolute top-0 start-0 m-3 bg-white p-3 rounded-3 shadow-lg border" style="max-width: 320px; z-index: 10; border-color: #cbd5e1 !important;">
                     <div class="d-flex gap-2.5">
-                        <img src="{{ $gallery[0] ?? '' }}" class="rounded-2" style="width: 70px; height: 60px; object-fit: cover;" alt="{{ $property->name }}">
+                        <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}" 
+                             class="rounded-2" 
+                             style="width: 70px; height: 60px; object-fit: cover; flex-shrink: 0;" 
+                             alt="{{ $property->name }}"
+                             onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
                         <div>
                             <strong class="d-block text-dark fw-bold" style="font-size: 13px; line-height: 1.2;">{{ Str::limit($property->name, 26) }}</strong>
                             <div class="text-warning small mb-1" style="font-size: 11px;">
-                                @for($i = 0; $i < ($property->star_rating ?? 4); $i++)★@endfor
+                                @for($i = 0; $i < max(1, min(5, (int)($property->star_rating ?? 3))); $i++)★@endfor
                             </div>
-                            <span class="badge bg-success" style="font-size: 10px;">{{ $score }} Excellent</span>
+                            <span class="badge bg-success" style="font-size: 10px;">{{ $score }} {{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }}</span>
                         </div>
                     </div>
                     <div class="mt-2.5 pt-2 border-top text-secondary small" style="font-size: 11.5px;">
@@ -6170,7 +6189,7 @@ document.addEventListener('DOMContentLoaded', function() {
             city: @json($property->city),
             price: @json(\App\Services\CurrencyService::format($property->price_per_night)),
             rating: @json(number_format((float)($property->rating_score ?? 8.5), 1)),
-            image: @json($gallery[0] ?? $property->primary_image)
+            image: @json(media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'))
         };
         let recents = JSON.parse(localStorage.getItem('prime_recent_properties')) || [];
         recents = recents.filter(item => item.id !== prop.id);
@@ -6193,7 +6212,7 @@ document.addEventListener('DOMContentLoaded', function() {
     var hotelName = @json($property->name);
     var hotelAddress = @json($property->address ?: $property->city ?: 'Bangladesh');
     var hotelPrice = @json(\App\Services\CurrencyService::format($property->price_per_night));
-    var hotelImage = @json($gallery[0] ?? $property->primary_image);
+    var hotelImage = @json(media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=400&q=80'));
 
     // 1. Mini Map (Sidebar Live Real OpenStreetMap)
     var miniEl = document.getElementById('hotelDetailMiniMap');

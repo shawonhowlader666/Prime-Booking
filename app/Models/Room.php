@@ -57,7 +57,6 @@ class Room extends Model
 
     public function setAvailableRoomsAttribute($value): void
     {
-        $this->attributes['available_rooms'] = (int)$value;
         if (!isset($this->attributes['total_rooms'])) {
             $this->attributes['total_rooms'] = (int)$value;
         }
@@ -71,7 +70,7 @@ class Room extends Model
     public function setHasOceanViewAttribute($value): void
     {
         if ($value) {
-            $this->attributes['view_type'] = 'ocean_view';
+            $this->attributes['view_type'] = 'Sea View / Ocean Front';
         }
     }
 
@@ -128,5 +127,14 @@ class Room extends Model
     {
         $list = is_array($this->images) ? $this->images : [];
         return array_map(fn($img) => media_url($img), $list);
+    }
+
+    /**
+     * Images attribute accessor: ensures all room image paths are resolved to fully-qualified CDN / media URLs.
+     */
+    public function getImagesAttribute($value): array
+    {
+        $arr = is_string($value) ? (json_decode($value, true) ?: []) : (is_array($value) ? $value : []);
+        return array_values(array_filter(array_map(fn($img) => media_url($img), $arr)));
     }
 }

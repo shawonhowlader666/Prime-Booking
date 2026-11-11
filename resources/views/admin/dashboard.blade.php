@@ -292,8 +292,9 @@
                                 <td><strong style="color:#8c8c8c; font-size:13px;">{{ $i + 1 }}</strong></td>
                                 <td>
                                     <div style="display:flex; align-items:center; gap:8px;">
-                                        <img src="{{ $prop->primary_image ?? 'https://placehold.co/36x28/1890ff/white?text=H' }}"
-                                             style="width:36px; height:28px; border-radius:4px; object-fit:cover;">
+                                        <img src="{{ media_url($prop->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=80&q=80') }}"
+                                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=80&q=80';"
+                                             style="width:36px; height:28px; border-radius:4px; object-fit:cover;" alt="{{ $prop->name }}">
                                         <strong style="font-size:12.5px; color:#1e293b;">{{ Str::limit($prop->name, 28) }}</strong>
                                     </div>
                                 </td>

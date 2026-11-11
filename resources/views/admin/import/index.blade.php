@@ -258,7 +258,9 @@
                         <td>
                             <div class="d-flex align-items-center gap-2.5">
                                 @if(!empty($prop->primary_image))
-                                    <img src="{{ $prop->primary_image }}" alt="" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1;">
+                                    <img src="{{ media_url($prop->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=80&q=80') }}"
+                                         onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=80&q=80';"
+                                         alt="{{ $prop->name }}" style="width:36px; height:36px; object-fit:cover; border-radius:4px; border:1px solid #cbd5e1;">
                                 @else
                                     <div class="d-flex align-items-center justify-content-center bg-light text-secondary rounded" style="width:36px; height:36px; border:1px solid #e2e8f0;">
                                         <i class="fa-solid fa-hotel"></i>

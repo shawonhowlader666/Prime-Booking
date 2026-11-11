@@ -25,27 +25,22 @@
                 </li>
 
                 {{-- Transport Dropdown with Red "New!" Badge --}}
-                <li class="nav-item dropdown position-relative">
-                    <div style="position: absolute; top: 6px; left: -2px; z-index: 10; pointer-events: none;">
-                        <div style="background-color: #d91b42; color: #ffffff; font-size: 8.5px; font-weight: 800; border-radius: 3px; padding: 1px 5px; line-height: 1.1; box-shadow: 0 1px 3px rgba(217, 27, 66, 0.3);">
-                            New!
-                            <div style="position: absolute; bottom: -3px; left: 4px; width: 0; height: 0; border-left: 3px solid #d91b42; border-bottom: 3px solid transparent;"></div>
-                        </div>
-                    </div>
-                    <a class="nav-link dropdown-toggle px-1 d-flex align-items-center gap-1" href="#" role="button" data-bs-toggle="dropdown"
-                       style="color: #475569; height: 60px; padding-top: 4px; font-size: 14.5px; font-weight: 500;">
-                        <span>{{ __('Transport') }}</span>
-                    </a>
-                    <ul class="dropdown-menu border-0 shadow-lg p-2 mt-0" style="min-width: 200px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('flights.index') }}"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Domestic Flights</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#bus"><i class="fa-solid fa-bus text-success me-2"></i> Express Buses</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#train"><i class="fa-solid fa-train text-danger me-2"></i> Railway Trains</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#ferry"><i class="fa-solid fa-ship text-info me-2"></i> Launch &amp; Ferries</a></li>
-                        <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car text-warning me-2"></i> Airport Transfer</a></li>
-                    </ul>
-                </li>
+                <li class="nav-item dropdown" style="position: relative; list-style: none;">
+        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+           style="color: #475569; height: 60px; font-size: 14.5px; font-weight: 500; display: inline-flex; align-items: center; gap: 6px; text-decoration: none; padding: 0 4px;">
+            <span>{{ __('Transport') }}</span>
+            <span style="background-color: #d91b42; color: #ffffff; font-size: 9px; font-weight: 800; border-radius: 3px; padding: 1px 5px; line-height: 1.1;">New!</span>
+        </a>
+        <ul class="dropdown-menu" style="min-width: 200px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.15) !important;">
+            <li><a class="dropdown-item py-2 fw-medium" href="{{ route('flights.index') }}"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Domestic Flights</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#bus"><i class="fa-solid fa-bus text-success me-2"></i> Express Buses</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#train"><i class="fa-solid fa-train text-danger me-2"></i> Railway Trains</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{{ route('services') }}#ferry"><i class="fa-solid fa-ship text-info me-2"></i> Launch &amp; Ferries</a></li>
+            <li><a class="dropdown-item py-2 fw-medium" href="{{ route('transfers.index') }}"><i class="fa-solid fa-car text-warning me-2"></i> Airport Transfer</a></li>
+        </ul>
+    </li>
 
-                <li class="nav-item">
+    <li class="nav-item">
                     <a class="nav-link px-1" href="{{ route('packages') }}"
                        style="color: #475569; height: 60px; display: flex; align-items: center; font-size: 14.5px; font-weight: 500;">{{ __('Things to do') }}</a>
                 </li>
@@ -79,7 +74,7 @@
             </ul>
 
             {{-- Right Controls (Agoda Screenshot 100% Exact 1:1 Matching Spacing & Height) --}}
-            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="gap: 34px; white-space: nowrap; height: 60px; padding-right: 8px;">
+            <div class="d-flex align-items-center ms-auto flex-shrink-0" style="display: flex !important; flex-direction: row !important; align-items: center !important; gap: 20px !important; white-space: nowrap !important; height: 60px !important; margin-left: auto !important; padding-right: 8px !important;">
 
                 @php
                     $currentCurrency = \App\Helpers\CurrencyHelper::current();
@@ -98,7 +93,7 @@
                 @endphp
 
                 {{-- 1. Flag & Currency Badge (Agoda Image Exact: Flag + Currency Text) --}}
-                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="color: #262626; font-weight: 600; font-size: 14.5px; cursor: pointer; padding: 6px 12px; border-radius: 6px; gap: 14px; transition: background 0.15s ease;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+                <a href="#" class="d-flex align-items-center text-decoration-none" data-bs-toggle="modal" data-bs-target="#agodaLanguageModal" style="display: inline-flex !important; flex-direction: row !important; align-items: center !important; color: #262626 !important; font-weight: 600 !important; font-size: 14px !important; cursor: pointer !important; padding: 6px 10px !important; border-radius: 6px !important; gap: 8px !important; text-decoration: none !important;">
                     @if($currencyFlag === 'bd')
                         <img loading="lazy" decoding="async" src="https://flagcdn.com/w40/bd.png" alt="BD" style="width: 24px; height: 15px; border-radius: 2px; object-fit: cover; box-shadow: 0 1px 2px rgba(0,0,0,0.15); flex-shrink: 0;">
                     @elseif($currencyFlag === 'us')

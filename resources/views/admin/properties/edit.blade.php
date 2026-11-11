@@ -3,46 +3,61 @@
 
 @section('content')
 
-{{-- PAGE HEADER --}}
-<div class="page-header-card">
-    <div class="page-breadcrumb">
-        <a href="{{ route('admin.dashboard') }}"><i class="fa-solid fa-house"></i> Dashboard</a>
-        <span class="sep">-</span><a href="{{ route('admin.properties.index') }}">Inventory</a>
-        <span class="sep">-</span><strong style="color:#333;">Edit Listing</strong>
-    </div>
-    <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
-        <h1 class="page-title" style="font-size:16px;">Editing: {{ $property->name }}</h1>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <a href="{{ route('hotels.preview', $property->id) }}" target="_blank" class="btn-table-action primary" style="padding:6px 14px; background:#4f46e5; border-color:#4f46e5;">
-                <i class="fa-solid fa-eye me-1"></i> Preview on Web <i class="fa-solid fa-external-link ms-1"></i>
+{{-- 1. Backdrop Overlay (covers the left 1/3 of the screen, click to close) --}}
+<a href="{{ route('admin.properties.index') }}" class="edit-drawer-backdrop" title="Click to close editor and return to inventory"></a>
+
+{{-- 2. Slide-Over Drawer Container (Takes 2/3 of screen width from the right) --}}
+<div class="edit-drawer-container">
+
+    {{-- DRAWER STICKY TOP HEADER --}}
+    <div class="edit-drawer-header">
+        <div class="edit-drawer-header-left">
+            <span class="edit-drawer-header-badge">#PROP-{{ str_pad($property->id, 4, '0', STR_PAD_LEFT) }}</span>
+            <h1 class="edit-drawer-header-title" title="{{ $property->name }}">
+                <i class="fa-solid fa-pen-to-square text-primary me-1"></i> Editing: {{ $property->name }}
+            </h1>
+        </div>
+
+        <div class="edit-drawer-header-actions">
+            {{-- Manage Rooms Button (Crisp 4px, icon on left only) --}}
+            <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-manage-rooms" title="Manage Rooms for this Property">
+                <i class="fa-solid fa-bed"></i>
+                <span>Manage Rooms ({{ $property->rooms->count() }})</span>
             </a>
-            <a href="{{ route('admin.properties.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959; padding:6px 14px;">
-                <i class="fa-solid fa-arrow-left"></i> Back
+
+            {{-- Preview on Web Button (Solid blue, crisp 4px, icon on left only) --}}
+            <a href="{{ route('hotels.preview', $property->id) }}" target="_blank" class="btn-preview-web" title="View Live Hotel Page">
+                <i class="fa-solid fa-eye"></i>
+                <span>Preview on Web</span>
+            </a>
+
+            {{-- Close Drawer Button (X) --}}
+            <a href="{{ route('admin.properties.index') }}" class="btn-drawer-close" title="Close Drawer (Esc)">
+                <i class="fa-solid fa-xmark"></i>
             </a>
         </div>
     </div>
-</div>
 
-{{-- PAGE CONTENT --}}
-<div class="page-content-area">
-    <div style="max-width:920px; margin:0 auto;">
+    {{-- DRAWER FORM (Flex column layout so footer stays sticky at bottom) --}}
+    <form id="editPropertyForm" class="edit-drawer-form" action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
+        @csrf
+        @method('PUT')
 
-        @if(session('success'))
-            <div class="admin-alert success mb-3">
-                <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
-            </div>
-        @endif
+        {{-- DRAWER SCROLLABLE BODY --}}
+        <div class="edit-drawer-body">
 
-        @if($errors->any())
-            <div class="admin-alert error mb-3">
-                <i class="fa-solid fa-circle-xmark me-1"></i>
-                {{ implode(', ', $errors->all()) }}
-            </div>
-        @endif
+            @if(session('success'))
+                <div class="admin-alert success mb-3">
+                    <i class="fa-solid fa-circle-check me-1"></i> {{ session('success') }}
+                </div>
+            @endif
 
-        <form action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
-            @csrf
-            @method('PUT')
+            @if($errors->any())
+                <div class="admin-alert error mb-3">
+                    <i class="fa-solid fa-circle-xmark me-1"></i>
+                    {{ implode(', ', $errors->all()) }}
+                </div>
+            @endif
 
             {{-- STEP 1 --}}
             <div class="form-card mb-3">
@@ -111,13 +126,17 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">Full Address <span style="color:#ff4d4f;">*</span></label>
                         <input type="text" name="address" class="form-control" value="{{ old('address', $property->address) }}" required>
                     </div>
+                    <div class="col-md-2">
+                        <label class="form-label">Postal / ZIP Code</label>
+                        <input type="text" name="postal_code" class="form-control" value="{{ old('postal_code', $property->postal_code) }}" placeholder="e.g. 4700">
+                    </div>
                     <div class="col-md-6">
                         <label class="form-label">Nearest Landmark / Distance</label>
-                        <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark', $property->nearest_landmark) }}" placeholder="e.g. 2 mins walk from Beach Point">
+                        <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark', $property->nearest_landmark) }}" placeholder="e.g. 2 mins walk from Beach Point, 3.2 km from Airport">
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">Real-Time GPS Coordinates (Lat, Long)</label>
@@ -127,7 +146,7 @@
                         </div>
                     </div>
                     <div class="col-12">
-                        <div class="p-2.5 border rounded bg-light" style="border-radius:6px;">
+                        <div class="border rounded bg-light" style="padding:12px 14px; border-radius:4px; border-color:#cbd5e1 !important;">
                             <div class="d-flex justify-content-between align-items-center mb-1.5">
                                 <span class="fw-bold text-dark" style="font-size:12px;">
                                     <i class="fa-solid fa-map-pin text-danger me-1"></i> Interactive Geolocation Pin Picker (OpenStreetMap)
@@ -170,13 +189,13 @@
                         <input type="number" name="year_built" class="form-control" value="{{ old('year_built', $property->year_built) }}" placeholder="e.g. 2023" min="1950" max="2030">
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label">Front Desk Languages Spoken</label>
-                        <div class="d-flex flex-wrap gap-2 p-2 rounded border bg-light">
+                        <label class="form-label fw-bold text-dark" style="font-size:12.5px;">Front Desk Languages Spoken</label>
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; padding:8px 10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
                             @php $curLangs = (array)($property->languages_spoken ?? ['English', 'Bengali']); @endphp
                             @foreach(['English', 'Bengali', 'Hindi', 'Arabic', 'Chinese'] as $lang)
-                                <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                                    <input class="form-check-input m-0" type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, $curLangs) ? 'checked' : '' }} style="cursor:pointer;">
-                                    {{ $lang }}
+                                <label style="display:inline-flex; align-items:center; gap:8px; padding:4px 10px; border-radius:4px; border:1px solid #cbd5e1; background:#ffffff; font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none; margin:0;">
+                                    <input type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, $curLangs) ? 'checked' : '' }} style="cursor:pointer; margin:0; width:15px; height:15px; accent-color:#1890ff;">
+                                    <span>{{ $lang }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -188,6 +207,13 @@
                             <option value="Pets Allowed" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed' ? 'selected' : '' }}>🐾 Pets Allowed (Free / Fee)</option>
                             <option value="Pets Allowed on Request" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed on Request' ? 'selected' : '' }}>💬 Pets Allowed on Request</option>
                         </select>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">
+                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> House Rules, Check-in &amp; Deposit Policies (Agoda Extranet Standard)
+                        </label>
+                        <textarea name="house_rules" class="form-control" rows="2" placeholder="e.g. Valid national NID / passport required at check-in. Minimum check-in age is 18. Marriage certificate or proof of relationship required for couples. Security deposit payable in cash or card upon arrival.">{{ old('house_rules', $property->house_rules) }}</textarea>
+                        <small class="text-muted" style="font-size:11px;">Guests will see this under 'Property Policies' on the public hotel page</small>
                     </div>
                 </div>
             </div>
@@ -320,7 +346,7 @@
             </div>
 
 
-            {{-- STEP 3: Images --}}
+            {{-- STEP 3: Images & Media --}}
             <div class="form-card mb-3">
                 <div class="form-section-title">
                     <i class="fa-solid fa-images me-1"></i> Property Images &amp; Media
@@ -333,7 +359,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label">OR Primary Image Direct URL</label>
-                        <input type="url" name="primary_image" id="primaryImgUrl" class="form-control"
+                        <input type="text" name="primary_image" id="primaryImgUrl" class="form-control"
                             value="{{ old('primary_image', $property->primary_image) }}"
                             placeholder="https://images.unsplash.com/photo-..."
                             oninput="previewUrl(this.value)">
@@ -341,7 +367,9 @@
                     @if($property->primary_image)
                     <div class="col-12">
                         <div style="margin-bottom:4px; display:flex; align-items:center; gap:12px; padding:6px 10px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px;">
-                            <img src="{{ $property->primary_image }}" style="height:55px; width:75px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Current Image">
+                            <img src="{{ media_url($property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}"
+                                 onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';"
+                                 style="height:55px; width:75px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Current Image">
                             <div>
                                 <span class="d-block fw-bold text-dark" style="font-size:11.5px;">Current Active Cover Image</span>
                                 <span style="font-size:11px; color:#64748b; word-break:break-all;">{{ $property->primary_image }}</span>
@@ -351,6 +379,112 @@
                     @endif
                     <div class="col-12" id="imgPreviewWrap" style="display:none;">
                         <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
+                    </div>
+
+                    {{-- Interactive Current Photo Gallery & Category Manager --}}
+                    @if(!empty($structuredGallery) && count($structuredGallery) > 0)
+                    <div class="col-12 mb-3">
+                        <div class="card border-0 shadow-sm" style="background:#f8fafc; border:1px solid #cbd5e1 !important; border-radius:6px;">
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
+                                <span class="fw-bold text-dark" style="font-size:13px;">
+                                    <i class="fa-solid fa-images text-primary me-1.5"></i> Manage Current Hotel Photos ({{ count($structuredGallery) }} items)
+                                </span>
+                                <small class="text-muted" style="font-size:11.5px;">Change category, edit caption, replace file, set cover, or delete</small>
+                            </div>
+                            <div class="card-body p-3">
+                                <div class="row g-3" style="max-height: 480px; overflow-y: auto;">
+                                    @php
+                                        $currentPrimaryClean = ltrim(str_replace('/storage/', '', $property->primary_image ?? ''), '/');
+                                    @endphp
+                                    @foreach($structuredGallery as $gIdx => $gPhoto)
+                                    @php
+                                        $thisPhotoClean = ltrim(str_replace('/storage/', '', $gPhoto['url']), '/');
+                                        $isCover = ($gPhoto['url'] === $property->primary_image || $thisPhotoClean === $currentPrimaryClean);
+                                    @endphp
+                                    <div class="col-md-4 col-sm-6">
+                                        <div class="p-2 bg-white rounded border h-100 position-relative d-flex flex-column gap-1.5 shadow-xs" style="border-color:{{ $isCover ? '#3b82f6' : '#e2e8f0' }} !important; {{ $isCover ? 'box-shadow: 0 0 0 1px #3b82f6;' : '' }}">
+                                            <input type="hidden" name="existing_gallery[{{ $gIdx }}][url]" value="{{ $gPhoto['url'] }}">
+                                            <div class="position-relative overflow-hidden rounded" style="height: 110px; background:#0f172a;">
+                                                <img src="{{ media_url($gPhoto['url']) }}"
+                                                     onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300&q=80';"
+                                                     class="w-100 h-100" style="object-fit: cover;" alt="Photo" loading="lazy">
+                                                <span class="position-absolute top-0 start-0 m-1.5 badge bg-dark bg-opacity-75" style="font-size:10px;">#{{ $gIdx + 1 }}</span>
+                                                @if($isCover)
+                                                    <span class="position-absolute top-0 end-0 m-1.5 badge bg-primary" style="font-size:10px;">
+                                                        <i class="fa-solid fa-star me-0.5"></i> Cover
+                                                    </span>
+                                                @endif
+                                            </div>
+
+                                            {{-- Set as Cover Radio Option --}}
+                                            <div class="d-flex align-items-center justify-content-between pt-1">
+                                                <div class="form-check form-check-sm mb-0">
+                                                    <input class="form-check-input" type="radio" name="set_primary_image_url" value="{{ $gPhoto['url'] }}" id="setCover_{{ $gIdx }}"
+                                                        {{ $isCover ? 'checked' : '' }}
+                                                        onchange="document.getElementById('primaryImgUrl').value=this.value; if(window.previewUrl) previewUrl(this.value);">
+                                                    <label class="form-check-label fw-bold text-primary" for="setCover_{{ $gIdx }}" style="font-size:11px; cursor:pointer;">
+                                                        <i class="fa-regular fa-star me-0.5 text-warning"></i> Set as Cover
+                                                    </label>
+                                                </div>
+                                            </div>
+
+                                            {{-- Replace Image File In-Place --}}
+                                            <div class="pt-0.5">
+                                                <label class="form-label mb-0 text-muted" style="font-size:10.5px;">
+                                                    <i class="fa-solid fa-arrow-rotate-right text-info me-0.5"></i> Replace file:
+                                                </label>
+                                                <input type="file" name="existing_gallery_replace[{{ $gIdx }}]" class="form-control form-control-sm" accept="image/*" style="font-size:11px; padding:2px 6px;">
+                                            </div>
+
+                                            <div>
+                                                <label class="form-label mb-0.5" style="font-size:11px; font-weight:600; color:#475569;">Category:</label>
+                                                <select name="existing_gallery[{{ $gIdx }}][category]" class="form-select form-select-sm fw-semibold" style="font-size:11.5px; padding:3px 8px;">
+                                                    <option value="property_views" @selected(($gPhoto['category'] ?? '') === 'property_views')>Property views (Exterior/Lobby)</option>
+                                                    <option value="facilities" @selected(($gPhoto['category'] ?? '') === 'facilities')>Facilities (Pool/Gym/Spa/Hall)</option>
+                                                    <option value="dining" @selected(($gPhoto['category'] ?? '') === 'dining')>Dining (Restaurant/Cafe/Buffet)</option>
+                                                    <option value="rooms" @selected(($gPhoto['category'] ?? '') === 'rooms')>Rooms &amp; Suites</option>
+                                                    <option value="other" @selected(($gPhoto['category'] ?? '') === 'other')>Other</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <input type="text" name="existing_gallery[{{ $gIdx }}][title]" value="{{ $gPhoto['title'] ?? '' }}" placeholder="Caption / Title" class="form-control form-control-sm" style="font-size:11.5px; padding:3px 8px;">
+                                            </div>
+                                            <div class="mt-auto pt-1 d-flex align-items-center justify-content-between border-top">
+                                                <div class="form-check form-check-sm mb-0">
+                                                    <input class="form-check-input" type="checkbox" name="existing_gallery[{{ $gIdx }}][delete]" value="1" id="delPhoto_{{ $gIdx }}">
+                                                    <label class="form-check-label text-danger fw-semibold" for="delPhoto_{{ $gIdx }}" style="font-size:11px; cursor:pointer;">
+                                                        <i class="fa-solid fa-trash-can me-1"></i> Delete photo
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
+                    {{-- Upload Category Selector for New Uploads --}}
+                    <div class="col-12 mb-1">
+                        <div class="rounded border d-flex flex-wrap align-items-center justify-content-between gap-2" style="padding:12px 14px; border-radius:4px; border-color:#bfdbfe !important; background:#eff6ff !important;">
+                            <div>
+                                <label class="form-label fw-bold text-dark mb-0" style="font-size:12.5px;">
+                                    <i class="fa-solid fa-tag text-primary me-1"></i> Category for New Photos Below:
+                                </label>
+                                <span class="d-block text-muted" style="font-size:11px;">Select the category to automatically assign to files or URLs added below</span>
+                            </div>
+                            <div>
+                                <select name="new_gallery_category" class="form-select form-select-sm fw-bold border-primary" style="min-width:230px; font-size:12px;">
+                                    <option value="property_views" selected>Property views (Exterior, Lobby, Building)</option>
+                                    <option value="facilities">Facilities (Pool, Gym, Spa, Ballroom)</option>
+                                    <option value="dining">Dining (Restaurant, Cafe, Buffet)</option>
+                                    <option value="rooms">Rooms &amp; Suites</option>
+                                    <option value="other">Other / General</option>
+                                </select>
+                            </div>
+                        </div>
                     </div>
 
                     {{-- Drag & Drop Multi-Image Dropzone for Admin Gallery Photos --}}
@@ -368,19 +502,89 @@
                         <div id="adminEditGalleryPreviewContainer" class="d-flex flex-wrap gap-2 mt-2.5"></div>
                     </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-file-video text-danger me-1"></i> Upload Video Tour File (MP4)</label>
-                        <input type="file" name="video_file" class="form-control" accept="video/*">
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="fa-brands fa-youtube text-danger me-1"></i> OR Video Tour URL (YouTube / Embed)</label>
-                        <input type="url" name="video_url" class="form-control"
-                            value="{{ old('video_url', $property->video_url) }}" placeholder="e.g. https://www.youtube.com/embed/dQw4w9WgXcQ">
-                    </div>
                     <div class="col-12">
                         <label class="form-label">Gallery Image URLs (one per line)</label>
                         <textarea name="gallery_images" class="form-control" rows="2"
                             placeholder="https://cdn.example.com/image1.jpg&#10;https://cdn.example.com/image2.jpg">{{ old('gallery_images', $galleryText) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            {{-- STEP 3.5: Hotel Video Tour & Virtual Walkthrough --}}
+            <div class="form-card mb-3">
+                <div class="form-section-title d-flex align-items-center justify-content-between">
+                    <span><i class="fa-solid fa-film text-danger me-1"></i> Hotel Video Tour &amp; Virtual Walkthrough</span>
+                    <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25" style="font-size:11px;">Interactive Hero Media</span>
+                </div>
+
+                @if(!empty($property->video_url))
+                <div class="mb-3 p-3 bg-light rounded border" style="border-color:#cbd5e1 !important; border-radius:4px;">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                        <span class="fw-bold text-dark" style="font-size:13px;">
+                            <i class="fa-solid fa-circle-play text-danger me-1"></i> Current Active Video Tour
+                        </span>
+                        <div class="form-check form-check-sm mb-0">
+                            <input class="form-check-input" type="checkbox" name="remove_video" value="1" id="removeAdminVideo" style="cursor:pointer;">
+                            <label class="form-check-label text-danger fw-bold" for="removeAdminVideo" style="font-size:12px; cursor:pointer; margin-left:4px;">
+                                <i class="fa-solid fa-trash-can me-1"></i> Remove Current Video
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3 align-items-center">
+                        <div class="col-md-6">
+                            @php
+                                $vUrl = $property->video_url;
+                                $isYt = preg_match('/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i', $vUrl, $ytm);
+                                $ytId = $isYt ? $ytm[1] : null;
+                            @endphp
+                            @if($ytId)
+                                <div class="ratio ratio-16x9 rounded overflow-hidden shadow-sm" style="max-height:220px; border-radius:4px;">
+                                    <iframe src="https://www.youtube.com/embed/{{ $ytId }}" title="Video Tour" allowfullscreen></iframe>
+                                </div>
+                            @else
+                                <video src="{{ media_url($vUrl) }}" controls class="w-100 rounded shadow-sm" style="max-height:220px; background:#000; border-radius:4px;" preload="metadata"></video>
+                            @endif
+                        </div>
+                        <div class="col-md-6">
+                            <div style="padding:16px 18px; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; font-size:12px;">
+                                <div style="color:#64748b; font-weight:600; font-size:12px; margin-bottom:8px;">Active Video Source:</div>
+                                <div style="padding:10px 14px; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; font-family:SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size:11.5px; color:#1e293b; word-break:break-all; line-height:1.5;">
+                                    {{ $property->video_url }}
+                                </div>
+                                <div style="display:flex; align-items:center; gap:8px; color:#64748b; margin-top:10px; font-size:11.5px; line-height:1.4;">
+                                    <i class="fa-solid fa-circle-info text-info" style="font-size:13px; flex-shrink:0;"></i>
+                                    <span>This video plays with sound controls in the hotel hero gallery on both desktop and mobile.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endif
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark" style="font-size:12.5px;">
+                            <i class="fa-solid fa-file-video text-danger me-1"></i> Upload New Video Tour File (Device / Local)
+                        </label>
+                        <input type="file" name="video_file" class="form-control" accept="video/mp4,video/webm,video/ogg,video/quicktime">
+                        <small class="text-muted" style="font-size:11px;">Upload MP4/WebM walkthrough (Max 100MB). Overrides current video.</small>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark" style="font-size:12.5px;">
+                            <i class="fa-brands fa-youtube text-danger me-1"></i> OR Video Tour URL (YouTube / Embed / Stream)
+                        </label>
+                        <input type="text" name="video_url" id="adminVideoUrlInput" class="form-control"
+                            value="{{ old('video_url', $property->video_url) }}"
+                            placeholder="e.g. https://www.youtube.com/watch?v=... or direct MP4 link"
+                            oninput="previewAdminVideoUrl(this.value)">
+                        <small class="text-muted" style="font-size:11px;">Paste any YouTube link, Vimeo embed, or Cloudflare / direct MP4 URL.</small>
+                    </div>
+                    <div class="col-12" id="adminVideoUrlPreviewWrap" style="display:none;">
+                        <div style="padding:14px 16px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
+                            <span class="d-block text-muted mb-2" style="font-size:11.5px; font-weight:600;"><i class="fa-solid fa-eye me-1 text-primary"></i> Live New Video URL Preview:</span>
+                            <div id="adminVideoUrlPreviewFrame"></div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -417,12 +621,13 @@
                         ['elevator','fa-elevator','Elevator / Lift'],
                     ] as $am)
                     <div class="col-6 col-md-3">
-                        <div style="padding:8px 10px; border:1px solid {{ in_array($am[0], $currentAmenities) ? '#1890ff' : '#e8e8e8' }}; border-radius:6px; display:flex; align-items:center; gap:8px; cursor:pointer; background:{{ in_array($am[0], $currentAmenities) ? '#e6f7ff' : '#fafafa' }}; transition:all 0.15s;">
+                        <div style="padding:8px 10px; border:1px solid {{ in_array($am[0], $currentAmenities) ? '#1890ff' : '#e8e8e8' }}; border-radius:4px; display:flex; align-items:center; gap:8px; cursor:pointer; background:{{ in_array($am[0], $currentAmenities) ? '#e6f7ff' : '#fafafa' }}; transition:all 0.15s;">
                             <input type="checkbox" name="amenities[]" value="{{ $am[0] }}" id="eam_{{ $am[0] }}"
                                 {{ in_array($am[0], $currentAmenities) ? 'checked' : '' }}
-                                style="cursor:pointer;">
-                            <label for="eam_{{ $am[0] }}" style="font-size:12px; color:#334155; cursor:pointer; margin:0; display:flex; align-items:center; gap:6px;">
-                                <i class="fa-solid {{ $am[1] }}" style="color:var(--primary); width:14px;"></i> {{ $am[2] }}
+                                style="cursor:pointer; margin:0; width:15px; height:15px; flex-shrink:0; accent-color:#1890ff;">
+                            <label for="eam_{{ $am[0] }}" style="font-size:12px; color:#334155; cursor:pointer; margin:0; display:flex; align-items:center; gap:8px;">
+                                <i class="fa-solid {{ $am[1] }}" style="color:var(--primary); width:14px; flex-shrink:0;"></i>
+                                <span>{{ $am[2] }}</span>
                             </label>
                         </div>
                     </div>
@@ -431,7 +636,7 @@
 
                 {{-- Dynamic Custom Amenity Tag Builder --}}
                 <div class="p-3 border rounded bg-light mt-3" style="border-radius:4px;">
-                    <label class="form-label fw-bold text-dark mb-1.5 d-flex align-items-center justify-content-between" style="font-size:12.5px;">
+                    <label class="form-label fw-bold text-dark mb-2 d-flex align-items-center justify-content-between" style="font-size:12.5px;">
                         <span><i class="fa-solid fa-plus-circle text-primary me-1"></i> + Add Custom Hotel Facility / Amenity</span>
                         <small class="text-muted">Type any custom facility and click + Add</small>
                     </label>
@@ -441,17 +646,18 @@
                             + Add
                         </button>
                     </div>
-                    <div id="adminEditCustomAmenitiesContainer" class="d-flex flex-wrap gap-2">
+                    <div id="adminEditCustomAmenitiesContainer" style="display:flex; flex-wrap:wrap; gap:8px;">
                         @php
                             $standardList = ['wifi','pool','parking','ac','restaurant','breakfast','gym','spa','bar','beachfront','pet','transfer','laundry','elevator'];
                         @endphp
                         @if(is_array($currentAmenities))
                             @foreach($currentAmenities as $cAm)
                                 @if(!in_array($cAm, $standardList))
-                                <span class="badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs" style="font-size:12px;">
-                                    <i class="fa-solid fa-circle-check text-success"></i> {{ $cAm }}
+                                <span class="custom-amenity-pill" style="display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; color:#1e293b; box-shadow:0 1px 2px rgba(0,0,0,0.04);">
+                                    <i class="fa-solid fa-circle-check text-success" style="font-size:13px; flex-shrink:0; margin:0;"></i>
+                                    <span>{{ $cAm }}</span>
                                     <input type="hidden" name="amenities[]" value="{{ $cAm }}">
-                                    <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>
+                                    <button type="button" class="btn-close" style="font-size:8px; margin-left:4px; cursor:pointer;" onclick="this.parentElement.remove()" title="Remove"></button>
                                 </span>
                                 @endif
                             @endforeach
@@ -460,18 +666,26 @@
                 </div>
             </div>
 
-            {{-- FORM ACTIONS --}}
-            <div style="display:flex; justify-content:flex-end; gap:10px; padding:16px 0; flex-wrap:wrap;">
-                <a href="{{ route('admin.properties.index') }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959; padding:8px 20px;">
-                    Cancel
+        </div>
+
+        {{-- DRAWER STICKY BOTTOM ACTION BAR --}}
+        <div class="edit-drawer-footer">
+            <div class="edit-drawer-footer-hint">
+                <i class="fa-solid fa-shield-halved text-success me-1.5" style="font-size:13px;"></i>
+                <span>Live Real-Time Hotel Editor</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <a href="{{ route('admin.properties.index') }}" class="btn-header-action" style="padding:0 18px; height:36px; font-size:13px; border-radius:4px;">
+                    <i class="fa-solid fa-xmark"></i> <span>Cancel</span>
                 </a>
-                <button type="submit" class="btn-add-primary" style="padding:8px 28px;">
-                    Save Changes <i class="fa-solid fa-check ms-1"></i>
+                <button type="submit" class="btn-add-primary" style="padding:0 24px; height:36px; font-size:13px; font-weight:600; border-radius:4px;">
+                    <i class="fa-solid fa-check"></i> <span>Save Changes</span>
                 </button>
             </div>
+        </div>
 
-        </form>
-    </div>
+    </form>
+
 </div>
 
 @endsection
@@ -640,15 +854,37 @@ function promptAdminEditCity() {
     }
 }
 
+function previewAdminVideoUrl(url) {
+    const wrap = document.getElementById('adminVideoUrlPreviewWrap');
+    const frame = document.getElementById('adminVideoUrlPreviewFrame');
+    if (!wrap || !frame) return;
+    const trimmed = (url || '').trim();
+    if (!trimmed) {
+        wrap.style.display = 'none';
+        frame.innerHTML = '';
+        return;
+    }
+    const ytMatch = trimmed.match(/(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/ ]{11})/i);
+    if (ytMatch && ytMatch[1]) {
+        wrap.style.display = 'block';
+        frame.innerHTML = `<div class="ratio ratio-16x9 rounded overflow-hidden" style="max-height:220px;"><iframe src="https://www.youtube.com/embed/${ytMatch[1]}" frameborder="0" allowfullscreen></iframe></div>`;
+    } else if (trimmed.match(/\.(mp4|webm|ogg)($|\?)/i) || trimmed.startsWith('/storage/')) {
+        wrap.style.display = 'block';
+        frame.innerHTML = `<video src="${trimmed}" controls class="w-100 rounded" style="max-height:220px; background:#000;"></video>`;
+    } else {
+        wrap.style.display = 'none';
+    }
+}
+
 function addAdminEditCustomAmenity() {
     const input = document.getElementById('adminEditCustomAmenityInput');
     const val = input.value.trim();
     if (!val) return;
     const container = document.getElementById('adminEditCustomAmenitiesContainer');
     const pill = document.createElement('span');
-    pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
-    pill.style.fontSize = '12px';
-    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    pill.className = 'custom-amenity-pill';
+    pill.style.cssText = 'display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; color:#1e293b; box-shadow:0 1px 2px rgba(0,0,0,0.04);';
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success" style="font-size:13px; flex-shrink:0; margin:0;"></i> <span>${val}</span> <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close" style="font-size:8px; margin-left:4px; cursor:pointer;" onclick="this.parentElement.remove()" title="Remove"></button>`;
     container.appendChild(pill);
     input.value = '';
 }
@@ -676,5 +912,19 @@ function previewFile(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
+
+// ── Close 2/3 Drawer on ESC key ──
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        window.location.href = "{{ route('admin.properties.index') }}";
+    }
+});
+
+// ── Invalidate Leaflet Map Size after drawer slide-in animation ──
+setTimeout(function() {
+    if (adminEditPropertyMap) {
+        adminEditPropertyMap.invalidateSize();
+    }
+}, 350);
 </script>
 @endsection

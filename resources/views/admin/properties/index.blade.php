@@ -217,10 +217,15 @@
                             <td style="text-align:center;"><input type="checkbox" name="ids[]" value="{{ $p->id }}" class="tbl-row-check tbl-select-checkbox" onchange="updateRowHighlight(this)"></td>
                             <td>
                                 <div style="display:flex; align-items:center; gap:10px;">
-                                    <img src="{{ $p->primary_image ?? 'https://placehold.co/50x38/1890ff/white?text=Hotel' }}"
-                                         style="width:50px; height:38px; object-fit:cover; border-radius:5px; border:1px solid #e8e8e8;" alt="">
+                                    <a href="{{ route('admin.properties.edit', $p->id) }}" style="display:inline-block; flex-shrink:0;" title="Edit {{ $p->name }}">
+                                        <img src="{{ media_url($p->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}"
+                                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';"
+                                             style="width:50px; height:38px; object-fit:cover; border-radius:4px; border:1px solid #e8e8e8;" alt="{{ $p->name }}">
+                                    </a>
                                     <div>
-                                        <strong style="font-size:13px; color:#1e293b; display:block;">{{ Str::limit($p->name, 35) }}</strong>
+                                        <a href="{{ route('admin.properties.edit', $p->id) }}" style="font-size:13px; font-weight:700; color:#1e293b; display:block; text-decoration:none;" class="hotel-title-link" title="Edit {{ $p->name }}">
+                                            {{ Str::limit($p->name, 35) }}
+                                        </a>
                                         <div class="d-flex align-items-center gap-1 mt-0.5">
                                             <span style="font-size:10px; color:#8c8c8c;">#PROP-{{ str_pad($p->id, 4, '0', STR_PAD_LEFT) }}</span>
                                             @if(!empty($p->vendor_id) && $p->vendor)

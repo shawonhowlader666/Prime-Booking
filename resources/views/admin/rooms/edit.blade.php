@@ -11,8 +11,8 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title" style="font-size:16px;">Editing: {{ $room->name }}</h1>
-        <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959;">
-            <i class="fa-solid fa-arrow-left"></i> Back to Rooms
+        <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-header-action">
+            <i class="fa-solid fa-arrow-left"></i> <span>Back to Rooms</span>
         </a>
     </div>
 </div>
@@ -44,16 +44,58 @@
                             @endforeach
                         </select>
                     </div>
+                    <div class="col-md-4">
+                        <label class="form-label"><i class="fa-solid fa-circle-check text-success me-1"></i> Status</label>
+                        <select name="status" class="form-select fw-semibold">
+                            <option value="active" {{ old('status', $room->status ?? 'active') === 'active' ? 'selected' : '' }}>Active (Available for Booking)</option>
+                            <option value="inactive" {{ old('status', $room->status ?? 'active') === 'inactive' ? 'selected' : '' }}>Inactive (Blocked / Maintenance)</option>
+                        </select>
+                    </div>
+
+                    {{-- Existing Room Photos Gallery Manager --}}
                     @php
-                        $adminRoomImg = (!empty($room->images) && is_array($room->images)) ? $room->images[0] : '';
+                        $rPhotos = is_array($room->images) ? $room->images : (json_decode($room->images ?? '[]', true) ?: []);
                     @endphp
+                    @if(!empty($rPhotos) && count($rPhotos) > 0)
+                    <div class="col-12">
+                        <div class="card border-0 shadow-sm" style="background:#f8fafc; border:1px solid #cbd5e1 !important; border-radius:6px;">
+                            <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
+                                <span class="fw-bold text-dark" style="font-size:12.5px;">
+                                    <i class="fa-solid fa-images text-primary me-1.5"></i> Current Room Photos ({{ count($rPhotos) }})
+                                </span>
+                                <small class="text-muted" style="font-size:11px;">Select checkbox to remove any photo</small>
+                            </div>
+                            <div class="card-body p-2.5">
+                                <div class="row g-2" style="max-height: 240px; overflow-y: auto;">
+                                    @foreach($rPhotos as $pIdx => $pUrl)
+                                    <div class="col-md-3 col-sm-4 col-6">
+                                        <div class="p-1.5 bg-white rounded border position-relative d-flex flex-column gap-1">
+                                            <div class="rounded overflow-hidden" style="height: 80px; background:#000;">
+                                                <img src="{{ media_url($pUrl) }}" class="w-100 h-100" style="object-fit:cover;" alt="Room Photo" loading="lazy">
+                                            </div>
+                                            <div class="form-check form-check-sm mt-1 mb-0">
+                                                <input class="form-check-input" type="checkbox" name="delete_images[]" value="{{ $pUrl }}" id="delRoomImg_{{ $pIdx }}">
+                                                <label class="form-check-label text-danger fw-semibold" for="delRoomImg_{{ $pIdx }}" style="font-size:11px; cursor:pointer;">
+                                                    <i class="fa-solid fa-trash-can me-1"></i> Delete
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    @endforeach
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    @endif
+
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Cover Photo URL</label>
-                        <input type="url" name="image_url" class="form-control" value="{{ old('image_url', $adminRoomImg) }}" placeholder="https://images.unsplash.com/photo-...">
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload More Photos (Multi-Select)</label>
+                        <input type="file" name="image_files[]" multiple accept="image/*" class="form-control">
+                        <small class="text-muted" style="font-size:11px;">You can select multiple photos at once</small>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Upload New Photo</label>
-                        <input type="file" name="image_file" accept="image/*" class="form-control">
+                        <label class="form-label"><i class="fa-solid fa-link text-primary me-1"></i> Additional Photo URLs (one per line)</label>
+                        <textarea name="image_urls" class="form-control" rows="2" placeholder="https://.../photo1.jpg&#10;https://.../photo2.jpg"></textarea>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Room Size (m²)</label>
@@ -228,17 +270,19 @@
                     <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST"
                         onsubmit="return confirm('Delete room type permanently?')">
                         @csrf @method('DELETE')
-                        <button type="submit" class="btn-table-action danger" style="padding:8px 18px;">
-                            Delete Room <i class="fa-solid fa-trash ms-1"></i>
+                        <button type="submit" class="btn-table-action danger" style="padding:8px 18px; border-radius:4px;">
+                            <i class="fa-solid fa-trash"></i> <span>Delete Room</span>
                         </button>
                     </form>
                 </div>
             </div>
 
-            <div style="display:flex; justify-content:flex-end; gap:10px; padding:12px 0;">
-                <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959; padding:8px 20px;">Cancel</a>
-                <button type="submit" class="btn-add-primary" style="padding:8px 28px;">
-                    Save Changes <i class="fa-solid fa-check ms-1"></i>
+            <div style="display:flex; justify-content:flex-end; gap:10px; padding:18px 0; align-items:center;">
+                <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-header-action" style="padding:0 18px; height:36px; font-size:13px; border-radius:4px;">
+                    <i class="fa-solid fa-xmark"></i> <span>Cancel</span>
+                </a>
+                <button type="submit" class="btn-add-primary" style="padding:0 24px; height:36px; font-size:13px; font-weight:600; border-radius:4px;">
+                    <i class="fa-solid fa-check"></i> <span>Save Changes</span>
                 </button>
             </div>
 

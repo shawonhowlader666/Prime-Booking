@@ -1,6 +1,6 @@
 @extends('layouts.main', ['activePage' => 'vip'])
 
-@section('title', 'AgodaVIP - Exclusive Member Rewards & Deals | Prime Booking')
+@section('title', 'PrimeVIP - Exclusive Member Rewards & Deals | Prime Booking')
 @section('meta_description', 'Unlock exclusive VIP discounts, insider deals, free breakfast and room upgrades with the PrimeVIP Loyalty Program.')
 
 @section('content')
@@ -13,7 +13,7 @@
     $userBookings = $stats['bookings_count'] ?? 0;
     $userSpend    = $stats['total_spend'] ?? 0;
     $currentTier  = $stats['tier'] ?? 'Bronze';
-    $tierNameFull = $stats['tier_name_full'] ?? 'AgodaVIP Bronze';
+    $tierNameFull = $stats['tier_name_full'] ?? 'PrimeVIP Bronze';
     $activeBadgeColor = $stats['badge_color'] ?? '#ba6d4a';
     $userDiscountPercent = $stats['discount_percent'] ?? 0;
     $bookingsNeeded = $stats['bookings_needed'] ?? 2;

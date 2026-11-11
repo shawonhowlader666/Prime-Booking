@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 56 46" width="56" height="46" fill="none">
+    <!-- Soft Mint Green Foliage / Trees Behind House -->
+    <path d="M14 36C8 36 4 31 4 25C4 19 9 15 15 15C16 15 17 15.3 18 15.8C20 9 26 4 33 4C41 4 48 10 49 18C52 19 54 22 54 26C54 31 50 36 44 36H14Z" fill="#a7f3d0"/>
+    <path d="M12 36C8 36 5 32.5 5 28C5 23.5 9 20 14 20C15 20 16 20.3 17 20.8C18.5 14 24 9 31 9C38.5 9 44.5 14.5 45.5 22C48 23 50 25.5 50 29C50 33 46.5 36 41 36H12Z" fill="#86efac" opacity="0.65"/>
+    <circle cx="28" cy="18" r="11" fill="#4ade80" opacity="0.5"/>
+    
+    <!-- Ground Base Shadow -->
+    <ellipse cx="28" cy="42" rx="24" ry="2.5" fill="#15803d" opacity="0.3"/>
+    
+    <!-- Left & Right Shrub Cylinders -->
+    <rect x="8" y="32" width="6" height="9" rx="3" fill="#15803d"/>
+    <rect x="42" y="32" width="6" height="9" rx="3" fill="#15803d"/>
+    
+    <!-- Dark Forest Green House Structure -->
+    <!-- Chimney -->
+    <rect x="33" y="14" width="4.5" height="9" rx="0.5" fill="#14532d"/>
+    
+    <!-- Roof with Overhang -->
+    <path d="M13 25.5L28 11.5L43 25.5H39.5L28 14.8L16.5 25.5H13Z" fill="#052e16"/>
+    <path d="M15 25.5L28 13.5L41 25.5H15Z" fill="#166534"/>
+    
+    <!-- Main House Body -->
+    <rect x="17.5" y="24.5" width="21" height="17" rx="1" fill="#14532d"/>
+    
+    <!-- Windows (Crisp White with 4-Pane Dividers) -->
+    <rect x="20" y="27.5" width="4.5" height="4.5" rx="0.5" fill="#ffffff"/>
+    <line x1="22.25" y1="27.5" x2="22.25" y2="32" stroke="#14532d" stroke-width="0.75"/>
+    <line x1="20" y1="29.75" x2="24.5" y2="29.75" stroke="#14532d" stroke-width="0.75"/>
+    
+    <rect x="31.5" y="27.5" width="4.5" height="4.5" rx="0.5" fill="#ffffff"/>
+    <line x1="33.75" y1="27.5" x2="33.75" y2="32" stroke="#14532d" stroke-width="0.75"/>
+    <line x1="31.5" y1="29.75" x2="36" y2="29.75" stroke="#14532d" stroke-width="0.75"/>
+    
+    <!-- White Doorway with Arch Accent -->
+    <rect x="25.5" y="33" width="5" height="8.5" rx="1" fill="#ffffff"/>
+</svg>

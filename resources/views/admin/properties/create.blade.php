@@ -107,15 +107,20 @@
                         @endif
                     </select>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Full Physical Address <span style="color:#ff4d4f;">*</span></label>
                     <input type="text" name="address" class="form-control" value="{{ old('address') }}"
-                        placeholder="e.g. Inani Beach, Marine Drive Road, Kolatoli, Cox's Bazar 4700" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        placeholder="e.g. Inani Beach, Marine Drive Road, Kolatoli, Cox's Bazar" required style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Postal / ZIP Code</label>
+                    <input type="text" name="postal_code" class="form-control" value="{{ old('postal_code') }}"
+                        placeholder="e.g. 4700" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Nearest Landmark / Distance</label>
                     <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark') }}"
-                        placeholder="e.g. 2 mins walk from Kolatoli Beach Point" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                        placeholder="e.g. 2 mins walk from Kolatoli Beach Point, 3.5 km from Cox's Bazar Airport" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Real-Time GPS Coordinates (Lat, Long)</label>
@@ -174,11 +179,11 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Front Desk Languages Spoken</label>
-                    <div class="d-flex flex-wrap gap-2 p-2 rounded border bg-light">
+                    <div style="display:flex; flex-wrap:wrap; gap:8px; padding:8px 10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
                         @foreach(['English', 'Bengali', 'Hindi', 'Arabic', 'Chinese'] as $lang)
-                            <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                                <input class="form-check-input m-0" type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, ['English', 'Bengali']) ? 'checked' : '' }} style="cursor:pointer;">
-                                {{ $lang }}
+                            <label style="display:inline-flex; align-items:center; gap:8px; padding:4px 10px; border-radius:4px; border:1px solid #cbd5e1; background:#ffffff; font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none; margin:0;">
+                                <input type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, ['English', 'Bengali']) ? 'checked' : '' }} style="cursor:pointer; margin:0; width:15px; height:15px; accent-color:#1890ff;">
+                                <span>{{ $lang }}</span>
                             </label>
                         @endforeach
                     </div>
@@ -190,6 +195,13 @@
                         <option value="Pets Allowed">🐾 Pets Allowed (Free / Fee)</option>
                         <option value="Pets Allowed on Request">💬 Pets Allowed on Request</option>
                     </select>
+                </div>
+                <div class="col-12">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">
+                        <i class="fa-solid fa-clipboard-check text-primary me-1"></i> House Rules, Check-in &amp; Deposit Policies (Agoda Extranet Standard)
+                    </label>
+                    <textarea name="house_rules" class="form-control" rows="2" placeholder="e.g. Valid national NID / passport required at check-in. Minimum check-in age is 18. Marriage certificate or proof of relationship required for couples. Security deposit payable in cash or card upon arrival." style="font-size:13px; border-radius:4px; padding:10px 14px;">{{ old('house_rules') }}</textarea>
+                    <small class="text-muted" style="font-size:11px;">Guests will see this under 'Property Policies' on the public hotel page</small>
                 </div>
             </div>
 
@@ -337,6 +349,27 @@
                         oninput="previewUrl(this.value)" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
                     <div id="imgPreviewWrap" class="mt-2.5" style="display:none;">
                         <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
+                    </div>
+                </div>
+
+                {{-- Upload Category Selector for New Uploads --}}
+                <div class="col-12 mb-1">
+                    <div class="p-2.5 bg-light rounded border d-flex flex-wrap align-items-center justify-content-between gap-2" style="border-color:#bfdbfe !important; background:#eff6ff !important;">
+                        <div>
+                            <label class="form-label fw-bold text-dark mb-0" style="font-size:12.5px;">
+                                <i class="fa-solid fa-tag text-primary me-1"></i> Category for New Photos Below:
+                            </label>
+                            <span class="d-block text-muted" style="font-size:11px;">Select the category to automatically assign to files or URLs added below</span>
+                        </div>
+                        <div>
+                            <select name="new_gallery_category" class="form-select form-select-sm fw-bold border-primary" style="min-width:230px; font-size:12px;">
+                                <option value="property_views" selected>Property views (Exterior, Lobby, Building)</option>
+                                <option value="facilities">Facilities (Pool, Gym, Spa, Ballroom)</option>
+                                <option value="dining">Dining (Restaurant, Cafe, Buffet)</option>
+                                <option value="rooms">Rooms &amp; Suites</option>
+                                <option value="other">Other / General</option>
+                            </select>
+                        </div>
                     </div>
                 </div>
 
@@ -700,9 +733,9 @@ function addAdminCustomAmenity() {
     if (!val) return;
     const container = document.getElementById('adminCustomAmenitiesContainer');
     const pill = document.createElement('span');
-    pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
-    pill.style.fontSize = '12px';
-    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    pill.className = 'custom-amenity-pill';
+    pill.style.cssText = 'display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; color:#1e293b; box-shadow:0 1px 2px rgba(0,0,0,0.04);';
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success" style="font-size:13px; flex-shrink:0; margin:0;"></i> <span>${val}</span> <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close" style="font-size:8px; margin-left:4px; cursor:pointer;" onclick="this.parentElement.remove()" title="Remove"></button>`;
     container.appendChild(pill);
     input.value = '';
 }

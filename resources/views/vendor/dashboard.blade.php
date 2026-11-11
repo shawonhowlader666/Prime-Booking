@@ -99,7 +99,7 @@
                     @foreach($properties as $p)
                     <div class="col-md-4 col-sm-6">
                         <div class="property-grid-card">
-                            <img src="{{ $p->primary_image ?? 'https://placehold.co/400x150/1890ff/white?text=Property' }}" alt="{{ $p->name }}">
+                            <img src="{{ media_url($p->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop') }}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400&h=200&fit=crop';" alt="{{ $p->name }}">
                             <div class="property-grid-card-body">
                                 <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:8px; margin-bottom:6px;">
                                     <strong style="font-size:13px; color:#1e293b; line-height:1.3;">{{ $p->name }}</strong>

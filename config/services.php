@@ -59,4 +59,11 @@ return [
         'redirect'      => env('APPLE_REDIRECT_URI', '/auth/apple/callback'),
     ],
 
+    'sslcommerz' => [
+        'store_id'       => env('SSLCZ_STORE_ID', 'primeaviationeqrlive'),
+        'store_password' => env('SSLCZ_STORE_PASSWORD', '660CF322B614F49464'),
+        'is_sandbox'     => env('SSLCZ_IS_SANDBOX', false),
+    ],
+
 ];
+

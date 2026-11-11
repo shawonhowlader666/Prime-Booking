@@ -12,8 +12,8 @@
     </div>
     <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; margin-top:6px;">
         <h1 class="page-title">Add Room Type — {{ Str::limit($property->name, 35) }}</h1>
-        <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959;">
-            <i class="fa-solid fa-arrow-left"></i> Back to Rooms
+        <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-header-action">
+            <i class="fa-solid fa-arrow-left"></i> <span>Back to Rooms</span>
         </a>
     </div>
 </div>
@@ -49,12 +49,13 @@
                         </select>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Cover Photo URL</label>
-                        <input type="url" name="image_url" class="form-control" value="{{ old('image_url') }}" placeholder="https://images.unsplash.com/photo-...">
+                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload Photos (Multi-Select)</label>
+                        <input type="file" name="image_files[]" multiple accept="image/*" class="form-control">
+                        <small class="text-muted" style="font-size:11px;">Select high-resolution JPG, PNG, WEBP photos</small>
                     </div>
                     <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Upload Photo</label>
-                        <input type="file" name="image_file" accept="image/*" class="form-control">
+                        <label class="form-label"><i class="fa-solid fa-link text-primary me-1"></i> Photo URLs (one per line)</label>
+                        <textarea name="image_urls" class="form-control" rows="2" placeholder="https://.../room1.jpg&#10;https://.../room2.jpg">{{ old('image_urls', old('image_url')) }}</textarea>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label">Room Size (m²)</label>
@@ -213,10 +214,12 @@
                 <p style="font-size:11px; color:#8c8c8c; margin:6px 0 0;">Enter each facility on a new line — these show as bullet points on the hotel detail page.</p>
             </div>
 
-            <div style="display:flex; justify-content:flex-end; gap:10px; padding:12px 0;">
-                <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-export-csv" style="border-color:#d9d9d9; color:#595959; padding:8px 20px;">Cancel</a>
-                <button type="submit" class="btn-add-primary" style="padding:8px 28px;">
-                    Add Room Type <i class="fa-solid fa-check ms-1"></i>
+            <div style="display:flex; justify-content:flex-end; gap:10px; padding:18px 0; align-items:center;">
+                <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-header-action" style="padding:0 18px; height:36px; font-size:13px; border-radius:4px;">
+                    <i class="fa-solid fa-xmark"></i> <span>Cancel</span>
+                </a>
+                <button type="submit" class="btn-add-primary" style="padding:0 24px; height:36px; font-size:13px; font-weight:600; border-radius:4px;">
+                    <i class="fa-solid fa-check"></i> <span>Add Room Type</span>
                 </button>
             </div>
 

@@ -730,7 +730,7 @@ class Property extends Model
      */
     public function getGalleryImagesAttribute(): array
     {
-        $primary = $this->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
+        $primary = media_url($this->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
         $imgs = is_array($this->images) ? $this->images : (json_decode($this->images ?? '[]', true) ?: []);
         if (empty($imgs)) {
             return [
@@ -741,6 +741,233 @@ class Property extends Model
                 'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
             ];
         }
-        return $imgs;
+        return array_values(array_map(fn($img) => media_url(is_array($img) ? ($img['url'] ?? '') : $img), $imgs));
+    }
+
+    /**
+     * Senior Engineering Architecture: Dynamic Agoda-Parity Photo & Video Categorization.
+     * Centralized on Property model to guarantee consistency across all views, APIs, and exports.
+     * Supports structured objects with admin categories as well as smart URL analysis.
+     *
+     * @return array{all: list<array>, videos: list<array>, rooms: list<array>, property_views: list<array>, facilities: list<array>, dining: list<array>, other: list<array>}
+     */
+    public function getCategorizedGalleryAttribute(): array
+    {
+        // 1. Ensure rooms relation has images loaded
+        if ($this->relationLoaded('rooms')) {
+            $firstRoom = $this->rooms->first();
+            if ($firstRoom && !array_key_exists('images', $firstRoom->getAttributes())) {
+                $this->load('rooms');
+            }
+        } else {
+            $this->load('rooms');
+        }
+
+        $galleryCategorized = [
+            'all' => [],
+            'videos' => [],
+            'rooms' => [],
+            'property_views' => [],
+            'facilities' => [],
+            'dining' => [],
+            'other' => []
+        ];
+
+        // Known Agoda Official Reference Hash Mapping for 1:1 fidelity
+        static $agodaExactKnown = [
+            '21bef18b431666282591149e1326e572' => ['cat' => 'property_views', 'title' => 'Property Overview'],
+            '07a1d3f26600701b3b431098dd055aac' => ['cat' => 'rooms', 'title' => 'Premium Sea View Room with Balcony - Bed'],
+            '5de1187043514f04153dcf587313200d' => ['cat' => 'property_views', 'title' => 'Lobby & Reception'],
+            '9b71b27d08ae8c6b327c2d4832adbeaa' => ['cat' => 'dining', 'title' => 'Main Restaurant'],
+            'c5b8ae5a5f0f7054a39ebfa9b8b139c6' => ['cat' => 'facilities', 'title' => 'Swimming Pool (Kids Zone)'],
+            '7278c33bd0c8d0cb7ad57eaed289f5ec' => ['cat' => 'property_views', 'title' => 'Grand Lobby'],
+            '270e8269879c84c76e3d28a45f1b5bd2' => ['cat' => 'property_views', 'title' => 'Lobby Seating Area'],
+            '411e4cab527613cf6e28cacfb39dab74' => ['cat' => 'property_views', 'title' => 'Reception Counter'],
+            '2de4ebb36b408f86918f5e81304c03da' => ['cat' => 'rooms', 'title' => 'Premium Sea View Room with Balcony - Bedroom'],
+            'acc44b623e08340b64c455e732c34ce7' => ['cat' => 'facilities', 'title' => 'Swimming Pool & Sun Deck'],
+            '17a908047ae640e3efe883287e6497ec' => ['cat' => 'dining', 'title' => 'Buffet Restaurant'],
+            'c178cee8278e28c4c9226ebf5017504e' => ['cat' => 'rooms', 'title' => 'Premium Hill View Room - Bedroom'],
+            '7612a7616aec54d5dd7253588ecc99ed' => ['cat' => 'dining', 'title' => 'Fine Dining Restaurant'],
+            'df189b1633eacb6eed2c62c1f2862734' => ['cat' => 'dining', 'title' => 'Signature Restaurant'],
+            '4d30d8a9d63035bb5e687b1e612536e0' => ['cat' => 'rooms', 'title' => 'Premium Hill View Room - Bed'],
+            '29c14869c6721f2d7dcf09c90334ef55' => ['cat' => 'facilities', 'title' => 'Grand Ballroom'],
+            'a06fcf617a4d1c712c6b82355d27fcee' => ['cat' => 'facilities', 'title' => 'Ballroom & Event Space'],
+            '54fed98f0c11375d662e83a155636dbe' => ['cat' => 'rooms', 'title' => 'Deluxe Room with Sea View and Balcony - Bedroom'],
+            'c2c491f022058b9b1fc60bf5dbcea767' => ['cat' => 'rooms', 'title' => 'Deluxe Room with Sea View and Balcony - Bed'],
+            '6987d7cce7b66affd4337a21b03d1cab' => ['cat' => 'facilities', 'title' => 'Meeting & Conference Room'],
+            '725131ecb8bac4c1ffdd2fff538dc042' => ['cat' => 'rooms', 'title' => 'Superior Twin Room - Bed'],
+            'ae3d8028c06e0ef5b74efae290359a16' => ['cat' => 'facilities', 'title' => 'Banquet Hall'],
+            '83a7875332c8d95a863d2b97e578983b' => ['cat' => 'facilities', 'title' => 'Outdoor Swimming Pool'],
+            'c6632eba881cee171d2c3385b94ae196' => ['cat' => 'rooms', 'title' => 'Standard Double Room without Balcony - Bed'],
+            '12ac54170545a6d8c7f909997e83ead4' => ['cat' => 'facilities', 'title' => 'Convention Hall'],
+            '01c3bba4c90d67df39fe5327c2e560d4' => ['cat' => 'property_views', 'title' => 'Main Lobby Lounge'],
+            '7ebeddc54859ebb624e72337f1ae3024' => ['cat' => 'rooms', 'title' => 'Deluxe King Room with Bathtub - Bedroom'],
+            '7754ec377e160a24ba90ab32c78e342d' => ['cat' => 'facilities', 'title' => 'Conference Hall'],
+            '0cad363b9f2083e6970d02059d079db4' => ['cat' => 'facilities', 'title' => 'Hotel Facilities'],
+            'ef9dedf2975d6322eb1deb47b5d7ba65' => ['cat' => 'rooms', 'title' => 'Superior Double Room with Mountain View and Balcony - Bedroom'],
+            'da00bf361d6b44d58cdcb282ce060f87' => ['cat' => 'dining', 'title' => 'Coffee Shop & Cafe'],
+            'c5f7aa10c63c7f06fc85983c13d49e9b' => ['cat' => 'facilities', 'title' => 'Gym & Fitness Center'],
+            'f669da1d5d3e212a4a0d96147f052a0e' => ['cat' => 'rooms', 'title' => 'Deluxe King Room with Bathtub - Bedroom'],
+            '552ef8f28f9fc32151c110acd6508206' => ['cat' => 'facilities', 'title' => 'Rooftop Swimming Pool'],
+            '2116862a43e18e5c25faaf061b399971' => ['cat' => 'facilities', 'title' => 'Business Center'],
+            '72f89a0711920b1c402bb5bda9b8e708' => ['cat' => 'rooms', 'title' => 'Superior Twin Room - Bedroom'],
+            'aaaa6720cb5d2dcda37d65f9e2f258e2' => ['cat' => 'facilities', 'title' => 'Landscaped Garden'],
+            'dd4414182f9159d65df6ddc680c4ebf4' => ['cat' => 'rooms', 'title' => 'Superior Double Room with Mountain View and Balcony'],
+        ];
+
+        // 1. Official Video Tour
+        $propVideo = $this->video_url ?? ($this->video ?? null);
+        if (empty($propVideo) || str_contains($propVideo, 'agoda.net') || str_contains($propVideo, 'drive.google.com')) {
+            $propVideo = '/storage/branding/Prime_booking_brand_intro_20261007105650.mp4';
+        }
+        if (!empty($propVideo)) {
+            $firstImg = !empty($this->primary_image) ? media_url($this->primary_image) : asset('images/agoda/sea_pearl_resort.jpg');
+            $galleryCategorized['videos'][] = [
+                'url' => media_url($propVideo),
+                'poster' => $firstImg,
+                'title' => $this->name . ' - Official Video Tour',
+                'category' => 'Video',
+                'cat_key' => 'videos',
+                'type' => 'video'
+            ];
+        }
+
+        $seenUrls = [];
+
+        // 2. Rooms from $this->rooms (100% authentic room names and photos)
+        if ($this->rooms && $this->rooms->isNotEmpty()) {
+            foreach ($this->rooms as $r) {
+                $rImgs = is_array($r->images) ? $r->images : (json_decode($r->images ?? '[]', true) ?: []);
+                if (empty($rImgs) && !empty($r->primary_image)) {
+                    $rImgs = [$r->primary_image];
+                }
+                foreach ($rImgs as $rImg) {
+                    $cleanRImg = media_url($rImg, asset('images/agoda/sea_pearl_resort.jpg'));
+                    if (isset($seenUrls[$cleanRImg])) continue;
+                    $seenUrls[$cleanRImg] = true;
+
+                    $galleryCategorized['rooms'][] = [
+                        'url' => $cleanRImg,
+                        'title' => $r->name,
+                        'category' => 'Rooms',
+                        'cat_key' => 'rooms',
+                        'room_id' => (string)$r->id,
+                        'room_name' => $r->name,
+                        'type' => 'image'
+                    ];
+                }
+            }
+        }
+
+        // 3. Property gallery images
+        $rawImgs = is_array($this->images) ? $this->images : (json_decode($this->images ?? '[]', true) ?: []);
+        if (!empty($this->primary_image)) {
+            array_unshift($rawImgs, $this->primary_image);
+        }
+
+        $genIdx = 0;
+        foreach ($rawImgs as $gItem) {
+            $gUrl = is_array($gItem) ? ($gItem['url'] ?? '') : (string)$gItem;
+            if (empty($gUrl)) continue;
+
+            $cleanGUrl = media_url($gUrl, asset('images/agoda/sea_pearl_resort.jpg'));
+            if (isset($seenUrls[$cleanGUrl])) continue;
+            $seenUrls[$cleanGUrl] = true;
+
+            // Priority A: Category assigned by Admin in Admin Panel
+            if (is_array($gItem) && !empty($gItem['category'])) {
+                $catKey = $gItem['category'];
+                $catLabel = match($catKey) {
+                    'rooms' => 'Rooms',
+                    'facilities' => 'Facilities',
+                    'dining' => 'Dining',
+                    'other' => 'Other',
+                    default => 'Property views'
+                };
+                $title = !empty($gItem['title']) ? $gItem['title'] : ($this->name . ' - ' . $catLabel);
+            } else {
+                // Priority B: Check known Agoda reference hash
+                $matched = null;
+                foreach ($agodaExactKnown as $hash => $info) {
+                    if (str_contains($gUrl, $hash)) {
+                        $matched = $info;
+                        break;
+                    }
+                }
+
+                if ($matched) {
+                    $catKey = $matched['cat'];
+                    $title = $matched['title'];
+                    $catLabel = match($catKey) {
+                        'rooms' => 'Rooms',
+                        'property_views' => 'Property views',
+                        'facilities' => 'Facilities',
+                        'dining' => 'Dining',
+                        'other' => 'Other',
+                        default => 'Property views'
+                    };
+                } else {
+                    // Priority C: Smart semantic keyword detection from URL / filename
+                    $urlLower = strtolower($gUrl);
+                    if (preg_match('/(restaurant|dining|cafe|buffet|breakfast|food|bar|coffee|kitchen|cocktail|menu)/i', $urlLower)) {
+                        $catKey = 'dining';
+                        $catLabel = 'Dining';
+                        $title = $this->name . ' - Restaurant & Dining';
+                    } elseif (preg_match('/(pool|swimming|gym|fitness|spa|lobby|reception|lounge|hall|conference|meeting|garden|play|wellness|sauna|ballroom|elevator|parking|rooftop)/i', $urlLower)) {
+                        $catKey = 'facilities';
+                        $catLabel = 'Facilities';
+                        $title = $this->name . ' - Facilities';
+                    } elseif (preg_match('/(room|bed|suite|deluxe|superior|standard|twin|king|bedroom)/i', $urlLower)) {
+                        $catKey = 'rooms';
+                        $catLabel = 'Rooms';
+                        $title = $this->name . ' - Guest Room';
+                    } elseif (preg_match('/(view|balcony|sea|hill|exterior|building|facade|drone|outside|entrance|patio|aerial|beach|ocean|sunset|landscape|front)/i', $urlLower)) {
+                        $catKey = 'property_views';
+                        $catLabel = 'Property views';
+                        $title = $this->name . ' - Property View';
+                    } else {
+                        // Priority D: Balanced classification into other
+                        $catKey = 'other';
+                        $catLabel = 'Other';
+                        $title = $this->name . ' - Gallery Photo';
+                    }
+                }
+            }
+
+            if (!isset($galleryCategorized[$catKey])) {
+                $galleryCategorized[$catKey] = [];
+            }
+
+            $galleryCategorized[$catKey][] = [
+                'url' => $cleanGUrl,
+                'title' => $title,
+                'category' => $catLabel,
+                'cat_key' => $catKey,
+                'type' => 'image'
+            ];
+        }
+
+        // Fallback for rooms if empty
+        if (empty($galleryCategorized['rooms'])) {
+            $galleryCategorized['rooms'][] = [
+                'url' => $this->image_url,
+                'title' => $this->name . ' - Guest Room',
+                'category' => 'Rooms',
+                'cat_key' => 'rooms',
+                'type' => 'image'
+            ];
+        }
+
+        // Merge all into 'all' matching Agoda's canonical sequence
+        $galleryCategorized['all'] = array_merge(
+            $galleryCategorized['property_views'],
+            $galleryCategorized['rooms'],
+            $galleryCategorized['facilities'],
+            $galleryCategorized['dining'],
+            $galleryCategorized['other'],
+            $galleryCategorized['videos']
+        );
+
+        return $galleryCategorized;
     }
 }

@@ -34,12 +34,12 @@
                 </button>
             </div>
 
-            <a href="{{ route('admin.properties.edit', $property->id) }}" class="btn btn-outline-secondary btn-sm fw-semibold px-3 d-inline-flex align-items-center" style="height:32px; font-size:12px; border-radius:4px;">
-                <i class="fa-solid fa-arrow-left me-1.5"></i> Back to Property
+            <a href="{{ route('admin.properties.edit', $property->id) }}" class="btn-header-action" style="height:34px; padding:0 14px; font-size:12.5px;">
+                <i class="fa-solid fa-arrow-left"></i> <span>Back to Property</span>
             </a>
 
-            <a href="{{ route('admin.rooms.create', $property->id) }}" class="btn-add-primary" style="height:32px; font-size:12px; padding:0 14px; border-radius:4px; display:inline-flex; align-items:center;">
-                <i class="fa-solid fa-plus me-1.5"></i> Add Room Type
+            <a href="{{ route('admin.rooms.create', $property->id) }}" class="btn-add-primary" style="height:32px; font-size:12px; padding:0 14px; border-radius:4px;">
+                <i class="fa-solid fa-plus"></i> <span>Add Room Type</span>
             </a>
         </div>
     </div>
@@ -90,14 +90,20 @@
                             <div class="d-flex align-items-center gap-2.5">
                                 @php
                                     $adminRoomThumb = (!empty($room->images) && is_array($room->images)) ? $room->images[0] : null;
+                                    $roomImgCount = (!empty($room->images) && is_array($room->images)) ? count($room->images) : 0;
                                 @endphp
-                                @if($adminRoomThumb)
-                                    <img src="{{ $adminRoomThumb }}" width="48" height="38" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
-                                @else
-                                    <div style="width:48px; height:38px; border-radius:4px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
-                                        <i class="fa-solid fa-bed"></i>
-                                    </div>
-                                @endif
+                                <div class="position-relative" style="width:48px; height:38px; flex-shrink:0;">
+                                    @if($adminRoomThumb)
+                                        <img src="{{ media_url($adminRoomThumb) }}" width="48" height="38" style="object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
+                                        @if($roomImgCount > 1)
+                                            <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 px-1 py-0" style="font-size:9px; border-radius:2px;">{{ $roomImgCount }}</span>
+                                        @endif
+                                    @else
+                                        <div style="width:48px; height:38px; border-radius:4px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; border:1px solid #d0e2ff;">
+                                            <i class="fa-solid fa-bed"></i>
+                                        </div>
+                                    @endif
+                                </div>
                                 <div>
                                     <strong style="font-size:13.5px; color:#1e293b; display:block;">{{ $room->name }}</strong>
                                     <span style="font-size:11px; color:#64748b;">

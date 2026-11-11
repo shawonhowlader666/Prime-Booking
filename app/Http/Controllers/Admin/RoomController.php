@@ -86,15 +86,15 @@ class RoomController extends Controller
             $path = $request->file('image_file')->store('uploads/rooms', 'public');
             $roomImages[] = asset('storage/' . $path);
         }
-        if ($request->filled('image_url')) {
-            $urls = array_values(array_filter(array_map('trim', explode("\n", $request->image_url)), fn($u) => !empty($u)));
+        $rawUrls = trim($request->input('image_urls', '') . "\n" . $request->input('image_url', ''));
+        if (!empty($rawUrls)) {
+            $urls = array_values(array_filter(array_map('trim', explode("\n", $rawUrls)), fn($u) => !empty($u)));
             $roomImages = array_unique(array_merge($roomImages, $urls));
         }
 
         Room::create([
             'property_id'        => $property->id,
             'name'               => $request->name,
-            'room_type'          => $request->room_type ?? 'deluxe',
             'bed_type'           => $request->bed_type,
             'view_type'          => $request->view_type ?? 'City Skyline View',
             'bathroom_count'     => (int) ($request->bathroom_count ?? 1),
@@ -112,6 +112,7 @@ class RoomController extends Controller
             'free_cancellation'  => $request->boolean('free_cancellation'),
             'facilities'         => array_values($facilities),
             'images'             => array_values($roomImages),
+            'status'             => $request->input('status', 'active'),
         ]);
 
         return redirect()
@@ -153,6 +154,12 @@ class RoomController extends Controller
         $bathroomFeatures = (array) ($request->bathroom_features ?? ($room->bathroom_features ?? []));
 
         $roomImages = is_array($room->images) ? $room->images : [];
+
+        // Remove deleted images if selected
+        if ($request->has('delete_images') && is_array($request->delete_images)) {
+            $roomImages = array_values(array_filter($roomImages, fn($img) => !in_array($img, $request->delete_images)));
+        }
+
         if ($request->hasFile('image_files')) {
             foreach ($request->file('image_files') as $f) {
                 if ($f && $f->isValid()) {
@@ -165,14 +172,14 @@ class RoomController extends Controller
             $path = $request->file('image_file')->store('uploads/rooms', 'public');
             $roomImages[] = asset('storage/' . $path);
         }
-        if ($request->filled('image_url')) {
-            $urls = array_values(array_filter(array_map('trim', explode("\n", $request->image_url)), fn($u) => !empty($u)));
+        $rawUrls = trim($request->input('image_urls', '') . "\n" . $request->input('image_url', ''));
+        if (!empty($rawUrls)) {
+            $urls = array_values(array_filter(array_map('trim', explode("\n", $rawUrls)), fn($u) => !empty($u)));
             $roomImages = array_unique(array_merge($roomImages, $urls));
         }
 
         $room->update([
             'name'               => $request->name,
-            'room_type'          => $request->room_type ?? ($room->room_type ?? 'deluxe'),
             'bed_type'           => $request->bed_type ?? $room->bed_type,
             'view_type'          => $request->view_type ?? $room->view_type,
             'bathroom_count'     => (int) ($request->bathroom_count ?? $room->bathroom_count),
@@ -189,7 +196,8 @@ class RoomController extends Controller
             'breakfast_included' => $request->has('breakfast_included') ? $request->boolean('breakfast_included') : $room->breakfast_included,
             'free_cancellation'  => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $room->free_cancellation,
             'facilities'         => array_values($facilities) ?: ($room->facilities ?? []),
-            'images'             => $roomImages,
+            'images'             => array_values($roomImages),
+            'status'             => $request->input('status', $room->status ?? 'active'),
         ]);
 
         return redirect()

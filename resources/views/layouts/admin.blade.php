@@ -1653,17 +1653,367 @@
             display: none !important;
         }
 
-        /* Universal Toolbar Button Gap & Padding Normalizer */
-        .btn-add-primary, .btn-tbl-copy, .btn-tbl-excel, .btn-export-csv, .btn-export-pdf, .btn-tbl-print, .btn-tbl-col {
+        /* ============================================================
+         * Universal Button Normalizer — Consistent 4px Border Radius
+         * Icons on LEFT only, with clean 6px spacing from text!
+         * ============================================================ */
+        .btn,
+        .btn-sm,
+        .btn-lg,
+        .btn-table-action,
+        .btn-export-csv,
+        .btn-export-pdf,
+        .btn-add-primary,
+        .btn-preview-web,
+        .btn-header-action,
+        .btn-manage-rooms,
+        .btn-outline-primary,
+        .btn-outline-secondary,
+        .btn-outline-success,
+        .btn-outline-danger,
+        .btn-tbl-copy,
+        .btn-tbl-excel,
+        .btn-tbl-print,
+        .btn-tbl-col {
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 6px !important;
             white-space: nowrap !important;
+            line-height: 1.4 !important;
+            text-decoration: none !important;
+            font-family: inherit !important;
+            border-radius: 4px !important; /* Strict 4px standard */
+            transition: all 0.15s ease !important;
         }
 
-        .btn i, .btn-add-primary i, .btn-tbl-copy i, .btn-tbl-excel i, .btn-export-csv i, .btn-export-pdf i, .btn-tbl-print i {
-            font-size: 11.5px;
+        .btn i,
+        .btn svg,
+        .btn-table-action i,
+        .btn-table-action svg,
+        .btn-export-csv i,
+        .btn-export-pdf i,
+        .btn-add-primary i,
+        .btn-tbl-copy i,
+        .btn-tbl-excel i,
+        .btn-tbl-print i,
+        .btn-outline-primary i,
+        .btn-outline-secondary i,
+        .btn-header-action i,
+        .btn-preview-web i,
+        .btn-manage-rooms i {
+            display: inline-block !important;
+            flex-shrink: 0 !important;
+            line-height: 1 !important;
+            margin: 0 !important;
+            font-size: 12px !important;
+        }
+
+        /* 1. Manage Rooms Button: Crisp Outline Primary */
+        .btn-manage-rooms {
+            background: #ffffff !important;
+            border: 1px solid #1890ff !important;
+            color: #1890ff !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            border-radius: 4px !important;
+            padding: 0 12px !important;
+            height: 32px !important;
+            text-decoration: none !important;
+        }
+        .btn-manage-rooms:hover {
+            background: #e6f7ff !important;
+            border-color: #1890ff !important;
+            color: #1890ff !important;
+        }
+        .btn-manage-rooms i {
+            color: #1890ff !important;
+        }
+
+        /* 2. Preview on Web Button: Solid Primary Blue with White Text (Icon on LEFT only) */
+        .btn-preview-web {
+            background: #1890ff !important;
+            border: 1px solid #1890ff !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            border-radius: 4px !important;
+            padding: 0 14px !important;
+            height: 32px !important;
+            text-decoration: none !important;
+        }
+        .btn-preview-web:hover {
+            background: #40a9ff !important;
+            border-color: #40a9ff !important;
+            color: #ffffff !important;
+        }
+        .btn-preview-web i,
+        .btn-preview-web span {
+            color: #ffffff !important;
+        }
+
+        /* 3. Back Button: Clean Neutral Border */
+        .btn-header-action {
+            background: #ffffff !important;
+            border: 1px solid #d9d9d9 !important;
+            color: #595959 !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+            border-radius: 4px !important;
+            padding: 0 12px !important;
+            height: 32px !important;
+            text-decoration: none !important;
+        }
+        .btn-header-action:hover {
+            background: #ffffff !important;
+            border-color: #1890ff !important;
+            color: #1890ff !important;
+        }
+        .btn-header-action:hover i {
+            color: #1890ff !important;
+        }
+        .btn-header-action i {
+            color: #595959 !important;
+        }
+
+        /* Fractional spacing utilities (Tailwind scale support in Admin) */
+        .gap-0\.5, .gap-0-5 { gap: 2px !important; }
+        .gap-1 { gap: 4px !important; }
+        .gap-1\.5, .gap-1-5 { gap: 6px !important; }
+        .gap-2 { gap: 8px !important; }
+        .gap-2\.5, .gap-2-5 { gap: 10px !important; }
+        .gap-3 { gap: 12px !important; }
+        .p-1\.5, .p-1-5 { padding: 6px !important; }
+        .p-2\.5, .p-2-5 { padding: 10px !important; }
+        .px-2\.5 { padding-left: 10px !important; padding-right: 10px !important; }
+        .py-2\.5 { padding-top: 10px !important; padding-bottom: 10px !important; }
+        .me-1\.5 { margin-right: 6px !important; }
+        .ms-1\.5 { margin-left: 6px !important; }
+
+        /* Custom Amenity Pill & Badge normalization */
+        .custom-amenity-pill {
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            padding: 6px 12px !important;
+            border-radius: 4px !important;
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            font-size: 12px !important;
+            font-weight: 600 !important;
+            color: #1e293b !important;
+            line-height: 1.2 !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.04) !important;
+        }
+        .custom-amenity-pill i {
+            margin: 0 !important;
+            flex-shrink: 0 !important;
+            font-size: 13px !important;
+        }
+        .custom-amenity-pill .btn-close {
+            margin-left: 4px !important;
+            font-size: 8px !important;
+            padding: 0 !important;
+            width: 14px !important;
+            height: 14px !important;
+            opacity: 0.6 !important;
+            cursor: pointer !important;
+        }
+        .custom-amenity-pill .btn-close:hover {
+            opacity: 1 !important;
+        }
+
+        /* ============================================================
+         * 2/3 Right-Side Slide-Over Drawer Popup Standard
+         * Takes exactly 2/3 of screen width (66.666vw) on desktop!
+         * ============================================================ */
+        .edit-drawer-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(15, 23, 42, 0.55);
+            backdrop-filter: blur(2.5px);
+            -webkit-backdrop-filter: blur(2.5px);
+            z-index: 1050;
+            cursor: pointer;
+            animation: drawerFadeIn 0.25s ease-out forwards;
+        }
+
+        @keyframes drawerFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .edit-drawer-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 66.666vw !important; /* Exact 2/3 width requested by user */
+            min-width: 680px;
+            max-width: 100vw;
+            height: 100vh;
+            background: #ffffff;
+            z-index: 1055;
+            box-shadow: -14px 0 45px rgba(0, 0, 0, 0.24);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            animation: drawerSlideIn 0.32s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes drawerSlideIn {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(0); }
+        }
+
+        @media (max-width: 1199px) {
+            .edit-drawer-container {
+                width: 75vw !important;
+                min-width: 580px;
+            }
+        }
+
+        @media (max-width: 767px) {
+            .edit-drawer-container {
+                width: 100vw !important;
+                min-width: 100vw;
+            }
+        }
+
+        .edit-drawer-header {
+            height: 60px;
+            padding: 0 24px;
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 25;
+            gap: 12px;
+        }
+
+        .edit-drawer-header-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 0;
+        }
+
+        .edit-drawer-header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 700;
+            color: #1e40af;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .edit-drawer-header-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #1e293b;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .edit-drawer-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-shrink: 0;
+        }
+
+        .btn-drawer-close {
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: 1px solid #d9d9d9;
+            background: #ffffff;
+            color: #595959;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none !important;
+            transition: all 0.15s ease;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .btn-drawer-close:hover {
+            background: #fee2e2 !important;
+            color: #ef4444 !important;
+            border-color: #fca5a5 !important;
+        }
+
+        .edit-drawer-form {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .edit-drawer-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px 28px 40px 28px;
+            background: #f8fafc;
+        }
+
+        .edit-drawer-body::-webkit-scrollbar {
+            width: 6px;
+        }
+        .edit-drawer-body::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .edit-drawer-body::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        .edit-drawer-body::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .edit-drawer-footer {
+            height: 60px;
+            padding: 0 28px;
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            z-index: 25;
+            box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.05);
+        }
+
+        .edit-drawer-footer-hint {
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .hotel-title-link {
+            transition: color 0.15s ease;
+        }
+        .hotel-title-link:hover {
+            color: #1890ff !important;
         }
 
         /* Compact Table Action Icon Buttons */

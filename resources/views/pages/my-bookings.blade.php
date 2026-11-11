@@ -53,7 +53,8 @@
 
                 <div class="row g-3 align-items-center">
                     <div class="col-md-7 d-flex gap-3 align-items-center">
-                        <img src="{{ $booking->property?->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80' }}"
+                        <img src="{{ media_url($booking->property?->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80') }}"
+                             onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=200&q=80';"
                              alt="{{ $booking->property?->name }}"
                              style="width:90px; height:68px; object-fit:cover; border-radius:10px; flex-shrink:0;">
                         <div>

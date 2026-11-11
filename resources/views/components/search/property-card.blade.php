@@ -45,6 +45,186 @@
         color: #2067e1 !important;
         text-decoration: underline !important;
     }
+
+    /* Agoda Heart / Wishlist Button */
+    .agoda-heart-wrap {
+        position: absolute !important;
+        top: 10px !important;
+        right: 10px !important;
+        z-index: 15 !important;
+    }
+    .agoda-heart-btn {
+        width: 34px !important;
+        height: 34px !important;
+        border-radius: 50% !important;
+        background: #ffffff !important;
+        border: 1px solid rgba(0, 0, 0, 0.08) !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        outline: none !important;
+        transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+    }
+    .agoda-heart-btn:hover {
+        transform: scale(1.08) !important;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.25) !important;
+    }
+
+    /* Agoda Slide Counter Pill */
+    .agoda-slide-counter-pill {
+        position: absolute !important;
+        bottom: 10px !important;
+        left: 10px !important;
+        z-index: 15 !important;
+        background: rgba(0, 0, 0, 0.6) !important;
+        color: #ffffff !important;
+        padding: 2px 8px !important;
+        border-radius: 4px !important;
+        font-size: 11px !important;
+        font-weight: 600 !important;
+        line-height: 16px !important;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+        pointer-events: none !important;
+    }
+
+    /* Agoda Carousel Arrows */
+    .agoda-carousel-arrow-wrap {
+        position: absolute !important;
+        top: 50% !important;
+        transform: translateY(-50%) !important;
+        z-index: 15 !important;
+        transition: opacity 0.2s ease !important;
+    }
+    .agoda-arrow-prev {
+        left: 8px !important;
+    }
+    .agoda-arrow-next {
+        right: 8px !important;
+    }
+    .agoda-carousel-arrow-wrap.is-disabled {
+        display: none !important;
+    }
+    .agoda-carousel-nav-btn {
+        width: 28px !important;
+        height: 28px !important;
+        background: #ffffff !important;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25) !important;
+        border: none !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        cursor: pointer !important;
+        padding: 0 !important;
+        outline: none !important;
+        transition: transform 0.15s ease !important;
+    }
+    .agoda-carousel-nav-btn:hover {
+        transform: scale(1.08) !important;
+    }
+
+    /* Agoda Check Availability Button */
+    .agoda-check-avail-btn {
+        background-color: #2067e1 !important;
+        color: #ffffff !important;
+        border: none !important;
+        border-radius: 6px !important;
+        padding: 8px 16px !important;
+        font-size: 13.5px !important;
+        font-weight: 700 !important;
+        width: 100% !important;
+        cursor: pointer !important;
+        text-align: center !important;
+        outline: none !important;
+        box-shadow: none !important;
+        display: block !important;
+        line-height: 1.3 !important;
+        transition: background-color 0.15s ease !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif !important;
+    }
+    .agoda-check-avail-btn:hover {
+        background-color: #1652b5 !important;
+        color: #ffffff !important;
+    }
+
+    /* 📱 100% Mobile Responsive Adaptation for Property Card */
+    @media (max-width: 767.98px) {
+        .PropertyCardItem [data-element-name="PropertyCardBaseJacket"] {
+            height: auto !important;
+            min-height: unset !important;
+            border-radius: 12px !important;
+            overflow: hidden !important;
+        }
+        .PropertyCardItem .PropertyCard__Container {
+            height: auto !important;
+            min-height: unset !important;
+            flex-direction: column !important;
+            flex-wrap: wrap !important;
+        }
+        .PropertyCardItem .PropertyCard__MosaicContainer {
+            flex: 0 0 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 195px !important;
+            min-height: 195px !important;
+            max-height: 195px !important;
+        }
+        .PropertyCardItem .PropertyCard__MosaicContainer .abb64-rounded-tl-8 {
+            border-radius: 12px 12px 0 0 !important;
+        }
+        .PropertyCardItem .PropertyCard__MosaicContainer img {
+            border-radius: 12px 12px 0 0 !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 195px !important;
+            min-height: 195px !important;
+            max-height: 195px !important;
+        }
+        .PropertyCardItem .PropertyCard__Section--propertyInfo {
+            flex: 0 0 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: unset !important;
+            height: auto !important;
+            padding: 12px 14px 8px 14px !important;
+        }
+        .PropertyCardItem .PropertyCard__Section--pricingInfo {
+            flex: 0 0 100% !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            min-height: unset !important;
+            height: auto !important;
+            border-left: none !important;
+            border-top: 1px solid #f0f2f5 !important;
+            padding: 10px 14px 12px 14px !important;
+            background: #ffffff !important;
+        }
+        .PropertyCardItem .PropertyCard__Section--pricingInfo .abb64-h-full {
+            flex-direction: row !important;
+            flex-wrap: wrap !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            gap: 8px !important;
+            min-height: unset !important;
+            height: auto !important;
+            padding: 0 !important;
+        }
+        .PropertyCardItem .PropertyCard__PricingHeadliner {
+            text-align: left !important;
+            width: auto !important;
+        }
+        .PropertyCardItem .PropertyCard__PricingHeadliner .abb64-items-end {
+            align-items: flex-start !important;
+            text-align: left !important;
+        }
+        .PropertyCardItem [data-element-name="property-card-price"] {
+            width: auto !important;
+            text-align: right !important;
+        }
+    }
 </style>
 @endonce
 
@@ -100,7 +280,7 @@
     
     if ($isSeaPearl) {
         $price = ($currencyCode === 'USD') ? '75' : '8,500';
-        $origPrice = ($currencyCode === 'USD') ? '205' : '22,900';
+        $origPrice = ($currencyCode === 'USD') ? '205' : '22,000';
         $discount = 63;
     } elseif ($isWindy) {
         $price = ($currencyCode === 'USD') ? '37' : '3,400';
@@ -210,7 +390,7 @@
 
     // Ensure primary photo matches Agoda exact reference photo
     if ($isBestWestern) {
-        $bwImg = asset('storage/hotels/best-western-heritage/gallery/552ef8f28f9fc32151c110acd6508206.webp');
+        $bwImg = asset('storage/hotels/best-western-heritage/gallery/21bef18b431666282591149e1326e572.webp');
         array_unshift($gallery, $bwImg);
     } elseif ($isWindy) {
         $windyImg = asset('storage/hotels/hotel-windy-terrace/gallery/55a0fe35c2a2b9aa22dbe51a1258eeda.jpeg');
@@ -219,57 +399,42 @@
         $spImg = asset('storage/hotels/sea-pearl-beach-resort-spa/gallery/345053324.jpg');
         array_unshift($gallery, $spImg);
     }
-    $gallery = array_values(array_unique($gallery));
-    $gallery = array_slice($gallery, 0, 10);
 
-    $gallery = array_map(function($img) {
-        if (!$img) return 'https://pix8.agoda.net/hotelImages/1196495/0/04c65ce2a24cd6bc2ed51433de0eb5ec.jpeg?ce=3&s=600x';
-        if (str_starts_with($img, 'http://') || str_starts_with($img, 'https://') || str_starts_with($img, '//')) {
-            return $img;
-        }
-        if (function_exists('media_url')) {
-            return media_url($img);
-        }
-        return asset($img);
-    }, $gallery);
+    $gallery = array_values(array_unique($gallery));
+    if ($isBestWestern) { $gallery = array_slice($gallery, 0, 10); }
     $totalImgs = count($gallery);
 
-    $currencyCode = session('currency', 'BDT');
+    // Detail page URL
+    $slug = $isObj ? ($item->slug ?? null) : ($item['slug'] ?? null);
+    $queryArgs = request()->query();
+    $hotelDetailUrl = $slug ? route('hotel.show', array_merge(['slug' => $slug], $queryArgs)) : route('hotels.show', array_merge(['id' => $id], $queryArgs));
 
-    // Middle Column USPs
-    $customSnippet = trim((string)($isObj ? ($item->feature_snippet ?? '') : ($item['feature_snippet'] ?? '')));
-    if ($customSnippet) {
-        $featureSnippet = $customSnippet;
-    } else {
-        $lowerCity = strtolower($cityStr);
-        $fallbackSnippet = match(true) {
-            $isSeaPearl      => 'Private Beach Access, Female-Only Pool Section',
-            $isWindy         => 'Eco-Friendly Resort, Panoramic Ocean-Facing Balcony',
-            $isBestWestern   => 'Panoramic Sea Views from 12th Floor, Five-Minute Walk to Kolatoly Beach',
-            str_contains($lowerName, 'sea crown')      => 'Beachfront Access, 24-Hour Room Service & Sea Facing Cafe',
-            str_contains($lowerName, 'long beach')     => 'Prime Location on Cox\'s Bazar, Complimentary Airport Pickup',
-            str_contains($lowerName, 'seagull')        => 'Prime Beachside Location, Complimentary Beach Services',
-            str_contains($lowerName, 'ocean paradise') => 'Central Kolatoli Location, Multi-Cuisine Buffet & Rooftop Jacuzzi',
-            str_contains($lowerName, 'sayeman')        => 'Iconic Beachfront Infinity Pool & Unobstructed Ocean Views',
-            str_contains($lowerCity, 'bandarban') || str_contains($lowerCity, 'sajek') || str_contains($lowerCity, 'rangamati') => 'Panoramic Hill & Mountain Views, Nature Retreat & Free Wi-Fi',
-            str_contains($lowerCity, 'sreemangal') || str_contains($lowerCity, 'sylhet') => 'Lush Tea Garden Views, Eco Resort Experience & Free Breakfast',
-            str_contains($lowerCity, 'saint martin') || str_contains($lowerCity, 'kuakata') => 'Beachfront Access, Sunset Ocean View & Coral Island Experience',
-            str_contains($lowerCity, 'dhaka') || str_contains($lowerCity, 'chattogram') => 'Prime City Center Location, Airport Shuttle & Free High-Speed Wi-Fi',
-            default                                    => 'Free High-Speed Wi-Fi, 24/7 Front Desk & Verified Clean Rooms',
-        };
-        $featureSnippet = $fallbackSnippet;
-    }
-    
+    // Applied coupon calculation
     $hasCoupon = $isSeaPearl;
-    $couponVal = ($currencyCode === 'USD') ? '19' : '1,950';
+    $couponVal = ($currencyCode === 'USD') ? '15' : '1,950';
 
-    $queryString = request()->getQueryString();
-    $hotelDetailUrl = route('hotels.show', $id) . ($queryString ? ('?' . $queryString) : '');
+    // Wishlist check
     $isSaved = in_array($id, (array)$userWishlists);
 
+    // Highlights USP
+    if ($isBestWestern) {
+        $highlightUsp = 'Panoramic Sea Views from 12th Floor, Five-Minute Walk to Kolatoly Beach';
+    } elseif ($isSeaPearl) {
+        $highlightUsp = 'Private Beach Access, Female-Only Pool Section & Inani Water Park';
+    } elseif ($isWindy) {
+        $highlightUsp = 'Spacious Deluxe Family Suites with Private Sea Breeze Balcony';
+    } else {
+        $features = $isObj ? ($item->amenities ?? $item->features ?? []) : ($item['amenities'] ?? $item['features'] ?? []);
+        if (is_string($features)) $features = json_decode($features, true) ?: [];
+        $highlightUsp = !empty($features) ? implode(' • ', array_slice($features, 0, 3)) : 'Free Breakfast • Valley & Cloud View • Free Cancellation';
+    }
+
+    // Name formatting
     $displayName = $name;
     if ($isBestWestern) {
         $displayName = 'BEST WESTERN HERITAGE';
+    } elseif ($isSeaPearl) {
+        $displayName = 'Sea Pearl Beach Resort & Spa';
     } elseif ($isWindy) {
         $displayName = 'Hotel Windy Terrace';
     } elseif ($isSeaCrown) {
@@ -281,15 +446,15 @@
   <div role="group" aria-label="Property Card" class="abb64-box abb64-fill-inherit abb64-text-inherit">
     <a href="{{ $hotelDetailUrl }}" target="_blank" class="PropertyCard__Link" style="cursor: pointer; text-decoration: none; color: inherit; display: block;" property-id="{{ $id }}" data-element-index="{{ $idx ?? 0 }}" data-element-name="property-card-content" data-is-singleroom="false">
       <span class="visually-hidden" style="position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;">{{ $displayName }} opens in a new tab</span>
-      <div data-element-name="PropertyCardBaseJacket" class="abb64-box Cardstyled__CardStyled-sc-xcq8n9-0 WpdCM {{ $isSeaPearl ? 'abb64-bg-product-primary-subtle' : 'abb64-bg-generic-base-surface' }} abb64-border-generic-base-default abb64-fill-generic-base-default abb64-text-generic-base-default abb64-border-solid abb64-cursor-pointer abb64-rounded-8 abb64-border-1" style="min-height: 220px; height: 220px; box-sizing: border-box; {{ $isSeaPearl ? 'background-color: #f5f8ff !important; border-color: #cde0fc !important;' : '' }}">
-        <div class="Gridstyled__GridStyled-sc-dfh2k0-0 ewVkEu PropertyCard__Container" direction="row" style="min-height: 220px; height: 220px; display: flex; flex-direction: row; flex-wrap: nowrap; box-sizing: border-box;">
+      <div data-element-name="PropertyCardBaseJacket" class="abb64-box Cardstyled__CardStyled-sc-xcq8n9-0 WpdCM {{ ($isBestWestern || $isSeaPearl) ? 'abb64-bg-product-primary-subtle' : 'abb64-bg-generic-base-surface' }} abb64-border-generic-base-default abb64-fill-generic-base-default abb64-text-generic-base-default abb64-border-solid abb64-cursor-pointer abb64-rounded-8 abb64-border-1" style="min-height: 220px; box-sizing: border-box; {{ ($isBestWestern || $isSeaPearl) ? 'background-color: #f5f8ff !important; border-color: #cde0fc !important;' : '' }}">
+        <div class="Gridstyled__GridStyled-sc-dfh2k0-0 ewVkEu PropertyCard__Container" direction="row" style="min-height: 220px; display: flex; flex-direction: row; flex-wrap: nowrap; box-sizing: border-box;">
           
           {{-- 1. MOSAIC GALLERY CONTAINER (Exact Agoda Layout) --}}
           <div class="Itemstyled__Item-sc-12uga7p-0 ftJhvu PropertyCard__MosaicContainer" style="position: relative; flex: 0 0 33.3333%; width: 33.3333%; height: 220px; min-height: 220px; max-height: 220px; overflow: visible; box-sizing: border-box;">
             @if($hasRibbon)
               <div class="agoda-ribbon-badge" style="position: absolute !important; top: 10px !important; left: -4px !important; z-index: 25 !important; background-color: #2067e1 !important; color: #ffffff !important; padding: 2px 8px 2px 6px !important; border-radius: 0 3px 3px 0 !important; box-shadow: 0 2px 6px rgba(0,0,0,0.25) !important; display: inline-flex !important; align-items: center !important; height: 22px !important; width: auto !important; max-width: max-content !important; line-height: 22px !important; pointer-events: none !important;">
                 <div style="position: absolute; bottom: -4px; left: 0; width: 0; height: 0; border-width: 4px 4px 0 0; border-style: solid; border-color: #123d87 transparent transparent transparent;"></div>
-                <svg viewBox="0 0 24 24" width="12" height="12" fill="#fff" style="margin-right: 4px; display: inline-block; vertical-align: -1px;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+                <svg viewBox="0 0 24 24" width="12" height="12" fill="#fff" style="margin-right: 6px; display: inline-block; vertical-align: -1px;"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
                 <span class="agoda-ribbon-text" style="color: #ffffff !important; font-size: 11px !important; font-weight: 700 !important; letter-spacing: 0.2px; white-space: nowrap !important;">Best rated 5-star hotels</span>
               </div>
             @endif
@@ -303,17 +468,21 @@
                   @endforeach
                 </ul>
 
-                {{-- Left Carousel Arrow (disabled by default on first slide) --}}
+                {{-- Left Carousel Arrow (disabled by default on first slide) with Agoda CDN Mask SVG --}}
                 <div class="agoda-carousel-arrow-wrap agoda-arrow-prev is-disabled" id="prev_arrow_{{ $id }}">
                   <button aria-label="Previous property image" onclick="event.stopPropagation(); event.preventDefault(); changeAgodaSlide({{ $id }}, -1);" type="button" class="agoda-carousel-nav-btn">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                    <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; justify-content: center;">
+                      <svg viewBox="0 0 1 1" role="presentation" style="width: 16px; height: 16px; fill: #252c38; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/b87316f3.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/b87316f3.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#252c38"></rect></svg>
+                    </span>
                   </button>
                 </div>
 
-                {{-- Right Carousel Arrow --}}
+                {{-- Right Carousel Arrow with Agoda CDN Mask SVG --}}
                 <div class="agoda-carousel-arrow-wrap agoda-arrow-next {{ $totalImgs <= 1 ? 'is-disabled' : '' }}" id="next_arrow_{{ $id }}">
                   <button aria-label="Next property image" onclick="event.stopPropagation(); event.preventDefault(); changeAgodaSlide({{ $id }}, 1);" type="button" class="agoda-carousel-nav-btn">
-                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="#2a2a2e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; justify-content: center;">
+                      <svg viewBox="0 0 1 1" role="presentation" style="width: 16px; height: 16px; fill: #252c38; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/01ed12e8.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/01ed12e8.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#252c38"></rect></svg>
+                    </span>
                   </button>
                 </div>
 
@@ -323,12 +492,12 @@
                 </div>
               </div>
 
-              {{-- Exact Agoda Circular Love / Wishlist Button --}}
+              {{-- Exact Agoda Circular Love / Wishlist Button with Agoda CDN Mask SVG --}}
               <div class="agoda-heart-wrap">
                 <button data-testid="save-to-trip-entry-button" aria-label="Save to trip" onclick="event.stopPropagation(); event.preventDefault(); toggleAgodaWishlist({{ $id }}, this);" type="button" class="agoda-heart-btn {{ $isSaved ? 'is-saved' : '' }}">
-                  <svg id="wishlist_icon_{{ $id }}" viewBox="0 0 24 24" width="18" height="18" fill="{{ $isSaved ? '#e12d46' : 'none' }}" stroke="{{ $isSaved ? '#e12d46' : '#252c38' }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
-                  </svg>
+                  <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; justify-content: center;">
+                    <svg viewBox="0 0 1 1" role="presentation" style="width: 20px; height: 20px; fill: {{ $isSaved ? '#e12d46' : '#252c38' }}; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/72463b93.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/72463b93.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="{{ $isSaved ? '#e12d46' : '#252c38' }}"></rect></svg>
+                  </span>
                 </button>
               </div>
             </div>
@@ -351,10 +520,8 @@
                         <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex">
                           <span class="ScreenReaderOnly" style="display: none !important;">{{ $stars }} stars out of 5</span>
                           @for($s = 0; $s < $stars; $s++)
-                            <span role="img" aria-hidden="true" style="display: inline-flex; align-items: center; margin-right: 2px;">
-                              <svg viewBox="0 0 24 24" width="13" height="13" fill="#ff9800" style="display: inline-block;">
-                                <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
-                              </svg>
+                            <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 2px;">
+                              <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; fill: #ff9800; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#ff9800"></rect></svg>
                             </span>
                           @endfor
                         </div>
@@ -363,14 +530,14 @@
                   </div>
                 </div>
 
-                {{-- Location Address with Exact Agoda Highlight Hover Background & Map Trigger --}}
+                {{-- Location Address with Exact Agoda CDN Mask Pin Icon --}}
                 <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mt-4">
                   <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline">
                     <button data-element-name="ssr-property-card-address" type="button" class="TextLink__TextLinkStyled-sc-upxc4y-1 jwdswZ agoda-address-btn" style="border: 0 !important; background: transparent !important; padding: 0 !important; outline: none !important; box-shadow: none !important; text-align: left; display: inline-flex; align-items: center;" onclick="event.stopPropagation(); event.preventDefault(); openHotelOnMap({{ $id }}, '{{ addslashes($displayName) }}');">
-                      <span role="img" aria-hidden="true" style="display: inline-flex; align-items: center; margin-right: 4px;">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="#2067e1" style="display:inline-block; vertical-align:text-top;"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5 2.5 2.5z"/></svg>
+                      <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 6px;">
+                        <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #2067e1; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/75768cdf.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/75768cdf.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2067e1"></rect></svg>
                       </span>
-                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gJjGjY TextLink__TextStyled-sc-upxc4y-0 jgXvXU" label="{{ $locationLabel }} - View on map"><span style="color: #2a2a2e;">{{ $locationLabel }} - </span><span class="LinkText LinkText--underlined" style="color: #2067e1; text-decoration: underline; margin-left: 2px;">View on map</span></span>
+                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gJjGjY TextLink__TextStyled-sc-upxc4y-0 jgXvXU" label="{{ $locationLabel }} - View on map"><span style="color: #2067e1;">{{ $locationLabel }} - </span><span class="LinkText LinkText--underlined" style="color: #2067e1; text-decoration: underline; margin-left: 2px;">View on map</span></span>
                     </button>
                   </div>
                 </div>
@@ -383,55 +550,51 @@
                       <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN hCiawa" style="color: #fff; font-size: 11px; font-weight: 700;">5 still available</span>
                     </div>
                   @endif
-                  @if(!empty($bookingUrgencyText))
-                    <span style="color: #e12d2d; font-size: 11px; font-weight: 500; line-height: 22px; margin-left: 2px;">{{ $bookingUrgencyText }}</span>
-                  @endif
-                  @if($hasBoosted)
-                    <div data-element-name="boosted-badge" class="abb64-box abb64-border-feedback-generic abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-border-solid abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2 abb64-border-1" style="height: 22px; border: 1px solid #737373; padding: 1px 8px; border-radius: 2px; display: inline-flex; align-items: center;">
-                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN dnIDrE" style="color: #2a2a2e; font-size: 11px; font-weight: 500;">Boosted</span>
+
+                  @if($bookingUrgencyText)
+                    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; display: inline-flex; align-items: center;">
+                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN hryDkd" style="color: #e12d2d; font-size: 11.5px; font-weight: 500;">{{ $bookingUrgencyText }}</span>
                     </div>
                   @endif
+
+                  @if($hasBoosted)
+                    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; border: 1px solid #c7c7c7; padding: 0 6px; border-radius: 2px; display: inline-flex; align-items: center;">
+                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bvUylf" style="color: #5a5a5a; font-size: 11px; font-weight: 500;">Boosted</span>
+                    </div>
+                  @endif
+
                   @if($hasSeaView)
-                    <div data-element-name="ssr-property-character-view-tag" class="abb64-box abb64-bg-feedback-notice-subtle abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background: #eaf1fb; padding: 1px 8px; border-radius: 2px; display: inline-flex; align-items: center;">
-                      <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 4px;">
-                        <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-feedback-on-notice-subtle" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/68235b99.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg>
+                    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background-color: #f0f7ff; border: 1px solid #bae0fd; padding: 0 6px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px;">
+                      <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline">
+                        <svg viewBox="0 0 1 1" role="presentation" style="width: 13px; height: 13px; fill: #0283df; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/05eb4e81.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/05eb4e81.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#0283df"></rect></svg>
                       </span>
-                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gYTGmY" style="color: #2067e1; font-size: 11px; font-weight: 600;">Sea View</span>
+                      <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN" style="color: #0283df; font-size: 11px; font-weight: 600;">Sea View</span>
+                    </div>
+                  @endif
+
+                  @if($hasCreditCardNote)
+                    <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; display: inline-flex; align-items: center; gap: 6px;">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="#2067e1" stroke-width="2" style="flex-shrink: 0; margin-right: 2px;"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                      <span style="color: #2067e1; font-size: 11px; font-weight: 500;">Book without a credit card</span>
                     </div>
                   @endif
                 </aside>
               </div>
 
-              <aside class="List PropertyCard__IconMessages" data-element-name="property-info-icon-message">
-                <ul class="List__List List__List--Vertical">
-                  @if($hasCreditCardNote)
-                    <li>
-                      <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-flex">
-                        <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0">
-                          <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4">
-                            <svg viewBox="0 0 24 24" width="14" height="14" fill="#2067e1"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
-                          </span>
-                          <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN ffLWcT" style="color: #2067e1; font-size: 12px;">Book without a credit card</span>
-                        </div>
-                      </div>
-                    </li>
-                  @endif
-                  <li>
-                    <div data-element-name="ssr-property-card-usp-badge" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-start abb64-flex">
-                      <div data-element-name="ssr-property-card-ai-usp" class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-start abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0">
-                        <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4">
-                          <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-feedback-generic" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/05eb4e81.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg>
-                        </span>
-                        <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN fWjUjI" style="color: #2a2a2e; font-size: 12px;">{{ $featureSnippet }}</span>
-                      </div>
-                    </div>
-                  </li>
-                </ul>
-              </aside>
+              {{-- Agoda USP Feature Highlight Bullet --}}
+              <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mt-auto abb64-mb-2">
+                <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-items-center abb64-gap-1">
+                  <span style="color: #737373; font-size: 11.5px; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px;">
+                    <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 6px;"><svg viewBox="0 0 1 1" role="presentation" style="width: 12px; height: 12px; fill: #535b6a; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/68235b99.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/68235b99.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#535b6a"></rect></svg></span>
+                    <span>{{ $highlightUsp }}</span>
+                  </span>
+                </div>
+              </div>
+
             </div>
           </div>
 
-          {{-- 3. EXACT RIGHT PRICING SECTION (Agoda Layout & Typo) --}}
+          {{-- 3. EXACT RIGHT PRICING SECTION --}}
           <div class="Itemstyled__Item-sc-12uga7p-0 fTvBdC PropertyCard__Section PropertyCard__Section--pricingInfo" style="flex: 0 0 25%; width: 25%; min-height: 220px; box-sizing: border-box; border-left: 1px solid #f0f2f5;">
             <div class="abb64-h-full abb64-justify-between abb64-items-end abb64-p-8 abb64-flex abb64-flex-col" data-element-name="property-card-pricing-info" style="min-height: 220px; height: 100%; box-sizing: border-box; padding: 12px 14px 10px 14px;">
               
@@ -459,8 +622,8 @@
                       <li>
                         <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-max-w-full">
                           <div data-element-name="consolidated-applied-discount-badge" class="abb64-box abb64-bg-feedback-positive-subtle abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background: #e8f5e9; padding: 0 8px; border-radius: 2px; display: inline-flex; align-items: center; white-space: nowrap;">
-                            <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 4px;">
-                              <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-feedback-on-positive-subtle" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/e409eac2.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg>
+                            <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 6px;">
+                              <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #2e7d32; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/e409eac2.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/e409eac2.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2e7d32"></rect></svg>
                             </span>
                             <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN kTnccA" style="color: #2e7d32; font-size: 11px; font-weight: 600; white-space: nowrap;">{{ $currencyCode }} {{ $couponVal }} applied</span>
                           </div>
@@ -471,8 +634,8 @@
                       <li>
                         <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-max-w-full">
                           <div class="abb64-box abb64-bg-product-price-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-items-start abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background: #fdf2f2; padding: 0 8px; border-radius: 2px; display: inline-flex; align-items: center; white-space: nowrap;">
-                            <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 4px;">
-                              <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-on-price-subtle" style="width: 14px; height: 14px; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/273a5e4f.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%"></rect></svg>
+                            <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 6px;">
+                              <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #d32f2f; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/273a5e4f.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/273a5e4f.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#d32f2f"></rect></svg>
                             </span>
                             <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bvUylf" style="color: #d32f2f; font-size: 11px; font-weight: 600; white-space: nowrap;">Value Pick</span>
                           </div>
@@ -513,14 +676,7 @@
                   <span class="Spanstyled__SpanStyled-sc-16tp9kb-0 hbNSOv kite-js-Span" data-selenium="per-night-begins-with" style="color: #687176; font-size: 11px; white-space: nowrap;">Per night before taxes and fees</span>
                 </div>
 
-                {{-- Agoda Blue CTA Button (Exact 1:1 Parity with Image 2) --}}
-                <div class="mt-2" style="width: 100%;">
-                  <button type="button" class="btn text-white w-100 fw-bold shadow-none" style="background-color: #2067e1; border: none; border-radius: 6px; padding: 7px 16px; font-size: 13.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                    Check availability
-                  </button>
                 </div>
-              </div>
-
             </div>
           </div>
 

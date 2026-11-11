@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    width: 600px;
+    height: 358px;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px 20px 24px;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+  .visual-row {
+    width: 100%;
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: relative;
+  }
+  .sig-img {
+    height: 250px;
+    width: auto;
+    max-width: 420px;
+    object-fit: contain;
+    mix-blend-mode: multiply;
+    transform: translateY(10px);
+  }
+  .stamp-svg {
+    width: 155px;
+    height: 155px;
+    transform: rotate(-8deg);
+    margin-right: 10px;
+  }
+  .label-text {
+    font-size: 25px;
+    font-weight: 500;
+    color: #111111;
+    letter-spacing: -0.2px;
+    margin-top: 6px;
+  }
+</style>
+</head>
+<body>
+  <div class="visual-row">
+    <!-- User's signature -->
+    <img src="user_raw_signature.jpg" class="sig-img" alt="Signature">
+
+    <!-- Official Prime Booking Circular Stamp -->
+    <svg class="stamp-svg" viewBox="0 0 200 200">
+      <!-- Outer double circle -->
+      <circle cx="100" cy="100" r="92" fill="none" stroke="#22588f" stroke-width="3.5" stroke-dasharray="8 4"/>
+      <circle cx="100" cy="100" r="82" fill="none" stroke="#22588f" stroke-width="2"/>
+      
+      <!-- Inner circle -->
+      <circle cx="100" cy="100" r="54" fill="none" stroke="#22588f" stroke-width="2"/>
+      <circle cx="100" cy="100" r="50" fill="none" stroke="#22588f" stroke-width="1"/>
+
+      <!-- Circular text path (Top) -->
+      <path id="circleTop" d="M 28,100 A 72,72 0 0,1 172,100" fill="none"/>
+      <text fill="#22588f" font-size="14.5" font-weight="900" letter-spacing="2.2" text-anchor="middle">
+        <textPath href="#circleTop" startOffset="50%">PRIME BOOKING</textPath>
+      </text>
+
+      <!-- Circular text path (Bottom) -->
+      <path id="circleBottom" d="M 172,100 A 72,72 0 0,1 28,100" fill="none"/>
+      <text fill="#22588f" font-size="13" font-weight="900" letter-spacing="1.8" text-anchor="middle">
+        <textPath href="#circleBottom" startOffset="50%">BANGLADESH LTD.</textPath>
+      </text>
+
+      <!-- Center Stars & Official -->
+      <text x="100" y="87" fill="#22588f" font-size="12" font-weight="bold" text-anchor="middle">★ ★ ★</text>
+      <text x="100" y="106" fill="#22588f" font-size="15" font-weight="900" letter-spacing="1" text-anchor="middle">OFFICIAL</text>
+      <text x="100" y="122" fill="#22588f" font-size="11" font-weight="700" letter-spacing="0.5" text-anchor="middle">VERIFIED</text>
+    </svg>
+  </div>
+
+  <div class="label-text">Authorized Stamp &amp; Signature</div>
+</body>
+</html>

@@ -50,7 +50,7 @@
                         <option value="confirmed" {{ request('status') == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
                         <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                         <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Completed</option>
-                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                        <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Cancelled / Rejected ({{ number_format($stats['cancelled'] ?? 0) }})</option>
                     </select>
                 </div>
                 <div class="col-6 col-md-2">
@@ -273,9 +273,23 @@
 
                         {{-- Status --}}
                         <td>
-                            <span class="badge-status {{ strtolower($b->effective_status) == 'confirmed' ? 'confirmed' : (strtolower($b->effective_status) == 'cancelled' ? 'cancelled' : 'pending') }}">
-                                {{ ucfirst($b->effective_status) }}
-                            </span>
+                            @if(in_array(strtolower($b->effective_status), ['cancelled', 'rejected']))
+                                <span class="badge bg-danger text-white fw-bold px-2 py-1" style="font-size:11px; background:#dc2626 !important; letter-spacing:0.3px;">
+                                    <i class="fa-solid fa-ban me-1"></i> REJECTED
+                                </span>
+                            @else
+                                <span class="badge-status {{ strtolower($b->effective_status) == 'confirmed' ? 'confirmed' : 'pending' }}">
+                                    {{ ucfirst($b->effective_status) }}
+                                </span>
+                            @endif
+
+                            @if($b->special_requests)
+                                <div class="mt-1">
+                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:10px; cursor:help; font-weight:600;" title="{{ $b->special_requests }}">
+                                        <i class="fa-solid fa-bell me-1"></i> Special Requests
+                                    </span>
+                                </div>
+                            @endif
                         </td>
 
                         {{-- Direct Actions & 3-Dot Dropdown Menu --}}
@@ -338,6 +352,19 @@
                                                 </button>
                                             </form>
                                         </li>
+
+                                        {{-- Reject / Cancel Booking --}}
+                                        @if(!in_array(strtolower($b->effective_status), ['cancelled', 'rejected']))
+                                        <li>
+                                            <form action="{{ route('admin.bookings.update-status', $b->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to REJECT / CANCEL this reservation? Room inventory will be automatically released back.')">
+                                                @csrf
+                                                <input type="hidden" name="status" value="cancelled">
+                                                <button type="submit" class="dropdown-item py-1.5 px-3 text-danger fw-bold">
+                                                    <i class="fa-solid fa-ban me-2"></i> Reject / Cancel Booking
+                                                </button>
+                                            </form>
+                                        </li>
+                                        @endif
 
                                         {{-- 6. Mark Paid (if unpaid) --}}
                                         @if(strtolower($b->payment_status ?? '') !== 'paid')
@@ -540,7 +567,10 @@ function openAdminBookingPreviewModal(data) {
         ? '<span class="badge bg-success text-white fw-bold px-2 py-1"><i class="fa-solid fa-circle-check me-1"></i> PAID</span>'
         : '<span class="badge bg-warning text-dark fw-bold px-2 py-1"><i class="fa-solid fa-clock me-1"></i> UNPAID</span>';
         
-    document.getElementById('apv_status_badge').innerHTML = '<span class="badge bg-primary text-white px-2 py-1">' + data.status + '</span>';
+    const isCancelled = data.status.toLowerCase().includes('cancel') || data.status.toLowerCase().includes('reject');
+    document.getElementById('apv_status_badge').innerHTML = isCancelled 
+        ? '<span class="badge bg-danger text-white fw-bold px-2 py-1" style="background:#dc2626 !important;"><i class="fa-solid fa-ban me-1"></i> REJECTED / CANCELLED</span>'
+        : '<span class="badge bg-primary text-white px-2 py-1">' + data.status + '</span>';
     
     document.getElementById('apv_full_btn').href = data.show_url;
     

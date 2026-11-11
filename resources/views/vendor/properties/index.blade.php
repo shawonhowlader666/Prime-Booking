@@ -164,7 +164,7 @@
                         </td>
                         <td>
                             <div class="d-flex align-items-center gap-2.5">
-                                <img src="{{ $property->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=120&h=80&fit=crop' }}" width="56" height="40" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=120&h=80&fit=crop'">
+                                <img src="{{ media_url($property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=120&h=80&fit=crop') }}" width="56" height="40" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=120&h=80&fit=crop'">
                                 <div>
                                     <strong style="font-size:13px; color:#1e293b; display:block;">{{ $property->name }}</strong>
                                     <div class="d-flex align-items-center gap-1.5 mt-0.5">

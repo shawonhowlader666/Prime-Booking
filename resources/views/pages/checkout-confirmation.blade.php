@@ -49,7 +49,7 @@
                 {{-- Hotel Info --}}
                 <div class="col-md-6 border-end">
                     <div class="d-flex gap-3 mb-3">
-                        <img src="{{ $booking->property->primary_image ?? 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=300&q=80' }}" style="width: 90px; height: 90px; object-fit: cover; border-radius: 10px;" alt="{{ $booking->property->name }}">
+                        <img src="{{ media_url($booking->property->primary_image, 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=300&q=80') }}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=300&q=80';" style="width: 90px; height: 90px; object-fit: cover; border-radius: 10px;" alt="{{ $booking->property->name }}">
                         <div>
                             <h6 class="fw-bold text-dark mb-1" style="font-size: 15px;">{{ $booking->property->name }}</h6>
                             <div class="text-warning mb-1" style="font-size: 12px;">

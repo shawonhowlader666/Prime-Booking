@@ -110,12 +110,17 @@ class PropertyManagementController extends Controller
             'address'         => 'required|string',
             'price_per_night' => 'required|numeric|min:0',
             'description'     => 'required|string',
-            'primary_image'   => 'nullable|url',
-            'video_url'       => 'nullable|url',
+            'primary_image'   => 'nullable|string',
+            'video_url'       => 'nullable|string',
             'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
             'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'video_file'            => 'nullable|file|mimes:mp4,webm,mov|max:51200',
+            'video_file'            => 'nullable|file|mimes:mp4,webm,mov,ogg|max:102400',
         ]);
+
+        $uploadCategory = $request->input('new_gallery_category', 'property_views');
+        if (!in_array($uploadCategory, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
+            $uploadCategory = 'property_views';
+        }
 
         $galleryImages = [];
 
@@ -124,7 +129,11 @@ class PropertyManagementController extends Controller
             foreach ($request->file('gallery_image_files') as $file) {
                 if ($file && $file->isValid()) {
                     $path = $file->store('uploads/properties/gallery', 'public');
-                    $galleryImages[] = asset('storage/' . $path);
+                    $galleryImages[] = [
+                        'url' => asset('storage/' . $path),
+                        'category' => $uploadCategory,
+                        'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
+                    ];
                 }
             }
         }
@@ -135,7 +144,13 @@ class PropertyManagementController extends Controller
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
-            $galleryImages = array_merge($galleryImages, $urls);
+            foreach ($urls as $u) {
+                $galleryImages[] = [
+                    'url' => $u,
+                    'category' => $uploadCategory,
+                    'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
+                ];
+            }
         }
 
         // Handle file upload for primary thumbnail image
@@ -144,6 +159,20 @@ class PropertyManagementController extends Controller
             $primaryImage = asset('storage/' . $path);
         } else {
             $primaryImage = $request->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80';
+        }
+
+        // Handle video file upload or URL
+        $videoUrl = null;
+        if ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
+            $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
+            $videoUrl = asset('storage/' . $videoPath);
+        } elseif ($request->filled('video_url')) {
+            $rawVideo = trim($request->input('video_url'));
+            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i', $rawVideo, $m)) {
+                $videoUrl = "https://www.youtube.com/embed/" . $m[1];
+            } else {
+                $videoUrl = $rawVideo;
+            }
         }
 
         // Determine publish status — "Save as Draft" button vs "Publish Live"
@@ -160,7 +189,7 @@ class PropertyManagementController extends Controller
             'original_price'   => $request->original_price ? (float) $request->original_price : null,
             'description'      => $request->description,
             'primary_image'    => $primaryImage,
-            'video_url'              => $request->video_url ?: null,
+            'video_url'        => $videoUrl,
             'latitude'               => $request->latitude ? (float)$request->latitude : null,
             'longitude'              => $request->longitude ? (float)$request->longitude : null,
             'map_embed_url'          => $request->map_embed_url ?: null,
@@ -223,9 +252,43 @@ class PropertyManagementController extends Controller
         $property    = Property::findOrFail($id);
         $vendors     = User::where('role', 'vendor')->orderBy('name')->get();
         $locations   = Location::orderBy('is_popular', 'desc')->orderBy('name')->get();
-        // Convert gallery images array back to one-per-line for textarea
-        $galleryText = implode("\n", $property->images ?? []);
-        return view('admin.properties.edit', compact('property', 'vendors', 'galleryText', 'locations'));
+
+        $rawGallery = is_array($property->images) ? $property->images : (json_decode($property->images ?? '[]', true) ?: []);
+        $structuredGallery = [];
+        $urlStrings = [];
+
+        foreach ($rawGallery as $idx => $item) {
+            if (is_array($item)) {
+                $url = $item['url'] ?? '';
+                if (!empty($url)) {
+                    $structuredGallery[] = [
+                        'url' => $url,
+                        'category' => $item['category'] ?? 'property_views',
+                        'title' => $item['title'] ?? ''
+                    ];
+                    $urlStrings[] = $url;
+                }
+            } elseif (is_string($item) && !empty($item)) {
+                $lower = strtolower($item);
+                $cat = 'property_views';
+                if (preg_match('/(restaurant|dining|cafe|buffet|breakfast|food|bar|coffee|kitchen)/i', $lower)) {
+                    $cat = 'dining';
+                } elseif (preg_match('/(pool|swimming|gym|fitness|spa|lobby|reception|lounge|hall|conference|ballroom)/i', $lower)) {
+                    $cat = 'facilities';
+                } elseif (preg_match('/(room|bed|suite|deluxe|superior|standard|twin|king)/i', $lower)) {
+                    $cat = 'rooms';
+                }
+                $structuredGallery[] = [
+                    'url' => $item,
+                    'category' => $cat,
+                    'title' => ''
+                ];
+                $urlStrings[] = $item;
+            }
+        }
+
+        $galleryText = implode("\n", $urlStrings);
+        return view('admin.properties.edit', compact('property', 'vendors', 'galleryText', 'structuredGallery', 'locations'));
     }
 
     public function update(Request $request, $id)
@@ -239,24 +302,79 @@ class PropertyManagementController extends Controller
             'price_per_night' => 'required|numeric|min:0',
             'commission_rate' => 'nullable|numeric|min:0|max:100',
             'description'     => 'required|string',
-            'primary_image'   => 'nullable|url',
-            'video_url'       => 'nullable|url',
+            'primary_image'   => 'nullable|string',
+            'video_url'       => 'nullable|string',
+            'set_primary_image_url' => 'nullable|string',
             'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
             'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'video_file'            => 'nullable|file|mimes:mp4,webm,mov|max:51200',
+            'existing_gallery_replace.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
+            'video_file'            => 'nullable|file|mimes:mp4,webm,mov,ogg|max:102400',
         ]);
 
         $property = Property::findOrFail($id);
 
-        $existingGallery = is_array($property->gallery_images) ? $property->gallery_images : (is_array($property->images) ? $property->images : []);
-        $newGallery = [];
+        $finalGallery = [];
+
+        // 1. Existing gallery items management (re-categorize, re-title, in-place replace, delete)
+        if ($request->has('existing_gallery') && is_array($request->existing_gallery)) {
+            foreach ($request->existing_gallery as $gIdx => $item) {
+                if (!empty($item['delete'])) {
+                    continue; // Admin chose to delete this photo
+                }
+                $url = trim($item['url'] ?? '');
+
+                // Check if admin uploaded a replacement file for this specific photo
+                if ($request->hasFile("existing_gallery_replace.{$gIdx}") && $request->file("existing_gallery_replace.{$gIdx}")->isValid()) {
+                    $repPath = $request->file("existing_gallery_replace.{$gIdx}")->store('uploads/properties/gallery', 'public');
+                    $url = asset('storage/' . $repPath);
+                }
+
+                if (empty($url)) continue;
+
+                $cat = trim($item['category'] ?? 'property_views');
+                if (!in_array($cat, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
+                    $cat = 'property_views';
+                }
+
+                $title = trim($item['title'] ?? '') ?: ($property->name . ' - ' . ucfirst(str_replace('_', ' ', $cat)));
+
+                $finalGallery[] = [
+                    'url' => $url,
+                    'category' => $cat,
+                    'title' => $title
+                ];
+            }
+        } else {
+            $rawExisting = is_array($property->images) ? $property->images : (json_decode($property->images ?? '[]', true) ?: []);
+            foreach ($rawExisting as $item) {
+                if (is_array($item)) {
+                    $finalGallery[] = $item;
+                } elseif (is_string($item) && !empty($item)) {
+                    $finalGallery[] = [
+                        'url' => $item,
+                        'category' => 'property_views',
+                        'title' => $property->name
+                    ];
+                }
+            }
+        }
+
+        // 2. New uploads with admin-selected category
+        $uploadCategory = $request->input('new_gallery_category', 'property_views');
+        if (!in_array($uploadCategory, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
+            $uploadCategory = 'property_views';
+        }
 
         // Support multiple gallery file uploads
         if ($request->hasFile('gallery_image_files')) {
             foreach ($request->file('gallery_image_files') as $file) {
                 if ($file && $file->isValid()) {
                     $path = $file->store('uploads/properties/gallery', 'public');
-                    $newGallery[] = asset('storage/' . $path);
+                    $finalGallery[] = [
+                        'url' => asset('storage/' . $path),
+                        'category' => $uploadCategory,
+                        'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
+                    ];
                 }
             }
         }
@@ -266,24 +384,42 @@ class PropertyManagementController extends Controller
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
-            $newGallery = array_merge($newGallery, $urls);
+            foreach ($urls as $u) {
+                $finalGallery[] = [
+                    'url' => $u,
+                    'category' => $uploadCategory,
+                    'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
+                ];
+            }
         }
 
-        $finalGallery = !empty($newGallery) ? array_values(array_unique(array_merge($existingGallery, $newGallery))) : $existingGallery;
-
+        // Determine Primary / Cover Image
         if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
             $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
             $primaryImage = asset('storage/' . $path);
+        } elseif ($request->filled('set_primary_image_url')) {
+            $primaryImage = $request->input('set_primary_image_url');
+        } elseif ($request->filled('primary_image')) {
+            $primaryImage = $request->input('primary_image');
         } else {
-            $primaryImage = $request->primary_image ?: $property->primary_image;
+            $primaryImage = $property->primary_image;
         }
 
-        // Handle video file upload or URL
-        if ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
+        // Handle video file upload, remove, or URL
+        if ($request->boolean('remove_video')) {
+            $videoUrl = null;
+        } elseif ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
             $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
             $videoUrl = asset('storage/' . $videoPath);
+        } elseif ($request->filled('video_url')) {
+            $rawVideo = trim($request->input('video_url'));
+            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i', $rawVideo, $m)) {
+                $videoUrl = "https://www.youtube.com/embed/" . $m[1];
+            } else {
+                $videoUrl = $rawVideo;
+            }
         } else {
-            $videoUrl = $request->video_url ?: $property->video_url;
+            $videoUrl = $property->video_url;
         }
 
         $property->update([

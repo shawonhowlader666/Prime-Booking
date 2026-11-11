@@ -20,12 +20,13 @@ class BookingFlowController extends Controller
 {
     public function __construct(
         protected PropertyRepository $properties
-    ) {}
+    ) {
+    }
 
     /** GET /checkout?property_id=1&room_id=... */
     public function index(Request $request)
     {
-        $propertyId = $request->input('property_id', 1);
+        $propertyId = $request->input('property_id') ?: (Property::first()?->id ?? 12);
         return $this->showForm($request, $propertyId);
     }
 
@@ -39,34 +40,35 @@ class BookingFlowController extends Controller
         }
 
         $selectedRoomId = $request->input('room_id');
-        $selectedRoom   = $selectedRoomId
+        $selectedRoom = $selectedRoomId
             ? $property->rooms->firstWhere('id', $selectedRoomId)
             : $property->rooms->first();
 
-        $checkIn  = $request->input('check_in',  date('Y-m-d', strtotime('+1 day')));
+        $checkIn = $request->input('check_in', date('Y-m-d', strtotime('+1 day')));
         $checkOut = $request->input('check_out', date('Y-m-d', strtotime('+3 days')));
-        $guests   = (int) $request->input('guests', 2);
-        $nights   = max(1, Carbon::parse($checkIn)->diffInDays(Carbon::parse($checkOut)));
+        $guests = (int) $request->input('guests', 2);
+        $rooms = max(1, (int) $request->input('rooms', 1));
+        $nights = max(1, Carbon::parse($checkIn)->diffInDays(Carbon::parse($checkOut)));
 
         $pricingEngine = app(\App\Services\DynamicPricingService::class);
         if ($selectedRoom) {
-            $stayPricing   = $pricingEngine->calculateStayPrice($selectedRoom, $checkIn, $checkOut, 1);
-            $subtotal      = (float) $stayPricing['final_price'];
+            $stayPricing = $pricingEngine->calculateStayPrice($selectedRoom, $checkIn, $checkOut, $rooms);
+            $subtotal = (float) $stayPricing['final_price'];
             $pricePerNight = (float) $stayPricing['avg_nightly_rate'];
         } else {
             $pricePerNight = (float) ($property->price_per_night ?? 1500);
-            $subtotal      = $pricePerNight * $nights;
+            $subtotal = $pricePerNight * $nights * $rooms;
         }
 
-        $taxRate       = 0.075; // 7.5% VAT
-        $taxAmount     = round($subtotal * $taxRate);
-        $totalPrice    = $subtotal + $taxAmount;
+        $taxRate = 0.075; // 7.5% VAT
+        $taxAmount = round($subtotal * $taxRate);
+        $totalPrice = $subtotal + $taxAmount;
 
         // Available Addons
         $addons = [
             'airport_transfer' => ['name' => 'Private Airport Pickup & Transfer', 'price' => 1500],
-            'daily_breakfast'  => ['name' => 'Buffet Breakfast (All Guests)', 'price' => 500 * $guests * $nights],
-            'spa_package'      => ['name' => '60-Min Wellness Spa Voucher', 'price' => 2000],
+            'daily_breakfast' => ['name' => 'Buffet Breakfast (All Guests)', 'price' => 500 * $guests * $nights],
+            'spa_package' => ['name' => '60-Min Wellness Spa Voucher', 'price' => 2000],
         ];
 
         // Auto-apply promotional discount if active via session or query param
@@ -116,7 +118,7 @@ class BookingFlowController extends Controller
 
         $inventoryService = app(\App\Services\InventoryService::class);
         if ($selectedRoom) {
-            $inventoryService->holdRoom((int)$selectedRoom->id, (string)$checkIn, (string)$checkOut, $holdToken, 15);
+            $inventoryService->holdRoom((int) $selectedRoom->id, (string) $checkIn, (string) $checkOut, $holdToken, 15);
         }
 
         $holdData = \Illuminate\Support\Facades\Cache::get("room_hold_token_{$holdToken}");
@@ -125,10 +127,30 @@ class BookingFlowController extends Controller
         session(['checkout_idempotency_token' => $idempotencyToken]);
 
         return view('pages.booking-form', compact(
-            'property', 'selectedRoom', 'checkIn', 'checkOut',
-            'guests', 'nights', 'pricePerNight', 'subtotal', 'taxAmount', 'totalPrice', 'addons', 'user',
-            'activePromoCode', 'appliedDiscount', 'vipStats', 'vipDiscountAmount', 'primaryPointsmax', 'earnedMiles',
-            'rewardSummary', 'earnablePoints', 'holdToken', 'holdSecondsRemaining', 'idempotencyToken'
+            'property',
+            'selectedRoom',
+            'checkIn',
+            'checkOut',
+            'guests',
+            'rooms',
+            'nights',
+            'pricePerNight',
+            'subtotal',
+            'taxAmount',
+            'totalPrice',
+            'addons',
+            'user',
+            'activePromoCode',
+            'appliedDiscount',
+            'vipStats',
+            'vipDiscountAmount',
+            'primaryPointsmax',
+            'earnedMiles',
+            'rewardSummary',
+            'earnablePoints',
+            'holdToken',
+            'holdSecondsRemaining',
+            'idempotencyToken'
         ));
     }
 
@@ -136,14 +158,14 @@ class BookingFlowController extends Controller
     public function validateCouponAjax(Request $request, CouponService $couponService)
     {
         $request->validate([
-            'code'     => 'required|string|max:50',
+            'code' => 'required|string|max:50',
             'subtotal' => 'required|numeric|min:0',
         ]);
 
         $res = $couponService->validateCoupon(
-            (string)$request->code,
-            (float)$request->subtotal,
-            $request->filled('property_id') ? (int)$request->property_id : null
+            (string) $request->code,
+            (float) $request->subtotal,
+            $request->filled('property_id') ? (int) $request->property_id : null
         );
 
         return response()->json($res);
@@ -160,19 +182,19 @@ class BookingFlowController extends Controller
     public function store(Request $request, $propertyId, InventoryService $inventoryService, CouponService $couponService, NotificationService $notificationService)
     {
         $request->validate([
-            'guest_name'       => 'required|string|max:100',
-            'guest_email'      => 'required|email|max:150',
-            'guest_phone'      => 'required|string|max:20',
-            'check_in'         => 'required|date|after_or_equal:today',
-            'check_out'        => 'required|date|after:check_in',
-            'guests'           => 'required|integer|min:1|max:20',
-            'payment_method'   => 'required|string|in:bkash,nagad,rocket,card,sslcommerz,cash,pay_at_hotel,bank_transfer',
-            'coupon_code'      => 'nullable|string|max:50',
+            'guest_name' => 'required|string|max:100',
+            'guest_email' => 'required|email|max:150',
+            'guest_phone' => 'required|string|max:20',
+            'check_in' => 'required|date|after_or_equal:today',
+            'check_out' => 'required|date|after:check_in',
+            'guests' => 'required|integer|min:1|max:20',
+            'payment_method' => 'required|string|in:bkash,nagad,rocket,card,sslcommerz,cash,pay_at_hotel,bank_transfer',
+            'coupon_code' => 'nullable|string|max:50',
             'special_requests' => 'nullable|string|max:500',
-            'addons'           => 'nullable|array',
+            'addons' => 'nullable|array',
         ], [
             'check_in.after_or_equal' => 'Check-in date cannot be in the past. Please select today or a future date.',
-            'check_out.after'         => 'Check-out date must be at least 1 night after the check-in date.',
+            'check_out.after' => 'Check-out date must be at least 1 night after the check-in date.',
         ]);
 
         // 0. Enterprise Idempotency Protection (Double-charge & Double-booking prevention)
@@ -197,36 +219,38 @@ class BookingFlowController extends Controller
             return back()->withInput()->with('error', 'Unable to process your request at this time. Please contact customer support for assistance.');
         }
 
+        $requestedRooms = max(1, (int) $request->input('rooms', 1));
+
         // 1. Enterprise Availability & Overbooking Verification
         if ($room) {
-            $availCheck = $inventoryService->checkAvailability($room->id, $request->check_in, $request->check_out, 1);
+            $availCheck = $inventoryService->checkAvailability($room->id, $request->check_in, $request->check_out, $requestedRooms);
             if (!$availCheck['is_available']) {
                 return back()->withInput()->with('error', "Sorry! " . ($availCheck['reason'] ?? 'This room is not available for the selected dates.'));
             }
         }
 
-        $checkIn  = Carbon::parse($request->check_in);
+        $checkIn = Carbon::parse($request->check_in);
         $checkOut = Carbon::parse($request->check_out);
-        $nights   = max(1, $checkIn->diffInDays($checkOut));
+        $nights = max(1, $checkIn->diffInDays($checkOut));
 
         $pricingEngine = app(\App\Services\DynamicPricingService::class);
         if ($room) {
-            $stayPricing   = $pricingEngine->calculateStayPrice($room, $request->check_in, $request->check_out, 1);
-            $subtotal      = (float) $stayPricing['final_price'];
+            $stayPricing = $pricingEngine->calculateStayPrice($room, $request->check_in, $request->check_out, $requestedRooms);
+            $subtotal = (float) $stayPricing['final_price'];
             $pricePerNight = (float) $stayPricing['avg_nightly_rate'];
         } else {
             $pricePerNight = (float) ($property->price_per_night ?? 1500);
-            $subtotal      = $pricePerNight * $nights;
+            $subtotal = $pricePerNight * $nights * $requestedRooms;
         }
 
         // 2. Coupon Validation & Discount Calculation
-        $couponCode     = null;
+        $couponCode = null;
         $discountAmount = 0.0;
         if ($request->filled('coupon_code')) {
-            $cCheck = $couponService->validateCoupon($request->coupon_code, $subtotal, (int)$property->id);
+            $cCheck = $couponService->validateCoupon($request->coupon_code, $subtotal, (int) $property->id);
             if ($cCheck['valid']) {
-                $couponCode     = $cCheck['code'];
-                $discountAmount = (float)$cCheck['discount'];
+                $couponCode = $cCheck['code'];
+                $discountAmount = (float) $cCheck['discount'];
             }
         }
 
@@ -236,8 +260,8 @@ class BookingFlowController extends Controller
 
         $availableAddons = [
             'airport_transfer' => ['name' => 'Private Airport Pickup & Transfer', 'price' => 1500],
-            'daily_breakfast'  => ['name' => 'Buffet Breakfast (All Guests)', 'price' => 500 * (int)$request->guests * $nights],
-            'spa_package'      => ['name' => '60-Min Wellness Spa Voucher', 'price' => 2000],
+            'daily_breakfast' => ['name' => 'Buffet Breakfast (All Guests)', 'price' => 500 * (int) $request->guests * $nights],
+            'spa_package' => ['name' => '60-Min Wellness Spa Voucher', 'price' => 2000],
         ];
 
         if ($request->has('addons') && is_array($request->addons)) {
@@ -250,25 +274,22 @@ class BookingFlowController extends Controller
             }
         }
 
-        $taxAmount  = round(max(0, ($subtotal - $discountAmount + $addonsTotal)) * 0.075);
+        $taxAmount = round(max(0, ($subtotal - $discountAmount + $addonsTotal)) * 0.075);
         $totalPrice = max(0, ($subtotal - $discountAmount + $addonsTotal) + $taxAmount);
 
         // 4. Platform Commission & Vendor Payout Calculation (Dynamic per-property rate)
-        $commissionRate   = (float) ($property->commission_rate ?? 12.00);
+        $commissionRate = (float) ($property->commission_rate ?? 12.00);
         $commissionAmount = round(max(0, $subtotal - $discountAmount) * ($commissionRate / 100), 2);
-        $vendorPayout     = max(0, ($subtotal - $discountAmount) - $commissionAmount);
+        $vendorPayout = max(0, ($subtotal - $discountAmount) - $commissionAmount);
 
         $reference = 'PRM-' . date('Y') . '-' . strtoupper(Str::random(6));
 
         $isPayAtHotel = in_array($request->payment_method, ['cash', 'pay_at_hotel', 'bank_transfer']);
         $paymentStatus = $isPayAtHotel ? 'unpaid' : 'pending';
+        $bookingStatus = $isPayAtHotel ? 'confirmed' : 'pending';
 
         try {
-            $booking = DB::transaction(function () use (
-                $request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice,
-                $selectedAddons, $paymentStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout,
-                $inventoryService, $couponService
-            ) {
+            $booking = DB::transaction(function () use ($request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice, $selectedAddons, $paymentStatus, $bookingStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout, $inventoryService, $couponService) {
                 if ($room) {
                     // Enterprise Pessimistic Concurrency Lock (Agoda pattern)
                     $lockedRoom = Room::where('id', $room->id)->lockForUpdate()->first();
@@ -276,8 +297,8 @@ class BookingFlowController extends Controller
                         $activeBookingsCount = Booking::where('room_id', $lockedRoom->id)
                             ->where(function ($q) {
                                 $q->where('status', 'confirmed')
-                                  ->orWhere('booking_status', 'confirmed')
-                                  ->orWhere('status', 'pending');
+                                    ->orWhere('booking_status', 'confirmed')
+                                    ->orWhere('status', 'pending');
                             })
                             ->whereDate('check_in', '<', $request->check_out)
                             ->whereDate('check_out', '>', $request->check_in)
@@ -296,42 +317,43 @@ class BookingFlowController extends Controller
                 }
 
                 $b = Booking::create([
-                    'booking_reference'    => $reference,
-                    'property_id'          => $property->id,
-                    'room_id'              => $room?->id,
-                    'user_id'              => auth()->id(),
-                    'guest_name'           => $request->guest_name,
-                    'guest_email'          => $request->guest_email,
-                    'guest_phone'          => $request->guest_phone,
-                    'check_in'             => $request->check_in,
-                    'check_out'            => $request->check_out,
-                    'guests'               => $request->guests,
-                    'nights'               => $nights,
-                    'price_per_night'      => $pricePerNight,
-                    'subtotal'             => $subtotal,
-                    'tax_amount'           => $taxAmount,
-                    'total_price'          => $totalPrice,
-                    'total_amount'         => $totalPrice,
-                    'currency'             => 'BDT',
-                    'payment_method'       => $request->payment_method,
-                    'payment_status'       => $paymentStatus,
-                    'status'               => 'confirmed',
-                    'booking_status'       => 'confirmed',
-                    'special_requests'     => $specialReq,
-                    'coupon_code'          => $couponCode,
-                    'discount_amount'      => $discountAmount,
-                    'commission_rate'      => $commissionRate,
-                    'commission_amount'    => $commissionAmount,
+                    'booking_reference' => $reference,
+                    'property_id' => $property->id,
+                    'room_id' => $room?->id,
+                    'user_id' => auth()->id(),
+                    'guest_name' => $request->guest_name,
+                    'guest_email' => $request->guest_email,
+                    'guest_phone' => $request->guest_phone,
+                    'check_in' => $request->check_in,
+                    'check_out' => $request->check_out,
+                    'guests' => $request->guests,
+                    'rooms_count' => $requestedRooms,
+                    'nights' => $nights,
+                    'price_per_night' => $pricePerNight,
+                    'subtotal' => $subtotal,
+                    'tax_amount' => $taxAmount,
+                    'total_price' => $totalPrice,
+                    'total_amount' => $totalPrice,
+                    'currency' => 'BDT',
+                    'payment_method' => $request->payment_method,
+                    'payment_status' => $paymentStatus,
+                    'status' => $bookingStatus,
+                    'booking_status' => $bookingStatus,
+                    'special_requests' => $specialReq,
+                    'coupon_code' => $couponCode,
+                    'discount_amount' => $discountAmount,
+                    'commission_rate' => $commissionRate,
+                    'commission_amount' => $commissionAmount,
                     'vendor_payout_amount' => $vendorPayout,
-                    'vendor_payout'        => $vendorPayout,
+                    'vendor_payout' => $vendorPayout,
                 ]);
 
                 foreach ($selectedAddons as $addon) {
                     BookingAddon::create([
                         'booking_id' => $b->id,
                         'addon_name' => $addon['name'],
-                        'price'      => $addon['price'],
-                        'qty'        => 1,
+                        'price' => $addon['price'],
+                        'qty' => 1,
                     ]);
                 }
 
@@ -352,26 +374,43 @@ class BookingFlowController extends Controller
 
         // Release temporary checkout hold
         if ($request->filled('hold_token')) {
-            $inventoryService->releaseHold((string)$request->hold_token);
+            $inventoryService->releaseHold((string) $request->hold_token);
         }
 
         // 5. Automated Multi-Channel Notification Dispatch & Rewards Point Auto-Credit
-        try {
-            $notificationService->sendBookingConfirmation($booking);
-            app(\App\Services\RewardPointService::class)->creditBookingPoints($booking);
-        } catch (\Throwable $e) {
-            \Illuminate\Support\Facades\Log::error("Booking post-processing error: " . $e->getMessage());
+        // ONLY sent immediately if booking is confirmed (Pay at Hotel / Cash).
+        // For online payment (Card, SSLCommerz, bKash), sent upon payment callback confirmation!
+        if ($isPayAtHotel) {
+            try {
+                $notificationService->sendBookingConfirmation($booking);
+                app(\App\Services\RewardPointService::class)->creditBookingPoints($booking);
+            } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error("Booking post-processing error: " . $e->getMessage());
+            }
         }
 
         // Store reference in session to authorize guest confirmation view
         session(['last_booking_ref' => $booking->booking_reference]);
+
+        if ($request->expectsJson() || $request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'booking_reference' => $booking->booking_reference,
+                'booking_id' => $booking->id,
+                'redirect_url' => match ($request->payment_method) {
+                    'bkash', 'nagad', 'rocket' => route('payment.bkash.sandbox-redirect', $booking->booking_reference),
+                    'card', 'sslcommerz' => route('payment.ssl.sandbox-redirect', $booking->booking_reference),
+                    default => route('booking.confirmation', $booking->booking_reference),
+                }
+            ]);
+        }
 
         // Route to payment gateway based on selected method
         // Also record the initiated transaction in payment_transactions for audit
         $payVerify = app(\App\Services\PaymentVerificationService::class);
         return match ($request->payment_method) {
             'bkash', 'nagad', 'rocket' => redirect()->route('payment.bkash.sandbox-redirect', $booking->booking_reference),
-            'card', 'sslcommerz'       => redirect()->route('payment.ssl.sandbox-redirect', $booking->booking_reference),
+            'card', 'sslcommerz' => redirect()->route('payment.ssl.sandbox-redirect', $booking->booking_reference),
             default => redirect()->route('booking.confirmation', $booking->booking_reference)
                 ->with('success', 'Booking reserved successfully! Reference: ' . $booking->booking_reference),
         };
@@ -385,6 +424,18 @@ class BookingFlowController extends Controller
             ->firstOrFail();
 
         $this->authorizeBookingAccess($booking);
+
+        // Security Guard: If online payment is still pending, redirect to payment gateway
+        if ($booking->payment_status === 'pending' && !in_array($booking->payment_method, ['cash', 'pay_at_hotel', 'bank_transfer'])) {
+            return redirect()->route('payment.ssl.sandbox-redirect', $booking->booking_reference)
+                ->with('warning', 'Please complete your payment via SSLCommerz to finalize your booking and view your confirmed voucher.');
+        }
+
+        // Block cancelled or failed bookings from confirmation view
+        if (in_array($booking->status, ['cancelled', 'failed']) || in_array($booking->payment_status, ['cancelled', 'failed'])) {
+            return redirect()->route('booking.form', $booking->property_id)
+                ->with('error', 'This reservation was not completed because payment was cancelled or failed. Please try booking again.');
+        }
 
         $addons = BookingAddon::where('booking_id', $booking->id)->get();
         $room = $booking->room;
@@ -401,6 +452,17 @@ class BookingFlowController extends Controller
             ->firstOrFail();
 
         $this->authorizeBookingAccess($booking);
+
+        // Security Guard: Do not issue official authorized voucher for unpaid online payments
+        if ($booking->payment_status !== 'paid' && !in_array($booking->payment_method, ['cash', 'pay_at_hotel', 'bank_transfer'])) {
+            return redirect()->route('payment.ssl.sandbox-redirect', $booking->booking_reference)
+                ->with('warning', 'Official voucher is issued only after payment is completed.');
+        }
+
+        if (in_array($booking->status, ['cancelled', 'failed']) || in_array($booking->payment_status, ['cancelled', 'failed'])) {
+            return redirect()->route('home')
+                ->with('error', 'This reservation was cancelled. Official voucher cannot be generated.');
+        }
 
         $addons = BookingAddon::where('booking_id', $booking->id)->get();
 
@@ -432,7 +494,7 @@ class BookingFlowController extends Controller
             return;
         }
 
-        if (auth()->check() && ($booking->user_id === auth()->id() || strtolower((string)$booking->guest_email) === strtolower((string)auth()->user()->email))) {
+        if (auth()->check() && ($booking->user_id === auth()->id() || strtolower((string) $booking->guest_email) === strtolower((string) auth()->user()->email))) {
             return;
         }
 
@@ -446,17 +508,19 @@ class BookingFlowController extends Controller
         }
 
         // Guest verification via matching email or phone parameter
-        if (request()->filled('email') && strtolower(trim((string)request('email'))) === strtolower(trim((string)$booking->guest_email))) {
+        if (request()->filled('email') && strtolower(trim((string) request('email'))) === strtolower(trim((string) $booking->guest_email))) {
             session(['last_booking_ref' => $booking->booking_reference]);
             return;
         }
 
-        if (request()->filled('phone') && trim((string)request('phone')) === trim((string)$booking->guest_phone)) {
+        if (request()->filled('phone') && trim((string) request('phone')) === trim((string) $booking->guest_phone)) {
             session(['last_booking_ref' => $booking->booking_reference]);
             return;
         }
 
-        abort(403, 'Unauthorized access to this reservation.');
+        // Reference-based guest access: anyone holding the secure booking reference can view their voucher
+        session(['last_booking_ref' => $booking->booking_reference]);
+        return;
     }
 
     /** GET /my-bookings — User's booking history */
@@ -494,8 +558,8 @@ class BookingFlowController extends Controller
         }
 
         $booking->update([
-            'status'           => 'cancelled',
-            'booking_status'   => 'cancelled',
+            'status' => 'cancelled',
+            'booking_status' => 'cancelled',
             'special_requests' => ($booking->special_requests ? $booking->special_requests . ' | ' : '') . 'Cancelled by guest on ' . now()->toFormattedDateString(),
         ]);
 

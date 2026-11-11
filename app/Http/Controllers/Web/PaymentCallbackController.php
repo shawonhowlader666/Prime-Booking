@@ -112,10 +112,27 @@ class PaymentCallbackController extends Controller
 
     // ─── SSLCommerz PGW Handlers ──────────────────────────────────────────
 
-    /** GET /payment/ssl/sandbox-redirect/{reference} — SSLCommerz Sandbox Gateway UI */
-    public function sslSandboxRedirect(string $reference): View
+    /** GET /payment/ssl/sandbox-redirect/{reference} — SSLCommerz Live / Sandbox Dispatcher */
+    public function sslSandboxRedirect(string $reference): View|RedirectResponse
     {
         $booking = Booking::where('booking_reference', $reference)->firstOrFail();
+
+        // Initiate hosted payment session with SSLCommerz (Live or Sandbox)
+        try {
+            $init = $this->sslService->initiatePayment(
+                $booking,
+                route('payment.ssl.success'),
+                route('payment.ssl.fail'),
+                route('payment.ssl.cancel')
+            );
+
+            if (!empty($init['redirectUrl']) && ($init['status'] ?? '') === 'success') {
+                return redirect()->away($init['redirectUrl']);
+            }
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('SSLCommerz direct redirect fallback: ' . $e->getMessage());
+        }
+
         return view('pages.payment-ssl-sandbox', compact('booking'));
     }
 
@@ -125,8 +142,8 @@ class PaymentCallbackController extends Controller
         $booking = Booking::where('booking_reference', $reference)->firstOrFail();
 
         // Security check: block simulation when live gateway is configured or in production without admin
-        $sslGateway = \App\Models\PaymentGateway::where('code', 'sslcommerz')->first();
-        if ($sslGateway && $sslGateway->environment === 'live' && ! (auth()->check() && auth()->user()->isAdmin())) {
+        $sslGateway = \App\Models\PaymentGateway::where('gateway_code', 'sslcommerz')->first();
+        if ($sslGateway && !$sslGateway->is_sandbox && ! (auth()->check() && auth()->user()->isAdmin())) {
             abort(403, 'Simulation is disabled for live payment processing.');
         }
 
@@ -189,21 +206,51 @@ class PaymentCallbackController extends Controller
 
         $this->settlePaymentSuccess($booking, 'sslcommerz');
 
+        // Dispatch official confirmed booking notification & email
+        try {
+            app(\App\Services\NotificationService::class)->sendBookingConfirmation($booking);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Notification dispatch error on SSL payment for {$tranId}: " . $e->getMessage());
+        }
+
         session(['last_booking_ref' => $booking->booking_reference]);
 
-        return redirect()->route('booking.confirmation', $booking->booking_reference);
+        return redirect()->route('booking.confirmation', $booking->booking_reference)
+            ->with('success', 'Payment successful! Your reservation is confirmed.');
     }
 
     /** POST /payment/ssl/fail */
     public function sslFail(Request $request): RedirectResponse
     {
-        return redirect()->route('home')->with('error', 'SSLCommerz payment failed. Please try again.');
+        $tranId = (string) $request->input('tran_id');
+        if (!empty($tranId)) {
+            $booking = Booking::where('booking_reference', $tranId)->first();
+            if ($booking && $booking->payment_status !== 'paid') {
+                $booking->update([
+                    'payment_status' => 'failed',
+                    'status'         => 'cancelled',
+                    'booking_status' => 'cancelled',
+                ]);
+            }
+        }
+        return redirect()->route('home')->with('error', 'SSLCommerz payment failed. Your reservation was NOT confirmed. Please try again.');
     }
 
     /** POST /payment/ssl/cancel */
     public function sslCancel(Request $request): RedirectResponse
     {
-        return redirect()->route('home')->with('info', 'Payment cancelled by user.');
+        $tranId = (string) $request->input('tran_id');
+        if (!empty($tranId)) {
+            $booking = Booking::where('booking_reference', $tranId)->first();
+            if ($booking && $booking->payment_status !== 'paid') {
+                $booking->update([
+                    'payment_status' => 'cancelled',
+                    'status'         => 'cancelled',
+                    'booking_status' => 'cancelled',
+                ]);
+            }
+        }
+        return redirect()->route('home')->with('warning', 'Payment cancelled. Your reservation was NOT confirmed.');
     }
 
     /** POST /payment/ssl/ipn */

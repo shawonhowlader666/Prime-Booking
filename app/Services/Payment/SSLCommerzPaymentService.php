@@ -29,9 +29,9 @@ class SSLCommerzPaymentService
     {
         $gateway = PaymentGateway::where('gateway_code', 'sslcommerz')->first();
 
-        $this->isSandbox     = $gateway?->is_sandbox ?? true;
-        $this->storeId       = $gateway?->merchant_id ?? config('services.sslcommerz.store_id', 'testbox');
-        $this->storePassword = $gateway?->api_secret  ?? config('services.sslcommerz.store_password', 'qwerty');
+        $this->isSandbox     = $gateway ? (bool) $gateway->is_sandbox : (bool) config('services.sslcommerz.is_sandbox', false);
+        $this->storeId       = !empty($gateway?->merchant_id) ? (string) $gateway->merchant_id : (string) config('services.sslcommerz.store_id', 'primeaviationeqrlive');
+        $this->storePassword = !empty($gateway?->api_secret)  ? (string) $gateway->api_secret  : (string) config('services.sslcommerz.store_password', '660CF322B614F49464');
 
         $this->baseUrl = $this->isSandbox
             ? 'https://sandbox.sslcommerz.com'
@@ -41,39 +41,44 @@ class SSLCommerzPaymentService
     /** Step 1: Initiate SSLCommerz Checkout Session */
     public function initiatePayment(Booking $booking, string $successUrl, string $failUrl, string $cancelUrl): array
     {
+        $amount = (float) ($booking->total_price ?? $booking->total_amount ?? $booking->amount ?? 0);
+
         $postData = [
             'store_id'         => $this->storeId,
             'store_passwd'     => $this->storePassword,
-            'total_amount'     => number_format((float) $booking->amount, 2, '.', ''),
+            'total_amount'     => number_format($amount, 2, '.', ''),
             'currency'         => 'BDT',
             'tran_id'          => $booking->booking_reference,
             'success_url'      => $successUrl,
             'fail_url'         => $failUrl,
             'cancel_url'       => $cancelUrl,
             'ipn_url'          => route('payment.ssl.ipn'),
-            'cus_name'         => $booking->guest_name,
-            'cus_email'        => $booking->guest_email,
+            'cus_name'         => $booking->guest_name ?: 'Valued Guest',
+            'cus_email'        => $booking->guest_email ?: 'support@primebooking.com.bd',
             'cus_add1'         => $booking->property?->city ?? 'Dhaka',
             'cus_city'         => $booking->property?->city ?? 'Dhaka',
             'cus_country'      => 'Bangladesh',
-            'cus_phone'        => $booking->guest_phone ?? '01700000000',
+            'cus_phone'        => $booking->guest_phone ?: '01700000000',
             'shipping_method'  => 'NO',
-            'product_name'     => 'Hotel Booking - ' . $booking->property?->name,
+            'product_name'     => 'Hotel Booking - ' . ($booking->property?->name ?? 'Prime Booking'),
             'product_category' => 'Travel',
             'product_profile'  => 'travel-vertical',
         ];
 
         try {
-            $response = Http::asForm()->post("{$this->baseUrl}/gwprocess/v4/api.php", $postData);
+            $response = Http::asForm()->timeout(15)->post("{$this->baseUrl}/gwprocess/v4/api.php", $postData);
 
             if ($response->successful()) {
                 $data = $response->json();
-                if (isset($data['status']) && $data['status'] === 'SUCCESS') {
+                if (isset($data['status']) && in_array(strtoupper($data['status']), ['SUCCESS', 'SUCCESSFUL']) && !empty($data['GatewayPageURL'])) {
                     return [
                         'status'      => 'success',
                         'redirectUrl' => $data['GatewayPageURL'],
                     ];
                 }
+                Log::warning('SSLCommerz Session Init failed response: ' . json_encode($data));
+            } else {
+                Log::error('SSLCommerz Session Init HTTP error: ' . $response->body());
             }
 
             // Fallback for local sandbox environment

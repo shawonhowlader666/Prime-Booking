@@ -1056,6 +1056,7 @@ Route::post('/checkout/process', [BookingFlowController::class, 'process'])->nam
 Route::get('/checkout/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::get('/trips', [PageController::class, 'trips'])->name('trips');
+Route::get('/my-account', [UserDashboardController::class, 'bookings'])->name('user.dashboard');
 Route::get('/my-account/bookings', [UserDashboardController::class, 'bookings'])->name('bookings');
 Route::get('/my-account/user-bookings', [UserDashboardController::class, 'bookings'])->name('account.bookings');
 Route::post('/my-account/bookings/{reference}/cancel', [UserDashboardController::class, 'cancelBooking'])->name('user.bookings.cancel');
@@ -1118,20 +1119,29 @@ Route::get('/reset-password/{token}', [\App\Http\Controllers\Web\ForgotPasswordC
 Route::post('/reset-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
 
 // 🛡️ Enterprise Secret Admin Entrance (Stealth Protection against automated bots and scanners)
-$adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'portal-access');
+$adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'pb-control-gate-99');
 
-// Official Stealth Admin Login Route
+// Official Stealth Admin Login Route (Secret Entrance Only)
 Route::get("/{$adminSecretSlug}", [OAuthController::class, 'showAdminLogin'])->name('admin.login');
 Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
 
-// Convenient Admin entrance & direct login
-Route::get('/admin/login', [OAuthController::class, 'showAdminLogin']);
-Route::post('/admin/login', [OAuthController::class, 'loginAdmin'])->middleware('throttle:5,1');
+// Decoy / Honeypot: Block public probing on standard admin paths with 404 Not Found
+Route::any('/admin/login', function () {
+    abort(404);
+});
+Route::any('/administrator', function () {
+    abort(404);
+});
+Route::any('/wp-admin', function () {
+    abort(404);
+});
+
+// /admin route: Only accessible if already logged in as admin, otherwise 404
 Route::get('/admin', function () {
     if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'super_admin')) {
         return redirect()->route('admin.dashboard');
     }
-    return redirect()->route('admin.login');
+    abort(404);
 });
 
 // Dedicated Vendor Partner Portal Login Routes

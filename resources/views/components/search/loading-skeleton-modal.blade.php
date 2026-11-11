@@ -245,7 +245,7 @@
     {{-- 4. Centered Interstitial Modal Dialog ("Just a moment!") --}}
     <div class="agoda-interstitial-dialog">
         <div class="agoda-mascot-parachute-wrap">
-            <img src="{{ asset('images/agoda/agoji-parachute.gif') }}" alt="Agoda Mascot" />
+            <img src="{{ asset('images/agoda/agoji-parachute.gif') }}" alt="Prime Booking" />
         </div>
         <h3 class="agoda-interstitial-title">Just a moment!</h3>
         <p class="agoda-interstitial-desc">We're finding great stays for your dates and destination.</p>

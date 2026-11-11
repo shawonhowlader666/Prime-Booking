@@ -35,7 +35,7 @@
                 <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white h-100 position-relative hover-shadow transition">
                     {{-- Image --}}
                     <div style="height: 220px; position: relative;">
-                        <img src="{{ $item->primary_image }}" class="w-100 h-100" style="object-fit: cover;" alt="{{ $item->name }}">
+                        <img src="{{ media_url($item->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=300&fit=crop') }}" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?w=500&h=300&fit=crop';" class="w-100 h-100" style="object-fit: cover;" alt="{{ $item->name }}">
                         
                         {{-- Remove Wishlist Heart --}}
                         <form action="{{ route('wishlist.toggle') }}" method="POST" class="position-absolute top-0 end-0 m-3">

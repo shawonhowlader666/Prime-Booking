@@ -35,6 +35,28 @@
         </div>
     @endif
 
+    {{-- Rejection / Cancellation Big Notice --}}
+    @if(in_array(strtolower($booking->booking_status ?? $booking->status ?? ''), ['cancelled', 'rejected']))
+        <div class="alert alert-danger d-flex align-items-center justify-content-between p-3 rounded-3 mb-3" style="background:#fee2e2; border:1px solid #ef4444; color:#991b1b;">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px; height:44px; border-radius:50%; background:#dc2626; color:#fff; display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+                <div>
+                    <div style="font-size:16px; font-weight:800; color:#991b1b; text-transform:uppercase; letter-spacing:0.5px;">
+                        🚨 THIS RESERVATION IS REJECTED / CANCELLED
+                    </div>
+                    <div style="font-size:13px; color:#7f1d1d; margin-top:2px;">
+                        Status: <strong class="text-uppercase">{{ $booking->effective_status ?? $booking->status }}</strong> — This booking is not active. The room inventory has been released.
+                    </div>
+                </div>
+            </div>
+            <span class="badge bg-danger px-3 py-2 text-uppercase fw-bold" style="font-size:12px; letter-spacing:1px; background:#dc2626 !important;">
+                <i class="fa-solid fa-ban me-1"></i> REJECTED
+            </span>
+        </div>
+    @endif
+
     <div class="row g-3">
 
         {{-- Main Booking Details --}}
@@ -101,13 +123,97 @@
                         <label class="form-label">Email Address</label>
                         <p style="font-size:13px; font-weight:600; color:#334155; margin:0;">{{ $booking->guest_email ?? optional($booking->user)->email ?? 'N/A' }}</p>
                     </div>
+                </div>
+            </div>
+
+            {{-- Guest Special Requests & Preferences Card --}}
+            <div class="form-card mb-3" style="border-left: 4px solid #6366f1;">
+                <div class="form-section-title d-flex justify-content-between align-items-center mb-2">
+                    <span><i class="fa-solid fa-clipboard-list text-primary me-1"></i> Guest Special Requests &amp; Room Preferences</span>
                     @if($booking->special_requests)
-                        <div class="col-12">
-                            <label class="form-label">Special Requests</label>
-                            <p style="font-size:12.5px; color:#595959; background:#fafafa; padding:8px 12px; border-radius:6px; border:1px solid #f0f0f0; margin:0;">
+                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25" style="font-size:11px;">Active Requests</span>
+                    @else
+                        <span class="badge bg-light text-muted border" style="font-size:11px;">None Specified</span>
+                    @endif
+                </div>
+                <div style="padding:4px 0;">
+                    @if($booking->special_requests)
+                        <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:14px;">
+                            <div class="d-flex flex-wrap gap-2 mb-2">
+                                @php
+                                    $sr = $booking->special_requests;
+                                    $hasNonSmoking = stripos($sr, 'Non-smoking') !== false;
+                                    $hasSmoking = stripos($sr, 'Smoking') !== false && !$hasNonSmoking;
+                                    $hasLargeBed = stripos($sr, 'Large bed') !== false;
+                                    $hasTwinBed = stripos($sr, 'Twin') !== false;
+                                @endphp
+
+                                @if($hasNonSmoking)
+                                    <span class="badge bg-success bg-opacity-15 text-success border border-success border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🚭 Non-smoking Room
+                                    </span>
+                                @elseif($hasSmoking)
+                                    <span class="badge bg-warning bg-opacity-15 text-dark border border-warning border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🚬 Smoking Room
+                                    </span>
+                                @endif
+
+                                @if($hasLargeBed)
+                                    <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🛏️ Large Bed Setup
+                                    </span>
+                                @elseif($hasTwinBed)
+                                    <span class="badge bg-primary bg-opacity-15 text-primary border border-primary border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🛏️ Twin Beds Setup
+                                    </span>
+                                @endif
+
+                                @if(stripos($sr, 'High floor') !== false)
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🏢 High Floor
+                                    </span>
+                                @endif
+
+                                @if(stripos($sr, 'Low floor') !== false)
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🏠 Low Floor
+                                    </span>
+                                @endif
+
+                                @if(stripos($sr, 'Quiet room') !== false)
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🤫 Quiet Room
+                                    </span>
+                                @endif
+
+                                @if(stripos($sr, 'Early check-in') !== false)
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        ⏰ Early Check-in
+                                    </span>
+                                @endif
+
+                                @if(stripos($sr, 'Late check-out') !== false)
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        ⌛ Late Check-out
+                                    </span>
+                                @endif
+
+                                @if(stripos($sr, 'Airport') !== false)
+                                    <span class="badge bg-info bg-opacity-15 text-info border border-info border-opacity-25 px-2.5 py-1.5" style="font-size:12px;">
+                                        🚗 Airport Transfer
+                                    </span>
+                                @endif
+                            </div>
+
+                            <div style="font-size:13px; color:#334155; line-height:1.6; background:#ffffff; border:1px solid #cbd5e1; border-radius:6px; padding:10px 14px;">
+                                <strong style="color:#0f172a; display:block; margin-bottom:4px; font-size:11px; text-transform:uppercase; letter-spacing:0.5px;">Full Request Details / Notes:</strong>
                                 {{ $booking->special_requests }}
-                            </p>
+                            </div>
                         </div>
+                    @else
+                        <p style="font-size:13px; color:#64748b; margin:0; padding:10px 14px; background:#f8fafc; border-radius:6px; border:1px dashed #cbd5e1;">
+                            <i class="fa-solid fa-circle-info text-muted me-1"></i> No special room or bed requests were specified by the guest during booking.
+                        </p>
                     @endif
                 </div>
             </div>
@@ -148,11 +254,18 @@
                             <option value="confirmed" {{ ($booking->booking_status ?? $booking->status) == 'confirmed' ? 'selected' : '' }}>Confirmed</option>
                             <option value="pending" {{ ($booking->booking_status ?? $booking->status) == 'pending' ? 'selected' : '' }}>Pending</option>
                             <option value="completed" {{ ($booking->booking_status ?? $booking->status) == 'completed' ? 'selected' : '' }}>Completed</option>
-                            <option value="cancelled" {{ ($booking->booking_status ?? $booking->status) == 'cancelled' ? 'selected' : '' }}>Cancelled</option>
+                            <option value="cancelled" {{ ($booking->booking_status ?? $booking->status) == 'cancelled' ? 'selected' : '' }}>Cancelled / Rejected</option>
                         </select>
-                        <button type="submit" class="btn-add-primary w-100 style-btn" style="justify-content:center; padding:8px;">
-                            Update Status <i class="fa-solid fa-check ms-1"></i>
-                        </button>
+                        <div class="d-flex flex-column gap-2">
+                            <button type="submit" class="btn-add-primary w-100 style-btn" style="justify-content:center; padding:8px;">
+                                Update Status <i class="fa-solid fa-check ms-1"></i>
+                            </button>
+                            @if(!in_array(strtolower($booking->booking_status ?? $booking->status ?? ''), ['cancelled', 'rejected']))
+                                <button type="submit" name="status" value="cancelled" class="btn btn-danger btn-sm w-100 fw-bold" style="padding:7px; background:#dc2626; border:none;" onclick="return confirm('Are you sure you want to REJECT / CANCEL this reservation? Room inventory will be automatically released back.')">
+                                    <i class="fa-solid fa-ban me-1"></i> Reject / Cancel Reservation
+                                </button>
+                            @endif
+                        </div>
                     </form>
                 </div>
             </div>

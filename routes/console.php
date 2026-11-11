@@ -41,6 +41,11 @@ Schedule::call(function () {
 })->monthly()->name('prune-old-activity-logs');
 
 /**
+ * Automated nightly database backup at 02:00 AM
+ */
+Schedule::command('db:backup')->dailyAt('02:00')->withoutOverlapping();
+
+/**
  * Scan active price drop alerts and notify subscribers
  */
 Schedule::command('alerts:check-price-drops')->dailyAt('09:00')->withoutOverlapping();

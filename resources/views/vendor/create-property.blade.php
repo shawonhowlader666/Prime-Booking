@@ -169,11 +169,11 @@
                     </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Front Desk Languages Spoken</label>
-                        <div class="d-flex flex-wrap gap-2 p-2 rounded border bg-light">
+                        <div style="display:flex; flex-wrap:wrap; gap:8px; padding:8px 10px; background:#f8fafc; border:1px solid #cbd5e1; border-radius:4px;">
                             @foreach(['English', 'Bengali', 'Hindi', 'Arabic', 'Chinese'] as $lang)
-                                <label class="form-check-label d-inline-flex align-items-center gap-1.5 px-2 py-0.5 rounded border bg-white" style="font-size:11.5px; font-weight:600; color:#334155; cursor:pointer;">
-                                    <input class="form-check-input m-0" type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, ['English', 'Bengali']) ? 'checked' : '' }} style="cursor:pointer;">
-                                    {{ $lang }}
+                                <label style="display:inline-flex; align-items:center; gap:8px; padding:4px 10px; border-radius:4px; border:1px solid #cbd5e1; background:#ffffff; font-size:12px; font-weight:600; color:#334155; cursor:pointer; user-select:none; margin:0;">
+                                    <input type="checkbox" name="languages_spoken[]" value="{{ $lang }}" {{ in_array($lang, ['English', 'Bengali']) ? 'checked' : '' }} style="cursor:pointer; margin:0; width:15px; height:15px; accent-color:#1890ff;">
+                                    <span>{{ $lang }}</span>
                                 </label>
                             @endforeach
                         </div>
@@ -585,9 +585,9 @@ function addVendorCreateCustomAmenity() {
     if (!val) return;
     const container = document.getElementById('vendorCreateCustomAmenitiesContainer');
     const pill = document.createElement('span');
-    pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
-    pill.style.fontSize = '12px';
-    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:8px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    pill.className = 'custom-amenity-pill';
+    pill.style.cssText = 'display:inline-flex; align-items:center; gap:8px; padding:6px 12px; background:#ffffff; border:1px solid #cbd5e1; border-radius:4px; font-size:12px; font-weight:600; color:#1e293b; box-shadow:0 1px 2px rgba(0,0,0,0.04);';
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success" style="font-size:13px; flex-shrink:0; margin:0;"></i> <span>${val}</span> <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close" style="font-size:8px; margin-left:4px; cursor:pointer;" onclick="this.parentElement.remove()" title="Remove"></button>`;
     container.appendChild(pill);
     input.value = '';
 }

@@ -507,7 +507,7 @@ class PropertyRepository
     {
         $dbProp = Property::active()
             ->with([
-                'rooms:id,property_id,name,bed_type,max_adults,max_children,room_size_sqm,price_per_night,total_rooms,breakfast_included,free_cancellation,facilities',
+                'rooms',
             ])
             ->find($id);
 
@@ -590,7 +590,7 @@ class PropertyRepository
         return Cache::remember("property:slug:{$slug}", self::TTL_DETAIL, function () use ($slug): ?Property {
             return Property::active()
                 ->with([
-                    'rooms:id,property_id,name,bed_type,max_adults,max_children,room_size_sqm,price_per_night,total_rooms,breakfast_included,free_cancellation,facilities',
+                    'rooms',
                 ])
                 ->where('slug', $slug)
                 ->first();

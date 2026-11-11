@@ -1,5 +1,11 @@
 <!-- Agoda-Style Live Social Proof & High-Conversion Booking Toaster (Bottom-Left Float) -->
 <style>
+    body.modal-open #social-proof-toast {
+        display: none !important;
+        opacity: 0 !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
     #social-proof-toast {
         position: fixed;
         bottom: 24px;
@@ -23,6 +29,17 @@
         opacity: 0;
         pointer-events: none;
         transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
+    }
+
+    @media (max-width: 768px) {
+        #social-proof-toast {
+            bottom: 76px;
+            left: 12px;
+            right: 12px;
+            max-width: calc(100% - 24px);
+            padding: 10px 14px;
+            font-size: 12px;
+        }
     }
 
     #social-proof-toast.show {

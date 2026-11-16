@@ -49,12 +49,13 @@
                             <input type="file" id="vendorAvatarInput" name="avatar" class="form-control form-control-sm" accept="image/*" style="height:32px;font-size:12px;border-radius:4px;" onchange="previewAvatarImage(this)">
                             <small style="font-size:10.5px;color:#64748b;">JPG, PNG, WebP up to 10MB.</small>
                         </div>
-                        <div class="col-md-6"><label class="saas-label">Trade License / NID No.</label><input type="text" name="trade_license" class="form-control saas-input" placeholder="e.g. TRAD/DNCC/102948" value="{{ old('trade_license', 'TRAD/BD/98042') }}"></div>
+                        <div class="col-md-6"><label class="saas-label">Trade License / NID No.</label><input type="text" name="trade_license" class="form-control saas-input" placeholder="e.g. TRAD/DNCC/102948" value="{{ old('trade_license', $user->trade_license) }}"></div>
                         <div class="col-md-6"><label class="saas-label">Preferred Payout Method</label>
                             <select name="payout_method" class="form-select saas-input">
-                                <option value="bKash">bKash Merchant / Personal</option>
-                                <option value="Nagad">Nagad Personal</option>
-                                <option value="Bank">Bank Wire Transfer</option>
+                                <option value="bKash" {{ old('payout_method', $user->payout_method) === 'bKash' ? 'selected' : '' }}>bKash Merchant / Personal</option>
+                                <option value="Nagad" {{ old('payout_method', $user->payout_method) === 'Nagad' ? 'selected' : '' }}>Nagad Personal</option>
+                                <option value="Rocket" {{ old('payout_method', $user->payout_method) === 'Rocket' ? 'selected' : '' }}>Rocket Personal</option>
+                                <option value="Bank" {{ old('payout_method', $user->payout_method) === 'Bank' ? 'selected' : '' }}>Bank Wire Transfer</option>
                             </select>
                         </div>
                     </div>
@@ -62,8 +63,8 @@
                 <div class="stockifly-card p-3 mb-3">
                     <div class="saas-section-title mb-3 pb-2 border-bottom"><i class="fa-solid fa-building-columns me-1"></i> Payout Bank / Mobile Banking Details</div>
                     <div class="row g-3">
-                        <div class="col-md-6"><label class="saas-label">Account / Mobile No.</label><input type="text" name="account_no" class="form-control saas-input" placeholder="e.g. 01700000000 or Account No." value="{{ old('account_no', '01711223344') }}"></div>
-                        <div class="col-md-6"><label class="saas-label">Account Holder Name</label><input type="text" name="account_holder" class="form-control saas-input" placeholder="e.g. Grand Ocean Resort" value="{{ old('account_holder', $user->name) }}"></div>
+                        <div class="col-md-6"><label class="saas-label">Account / Mobile No.</label><input type="text" name="account_no" class="form-control saas-input" placeholder="e.g. 01700000000 or Bank A/C No." value="{{ old('account_no', $user->account_no) }}"></div>
+                        <div class="col-md-6"><label class="saas-label">Account Holder Name</label><input type="text" name="account_holder" class="form-control saas-input" placeholder="e.g. Grand Ocean Resort" value="{{ old('account_holder', $user->account_holder ?? $user->name) }}"></div>
                     </div>
                 </div>
                 <div class="stockifly-card p-3 mb-3">

@@ -49,16 +49,20 @@ class ReviewManagementController extends Controller
             $review = Review::findOrFail($id);
             $newStatus = $review->status === 'approved' ? 'pending' : 'approved';
             $review->update(['status' => $newStatus]);
+            Review::syncPropertyRating($review->property_id);
         } catch (\Exception $e) {}
 
-        return back()->with('success', 'Review status updated successfully.');
+        return back()->with('success', 'Review status updated successfully and property rating synchronized.');
     }
 
     public function destroy($id)
     {
         try {
-            Review::findOrFail($id)->delete();
+            $review = Review::findOrFail($id);
+            $propertyId = $review->property_id;
+            $review->delete();
+            Review::syncPropertyRating($propertyId);
         } catch (\Exception $e) {}
-        return back()->with('success', 'Review deleted successfully.');
+        return back()->with('success', 'Review deleted successfully and property rating recalculated.');
     }
 }

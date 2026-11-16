@@ -281,6 +281,11 @@ class DatabaseSeeder extends Seeder
                 'facilities' => ['Mountain View', 'Private Balcony', 'BBQ Spot'],
             ]
         );
+
+        $this->call([
+            BangladeshLocationSeeder::class,
+            ReviewSeeder::class,
+        ]);
     }
 }
 

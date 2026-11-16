@@ -202,6 +202,24 @@ class LocationNormalizerService
             }
         }
 
+        // Step 2.5: Dynamic Bangladesh Geo Registry Matching (covers all 64 districts, upazilas, & tourist hubs)
+        try {
+            $geoService = app(\App\Services\Geo\BangladeshLocationService::class);
+            $geoMatches = $geoService->search($stripped, 1);
+            if (!empty($geoMatches)) {
+                $top = $geoMatches[0];
+                if (($top['_score'] ?? 0) >= 80) {
+                    return [
+                        'normalized' => $clean,
+                        'canonical'  => $top['name'],
+                        'latitude'   => $top['lat'],
+                        'longitude'  => $top['lng'],
+                        'similarity' => 1.0,
+                    ];
+                }
+            }
+        } catch (\Throwable) {}
+
         // Step 3: Levenshtein Distance & Jaro-Winkler Edit-Distance Matching (Fuzzy Typo Tolerance)
         $bestMatch = null;
         $bestScore = 0.0;

@@ -250,12 +250,27 @@ class UserManagementController extends Controller
     {
         $user = User::findOrFail($id);
 
+        if ($user->id === auth()->id()) {
+            return back()->with('error', 'You cannot delete your own active administrator account.');
+        }
+
         if ($user->isSuperAdmin()) {
             return back()->with('error', 'Cannot delete Super Admin account.');
         }
 
         if ($user->isAdmin() && !auth()->user()->isSuperAdmin()) {
             return back()->with('error', 'Only Super Admin can delete admin accounts.');
+        }
+
+        // Security Guard: Prevent deleting vendors with active or upcoming reservations
+        if ($user->isVendor()) {
+            $hasActiveBookings = Booking::whereHas('property', fn($q) => $q->where('vendor_id', $user->id))
+                ->whereIn('status', ['confirmed', 'pending'])
+                ->where('check_out', '>=', now()->toDateString())
+                ->exists();
+            if ($hasActiveBookings) {
+                return back()->with('error', "Cannot delete vendor \"{$user->name}\" because their properties have active or upcoming guest reservations.");
+            }
         }
 
         $name = $user->name;
@@ -324,14 +339,39 @@ class UserManagementController extends Controller
                 return back()->with('success', "{$count} users have been set to Customer role.");
 
             case 'delete':
+                $today = now()->toDateString();
+                $deletedCount = 0;
+                $blockedVendors = [];
+
                 foreach ($targetUsers as $user) {
-                    if ($user->role !== 'admin') {
-                        $user->tokens()->delete();
-                        $user->delete();
+                    if ($user->role === 'admin' || $user->role === 'super_admin') {
+                        continue;
                     }
+
+                    if ($user->isVendor()) {
+                        $hasActive = Booking::whereHas('property', fn($q) => $q->where('vendor_id', $user->id))
+                            ->whereIn('status', ['confirmed', 'pending'])
+                            ->where('check_out', '>=', $today)
+                            ->exists();
+
+                        if ($hasActive) {
+                            $blockedVendors[] = $user->name;
+                            continue;
+                        }
+                    }
+
+                    $user->tokens()->delete();
+                    $user->delete();
+                    $deletedCount++;
                 }
-                $this->log('bulk_deleted', null, "Bulk deleted {$count} user accounts");
-                return back()->with('success', "{$count} user accounts deleted successfully.");
+
+                $this->log('bulk_deleted', null, "Bulk deleted {$deletedCount} user accounts");
+
+                if (!empty($blockedVendors)) {
+                    return back()->with('warning', "Deleted {$deletedCount} users. The following vendors were protected due to active reservations: " . implode(', ', $blockedVendors));
+                }
+
+                return back()->with('success', "{$deletedCount} user accounts deleted successfully.");
 
             default:
                 return back()->with('error', 'Invalid bulk action specified.');

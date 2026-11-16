@@ -502,6 +502,17 @@ class VendorController extends Controller
     public function destroyProperty($id)
     {
         $property = Property::where('id', $id)->where('vendor_id', $this->vendorId())->firstOrFail();
+
+        // Security Guard: Prevent deleting properties with active or upcoming reservations
+        $activeBookingsCount = Booking::where('property_id', $property->id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('check_out', '>=', now()->toDateString())
+            ->count();
+
+        if ($activeBookingsCount > 0) {
+            return back()->with('error', "Cannot delete \"{$property->name}\". There are {$activeBookingsCount} active or upcoming reservation(s) associated with this hotel. Please fulfill or resolve the reservations first.");
+        }
+
         $name     = $property->name;
         $property->delete();
         return redirect()->route('vendor.properties.index')
@@ -568,12 +579,28 @@ class VendorController extends Controller
             'phone'                 => 'nullable|string|max:20',
             'avatar'                => 'nullable|image|max:10240',
             'new_password'          => 'nullable|string|min:8|confirmed',
+            'trade_license'         => 'nullable|string|max:100',
+            'payout_method'         => 'nullable|string|max:50',
+            'account_no'            => 'nullable|string|max:100',
+            'account_holder'        => 'nullable|string|max:150',
         ]);
 
         $user->name  = $request->name;
         $user->email = $request->email;
         if ($request->has('phone')) {
             $user->phone = $request->phone;
+        }
+        if ($request->has('trade_license')) {
+            $user->trade_license = $request->trade_license;
+        }
+        if ($request->has('payout_method')) {
+            $user->payout_method = $request->payout_method;
+        }
+        if ($request->has('account_no')) {
+            $user->account_no = $request->account_no;
+        }
+        if ($request->has('account_holder')) {
+            $user->account_holder = $request->account_holder;
         }
         if ($request->filled('new_password')) {
             $user->password = Hash::make($request->new_password);

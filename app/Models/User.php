@@ -16,6 +16,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'role', 'status',
         'phone', 'avatar', 'country', 'city', 'dob', 'gender',
         'passport_number', 'passport_expiry',
+        'trade_license', 'payout_method', 'account_no', 'account_holder',
         'google_id', 'currency_preference', 'prime_miles', 'pointsmax_programs', 'remember_token',
         'email_verified_at',
         'last_login_at', 'last_login_ip',

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\User;
 use App\Models\Location;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -596,7 +597,36 @@ class PropertyManagementController extends Controller
         }
 
         if ($action === 'delete') {
-            Property::whereIn('id', $ids)->delete();
+            $today = now()->toDateString();
+            $blocked = [];
+            $canDelete = [];
+
+            foreach ($ids as $id) {
+                $hasActive = Booking::where('property_id', $id)
+                    ->whereIn('status', ['confirmed', 'pending'])
+                    ->where('check_out', '>=', $today)
+                    ->exists();
+
+                if ($hasActive) {
+                    $prop = Property::find($id);
+                    $blocked[] = $prop ? $prop->name : "#{$id}";
+                } else {
+                    $canDelete[] = $id;
+                }
+            }
+
+            if (!empty($canDelete)) {
+                Property::whereIn('id', $canDelete)->delete();
+            }
+
+            if (!empty($blocked)) {
+                $msg = 'The following properties cannot be deleted because they have active or upcoming reservations: ' . implode(', ', $blocked);
+                if (!empty($canDelete)) {
+                    $msg .= '. (Other ' . count($canDelete) . ' properties deleted successfully).';
+                }
+                return back()->with('error', $msg);
+            }
+
             return back()->with('success', 'Selected ' . count($ids) . ' properties deleted permanently.');
         }
 
@@ -606,7 +636,18 @@ class PropertyManagementController extends Controller
     public function destroy($id)
     {
         $property = Property::findOrFail($id);
-        $name     = $property->name;
+
+        // Security Guard: Prevent deleting properties with active or upcoming reservations
+        $activeBookingsCount = Booking::where('property_id', $property->id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('check_out', '>=', now()->toDateString())
+            ->count();
+
+        if ($activeBookingsCount > 0) {
+            return back()->with('error', "Cannot delete \"{$property->name}\". There are {$activeBookingsCount} active or upcoming reservation(s) associated with this hotel. Please fulfill or reassign the reservations first.");
+        }
+
+        $name = $property->name;
         $property->delete();
         return redirect()->route('admin.properties.index')->with('success', '"' . $name . '" deleted successfully.');
     }

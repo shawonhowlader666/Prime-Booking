@@ -88,6 +88,8 @@ class TransferBookingController extends Controller
             // DB fallback
         }
 
+        session(["transfer_{$ref}" => true]);
+
         return redirect()->route('transfers.voucher', $ref)
             ->with('success', "🎉 Airport Taxi Reservation Confirmed! Reference: {$ref}");
     }

@@ -555,15 +555,33 @@ class BookingFlowController extends Controller
             return back()->with('error', 'This reservation cannot be cancelled in its current state.');
         }
 
+        $oldPayment = $booking->payment_status;
+        $newPayment = ($oldPayment === 'paid') ? 'refunded' : $oldPayment;
+
         $booking->update([
-            'status' => 'cancelled',
-            'booking_status' => 'cancelled',
-            'special_requests' => ($booking->special_requests ? $booking->special_requests . ' | ' : '') . 'Cancelled by guest on ' . now()->toFormattedDateString(),
+            'status'           => 'cancelled',
+            'booking_status'   => 'cancelled',
+            'payment_status'   => $newPayment,
+            'special_requests' => ($booking->special_requests ? $booking->special_requests . ' | ' : '') . 'Cancelled by guest self-service on ' . now()->toFormattedDateString(),
         ]);
 
-        // Release room inventory
+        // 1. Release room inventory
         $inventoryService->releaseInventory($booking);
 
-        return back()->with('success', "Booking #{$reference} has been cancelled successfully. Your room dates have been released.");
+        // 2. Double-entry ledger reconciliation (Sync financial balance)
+        try {
+            \App\Services\AccountingService::recordRefundLedger($booking, null, 'Cancelled by guest self-service');
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Ledger refund sync note: " . $e->getMessage());
+        }
+
+        // 3. Automated cancellation notification dispatch
+        try {
+            app(\App\Services\NotificationService::class)->sendBookingCancellation($booking);
+        } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning("Cancellation notification note: " . $e->getMessage());
+        }
+
+        return back()->with('success', "Booking #{$reference} has been cancelled successfully. Your room dates have been released and account records synchronized.");
     }
 }

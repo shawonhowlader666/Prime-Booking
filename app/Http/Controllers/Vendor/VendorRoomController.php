@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Room;
+use App\Models\Booking;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -230,6 +231,17 @@ class VendorRoomController extends Controller
             ->firstOrFail();
 
         $room = Room::where('property_id', $property->id)->findOrFail($roomId);
+
+        // Security Guard: Prevent deleting room types with active or upcoming reservations
+        $activeBookingsCount = Booking::where('room_id', $room->id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('check_out', '>=', now()->toDateString())
+            ->count();
+
+        if ($activeBookingsCount > 0) {
+            return back()->with('error', "Cannot delete room category \"{$room->name}\". There are {$activeBookingsCount} active or upcoming reservation(s) booked for this room. Please reassign or fulfill the reservations first.");
+        }
+
         $name = $room->name;
         $room->delete();
 

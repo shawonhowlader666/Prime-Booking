@@ -143,17 +143,23 @@
 
                     <div class="mb-3">
                         <label class="form-label fw-bold text-dark" style="font-size: 12.5px;">Payout Method <span class="text-danger">*</span></label>
+                        @php
+                            $userPayoutMethod = strtolower((string) auth()->user()->payout_method);
+                        @endphp
                         <select name="payout_method" class="form-select" required style="border-radius: 4px; font-size: 13px; height: 38px;">
-                            <option value="bkash">bKash (Personal / Merchant)</option>
-                            <option value="nagad">Nagad Wallet</option>
-                            <option value="rocket">Rocket Wallet</option>
-                            <option value="bank_transfer">Electronic Bank Transfer</option>
+                            <option value="bkash" {{ $userPayoutMethod === 'bkash' ? 'selected' : '' }}>bKash (Personal / Merchant)</option>
+                            <option value="nagad" {{ $userPayoutMethod === 'nagad' ? 'selected' : '' }}>Nagad Wallet</option>
+                            <option value="rocket" {{ $userPayoutMethod === 'rocket' ? 'selected' : '' }}>Rocket Wallet</option>
+                            <option value="bank_transfer" {{ in_array($userPayoutMethod, ['bank', 'bank_transfer']) ? 'selected' : '' }}>Electronic Bank Transfer</option>
                         </select>
                     </div>
 
                     <div class="mb-2">
                         <label class="form-label fw-bold text-dark" style="font-size: 12.5px;">Account Number / Bank Details <span class="text-danger">*</span></label>
-                        <textarea name="account_details" class="form-control" rows="3" placeholder="e.g. bKash Personal Number: 01711223344 or Bank Name, Branch & A/C No" required style="border-radius: 4px; font-size: 13px;"></textarea>
+                        @php
+                            $savedAccount = auth()->user()->account_no ? ((auth()->user()->account_holder ? auth()->user()->account_holder . ' - ' : '') . auth()->user()->account_no) : '';
+                        @endphp
+                        <textarea name="account_details" class="form-control" rows="3" placeholder="e.g. bKash Personal Number: 01711223344 or Bank Name, Branch & A/C No" required style="border-radius: 4px; font-size: 13px;">{{ old('account_details', $savedAccount) }}</textarea>
                     </div>
                 </div>
                 <div class="modal-footer border-top p-2.5 bg-light d-flex justify-content-end gap-2">

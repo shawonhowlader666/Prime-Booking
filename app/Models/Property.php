@@ -258,11 +258,21 @@ class Property extends Model
     /** Array of all gallery images resolved via CDN / MediaService. */
     public function getGalleryUrlsAttribute(): array
     {
-        $list = is_array($this->images) ? $this->images : [];
+        // Gallery entries are stored either as plain paths or as categorized
+        // objects: {"url": "...", "category": "...", "title": "..."}.
+        $list = [];
+        foreach (is_array($this->images) ? $this->images : [] as $img) {
+            $path = is_array($img) ? ($img['url'] ?? $img['path'] ?? $img['src'] ?? null) : $img;
+            if (is_string($path) && $path !== '') {
+                $list[] = $path;
+            }
+        }
+
         if (empty($list) && $this->primary_image) {
             $list = [$this->primary_image];
         }
-        return array_map(fn($img) => media_url($img), $list);
+
+        return array_map(fn (string $img) => media_url($img), $list);
     }
 
     /** Discount percentage off original price. Null if no discount. */

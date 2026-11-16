@@ -66,16 +66,20 @@ class PayoutRequestController extends Controller
             'account_details'=> 'required|string|max:255',
         ]);
 
-        // Re-verify available balance through AccountingService (Zero-Paisa Discrepancy Guarantee)
-        $acc = $this->accountingService->getSingleVendorAccounting($vendorId);
-        $availableBalance = (float) $acc['withdrawable_balance'];
-
-        if ($validated['amount'] > $availableBalance) {
-            return back()->with('error', "Requested amount (৳{$validated['amount']}) exceeds your verified available balance (৳{$availableBalance}) for withdrawal.");
-        }
-
         $user = auth()->user();
-        DB::transaction(function () use ($vendorId, $user, $validated) {
+
+        // Lock the vendor row, then read the balance: concurrent requests queue up here,
+        // so the same money can never be requested twice.
+        $error = DB::transaction(function () use ($vendorId, $user, $validated) {
+            \App\Models\User::whereKey($vendorId)->lockForUpdate()->first();
+
+            $acc = $this->accountingService->getSingleVendorAccounting($vendorId);
+            $availableBalance = (float) $acc['withdrawable_balance'];
+
+            if ((float) $validated['amount'] > $availableBalance) {
+                return "Requested amount (৳" . number_format((float) $validated['amount'], 2) . ") exceeds your available balance (৳" . number_format($availableBalance, 2) . "). Only completed stays paid online can be withdrawn.";
+            }
+
             Payout::create([
                 'vendor_id'       => $vendorId,
                 'vendor_name'     => $user->name ?? 'Vendor Partner',
@@ -86,7 +90,13 @@ class PayoutRequestController extends Controller
                 'status'          => 'pending',
                 'requested_at'    => now(),
             ]);
+
+            return null;
         });
+
+        if ($error) {
+            return back()->with('error', $error);
+        }
 
         return redirect()->route('vendor.payouts.index')->with('success', 'Payout withdrawal request submitted successfully! Admin will process within 24 hours.');
     }

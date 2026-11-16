@@ -72,7 +72,13 @@ class OAuthController extends Controller
                     $payload = $response->json();
                     $isVerified = ($payload['email_verified'] ?? null) === 'true' || ($payload['email_verified'] ?? null) === true;
 
-                    if ($isVerified && ! empty($payload['email'])) {
+                    // A Google ID token is only proof of identity for the app it was issued to.
+                    // Without this check, a token minted for any other website would sign in here.
+                    $clientId    = (string) config('services.google.client_id');
+                    $forThisSite = $clientId !== '' && hash_equals($clientId, (string) ($payload['aud'] ?? ''))
+                        && in_array($payload['iss'] ?? '', ['accounts.google.com', 'https://accounts.google.com'], true);
+
+                    if ($isVerified && $forThisSite && ! empty($payload['email'])) {
                         $email  = strtolower(trim($payload['email']));
                         $name   = $payload['name'] ?? $payload['given_name'] ?? explode('@', $email)[0];
                         $avatar = $payload['picture'] ?? null;
@@ -93,6 +99,10 @@ class OAuthController extends Controller
                             if ($avatar && ! $user->avatar) {
                                 $user->update(['avatar' => $avatar]);
                             }
+                        }
+
+                        if ($denied = $this->socialLoginDenied($user)) {
+                            return redirect()->route('login')->with('error', $denied);
                         }
 
                         $this->loginUser($request, $user);
@@ -139,7 +149,20 @@ class OAuthController extends Controller
                 ->with('error', 'Google sign-in failed. Please use email & password, or try again later.');
         }
 
-        $user = DB::transaction(fn () => $this->findOrCreateUser($socialUser, $provider));
+        if (empty($socialUser->getEmail())) {
+            return redirect()->route('login')
+                ->with('error', 'Your ' . ucfirst($provider) . ' account did not share an email address. Please sign in with email & password.');
+        }
+
+        try {
+            $user = DB::transaction(fn () => $this->findOrCreateUser($socialUser, $provider));
+        } catch (\DomainException $e) {
+            return redirect()->route('login')->with('error', $e->getMessage());
+        }
+
+        if ($denied = $this->socialLoginDenied($user)) {
+            return redirect()->route('login')->with('error', $denied);
+        }
 
         $this->loginUser($request, $user);
 
@@ -190,33 +213,19 @@ class OAuthController extends Controller
         $isEmail = filter_var($credential, FILTER_VALIDATE_EMAIL);
         $user = $isEmail 
             ? User::where('email', $credential)->first() 
-            : User::where('phone', $credential)->orWhere('phone', 'like', '%' . $credential)->first();
+            : $this->findUserByPhone($credential);
 
-        $authenticated = false;
-
-        if ($user && Hash::check($password, $user->password)) {
-            Auth::login($user, $remember);
-            $authenticated = true;
-        }
-
-        if (! $authenticated) {
-            $field = $isEmail ? 'email' : 'phone';
-            if (Auth::attempt([$field => $credential, 'password' => $password], $remember)) {
-                $user = Auth::user();
-                $authenticated = true;
-            }
-        }
-
-        if (! $authenticated || ! $user) {
+        if (! $user || ! Hash::check($password, (string) $user->password)) {
             return back()
                 ->withInput($request->only('email', 'login_credential'))
                 ->withErrors(['email' => 'These credentials do not match our records.']);
         }
 
-        if ($user->status === 'banned') {
-            Auth::logout();
+        if ($user->isBanned()) {
             return back()->withErrors(['email' => 'Your account has been suspended. Contact support.']);
         }
+
+        Auth::login($user, $remember);
 
         $request->session()->regenerate();
         $user->recordLogin($request->ip());
@@ -487,24 +496,25 @@ class OAuthController extends Controller
 
         // 2. Check if user exists with this email (account merge)
         $email = strtolower((string)$socialUser->getEmail());
-        $isAdminEmail = in_array($email, ['shawonhawlader1044@gmail.com', 'shawonhawlader666@gmail.com', 'admin@primebooking.com.bd', 'admin@primeavn.com']);
-
         $user = User::where('email', $email)->first();
+
+        // Facebook does not guarantee the e-mail it returns is verified, so it may create
+        // new accounts but must not be used to take over an existing one.
+        if ($user && $provider !== 'google') {
+            throw new \DomainException('An account with this email already exists. Please sign in with your password or Google.');
+        }
 
         if (! $user) {
             $user = User::create([
                 'name'              => $socialUser->getName() ?? explode('@', $email)[0],
                 'email'             => $email,
                 'password'          => Hash::make(Str::random(32)),
-                'role'              => $isAdminEmail ? 'admin' : 'customer',
+                'role'              => 'customer',
                 'status'            => 'active',
                 'avatar'            => $socialUser->getAvatar(),
                 'email_verified_at' => now(), // OAuth emails are pre-verified by provider
             ]);
         } else {
-            if ($isAdminEmail && $user->role !== 'admin') {
-                $user->update(['role' => 'admin']);
-            }
             if (! $user->avatar && $socialUser->getAvatar()) {
                 $user->update(['avatar' => $socialUser->getAvatar()]);
             }
@@ -526,6 +536,36 @@ class OAuthController extends Controller
         ]);
 
         return $user;
+    }
+
+    /** Exact match on the digits of a phone number (with or without the 88 / +88 country prefix). */
+    private function findUserByPhone(string $credential): ?User
+    {
+        $digits = preg_replace('/\D/', '', $credential);
+        if (strlen($digits) < 10 || strlen($digits) > 15) {
+            return null;
+        }
+
+        $local = preg_replace('/^88(?=01)/', '', $digits);
+
+        return User::whereIn('phone', array_unique([$credential, $digits, $local, '88' . $local, '+88' . $local]))->first();
+    }
+
+    /**
+     * Staff and suspended accounts may not be entered through a social provider.
+     * Returns the message to show, or null when the login may proceed.
+     */
+    private function socialLoginDenied(User $user): ?string
+    {
+        if ($user->isBanned()) {
+            return 'Your account has been suspended. Contact support.';
+        }
+
+        if (in_array($user->role, ['admin', 'super_admin', 'vendor'], true)) {
+            return 'Staff and partner accounts must sign in with their password from their own portal.';
+        }
+
+        return null;
     }
 
     /**

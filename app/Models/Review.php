@@ -67,10 +67,9 @@ class Review extends Model
                 'total_reviews' => $count,
             ]);
         } else {
-            // Keep default rating or fallback to star_rating based baseline
-            $fallback = $property->star_rating ? min(10.0, (float)($property->star_rating * 1.8)) : 8.8;
+            // No approved reviews: the listing is unrated. The site shows "New" instead of a score.
             $property->update([
-                'rating_score'  => $fallback,
+                'rating_score'  => 0,
                 'total_reviews' => 0,
             ]);
         }

@@ -41,6 +41,7 @@ class CompareController extends Controller
             $needed = 3 - $properties->count();
             $suggestions = Property::active()
                 ->whereNotIn('id', $properties->pluck('id'))
+                ->with(['rooms:id,property_id,name,price_per_night,max_adults,bed_type,room_size_sqm'])
                 ->orderByDesc('rating_score')
                 ->limit($needed)
                 ->get();

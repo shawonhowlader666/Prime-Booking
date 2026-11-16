@@ -74,27 +74,44 @@ class SubscriptionController extends Controller
 
     public function selectPlan(Request $request)
     {
+        $catalog = [
+            'Starter Partner' => 0,
+            'Pro Partner'     => 2500,
+            'Enterprise SaaS' => 7500,
+        ];
+
         $validated = $request->validate([
-            'plan_name'     => 'required|string',
-            'price'         => 'required|numeric',
+            'plan_name'     => ['required', 'string', \Illuminate\Validation\Rule::in(array_keys($catalog))],
             'billing_cycle' => 'nullable|in:monthly,yearly',
         ]);
 
         $vendorId = $this->vendorId();
+        $cycle    = $validated['billing_cycle'] ?? 'monthly';
+        $price    = $catalog[$validated['plan_name']] * ($cycle === 'yearly' ? 12 : 1);
 
-        // Cancel previous active subscriptions
-        VendorSubscription::where('vendor_id', $vendorId)->update(['status' => 'cancelled']);
+        // Paid plans start as "pending" and are activated by an administrator once the fee is received.
+        $status = $price > 0 ? 'pending' : 'active';
 
-        // Create new active subscription
-        VendorSubscription::create([
-            'vendor_id'     => $vendorId,
-            'plan_name'     => $validated['plan_name'],
-            'price'         => $validated['price'],
-            'billing_cycle' => $validated['billing_cycle'] ?? 'monthly',
-            'starts_at'     => now(),
-            'ends_at'       => now()->addMonth(),
-            'status'        => 'active',
-        ]);
+        \Illuminate\Support\Facades\DB::transaction(function () use ($vendorId, $validated, $price, $cycle, $status) {
+            if ($status === 'active') {
+                VendorSubscription::where('vendor_id', $vendorId)->where('status', 'active')->update(['status' => 'cancelled']);
+            }
+            VendorSubscription::where('vendor_id', $vendorId)->where('status', 'pending')->update(['status' => 'cancelled']);
+
+            VendorSubscription::create([
+                'vendor_id'     => $vendorId,
+                'plan_name'     => $validated['plan_name'],
+                'price'         => $price,
+                'billing_cycle' => $cycle,
+                'starts_at'     => now(),
+                'ends_at'       => $cycle === 'yearly' ? now()->addYear() : now()->addMonth(),
+                'status'        => $status,
+            ]);
+        });
+
+        if ($status === 'pending') {
+            return redirect()->back()->with('success', $validated['plan_name'] . ' requested. Our partner team will contact you to complete payment and activate the plan.');
+        }
 
         return redirect()->back()->with('success', 'SaaS Partner Subscription upgraded to ' . $validated['plan_name'] . ' successfully!');
     }

@@ -460,7 +460,7 @@ class BookingFlowController extends Controller
         }
 
         $userId    = $user->id;
-        $userEmail = strtolower(trim((string) $user->email));
+        $userEmail = $user->email_verified_at ? strtolower(trim((string) $user->email)) : '';
         $owned     = function ($q, string $emailColumn) use ($userId, $userEmail) {
             $q->where('user_id', $userId);
             if ($userEmail !== '') {
@@ -533,8 +533,11 @@ class BookingFlowController extends Controller
             }
         }
 
+        // Matching on e-mail is only trusted once the address is verified; otherwise anyone
+        // could register with a guest's e-mail and read or cancel that guest's bookings.
         if ($user && ($booking->user_id === $user->id
-            || ($user->email && strtolower((string) $booking->guest_email) === strtolower((string) $user->email)))) {
+            || ($user->email && $user->email_verified_at
+                && strtolower((string) $booking->guest_email) === strtolower((string) $user->email)))) {
             return;
         }
 

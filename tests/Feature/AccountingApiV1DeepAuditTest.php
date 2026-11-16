@@ -145,6 +145,8 @@ class AccountingApiV1DeepAuditTest extends TestCase
             'total_price'       => 10750,
             'total_amount'      => 10750,
             'currency'          => 'BDT',
+            'payment_method'    => 'bkash',
+            'payment_status'    => 'paid',
             'status'            => 'confirmed',
         ]);
 

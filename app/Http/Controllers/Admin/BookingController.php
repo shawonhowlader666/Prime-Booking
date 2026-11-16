@@ -94,17 +94,24 @@ class BookingController extends Controller
         $booking = Booking::with('property')->findOrFail($id);
         $oldStatus = $booking->status;
         
-        DB::transaction(function () use ($booking, $request, $oldStatus) {
+        $cancelling = in_array($request->status, ['cancelled', 'refunded'], true) && !in_array($oldStatus, ['cancelled', 'refunded'], true);
+
+        if ($cancelling) {
+            // "refunded" always returns the guest's money; "cancelled" follows the booking's cancellation policy.
+            app(\App\Services\Booking\BookingLifecycleService::class)
+                ->cancel($booking, 'Cancelled by administrator', $request->status === 'refunded' ? true : null);
+            $booking->refresh();
+        }
+
+        DB::transaction(function () use ($booking, $request, $oldStatus, $cancelling) {
             // Synchronize both column aliases to prevent legacy view mismatches
             $booking->update([
                 'booking_status' => $request->status,
                 'status'         => $request->status,
             ]);
 
-            // Release room inventory when cancelled or refunded
-            if (in_array($request->status, ['cancelled', 'refunded']) && !in_array($oldStatus, ['cancelled', 'refunded'])) {
-                app(\App\Services\InventoryService::class)->releaseInventory($booking);
-                \App\Services\AccountingService::recordRefundLedger($booking, null, 'Status updated to ' . $request->status);
+            if ($cancelling) {
+                // Inventory, coupon, points and the refund ledger were handled above.
             } elseif (in_array($request->status, ['confirmed', 'completed']) && in_array($booking->payment_status, ['paid', 'completed'])) {
                 \App\Services\AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
             }
@@ -161,7 +168,7 @@ class BookingController extends Controller
 
     public function exportCsv(Request $request)
     {
-        $bookings = Booking::with(['property', 'user'])->latest()->get();
+        $bookings = Booking::with(['property', 'user'])->orderByDesc('id')->lazyById(500, 'id');
 
         $filename = "prime_booking_reservations_" . date('Y_m_d_H_i_s') . ".csv";
         $headers = [
@@ -203,7 +210,8 @@ class BookingController extends Controller
 
     public function exportPdf(Request $request)
     {
-        $bookings = Booking::with(['property', 'user'])->latest()->get();
+        // A printable report is capped; use the CSV export for the full history.
+        $bookings = Booking::with(['property', 'user'])->latest()->limit(1000)->get();
         return view('admin.bookings.pdf-report', compact('bookings'));
     }
 

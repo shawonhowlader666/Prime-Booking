@@ -177,23 +177,32 @@ class AccountingService
         $vendorIds = $vendors->pluck('id');
         if ($vendorIds->isEmpty()) { return $vendors; }
 
-        $idList = implode(',', $vendorIds->toArray());
+        $idList = implode(',', array_map('intval', $vendorIds->toArray()));
+
+        $collected = self::SQL_COLLECTED;
+        $atHotel   = self::SQL_AT_HOTEL;
 
         $bStats = DB::select("
             SELECT p.vendor_id,
                 COUNT(b.id) AS total_bookings,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded') THEN b.total_price ELSE 0 END), 2) AS gross_sales,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded')
+                ROUND(SUM(CASE WHEN {$collected} THEN b.total_price ELSE 0 END), 2) AS gross_sales,
+                ROUND(SUM(CASE WHEN {$collected}
                           THEN b.total_price * COALESCE(p.commission_rate, :rate) / 100.0
                           ELSE 0 END), 2) AS commission_deducted,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded')
+                ROUND(SUM(CASE WHEN {$collected} AND b.check_out <= :today
                           THEN b.total_price * (1.0 - COALESCE(p.commission_rate, :rate2) / 100.0)
-                          ELSE 0 END), 2) AS net_payable
+                          ELSE 0 END), 2) AS matured_net,
+                ROUND(SUM(CASE WHEN {$atHotel} AND b.check_out <= :today2
+                          THEN b.total_price * COALESCE(p.commission_rate, :rate3) / 100.0
+                          ELSE 0 END), 2) AS due_at_hotel
             FROM properties p
             LEFT JOIN bookings b ON b.property_id = p.id
             WHERE p.vendor_id IN ({$idList})
             GROUP BY p.vendor_id
-        ", ['rate' => self::DEFAULT_COMMISSION_RATE, 'rate2' => self::DEFAULT_COMMISSION_RATE]);
+        ", [
+            'rate' => self::DEFAULT_COMMISSION_RATE, 'rate2' => self::DEFAULT_COMMISSION_RATE, 'rate3' => self::DEFAULT_COMMISSION_RATE,
+            'today' => now()->toDateString(), 'today2' => now()->toDateString(),
+        ]);
 
         $poStats = DB::table('payouts')->whereIn('vendor_id', $vendorIds)
             ->selectRaw("vendor_id,
@@ -208,6 +217,7 @@ class AccountingService
             $gross = round((float) ($s->gross_sales         ?? 0), 2);
             $comm  = round((float) ($s->commission_deducted ?? 0), 2);
             $net   = round(max(0, $gross - $comm), 2);
+            $ready = round((float) ($s->matured_net ?? 0) - (float) ($s->due_at_hotel ?? 0), 2);
             $pd    = (float) ($po->paid       ?? 0);
             $pp    = (float) ($po->pending    ?? 0);
             $v->finance_stats = (object) [
@@ -217,7 +227,9 @@ class AccountingService
                 'net_payable'         => $net,
                 'payouts_paid'        => round($pd, 2),
                 'payouts_pending'     => round($pp, 2),
-                'available_balance'   => round(max(0, $net - $pd - $pp), 2),
+                'commission_due_at_hotel' => round((float) ($s->due_at_hotel ?? 0), 2),
+                // Completed stays the platform collected, less commission owed on pay-at-hotel stays.
+                'available_balance'   => round(max(0, $ready - $pd - $pp), 2),
             ];
         }
         return $vendors;
@@ -225,22 +237,40 @@ class AccountingService
 
     // ── SINGLE VENDOR ACCOUNTING ─────────────────────────────────────────────
 
+    /**
+     * SQL fragments shared by every vendor balance query.
+     *
+     * COLLECTED: the platform holds the guest's money (paid through a gateway / bank).
+     *            The vendor is owed total - commission, once the stay is over.
+     * AT_HOTEL:  the hotel collected the money itself at the desk.
+     *            Nothing is owed to the vendor; the vendor owes the platform its commission.
+     *
+     * Unpaid, pending, failed or cancelled bookings never create a balance.
+     */
+    private const SQL_COLLECTED = "b.payment_status = 'paid' AND b.status IN ('confirmed','completed')
+                                   AND COALESCE(b.payment_method, '') NOT IN ('cash','pay_at_hotel')";
+    private const SQL_AT_HOTEL  = "b.payment_method IN ('cash','pay_at_hotel') AND b.status IN ('confirmed','completed')";
+
     public function getSingleVendorAccounting(int $vendorId): array
     {
-        $today = now()->toDateString();
+        $today     = now()->toDateString();
+        $collected = self::SQL_COLLECTED;
+        $atHotel   = self::SQL_AT_HOTEL;
 
         $s = DB::selectOne("
             SELECT COUNT(b.id) AS total_bookings,
                 COUNT(CASE WHEN b.status = 'cancelled' THEN 1 END) AS cancelled_bookings,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded') THEN b.total_price ELSE 0 END), 2) AS gross_revenue,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded')
+                ROUND(SUM(CASE WHEN ({$collected}) OR ({$atHotel}) THEN b.total_price ELSE 0 END), 2) AS gross_revenue,
+                ROUND(SUM(CASE WHEN ({$collected}) OR ({$atHotel})
                           THEN b.total_price * COALESCE(p.commission_rate, :rate) / 100.0 ELSE 0 END), 2) AS commission_paid,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded')
+                ROUND(SUM(CASE WHEN {$collected}
                           THEN b.total_price * (1.0 - COALESCE(p.commission_rate, :rate2) / 100.0) ELSE 0 END), 2) AS net_earnings,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded') AND b.check_out <= :today
+                ROUND(SUM(CASE WHEN {$collected} AND b.check_out <= :today
                           THEN b.total_price * (1.0 - COALESCE(p.commission_rate, :rate3) / 100.0) ELSE 0 END), 2) AS matured_earnings,
-                ROUND(SUM(CASE WHEN b.status NOT IN ('cancelled','refunded') AND b.check_out > :today2
+                ROUND(SUM(CASE WHEN {$collected} AND b.check_out > :today2
                           THEN b.total_price * (1.0 - COALESCE(p.commission_rate, :rate4) / 100.0) ELSE 0 END), 2) AS escrow_earnings,
+                ROUND(SUM(CASE WHEN {$atHotel} AND b.check_out <= :today3
+                          THEN b.total_price * COALESCE(p.commission_rate, :rate5) / 100.0 ELSE 0 END), 2) AS commission_due_at_hotel,
                 ROUND(SUM(CASE WHEN b.status = 'cancelled' THEN b.total_price ELSE 0 END), 2) AS cancelled_value
             FROM properties p
             LEFT JOIN bookings b ON b.property_id = p.id
@@ -251,8 +281,10 @@ class AccountingService
             'rate2'     => self::DEFAULT_COMMISSION_RATE,
             'rate3'     => self::DEFAULT_COMMISSION_RATE,
             'rate4'     => self::DEFAULT_COMMISSION_RATE,
+            'rate5'     => self::DEFAULT_COMMISSION_RATE,
             'today'     => $today,
             'today2'    => $today,
+            'today3'    => $today,
         ]);
 
         $po = DB::table('payouts')->where('vendor_id', $vendorId)
@@ -261,23 +293,27 @@ class AccountingService
             ->first();
 
         $net     = round((float) ($s->net_earnings ?? 0), 2);
-        $matured = round((float) ($s->matured_earnings ?? $net), 2);
+        $matured = round((float) ($s->matured_earnings ?? 0), 2);
         $escrow  = round((float) ($s->escrow_earnings ?? 0), 2);
+        $dueHotel = round((float) ($s->commission_due_at_hotel ?? 0), 2);
         $paid    = round((float) ($po->paid        ?? 0), 2);
         $pend    = round((float) ($po->pending     ?? 0), 2);
 
         return [
-            'total_bookings'         => (int) ($s->total_bookings     ?? 0),
-            'cancelled_bookings'     => (int) ($s->cancelled_bookings ?? 0),
-            'cancelled_value'        => round((float) ($s->cancelled_value ?? 0), 2),
-            'gross_revenue'          => round((float) ($s->gross_revenue   ?? 0), 2),
-            'commission_paid'        => round((float) ($s->commission_paid  ?? 0), 2),
-            'net_earnings'           => $net,
-            'matured_earnings'       => $matured,
-            'escrow_future_balance'  => $escrow,
-            'payouts_paid'           => $paid,
-            'payouts_pending'        => $pend,
-            'withdrawable_balance'   => round(max(0, $net - $paid - $pend), 2),
+            'total_bookings'          => (int) ($s->total_bookings     ?? 0),
+            'cancelled_bookings'      => (int) ($s->cancelled_bookings ?? 0),
+            'cancelled_value'         => round((float) ($s->cancelled_value ?? 0), 2),
+            'gross_revenue'           => round((float) ($s->gross_revenue   ?? 0), 2),
+            'commission_paid'         => round((float) ($s->commission_paid  ?? 0), 2),
+            'net_earnings'            => $net,
+            'matured_earnings'        => $matured,
+            'escrow_future_balance'   => $escrow,
+            'commission_due_at_hotel' => $dueHotel,
+            'payouts_paid'            => $paid,
+            'payouts_pending'         => $pend,
+            // Only money for completed stays that the platform itself collected can be withdrawn,
+            // less the commission the vendor owes on stays paid at the hotel.
+            'withdrawable_balance'    => round(max(0, $matured - $dueHotel - $paid - $pend), 2),
         ];
     }
 

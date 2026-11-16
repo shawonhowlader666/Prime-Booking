@@ -196,8 +196,8 @@ class AccountingDeepIntegrityTest extends TestCase
             'guest_name'        => 'Guest Ocean',
             'guest_email'       => 'guest.ocean@test.com',
             'guest_phone'       => '01700000000',
-            'check_in'          => now()->addDays(1)->toDateString(),
-            'check_out'         => now()->addDays(2)->toDateString(),
+            'check_in'          => now()->subDays(3)->toDateString(),
+            'check_out'         => now()->subDays(2)->toDateString(),
             'guests'            => 1,
             'nights'            => 1,
             'price_per_night'   => 10000,
@@ -206,6 +206,8 @@ class AccountingDeepIntegrityTest extends TestCase
             'total_price'       => 10000,
             'total_amount'      => 10000,
             'currency'          => 'BDT',
+            'payment_method'    => 'bkash',
+            'payment_status'    => 'paid',
             'status'            => 'confirmed',
         ]);
 
@@ -306,6 +308,8 @@ class AccountingDeepIntegrityTest extends TestCase
             'total_price'       => 20000,
             'total_amount'      => 20000,
             'currency'          => 'BDT',
+            'payment_method'    => 'bkash',
+            'payment_status'    => 'paid',
             'status'            => 'confirmed',
         ]);
 

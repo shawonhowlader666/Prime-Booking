@@ -91,7 +91,12 @@ class MediaService
 
         // If it's a binary file or UploadedFile
         if ($file instanceof UploadedFile) {
-            $ext = strtolower($file->getClientOriginalExtension());
+            // extension() is derived from the detected MIME type. The client's file name is not
+            // trusted: "photo.php" with image bytes inside must never be stored as a .php file.
+            $ext = strtolower((string) $file->extension());
+            if (!in_array($ext, ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'], true)) {
+                throw new \InvalidArgumentException('Unsupported image type.');
+            }
             $realPath = $file->getRealPath();
 
             // Auto-convert to WebP if GD is supported and it is JPEG/PNG
@@ -128,7 +133,11 @@ class MediaService
     {
         $disk = Storage::disk(self::disk());
         $folder = trim($folder, '/');
-        $filename = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        $ext = strtolower((string) $file->extension());
+        if (!in_array($ext, ['mp4', 'webm', 'mov', 'qt'], true)) {
+            throw new \InvalidArgumentException('Unsupported video type.');
+        }
+        $filename = Str::uuid()->toString() . '.' . ($ext === 'qt' ? 'mov' : $ext);
 
         $disk->putFileAs($folder, $file, $filename, 'public');
         return "/storage/{$folder}/{$filename}";

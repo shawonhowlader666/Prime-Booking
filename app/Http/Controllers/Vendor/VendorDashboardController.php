@@ -151,31 +151,38 @@ class VendorDashboardController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'status' => 'required|string|in:pending,confirmed,completed,cancelled',
+            'status' => 'required|string|in:confirmed,completed,cancelled',
         ]);
 
-        $oldStatus = $booking->status;
+        $new = $validated['status'];
+        $old = $booking->status;
 
-        DB::transaction(function () use ($booking, $validated, $oldStatus) {
-            $booking->update([
-                'status'         => $validated['status'],
-                'booking_status' => $validated['status'],
-            ]);
+        if (in_array($old, ['cancelled', 'refunded', 'failed'], true)) {
+            return back()->with('error', 'A cancelled reservation cannot be changed. Ask the guest to make a new booking.');
+        }
 
-            // Release room inventory when cancelled
-            if ($validated['status'] === 'cancelled' && $oldStatus !== 'cancelled') {
-                app(InventoryService::class)->releaseInventory($booking);
-                if (in_array($booking->payment_status, ['paid', 'completed'])) {
-                    AccountingService::recordRefundLedger($booking, null, 'Cancelled by Vendor');
-                }
-            } elseif (in_array($validated['status'], ['confirmed', 'completed']) && in_array($booking->payment_status, ['paid', 'completed'])) {
-                AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
-            }
-        });
+        if ($new === 'cancelled') {
+            // A cancellation by the property always refunds whatever the guest paid.
+            app(\App\Services\Booking\BookingLifecycleService::class)->cancel($booking, 'Cancelled by property', true);
+            return back()->with('success', "Booking #{$booking->booking_reference} cancelled. The guest has been notified.");
+        }
 
-        return back()->with('success', "Booking #{$reference} status updated to {$validated['status']}.");
+        if ($new === 'confirmed' && $booking->isAwaitingPayment()) {
+            return back()->with('error', 'This booking is waiting for the guest\'s online payment and confirms automatically once it is paid.');
+        }
+
+        if ($new === 'completed' && $booking->check_in && $booking->check_in->isFuture()) {
+            return back()->with('error', 'A stay can only be marked completed on or after its check-in date.');
+        }
+
+        $booking->update(['status' => $new]);
+
+        if (in_array($booking->payment_status, ['paid', 'completed'], true)) {
+            AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'cash');
+        }
+
+        return back()->with('success', "Booking #{$booking->booking_reference} status updated to {$new}.");
     }
-
     public function updatePaymentStatus(Request $request, $id)
     {
         $vendorId = $this->vendorId();
@@ -185,27 +192,28 @@ class VendorDashboardController extends Controller
             ->firstOrFail();
 
         $validated = $request->validate([
-            'payment_status' => 'required|string|in:paid,unpaid,pending,refunded,failed',
+            'payment_status' => 'required|string|in:paid,unpaid',
         ]);
 
+        // Online payments are settled only by the payment gateway. A property can record
+        // only the money it collects itself at the front desk.
+        if (!$booking->isOfflinePayment()) {
+            return back()->with('error', 'Online payments are confirmed automatically by the payment gateway and cannot be changed here.');
+        }
+
+        if (!in_array($booking->status, ['confirmed', 'completed'], true)) {
+            return back()->with('error', 'Payment can only be recorded for an active reservation.');
+        }
+
         $oldPayment = $booking->payment_status;
+        $booking->update(['payment_status' => $validated['payment_status']]);
 
-        DB::transaction(function () use ($booking, $validated, $oldPayment) {
-            $booking->update([
-                'payment_status' => $validated['payment_status'],
-            ]);
-
-            // Auto-sync accounting ledger
-            if ($validated['payment_status'] === 'paid' && $oldPayment !== 'paid') {
-                AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'cash');
-            } elseif ($validated['payment_status'] === 'refunded' && $oldPayment !== 'refunded') {
-                AccountingService::recordRefundLedger($booking, null, 'Payment refunded by vendor');
-            }
-        });
+        if ($validated['payment_status'] === 'paid' && $oldPayment !== 'paid') {
+            AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'cash');
+        }
 
         return back()->with('success', "Booking #{$booking->booking_reference} payment marked as " . strtoupper($validated['payment_status']) . ".");
     }
-
     // ─── Earnings Report ──────────────────────────────────────────────────
 
     public function earnings()

@@ -280,6 +280,66 @@ class CheckoutIntegrityTest extends TestCase
         $this->assertSame('confirmed', Booking::where('booking_reference', $today)->value('status'));
     }
 
+    public function test_vendor_balance_only_counts_money_the_platform_actually_collected(): void
+    {
+        $vendorId   = (int) $this->property->vendor_id;
+        $accounting = app(\App\Services\AccountingService::class);
+        $past       = ['check_in' => now()->subDays(5)->toDateString(), 'check_out' => now()->subDays(3)->toDateString()];
+        $base       = [
+            'property_id' => $this->property->id, 'room_id' => $this->room->id, 'guest_name' => 'G', 'guest_email' => 'g@example.com',
+            'guest_phone' => '01700000000', 'guests' => 1, 'nights' => 2, 'total_price' => 10000, 'total_amount' => 10000, 'currency' => 'BDT',
+        ];
+
+        // Never paid: no balance, whatever its status says.
+        Booking::create($base + $past + ['booking_reference' => 'BAL-UNPAID', 'payment_method' => 'sslcommerz', 'payment_status' => 'pending', 'status' => 'confirmed']);
+        $this->assertEquals(0.0, $accounting->getSingleVendorAccounting($vendorId)['withdrawable_balance']);
+
+        // Paid online but the stay is still in the future: held in escrow, not withdrawable.
+        Booking::create($base + ['booking_reference' => 'BAL-FUTURE', 'check_in' => $this->in, 'check_out' => $this->out, 'payment_method' => 'sslcommerz', 'payment_status' => 'paid', 'status' => 'confirmed']);
+        $acc = $accounting->getSingleVendorAccounting($vendorId);
+        $this->assertEquals(0.0, $acc['withdrawable_balance']);
+        $this->assertEquals(9000.0, $acc['escrow_future_balance']);
+
+        // Paid online and completed: 10,000 less 10% commission.
+        Booking::create($base + $past + ['booking_reference' => 'BAL-DONE', 'payment_method' => 'sslcommerz', 'payment_status' => 'paid', 'status' => 'completed']);
+        $this->assertEquals(9000.0, $accounting->getSingleVendorAccounting($vendorId)['withdrawable_balance']);
+
+        // Paid at the hotel: the hotel already has the cash and owes the platform its 10%.
+        Booking::create($base + $past + ['booking_reference' => 'BAL-HOTEL', 'payment_method' => 'pay_at_hotel', 'payment_status' => 'paid', 'status' => 'completed']);
+        $this->assertEquals(8000.0, $accounting->getSingleVendorAccounting($vendorId)['withdrawable_balance']);
+    }
+
+    public function test_vendor_cannot_mark_an_online_booking_as_paid(): void
+    {
+        $ref     = $this->book(['payment_method' => 'sslcommerz'])->json('booking_reference');
+        $booking = Booking::where('booking_reference', $ref)->firstOrFail();
+        $vendor  = User::findOrFail($this->property->vendor_id);
+
+        $this->actingAs($vendor)->post(route('vendor.bookings.update-payment', $booking->id), ['payment_status' => 'paid']);
+        $this->actingAs($vendor)->post(route('vendor.bookings.update-status', $ref), ['status' => 'confirmed']);
+
+        $booking->refresh();
+        $this->assertSame('pending', $booking->payment_status);
+        $this->assertSame('pending', $booking->status);
+        $this->assertSame(0, AccountingLedger::where('booking_id', $booking->id)->count());
+    }
+
+    public function test_vendor_cannot_reply_to_another_vendors_inquiry(): void
+    {
+        $inquiry = \App\Models\Inquiry::create([
+            'name' => 'Guest', 'email' => 'guest@example.com', 'phone' => '01700000000',
+            'message' => 'Hello', 'property_id' => $this->property->id,
+        ]);
+
+        $other = User::create([
+            'name' => 'Other Vendor', 'email' => 'other2@example.com', 'password' => bcrypt('Secret123!'),
+            'role' => 'vendor', 'status' => 'active',
+        ]);
+
+        $this->actingAs($other)->post(route('vendor.inquiries.reply', $inquiry->id), ['reply' => 'hijacked'])->assertNotFound();
+        $this->assertNotSame('hijacked', $inquiry->fresh()->reply);
+    }
+
     public function test_vendor_cannot_export_or_import_ical_for_another_vendors_room(): void
     {
         $other = User::create([

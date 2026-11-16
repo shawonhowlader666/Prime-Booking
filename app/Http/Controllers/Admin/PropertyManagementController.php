@@ -102,153 +102,61 @@ class PropertyManagementController extends Controller
         return view('admin.properties.create', compact('vendors', 'locations'));
     }
 
-    public function store(Request $request)
+    public function store(Request $request, \App\Services\Property\PropertyFormService $form)
     {
-        $request->validate([
-            'name'            => 'required|string|max:255',
-            'type'            => 'required|string',
-            'city'            => 'required|string',
-            'star_rating'     => 'required|integer|min:1|max:5',
-            'address'         => 'required|string',
-            'price_per_night' => 'required|numeric|min:0',
-            'description'     => 'required|string',
-            'primary_image'   => 'nullable|string',
-            'video_url'       => 'nullable|string',
-            'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'video_file'            => 'nullable|file|mimes:mp4,webm,mov,ogg|max:102400',
+        $request->validate($form->rules(isAdmin: true) + [
+            'room_type'    => 'nullable|array|max:30',
+            'room_type.*'  => 'nullable|string|max:150',
+            'room_price.*' => 'nullable|numeric|min:0|max:99999999',
+            'room_qty.*'   => 'nullable|integer|min:1|max:10000',
+            'room_beds.*'  => 'nullable|integer|min:1|max:30',
         ]);
 
-        $uploadCategory = $request->input('new_gallery_category', 'property_views');
-        if (!in_array($uploadCategory, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
-            $uploadCategory = 'property_views';
-        }
+        // "Save as Draft" button vs "Publish Live"
+        $status = $request->input('action') === 'draft' ? 'inactive' : ($request->input('status') ?: 'active');
 
-        $galleryImages = [];
+        $attributes = $form->attributes($request, null, isAdmin: true);
 
-        // Support gallery file uploads
-        if ($request->hasFile('gallery_image_files')) {
-            foreach ($request->file('gallery_image_files') as $file) {
-                if ($file && $file->isValid()) {
-                    $path = $file->store('uploads/properties/gallery', 'public');
-                    $galleryImages[] = [
-                        'url' => asset('storage/' . $path),
-                        'category' => $uploadCategory,
-                        'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
-                    ];
-                }
-            }
-        }
-
-        // Support gallery URL lines
-        if ($request->gallery_images) {
-            $urls = array_filter(
-                array_map('trim', explode("\n", $request->gallery_images)),
-                fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
-            );
-            foreach ($urls as $u) {
-                $galleryImages[] = [
-                    'url' => $u,
-                    'category' => $uploadCategory,
-                    'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
-                ];
-            }
-        }
-
-        // Handle file upload for primary thumbnail image
-        if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
-            $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
-            $primaryImage = asset('storage/' . $path);
-        } else {
-            $primaryImage = $request->primary_image ?: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1000&q=80';
-        }
-
-        // Handle video file upload or URL
-        $videoUrl = null;
-        if ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
-            $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
-            $videoUrl = asset('storage/' . $videoPath);
-        } elseif ($request->filled('video_url')) {
-            $rawVideo = trim($request->input('video_url'));
-            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i', $rawVideo, $m)) {
-                $videoUrl = "https://www.youtube.com/embed/" . $m[1];
-            } else {
-                $videoUrl = $rawVideo;
-            }
-        }
-
-        // Determine publish status — "Save as Draft" button vs "Publish Live"
-        $status = $request->action === 'draft' ? 'inactive' : 'active';
-
-        $property = DB::transaction(function () use ($request, $status, $primaryImage, $videoUrl, $galleryImages) {
-            $prop = Property::create([
-                'name'             => $request->name,
-                'slug'             => Str::slug($request->name) . '-' . time(),
-                'type'             => $request->type,
-                'city'             => $request->city,
-                'star_rating'      => (int) $request->star_rating,
-                'address'          => $request->address,
-                'price_per_night'  => (float) $request->price_per_night,
-                'original_price'   => $request->original_price ? (float) $request->original_price : null,
-                'description'      => $request->description,
-                'primary_image'    => $primaryImage,
-                'video_url'        => $videoUrl,
-                'latitude'               => $request->latitude ? (float)$request->latitude : null,
-                'longitude'              => $request->longitude ? (float)$request->longitude : null,
-                'map_embed_url'          => $request->map_embed_url ?: null,
-                'postal_code'            => $request->postal_code ?: null,
-                'nearest_landmark'       => $request->nearest_landmark ?: null,
-                'free_cancellation'      => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : true,
-                'cancellation_policy'    => $request->cancellation_policy ?: null,
-                'no_credit_card_required'=> $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : false,
-                'rooms_left'             => $request->has('rooms_left') ? (int)$request->rooms_left : 5,
-                'location_score'         => $request->location_score ? (float)$request->location_score : 8.8,
-                'rating_score'           => $request->rating_score ? (float)$request->rating_score : 8.8,
-                'total_reviews'          => $request->has('total_reviews') ? (int)$request->total_reviews : 128,
-                'feature_snippet'        => $request->feature_snippet ?: null,
-                'ribbon_badge'           => $request->ribbon_badge ?: null,
-                'is_sold_out'            => $request->boolean('is_sold_out'),
-                'checkin_time'           => $request->checkin_time ?: '14:00',
-                'checkout_time'          => $request->checkout_time ?: '12:00',
-                'contact_phone'          => $request->contact_phone ?: null,
-                'contact_email'          => $request->contact_email ?: null,
-                'house_rules'            => $request->house_rules ?: null,
-                'total_floors'           => $request->total_floors ? (int)$request->total_floors : null,
-                'total_rooms_count'      => $request->total_rooms_count ? (int)$request->total_rooms_count : null,
-                'year_built'             => $request->year_built ? (int)$request->year_built : null,
-                'languages_spoken'       => (array)($request->languages_spoken ?? ['English', 'Bengali']),
-                'pets_policy'            => $request->pets_policy ?? 'Pets Not Allowed',
-                'images'                 => array_values($galleryImages),
-                'amenities'              => $request->amenities ?? [],
-                'is_featured'            => $request->boolean('is_featured'),
-                'status'                 => $status,
-                'vendor_id'              => $request->vendor_id ?: null,
+        $property = DB::transaction(function () use ($request, $form, $attributes, $status) {
+            $prop = Property::create($attributes + [
+                'slug'        => $form->uniqueSlug($attributes['name']),
+                'status'      => $status,
+                'approved_at' => in_array($status, ['active', 'published'], true) ? now() : null,
             ]);
 
-            if ($request->has('room_type') && is_array($request->room_type)) {
-                foreach ($request->room_type as $i => $rtName) {
-                    $price = !empty($request->room_price[$i]) ? (float)$request->room_price[$i] : null;
-                    $qty   = !empty($request->room_qty[$i]) ? (int)$request->room_qty[$i] : 5;
-                    if ($price && $price > 0) {
-                        \App\Models\Room::create([
-                            'property_id'    => $prop->id,
-                            'name'           => $rtName,
-                            'price_per_night'=> $price,
-                            'total_rooms'    => $qty,
-                            'max_guests'     => $request->room_beds[$i] ?? 2,
-                            'view_type'      => 'City View',
-                            'bathroom_count' => 1,
-                            'smoking_policy' => 'Non-Smoking',
-                            'balcony_type'   => 'Private Balcony',
-                        ]);
-                    }
+            foreach ((array) $request->input('room_type', []) as $i => $roomName) {
+                $roomName = trim((string) $roomName);
+                $price    = (float) ($request->input("room_price.{$i}") ?? 0);
+                if ($roomName === '' || $price <= 0) {
+                    continue;
                 }
+
+                $guests = max(1, (int) ($request->input("room_beds.{$i}") ?? 2));
+
+                \App\Models\Room::create([
+                    'property_id'     => $prop->id,
+                    'name'            => $roomName,
+                    'price_per_night' => $price,
+                    'total_rooms'     => max(1, (int) ($request->input("room_qty.{$i}") ?? 1)),
+                    'max_guests'      => $guests,
+                    'max_adults'      => $guests,
+                    'max_children'    => 0,
+                    'bathroom_count'  => 1,
+                    'smoking_policy'  => 'Non-Smoking',
+                    'free_cancellation' => (bool) ($attributes['free_cancellation'] ?? true),
+                    'status'          => 'active',
+                ]);
             }
 
             return $prop;
         });
 
-        $msg = $status === 'active' ? 'Property published live successfully!' : 'Property saved as draft.';
+        if ($property->rooms()->count() === 0) {
+            return redirect()->route('admin.rooms.index', $property->id)
+                ->with('success', 'Property saved. Add at least one room type so guests can book it.');
+        }
+
+        $msg = in_array($status, ['active', 'published'], true) ? 'Property published live successfully!' : 'Property saved as draft.';
         return redirect()->route('admin.properties.index')->with('success', $msg);
     }
 
@@ -315,182 +223,22 @@ class PropertyManagementController extends Controller
         return view('admin.properties.edit', compact('property', 'vendors', 'galleryText', 'structuredGallery', 'locations'));
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, $id, \App\Services\Property\PropertyFormService $form)
     {
-        $request->validate([
-            'name'            => 'required|string|max:255',
-            'type'            => 'required|string',
-            'city'            => 'required|string',
-            'star_rating'     => 'required|integer|min:1|max:5',
-            'address'         => 'required|string',
-            'price_per_night' => 'required|numeric|min:0',
-            'commission_rate' => 'nullable|numeric|min:0|max:100',
-            'description'     => 'required|string',
-            'primary_image'   => 'nullable|string',
-            'video_url'       => 'nullable|string',
-            'set_primary_image_url' => 'nullable|string',
-            'primary_image_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'gallery_image_files.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'existing_gallery_replace.*' => 'nullable|image|mimes:jpeg,png,jpg,webp,avif|max:10240',
-            'video_file'            => 'nullable|file|mimes:mp4,webm,mov,ogg|max:102400',
-        ]);
-
         $property = Property::findOrFail($id);
 
-        $finalGallery = [];
+        $request->validate($form->rules(isAdmin: true, property: $property));
 
-        // 1. Existing gallery items management (re-categorize, re-title, in-place replace, delete)
-        if ($request->has('existing_gallery') && is_array($request->existing_gallery)) {
-            foreach ($request->existing_gallery as $gIdx => $item) {
-                if (!empty($item['delete'])) {
-                    continue; // Admin chose to delete this photo
-                }
-                $url = trim($item['url'] ?? '');
+        $attributes = $form->attributes($request, $property, isAdmin: true);
 
-                // Check if admin uploaded a replacement file for this specific photo
-                if ($request->hasFile("existing_gallery_replace.{$gIdx}") && $request->file("existing_gallery_replace.{$gIdx}")->isValid()) {
-                    $repPath = $request->file("existing_gallery_replace.{$gIdx}")->store('uploads/properties/gallery', 'public');
-                    $url = asset('storage/' . $repPath);
-                }
-
-                if (empty($url)) continue;
-
-                $cat = trim($item['category'] ?? 'property_views');
-                if (!in_array($cat, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
-                    $cat = 'property_views';
-                }
-
-                $title = trim($item['title'] ?? '') ?: ($property->name . ' - ' . ucfirst(str_replace('_', ' ', $cat)));
-
-                $finalGallery[] = [
-                    'url' => $url,
-                    'category' => $cat,
-                    'title' => $title
-                ];
-            }
-        } else {
-            $rawExisting = is_array($property->images) ? $property->images : (json_decode($property->images ?? '[]', true) ?: []);
-            foreach ($rawExisting as $item) {
-                if (is_array($item)) {
-                    $finalGallery[] = $item;
-                } elseif (is_string($item) && !empty($item)) {
-                    $finalGallery[] = [
-                        'url' => $item,
-                        'category' => 'property_views',
-                        'title' => $property->name
-                    ];
-                }
+        if ($request->filled('status')) {
+            $attributes['status'] = $request->input('status');
+            if (in_array($attributes['status'], ['active', 'published'], true) && !$property->approved_at) {
+                $attributes['approved_at'] = now();
             }
         }
 
-        // 2. New uploads with admin-selected category
-        $uploadCategory = $request->input('new_gallery_category', 'property_views');
-        if (!in_array($uploadCategory, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
-            $uploadCategory = 'property_views';
-        }
-
-        // Support multiple gallery file uploads
-        if ($request->hasFile('gallery_image_files')) {
-            foreach ($request->file('gallery_image_files') as $file) {
-                if ($file && $file->isValid()) {
-                    $path = $file->store('uploads/properties/gallery', 'public');
-                    $finalGallery[] = [
-                        'url' => asset('storage/' . $path),
-                        'category' => $uploadCategory,
-                        'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
-                    ];
-                }
-            }
-        }
-
-        if ($request->gallery_images) {
-            $urls = array_filter(
-                array_map('trim', explode("\n", $request->gallery_images)),
-                fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
-            );
-            foreach ($urls as $u) {
-                $finalGallery[] = [
-                    'url' => $u,
-                    'category' => $uploadCategory,
-                    'title' => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory))
-                ];
-            }
-        }
-
-        // Determine Primary / Cover Image
-        if ($request->hasFile('primary_image_file') && $request->file('primary_image_file')->isValid()) {
-            $path = $request->file('primary_image_file')->store('uploads/properties', 'public');
-            $primaryImage = asset('storage/' . $path);
-        } elseif ($request->filled('set_primary_image_url')) {
-            $primaryImage = $request->input('set_primary_image_url');
-        } elseif ($request->filled('primary_image')) {
-            $primaryImage = $request->input('primary_image');
-        } else {
-            $primaryImage = $property->primary_image;
-        }
-
-        // Handle video file upload, remove, or URL
-        if ($request->boolean('remove_video')) {
-            $videoUrl = null;
-        } elseif ($request->hasFile('video_file') && $request->file('video_file')->isValid()) {
-            $videoPath = $request->file('video_file')->store('uploads/properties/videos', 'public');
-            $videoUrl = asset('storage/' . $videoPath);
-        } elseif ($request->filled('video_url')) {
-            $rawVideo = trim($request->input('video_url'));
-            if (preg_match('/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/i', $rawVideo, $m)) {
-                $videoUrl = "https://www.youtube.com/embed/" . $m[1];
-            } else {
-                $videoUrl = $rawVideo;
-            }
-        } else {
-            $videoUrl = $property->video_url;
-        }
-
-        DB::transaction(function () use ($property, $request, $primaryImage, $videoUrl, $finalGallery) {
-            $property->update([
-                'name'            => $request->name,
-                'type'            => $request->type,
-                'city'            => $request->city,
-                'star_rating'     => (int) $request->star_rating,
-                'address'         => $request->address,
-                'price_per_night' => (float) $request->price_per_night,
-                'original_price'  => $request->original_price ? (float) $request->original_price : null,
-                'commission_rate' => $request->commission_rate !== null ? (float) $request->commission_rate : $property->commission_rate,
-                'description'     => $request->description,
-                'primary_image'   => $primaryImage,
-                'video_url'       => $videoUrl,
-                'latitude'        => $request->latitude ? (float)$request->latitude : $property->latitude,
-                'longitude'       => $request->longitude ? (float)$request->longitude : $property->longitude,
-                'map_embed_url'   => $request->map_embed_url ?: $property->map_embed_url,
-                'postal_code'     => $request->postal_code ?: $property->postal_code,
-                'nearest_landmark'=> $request->nearest_landmark ?: $property->nearest_landmark,
-                'checkin_time'    => $request->checkin_time ?: ($property->checkin_time ?? '14:00'),
-                'checkout_time'   => $request->checkout_time ?: ($property->checkout_time ?? '12:00'),
-                'contact_phone'   => $request->contact_phone ?: $property->contact_phone,
-                'contact_email'   => $request->contact_email ?: $property->contact_email,
-                'house_rules'     => $request->house_rules ?: $property->house_rules,
-                'total_floors'    => $request->total_floors ? (int)$request->total_floors : $property->total_floors,
-                'total_rooms_count'=> $request->total_rooms_count ? (int)$request->total_rooms_count : $property->total_rooms_count,
-                'year_built'      => $request->year_built ? (int)$request->year_built : $property->year_built,
-                'languages_spoken'=> $request->has('languages_spoken') ? (array)$request->languages_spoken : $property->languages_spoken,
-                'pets_policy'     => $request->pets_policy ?? $property->pets_policy,
-                'free_cancellation'      => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $property->free_cancellation,
-                'cancellation_policy'    => $request->cancellation_policy ?: $property->cancellation_policy,
-                'no_credit_card_required'=> $request->has('no_credit_card_required') ? $request->boolean('no_credit_card_required') : $property->no_credit_card_required,
-                'rooms_left'             => $request->has('rooms_left') ? (int)$request->rooms_left : $property->rooms_left,
-                'location_score'         => $request->location_score ? (float)$request->location_score : $property->location_score,
-                'rating_score'           => $request->rating_score ? (float)$request->rating_score : $property->rating_score,
-                'total_reviews'          => $request->has('total_reviews') ? (int)$request->total_reviews : $property->total_reviews,
-                'feature_snippet'        => $request->has('feature_snippet') ? $request->feature_snippet : $property->feature_snippet,
-                'ribbon_badge'           => $request->has('ribbon_badge') ? $request->ribbon_badge : $property->ribbon_badge,
-                'is_sold_out'            => $request->boolean('is_sold_out'),
-                'images'          => $finalGallery,
-                'amenities'       => $request->amenities ?? [],
-                'is_featured'     => $request->boolean('is_featured'),
-                'status'          => $request->status ?? $property->status,
-                'vendor_id'       => $request->vendor_id ?: $property->vendor_id,
-            ]);
-        });
+        DB::transaction(fn () => $property->update($attributes));
 
         return redirect()->route('admin.properties.index')->with('success', 'Property "' . $property->name . '" updated successfully!');
     }

@@ -20,7 +20,7 @@
 <div class="page-content-area">
     <div style="max-width:780px; margin:0 auto;">
 
-        @if($errors->any())
+        @if(isset($errors) && $errors->any())
             <div class="admin-alert error mb-3">
                 <i class="fa-solid fa-circle-xmark me-1"></i> {{ implode(', ', $errors->all()) }}
             </div>

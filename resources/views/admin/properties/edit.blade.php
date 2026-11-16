@@ -52,7 +52,7 @@
                 </div>
             @endif
 
-            @if($errors->any())
+            @if(isset($errors) && $errors->any())
                 <div class="admin-alert error mb-3">
                     <i class="fa-solid fa-circle-xmark me-1"></i>
                     {{ implode(', ', $errors->all()) }}
@@ -392,11 +392,22 @@
                     @if(!empty($structuredGallery) && count($structuredGallery) > 0)
                     <div class="col-12 mb-3">
                         <div class="card border-0 shadow-sm" style="background:#f8fafc; border:1px solid #cbd5e1 !important; border-radius:6px;">
-                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between">
-                                <span class="fw-bold text-dark" style="font-size:13px;">
-                                    <i class="fa-solid fa-images text-primary me-1.5"></i> Manage Current Hotel Photos ({{ count($structuredGallery) }} items)
-                                </span>
-                                <small class="text-muted" style="font-size:11.5px;">Change category, edit caption, replace file, set cover, or delete</small>
+                            <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
+                                <div>
+                                    <span class="fw-bold text-dark" style="font-size:13px;">
+                                        <i class="fa-solid fa-images text-primary me-1.5"></i> Manage Current Hotel Photos ({{ count($structuredGallery) }} items)
+                                    </span>
+                                    <small class="text-muted d-block" style="font-size:11.5px;">Change category, edit caption, replace file, set cover, or delete</small>
+                                </div>
+                                {{-- Agoda-style category filter tabs for fast photo management --}}
+                                <div class="d-flex align-items-center gap-1 flex-wrap">
+                                    <button type="button" class="btn btn-xs btn-primary fw-bold admin-gal-filter-btn" data-cat="all" onclick="filterAdminGalleryCards('all', this)" style="font-size:11px; padding:2px 8px;">All ({{ count($structuredGallery) }})</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="property_views" onclick="filterAdminGalleryCards('property_views', this)" style="font-size:11px; padding:2px 8px;">Property views</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="rooms" onclick="filterAdminGalleryCards('rooms', this)" style="font-size:11px; padding:2px 8px;">Rooms</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="facilities" onclick="filterAdminGalleryCards('facilities', this)" style="font-size:11px; padding:2px 8px;">Facilities</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="dining" onclick="filterAdminGalleryCards('dining', this)" style="font-size:11px; padding:2px 8px;">Dining</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="other" onclick="filterAdminGalleryCards('other', this)" style="font-size:11px; padding:2px 8px;">Other</button>
+                                </div>
                             </div>
                             <div class="card-body p-3">
                                 <div class="row g-3" style="max-height: 480px; overflow-y: auto;">
@@ -408,7 +419,7 @@
                                         $thisPhotoClean = ltrim(str_replace('/storage/', '', $gPhoto['url']), '/');
                                         $isCover = ($gPhoto['url'] === $property->primary_image || $thisPhotoClean === $currentPrimaryClean);
                                     @endphp
-                                    <div class="col-md-4 col-sm-6">
+                                    <div class="col-md-4 col-sm-6 admin-photo-card" data-card-cat="{{ $gPhoto['category'] ?? 'property_views' }}">
                                         <div class="p-2 bg-white rounded border h-100 position-relative d-flex flex-column gap-1.5 shadow-xs" style="border-color:{{ $isCover ? '#3b82f6' : '#e2e8f0' }} !important; {{ $isCover ? 'box-shadow: 0 0 0 1px #3b82f6;' : '' }}">
                                             <input type="hidden" name="existing_gallery[{{ $gIdx }}][url]" value="{{ $gPhoto['url'] }}">
                                             <div class="position-relative overflow-hidden rounded" style="height: 110px; background:#0f172a;">
@@ -445,7 +456,14 @@
 
                                             <div>
                                                 <label class="form-label mb-0.5" style="font-size:11px; font-weight:600; color:#475569;">Category:</label>
-                                                <select name="existing_gallery[{{ $gIdx }}][category]" class="form-select form-select-sm fw-semibold" style="font-size:11.5px; padding:3px 8px;">
+                                                <select name="existing_gallery[{{ $gIdx }}][category]" class="form-select form-select-sm fw-semibold" style="font-size:11.5px; padding:3px 8px;" onchange="this.closest('.admin-photo-card').setAttribute('data-card-cat', this.value);">
+                                                    <option value="property_views" @selected(($gPhoto['category'] ?? '') === 'property_views')>Property views (Exterior/Lobby)</option>
+                                                    <option value="facilities" @selected(($gPhoto['category'] ?? '') === 'facilities')>Facilities (Pool/Gym/Spa/Hall)</option>
+                                                    <option value="dining" @selected(($gPhoto['category'] ?? '') === 'dining')>Dining (Restaurant/Cafe/Buffet)</option>
+                                                    <option value="rooms" @selected(($gPhoto['category'] ?? '') === 'rooms')>Rooms &amp; Suites</option>
+                                                    <option value="other" @selected(($gPhoto['category'] ?? '') === 'other')>Other</option>
+                                                </select>
+                                            </div>
                                                     <option value="property_views" @selected(($gPhoto['category'] ?? '') === 'property_views')>Property views (Exterior/Lobby)</option>
                                                     <option value="facilities" @selected(($gPhoto['category'] ?? '') === 'facilities')>Facilities (Pool/Gym/Spa/Hall)</option>
                                                     <option value="dining" @selected(($gPhoto['category'] ?? '') === 'dining')>Dining (Restaurant/Cafe/Buffet)</option>
@@ -905,6 +923,23 @@ function previewUrl(url) {
     } else {
         wrap.style.display = 'none';
     }
+}
+
+function filterAdminGalleryCards(cat, btn) {
+    document.querySelectorAll('.admin-gal-filter-btn').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline-secondary');
+    });
+    btn.classList.remove('btn-outline-secondary');
+    btn.classList.add('btn-primary');
+
+    document.querySelectorAll('.admin-photo-card').forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-card-cat') === cat) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
+    });
 }
 
 function previewFile(input) {

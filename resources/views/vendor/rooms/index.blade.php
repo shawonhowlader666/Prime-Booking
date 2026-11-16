@@ -492,21 +492,49 @@
                             </select>
                         </div>
 
+                        {{-- Existing Room Photos Gallery Manager --}}
+                        @php
+                            $roomImgs = is_array($r->images) ? $r->images : (json_decode($r->images ?? '[]', true) ?: []);
+                        @endphp
+                        @if(!empty($roomImgs) && count($roomImgs) > 0)
+                        <div class="col-12">
+                            <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
+                                <i class="fa-solid fa-images text-primary" style="margin-right:6px;"></i> Current Room Photos ({{ count($roomImgs) }})
+                            </label>
+                            <div class="p-2.5 bg-light rounded border d-flex flex-wrap gap-2" style="max-height: 180px; overflow-y: auto;">
+                                @foreach($roomImgs as $pIdx => $pUrl)
+                                <div class="p-1.5 bg-white rounded border position-relative d-flex flex-column gap-1" style="width: 120px;">
+                                    <div class="rounded overflow-hidden" style="height: 70px; background:#000;">
+                                        <img src="{{ media_url($pUrl) }}" class="w-100 h-100" style="object-fit:cover;" alt="Room Photo" loading="lazy">
+                                    </div>
+                                    <div class="form-check form-check-sm mb-0">
+                                        <input class="form-check-input" type="checkbox" name="delete_images[]" value="{{ $pUrl }}" id="delVendorRoomImg_{{ $r->id }}_{{ $pIdx }}">
+                                        <label class="form-check-label text-danger fw-semibold" for="delVendorRoomImg_{{ $r->id }}_{{ $pIdx }}" style="font-size:10.5px; cursor:pointer;">
+                                            <i class="fa-solid fa-trash-can me-0.5"></i> Delete
+                                        </label>
+                                    </div>
+                                </div>
+                                @endforeach
+                            </div>
+                        </div>
+                        @endif
+
                         {{-- Room Photo Attachment --}}
                         @php
                             $currentImg = (!empty($r->images) && is_array($r->images)) ? $r->images[0] : '';
                         @endphp
                         <div class="col-12 col-md-6">
                             <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                <i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Cover Photo URL
+                                <i class="fa-solid fa-image" style="color:#64748b; margin-right:6px;"></i> Photo URLs (one per line)
                             </label>
-                            <input type="url" name="image_url" class="form-control form-control-sm" value="{{ $currentImg }}" placeholder="https://images.unsplash.com/photo-..." style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                            <textarea name="image_url" class="form-control form-control-sm" rows="2" placeholder="https://images.unsplash.com/photo-..." style="font-size:12px; border:1px solid #d9d9d9; border-radius:4px;"></textarea>
                         </div>
                         <div class="col-12 col-md-6">
                             <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
-                                <i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Upload New Photo
+                                <i class="fa-solid fa-cloud-arrow-up" style="color:#64748b; margin-right:6px;"></i> Upload New Photos (Multi-Upload)
                             </label>
-                            <input type="file" name="image_file" accept="image/*" class="form-control form-control-sm" style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                            <input type="file" name="image_files[]" multiple accept="image/*" class="form-control form-control-sm" style="height:36px; font-size:12.5px; border:1px solid #d9d9d9; border-radius:4px;">
+                            <small class="text-muted" style="font-size:10.5px;">Select single or multiple photos at once</small>
                         </div>
 
                         <div class="col-12 col-md-4">

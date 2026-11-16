@@ -248,6 +248,25 @@ class VendorController extends Controller
         $locations   = Location::orderBy('is_popular', 'desc')->orderBy('name')->get();
 
         $rawGallery = is_array($property->images) ? $property->images : (json_decode($property->images ?? '[]', true) ?: []);
+        
+        // Ensure primary / cover image is included in editable gallery
+        if (!empty($property->primary_image)) {
+            $hasPrimary = false;
+            foreach ($rawGallery as $imgItem) {
+                $u = is_array($imgItem) ? ($imgItem['url'] ?? '') : (string)$imgItem;
+                if ($u === $property->primary_image) {
+                    $hasPrimary = true;
+                    break;
+                }
+            }
+            if (!$hasPrimary) {
+                array_unshift($rawGallery, [
+                    'url' => $property->primary_image,
+                    'category' => 'property_views',
+                    'title' => $property->name . ' - Cover Photo'
+                ]);
+            }
+        }
         $structuredGallery = [];
         $urlStrings = [];
 

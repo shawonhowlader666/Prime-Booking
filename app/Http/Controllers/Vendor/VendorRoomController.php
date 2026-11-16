@@ -171,6 +171,11 @@ class VendorRoomController extends Controller
         $bathroomFeatures = (array) ($request->bathroom_features ?? ($room->bathroom_features ?? []));
 
         $roomImages = is_array($room->images) ? $room->images : [];
+
+        // Remove deleted images if selected
+        if ($request->has('delete_images') && is_array($request->delete_images)) {
+            $roomImages = array_values(array_filter($roomImages, fn($img) => !in_array($img, $request->delete_images)));
+        }
         if ($request->hasFile('image_files')) {
             foreach ($request->file('image_files') as $f) {
                 if ($f && $f->isValid()) {

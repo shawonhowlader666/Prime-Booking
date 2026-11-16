@@ -106,13 +106,21 @@ class VendorController extends Controller
         ]);
 
         $galleryImages = [];
+        $uploadCategory = $request->input('new_gallery_category', 'property_views');
+        if (!in_array($uploadCategory, ['property_views', 'facilities', 'dining', 'rooms', 'other'])) {
+            $uploadCategory = 'property_views';
+        }
 
-        // Support multiple gallery file uploads
+        // Support multiple gallery file uploads with categorization
         if ($request->hasFile('gallery_image_files')) {
             foreach ($request->file('gallery_image_files') as $file) {
                 if ($file && $file->isValid()) {
                     $path = $file->store('uploads/properties/gallery', 'public');
-                    $galleryImages[] = asset('storage/' . $path);
+                    $galleryImages[] = [
+                        'url'      => asset('storage/' . $path),
+                        'category' => $uploadCategory,
+                        'title'    => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory)),
+                    ];
                 }
             }
         }
@@ -123,7 +131,13 @@ class VendorController extends Controller
                 array_map('trim', explode("\n", $request->gallery_images)),
                 fn($line) => !empty($line) && filter_var($line, FILTER_VALIDATE_URL)
             );
-            $galleryImages = array_merge($galleryImages, $urls);
+            foreach ($urls as $u) {
+                $galleryImages[] = [
+                    'url'      => $u,
+                    'category' => $uploadCategory,
+                    'title'    => $request->name . ' - ' . ucfirst(str_replace('_', ' ', $uploadCategory)),
+                ];
+            }
         }
 
         // Handle file upload for primary image

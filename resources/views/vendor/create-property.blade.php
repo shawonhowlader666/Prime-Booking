@@ -316,6 +316,27 @@
                         </div>
                     </div>
                     
+                    {{-- Upload Category Selector for New Uploads --}}
+                    <div class="col-12 mb-1">
+                        <div class="p-2.5 bg-light rounded border d-flex flex-wrap align-items-center justify-content-between gap-2" style="border-color:#bfdbfe !important; background:#eff6ff !important;">
+                            <div>
+                                <label class="form-label fw-bold text-dark mb-0" style="font-size:12.5px;">
+                                    <i class="fa-solid fa-tag text-primary me-1"></i> Category for Gallery Photos Below:
+                                </label>
+                                <span class="d-block text-muted" style="font-size:11px;">Select the photo category (Pool, Dining, Views, Rooms, Facilities) to assign</span>
+                            </div>
+                            <div>
+                                <select name="new_gallery_category" class="form-select form-select-sm fw-bold border-primary" style="min-width:230px; font-size:12px;">
+                                    <option value="property_views" selected>Property views (Exterior, Lobby, Building)</option>
+                                    <option value="facilities">Facilities (Pool, Gym, Spa, Ballroom)</option>
+                                    <option value="dining">Dining (Restaurant, Cafe, Buffet, Kitchen)</option>
+                                    <option value="rooms">Rooms &amp; Suites</option>
+                                    <option value="other">Other / General</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Drag & Drop Multi-Image Dropzone for Gallery Photos --}}
                     <div class="col-12">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">

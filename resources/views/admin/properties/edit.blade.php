@@ -92,19 +92,25 @@
                                 + Add City
                             </button>
                         </div>
-                        <select name="city" id="adminEditPropCitySelect" class="form-select" required onchange="onAdminCityChanged(this)">
-                            @if(isset($locations) && $locations->count())
-                                @foreach($locations as $loc)
-                                    <option value="{{ $loc->name }}" 
-                                            data-lat="{{ $loc->latitude }}" 
-                                            data-lng="{{ $loc->longitude }}"
-                                            {{ old('city', $property->city) == $loc->name ? 'selected' : '' }}>
-                                        {{ $loc->name }} @if($loc->country && $loc->country != 'Bangladesh') ({{ $loc->country }}) @endif
-                                    </option>
-                                @endforeach
-                            @endif
-                            @if(!empty($property->city) && (!isset($locations) || !$locations->contains('name', $property->city)))
-                                <option value="{{ $property->city }}" selected>📍 {{ $property->city }}</option>
+                        @php
+                            $bdLocationGroups = app(\App\Services\Geo\BangladeshLocationService::class)->getGroupedDropdownOptions();
+                            $currentCity = old('city', $property->city);
+                        @endphp
+                        <select name="city" id="adminEditPropCitySelect" class="form-select fw-semibold" required onchange="onAdminCityChanged(this)">
+                            @foreach($bdLocationGroups as $groupName => $options)
+                                <optgroup label="{{ $groupName }}">
+                                    @foreach($options as $opt)
+                                        <option value="{{ $opt['value'] }}"
+                                                data-lat="{{ $opt['lat'] ?? '' }}"
+                                                data-lng="{{ $opt['lng'] ?? '' }}"
+                                                @selected($currentCity === $opt['value'])>
+                                            {{ $opt['label'] }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                            @if(!empty($currentCity))
+                                <option value="{{ $currentCity }}" selected style="display:none;">📍 {{ $currentCity }}</option>
                             @endif
                         </select>
                     </div>
@@ -868,7 +874,7 @@ function promptAdminEditCategory() {
 }
 
 function promptAdminEditCity() {
-    const select = document.getElementById('adminPropCitySelect');
+    const select = document.getElementById('adminEditPropCitySelect') || document.getElementById('adminPropCitySelect');
     const custom = prompt("Enter new Destination City or Region (e.g. Saint Martin Island, Kaptai Lake, Jaflong, Bangkok, Dubai):");
     if (custom && custom.trim() !== "") {
         const opt = document.createElement('option');

@@ -210,7 +210,12 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Destination City / Location <span style="color:#ff4d4f;">*</span></label>
-                            <input type="text" name="destination" class="form-control" placeholder="e.g. Sundarbans, Khulna" required style="font-size:13px; height:38px; border-radius:4px;">
+                            <input type="text" name="destination" list="bd_admin_pkg_locations_datalist" class="form-control" placeholder="e.g. Sundarbans, Khulna, Sajek, Cox's Bazar" required style="font-size:13px; height:38px; border-radius:4px;">
+                            <datalist id="bd_admin_pkg_locations_datalist">
+                                @foreach(app(\App\Services\Geo\BangladeshLocationService::class)->getFlatSearchableList() as $item)
+                                    <option value="{{ $item['name'] }}">{{ $item['display_name'] }}</option>
+                                @endforeach
+                            </datalist>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label" style="font-size:12px; font-weight:600; color:#1e293b; margin-bottom:6px;">Price Per Person (৳) <span style="color:#ff4d4f;">*</span></label>

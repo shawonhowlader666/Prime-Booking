@@ -78,4 +78,23 @@ class AutocompleteController extends Controller
 
         return response()->json(['success' => true]);
     }
+
+    /**
+     * Complete Bangladesh Geo Locations API.
+     * GET /api/geo/locations?q=sajek
+     * Returns 100% of Bangladesh 64 Districts, 280+ Upazilas, and Tourist Hotspots.
+     */
+    public function geoLocations(Request $request): JsonResponse
+    {
+        $q = trim((string) $request->input('q', ''));
+        $limit = min((int) $request->input('limit', 20), 100);
+        $geoService = app(\App\Services\Geo\BangladeshLocationService::class);
+        $results = $geoService->search($q, $limit);
+
+        return response()->json([
+            'success' => true,
+            'count'   => count($results),
+            'data'    => $results,
+        ]);
+    }
 }

@@ -39,7 +39,12 @@
 
                 <div class="col-md-6">
                     <label class="form-label fw-bold text-dark" style="font-size: 12.5px;">Destination City/Region <span class="text-danger">*</span></label>
-                    <input type="text" name="destination" class="form-control" placeholder="e.g. Cox's Bazar, Sylhet" required value="{{ old('destination', $package->destination) }}" style="border-radius: 4px; font-size: 13px; height: 38px;">
+                    <input type="text" name="destination" list="bd_vendor_pkg_edit_locations_datalist" class="form-control" placeholder="e.g. Cox's Bazar, Sylhet" required value="{{ old('destination', $package->destination) }}" style="border-radius: 4px; font-size: 13px; height: 38px;">
+                    <datalist id="bd_vendor_pkg_edit_locations_datalist">
+                        @foreach(app(\App\Services\Geo\BangladeshLocationService::class)->getFlatSearchableList() as $item)
+                            <option value="{{ $item['name'] }}">{{ $item['display_name'] }}</option>
+                        @endforeach
+                    </datalist>
                 </div>
 
                 <div class="col-md-3">

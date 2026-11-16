@@ -17,7 +17,12 @@
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Destination City / Area <span class="text-danger">*</span></label>
-                    <input type="text" name="destination" class="form-control" value="{{ old('destination', $package?->destination) }}" placeholder="e.g. Sundarbans, Khulna" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <input type="text" name="destination" list="bd_all_locations_datalist" class="form-control" value="{{ old('destination', $package?->destination) }}" placeholder="e.g. Sundarbans, Khulna, Sajek, Cox's Bazar" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <datalist id="bd_all_locations_datalist">
+                        @foreach(app(\App\Services\Geo\BangladeshLocationService::class)->getFlatSearchableList() as $item)
+                            <option value="{{ $item['name'] }}">{{ $item['display_name'] }}</option>
+                        @endforeach
+                    </datalist>
                 </div>
                 <div class="col-md-3">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Duration (Days) <span class="text-danger">*</span></label>

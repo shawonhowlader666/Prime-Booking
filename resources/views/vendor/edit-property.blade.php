@@ -86,19 +86,25 @@
                                 + Add City
                             </button>
                         </div>
-                        <select name="city" id="vendorEditPropCitySelect" class="form-select" onchange="onVendorCityChanged(this)">
-                            @if(isset($locations) && $locations->count())
-                                @foreach($locations as $loc)
-                                    <option value="{{ $loc->name }}" 
-                                            data-lat="{{ $loc->latitude }}" 
-                                            data-lng="{{ $loc->longitude }}"
-                                            {{ old('city', $property->city) == $loc->name ? 'selected' : '' }}>
-                                        {{ $loc->name }} @if($loc->country && $loc->country != 'Bangladesh') ({{ $loc->country }}) @endif
-                                    </option>
-                                @endforeach
-                            @endif
-                            @if(!empty($property->city) && (!isset($locations) || !$locations->contains('name', $property->city)))
-                                <option value="{{ $property->city }}" selected>{{ $property->city }}</option>
+                        @php
+                            $bdLocationGroups = app(\App\Services\Geo\BangladeshLocationService::class)->getGroupedDropdownOptions();
+                            $currentCity = old('city', $property->city);
+                        @endphp
+                        <select name="city" id="vendorEditPropCitySelect" class="form-select fw-semibold" onchange="onVendorCityChanged(this)">
+                            @foreach($bdLocationGroups as $groupName => $options)
+                                <optgroup label="{{ $groupName }}">
+                                    @foreach($options as $opt)
+                                        <option value="{{ $opt['value'] }}"
+                                                data-lat="{{ $opt['lat'] ?? '' }}"
+                                                data-lng="{{ $opt['lng'] ?? '' }}"
+                                                @selected($currentCity === $opt['value'])>
+                                            {{ $opt['label'] }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
+                            @if(!empty($currentCity))
+                                <option value="{{ $currentCity }}" selected style="display:none;">📍 {{ $currentCity }}</option>
                             @endif
                         </select>
                     </div>

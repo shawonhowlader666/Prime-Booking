@@ -171,6 +171,7 @@ Route::get('/googled74242121875ab00.html', function () {
 Route::middleware(['throttle:120,1'])->group(function () {
     Route::get('/api/search/autocomplete', [App\Http\Controllers\Web\AutocompleteController::class, 'search'])->name('search.autocomplete');
     Route::post('/api/search/log-query', [App\Http\Controllers\Web\AutocompleteController::class, 'logSelection'])->name('search.log.selection');
+    Route::get('/api/geo/locations', [App\Http\Controllers\Web\AutocompleteController::class, 'geoLocations'])->name('geo.locations');
 });
 
 // Dynamic XML Sitemap for Googlebot & Search Engine Indexing

@@ -1806,20 +1806,21 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (allLocations.length > 0) {
-            allLocations.slice(0, 6).forEach(loc => {
+            allLocations.slice(0, 8).forEach(loc => {
                 const cityName  = loc.city || loc.title || '';
                 const country   = loc.country || 'Bangladesh';
                 const locType   = loc.type || loc.loc_type || 'City';
                 const fullTitle = cityName + (country && !cityName.includes(country) ? ', ' + country : '');
                 const safeTitle = fullTitle.replace(/'/g, "\\'");
                 const highlightedFullTitle = highlightMatch(fullTitle, query);
+                const bnSpan = loc.bn_name ? `<span style="color:#64748b; font-size:12px; font-weight:400; margin-left:6px;">(${loc.bn_name})</span>` : '';
 
                 html += `
                     <div class="agoda-popover-item" onclick="selectDestination('${safeTitle}')" style="padding: 10px 22px; cursor: pointer; display: flex; align-items: center; gap: 16px; transition: background 0.12s ease;" onmouseover="this.style.background='#f5f8ff'" onmouseout="this.style.background='transparent'">
-                        <i class="fa-solid fa-location-dot" style="font-size: 16px; color: #2a2a2e; width: 22px; text-align: center; flex-shrink: 0;"></i>
+                        <i class="fa-solid fa-location-dot" style="font-size: 16px; color: #2067e1; width: 22px; text-align: center; flex-shrink: 0;"></i>
                         <div style="flex: 1; min-width: 0; text-align: left;">
-                            <div style="font-size: 14px; color: #2a2a2e; font-weight: 400; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-                                ${highlightedFullTitle}
+                            <div style="font-size: 14px; color: #2a2a2e; font-weight: 500; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                                ${highlightedFullTitle}${bnSpan}
                             </div>
                             <div style="color: #737373; font-size: 12px; font-weight: 400; margin-top: 1px;">${locType}</div>
                         </div>

@@ -79,22 +79,24 @@
                                 + Add New City/Area
                             </button>
                         </div>
-                        <select name="city" id="vendorCreatePropCitySelect" class="form-select form-select-sm" required style="font-size:13px; height:38px;" onchange="onVendorCityChanged(this)">
+                        @php
+                            $bdLocationGroups = app(\App\Services\Geo\BangladeshLocationService::class)->getGroupedDropdownOptions();
+                            $currentCity = old('city');
+                        @endphp
+                        <select name="city" id="vendorCreatePropCitySelect" class="form-select form-select-sm fw-semibold" required style="font-size:13px; height:38px;" onchange="onVendorCityChanged(this)">
                             <option value="">-- Select City / Destination --</option>
-                            @if(isset($locations) && $locations->count())
-                                @foreach($locations as $loc)
-                                    <option value="{{ $loc->name }}" 
-                                            data-lat="{{ $loc->latitude }}" 
-                                            data-lng="{{ $loc->longitude }}"
-                                            {{ old('city') == $loc->name ? 'selected' : '' }}>
-                                        {{ $loc->name }} @if($loc->country && $loc->country != 'Bangladesh') ({{ $loc->country }}) @endif
-                                    </option>
-                                @endforeach
-                            @else
-                                <option value="Cox's Bazar Sea Beach">Cox's Bazar Sea Beach</option>
-                                <option value="Dhaka City">Dhaka City</option>
-                                <option value="Sundarbans & Mongla">Sundarbans & Mongla</option>
-                            @endif
+                            @foreach($bdLocationGroups as $groupName => $options)
+                                <optgroup label="{{ $groupName }}">
+                                    @foreach($options as $opt)
+                                        <option value="{{ $opt['value'] }}"
+                                                data-lat="{{ $opt['lat'] ?? '' }}"
+                                                data-lng="{{ $opt['lng'] ?? '' }}"
+                                                @selected($currentCity === $opt['value'])>
+                                            {{ $opt['label'] }}
+                                        </option>
+                                    @endforeach
+                                </optgroup>
+                            @endforeach
                         </select>
                     </div>
                     <div class="col-md-6">

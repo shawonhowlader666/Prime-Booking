@@ -255,10 +255,35 @@ class AutoCompleteService
         $trendingCities = array_column($this->getTrending(10), 'city');
         $trendingIndex  = array_flip(array_map('strtolower', $trendingCities));
 
-        $results   = [];
+        $results    = [];
         $seenCities = [];
 
-        // Process DB locations
+        // 1. Authoritative Bangladesh Geo & Tourism Registry (64 Districts, Upazilas, Tourist Spots & Bengali matching)
+        try {
+            $geoService = app(\App\Services\Geo\BangladeshLocationService::class);
+            $geoMatches = $geoService->search($query, $limit);
+            foreach ($geoMatches as $gm) {
+                $cityName = $gm['name'];
+                $key = strtolower($cityName);
+                if (isset($seenCities[$key])) continue;
+                $seenCities[$key] = true;
+
+                $results[] = [
+                    'city'           => $cityName,
+                    'bn_name'        => $gm['bn_name'] ?? null,
+                    'country'        => $gm['country'] ?? 'Bangladesh',
+                    'type'           => $gm['type'] ?? 'City',
+                    'property_count' => Property::active()->where('city', $cityName)->count() ?: null,
+                    'lat'            => $gm['lat'],
+                    'lng'            => $gm['lng'],
+                    '_score'         => $gm['_score'] ?? 100,
+                ];
+            }
+        } catch (\Throwable) {
+            // Fallback gracefully to database query
+        }
+
+        // 2. DB locations (admin-managed hierarchy)
         foreach ($locationRows as $loc) {
             $cityName = $loc->name;
             $key      = strtolower($cityName);

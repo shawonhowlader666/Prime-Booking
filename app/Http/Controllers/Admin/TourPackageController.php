@@ -213,8 +213,18 @@ class TourPackageController extends Controller
 
     public function destroy(TourPackage $package)
     {
+        // Security Guard: Prevent deleting tour packages with active or upcoming traveler bookings
+        $hasActive = \App\Models\PackageBooking::where('package_id', $package->id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('travel_date', '>=', now()->toDateString())
+            ->exists();
+
+        if ($hasActive) {
+            return back()->with('error', "Cannot delete package \"{$package->title}\" because it has active or upcoming traveler reservations. Please fulfill or cancel reservations first.");
+        }
+
         $package->delete();
         Cache::forget('tour_packages_active');
-        return redirect()->route('admin.packages.index')->with('success', 'Tour Package deleted!');
+        return redirect()->route('admin.packages.index')->with('success', 'Tour Package deleted successfully!');
     }
 }

@@ -8,9 +8,14 @@
             <h1 class="page-title m-0"><i class="fa-solid fa-taxi text-primary me-2"></i>Airport Transfers &amp; Fleet Management</h1>
             <p class="text-muted small mb-0 mt-1">Manage standard airport transfer rates, vehicle fleet, and guest pickup requests</p>
         </div>
-        <button type="button" class="btn btn-primary btn-sm fw-bold shadow-xs px-3" data-bs-toggle="modal" data-bs-target="#addTransferModal">
-            <i class="fa-solid fa-plus me-1"></i> Add New Route
-        </button>
+        <div class="d-flex align-items-center gap-2">
+            <a href="{{ route('admin.transfers.bookings') }}" class="btn btn-outline-primary btn-sm fw-bold shadow-xs px-3">
+                <i class="fa-solid fa-list-check me-1"></i> View Passenger Bookings
+            </a>
+            <button type="button" class="btn btn-primary btn-sm fw-bold shadow-xs px-3" data-bs-toggle="modal" data-bs-target="#addTransferModal">
+                <i class="fa-solid fa-plus me-1"></i> Add New Route
+            </button>
+        </div>
     </div>
 </div>
 

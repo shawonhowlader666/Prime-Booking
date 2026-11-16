@@ -143,6 +143,17 @@ class VendorTourPackageController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $package = TourPackage::where('vendor_id', auth()->id())->findOrFail($id);
+
+        // Security Guard: Prevent deleting tour packages with active or upcoming traveler bookings
+        $hasActive = \App\Models\PackageBooking::where('package_id', $package->id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('travel_date', '>=', now()->toDateString())
+            ->exists();
+
+        if ($hasActive) {
+            return back()->with('error', "Cannot delete package \"{$package->title}\" because it has active or upcoming traveler reservations.");
+        }
+
         $package->delete();
 
         return redirect()->route('vendor.packages.index')->with('success', 'Package deleted successfully.');

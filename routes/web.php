@@ -768,6 +768,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
     // Dynamic Content Managers (Tour Packages, Deals, CMS, Amenities)
     Route::get('/packages', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'index'])->name('packages.index');
     Route::get('/packages/bookings', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'bookings'])->name('packages.bookings');
+    Route::post('/packages/bookings/{id}/status', [App\Http\Controllers\Admin\AdminTourPackageController::class, 'updateBookingStatus'])->name('packages.bookings.status');
     Route::get('/packages/create', [App\Http\Controllers\Admin\TourPackageController::class, 'create'])->name('packages.create');
     Route::post('/packages', [App\Http\Controllers\Admin\TourPackageController::class, 'store'])->name('packages.store');
     Route::get('/packages/{package}/edit', [App\Http\Controllers\Admin\TourPackageController::class, 'edit'])->name('packages.edit');
@@ -865,6 +866,8 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
 
     // Airport Transfers & Taxi Management
     Route::get('/transfers', [App\Http\Controllers\Admin\AdminTransferController::class, 'index'])->name('transfers.index');
+    Route::get('/transfers/bookings', [App\Http\Controllers\Admin\AdminTransferController::class, 'bookings'])->name('transfers.bookings');
+    Route::post('/transfers/bookings/{id}/status', [App\Http\Controllers\Admin\AdminTransferController::class, 'updateBookingStatus'])->name('transfers.bookings.status');
     Route::post('/transfers', [App\Http\Controllers\Admin\AdminTransferController::class, 'store'])->name('transfers.store');
     Route::put('/transfers/{id}', [App\Http\Controllers\Admin\AdminTransferController::class, 'update'])->name('transfers.update');
     Route::post('/transfers/{id}/toggle', [App\Http\Controllers\Admin\AdminTransferController::class, 'toggleStatus'])->name('transfers.toggle');

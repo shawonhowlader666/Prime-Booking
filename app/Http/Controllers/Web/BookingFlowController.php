@@ -524,17 +524,45 @@ class BookingFlowController extends Controller
     /** GET /my-bookings — User's booking history */
     public function myBookings()
     {
-        $userId = auth()->id();
-        if (!$userId) {
+        $user = auth()->user();
+        if (!$user) {
             return redirect()->route('login')->with('info', 'Please sign in to view your reservations.');
         }
 
-        $bookings = Booking::where('user_id', $userId)
+        $userId = $user->id;
+        $userEmail = strtolower(trim((string)$user->email));
+
+        $bookings = Booking::where(function($q) use ($userId, $userEmail) {
+                $q->where('user_id', $userId);
+                if (!empty($userEmail)) {
+                    $q->orWhereRaw('LOWER(guest_email) = ?', [$userEmail]);
+                }
+            })
             ->with(['property:id,name,city,primary_image,star_rating', 'room:id,name'])
             ->orderByDesc('created_at')
             ->paginate(10);
 
-        return view('pages.my-bookings', compact('bookings'));
+        $packageBookings = \App\Models\PackageBooking::where(function($q) use ($userId, $userEmail) {
+                $q->where('user_id', $userId);
+                if (!empty($userEmail)) {
+                    $q->orWhereRaw('LOWER(guest_email) = ?', [$userEmail]);
+                }
+            })
+            ->with('package')
+            ->latest()
+            ->get();
+
+        $transferBookings = \App\Models\TransferBooking::where(function($q) use ($userId, $userEmail) {
+                $q->where('user_id', $userId);
+                if (!empty($userEmail)) {
+                    $q->orWhereRaw('LOWER(passenger_email) = ?', [$userEmail]);
+                }
+            })
+            ->with('transfer')
+            ->latest()
+            ->get();
+
+        return view('pages.my-bookings', compact('bookings', 'packageBookings', 'transferBookings'));
     }
 
     /** POST /my-bookings/{reference}/cancel — Self-service booking cancellation */

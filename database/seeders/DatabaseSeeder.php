@@ -284,6 +284,7 @@ class DatabaseSeeder extends Seeder
 
         $this->call([
             BangladeshLocationSeeder::class,
+            TourPackageSeeder::class,
             ReviewSeeder::class,
         ]);
     }

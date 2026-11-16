@@ -7,6 +7,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\TourPackage;
 use App\Models\SystemMessage;
+use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 use Illuminate\Support\Facades\DB;
@@ -76,8 +77,35 @@ class AdminTourPackageController extends Controller
     public function destroy(int $id): RedirectResponse
     {
         $package = TourPackage::findOrFail($id);
+
+        // Security Guard: Prevent deleting tour packages with active or upcoming traveler bookings
+        $hasActive = \App\Models\PackageBooking::where('package_id', $package->id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('travel_date', '>=', now()->toDateString())
+            ->exists();
+
+        if ($hasActive) {
+            return back()->with('error', "Cannot delete package \"{$package->title}\" because it has active or upcoming traveler reservations.");
+        }
+
         $package->delete();
 
-        return redirect()->back()->with('success', 'Package removed from system.');
+        return redirect()->back()->with('success', 'Package removed from system successfully.');
+    }
+
+    /**
+     * Update status of a tour package booking reservation.
+     * POST /admin/packages/bookings/{id}/status
+     */
+    public function updateBookingStatus(Request $request, int $id): RedirectResponse
+    {
+        $validated = $request->validate([
+            'status' => 'required|in:confirmed,completed,cancelled',
+        ]);
+
+        $booking = \App\Models\PackageBooking::findOrFail($id);
+        $booking->update(['status' => $validated['status']]);
+
+        return back()->with('success', "Package reservation #{$booking->booking_reference} marked as " . strtoupper($validated['status']) . "!");
     }
 }

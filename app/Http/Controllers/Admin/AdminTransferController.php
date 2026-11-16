@@ -94,9 +94,38 @@ class AdminTransferController extends Controller
         return back()->with('success', 'Transfer status toggled successfully!');
     }
 
+    public function bookings()
+    {
+        $bookings = TransferBooking::with(['transfer', 'user'])->latest()->paginate(20);
+        return view('admin.transfers.bookings', compact('bookings'));
+    }
+
+    public function updateBookingStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:confirmed,completed,cancelled',
+        ]);
+
+        $booking = TransferBooking::findOrFail($id);
+        $booking->update(['status' => $request->status]);
+
+        return back()->with('success', "Transfer booking #{$booking->booking_reference} marked as " . strtoupper($request->status) . "!");
+    }
+
     public function destroy($id)
     {
         $transfer = AirportTransfer::findOrFail($id);
+
+        // Security Guard: Prevent deleting routes with active or upcoming passenger bookings
+        $hasActive = TransferBooking::where('transfer_id', $id)
+            ->whereIn('status', ['confirmed', 'pending'])
+            ->where('pickup_datetime', '>=', now())
+            ->exists();
+
+        if ($hasActive) {
+            return back()->with('error', "Cannot delete transfer route because it has active or upcoming passenger reservations. Please fulfill or reassign them first.");
+        }
+
         $transfer->delete();
 
         return back()->with('success', 'Transfer route deleted successfully!');

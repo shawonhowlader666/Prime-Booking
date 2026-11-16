@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Booking;
 use App\Models\ActivityLog;
+use App\Services\AccountingService;
+use App\Services\InventoryService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
@@ -152,10 +154,24 @@ class VendorDashboardController extends Controller
             'status' => 'required|string|in:pending,confirmed,completed,cancelled',
         ]);
 
-        $booking->update([
-            'status' => $validated['status'],
-            'booking_status' => $validated['status'],
-        ]);
+        $oldStatus = $booking->status;
+
+        DB::transaction(function () use ($booking, $validated, $oldStatus) {
+            $booking->update([
+                'status'         => $validated['status'],
+                'booking_status' => $validated['status'],
+            ]);
+
+            // Release room inventory when cancelled
+            if ($validated['status'] === 'cancelled' && $oldStatus !== 'cancelled') {
+                app(InventoryService::class)->releaseInventory($booking);
+                if (in_array($booking->payment_status, ['paid', 'completed'])) {
+                    AccountingService::recordRefundLedger($booking, null, 'Cancelled by Vendor');
+                }
+            } elseif (in_array($validated['status'], ['confirmed', 'completed']) && in_array($booking->payment_status, ['paid', 'completed'])) {
+                AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
+            }
+        });
 
         return back()->with('success', "Booking #{$reference} status updated to {$validated['status']}.");
     }
@@ -172,9 +188,20 @@ class VendorDashboardController extends Controller
             'payment_status' => 'required|string|in:paid,unpaid,pending,refunded,failed',
         ]);
 
-        $booking->update([
-            'payment_status' => $validated['payment_status'],
-        ]);
+        $oldPayment = $booking->payment_status;
+
+        DB::transaction(function () use ($booking, $validated, $oldPayment) {
+            $booking->update([
+                'payment_status' => $validated['payment_status'],
+            ]);
+
+            // Auto-sync accounting ledger
+            if ($validated['payment_status'] === 'paid' && $oldPayment !== 'paid') {
+                AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'cash');
+            } elseif ($validated['payment_status'] === 'refunded' && $oldPayment !== 'refunded') {
+                AccountingService::recordRefundLedger($booking, null, 'Payment refunded by vendor');
+            }
+        });
 
         return back()->with('success', "Booking #{$booking->booking_reference} payment marked as " . strtoupper($validated['payment_status']) . ".");
     }

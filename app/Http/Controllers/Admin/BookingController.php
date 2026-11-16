@@ -94,31 +94,34 @@ class BookingController extends Controller
         $booking = Booking::with('property')->findOrFail($id);
         $oldStatus = $booking->status;
         
-        // Synchronize both column aliases to prevent legacy view mismatches
-        $booking->update([
-            'booking_status' => $request->status,
-            'status'         => $request->status,
-        ]);
-
-        // Auto-sync accounting ledger
-        if (in_array($request->status, ['cancelled', 'refunded']) && !in_array($oldStatus, ['cancelled', 'refunded'])) {
-            \App\Services\AccountingService::recordRefundLedger($booking, null, 'Status updated to ' . $request->status);
-        } elseif (in_array($request->status, ['confirmed', 'completed']) && in_array($booking->payment_status, ['paid', 'completed'])) {
-            \App\Services\AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
-        }
-
-        // Activity audit log
-        try {
-            ActivityLog::create([
-                'user_id'     => auth()->id(),
-                'user_name'   => auth()->user()?->name ?? 'Admin',
-                'action'      => 'booking_status_changed',
-                'model_type'  => 'Booking',
-                'model_id'    => $booking->id,
-                'description' => "Booking #{$booking->booking_reference} status changed: {$oldStatus} → {$request->status}",
-                'ip_address'  => request()->ip(),
+        DB::transaction(function () use ($booking, $request, $oldStatus) {
+            // Synchronize both column aliases to prevent legacy view mismatches
+            $booking->update([
+                'booking_status' => $request->status,
+                'status'         => $request->status,
             ]);
-        } catch (\Exception $e) {}
+
+            // Release room inventory when cancelled or refunded
+            if (in_array($request->status, ['cancelled', 'refunded']) && !in_array($oldStatus, ['cancelled', 'refunded'])) {
+                app(\App\Services\InventoryService::class)->releaseInventory($booking);
+                \App\Services\AccountingService::recordRefundLedger($booking, null, 'Status updated to ' . $request->status);
+            } elseif (in_array($request->status, ['confirmed', 'completed']) && in_array($booking->payment_status, ['paid', 'completed'])) {
+                \App\Services\AccountingService::recordBookingLedger($booking, $booking->payment_method ?? 'bkash');
+            }
+
+            // Activity audit log
+            try {
+                ActivityLog::create([
+                    'user_id'     => auth()->id(),
+                    'user_name'   => auth()->user()?->name ?? 'Admin',
+                    'action'      => 'booking_status_changed',
+                    'model_type'  => 'Booking',
+                    'model_id'    => $booking->id,
+                    'description' => "Booking #{$booking->booking_reference} status changed: {$oldStatus} → {$request->status}",
+                    'ip_address'  => request()->ip(),
+                ]);
+            } catch (\Exception $e) {}
+        });
 
         return back()->with('success', 'Reservation status updated to ' . ucfirst($request->status) . ' and ledger synced successfully.');
     }

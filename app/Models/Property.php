@@ -862,7 +862,21 @@ class Property extends Model
         // 3. Property gallery images
         $rawImgs = is_array($this->images) ? $this->images : (json_decode($this->images ?? '[]', true) ?: []);
         if (!empty($this->primary_image)) {
-            array_unshift($rawImgs, $this->primary_image);
+            $hasPrimary = false;
+            foreach ($rawImgs as $imgItem) {
+                $u = is_array($imgItem) ? ($imgItem['url'] ?? '') : (string)$imgItem;
+                if ($u === $this->primary_image) {
+                    $hasPrimary = true;
+                    break;
+                }
+            }
+            if (!$hasPrimary) {
+                array_unshift($rawImgs, [
+                    'url' => $this->primary_image,
+                    'category' => 'property_views',
+                    'title' => $this->name . ' - Property Overview'
+                ]);
+            }
         }
 
         $genIdx = 0;

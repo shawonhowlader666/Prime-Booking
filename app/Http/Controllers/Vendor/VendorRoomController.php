@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Property;
 use App\Models\Room;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 /**
  * VendorRoomController — Manage room types for vendor's owned properties
@@ -95,28 +96,30 @@ class VendorRoomController extends Controller
             $roomImages = array_unique(array_merge($roomImages, $urls));
         }
 
-        Room::create([
-            'property_id'        => $property->id,
-            'name'               => $request->name,
-            'room_type'          => $request->room_type ?? 'deluxe',
-            'bed_type'           => $request->bed_type,
-            'view_type'          => $request->view_type ?? 'City Skyline View',
-            'bathroom_count'     => (int) ($request->bathroom_count ?? 1),
-            'bathroom_features'  => array_values($bathroomFeatures),
-            'smoking_policy'     => $request->smoking_policy ?? 'Non-Smoking',
-            'balcony_type'       => $request->balcony_type ?? 'Private Balcony',
-            'extra_bed_allowed'  => $request->boolean('extra_bed_allowed'),
-            'price_per_night'    => (float) $request->price_per_night,
-            'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : null,
-            'max_adults'         => (int) $request->max_adults,
-            'max_children'       => (int) ($request->max_children ?? 1),
-            'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? 1),
-            'total_rooms'        => (int) ($request->total_rooms ?? 10),
-            'breakfast_included' => $request->boolean('breakfast_included'),
-            'free_cancellation'  => $request->boolean('free_cancellation'),
-            'facilities'         => array_values($facilities),
-            'images'             => array_values($roomImages),
-        ]);
+        DB::transaction(function () use ($property, $request, $bathroomFeatures, $facilities, $roomImages) {
+            Room::create([
+                'property_id'        => $property->id,
+                'name'               => $request->name,
+                'room_type'          => $request->room_type ?? 'deluxe',
+                'bed_type'           => $request->bed_type,
+                'view_type'          => $request->view_type ?? 'City Skyline View',
+                'bathroom_count'     => (int) ($request->bathroom_count ?? 1),
+                'bathroom_features'  => array_values($bathroomFeatures),
+                'smoking_policy'     => $request->smoking_policy ?? 'Non-Smoking',
+                'balcony_type'       => $request->balcony_type ?? 'Private Balcony',
+                'extra_bed_allowed'  => $request->boolean('extra_bed_allowed'),
+                'price_per_night'    => (float) $request->price_per_night,
+                'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : null,
+                'max_adults'         => (int) $request->max_adults,
+                'max_children'       => (int) ($request->max_children ?? 1),
+                'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? 1),
+                'total_rooms'        => (int) ($request->total_rooms ?? 10),
+                'breakfast_included' => $request->boolean('breakfast_included'),
+                'free_cancellation'  => $request->boolean('free_cancellation'),
+                'facilities'         => array_values($facilities),
+                'images'             => array_values($roomImages),
+            ]);
+        });
 
         return redirect()
             ->route('vendor.rooms.index', $property->id)
@@ -185,27 +188,29 @@ class VendorRoomController extends Controller
             $roomImages = array_unique(array_merge($roomImages, $urls));
         }
 
-        $room->update([
-            'name'               => $request->name,
-            'room_type'          => $request->room_type ?? ($room->room_type ?? 'deluxe'),
-            'bed_type'           => $request->bed_type ?? $room->bed_type,
-            'view_type'          => $request->view_type ?? $room->view_type,
-            'bathroom_count'     => (int) ($request->bathroom_count ?? $room->bathroom_count),
-            'bathroom_features'  => array_values($bathroomFeatures),
-            'smoking_policy'     => $request->smoking_policy ?? $room->smoking_policy,
-            'balcony_type'       => $request->balcony_type ?? $room->balcony_type,
-            'extra_bed_allowed'  => $request->has('extra_bed_allowed') ? $request->boolean('extra_bed_allowed') : $room->extra_bed_allowed,
-            'price_per_night'    => (float) $request->price_per_night,
-            'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : $room->room_size_sqm,
-            'max_adults'         => (int) $request->max_adults,
-            'max_children'       => (int) ($request->max_children ?? $room->max_children),
-            'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? $room->max_children),
-            'total_rooms'        => (int) ($request->total_rooms ?? $room->total_rooms),
-            'breakfast_included' => $request->has('breakfast_included') ? $request->boolean('breakfast_included') : $room->breakfast_included,
-            'free_cancellation'  => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $room->free_cancellation,
-            'facilities'         => array_values($facilities) ?: ($room->facilities ?? []),
-            'images'             => $roomImages,
-        ]);
+        DB::transaction(function () use ($room, $request, $bathroomFeatures, $facilities, $roomImages) {
+            $room->update([
+                'name'               => $request->name,
+                'room_type'          => $request->room_type ?? ($room->room_type ?? 'deluxe'),
+                'bed_type'           => $request->bed_type ?? $room->bed_type,
+                'view_type'          => $request->view_type ?? $room->view_type,
+                'bathroom_count'     => (int) ($request->bathroom_count ?? $room->bathroom_count),
+                'bathroom_features'  => array_values($bathroomFeatures),
+                'smoking_policy'     => $request->smoking_policy ?? $room->smoking_policy,
+                'balcony_type'       => $request->balcony_type ?? $room->balcony_type,
+                'extra_bed_allowed'  => $request->has('extra_bed_allowed') ? $request->boolean('extra_bed_allowed') : $room->extra_bed_allowed,
+                'price_per_night'    => (float) $request->price_per_night,
+                'room_size_sqm'      => $request->room_size_sqm ? (int) $request->room_size_sqm : $room->room_size_sqm,
+                'max_adults'         => (int) $request->max_adults,
+                'max_children'       => (int) ($request->max_children ?? $room->max_children),
+                'max_guests'         => (int) $request->max_adults + (int) ($request->max_children ?? $room->max_children),
+                'total_rooms'        => (int) ($request->total_rooms ?? $room->total_rooms),
+                'breakfast_included' => $request->has('breakfast_included') ? $request->boolean('breakfast_included') : $room->breakfast_included,
+                'free_cancellation'  => $request->has('free_cancellation') ? $request->boolean('free_cancellation') : $room->free_cancellation,
+                'facilities'         => array_values($facilities) ?: ($room->facilities ?? []),
+                'images'             => $roomImages,
+            ]);
+        });
 
         return redirect()
             ->route('vendor.rooms.index', $property->id)

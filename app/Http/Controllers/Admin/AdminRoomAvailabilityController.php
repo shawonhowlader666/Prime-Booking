@@ -14,6 +14,7 @@ use App\Services\DynamicPricingService;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
 
 /**
  * Enterprise Extranet Room Availability & Multi-Month Calendar Matrix for Admin.
@@ -178,37 +179,39 @@ class AdminRoomAvailabilityController extends Controller
         $end   = Carbon::parse($validated['end_date']);
         $period = CarbonPeriod::create($start, $end);
 
-        foreach ($period as $dt) {
-            $dateStr = $dt->format('Y-m-d');
-            $record = RoomAvailability::firstOrNew([
-                'room_id' => $room->id,
-                'date'    => $dateStr,
-            ]);
+        DB::transaction(function () use ($period, $room, $validated) {
+            foreach ($period as $dt) {
+                $dateStr = $dt->format('Y-m-d');
+                $record = RoomAvailability::firstOrNew([
+                    'room_id' => $room->id,
+                    'date'    => $dateStr,
+                ]);
 
-            switch ($validated['action']) {
-                case 'block':
-                    $record->is_blocked = 1;
-                    $record->status = 'blocked';
-                    break;
-                case 'unblock':
-                    $record->is_blocked = 0;
-                    $record->status = 'available';
-                    break;
-                case 'set_price':
-                    if (isset($validated['price']) && (float)$validated['price'] > 0) {
-                        $record->price = (float) $validated['price'];
-                    }
-                    break;
-                case 'reset_price':
-                    $record->price = (float) $room->price_per_night;
-                    break;
+                switch ($validated['action']) {
+                    case 'block':
+                        $record->is_blocked = 1;
+                        $record->status = 'blocked';
+                        break;
+                    case 'unblock':
+                        $record->is_blocked = 0;
+                        $record->status = 'available';
+                        break;
+                    case 'set_price':
+                        if (isset($validated['price']) && (float)$validated['price'] > 0) {
+                            $record->price = (float) $validated['price'];
+                        }
+                        break;
+                    case 'reset_price':
+                        $record->price = (float) $room->price_per_night;
+                        break;
+                }
+
+                $record->save();
+
+                // Clear real-time cached availability
+                Cache::forget("room_avail_units_{$room->id}_{$dateStr}");
             }
-
-            $record->save();
-
-            // Clear real-time cached availability
-            Cache::forget("room_avail_units_{$room->id}_{$dateStr}");
-        }
+        });
 
         return back()->with('success', "Extranet room matrix updated successfully for {$period->count()} nights.");
     }

@@ -15,7 +15,7 @@ class EnsureDefaultUsersSeeder extends Seeder
             ['email' => 'admin@primebooking.com'],
             [
                 'name' => 'Super Admin',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'admin',
                 'status' => 'active',
             ]
@@ -25,7 +25,7 @@ class EnsureDefaultUsersSeeder extends Seeder
             ['email' => 'admin@primeavn.com'],
             [
                 'name' => 'Prime Admin',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'admin',
                 'status' => 'active',
             ]
@@ -36,7 +36,7 @@ class EnsureDefaultUsersSeeder extends Seeder
             ['email' => 'vendor@primebooking.com'],
             [
                 'name' => 'Hotel Vendor Partner',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'vendor',
                 'status' => 'active',
             ]
@@ -46,7 +46,7 @@ class EnsureDefaultUsersSeeder extends Seeder
             ['email' => 'vendor@primeavn.com'],
             [
                 'name' => 'Royal Tulip Manager',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'vendor',
                 'status' => 'active',
             ]
@@ -57,7 +57,7 @@ class EnsureDefaultUsersSeeder extends Seeder
             ['email' => 'user@primebooking.com'],
             [
                 'name' => 'Customer Demo User',
-                'password' => Hash::make('password123'),
+                'password' => Hash::make('password'),
                 'role' => 'customer',
                 'status' => 'active',
             ]

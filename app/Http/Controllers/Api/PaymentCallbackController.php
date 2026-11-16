@@ -53,10 +53,20 @@ class PaymentCallbackController extends Controller
             return response()->json(['success' => false, 'message' => "Booking reference {$reference} not found."], 404);
         }
 
-        if (in_array($status, ['success', 'completed', 'valid', 'paid', 'approved'])) {
+        // A callback body proves nothing by itself: anyone can POST "status=success".
+        // The payment must be confirmed with the gateway before any state changes.
+        $verification = $this->verifyWithGateway($request, $gateway, $booking);
+        if ($verification === null) {
+            Log::warning("Unverified payment callback rejected for {$booking->booking_reference}", ['gateway' => $gateway, 'ip' => $request->ip()]);
+            return response()->json(['success' => false, 'message' => 'Payment could not be verified with the gateway.'], 400);
+        }
+        $trxId = $verification['txn_id'] ?? $trxId;
+
+        if (in_array($status, ['success', 'completed', 'valid', 'validated', 'paid', 'approved'])) {
             return DB::transaction(function () use ($booking, $gateway, $trxId, $request) {
-                // 1. Idempotency Check: If already marked paid, return success without duplicate side-effects
-                if ($booking->payment_status === 'paid' && $booking->status === 'confirmed') {
+                // 1. Idempotency Check: lock the row so concurrent gateway retries apply side-effects once
+                $booking = Booking::whereKey($booking->id)->lockForUpdate()->with(['property', 'user', 'room'])->firstOrFail();
+                if ($booking->payment_status === 'paid') {
                     return response()->json([
                         'success' => true,
                         'message' => 'Booking already processed and confirmed.',
@@ -153,8 +163,42 @@ class PaymentCallbackController extends Controller
             });
         }
 
-        $booking->update(['payment_status' => 'failed']);
         return response()->json(['success' => false, 'message' => 'Payment transaction was not successful.'], 400);
+    }
+
+    /**
+     * Confirm the payment server-to-server with the gateway.
+     *
+     * @return array{txn_id:?string}|null null when the payment cannot be verified.
+     */
+    private function verifyWithGateway(Request $request, string $gateway, Booking $booking): ?array
+    {
+        $expected = round((float) ($booking->total_price ?? $booking->total_amount ?? 0), 2);
+
+        if ($gateway === 'sslcommerz') {
+            $data = app(\App\Services\Payment\SSLCommerzPaymentService::class)->fetchValidation((string) $request->input('val_id', ''));
+            if ($data
+                && \App\Services\Payment\SSLCommerzPaymentService::referenceFromTranId((string) ($data['tran_id'] ?? '')) === $booking->booking_reference
+                && abs((float) ($data['currency_amount'] ?? $data['amount'] ?? 0) - $expected) <= 1.0) {
+                return ['txn_id' => (string) ($data['bank_tran_id'] ?? $data['tran_id'])];
+            }
+        }
+
+        if ($gateway === 'bkash' && $request->filled('paymentID')) {
+            $result = app(\App\Services\Payment\BkashPaymentService::class)->queryPayment((string) $request->input('paymentID'));
+            if (($result['status'] ?? '') === 'Completed'
+                && ($result['invoice'] ?? null) === $booking->booking_reference
+                && abs((float) ($result['amount'] ?? 0) - $expected) <= 1.0) {
+                return ['txn_id' => $result['trxID'] ?? null];
+            }
+        }
+
+        // Local development and automated tests may post simulated callbacks. Never in production.
+        if (\App\Services\Booking\BookingLifecycleService::simulationAllowed()) {
+            return ['txn_id' => null];
+        }
+
+        return null;
     }
 }
 

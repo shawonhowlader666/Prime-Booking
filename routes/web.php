@@ -67,24 +67,6 @@ Route::get('/api/health', function () {
     ], ($dbOk && $cacheOk) ? 200 : 503);
 })->name('api.health');
 
-// Dynamic SEO XML Sitemap for Googlebot & Search Engines
-Route::get('/sitemap.xml', function () {
-    $properties = \App\Models\Property::active()->select('id', 'slug', 'updated_at')->get();
-    $packages   = \App\Models\TourPackage::where('status', 'active')->select('slug', 'updated_at')->get();
-    $destinations = [
-        'coxs-bazar'   => "Cox's Bazar",
-        'dhaka'        => "Dhaka",
-        'sylhet'       => "Sylhet",
-        'sajek'        => "Sajek",
-        'chittagong'   => "Chittagong",
-        'sreemangal'   => "Sreemangal",
-        'kuakata'      => "Kuakata",
-        'bandarban'    => "Bandarban",
-        'saint-martin' => "Saint Martin",
-    ];
-    return response()->view('sitemap', compact('properties', 'packages', 'destinations'))->header('Content-Type', 'text/xml');
-})->name('sitemap');
-
 // Official Google Hotel Center XML Feed (Google Travel Free Booking Links)
 Route::get('/feeds/google-hotels.xml', function () {
     $properties = \App\Models\Property::active()
@@ -99,8 +81,8 @@ Route::get('/primebooking2026indexnow.txt', function () {
 });
 
 // Automated Instant Search Engine Ping API
-Route::get('/api/seo/ping-indexnow', function () {
-    $apiKey = 'primebooking2026indexnow';
+Route::post('/api/seo/ping-indexnow', function () {
+    $apiKey = (string) config('services.indexnow.key');
     $host = 'primebooking.com.bd';
     
     $urlList = [
@@ -119,9 +101,8 @@ Route::get('/api/seo/ping-indexnow', function () {
         'https://primebooking.com.bd/hotels-in-saint-martin',
     ];
 
-    $properties = \App\Models\Property::active()->select('id')->get();
-    foreach ($properties as $prop) {
-        $urlList[] = "https://primebooking.com.bd/hotels/{$prop->id}";
+    foreach (\App\Models\Property::active()->latest('updated_at')->limit(9000)->pluck('id') as $propId) {
+        $urlList[] = "https://primebooking.com.bd/hotels/{$propId}";
     }
 
     $payload = [
@@ -145,7 +126,7 @@ Route::get('/api/seo/ping-indexnow', function () {
         'urls_count' => count($payload['urlList']),
         'timestamp' => now()->toIso8601String(),
     ]);
-})->name('seo.ping.indexnow');
+})->middleware(['auth', 'role:admin,super_admin', 'throttle:6,60'])->name('seo.ping.indexnow');
 
 // Public Front-end Routes
 Route::get('/', [PageController::class, 'index'])->name('home');
@@ -252,7 +233,6 @@ Route::get('/pointsmax', [PageController::class, 'pointsmax'])->name('pointsmax'
 Route::get('/vip', [PageController::class, 'vip'])->name('vip');
 Route::get('/homes', [PageController::class, 'homes'])->name('homes');
 Route::get('/services', [PageController::class, 'services'])->name('services');
-Route::get('/subscriptions', fn() => view('pages.subscriptions'))->name('subscriptions');
 
 // Travel Stories & Blog CMS Public Routes
 Route::get('/blog', [\App\Http\Controllers\Web\BlogController::class, 'index'])->name('blog.index');
@@ -278,38 +258,32 @@ Route::get('/transfers/voucher/{reference}', [App\Http\Controllers\Web\TransferB
 Route::post('/inquiry', [InquiryController::class, 'store'])->middleware('throttle:10,1')->name('inquiry.store');
 Route::post('/inquiries/store', [InquiryController::class, 'store'])->middleware('throttle:10,1')->name('inquiries.store');
 
-Route::get('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->middleware('throttle:10,1')->name('password.request');
-Route::post('/forgot-password', [App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->middleware('throttle:5,1')->name('password.email');
-Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->name('booking.form');
-Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->middleware('throttle:30,1')->name('booking.store');
-Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('booking.confirmation');
-Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher');
-Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->name('booking.voucher.download');
-Route::get('/booking/invoice/{reference}', [BookingFlowController::class, 'downloadInvoice'])->name('booking.invoice');
-Route::get('/booking/invoice/{reference}/download', [BookingFlowController::class, 'downloadInvoice'])->name('booking.invoice.download');
+Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->whereNumber('propertyId')->middleware('throttle:60,1')->name('booking.form');
+Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->whereNumber('propertyId')->middleware('throttle:20,1')->name('booking.store');
+Route::post('/api/checkout/quote', [BookingFlowController::class, 'quote'])->middleware('throttle:90,1')->name('checkout.quote');
+Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->middleware('throttle:40,1')->name('booking.confirmation');
+Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'downloadVoucher'])->middleware('throttle:40,1')->name('booking.voucher');
+Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->middleware('throttle:40,1')->name('booking.voucher.download');
+Route::get('/booking/invoice/{reference}', [BookingFlowController::class, 'downloadInvoice'])->middleware('throttle:40,1')->name('booking.invoice');
+Route::get('/booking/invoice/{reference}/download', [BookingFlowController::class, 'downloadInvoice'])->middleware('throttle:40,1')->name('booking.invoice.download');
 Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('booking.history');
-Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->name('booking.cancel');
+Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->middleware('throttle:10,1')->name('booking.cancel');
 Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->middleware('throttle:60,1')->name('coupon.validate');
 
-// Legacy WooCommerce / WordPress Product URL Auto-Redirect to Prime Booking Checkout
-Route::any('/product/{slug?}', function (\Illuminate\Http\Request $request, $slug = null) {
-    $roomId = $request->query('room_id');
-    $propertyId = $request->query('property_id');
+// Legacy WooCommerce / WordPress product URLs: forward to checkout when the target is known.
+Route::get('/product/{slug?}', function (\Illuminate\Http\Request $request, $slug = null) {
+    $roomId     = (int) $request->query('room_id');
+    $propertyId = (int) $request->query('property_id');
 
     if (!$propertyId && $roomId) {
-        $room = \App\Models\Room::find($roomId);
-        if ($room) {
-            $propertyId = $room->property_id;
-        }
+        $propertyId = (int) \App\Models\Room::whereKey($roomId)->value('property_id');
     }
 
     if (!$propertyId) {
-        $firstProp = \App\Models\Property::first();
-        $propertyId = $firstProp ? $firstProp->id : 1;
+        return redirect()->route('hotels.index', [], 301);
     }
 
-    $queryParams = $request->query();
-    return redirect()->route('booking.form', array_merge(['propertyId' => $propertyId], $queryParams));
+    return redirect()->route('booking.form', ['propertyId' => $propertyId] + $request->only(['room_id', 'check_in', 'check_out', 'guests', 'rooms']));
 })->where('slug', '.*');
 
 // Public High-Speed VIP & Rewards Loyalty API Endpoints (Agoda Enterprise API Parity)
@@ -374,14 +348,20 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
 
     // ── Real-time Room Availability Check ──────────────────────────────────
     Route::get('/property/{id}/check-availability', function (\Illuminate\Http\Request $request, $id, \App\Services\InventoryService $inventoryService) {
-        $property = \App\Models\Property::with('rooms')->find($id);
+        $request->validate([
+            'check_in'  => 'nullable|date',
+            'check_out' => 'nullable|date',
+            'rooms'     => 'nullable|integer|min:1|max:10',
+        ]);
+
+        $property = \App\Models\Property::active()->with(['rooms' => fn ($q) => $q->where('status', 'active')])->find($id);
         if (!$property) {
             return response()->json(['success' => false, 'message' => 'Property not found'], 404);
         }
 
-        $checkIn  = $request->query('check_in', now()->format('Y-m-d'));
-        $checkOut = $request->query('check_out', now()->addDay()->format('Y-m-d'));
-        $roomsReq = (int) $request->query('rooms', 1);
+        $checkIn  = \Carbon\Carbon::parse($request->query('check_in', now()->format('Y-m-d')))->toDateString();
+        $checkOut = \Carbon\Carbon::parse($request->query('check_out', now()->addDay()->format('Y-m-d')))->toDateString();
+        $roomsReq = max(1, (int) $request->query('rooms', 1));
 
         $availableRooms = [];
         foreach ($property->rooms as $room) {
@@ -396,7 +376,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             ];
         }
 
-        $hasAnyAvailable = empty($availableRooms) ? true : collect($availableRooms)->contains('is_available', true);
+        $hasAnyAvailable = collect($availableRooms)->contains('is_available', true);
 
         return response()->json([
             'success'            => true,
@@ -406,107 +386,117 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'is_available'       => $hasAnyAvailable,
             'rooms_availability' => $availableRooms,
         ]);
-    })->name('property.check-availability');
+    })->middleware('throttle:60,1')->name('property.check-availability');
 
-    // ── Dynamic Booking Price Preview ──────────────────────────────────────
-    Route::post('/booking/price-preview', function (\Illuminate\Http\Request $request) {
-        $propertyId = (int) $request->input('property_id');
-        $roomId     = $request->input('room_id') ? (int) $request->input('room_id') : null;
-        $checkIn    = $request->input('check_in', now()->format('Y-m-d'));
-        $checkOut   = $request->input('check_out', now()->addDay()->format('Y-m-d'));
-        $couponCode = trim((string) $request->input('coupon_code', ''));
+    // ── Dynamic Booking Price Preview (the same calculator the checkout charges with) ──
+    Route::post('/booking/price-preview', function (\Illuminate\Http\Request $request, \App\Services\Booking\BookingPriceCalculator $calculator) {
+        $data = $request->validate([
+            'property_id' => 'required|integer',
+            'room_id'     => 'nullable|integer',
+            'check_in'    => 'nullable|date',
+            'check_out'   => 'nullable|date',
+            'rooms'       => 'nullable|integer|min:1|max:10',
+            'guests'      => 'nullable|integer|min:1|max:40',
+            'coupon_code' => 'nullable|string|max:50',
+        ]);
 
-        $property = \App\Models\Property::find($propertyId);
+        $property = \App\Models\Property::active()->find($data['property_id']);
         if (!$property) {
             return response()->json(['success' => false, 'message' => 'Property not found'], 404);
         }
 
-        $pricePerNight = (float) $property->price_per_night;
-        if ($roomId) {
-            $room = \App\Models\Room::find($roomId);
-            if ($room && $room->price_per_night > 0) {
-                $pricePerNight = (float) $room->price_per_night;
-            }
+        $room = !empty($data['room_id'])
+            ? \App\Models\Room::where('property_id', $property->id)->find($data['room_id'])
+            : null;
+
+        $checkIn  = \Carbon\Carbon::parse($data['check_in'] ?? now()->toDateString())->startOfDay();
+        $checkOut = \Carbon\Carbon::parse($data['check_out'] ?? $checkIn->copy()->addDay()->toDateString())->startOfDay();
+        if ($checkOut->lte($checkIn)) {
+            $checkOut = $checkIn->copy()->addDay();
         }
 
-        $start = \Carbon\Carbon::parse($checkIn);
-        $end   = \Carbon\Carbon::parse($checkOut);
-        $nights = max(1, (int) $start->diffInDays($end));
-
-        $subtotal = $pricePerNight * $nights;
-        $discount = 0;
-        $discountMsg = '';
-
-        if (!empty($couponCode)) {
-            $coupon = \App\Models\Coupon::where('code', $couponCode)->where('is_active', 1)->first();
-            if ($coupon) {
-                if ($coupon->type === 'percent') {
-                    $discount = ($subtotal * $coupon->value) / 100;
-                } else {
-                    $discount = min($subtotal, (float) $coupon->value);
-                }
-                $discountMsg = "Coupon {$couponCode} applied (-৳" . number_format($discount) . ")";
-            }
-        }
-
-        $serviceFee = round($subtotal * 0.05); // 5% platform fee
-        $total = max(0, ($subtotal - $discount) + $serviceFee);
+        $quote = $calculator->quote(
+            $property,
+            $room,
+            $checkIn->toDateString(),
+            $checkOut->toDateString(),
+            (int) ($data['rooms'] ?? 1),
+            (int) ($data['guests'] ?? 1),
+            $data['coupon_code'] ?? null,
+            $request->user()
+        );
 
         return response()->json([
             'success'         => true,
-            'nights'          => $nights,
-            'price_per_night' => $pricePerNight,
-            'subtotal'        => $subtotal,
-            'discount'        => $discount,
-            'discount_msg'    => $discountMsg,
-            'service_fee'     => $serviceFee,
-            'total'           => $total,
-            'formatted_total' => '৳' . number_format($total),
+            'nights'          => $quote['nights'],
+            'price_per_night' => $quote['price_per_night'],
+            'subtotal'        => $quote['subtotal'],
+            'discount'        => $quote['discount_total'],
+            'discount_msg'    => $quote['coupon']['valid']
+                ? "Coupon {$quote['coupon']['code']} applied (-৳" . number_format($quote['coupon']['discount']) . ')'
+                : (string) ($quote['coupon']['message'] ?? ''),
+            'tax_amount'      => $quote['tax_amount'],
+            'service_fee'     => $quote['tax_amount'],
+            'total'           => $quote['total'],
+            'formatted_total' => '৳' . number_format($quote['total']),
         ]);
-    })->name('booking.price-preview');
+    })->middleware('throttle:90,1')->name('booking.price-preview');
 
-    // ── Monthly Room Availability Calendar Feed ───────────────────────────
-    Route::get('/property/{id}/availability-calendar', function (\Illuminate\Http\Request $request, $id) {
-        $property = \App\Models\Property::with('rooms')->find($id);
+    // ── Monthly Room Availability Calendar Feed (real inventory and rates) ──
+    Route::get('/property/{id}/availability-calendar', function (\Illuminate\Http\Request $request, $id, \App\Services\InventoryService $inventory) {
+        $property = \App\Models\Property::active()->with(['rooms' => fn ($q) => $q->where('status', 'active')])->find($id);
         if (!$property) {
             return response()->json(['success' => false, 'message' => 'Property not found'], 404);
         }
 
-        $monthStr = $request->query('month', now()->format('Y-m'));
         try {
-            $startDate = \Carbon\Carbon::parse($monthStr . '-01')->startOfMonth();
-            $endDate   = $startDate->copy()->endOfMonth();
+            $startDate = \Carbon\Carbon::createFromFormat('Y-m-d', $request->query('month', now()->format('Y-m')) . '-01')->startOfDay();
         } catch (\Throwable $e) {
             $startDate = now()->startOfMonth();
-            $endDate   = now()->endOfMonth();
+        }
+        $endDate = $startDate->copy()->addMonth();
+
+        $roomId = (int) $request->query('room_id');
+        $rooms  = $roomId ? $property->rooms->where('id', $roomId) : $property->rooms;
+
+        $free  = [];
+        $price = [];
+        foreach ($rooms as $room) {
+            foreach ($inventory->nightlyAvailability($room, $startDate, $endDate) as $date => $units) {
+                $free[$date] = ($free[$date] ?? 0) + $units;
+                if ($units > 0) {
+                    $price[$date] = min($price[$date] ?? PHP_FLOAT_MAX, (float) $room->price_per_night);
+                }
+            }
         }
 
+        $today = now()->startOfDay();
         $calendarDays = [];
-        $period = \Carbon\CarbonPeriod::create($startDate, $endDate);
-        $basePrice = (float)$property->price_per_night;
-
-        foreach ($period as $day) {
+        foreach (\Carbon\CarbonPeriod::create($startDate, $endDate->copy()->subDay()) as $day) {
             $dayStr = $day->format('Y-m-d');
-            $isPast = $day->isPast() && !$day->isToday();
+            $isPast = $day->lt($today);
+            $units  = $free[$dayStr] ?? 0;
+            $rate   = $price[$dayStr] ?? (float) $property->price_per_night;
 
             $calendarDays[$dayStr] = [
                 'date'         => $dayStr,
-                'day'          => (int)$day->format('j'),
+                'day'          => (int) $day->format('j'),
                 'day_name'     => $day->format('D'),
                 'is_past'      => $isPast,
-                'is_available' => !$isPast,
-                'price'        => $basePrice,
-                'formatted'    => '৳' . number_format($basePrice),
+                'is_available' => !$isPast && $units > 0,
+                'rooms_left'   => $isPast ? 0 : $units,
+                'price'        => $rate,
+                'formatted'    => '৳' . number_format($rate),
             ];
         }
 
         return response()->json([
             'success'     => true,
-            'property_id' => (int)$id,
+            'property_id' => (int) $id,
             'month'       => $startDate->format('F Y'),
             'calendar'    => $calendarDays,
         ]);
-    })->name('property.availability-calendar');
+    })->middleware('throttle:60,1')->name('property.availability-calendar');
 
     // ── Real-Time Hotel Price Drop Alert Subscription ──────────────────────
     Route::post('/price-alert/subscribe', function (\Illuminate\Http\Request $request) {
@@ -538,7 +528,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'message' => "🔔 Price alert created! We'll notify {$email} as soon as the rate for {$property->name} drops.",
             'alert'   => $alert,
         ]);
-    })->name('price-alert.subscribe');
+    })->middleware('throttle:10,1')->name('price-alert.subscribe');
 
     // ── Real-Time Multi-Currency Rates & Active Symbols ───────────────────
     Route::get('/currency/rates', function () {
@@ -579,17 +569,25 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'helpful_count'   => $review->fresh()->helpful_count,
             'unhelpful_count' => $review->fresh()->unhelpful_count,
         ]);
-    })->name('reviews.vote');
+    })->middleware('throttle:20,1')->name('reviews.vote');
 });
 
-// Payment Gateway Routes (bKash & SSLCommerz Sandbox/Live - Rate-Limited)
+// Payment Gateway Routes (bKash & SSLCommerz)
 Route::middleware(['throttle:60,1'])->group(function () {
+    Route::get('/payment/pending/{reference}', [PaymentCallbackController::class, 'pending'])->name('payment.pending');
+
     Route::get('/payment/bkash/sandbox/{reference}', [PaymentCallbackController::class, 'bkashSandboxRedirect'])->name('payment.bkash.sandbox-redirect');
     Route::post('/payment/bkash/sandbox-execute/{reference}', [PaymentCallbackController::class, 'bkashSandboxExecute'])->name('payment.bkash.sandbox-execute');
     Route::match(['get', 'post'], '/payment/bkash/callback', [PaymentCallbackController::class, 'bkashCallback'])->name('payment.bkash.callback');
 
     Route::get('/payment/ssl/sandbox/{reference}', [PaymentCallbackController::class, 'sslSandboxRedirect'])->name('payment.ssl.sandbox-redirect');
     Route::post('/payment/ssl/sandbox-execute/{reference}', [PaymentCallbackController::class, 'sslSandboxExecute'])->name('payment.ssl.sandbox-execute');
+});
+
+// SSLCommerz posts back from its own domain, so the browser does not send our session
+// cookie. Running these without the web (session / cookie / CSRF) stack keeps the guest's
+// existing login intact; they are handed over with a signed URL instead.
+Route::middleware(['throttle:120,1'])->withoutMiddleware('web')->group(function () {
     Route::post('/payment/ssl/success', [PaymentCallbackController::class, 'sslSuccess'])->name('payment.ssl.success');
     Route::post('/payment/ssl/fail', [PaymentCallbackController::class, 'sslFail'])->name('payment.ssl.fail');
     Route::post('/payment/ssl/cancel', [PaymentCallbackController::class, 'sslCancel'])->name('payment.ssl.cancel');
@@ -858,12 +856,6 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
     Route::get('/email-templates/{id}/preview',      [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'preview'])->name('email-templates.preview');
     Route::patch('/email-templates/{id}/toggle',     [\App\Http\Controllers\Admin\Settings\AdminEmailTemplateController::class, 'toggle'])->name('email-templates.toggle');
 
-    Route::get('/tenants', [TenantManagementController::class, 'index'])->name('tenants.index');
-    Route::post('/tenants', [TenantManagementController::class, 'store'])->name('tenants.store');
-    Route::put('/tenants/{id}', [TenantManagementController::class, 'update'])->name('tenants.update');
-    Route::post('/tenants/{id}/toggle', [TenantManagementController::class, 'toggleStatus'])->name('tenants.toggle');
-    Route::delete('/tenants/{id}', [TenantManagementController::class, 'destroy'])->name('tenants.destroy');
-
     // Airport Transfers & Taxi Management
     Route::get('/transfers', [App\Http\Controllers\Admin\AdminTransferController::class, 'index'])->name('transfers.index');
     Route::get('/transfers/bookings', [App\Http\Controllers\Admin\AdminTransferController::class, 'bookings'])->name('transfers.bookings');
@@ -988,19 +980,33 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     // ── Channel Manager iCal Calendar Sync (.ics) ───────────────
     Route::get('/rooms/{roomId}/calendar.ics', function ($roomId, \App\Services\ICalSyncService $iCalService) {
         $room = \App\Models\Room::with('property')->findOrFail($roomId);
-        $icsContent = $iCalService->generateIcsForRoom($room);
-        return response($icsContent, 200, [
+        abort_unless(auth()->user()->isAdmin() || (int) $room->property?->vendor_id === (int) auth()->id(), 403);
+
+        return response($iCalService->generateIcsForRoom($room), 200, [
             'Content-Type'        => 'text/calendar; charset=utf-8',
             'Content-Disposition' => 'attachment; filename="room-' . $room->id . '-calendar.ics"',
         ]);
-    })->name('rooms.ical.export');
+    })->whereNumber('roomId')->name('rooms.ical.export');
 
     Route::post('/rooms/{roomId}/ical-import', function (\Illuminate\Http\Request $request, $roomId, \App\Services\ICalSyncService $iCalService) {
-        $request->validate(['ics_url' => 'required|url']);
-        $room = \App\Models\Room::findOrFail($roomId);
+        $request->validate(['ics_url' => 'required|url:https|max:500']);
+
+        $room = \App\Models\Room::with('property')->findOrFail($roomId);
+        abort_unless(auth()->user()->isAdmin() || (int) $room->property?->vendor_id === (int) auth()->id(), 403);
+
+        // Server-side fetch of a user-supplied URL: only public internet hosts are allowed.
+        $host = (string) parse_url($request->ics_url, PHP_URL_HOST);
+        $ips  = filter_var($host, FILTER_VALIDATE_IP) ? [$host] : (gethostbynamel($host) ?: []);
+        $isPublic = $ips !== [] && collect($ips)->every(
+            fn ($ip) => filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE) !== false
+        );
+        if (!$isPublic) {
+            return back()->with('error', 'That calendar address cannot be used. Please provide a public https:// iCal link.');
+        }
+
         $result = $iCalService->importExternalIcs($room, $request->ics_url);
         return back()->with($result['success'] ? 'success' : 'error', $result['message']);
-    })->name('rooms.ical.import');
+    })->whereNumber('roomId')->middleware('throttle:10,1')->name('rooms.ical.import');
 
     // ── Promotions ─────────────────────────────────────────────
     Route::get('/promotions',                 [VendorPromotionController::class, 'index'])->name('promotions.index');
@@ -1056,7 +1062,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
 
 // Agoda 1:1 Booking & Checkout Flow Routes
 Route::get('/checkout', [BookingFlowController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/process', [BookingFlowController::class, 'process'])->name('checkout.process');
+Route::post('/checkout/process', [BookingFlowController::class, 'process'])->middleware('throttle:20,1')->name('checkout.process');
 Route::get('/checkout/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::get('/trips', [PageController::class, 'trips'])->name('trips');
@@ -1152,8 +1158,6 @@ Route::get('/admin', function () {
 Route::get('/vendor/login', [OAuthController::class, 'showVendorLogin'])->name('vendor.login');
 Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('vendor.login.post')->middleware('throttle:5,1');
 
-// Form Actions
-Route::post('/inquiry', [InquiryController::class, 'store'])->name('inquiry.store')->middleware('throttle:3,1');
 
 // ── Universal Storage Fallback & Media Streamer (Strict Anti-Traversal) ────
 Route::get('/storage/{path}', function (string $path) {

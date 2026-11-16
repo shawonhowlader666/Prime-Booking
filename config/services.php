@@ -60,9 +60,31 @@ return [
     ],
 
     'sslcommerz' => [
-        'store_id'       => env('SSLCZ_STORE_ID', 'primeaviationeqrlive'),
-        'store_password' => env('SSLCZ_STORE_PASSWORD', '660CF322B614F49464'),
-        'is_sandbox'     => env('SSLCZ_IS_SANDBOX', false),
+        'store_id'       => env('SSLCZ_STORE_ID'),
+        'store_password' => env('SSLCZ_STORE_PASSWORD'),
+        'is_sandbox'     => env('SSLCZ_IS_SANDBOX', true),
+    ],
+
+    'bkash' => [
+        'app_key'    => env('BKASH_APP_KEY'),
+        'app_secret' => env('BKASH_APP_SECRET'),
+        'username'   => env('BKASH_USERNAME'),
+        'password'   => env('BKASH_PASSWORD'),
+    ],
+
+    'sms' => [
+        'api_key'   => env('SMS_API_KEY', ''),
+        'sender_id' => env('SMS_SENDER_ID', 'PrimeBooking'),
+        'api_url'   => env('SMS_API_URL', ''),
+    ],
+
+    'payments' => [
+        // Simulated gateway pages for local development. Always off in production.
+        'allow_simulation' => env('PAYMENT_ALLOW_SIMULATION', true),
+    ],
+
+    'indexnow' => [
+        'key' => env('INDEXNOW_KEY', 'primebooking2026indexnow'),
     ],
 
 ];

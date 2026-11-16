@@ -14,13 +14,15 @@ class Booking extends Model
     protected $fillable = [
         'booking_reference', 'booking_code', 'user_id', 'property_id', 'room_id',
         'guest_name', 'guest_email', 'guest_phone',
-        'check_in', 'check_out', 'check_in_date', 'check_out_date', 'nights', 'nights_count', 'guests', 'rooms', 'rooms_count', 'adults', 'children', 'adults_count', 'children_count',
+        'check_in', 'check_out', 'check_in_date', 'check_out_date', 'nights', 'nights_count', 'guests', 'guests_count', 'rooms', 'rooms_count', 'adults', 'children', 'adults_count', 'children_count',
         'price_per_night', 'subtotal', 'tax_amount', 'total_price', 'amount',
         'total_amount', 'payable_amount',   // legacy compat
         'currency', 'payment_status', 'payment_method', 'transaction_id',
         'status', 'booking_status', // both supported
         'special_requests',
         'coupon_code', 'discount_amount', 'commission_rate', 'commission_amount', 'vendor_payout_amount', 'vendor_payout',
+        'vip_discount_amount', 'points_redeemed', 'points_discount_amount', 'addons_total',
+        'payment_expires_at', 'cancelled_at',
         'created_at', 'updated_at',
     ];
 
@@ -33,7 +35,23 @@ class Booking extends Model
         'subtotal'       => 'decimal:2',
         'tax_amount'     => 'decimal:2',
         'created_at'     => 'datetime',
+        'payment_expires_at' => 'datetime',
+        'cancelled_at'   => 'datetime',
     ];
+
+    /** Payment methods settled at the property, not through an online gateway. */
+    public const OFFLINE_PAYMENT_METHODS = ['cash', 'pay_at_hotel', 'bank_transfer'];
+
+    public function isOfflinePayment(): bool
+    {
+        return in_array($this->payment_method, self::OFFLINE_PAYMENT_METHODS, true);
+    }
+
+    /** True while the booking is waiting for an online payment that can still arrive. */
+    public function isAwaitingPayment(): bool
+    {
+        return $this->status === 'pending' && $this->payment_status === 'pending' && !$this->isOfflinePayment();
+    }
 
     // ─── Relationships ───────────────────────────────────────────────────
 
@@ -94,6 +112,26 @@ class Booking extends Model
 
     // ─── Accessors & Mutators ─────────────────────────────────────────────
 
+    public function setBookingCodeAttribute($value): void
+    {
+        $this->attributes['booking_reference'] = $value;
+    }
+
+    public function getBookingCodeAttribute(): ?string
+    {
+        return $this->attributes['booking_reference'] ?? null;
+    }
+
+    public function setGuestsCountAttribute($value): void
+    {
+        $this->attributes['guests'] = $value;
+    }
+
+    public function getGuestsCountAttribute(): int
+    {
+        return (int)($this->attributes['guests'] ?? (($this->attributes['adults'] ?? 1) + ($this->attributes['children'] ?? 0)));
+    }
+
     public function setVendorPayoutAttribute($value): void
     {
         $this->attributes['vendor_payout_amount'] = $value;
@@ -108,7 +146,13 @@ class Booking extends Model
                 $booking->total_price = $booking->total_amount;
             }
 
-            if ($booking->status !== null && empty($booking->booking_status)) {
+            // `status` and `booking_status` are legacy twins. Keep them identical on every write,
+            // otherwise availability and reporting queries disagree about the same booking.
+            if ($booking->isDirty('status') && $booking->status !== null) {
+                $booking->booking_status = $booking->status;
+            } elseif ($booking->isDirty('booking_status') && $booking->booking_status !== null) {
+                $booking->status = $booking->booking_status;
+            } elseif ($booking->status !== null && empty($booking->booking_status)) {
                 $booking->booking_status = $booking->status;
             } elseif ($booking->booking_status !== null && empty($booking->status)) {
                 $booking->status = $booking->booking_status;

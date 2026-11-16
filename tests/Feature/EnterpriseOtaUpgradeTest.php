@@ -17,6 +17,8 @@ use Tests\TestCase;
 
 class EnterpriseOtaUpgradeTest extends TestCase
 {
+    use \Illuminate\Foundation\Testing\RefreshDatabase;
+
     /**
      * Test SocialProofService delivers dynamic urgency and social proof indicators.
      */
@@ -68,15 +70,14 @@ class EnterpriseOtaUpgradeTest extends TestCase
         $held = $service->holdRoom($roomId, $checkIn, $checkOut, $holdToken, 15);
         $this->assertTrue($held);
 
-        // Verify hold count in cache
-        $date1 = now()->addDays(10)->format('Y-m-d');
-        $count = (int) Cache::get("room_hold_count_{$roomId}_{$date1}", 0);
-        $this->assertGreaterThanOrEqual(1, $count);
+        // Holds are database rows with their own expiry
+        $this->assertDatabaseHas('room_holds', ['token' => $holdToken, 'room_id' => $roomId]);
+        $this->assertGreaterThan(0, $service->holdSecondsRemaining($holdToken));
 
         // Release hold
         $service->releaseHold($holdToken);
-        $countAfter = (int) Cache::get("room_hold_count_{$roomId}_{$date1}", 0);
-        $this->assertEquals(0, $countAfter);
+        $this->assertDatabaseMissing('room_holds', ['token' => $holdToken]);
+        $this->assertSame(0, $service->holdSecondsRemaining($holdToken));
     }
 
     /**

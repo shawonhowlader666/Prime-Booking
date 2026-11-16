@@ -7,22 +7,40 @@ namespace App\Services;
 use App\Models\Booking;
 use App\Models\Room;
 use App\Models\RoomAvailability;
+use App\Models\RoomHold;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Room inventory: availability, checkout holds and cache invalidation.
+ *
+ * Availability for a night = capacity for that night
+ *                            - rooms in active bookings covering the night
+ *                            - rooms in unexpired checkout holds (other sessions).
+ *
+ * Everything is read straight from the database. Results are never cached,
+ * because a stale "available" answer is how double bookings happen.
+ */
 class InventoryService
 {
+    /** Minutes an online-payment booking may stay unpaid before its rooms are released. */
+    public const PAYMENT_WINDOW_MINUTES = 30;
+
     /**
-     * Check if a room has sufficient availability for all requested nights.
-     * Uses cache for high-throughput reads.
+     * Check whether $requiredRooms units are free on every night of the stay.
+     *
+     * @param string|null $ignoreHoldToken The caller's own hold, which must not count against them.
      */
-    public function checkAvailability(int $roomId, string $checkIn, string $checkOut, int $requiredRooms = 1): array
+    public function checkAvailability(int $roomId, string $checkIn, string $checkOut, int $requiredRooms = 1, ?string $ignoreHoldToken = null): array
     {
-        $startDate = Carbon::parse($checkIn)->startOfDay();
-        $endDate   = Carbon::parse($checkOut)->startOfDay();
+        try {
+            $startDate = Carbon::parse($checkIn)->startOfDay();
+            $endDate   = Carbon::parse($checkOut)->startOfDay();
+        } catch (\Throwable $e) {
+            return ['is_available' => false, 'min_available' => 0, 'reason' => 'Invalid date range.'];
+        }
 
         if ($endDate->lte($startDate)) {
             return ['is_available' => false, 'min_available' => 0, 'reason' => 'Invalid date range.'];
@@ -33,57 +51,24 @@ class InventoryService
             return ['is_available' => false, 'min_available' => 0, 'reason' => 'Room not found.'];
         }
 
-        $totalCapacity = (int) ($room->total_rooms ?? 10);
-        $period = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
+        if (($room->status ?? 'active') !== 'active') {
+            return ['is_available' => false, 'min_available' => 0, 'reason' => 'This room is not currently on sale.'];
+        }
 
-        $minAvailable = $totalCapacity;
-        $dateBreakdown = [];
+        $requiredRooms = max(1, $requiredRooms);
+        $breakdown     = $this->nightlyAvailability($room, $startDate, $endDate, $ignoreHoldToken);
+        $minAvailable  = $breakdown === [] ? 0 : min($breakdown);
 
-        foreach ($period as $date) {
-            $dateStr = $date->format('Y-m-d');
-            $cacheKey = "room_avail_units_{$roomId}_{$dateStr}";
-
-            $availableUnits = Cache::remember($cacheKey, 60, function () use ($roomId, $dateStr, $totalCapacity) {
-                // Check custom vendor availability record
-                $override = RoomAvailability::where('room_id', $roomId)
-                    ->whereDate('date', $dateStr)
-                    ->first();
-
-                if ($override && ($override->is_blocked || $override->is_closed || $override->status === 'blocked')) {
-                    return 0;
-                }
-
-                $baseCapacity = $override && isset($override->available_qty) ? (int)$override->available_qty : $totalCapacity;
-
-                // Count active overlapping bookings
-                $bookedUnits = Booking::where('room_id', $roomId)
-                    ->where(function ($q) {
-                        $q->where('status', 'confirmed')
-                          ->orWhere('booking_status', 'confirmed')
-                          ->orWhere('status', 'pending');
-                    })
-                    ->whereDate('check_in', '<=', $dateStr)
-                    ->whereDate('check_out', '>', $dateStr)
-                    ->count();
-
-                // Check active temporary 15-minute checkout holds
-                $heldUnits = (int) Cache::get("room_hold_count_{$roomId}_{$dateStr}", 0);
-
-                return max(0, $baseCapacity - $bookedUnits - $heldUnits);
-            });
-
-            $dateBreakdown[$dateStr] = $availableUnits;
-            if ($availableUnits < $minAvailable) {
-                $minAvailable = $availableUnits;
-            }
-
-            if ($minAvailable < $requiredRooms) {
+        foreach ($breakdown as $dateStr => $units) {
+            if ($units < $requiredRooms) {
                 return [
                     'is_available'   => false,
                     'min_available'  => $minAvailable,
                     'sold_out_date'  => $dateStr,
-                    'date_breakdown' => $dateBreakdown,
-                    'reason'         => "Sold out on {$date->format('M d, Y')}.",
+                    'date_breakdown' => $breakdown,
+                    'reason'         => $units <= 0
+                        ? 'Sold out on ' . Carbon::parse($dateStr)->format('M d, Y') . '.'
+                        : "Only {$units} room(s) left on " . Carbon::parse($dateStr)->format('M d, Y') . '.',
                 ];
             }
         }
@@ -91,114 +76,190 @@ class InventoryService
         return [
             'is_available'   => true,
             'min_available'  => $minAvailable,
-            'date_breakdown' => $dateBreakdown,
+            'date_breakdown' => $breakdown,
         ];
     }
 
     /**
-     * Place a temporary 15-minute hold on a room during checkout.
+     * Free units per night for [start, end). Three queries total, regardless of stay length.
+     *
+     * @return array<string,int> date (Y-m-d) => free units
      */
-    public function holdRoom(int $roomId, string $checkIn, string $checkOut, string $holdToken, int $minutes = 15): bool
+    public function nightlyAvailability(Room $room, Carbon $startDate, Carbon $endDate, ?string $ignoreHoldToken = null): array
     {
-        $startDate = Carbon::parse($checkIn)->startOfDay();
-        $endDate   = Carbon::parse($checkOut)->startOfDay();
-        $period    = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
+        $from = $startDate->format('Y-m-d');
+        $to   = $endDate->format('Y-m-d');
+        $capacity = max(0, (int) ($room->total_rooms ?? 1));
 
-        $tokenKey = "room_hold_token_{$holdToken}";
-        if (Cache::has($tokenKey)) {
-            return true; // Already held by this session
+        $overrides = RoomAvailability::where('room_id', $room->id)
+            ->where('date', '>=', $from)
+            ->where('date', '<', $to)
+            ->get(['date', 'available_qty', 'is_blocked'])
+            ->keyBy(fn ($row) => Carbon::parse($row->date)->format('Y-m-d'));
+
+        $bookings = $this->activeBookingsQuery($room->id, $from, $to)
+            ->get(['check_in', 'check_out', 'rooms_count']);
+
+        $holds = RoomHold::where('room_id', $room->id)
+            ->where('expires_at', '>', now())
+            ->where('check_in', '<', $to)
+            ->where('check_out', '>', $from)
+            ->when($ignoreHoldToken, fn ($q) => $q->where('token', '!=', $ignoreHoldToken))
+            ->get(['check_in', 'check_out', 'rooms_count']);
+
+        $result = [];
+        foreach (CarbonPeriod::create($startDate, $endDate->copy()->subDay()) as $date) {
+            $dateStr  = $date->format('Y-m-d');
+            $override = $overrides->get($dateStr);
+
+            if ($override && $override->is_blocked) {
+                $result[$dateStr] = 0;
+                continue;
+            }
+
+            $base = $override ? min($capacity, max(0, (int) $override->available_qty)) : $capacity;
+
+            $taken = 0;
+            foreach ([$bookings, $holds] as $set) {
+                foreach ($set as $row) {
+                    $in  = Carbon::parse($row->check_in)->format('Y-m-d');
+                    $out = Carbon::parse($row->check_out)->format('Y-m-d');
+                    if ($in <= $dateStr && $out > $dateStr) {
+                        $taken += max(1, (int) $row->rooms_count);
+                    }
+                }
+            }
+
+            $result[$dateStr] = max(0, $base - $taken);
         }
 
-        foreach ($period as $date) {
-            $dateStr = $date->format('Y-m-d');
-            $countKey = "room_hold_count_{$roomId}_{$dateStr}";
-            Cache::increment($countKey);
-            Cache::forget("room_avail_units_{$roomId}_{$dateStr}");
+        return $result;
+    }
+
+    /**
+     * Bookings that occupy inventory for the window [from, to).
+     * Unpaid online bookings stop counting once their payment window has passed.
+     */
+    public function activeBookingsQuery(int $roomId, string $from, string $to)
+    {
+        return Booking::where('room_id', $roomId)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->where('check_in', '<', $to)
+            ->where('check_out', '>', $from)
+            ->where(function ($q) {
+                $q->where('status', 'confirmed')
+                  ->orWhere('payment_status', '!=', 'pending')
+                  ->orWhereNull('payment_expires_at')
+                  ->orWhere('payment_expires_at', '>', now());
+            });
+    }
+
+    /**
+     * Place (or refresh) a checkout hold. Returns false when the rooms are not free.
+     */
+    public function holdRoom(int $roomId, string $checkIn, string $checkOut, string $holdToken, int $minutes = 15, int $roomsCount = 1): bool
+    {
+        try {
+            $start = Carbon::parse($checkIn)->startOfDay();
+            $end   = Carbon::parse($checkOut)->startOfDay();
+        } catch (\Throwable $e) {
+            return false;
         }
 
-        Cache::put($tokenKey, [
-            'room_id'   => $roomId,
-            'check_in'  => $checkIn,
-            'check_out' => $checkOut,
-            'expires'   => now()->addMinutes($minutes)->timestamp,
-        ], now()->addMinutes($minutes));
+        if ($end->lte($start) || $holdToken === '') {
+            return false;
+        }
+
+        $roomsCount = max(1, $roomsCount);
+        $existing   = RoomHold::where('token', $holdToken)->first();
+
+        // Same session, same selection: keep the original expiry so the timer cannot be extended by refreshing.
+        if ($existing
+            && (int) $existing->room_id === $roomId
+            && $existing->check_in->equalTo($start)
+            && $existing->check_out->equalTo($end)
+            && (int) $existing->rooms_count === $roomsCount
+            && $existing->expires_at->isFuture()) {
+            return true;
+        }
+
+        if (Room::whereKey($roomId)->exists()) {
+            $check = $this->checkAvailability($roomId, $start->toDateString(), $end->toDateString(), $roomsCount, $holdToken);
+            if (!$check['is_available']) {
+                $existing?->delete();
+                return false;
+            }
+        }
+
+        RoomHold::updateOrCreate(
+            ['token' => $holdToken],
+            [
+                'room_id'     => $roomId,
+                'check_in'    => $start->toDateString(),
+                'check_out'   => $end->toDateString(),
+                'rooms_count' => $roomsCount,
+                'expires_at'  => now()->addMinutes(max(1, $minutes)),
+            ]
+        );
 
         return true;
     }
 
-    /**
-     * Release a temporary room hold.
-     */
+    /** Seconds left on a hold, 0 when it does not exist or has expired. */
+    public function holdSecondsRemaining(string $holdToken): int
+    {
+        $hold = RoomHold::where('token', $holdToken)->first();
+        if (!$hold || $hold->expires_at->isPast()) {
+            return 0;
+        }
+
+        return (int) max(0, now()->diffInSeconds($hold->expires_at, false));
+    }
+
     public function releaseHold(string $holdToken): void
     {
-        $tokenKey = "room_hold_token_{$holdToken}";
-        $data = Cache::get($tokenKey);
-
-        if (!$data) {
-            return;
+        if ($holdToken !== '') {
+            RoomHold::where('token', $holdToken)->delete();
         }
+    }
 
-        $roomId    = $data['room_id'];
-        $startDate = Carbon::parse($data['check_in'])->startOfDay();
-        $endDate   = Carbon::parse($data['check_out'])->startOfDay();
-        $period    = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
-
-        foreach ($period as $date) {
-            $dateStr = $date->format('Y-m-d');
-            $countKey = "room_hold_count_{$roomId}_{$dateStr}";
-            $current = (int) Cache::get($countKey, 0);
-            if ($current > 0) {
-                Cache::decrement($countKey);
-            }
-            Cache::forget("room_avail_units_{$roomId}_{$dateStr}");
-        }
-
-        Cache::forget($tokenKey);
+    /** Remove expired holds. Returns the number of rows deleted. */
+    public function pruneExpiredHolds(): int
+    {
+        return RoomHold::where('expires_at', '<=', now())->delete();
     }
 
     /**
-     * Atomically lock and deduct inventory during booking creation.
+     * Called after a booking row is written. Inventory is derived from booking rows,
+     * so this only has to drop caches that depend on availability.
      */
     public function lockAndDeduct(Booking $booking): void
     {
-        if (!$booking->room_id) {
-            return;
-        }
-
-        $startDate = Carbon::parse($booking->check_in)->startOfDay();
-        $endDate   = Carbon::parse($booking->check_out)->startOfDay();
-        $period    = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
-
-        foreach ($period as $date) {
-            $dateStr = $date->format('Y-m-d');
-            
-            // Invalidate cache key
-            Cache::forget("room_avail_units_{$booking->room_id}_{$dateStr}");
-            Cache::forget("property_availability_{$booking->property_id}_{$dateStr}");
-        }
-
-        Log::info("Inventory locked for booking #{$booking->booking_reference} (Room #{$booking->room_id}) from {$booking->check_in} to {$booking->check_out}.");
+        $this->flushAvailabilityCaches($booking);
+        Log::info("Inventory locked for booking #{$booking->booking_reference} (Room #{$booking->room_id}).");
     }
 
-    /**
-     * Atomically release inventory on booking cancellation.
-     */
+    /** Called after a booking is cancelled or expires. */
     public function releaseInventory(Booking $booking): void
     {
-        if (!$booking->room_id) {
+        $this->flushAvailabilityCaches($booking);
+        Log::info("Inventory released for booking #{$booking->booking_reference} (Room #{$booking->room_id}).");
+    }
+
+    private function flushAvailabilityCaches(Booking $booking): void
+    {
+        if (!$booking->room_id || !$booking->check_in || !$booking->check_out) {
             return;
         }
 
-        $startDate = Carbon::parse($booking->check_in)->startOfDay();
-        $endDate   = Carbon::parse($booking->check_out)->startOfDay();
-        $period    = CarbonPeriod::create($startDate, $endDate->copy()->subDay());
-
-        foreach ($period as $date) {
-            $dateStr = $date->format('Y-m-d');
-            Cache::forget("room_avail_units_{$booking->room_id}_{$dateStr}");
-            Cache::forget("property_availability_{$booking->property_id}_{$dateStr}");
+        $start = Carbon::parse($booking->check_in)->startOfDay();
+        $end   = Carbon::parse($booking->check_out)->startOfDay();
+        if ($end->lte($start)) {
+            return;
         }
 
-        Log::info("Inventory released for cancelled booking #{$booking->booking_reference} (Room #{$booking->room_id}).");
+        foreach (CarbonPeriod::create($start, $end->copy()->subDay()) as $date) {
+            Cache::forget("property_availability_{$booking->property_id}_{$date->format('Y-m-d')}");
+        }
     }
 }

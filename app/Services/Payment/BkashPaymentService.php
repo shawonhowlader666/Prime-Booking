@@ -6,19 +6,15 @@ namespace App\Services\Payment;
 
 use App\Models\Booking;
 use App\Models\PaymentGateway;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
- * BkashPaymentService — Enterprise bKash PGW API Integration
+ * bKash Tokenized Checkout (v1.2.0-beta): grant token, create, execute, query.
  *
- * Implements bKash Direct Checkout API (Tokenized V1.2.0-beta)
- *  - Grant Token API
- *  - Create Payment API
- *  - Execute Payment API
- *  - Query Payment API
- *  - Automatic Sandbox/Production URL switching
+ * There is no "demo" success path in this class. If bKash cannot confirm a
+ * payment, the payment is not confirmed.
  */
 class BkashPaymentService
 {
@@ -28,138 +24,187 @@ class BkashPaymentService
     private string $username;
     private string $password;
     private bool $isSandbox;
+    private bool $isActive;
 
     public function __construct()
     {
-        $gateway = PaymentGateway::where('gateway_code', 'bkash')->first();
+        $gateway = null;
+        try {
+            $gateway = PaymentGateway::where('gateway_code', 'bkash')->first();
+        } catch (\Throwable $e) {
+            Log::warning('bKash gateway config unavailable: ' . $e->getMessage());
+        }
 
-        $this->isSandbox = $gateway?->is_sandbox ?? true;
-        $this->appKey    = $gateway?->api_key     ?? config('services.bkash.app_key', 'sandbox_app_key');
-        $this->appSecret = $gateway?->api_secret  ?? config('services.bkash.app_secret', 'sandbox_app_secret');
-        $this->username  = $gateway?->merchant_id ?? config('services.bkash.username', 'sandbox_user');
-        $this->password  = $gateway?->settings['password'] ?? config('services.bkash.password', 'sandbox_pass');
+        $settings = is_array($gateway?->settings) ? $gateway->settings : [];
+
+        $this->isActive  = $gateway ? (bool) $gateway->is_active : true;
+        $this->isSandbox = $gateway ? (bool) $gateway->is_sandbox : true;
+        $this->appKey    = (string) (!empty($gateway?->api_key) ? $gateway->api_key : config('services.bkash.app_key', ''));
+        $this->appSecret = (string) (!empty($gateway?->api_secret) ? $gateway->api_secret : config('services.bkash.app_secret', ''));
+        $this->username  = (string) (!empty($gateway?->merchant_id) ? $gateway->merchant_id : config('services.bkash.username', ''));
+        $this->password  = (string) (!empty($settings['password']) ? $settings['password'] : config('services.bkash.password', ''));
 
         $this->baseUrl = $this->isSandbox
             ? 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout'
             : 'https://tokenized.pay.bka.sh/v1.2.0-beta/tokenized/checkout';
     }
 
-    /** Step 1: Obtain Authorization Token from bKash API */
+    public function isConfigured(): bool
+    {
+        return $this->isActive
+            && $this->appKey !== '' && $this->appSecret !== ''
+            && $this->username !== '' && $this->password !== '';
+    }
+
+    /** Grant token, cached for most of its one-hour lifetime. */
     public function getToken(): ?string
     {
+        if (!$this->isConfigured()) {
+            return null;
+        }
+
+        $cacheKey = 'bkash_id_token_' . md5($this->appKey . ($this->isSandbox ? 's' : 'l'));
+        $cached = Cache::get($cacheKey);
+        if (is_string($cached) && $cached !== '') {
+            return $cached;
+        }
+
         try {
-            $response = Http::withHeaders([
-                'username'     => $this->username,
-                'password'     => $this->password,
-                'Content-Type' => 'application/json',
+            $response = Http::timeout(15)->withHeaders([
+                'username' => $this->username,
+                'password' => $this->password,
+                'Accept'   => 'application/json',
             ])->post("{$this->baseUrl}/token/grant", [
                 'app_key'    => $this->appKey,
                 'app_secret' => $this->appSecret,
             ]);
 
-            if ($response->successful() && isset($response['id_token'])) {
-                return (string) $response['id_token'];
+            $token = $response->json('id_token');
+            if ($response->successful() && is_string($token) && $token !== '') {
+                Cache::put($cacheKey, $token, now()->addMinutes(50));
+                return $token;
             }
 
-            Log::error('bKash Grant Token Failed', ['body' => $response->body()]);
+            Log::error('bKash grant token failed', ['http' => $response->status(), 'message' => $response->json('statusMessage')]);
             return null;
         } catch (\Throwable $e) {
-            Log::error('bKash Grant Token Exception: ' . $e->getMessage());
+            Log::error('bKash grant token exception: ' . $e->getMessage());
             return null;
         }
     }
 
-    /** Step 2: Create Payment Session */
+    /**
+     * @return array{status:string,paymentID?:string,bkashURL?:string,message?:string}
+     */
     public function createPayment(Booking $booking, string $callbackUrl): array
     {
         $token = $this->getToken();
+        if (!$token) {
+            return ['status' => 'error', 'message' => 'bKash is not available right now.'];
+        }
 
-        if (! $token) {
-            // Fallback for local sandbox testing if bKash API credentials are demo/unreachable
-            return [
-                'status'       => 'sandbox_demo',
-                'paymentID'    => 'BKASH-DEMO-' . Str::upper(Str::random(10)),
-                'bkashURL'     => route('payment.bkash.sandbox-redirect', ['reference' => $booking->booking_reference]),
-                'callbackURL'  => $callbackUrl,
-            ];
+        $amount = (float) ($booking->total_price ?? $booking->total_amount ?? 0);
+        if ($amount <= 0) {
+            return ['status' => 'error', 'message' => 'Invalid payable amount.'];
         }
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'X-APP-Key'     => $this->appKey,
-                'Content-Type'  => 'application/json',
-            ])->post("{$this->baseUrl}/create", [
+            $response = $this->authorized($token)->post("{$this->baseUrl}/create", [
                 'mode'                  => '0011',
-                'payerReference'        => $booking->guest_phone ?? '01700000000',
+                'payerReference'        => preg_replace('/\D/', '', (string) $booking->guest_phone) ?: '01700000000',
                 'callbackURL'           => $callbackUrl,
-                'amount'                => number_format((float) $booking->amount, 2, '.', ''),
+                'amount'                => number_format($amount, 2, '.', ''),
                 'currency'              => 'BDT',
                 'intent'                => 'sale',
                 'merchantInvoiceNumber' => $booking->booking_reference,
             ]);
 
-            if ($response->successful() && isset($response['bkashURL'])) {
+            if ($response->successful() && $response->json('bkashURL') && $response->json('paymentID')) {
                 return [
                     'status'    => 'success',
-                    'paymentID' => $response['paymentID'] ?? null,
-                    'bkashURL'  => $response['bkashURL'],
+                    'paymentID' => (string) $response->json('paymentID'),
+                    'bkashURL'  => (string) $response->json('bkashURL'),
                 ];
             }
 
-            Log::error('bKash Create Payment Failed', ['body' => $response->body()]);
-            return [
-                'status'  => 'error',
-                'message' => $response['statusMessage'] ?? 'bKash payment initiation failed.',
-            ];
+            Log::error('bKash create payment failed', ['http' => $response->status(), 'message' => $response->json('statusMessage')]);
+            return ['status' => 'error', 'message' => (string) ($response->json('statusMessage') ?? 'bKash payment could not be started.')];
         } catch (\Throwable $e) {
-            Log::error('bKash Create Payment Exception: ' . $e->getMessage());
-            return ['status' => 'error', 'message' => $e->getMessage()];
+            Log::error('bKash create payment exception: ' . $e->getMessage());
+            return ['status' => 'error', 'message' => 'bKash is unreachable right now.'];
         }
     }
 
-    /** Step 3: Execute Payment after user completes OTP/PIN on bKash portal */
+    /**
+     * Execute the payment the guest approved. If the execute call times out or
+     * returns an ambiguous answer, fall back to Query so a paid customer is
+     * never left unconfirmed.
+     *
+     * @return array{status:string,trxID?:?string,paymentID?:?string,amount?:?float,invoice?:?string,message?:string}
+     */
     public function executePayment(string $paymentID): array
     {
         $token = $this->getToken();
-
-        if (! $token || str_starts_with($paymentID, 'BKASH-DEMO-')) {
-            return [
-                'status'            => 'Completed',
-                'trxID'             => 'TRX-BKASH-' . Str::upper(Str::random(10)),
-                'paymentID'         => $paymentID,
-                'statusCode'        => '0000',
-                'statusMessage'     => 'Successful',
-            ];
+        if (!$token || $paymentID === '') {
+            return ['status' => 'failed', 'message' => 'bKash is not available right now.'];
         }
 
         try {
-            $response = Http::withHeaders([
-                'Authorization' => $token,
-                'X-APP-Key'     => $this->appKey,
-                'Content-Type'  => 'application/json',
-            ])->post("{$this->baseUrl}/execute", [
-                'paymentID' => $paymentID,
-            ]);
+            $response = $this->authorized($token)->post("{$this->baseUrl}/execute", ['paymentID' => $paymentID]);
+            $data = $response->json() ?: [];
 
-            if ($response->successful() && ($response['statusCode'] ?? '') === '0000') {
-                return [
-                    'status'            => 'Completed',
-                    'trxID'             => $response['trxID'] ?? null,
-                    'paymentID'         => $response['paymentID'] ?? null,
-                    'amount'            => $response['amount'] ?? null,
-                    'statusMessage'     => $response['statusMessage'] ?? 'Success',
-                ];
+            if ($response->successful()
+                && ($data['statusCode'] ?? '') === '0000'
+                && ($data['transactionStatus'] ?? '') === 'Completed') {
+                return $this->completed($data);
+            }
+        } catch (\Throwable $e) {
+            Log::warning('bKash execute exception, falling back to query: ' . $e->getMessage());
+        }
+
+        return $this->queryPayment($paymentID);
+    }
+
+    public function queryPayment(string $paymentID): array
+    {
+        $token = $this->getToken();
+        if (!$token || $paymentID === '') {
+            return ['status' => 'failed', 'message' => 'bKash is not available right now.'];
+        }
+
+        try {
+            $response = $this->authorized($token)->post("{$this->baseUrl}/payment/status", ['paymentID' => $paymentID]);
+            $data = $response->json() ?: [];
+
+            if ($response->successful() && ($data['transactionStatus'] ?? '') === 'Completed') {
+                return $this->completed($data);
             }
 
-            Log::error('bKash Execute Payment Failed', ['body' => $response->body()]);
-            return [
-                'status'  => 'failed',
-                'message' => $response['statusMessage'] ?? 'bKash execution failed.',
-            ];
+            return ['status' => 'failed', 'message' => (string) ($data['statusMessage'] ?? 'Payment was not completed.')];
         } catch (\Throwable $e) {
-            Log::error('bKash Execute Payment Exception: ' . $e->getMessage());
-            return ['status' => 'failed', 'message' => $e->getMessage()];
+            Log::error('bKash query exception: ' . $e->getMessage());
+            return ['status' => 'failed', 'message' => 'bKash could not confirm the payment.'];
         }
+    }
+
+    private function completed(array $data): array
+    {
+        return [
+            'status'    => 'Completed',
+            'trxID'     => $data['trxID'] ?? null,
+            'paymentID' => $data['paymentID'] ?? null,
+            'amount'    => isset($data['amount']) ? (float) $data['amount'] : null,
+            'invoice'   => $data['merchantInvoiceNumber'] ?? ($data['merchantInvoice'] ?? null),
+            'raw'       => $data,
+        ];
+    }
+
+    private function authorized(string $token)
+    {
+        return Http::timeout(30)->withHeaders([
+            'Authorization' => $token,
+            'X-APP-Key'     => $this->appKey,
+            'Accept'        => 'application/json',
+        ]);
     }
 }

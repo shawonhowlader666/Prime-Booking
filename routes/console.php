@@ -24,6 +24,12 @@ Schedule::command('cache:warm')->everyTwoHours()->withoutOverlapping();
 // Schedule::command('queue:work --stop-when-empty --max-jobs=100')->everyMinute();
 
 /**
+ * Release unpaid online bookings after their payment window and prune expired checkout holds.
+ * Availability already ignores expired rows; this keeps statuses, coupons and points in step.
+ */
+Schedule::command('bookings:expire-pending')->everyFiveMinutes()->withoutOverlapping();
+
+/**
  * Clean up failed jobs older than 7 days
  */
 Schedule::command('queue:prune-failed --hours=168')->weekly();

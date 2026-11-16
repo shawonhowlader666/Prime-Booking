@@ -28,14 +28,18 @@ Route::middleware('auth:sanctum')->prefix('user')->group(function () {
             ->where('user_id', auth()->id())
             ->firstOrFail();
 
-        if (in_array($booking->effective_status, ['cancelled', 'completed'])) {
-            return response()->json(['success' => false, 'message' => 'This booking cannot be cancelled.'], 422);
+        $lifecycle = app(\App\Services\Booking\BookingLifecycleService::class);
+        $terms     = $lifecycle->cancellationTerms($booking);
+
+        if (!$terms['allowed'] || !$lifecycle->cancel($booking, 'Cancelled by guest (app)')) {
+            return response()->json(['success' => false, 'message' => $terms['reason'] ?? 'This booking cannot be cancelled.'], 422);
         }
 
-        $booking->update(['status' => 'cancelled', 'booking_status' => 'cancelled']);
-        app(\App\Services\InventoryService::class)->releaseInventory($booking);
-
-        return response()->json(['success' => true, 'message' => 'Booking cancelled successfully.']);
+        return response()->json([
+            'success'    => true,
+            'message'    => 'Booking cancelled successfully.',
+            'refundable' => $terms['refundable'],
+        ]);
     });
 
 });

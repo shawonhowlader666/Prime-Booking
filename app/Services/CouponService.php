@@ -63,6 +63,18 @@ class CouponService
             return ['valid' => false, 'discount' => 0.0, 'message' => "This coupon expired on " . Carbon::parse($coupon->expires_at)->format('M d, Y') . "."];
         }
 
+        // Property / vendor scoped coupons only apply to their own inventory.
+        if (!empty($coupon->property_id) && $propertyId !== null && (int) $coupon->property_id !== $propertyId) {
+            return ['valid' => false, 'discount' => 0.0, 'message' => 'This coupon is not valid for the selected property.'];
+        }
+
+        if (!empty($coupon->vendor_id) && empty($coupon->property_id) && $propertyId !== null) {
+            $ownerId = \App\Models\Property::whereKey($propertyId)->value('vendor_id');
+            if ((int) $ownerId !== (int) $coupon->vendor_id) {
+                return ['valid' => false, 'discount' => 0.0, 'message' => 'This coupon is not valid for the selected property.'];
+            }
+        }
+
         if ($coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit) {
             return ['valid' => false, 'discount' => 0.0, 'message' => "This coupon has reached its maximum usage limit."];
         }
@@ -106,14 +118,34 @@ class CouponService
     }
 
     /**
-     * Increment coupon usage count upon successful booking.
+     * Claim one use of a coupon. The conditional UPDATE is atomic, so two
+     * simultaneous checkouts can never push used_count past usage_limit.
+     *
+     * @return bool false when the coupon ran out between validation and booking.
      */
-    public function recordUsage(string $code): void
+    public function recordUsage(string $code): bool
     {
         $cleanCode = strtoupper(trim($code));
-        $coupon = Coupon::where('code', $cleanCode)->first();
-        if ($coupon) {
-            $coupon->increment('used_count');
+
+        $claimed = Coupon::where('code', $cleanCode)
+            ->where(function ($q) {
+                $q->whereNull('usage_limit')
+                  ->orWhere('usage_limit', 0)
+                  ->orWhereColumn('used_count', '<', 'usage_limit');
+            })
+            ->increment('used_count');
+
+        return $claimed > 0;
+    }
+
+    /** Give a use back when the booking that consumed it is cancelled or expires unpaid. */
+    public function releaseUsage(?string $code): void
+    {
+        $cleanCode = strtoupper(trim((string) $code));
+        if ($cleanCode === '') {
+            return;
         }
+
+        Coupon::where('code', $cleanCode)->where('used_count', '>', 0)->decrement('used_count');
     }
 }

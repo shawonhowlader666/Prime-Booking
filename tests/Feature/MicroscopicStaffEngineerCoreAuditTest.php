@@ -218,7 +218,7 @@ class MicroscopicStaffEngineerCoreAuditTest extends TestCase
         // Simulate 3 rapid payment callbacks for the exact same transaction (e.g. gateway retries)
         for ($i = 0; $i < 3; $i++) {
             $response = $this->post(route('payment.bkash.sandbox-execute', $booking->booking_reference));
-            $response->assertRedirect(route('booking.confirmation', $booking->booking_reference));
+            $response->assertRedirectContains('/booking/confirmation/' . $booking->booking_reference);
         }
 
         $booking->refresh();

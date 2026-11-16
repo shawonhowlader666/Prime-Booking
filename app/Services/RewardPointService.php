@@ -174,7 +174,11 @@ class RewardPointService
         $discountBdt = $this->convertPointsToBdt($pointsToRedeem);
         $validBookingId = ($bookingId && Booking::where('id', $bookingId)->exists()) ? $bookingId : null;
 
-        return DB::transaction(function () use ($user, $wallet, $pointsToRedeem, $discountBdt, $validBookingId) {
+        return DB::transaction(function () use ($user, $pointsToRedeem, $discountBdt, $validBookingId) {
+            $wallet = UserReward::where('user_id', $user->id)->lockForUpdate()->first();
+            if (!$wallet || (int) $wallet->points_balance < $pointsToRedeem) {
+                return ['success' => false, 'message' => 'Insufficient points balance.', 'discount' => 0];
+            }
             $wallet->decrement('points_balance', $pointsToRedeem);
             $wallet->increment('total_redeemed_points', $pointsToRedeem);
 
@@ -195,6 +199,118 @@ class RewardPointService
                 'points'   => $pointsToRedeem,
             ];
         });
+    }
+
+    /**
+     * Spend points against a booking. Must run inside the booking's DB transaction:
+     * the wallet row is locked, so two checkouts cannot spend the same points.
+     *
+     * @throws \RuntimeException when the balance is no longer sufficient.
+     */
+    public function redeemForBooking(Booking $booking, int $points): float
+    {
+        if ($points <= 0 || !$booking->user_id) {
+            return 0.0;
+        }
+
+        $wallet = UserReward::where('user_id', $booking->user_id)->lockForUpdate()->first();
+        if (!$wallet || (int) $wallet->points_balance < $points) {
+            throw new \RuntimeException('Your reward points balance changed. Please review your booking and try again.');
+        }
+
+        $wallet->decrement('points_balance', $points);
+        $wallet->increment('total_redeemed_points', $points);
+
+        $value = $this->convertPointsToBdt($points);
+
+        RewardTransaction::create([
+            'user_id'      => $booking->user_id,
+            'booking_id'   => $booking->id,
+            'type'         => 'redeemed',
+            'points'       => -$points,
+            'amount_value' => $value,
+            'description'  => "Redeemed {$points} points on Booking #{$booking->booking_reference}",
+            'status'       => 'completed',
+        ]);
+
+        return $value;
+    }
+
+    /** Return points that were spent on a booking which is now cancelled or expired. Idempotent. */
+    public function refundRedeemedPoints(Booking $booking): int
+    {
+        $points = (int) ($booking->points_redeemed ?? 0);
+        if ($points <= 0 || !$booking->user_id) {
+            return 0;
+        }
+
+        $alreadyRefunded = RewardTransaction::where('booking_id', $booking->id)
+            ->where('type', 'redeem_refund')
+            ->exists();
+        if ($alreadyRefunded) {
+            return 0;
+        }
+
+        $wallet = UserReward::where('user_id', $booking->user_id)->lockForUpdate()->first();
+        if (!$wallet) {
+            return 0;
+        }
+
+        $wallet->increment('points_balance', $points);
+        $wallet->update(['total_redeemed_points' => max(0, (int) $wallet->total_redeemed_points - $points)]);
+
+        RewardTransaction::create([
+            'user_id'      => $booking->user_id,
+            'booking_id'   => $booking->id,
+            'type'         => 'redeem_refund',
+            'points'       => $points,
+            'amount_value' => $this->convertPointsToBdt($points),
+            'description'  => "Returned {$points} points from cancelled Booking #{$booking->booking_reference}",
+            'status'       => 'completed',
+        ]);
+
+        return $points;
+    }
+
+    /** Take back points earned from a booking that is now cancelled. Idempotent. */
+    public function reverseEarnedPoints(Booking $booking): int
+    {
+        if (!$booking->user_id) {
+            return 0;
+        }
+
+        $earned = (int) RewardTransaction::where('booking_id', $booking->id)
+            ->where('user_id', $booking->user_id)
+            ->where('type', 'earned')
+            ->sum('points');
+
+        if ($earned <= 0 || RewardTransaction::where('booking_id', $booking->id)->where('type', 'earn_reversal')->exists()) {
+            return 0;
+        }
+
+        $wallet = UserReward::where('user_id', $booking->user_id)->lockForUpdate()->first();
+        if (!$wallet) {
+            return 0;
+        }
+
+        // The guest may already have spent some of them; never drive the wallet negative.
+        $take = min($earned, (int) $wallet->points_balance);
+        $wallet->update([
+            'points_balance'      => (int) $wallet->points_balance - $take,
+            'total_earned_points' => max(0, (int) $wallet->total_earned_points - $earned),
+        ]);
+
+        RewardTransaction::create([
+            'user_id'      => $booking->user_id,
+            'booking_id'   => $booking->id,
+            'type'         => 'earn_reversal',
+            'points'       => -$take,
+            'amount_value' => $this->convertPointsToBdt($take),
+            'description'  => "Reversed points from cancelled Booking #{$booking->booking_reference}",
+            'status'       => 'completed',
+        ]);
+
+        return $take;
     }
 
     /**
@@ -222,8 +338,12 @@ class RewardPointService
 
         $payoutAmount = $this->convertPointsToBdt($points);
 
-        return DB::transaction(function () use ($user, $wallet, $points, $payoutAmount, $gateway, $accountNumber, $accountName) {
-            // Deduct from active balance and hold
+        return DB::transaction(function () use ($user, $points, $payoutAmount, $gateway, $accountNumber, $accountName) {
+            // Lock the wallet and re-check: two simultaneous requests must not both pass the balance test.
+            $wallet = UserReward::where('user_id', $user->id)->lockForUpdate()->first();
+            if (!$wallet || (int) $wallet->points_balance < $points) {
+                return ['success' => false, 'message' => 'Requested points exceed your current balance.'];
+            }
             $wallet->decrement('points_balance', $points);
             $wallet->increment('total_redeemed_points', $points);
 
@@ -259,11 +379,12 @@ class RewardPointService
      */
     public function approvePayout(RewardPayoutRequest $payout, ?string $adminNote = null): bool
     {
-        if ($payout->status !== 'pending') {
-            return false;
-        }
-
         return DB::transaction(function () use ($payout, $adminNote) {
+            $payout = RewardPayoutRequest::whereKey($payout->id)->lockForUpdate()->first();
+            if (!$payout || $payout->status !== 'pending') {
+                return false;
+            }
+
             $payout->update([
                 'status'       => 'approved',
                 'admin_note'   => $adminNote ?: 'Approved & Dispatched by Admin',
@@ -285,11 +406,12 @@ class RewardPointService
      */
     public function rejectPayout(RewardPayoutRequest $payout, string $reason): bool
     {
-        if ($payout->status !== 'pending') {
-            return false;
-        }
-
         return DB::transaction(function () use ($payout, $reason) {
+            $payout = RewardPayoutRequest::whereKey($payout->id)->lockForUpdate()->first();
+            if (!$payout || $payout->status !== 'pending') {
+                return false;
+            }
+
             $payout->update([
                 'status'       => 'rejected',
                 'admin_note'   => $reason,

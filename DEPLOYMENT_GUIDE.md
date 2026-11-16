@@ -49,3 +49,4 @@ scp -P 65002 -i ~/.ssh/id_vps_deploy resources/views/pages/hotel-detail.blade.ph
 # Clear cache:
 ssh -p 65002 -i ~/.ssh/id_vps_deploy u345402313@31.97.238.194 "cd /home/u345402313/domains/primebooking.com.bd/prime-booking && php artisan view:clear && php artisan cache:clear"
 ```
+

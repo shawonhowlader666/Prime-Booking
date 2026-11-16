@@ -65,49 +65,14 @@
                             </select>
                         </div>
 
-                        {{-- Existing Room Photos Gallery Manager --}}
+                        {{-- Existing Room Photos Gallery Manager with Drag & Drop and Instant + Add Photo Tile --}}
                         @php
                             $roomImgs = is_array($room->images) ? $room->images : (json_decode($room->images ?? '[]', true) ?: []);
                         @endphp
-                        @if(!empty($roomImgs) && count($roomImgs) > 0)
-                        <div class="col-12">
-                            <div class="card border-0 shadow-sm" style="background:#f8fafc; border:1px solid #cbd5e1 !important; border-radius:6px;">
-                                <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
-                                    <span class="fw-bold text-dark" style="font-size:12.5px;">
-                                        <i class="fa-solid fa-images text-primary me-1.5"></i> Current Room Photos ({{ count($roomImgs) }})
-                                    </span>
-                                    <small class="text-muted" style="font-size:11px;">Check to delete any specific photo</small>
-                                </div>
-                                <div class="card-body p-2.5">
-                                    <div class="row g-2" style="max-height: 240px; overflow-y: auto;">
-                                        @foreach($roomImgs as $pIdx => $pUrl)
-                                        <div class="col-md-3 col-sm-4 col-6">
-                                            <div class="p-1.5 bg-white rounded border position-relative d-flex flex-column gap-1">
-                                                <div class="rounded overflow-hidden" style="height: 80px; background:#000;">
-                                                    <img src="{{ media_url($pUrl) }}" class="w-100 h-100" style="object-fit:cover;" alt="Room Photo" loading="lazy">
-                                                </div>
-                                                <div class="form-check form-check-sm mt-1 mb-0">
-                                                    <input class="form-check-input" type="checkbox" name="delete_images[]" value="{{ $pUrl }}" id="delPageRoomImg_{{ $pIdx }}">
-                                                    <label class="form-check-label text-danger fw-semibold" for="delPageRoomImg_{{ $pIdx }}" style="font-size:11px; cursor:pointer;">
-                                                        <i class="fa-solid fa-trash-can me-1"></i> Delete
-                                                    </label>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        @endif
+                        <x-room.photo-manager :photos="$roomImgs" prefix="vendor_room_{{ $room->id }}" title="Current Room Photos" />
 
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold" style="font-size:12px;"><i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload More Photos (Multi-Upload)</label>
-                            <input type="file" name="image_files[]" multiple accept="image/*" class="form-control">
-                            <small class="text-muted" style="font-size:11px;">Select single or multiple photos at once</small>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label fw-bold" style="font-size:12px;"><i class="fa-solid fa-link text-primary me-1"></i> Additional Photo URLs (one per line)</label>
+                        <div class="col-md-12">
+                            <label class="form-label text-muted" style="font-size:12px;"><i class="fa-solid fa-link text-primary me-1"></i> Additional Photo URLs (Optional, one per line)</label>
                             <textarea name="image_url" class="form-control" rows="2" placeholder="https://.../photo1.jpg&#10;https://.../photo2.jpg"></textarea>
                         </div>
 

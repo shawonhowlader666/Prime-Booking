@@ -36,3 +36,4 @@ Write-Host "==========================================================" -Foregro
 Write-Host "  SUCCESS! Live server updated and caches cleared!" -ForegroundColor Green
 Write-Host "  Website: https://primebooking.com.bd" -ForegroundColor Yellow
 Write-Host "==========================================================" -ForegroundColor Cyan
+

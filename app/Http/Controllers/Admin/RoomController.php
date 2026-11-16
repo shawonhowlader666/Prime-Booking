@@ -159,8 +159,18 @@ class RoomController extends Controller
 
         $roomImages = is_array($room->images) ? $room->images : [];
 
-        // Remove deleted images if selected
-        if ($request->has('delete_images') && is_array($request->delete_images)) {
+        // Apply drag & drop reordered sequence of existing images
+        if ($request->has('existing_images_order') && is_array($request->existing_images_order)) {
+            $deleteList = (array) ($request->delete_images ?? []);
+            $ordered = array_values(array_filter($request->existing_images_order, fn($img) => !in_array($img, $deleteList) && in_array($img, $roomImages)));
+            foreach ($roomImages as $img) {
+                if (!in_array($img, $ordered) && !in_array($img, $deleteList)) {
+                    $ordered[] = $img;
+                }
+            }
+            $roomImages = $ordered;
+        } elseif ($request->has('delete_images') && is_array($request->delete_images)) {
+            // Remove deleted images if selected without explicit reordering
             $roomImages = array_values(array_filter($roomImages, fn($img) => !in_array($img, $request->delete_images)));
         }
 

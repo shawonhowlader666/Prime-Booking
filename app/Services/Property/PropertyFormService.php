@@ -243,13 +243,22 @@ class PropertyFormService
         }
 
         // 2. New uploads.
+        $newCategories = (array) $request->input('gallery_image_categories', []);
+        $newCaptions   = (array) $request->input('gallery_image_captions', []);
+        $fileIdx = 0;
         foreach ((array) $request->file('gallery_image_files', []) as $file) {
             if ($file && $file->isValid()) {
+                $fileCat = $newCategories[$fileIdx] ?? $category;
+                if (!in_array($fileCat, self::GALLERY_CATEGORIES, true)) {
+                    $fileCat = $category;
+                }
+                $customTitle = trim((string) ($newCaptions[$fileIdx] ?? ''));
                 $gallery[] = [
                     'url'      => MediaService::uploadImage($file, 'uploads/properties/gallery'),
-                    'category' => $category,
-                    'title'    => $this->defaultTitle($name, $category),
+                    'category' => $fileCat,
+                    'title'    => $customTitle !== '' ? Str::limit($customTitle, 150, '') : $this->defaultTitle($name, $fileCat),
                 ];
+                $fileIdx++;
             }
         }
 

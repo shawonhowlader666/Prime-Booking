@@ -3,48 +3,55 @@
 
 @section('content')
 
-{{-- 1. Backdrop Overlay (covers the left 1/3 of the screen, click to close) --}}
-<a href="{{ route('admin.properties.index') }}" class="edit-drawer-backdrop" title="Click to close editor and return to inventory"></a>
+<div class="container-fluid px-3 px-md-4 py-4" style="max-width: 1280px; margin: 0 auto;">
 
-{{-- 2. Slide-Over Drawer Container (Takes 2/3 of screen width from the right) --}}
-<div class="edit-drawer-container">
-
-    {{-- DRAWER STICKY TOP HEADER --}}
-    <div class="edit-drawer-header">
-        <div class="edit-drawer-header-left">
-            <span class="edit-drawer-header-badge">#PROP-{{ str_pad($property->id, 4, '0', STR_PAD_LEFT) }}</span>
-            <h1 class="edit-drawer-header-title" title="{{ $property->name }}">
-                <i class="fa-solid fa-pen-to-square text-primary me-1"></i> Editing: {{ $property->name }}
-            </h1>
+    {{-- Breadcrumbs & Top Action Bar --}}
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4 pb-3 border-bottom">
+        <div>
+            <nav aria-label="breadcrumb" class="mb-1">
+                <ol class="breadcrumb mb-0" style="font-size: 12.5px;">
+                    <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-decoration-none text-muted"><i class="fa-solid fa-gauge me-1"></i> Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('admin.properties.index') }}" class="text-decoration-none text-muted">Hotels &amp; Resorts</a></li>
+                    <li class="breadcrumb-item active text-primary fw-semibold" aria-current="page">#PROP-{{ str_pad($property->id, 4, '0', STR_PAD_LEFT) }}</li>
+                </ol>
+            </nav>
+            <div class="d-flex align-items-center gap-2 flex-wrap">
+                <h1 class="h4 fw-bold text-dark m-0" style="letter-spacing: -0.02em;">
+                    <i class="fa-solid fa-hotel text-primary me-2"></i>Editing: {{ $property->name }}
+                </h1>
+                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2.5 py-1" style="font-size: 12px;">
+                    #PROP-{{ str_pad($property->id, 4, '0', STR_PAD_LEFT) }}
+                </span>
+                <span class="badge bg-{{ ($property->status ?? 'active') === 'active' ? 'success' : 'secondary' }} bg-opacity-10 text-{{ ($property->status ?? 'active') === 'active' ? 'success' : 'secondary' }} border border-{{ ($property->status ?? 'active') === 'active' ? 'success' : 'secondary' }} border-opacity-25 px-2.5 py-1 text-capitalize" style="font-size: 12px;">
+                    <i class="fa-solid fa-circle me-1" style="font-size: 8px;"></i> {{ $property->status ?? 'active' }}
+                </span>
+            </div>
         </div>
 
-        <div class="edit-drawer-header-actions">
-            {{-- Manage Rooms Button (Crisp 4px, icon on left only) --}}
-            <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn-manage-rooms" title="Manage Rooms for this Property">
+        <div class="d-flex align-items-center gap-2 flex-wrap">
+            <a href="{{ route('admin.rooms.index', $property->id) }}" class="btn btn-outline-primary fw-semibold shadow-xs" style="font-size: 13px; height: 38px; display: inline-flex; align-items: center; gap: 7px; border-radius: 6px;">
                 <i class="fa-solid fa-bed"></i>
                 <span>Manage Rooms ({{ $property->rooms->count() }})</span>
             </a>
 
-            {{-- Preview on Web Button (Solid blue, crisp 4px, icon on left only) --}}
-            <a href="{{ route('hotels.preview', $property->id) }}" target="_blank" class="btn-preview-web" title="View Live Hotel Page">
-                <i class="fa-solid fa-eye"></i>
+            <a href="{{ route('hotels.preview', $property->id) }}" target="_blank" class="btn btn-primary fw-semibold shadow-xs" style="font-size: 13px; height: 38px; display: inline-flex; align-items: center; gap: 7px; border-radius: 6px;">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
                 <span>Preview on Web</span>
             </a>
 
-            {{-- Close Drawer Button (X) --}}
-            <a href="{{ route('admin.properties.index') }}" class="btn-drawer-close" title="Close Drawer (Esc)">
-                <i class="fa-solid fa-xmark"></i>
+            <a href="{{ route('admin.properties.index') }}" class="btn btn-light border fw-semibold text-muted" style="font-size: 13px; height: 38px; display: inline-flex; align-items: center; gap: 7px; border-radius: 6px;">
+                <i class="fa-solid fa-arrow-left"></i>
+                <span>Back to List</span>
             </a>
         </div>
     </div>
 
-    {{-- DRAWER FORM (Flex column layout so footer stays sticky at bottom) --}}
-    <form id="editPropertyForm" class="edit-drawer-form" action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
+    {{-- Form --}}
+    <form id="editPropertyForm" action="{{ route('admin.properties.update', $property->id) }}" method="POST" enctype="multipart/form-data">
         @csrf
         @method('PUT')
 
-        {{-- DRAWER SCROLLABLE BODY --}}
-        <div class="edit-drawer-body">
+        <div class="edit-property-page-body">
 
             @if(session('success'))
                 <div class="admin-alert success mb-3">
@@ -394,95 +401,117 @@
                         <img id="imgPreview" src="" style="height:80px; border-radius:4px; border:1px solid #cbd5e1; object-fit:cover;" alt="Preview">
                     </div>
 
-                    {{-- Interactive Current Photo Gallery & Category Manager --}}
-                    @if(!empty($structuredGallery) && count($structuredGallery) > 0)
+                    {{-- Enterprise Hotel Photo Gallery & Unified Manager --}}
                     <div class="col-12 mb-3">
-                        <div class="card border-0 shadow-sm" style="background:#f8fafc; border:1px solid #cbd5e1 !important; border-radius:6px;">
+                        <div class="card border-0 shadow-sm" style="background:#ffffff; border:1px solid #cbd5e1 !important; border-radius:8px;">
                             <div class="card-header bg-white py-2.5 px-3 border-bottom d-flex align-items-center justify-content-between flex-wrap gap-2">
                                 <div>
-                                    <span class="fw-bold text-dark" style="font-size:13px;">
-                                        <i class="fa-solid fa-images text-primary me-1.5"></i> Manage Current Hotel Photos ({{ count($structuredGallery) }} items)
+                                    <span class="fw-bold text-dark" style="font-size:13.5px;">
+                                        <i class="fa-solid fa-images text-primary me-1.5"></i> Hotel Photos Gallery (<span id="adminGalleryCountBadge">{{ count($structuredGallery ?? []) }}</span>)
                                     </span>
-                                    <small class="text-muted d-block" style="font-size:11.5px;">Change category, edit caption, replace file, set cover, or delete</small>
+                                    <small class="text-muted d-block" style="font-size:11.5px;">
+                                        <i class="fa-solid fa-arrows-up-down-left-right text-primary me-1"></i> Drag cards to reorder &bull; #1 is Cover &bull; Click + Add Hotel Photos or drop images to add
+                                    </small>
                                 </div>
-                                {{-- Agoda-style category filter tabs for fast photo management --}}
+                                {{-- Category Filter Pills --}}
                                 <div class="d-flex align-items-center gap-1 flex-wrap">
-                                    <button type="button" class="btn btn-xs btn-primary fw-bold admin-gal-filter-btn" data-cat="all" onclick="filterAdminGalleryCards('all', this)" style="font-size:11px; padding:2px 8px;">All ({{ count($structuredGallery) }})</button>
-                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="property_views" onclick="filterAdminGalleryCards('property_views', this)" style="font-size:11px; padding:2px 8px;">Property views</button>
-                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="rooms" onclick="filterAdminGalleryCards('rooms', this)" style="font-size:11px; padding:2px 8px;">Rooms</button>
-                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="facilities" onclick="filterAdminGalleryCards('facilities', this)" style="font-size:11px; padding:2px 8px;">Facilities</button>
-                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="dining" onclick="filterAdminGalleryCards('dining', this)" style="font-size:11px; padding:2px 8px;">Dining</button>
-                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="other" onclick="filterAdminGalleryCards('other', this)" style="font-size:11px; padding:2px 8px;">Other</button>
+                                    <button type="button" class="btn btn-xs btn-primary fw-bold admin-gal-filter-btn" data-cat="all" onclick="filterAdminGalleryCards('all', this)" style="font-size:11px; padding:3px 10px; border-radius:4px;">All (<span id="filterCountAll">{{ count($structuredGallery ?? []) }}</span>)</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="property_views" onclick="filterAdminGalleryCards('property_views', this)" style="font-size:11px; padding:3px 10px; border-radius:4px;">Property views</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="rooms" onclick="filterAdminGalleryCards('rooms', this)" style="font-size:11px; padding:3px 10px; border-radius:4px;">Rooms</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="facilities" onclick="filterAdminGalleryCards('facilities', this)" style="font-size:11px; padding:3px 10px; border-radius:4px;">Facilities</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="dining" onclick="filterAdminGalleryCards('dining', this)" style="font-size:11px; padding:3px 10px; border-radius:4px;">Dining</button>
+                                    <button type="button" class="btn btn-xs btn-outline-secondary fw-semibold admin-gal-filter-btn" data-cat="other" onclick="filterAdminGalleryCards('other', this)" style="font-size:11px; padding:3px 10px; border-radius:4px;">Other</button>
                                 </div>
                             </div>
+
                             <div class="card-body p-3">
-                                <div class="row g-3" style="max-height: 480px; overflow-y: auto;">
+                                {{-- Photos Grid: Contains existing cards + new preview cards + '+ Add Hotel Photos' tile at end --}}
+                                <div class="row g-3" id="adminHotelGalleryGrid">
                                     @php
                                         $currentPrimaryClean = ltrim(str_replace('/storage/', '', $property->primary_image ?? ''), '/');
                                     @endphp
-                                    @foreach($structuredGallery as $gIdx => $gPhoto)
+                                    @foreach($structuredGallery ?? [] as $gIdx => $gPhoto)
                                     @php
                                         $thisPhotoClean = ltrim(str_replace('/storage/', '', $gPhoto['url']), '/');
-                                        $isCover = ($gPhoto['url'] === $property->primary_image || $thisPhotoClean === $currentPrimaryClean);
+                                        $isCover = ($gPhoto['url'] === $property->primary_image || $thisPhotoClean === $currentPrimaryClean || ($gIdx === 0 && empty($property->primary_image)));
                                     @endphp
-                                    <div class="col-md-4 col-sm-6 admin-photo-card" data-card-cat="{{ $gPhoto['category'] ?? 'property_views' }}">
-                                        <div class="p-2 bg-white rounded border h-100 position-relative d-flex flex-column gap-1.5 shadow-xs" style="border-color:{{ $isCover ? '#3b82f6' : '#e2e8f0' }} !important; {{ $isCover ? 'box-shadow: 0 0 0 1px #3b82f6;' : '' }}">
-                                            <input type="hidden" name="existing_gallery[{{ $gIdx }}][url]" value="{{ $gPhoto['url'] }}">
-                                            <div class="position-relative overflow-hidden rounded" style="height: 110px; background:#0f172a;">
+                                    <div class="col-lg-3 col-md-4 col-sm-6 hotel-photo-card-item" data-card-cat="{{ $gPhoto['category'] ?? 'property_views' }}" data-photo-idx="{{ $gIdx }}" draggable="true">
+                                        <div class="p-2 bg-white rounded border h-100 position-relative d-flex flex-column gap-1.5 hotel-photo-box {{ $isCover ? 'is-cover-card' : '' }}" style="border-color:{{ $isCover ? '#3b82f6' : '#cbd5e1' }} !important; cursor:grab; transition:all 0.2s ease;">
+                                            <input type="hidden" name="existing_gallery[{{ $gIdx }}][url]" value="{{ $gPhoto['url'] }}" class="photo-url-input">
+
+                                            {{-- Order Badge + Cover Indicator --}}
+                                            <div class="position-absolute top-0 start-0 m-2" style="z-index: 5;">
+                                                <span class="badge photo-order-badge {{ $isCover ? 'bg-primary' : 'bg-dark bg-opacity-75' }}" style="font-size:10.5px; font-weight:700; padding:3px 7px;">
+                                                    @if($isCover)
+                                                        <i class="fa-solid fa-star text-warning me-0.5"></i> #1 (Cover)
+                                                    @else
+                                                        #{{ $gIdx + 1 }}
+                                                    @endif
+                                                </span>
+                                            </div>
+
+                                            {{-- Drag Grip Handle Hint --}}
+                                            <div class="position-absolute top-0 end-0 m-2 px-1.5 py-0.5 rounded bg-white bg-opacity-90 text-secondary hotel-drag-handle" style="font-size:11px; z-index:5; pointer-events:none; box-shadow:0 1px 3px rgba(0,0,0,0.2);">
+                                                <i class="fa-solid fa-grip-vertical"></i>
+                                            </div>
+
+                                            {{-- Image Thumbnail Container --}}
+                                            <div class="position-relative overflow-hidden rounded" style="height: 120px; background:#0f172a;">
                                                 <img src="{{ media_url($gPhoto['url']) }}"
                                                      onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=300&q=80';"
                                                      class="w-100 h-100" style="object-fit: cover;" alt="Photo" loading="lazy">
-                                                <span class="position-absolute top-0 start-0 m-1.5 badge bg-dark bg-opacity-75" style="font-size:10px;">#{{ $gIdx + 1 }}</span>
-                                                @if($isCover)
-                                                    <span class="position-absolute top-0 end-0 m-1.5 badge bg-primary" style="font-size:10px;">
-                                                        <i class="fa-solid fa-star me-0.5"></i> Cover
-                                                    </span>
-                                                @endif
+
+                                                {{-- Will Delete Overlay --}}
+                                                <div class="position-absolute inset-0 photo-delete-overlay d-none flex-column align-items-center justify-content-center text-white" style="top:0;left:0;right:0;bottom:0; background:rgba(239, 68, 68, 0.85); font-weight:700; font-size:12px; z-index:4;">
+                                                    <i class="fa-solid fa-trash-can fs-5 mb-1"></i>
+                                                    <span>Will Be Deleted</span>
+                                                </div>
                                             </div>
 
                                             {{-- Set as Cover Radio Option --}}
                                             <div class="d-flex align-items-center justify-content-between pt-1">
                                                 <div class="form-check form-check-sm mb-0">
-                                                    <input class="form-check-input" type="radio" name="set_primary_image_url" value="{{ $gPhoto['url'] }}" id="setCover_{{ $gIdx }}"
+                                                    <input class="form-check-input hotel-cover-radio" type="radio" name="set_primary_image_url" value="{{ $gPhoto['url'] }}" id="setCover_{{ $gIdx }}"
                                                         {{ $isCover ? 'checked' : '' }}
-                                                        onchange="document.getElementById('primaryImgUrl').value=this.value; if(window.previewUrl) previewUrl(this.value);">
+                                                        onchange="onSelectHotelCoverPhoto(this, '{{ $gPhoto['url'] }}')">
                                                     <label class="form-check-label fw-bold text-primary" for="setCover_{{ $gIdx }}" style="font-size:11px; cursor:pointer;">
                                                         <i class="fa-regular fa-star me-0.5 text-warning"></i> Set as Cover
                                                     </label>
                                                 </div>
+                                                <span class="text-muted small" style="font-size:10px; cursor:grab;">
+                                                    <i class="fa-solid fa-arrows-up-down-left-right me-0.5"></i> Drag
+                                                </span>
                                             </div>
 
-                                            {{-- Replace Image File In-Place --}}
+                                            {{-- Category Selector --}}
                                             <div class="pt-0.5">
-                                                <label class="form-label mb-0 text-muted" style="font-size:10.5px;">
+                                                <label class="form-label mb-0 text-muted" style="font-size:10.5px; font-weight:600;">Category:</label>
+                                                <select name="existing_gallery[{{ $gIdx }}][category]" class="form-select form-select-sm fw-semibold photo-category-select" style="font-size:11px; padding:3px 7px;" onchange="this.closest('.hotel-photo-card-item').setAttribute('data-card-cat', this.value);">
+                                                    <option value="property_views" @selected(($gPhoto['category'] ?? '') === 'property_views')>Property views (Exterior/Lobby)</option>
+                                                    <option value="facilities" @selected(($gPhoto['category'] ?? '') === 'facilities')>Facilities (Pool/Gym/Spa/Hall)</option>
+                                                    <option value="dining" @selected(($gPhoto['category'] ?? '') === 'dining')>Dining (Restaurant/Cafe/Buffet)</option>
+                                                    <option value="rooms" @selected(($gPhoto['category'] ?? '') === 'rooms')>Rooms &amp; Suites</option>
+                                                    <option value="other" @selected(($gPhoto['category'] ?? '') === 'other')>Other</option>
+                                                </select>
+                                            </div>
+
+                                            {{-- Caption / Title --}}
+                                            <div>
+                                                <input type="text" name="existing_gallery[{{ $gIdx }}][title]" value="{{ $gPhoto['title'] ?? '' }}" placeholder="Caption / Title" class="form-control form-control-sm photo-title-input" style="font-size:11px; padding:3px 7px;">
+                                            </div>
+
+                                            {{-- In-Place Replace File (Optional) --}}
+                                            <div class="pt-0.5">
+                                                <label class="form-label mb-0 text-muted" style="font-size:10px;">
                                                     <i class="fa-solid fa-arrow-rotate-right text-info me-0.5"></i> Replace file:
                                                 </label>
-                                                <input type="file" name="existing_gallery_replace[{{ $gIdx }}]" class="form-control form-control-sm" accept="image/*" style="font-size:11px; padding:2px 6px;">
+                                                <input type="file" name="existing_gallery_replace[{{ $gIdx }}]" class="form-control form-control-sm photo-replace-input" accept="image/*" style="font-size:10.5px; padding:2px 5px;">
                                             </div>
 
-                                            <div>
-                                                <label class="form-label mb-0.5" style="font-size:11px; font-weight:600; color:#475569;">Category:</label>
-                                                <select name="existing_gallery[{{ $gIdx }}][category]" class="form-select form-select-sm fw-semibold" style="font-size:11.5px; padding:3px 8px;" onchange="this.closest('.admin-photo-card').setAttribute('data-card-cat', this.value);">
-                                                    <option value="property_views" @selected(($gPhoto['category'] ?? '') === 'property_views')>Property views (Exterior/Lobby)</option>
-                                                    <option value="facilities" @selected(($gPhoto['category'] ?? '') === 'facilities')>Facilities (Pool/Gym/Spa/Hall)</option>
-                                                    <option value="dining" @selected(($gPhoto['category'] ?? '') === 'dining')>Dining (Restaurant/Cafe/Buffet)</option>
-                                                    <option value="rooms" @selected(($gPhoto['category'] ?? '') === 'rooms')>Rooms &amp; Suites</option>
-                                                    <option value="other" @selected(($gPhoto['category'] ?? '') === 'other')>Other</option>
-                                                </select>
-                                            </div>
-                                                    <option value="property_views" @selected(($gPhoto['category'] ?? '') === 'property_views')>Property views (Exterior/Lobby)</option>
-                                                    <option value="facilities" @selected(($gPhoto['category'] ?? '') === 'facilities')>Facilities (Pool/Gym/Spa/Hall)</option>
-                                                    <option value="dining" @selected(($gPhoto['category'] ?? '') === 'dining')>Dining (Restaurant/Cafe/Buffet)</option>
-                                                    <option value="rooms" @selected(($gPhoto['category'] ?? '') === 'rooms')>Rooms &amp; Suites</option>
-                                                    <option value="other" @selected(($gPhoto['category'] ?? '') === 'other')>Other</option>
-                                                </select>
-                                            </div>
-                                            <div>
-                                                <input type="text" name="existing_gallery[{{ $gIdx }}][title]" value="{{ $gPhoto['title'] ?? '' }}" placeholder="Caption / Title" class="form-control form-control-sm" style="font-size:11.5px; padding:3px 8px;">
-                                            </div>
+                                            {{-- Delete Checkbox Footer --}}
                                             <div class="mt-auto pt-1 d-flex align-items-center justify-content-between border-top">
                                                 <div class="form-check form-check-sm mb-0">
-                                                    <input class="form-check-input" type="checkbox" name="existing_gallery[{{ $gIdx }}][delete]" value="1" id="delPhoto_{{ $gIdx }}">
+                                                    <input class="form-check-input photo-delete-check" type="checkbox" name="existing_gallery[{{ $gIdx }}][delete]" value="1" id="delPhoto_{{ $gIdx }}" onchange="handleHotelPhotoDeleteToggle(this)">
                                                     <label class="form-check-label text-danger fw-semibold" for="delPhoto_{{ $gIdx }}" style="font-size:11px; cursor:pointer;">
                                                         <i class="fa-solid fa-trash-can me-1"></i> Delete photo
                                                     </label>
@@ -491,51 +520,37 @@
                                         </div>
                                     </div>
                                     @endforeach
+
+                                    {{-- The "+ Add Hotel Photos" Tile (Always matches photo card dimensions at the end of the grid) --}}
+                                    <div class="col-lg-3 col-md-4 col-sm-6 hotel-photo-add-tile-col" id="adminHotelPhotoAddTileCol">
+                                        <div class="p-3 rounded border-2 border-dashed h-100 d-flex flex-column align-items-center justify-content-center text-center hotel-photo-add-tile"
+                                             onclick="document.getElementById('adminHotelGalleryFileInput').click()"
+                                             ondragover="handleHotelPhotoTileDragOver(event, this)"
+                                             ondragleave="handleHotelPhotoTileDragLeave(event, this)"
+                                             ondrop="handleHotelPhotoTileDrop(event, this)"
+                                             style="border-color:#3b82f6 !important; background:#eff6ff; min-height:280px; cursor:pointer; transition:all 0.2s ease;">
+                                            
+                                            <div class="rounded-circle bg-primary bg-opacity-10 text-primary d-inline-flex align-items-center justify-content-center mb-2" style="width:48px; height:48px; font-size:20px;">
+                                                <i class="fa-solid fa-plus"></i>
+                                            </div>
+                                            <span class="fw-bold text-primary" style="font-size:13.5px; line-height:1.2;">+ Add Hotel Photos</span>
+                                            <small class="text-muted mt-1" style="font-size:11px;">Click to browse or<br>drag &amp; drop photos here</small>
+                                            <span class="badge bg-primary bg-opacity-15 text-primary mt-2.5 px-2 py-1" style="font-size:10px; font-weight:600;">
+                                                <i class="fa-solid fa-layer-group me-1"></i> Multi-Upload
+                                            </span>
+
+                                            {{-- Hidden Multi-File Input --}}
+                                            <input type="file" id="adminHotelGalleryFileInput" name="gallery_image_files[]" multiple accept="image/*" class="d-none" onchange="handleAdminHotelGalleryFileSelect(this)">
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    @endif
-
-                    {{-- Upload Category Selector for New Uploads --}}
-                    <div class="col-12 mb-1">
-                        <div class="rounded border d-flex flex-wrap align-items-center justify-content-between gap-2" style="padding:12px 14px; border-radius:4px; border-color:#bfdbfe !important; background:#eff6ff !important;">
-                            <div>
-                                <label class="form-label fw-bold text-dark mb-0" style="font-size:12.5px;">
-                                    <i class="fa-solid fa-tag text-primary me-1"></i> Category for New Photos Below:
-                                </label>
-                                <span class="d-block text-muted" style="font-size:11px;">Select the category to automatically assign to files or URLs added below</span>
-                            </div>
-                            <div>
-                                <select name="new_gallery_category" class="form-select form-select-sm fw-bold border-primary" style="min-width:230px; font-size:12px;">
-                                    <option value="property_views" selected>Property views (Exterior, Lobby, Building)</option>
-                                    <option value="facilities">Facilities (Pool, Gym, Spa, Ballroom)</option>
-                                    <option value="dining">Dining (Restaurant, Cafe, Buffet)</option>
-                                    <option value="rooms">Rooms &amp; Suites</option>
-                                    <option value="other">Other / General</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Drag & Drop Multi-Image Dropzone for Admin Gallery Photos --}}
-                    <div class="col-12">
-                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
-                            <i class="fa-solid fa-photo-film text-primary me-1"></i> Add More Gallery Photos (Drag &amp; Drop Multi-Upload)
-                        </label>
-                        <div id="adminEditGalleryDropzone" class="p-4 border-2 border-dashed rounded text-center" style="background:#f8fafc; border-color:#93c5fd; cursor:pointer; transition:all 0.2s ease;" onclick="document.getElementById('adminEditGalleryFileInput').click()">
-                            <input type="file" id="adminEditGalleryFileInput" name="gallery_image_files[]" multiple accept="image/*" class="d-none" onchange="handleAdminEditGalleryFileSelect(this)">
-                            <i class="fa-solid fa-cloud-arrow-up text-primary fs-2 mb-2"></i>
-                            <h6 class="fw-bold text-dark mb-1" style="font-size:13.5px;">Drag &amp; drop new photos here or click to browse</h6>
-                            <p class="text-muted m-0" style="font-size:11.5px;">Supports JPG, PNG, WEBP high-resolution photos</p>
-                        </div>
-                        {{-- Instant Preview Thumbnails Container --}}
-                        <div id="adminEditGalleryPreviewContainer" class="d-flex flex-wrap gap-2 mt-2.5"></div>
-                    </div>
 
                     <div class="col-12">
-                        <label class="form-label">Gallery Image URLs (one per line)</label>
-                        <textarea name="gallery_images" class="form-control" rows="2"
+                        <label class="form-label text-muted" style="font-size:12px;">Gallery Image URLs (one per line fallback)</label>
+                        <textarea name="gallery_images" class="form-control" rows="2" style="font-size:12px;"
                             placeholder="https://cdn.example.com/image1.jpg&#10;https://cdn.example.com/image2.jpg">{{ old('gallery_images', $galleryText) }}</textarea>
                     </div>
                 </div>
@@ -699,18 +714,18 @@
 
         </div>
 
-        {{-- DRAWER STICKY BOTTOM ACTION BAR --}}
-        <div class="edit-drawer-footer">
-            <div class="edit-drawer-footer-hint">
-                <i class="fa-solid fa-shield-halved text-success me-1.5" style="font-size:13px;"></i>
-                <span>Live Real-Time Hotel Editor</span>
+        {{-- Enterprise Sticky Action Bar at Bottom --}}
+        <div class="property-edit-sticky-footer">
+            <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-success"></i>
+                <span class="text-muted fw-semibold" style="font-size: 13px;">Enterprise Real-Time Publisher &bull; Editing #PROP-{{ str_pad($property->id, 4, '0', STR_PAD_LEFT) }}</span>
             </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <a href="{{ route('admin.properties.index') }}" class="btn-header-action" style="padding:0 18px; height:36px; font-size:13px; border-radius:4px;">
-                    <i class="fa-solid fa-xmark"></i> <span>Cancel</span>
+            <div class="d-flex align-items-center gap-2">
+                <a href="{{ route('admin.properties.index') }}" class="btn btn-light border px-4 fw-semibold" style="height: 38px; font-size: 13px; border-radius: 6px;">
+                    <i class="fa-solid fa-xmark me-1"></i> Cancel
                 </a>
-                <button type="submit" class="btn-add-primary" style="padding:0 24px; height:36px; font-size:13px; font-weight:600; border-radius:4px;">
-                    <i class="fa-solid fa-check"></i> <span>Save Changes</span>
+                <button type="submit" class="btn btn-primary px-4 fw-bold shadow-sm" style="height: 38px; font-size: 13.5px; border-radius: 6px;">
+                    <i class="fa-solid fa-check me-1.5"></i> Save Changes
                 </button>
             </div>
         </div>
@@ -722,9 +737,64 @@
 @endsection
 
 @section('scripts')
-{{-- Leaflet Maps CDN --}}
+{{-- Leaflet Maps CDN & SortableJS CDN --}}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+
+<style>
+/* Enterprise Property Edit Page & Unified Hotel Photo Manager */
+.property-edit-sticky-footer {
+    position: sticky;
+    bottom: 0;
+    z-index: 1020;
+    background: #ffffff;
+    border-top: 1px solid #e2e8f0;
+    padding: 12px 24px;
+    margin: 32px -15px -15px -15px;
+    box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.06);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+.hotel-photo-box {
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.2s ease, opacity 0.2s ease;
+}
+.hotel-photo-box:hover {
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.12) !important;
+    transform: translateY(-2px);
+}
+.hotel-photo-box.is-cover-card {
+    border-color: #3b82f6 !important;
+    box-shadow: 0 0 0 1.5px #3b82f6 !important;
+}
+.hotel-photo-box.photo-marked-delete {
+    opacity: 0.45;
+    border-color: #ef4444 !important;
+    background: #fef2f2 !important;
+}
+.hotel-photo-add-tile:hover {
+    background: #dbeafe !important;
+    border-color: #1d4ed8 !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(59, 130, 246, 0.15) !important;
+}
+.hotel-sortable-ghost {
+    opacity: 0.35 !important;
+    background: #eff6ff !important;
+    border: 2px dashed #3b82f6 !important;
+}
+.hotel-sortable-chosen {
+    box-shadow: 0 8px 24px rgba(59, 130, 246, 0.25) !important;
+    transform: scale(1.02);
+}
+.hotel-sortable-drag {
+    opacity: 0.9 !important;
+    cursor: grabbing !important;
+}
+</style>
 
 <script>
 // ── Geolocation Interactive Map Picker (Leaflet + OpenStreetMap) ──
@@ -753,33 +823,40 @@ document.addEventListener("DOMContentLoaded", function () {
     let defaultLat = parseFloat(latInput?.value) || 21.4272;
     let defaultLng = parseFloat(lngInput?.value) || 91.9702;
 
-    adminEditPropertyMap = L.map('adminEditMapPicker').setView([defaultLat, defaultLng], 13);
-    
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(adminEditPropertyMap);
+    const mapEl = document.getElementById('adminEditMapPicker');
+    if (mapEl) {
+        adminEditPropertyMap = L.map('adminEditMapPicker').setView([defaultLat, defaultLng], 13);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(adminEditPropertyMap);
 
-    adminEditPropertyMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(adminEditPropertyMap);
+        adminEditPropertyMarker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(adminEditPropertyMap);
 
-    adminEditPropertyMarker.on('dragend', function (e) {
-        const position = adminEditPropertyMarker.getLatLng();
-        latInput.value = position.lat.toFixed(6);
-        lngInput.value = position.lng.toFixed(6);
-    });
+        adminEditPropertyMarker.on('dragend', function (e) {
+            const position = adminEditPropertyMarker.getLatLng();
+            if (latInput) latInput.value = position.lat.toFixed(6);
+            if (lngInput) lngInput.value = position.lng.toFixed(6);
+        });
 
-    adminEditPropertyMap.on('click', function (e) {
-        adminEditPropertyMarker.setLatLng(e.latlng);
-        latInput.value = e.latlng.lat.toFixed(6);
-        lngInput.value = e.latlng.lng.toFixed(6);
-    });
+        adminEditPropertyMap.on('click', function (e) {
+            adminEditPropertyMarker.setLatLng(e.latlng);
+            if (latInput) latInput.value = e.latlng.lat.toFixed(6);
+            if (lngInput) lngInput.value = e.latlng.lng.toFixed(6);
+        });
 
-    setupAdminEditGalleryDropzone();
+        setTimeout(function() {
+            adminEditPropertyMap.invalidateSize();
+        }, 300);
+    }
+
+    initAdminHotelGallerySortable();
 });
 
 function updateAdminEditMarkerFromInputs() {
-    const lat = parseFloat(document.getElementById('adminEditLatitudeInput').value);
-    const lng = parseFloat(document.getElementById('adminEditLongitudeInput').value);
+    const lat = parseFloat(document.getElementById('adminEditLatitudeInput')?.value);
+    const lng = parseFloat(document.getElementById('adminEditLongitudeInput')?.value);
     if (!isNaN(lat) && !isNaN(lng) && adminEditPropertyMap && adminEditPropertyMarker) {
         adminEditPropertyMarker.setLatLng([lat, lng]);
         adminEditPropertyMap.panTo([lat, lng]);
@@ -797,8 +874,10 @@ function onAdminCityChanged(select) {
     let targetLng = lng ? parseFloat(lng) : (cityCoordinates[cityName] ? cityCoordinates[cityName][1] : null);
 
     if (targetLat && targetLng) {
-        document.getElementById('adminEditLatitudeInput').value = targetLat.toFixed(6);
-        document.getElementById('adminEditLongitudeInput').value = targetLng.toFixed(6);
+        const latInput = document.getElementById('adminEditLatitudeInput');
+        const lngInput = document.getElementById('adminEditLongitudeInput');
+        if (latInput) latInput.value = targetLat.toFixed(6);
+        if (lngInput) lngInput.value = targetLng.toFixed(6);
         if (adminEditPropertyMap && adminEditPropertyMarker) {
             adminEditPropertyMarker.setLatLng([targetLat, targetLng]);
             adminEditPropertyMap.setView([targetLat, targetLng], 13);
@@ -806,58 +885,299 @@ function onAdminCityChanged(select) {
     }
 }
 
-// ── Drag & Drop Multi-Image Uploader with Live Preview ──
-function setupAdminEditGalleryDropzone() {
-    const dropzone = document.getElementById('adminEditGalleryDropzone');
-    if (!dropzone) return;
+// ── Unified Hotel Photo Manager & Drag-Drop Sorting ──
+let adminHotelSortableInstance = null;
+let adminHotelDataTransfer = new DataTransfer();
 
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropzone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropzone.style.background = '#eff6ff';
-            dropzone.style.borderColor = '#2563eb';
-        }, false);
+function initAdminHotelGallerySortable() {
+    const grid = document.getElementById('adminHotelGalleryGrid');
+    if (!grid) return;
+
+    if (typeof Sortable !== 'undefined') {
+        adminHotelSortableInstance = new Sortable(grid, {
+            draggable: '.hotel-photo-card-item',
+            filter: '.hotel-photo-add-tile-col, .hotel-photo-new-preview',
+            preventOnFilter: false,
+            animation: 200,
+            ghostClass: 'hotel-sortable-ghost',
+            chosenClass: 'hotel-sortable-chosen',
+            dragClass: 'hotel-sortable-drag',
+            onEnd: function() {
+                updateHotelGalleryOrder();
+            }
+        });
+    } else {
+        bindNativeHotelDragEvents(grid);
+    }
+}
+
+function updateHotelGalleryOrder() {
+    const grid = document.getElementById('adminHotelGalleryGrid');
+    if (!grid) return;
+
+    const cards = grid.querySelectorAll('.hotel-photo-card-item');
+    let hasExplicitCover = false;
+
+    // Check if any card has an explicitly checked radio
+    cards.forEach(card => {
+        const radio = card.querySelector('.hotel-cover-radio');
+        if (radio && radio.checked) hasExplicitCover = true;
     });
 
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropzone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropzone.style.background = '#f8fafc';
-            dropzone.style.borderColor = '#93c5fd';
-        }, false);
-    });
+    cards.forEach((card, idx) => {
+        card.setAttribute('data-photo-idx', idx);
 
-    dropzone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        handleAdminEditGalleryFiles(files);
+        // Update badge
+        const badge = card.querySelector('.photo-order-badge');
+        const radio = card.querySelector('.hotel-cover-radio');
+        const box = card.querySelector('.hotel-photo-box');
+
+        const isCover = (!hasExplicitCover && idx === 0) || (radio && radio.checked);
+
+        if (badge) {
+            if (isCover) {
+                badge.className = 'badge photo-order-badge bg-primary';
+                badge.innerHTML = '<i class="fa-solid fa-star text-warning me-0.5"></i> #1 (Cover)';
+                if (box) box.classList.add('is-cover-card');
+                if (radio && !hasExplicitCover && idx === 0) {
+                    radio.checked = true;
+                    const primInput = document.getElementById('primaryImgUrl');
+                    if (primInput && radio.value) primInput.value = radio.value;
+                }
+            } else {
+                badge.className = 'badge photo-order-badge bg-dark bg-opacity-75';
+                badge.textContent = '#' + (idx + 1);
+                if (box && (!radio || !radio.checked)) box.classList.remove('is-cover-card');
+            }
+        }
+
+        // Re-index all form inputs inside this card so PHP parses exact order
+        card.querySelectorAll('input, select, textarea').forEach(el => {
+            if (el.name && el.name.startsWith('existing_gallery[')) {
+                el.name = el.name.replace(/existing_gallery\[\d+\]/, `existing_gallery[${idx}]`);
+            }
+            if (el.name && el.name.startsWith('existing_gallery_replace[')) {
+                el.name = el.name.replace(/existing_gallery_replace\[\d+\]/, `existing_gallery_replace[${idx}]`);
+            }
+        });
     });
 }
 
-function handleAdminEditGalleryFileSelect(input) {
-    handleAdminEditGalleryFiles(input.files);
+function onSelectHotelCoverPhoto(radio, url) {
+    const primInput = document.getElementById('primaryImgUrl');
+    if (primInput) primInput.value = url;
+    if (window.previewUrl) previewUrl(url);
+
+    // Uncheck other radios
+    document.querySelectorAll('.hotel-cover-radio').forEach(r => {
+        if (r !== radio) r.checked = false;
+    });
+
+    updateHotelGalleryOrder();
 }
 
-function handleAdminEditGalleryFiles(files) {
-    const container = document.getElementById('adminEditGalleryPreviewContainer');
-    if (!files || !container) return;
+function handleHotelPhotoDeleteToggle(checkbox) {
+    const card = checkbox.closest('.hotel-photo-card-item');
+    if (!card) return;
+    const box = card.querySelector('.hotel-photo-box');
+    const overlay = card.querySelector('.photo-delete-overlay');
 
-    Array.from(files).forEach((file, index) => {
+    if (checkbox.checked) {
+        if (box) box.classList.add('photo-marked-delete');
+        if (overlay) {
+            overlay.classList.remove('d-none');
+            overlay.classList.add('d-flex');
+        }
+    } else {
+        if (box) box.classList.remove('photo-marked-delete');
+        if (overlay) {
+            overlay.classList.remove('d-flex');
+            overlay.classList.add('d-none');
+        }
+    }
+}
+
+// ── Native HTML5 Drag and Drop Fallback ──
+function bindNativeHotelDragEvents(grid) {
+    let draggedItem = null;
+
+    grid.querySelectorAll('.hotel-photo-card-item').forEach(item => {
+        item.addEventListener('dragstart', function(e) {
+            draggedItem = this;
+            this.classList.add('hotel-sortable-drag');
+            e.dataTransfer.effectAllowed = 'move';
+        });
+
+        item.addEventListener('dragend', function() {
+            this.classList.remove('hotel-sortable-drag');
+            draggedItem = null;
+            updateHotelGalleryOrder();
+        });
+
+        item.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            if (!draggedItem || draggedItem === this) return;
+            const bounding = this.getBoundingClientRect();
+            const offset = e.clientX - bounding.left;
+            if (offset > bounding.width / 2) {
+                this.parentNode.insertBefore(draggedItem, this.nextSibling);
+            } else {
+                this.parentNode.insertBefore(draggedItem, this);
+            }
+        });
+    });
+}
+
+// ── "+ Add Hotel Photos" Tile Drag & Drop and Instant Previews ──
+function handleHotelPhotoTileDragOver(e, tile) {
+    e.preventDefault();
+    e.stopPropagation();
+    tile.style.borderColor = '#1d4ed8';
+    tile.style.background = '#dbeafe';
+}
+
+function handleHotelPhotoTileDragLeave(e, tile) {
+    e.preventDefault();
+    e.stopPropagation();
+    tile.style.borderColor = '#3b82f6';
+    tile.style.background = '#eff6ff';
+}
+
+function handleHotelPhotoTileDrop(e, tile) {
+    e.preventDefault();
+    e.stopPropagation();
+    tile.style.borderColor = '#3b82f6';
+    tile.style.background = '#eff6ff';
+
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+        processNewHotelFiles(files);
+    }
+}
+
+function handleAdminHotelGalleryFileSelect(input) {
+    if (input.files && input.files.length > 0) {
+        processNewHotelFiles(input.files);
+    }
+}
+
+function processNewHotelFiles(fileList) {
+    const grid = document.getElementById('adminHotelGalleryGrid');
+    const addTileCol = document.getElementById('adminHotelPhotoAddTileCol');
+    const fileInput = document.getElementById('adminHotelGalleryFileInput');
+    if (!grid || !addTileCol) return;
+
+    Array.from(fileList).forEach(file => {
         if (!file.type.startsWith('image/')) return;
+
+        // Add to our persistent DataTransfer
+        adminHotelDataTransfer.items.add(file);
+        const fileIdx = adminHotelDataTransfer.items.length - 1;
+
+        // Create Preview Card
+        const previewCol = document.createElement('div');
+        previewCol.className = 'col-lg-3 col-md-4 col-sm-6 hotel-photo-new-preview';
+        previewCol.setAttribute('data-file-idx', fileIdx);
+
+        previewCol.innerHTML = `
+            <div class="p-2 bg-white rounded border h-100 position-relative d-flex flex-column gap-1.5 hotel-photo-box" style="border-color:#10b981 !important; box-shadow:0 0 0 1px #10b981;">
+                <div class="position-absolute top-0 start-0 m-2" style="z-index: 5;">
+                    <span class="badge bg-success" style="font-size:10.5px; font-weight:700; padding:3px 7px;">
+                        <i class="fa-solid fa-sparkles me-0.5"></i> New Photo
+                    </span>
+                </div>
+                <div class="position-relative overflow-hidden rounded" style="height: 120px; background:#0f172a;">
+                    <img src="" class="w-100 h-100 preview-img" style="object-fit: cover;" alt="New Photo">
+                    <span class="position-absolute bottom-0 start-0 m-1.5 badge bg-dark bg-opacity-75" style="font-size:9.5px;">${(file.size / 1024).toFixed(0)} KB</span>
+                </div>
+                <div class="pt-0.5">
+                    <label class="form-label mb-0 text-muted" style="font-size:10.5px; font-weight:600;">Category:</label>
+                    <select name="gallery_image_categories[]" class="form-select form-select-sm fw-semibold" style="font-size:11px; padding:3px 7px;">
+                        <option value="property_views" selected>Property views (Exterior/Lobby)</option>
+                        <option value="facilities">Facilities (Pool/Gym/Spa/Hall)</option>
+                        <option value="dining">Dining (Restaurant/Cafe/Buffet)</option>
+                        <option value="rooms">Rooms &amp; Suites</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div>
+                    <input type="text" name="gallery_image_captions[]" value="${file.name.replace(/\.[^/.]+$/, "")}" placeholder="Photo caption / title" class="form-control form-control-sm" style="font-size:11px; padding:3px 7px;">
+                </div>
+                <div class="mt-auto pt-1 d-flex align-items-center justify-content-between border-top">
+                    <span class="text-truncate text-muted small" style="max-width:120px; font-size:10px;" title="${file.name}">${file.name}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger py-0.5 px-2" style="font-size:11px;" onclick="removePendingHotelPhoto(this, ${fileIdx})">
+                        <i class="fa-solid fa-xmark me-1"></i> Cancel
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Read thumbnail
         const reader = new FileReader();
-        reader.onload = function (e) {
-            const card = document.createElement('div');
-            card.className = 'position-relative border rounded p-1 shadow-sm bg-white';
-            card.style.width = '100px';
-            card.style.height = '85px';
-            card.innerHTML = `
-                <img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover; border-radius:4px;" alt="preview">
-                <span class="badge bg-dark position-absolute bottom-0 start-0 m-1 opacity-75" style="font-size:8px;">${(file.size / 1024).toFixed(0)} KB</span>
-                <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 p-0 rounded-circle d-flex align-items-center justify-content-center m-1 shadow-sm" style="width:18px; height:18px; font-size:9px;" onclick="this.parentElement.remove()" title="Remove">✕</button>
-            `;
-            container.appendChild(card);
+        reader.onload = function(e) {
+            const img = previewCol.querySelector('.preview-img');
+            if (img) img.src = e.target.result;
         };
         reader.readAsDataURL(file);
+
+        // Insert right before "+ Add Hotel Photos" Tile
+        grid.insertBefore(previewCol, addTileCol);
+    });
+
+    // Sync input files
+    if (fileInput) {
+        fileInput.files = adminHotelDataTransfer.files;
+    }
+
+    updateTotalPhotoCounts();
+}
+
+function removePendingHotelPhoto(btn, fileIdx) {
+    const card = btn.closest('.hotel-photo-new-preview');
+    if (card) card.remove();
+
+    // Reconstruct DataTransfer without this file
+    const newDt = new DataTransfer();
+    Array.from(adminHotelDataTransfer.files).forEach((f, idx) => {
+        if (idx !== fileIdx) {
+            newDt.items.add(f);
+        }
+    });
+    adminHotelDataTransfer = newDt;
+
+    const fileInput = document.getElementById('adminHotelGalleryFileInput');
+    if (fileInput) fileInput.files = adminHotelDataTransfer.files;
+
+    updateTotalPhotoCounts();
+}
+
+function updateTotalPhotoCounts() {
+    const grid = document.getElementById('adminHotelGalleryGrid');
+    if (!grid) return;
+    const totalExisting = grid.querySelectorAll('.hotel-photo-card-item').length;
+    const totalNew = grid.querySelectorAll('.hotel-photo-new-preview').length;
+    const grandTotal = totalExisting + totalNew;
+
+    const badge = document.getElementById('adminGalleryCountBadge');
+    const filterAll = document.getElementById('filterCountAll');
+    if (badge) badge.textContent = grandTotal;
+    if (filterAll) filterAll.textContent = grandTotal;
+}
+
+function filterAdminGalleryCards(cat, btn) {
+    document.querySelectorAll('.admin-gal-filter-btn').forEach(b => {
+        b.classList.remove('btn-primary');
+        b.classList.add('btn-outline-secondary');
+    });
+    btn.classList.remove('btn-outline-secondary');
+    btn.classList.add('btn-primary');
+
+    document.querySelectorAll('.hotel-photo-card-item').forEach(card => {
+        if (cat === 'all' || card.getAttribute('data-card-cat') === cat) {
+            card.style.display = '';
+        } else {
+            card.style.display = 'none';
+        }
     });
 }
 
@@ -931,23 +1251,6 @@ function previewUrl(url) {
     }
 }
 
-function filterAdminGalleryCards(cat, btn) {
-    document.querySelectorAll('.admin-gal-filter-btn').forEach(b => {
-        b.classList.remove('btn-primary');
-        b.classList.add('btn-outline-secondary');
-    });
-    btn.classList.remove('btn-outline-secondary');
-    btn.classList.add('btn-primary');
-
-    document.querySelectorAll('.admin-photo-card').forEach(card => {
-        if (cat === 'all' || card.getAttribute('data-card-cat') === cat) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
-
 function previewFile(input) {
     const wrap = document.getElementById('imgPreviewWrap');
     const img  = document.getElementById('imgPreview');
@@ -960,19 +1263,5 @@ function previewFile(input) {
         reader.readAsDataURL(input.files[0]);
     }
 }
-
-// ── Close 2/3 Drawer on ESC key ──
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        window.location.href = "{{ route('admin.properties.index') }}";
-    }
-});
-
-// ── Invalidate Leaflet Map Size after drawer slide-in animation ──
-setTimeout(function() {
-    if (adminEditPropertyMap) {
-        adminEditPropertyMap.invalidateSize();
-    }
-}, 350);
 </script>
 @endsection

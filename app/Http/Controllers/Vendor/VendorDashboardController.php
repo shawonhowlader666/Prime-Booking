@@ -43,7 +43,7 @@ class VendorDashboardController extends Controller
             $totalCommission = 0;
             foreach ($bookings as $b) {
                 $gross = (float)($b->total_price ?? $b->total_amount ?? 0);
-                $rate  = (float)($b->property->commission_rate ?? 15.00);
+                $rate  = (float)($b->property?->commission_rate ?? 15.00);
                 $totalRevenue    += $gross;
                 $totalCommission += ($gross * ($rate / 100));
             }

@@ -44,7 +44,10 @@
             overscroll-behavior-y: none;
             text-rendering: optimizeLegibility;
         }
-        .card, .table-responsive, .stat-card, .dataTables_wrapper {
+        /* Not applied to .card / .table-responsive / .dataTables_wrapper: content-visibility
+           (paint containment) and transform clip dropdown menus and turn the element into
+           the containing block for position:fixed, which breaks Popper's fixed strategy. */
+        .stat-card {
             content-visibility: auto;
             contain-intrinsic-size: auto 300px;
             transform: translateZ(0);
@@ -1103,10 +1106,7 @@
         .action-gear-dropdown .dropdown-menu, .action-3dot-dropdown .dropdown-menu {
             min-width: 190px; padding: 4px 0; border-radius: 6px !important; border: 1px solid #e2e8f0;
             box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.15), 0 8px 10px -6px rgba(0, 0, 0, 0.1) !important;
-            background: #ffffff; z-index: 2000 !important; right: 0 !important; left: auto !important;
-        }
-        tbody tr:nth-last-child(-n+3) .action-gear-dropdown .dropdown-menu {
-            top: auto !important; bottom: 100% !important; margin-bottom: 4px !important; margin-top: 0 !important;
+            background: #ffffff; z-index: 2000 !important;
         }
         .action-gear-dropdown .dropdown-item {
             padding: 7px 14px; font-size: 12.5px; font-weight: 500; color: #334155;
@@ -1528,22 +1528,88 @@
         setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateY(10px)'; setTimeout(() => toast.remove(), 200); }, 3000);
     }
 
+    // ── Shared export helpers ────────────────────────────────────────
+    // Skip checkbox cells, hidden cells and the "Actions" column in every export.
+    function saasSkipExportCell(col) {
+        if (col.style.display === 'none') return true;
+        if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox')) return true;
+        if (col.querySelector('.tbl-master-check, .tbl-row-check')) return true;
+        const table = col.closest('table');
+        const head = table && col.colSpan === 1 ? table.querySelectorAll('thead th')[col.cellIndex] : null;
+        return !!head && head.textContent.trim().toLowerCase() === 'actions';
+    }
+
+    function saasEscapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    // navigator.clipboard only exists on HTTPS / localhost — fall back to execCommand elsewhere.
+    function saasCopyText(text) {
+        if (navigator.clipboard && window.isSecureContext) {
+            return navigator.clipboard.writeText(text);
+        }
+        return new Promise((resolve, reject) => {
+            const area = document.createElement('textarea');
+            area.value = text;
+            area.setAttribute('readonly', '');
+            area.style.cssText = 'position:fixed; top:-1000px; left:-1000px; opacity:0;';
+            document.body.appendChild(area);
+            area.select();
+            let ok = false;
+            try { ok = document.execCommand('copy'); } catch (e) { ok = false; }
+            area.remove();
+            ok ? resolve() : reject(new Error('copy failed'));
+        });
+    }
+
+    // Table markup for the print window: visible rows only, no checkbox / action cells.
+    function saasPrintableTable(table) {
+        const clone = table.cloneNode(true);
+        const srcRows = table.querySelectorAll('tr');
+        const cloneRows = clone.querySelectorAll('tr');
+        srcRows.forEach((row, r) => {
+            const cloneRow = cloneRows[r];
+            if (!cloneRow) return;
+            if (row.style.display === 'none') { cloneRow.remove(); return; }
+            Array.from(row.children).forEach((col, c) => {
+                if (saasSkipExportCell(col) && cloneRow.children[c]) cloneRow.children[c].setAttribute('data-print-skip', '1');
+            });
+        });
+        clone.querySelectorAll('[data-print-skip], script, form, .dropdown-menu').forEach(el => el.remove());
+        return clone.outerHTML;
+    }
+
+    // ── Table-row dropdowns: fixed Popper strategy ───────────────────
+    // .table-responsive scrolls (overflow-x:auto) and would clip an absolutely positioned
+    // menu. Runs in the capture phase, before Bootstrap's delegated handler creates the
+    // Dropdown instance, so it also covers rows inserted after page load.
+    (function () {
+        function prepareTableDropdown(e) {
+            const toggle = e.target instanceof Element ? e.target.closest('[data-bs-toggle="dropdown"]') : null;
+            if (!toggle || toggle.hasAttribute('data-bs-popper-config')) return;
+            if (!toggle.closest('.table-responsive, .dataTables_wrapper, .action-gear-dropdown, .action-3dot-dropdown')) return;
+            toggle.setAttribute('data-bs-popper-config', '{"strategy":"fixed"}');
+        }
+        document.addEventListener('click', prepareTableDropdown, true);
+        document.addEventListener('keydown', prepareTableDropdown, true);
+    })();
+
     function copyTableToClipboard(tableId) {
         const table = document.getElementById(tableId);
         if (!table) return;
         let text = '';
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
-            if (row.style.display === 'none') return;
+            if (row.style.display === 'none' || row.querySelector('td[colspan]:only-child')) return;
             const cols = row.querySelectorAll('th, td');
             let rowText = [];
             cols.forEach(col => {
-                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                if (saasSkipExportCell(col)) return;
                 rowText.push(col.innerText.replace(/\s+/g, ' ').trim());
             });
             if (rowText.length) text += rowText.join('\t') + '\n';
         });
-        navigator.clipboard.writeText(text).then(() => {
+        saasCopyText(text).then(() => {
             showSaasToast('Table data copied to clipboard!', 'success');
         }).catch(() => {
             showSaasToast('Failed to copy table data.', 'error');
@@ -1556,13 +1622,13 @@
         let html = '<meta charset="UTF-8"><table>';
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
-            if (row.style.display === 'none') return;
+            if (row.style.display === 'none' || row.querySelector('td[colspan]:only-child')) return;
             html += '<tr>';
             const cols = row.querySelectorAll('th, td');
             cols.forEach(col => {
-                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                if (saasSkipExportCell(col)) return;
                 const tag = col.tagName.toLowerCase();
-                html += `<${tag}>${col.innerText.trim()}</${tag}>`;
+                html += `<${tag}>${saasEscapeHtml(col.innerText.trim())}</${tag}>`;
             });
             html += '</tr>';
         });
@@ -1581,11 +1647,11 @@
         let csv = [];
         const rows = table.querySelectorAll('tr');
         rows.forEach(row => {
-            if (row.style.display === 'none') return;
+            if (row.style.display === 'none' || row.querySelector('td[colspan]:only-child')) return;
             const cols = row.querySelectorAll('th, td');
             let rowData = [];
             cols.forEach(col => {
-                if (col.classList.contains('th-checkbox') || col.classList.contains('td-checkbox') || col.style.display === 'none') return;
+                if (saasSkipExportCell(col)) return;
                 const cellText = col.innerText.replace(/\s+/g, ' ').trim().replace(/"/g, '""');
                 rowData.push('"' + cellText + '"');
             });
@@ -1610,6 +1676,7 @@
         const printDate = new Date().toLocaleDateString('en-BD', { year: 'numeric', month: 'long', day: 'numeric' });
 
         const printWin = window.open('', '_blank', 'width=1050,height=700');
+        if (!printWin) { showSaasToast('Pop-up blocked. Allow pop-ups to print or save as PDF.', 'error'); return; }
         printWin.document.write(`<!DOCTYPE html><html><head>
             <title>${pageTitle} — Print</title>
             <style>
@@ -1632,7 +1699,7 @@
                     <small>Generated: ${printDate} — Vendor Partner Portal</small>
                 </div>
             </div>
-            ${table.outerHTML}
+            ${saasPrintableTable(table)}
             <script>window.onload = function(){ window.print(); window.close(); }<\/script>
         </body></html>`);
         printWin.document.close();

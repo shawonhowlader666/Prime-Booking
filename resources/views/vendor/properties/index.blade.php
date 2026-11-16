@@ -233,7 +233,7 @@
 
                                 {{-- Actions Dropdown --}}
                                 <div class="dropdown action-gear-dropdown d-inline-block position-relative">
-                                    <button class="btn btn-sm btn-light border text-secondary action-3dot-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="More Actions">
+                                    <button class="btn btn-sm btn-light border text-secondary action-3dot-btn" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;" title="More Actions">
                                         <i class="fa-solid fa-ellipsis-vertical"></i>
                                     </button>
                                     <div class="dropdown-menu dropdown-menu-end py-1 shadow-sm border" style="font-size:12.5px; min-width:180px; z-index:1060;">
@@ -602,7 +602,10 @@ function addModalCustomAmenity() {
     const pill = document.createElement('span');
     pill.className = 'badge bg-white text-dark border d-inline-flex align-items-center gap-1.5 p-2 shadow-xs';
     pill.style.fontSize = '11.5px';
-    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> ${val} <input type="hidden" name="amenities[]" value="${val}"> <button type="button" class="btn-close ms-1" style="font-size:7px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    // Typed name is set via textContent / value so quotes or < > cannot break the markup.
+    pill.innerHTML = `<i class="fa-solid fa-circle-check text-success"></i> <span></span> <input type="hidden" name="amenities[]"> <button type="button" class="btn-close ms-1" style="font-size:7px;" onclick="this.parentElement.remove()" title="Remove"></button>`;
+    pill.querySelector('span').textContent = val;
+    pill.querySelector('input').value = val;
     container.appendChild(pill);
     input.value = '';
 }

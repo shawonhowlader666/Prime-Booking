@@ -262,7 +262,14 @@
     // Address format: Dynamic city and area (Agoda standard "Area, City - View on map")
     $cityRaw = trim((string)($isObj ? ($item->city ?? '') : ($item['city'] ?? '')));
     $cityStr = $cityRaw ?: 'Cox\'s Bazar';
-    $areaRaw = trim((string)($isObj ? ($item->area ?? $item->zone ?? $item->location ?? '') : ($item['area'] ?? $item['zone'] ?? $item['location'] ?? '')));
+    $areaRaw = '';
+    if ($item instanceof \Illuminate\Database\Eloquent\Model) {
+        $areaRaw = trim((string)($item->area ?? $item->zone ?? ($item->relationLoaded('location') ? $item->location?->name : null) ?? ''));
+    } elseif (is_object($item)) {
+        $areaRaw = trim((string)($item->area ?? $item->zone ?? (is_string($item->location ?? null) ? $item->location : ($item->location->name ?? '')) ?? ''));
+    } else {
+        $areaRaw = trim((string)($item['area'] ?? $item['zone'] ?? (is_string($item['location'] ?? null) ? $item['location'] : ($item['location']['name'] ?? '')) ?? ''));
+    }
     $locationLabel = $areaRaw ? ($areaRaw . ', ' . $cityStr) : ($cityStr . ', ' . $cityStr);
     
     // Star rating

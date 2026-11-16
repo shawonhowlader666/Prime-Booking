@@ -282,7 +282,7 @@
                                     </button>
                                 @endif
                                 <div class="dropdown action-gear-dropdown d-inline-block">
-                                    <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
+                                    <button class="btn btn-light btn-sm action-gear-btn shadow-none border-0" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false" title="More Actions" style="width:32px; height:32px; padding:0; border-radius:4px; background:#f1f5f9; color:#475569;">
                                         <i class="fa-solid fa-gear"></i>
                                     </button>
                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="border-radius:4px; font-size:12.5px; border:1px solid #e2e8f0; padding:4px 0; z-index:1050;">
@@ -360,7 +360,6 @@
                     <div>{{ $properties->links() }}</div>
                 </div>
             @endif
-        </div>
     </div>
 </div>
 
@@ -397,10 +396,14 @@
 function openRejectPropertyModal(btn) {
     const id = btn.getAttribute('data-id');
     const name = btn.getAttribute('data-name') || 'Property';
-    document.getElementById('rejectPropertyListingForm').action = '/admin/properties/' + id + '/reject';
+    const modalEl = document.getElementById('rejectPropertyListingModal');
+    if (!id || !modalEl) return;
+    // Route template keeps the action valid when the app is served from a sub-directory.
+    const rejectUrlTemplate = @json(route('admin.properties.reject', ['id' => '__ID__']));
+    document.getElementById('rejectPropertyListingForm').action = rejectUrlTemplate.replace('__ID__', encodeURIComponent(id));
     document.getElementById('rejectPropertyName').textContent = name;
     document.getElementById('rejectPropertyReason').value = '';
-    new bootstrap.Modal(document.getElementById('rejectPropertyListingModal')).show();
+    bootstrap.Modal.getOrCreateInstance(modalEl).show();
 }
 
 function handleBulkPropertySubmit(e) {

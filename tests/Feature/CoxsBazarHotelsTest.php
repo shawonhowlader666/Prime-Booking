@@ -7,6 +7,8 @@ namespace Tests\Feature;
 use Tests\TestCase;
 use App\Models\Property;
 use App\Models\Room;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Database\Seeders\CoxsBazarHotelsSeeder;
 
 /**
  * CoxsBazarHotelsTest
@@ -16,6 +18,13 @@ use App\Models\Room;
  */
 class CoxsBazarHotelsTest extends TestCase
 {
+    use RefreshDatabase;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->seed(CoxsBazarHotelsSeeder::class);
+    }
     public function test_exact_eleven_hotels_exist_in_database(): void
     {
         $count = Property::where('city', "Cox's Bazar")->count();

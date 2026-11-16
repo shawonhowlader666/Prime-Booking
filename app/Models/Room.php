@@ -14,6 +14,8 @@ class Room extends Model
     public const TYPE_SUPER_DELUXE = 'super_deluxe';
     public const TYPE_SUITE        = 'suite';
 
+    protected $touches = ['property'];
+
     protected $fillable = [
         'property_id',
         'name',

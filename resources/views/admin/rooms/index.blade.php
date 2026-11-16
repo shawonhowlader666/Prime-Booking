@@ -20,16 +20,19 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
             {{-- Export Toolbar --}}
             <div class="btn-group btn-group-sm" role="group" style="height:32px;">
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportAdminTableData('excel')" title="Export to Excel" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="copyTableToClipboard('adminRoomsTable')" title="Copy Table to Clipboard" style="font-size:11.5px;">
+                    <i class="fa-regular fa-copy me-1"></i> Copy
+                </button>
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableExcel('adminRoomsTable', 'room_inventory')" title="Export to Excel" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-excel me-1 text-success"></i> Excel
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportAdminTableData('csv')" title="Export to CSV" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableCSV('adminRoomsTable', 'room_inventory')" title="Export to CSV" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-csv me-1 text-primary"></i> CSV
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportAdminTableData('pdf')" title="Export to PDF" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTablePDF('adminRoomsTable', 'room_inventory')" title="Export to PDF" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-pdf me-1 text-danger"></i> PDF
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="window.print()" title="Print Page" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="printTable('adminRoomsTable')" title="Print Table" style="font-size:11.5px;">
                     <i class="fa-solid fa-print me-1"></i> Print
                 </button>
             </div>
@@ -94,7 +97,7 @@
                                 @endphp
                                 <div class="position-relative" style="width:48px; height:38px; flex-shrink:0;">
                                     @if($adminRoomThumb)
-                                        <img src="{{ media_url($adminRoomThumb) }}" width="48" height="38" style="object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
+                                        <img src="{{ media_url($adminRoomThumb) }}" width="48" height="38" style="object-fit:cover; border-radius:4px; border:1px solid #e2e8f0;" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
                                         @if($roomImgCount > 1)
                                             <span class="position-absolute bottom-0 end-0 badge bg-dark bg-opacity-75 px-1 py-0" style="font-size:9px; border-radius:2px;">{{ $roomImgCount }}</span>
                                         @endif
@@ -153,7 +156,7 @@
                                 <a href="{{ route('admin.rooms.edit', [$property->id, $room->id]) }}" class="btn btn-sm btn-light border text-primary" title="Edit Room Details" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
                                     <i class="fa-solid fa-pen"></i>
                                 </a>
-                                <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" onsubmit="return confirm('Delete room type &quot;{{ $room->name }}&quot;?');" class="d-inline m-0">
+                                <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" data-confirm="Delete room type &quot;{{ $room->name }}&quot;?" onsubmit="return confirm(this.dataset.confirm);" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-light border text-danger" title="Delete Room" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
@@ -165,7 +168,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="7" class="text-center py-5 text-muted">
+                        <td colspan="6" class="text-center py-5 text-muted">
                             <div style="font-size:32px; color:#cbd5e1; margin-bottom:8px;"><i class="fa-solid fa-bed"></i></div>
                             <h6 class="fw-bold text-dark mb-1">No Room Types Configured</h6>
                             <p class="mb-3" style="font-size:13px; color:#64748b;">Add room categories to enable hotel booking for this property.</p>
@@ -197,36 +200,6 @@ function filterAdminRoomsSearch(term) {
     });
 }
 
-/**
- * Enterprise Table Export Tools (Excel, CSV, PDF, Print)
- */
-function exportAdminTableData(type) {
-    const table = document.getElementById('adminRoomsTable');
-    if (!table) return;
-
-    let rows = [];
-    const trs = table.querySelectorAll('tr');
-    trs.forEach(tr => {
-        let rowData = [];
-        const thsOrTds = tr.querySelectorAll('th, td');
-        for (let i = 0; i < thsOrTds.length - 1; i++) {
-            rowData.push(thsOrTds[i].innerText.replace(/(\r\n|\n|\r)/gm, " ").trim());
-        }
-        if (rowData.length > 0) rows.push(rowData);
-    });
-
-    if (type === 'csv' || type === 'excel') {
-        let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(cell => `"${cell.replace(/"/g, '""')}"`).join(",")).join("\n");
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `room_inventory_${new Date().toISOString().slice(0,10)}.${type === 'excel' ? 'xls' : 'csv'}`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else if (type === 'pdf') {
-        window.print();
-    }
-}
+// Copy / Excel / CSV / PDF / Print use the shared table helpers in layouts/admin.blade.php.
 </script>
 @endsection

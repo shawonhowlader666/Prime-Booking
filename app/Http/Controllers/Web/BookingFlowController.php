@@ -289,7 +289,7 @@ class BookingFlowController extends Controller
         $bookingStatus = $isPayAtHotel ? 'confirmed' : 'pending';
 
         try {
-            $booking = DB::transaction(function () use ($request, $property, $room, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice, $selectedAddons, $paymentStatus, $bookingStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout, $inventoryService, $couponService) {
+            $booking = DB::transaction(function () use ($request, $property, $room, $requestedRooms, $reference, $nights, $pricePerNight, $subtotal, $taxAmount, $totalPrice, $selectedAddons, $paymentStatus, $bookingStatus, $couponCode, $discountAmount, $commissionRate, $commissionAmount, $vendorPayout, $inventoryService, $couponService) {
                 if ($room) {
                     // Enterprise Pessimistic Concurrency Lock (Agoda pattern)
                     $lockedRoom = Room::where('id', $room->id)->lockForUpdate()->first();
@@ -518,9 +518,7 @@ class BookingFlowController extends Controller
             return;
         }
 
-        // Reference-based guest access: anyone holding the secure booking reference can view their voucher
-        session(['last_booking_ref' => $booking->booking_reference]);
-        return;
+        abort(403, 'Unauthorized access to booking reservation.');
     }
 
     /** GET /my-bookings — User's booking history */

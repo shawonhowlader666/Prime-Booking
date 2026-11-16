@@ -19,16 +19,19 @@
         <div class="d-flex align-items-center gap-2 flex-wrap">
             {{-- Export Toolbar --}}
             <div class="btn-group btn-group-sm" role="group" style="height:32px;">
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableData('excel')" title="Export to Excel" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="copyTableToClipboard('roomsTable')" title="Copy Table to Clipboard" style="font-size:11.5px;">
+                    <i class="fa-regular fa-copy me-1"></i> Copy
+                </button>
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableExcel('roomsTable', 'room_inventory')" title="Export to Excel" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-excel me-1 text-success"></i> Excel
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableData('csv')" title="Export to CSV" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableCSV('roomsTable', 'room_inventory')" title="Export to CSV" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-csv me-1 text-primary"></i> CSV
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTableData('pdf')" title="Export to PDF" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="exportTablePDF('roomsTable', 'room_inventory')" title="Export to PDF" style="font-size:11.5px;">
                     <i class="fa-solid fa-file-pdf me-1 text-danger"></i> PDF
                 </button>
-                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="window.print()" title="Print Page" style="font-size:11.5px;">
+                <button type="button" class="btn btn-outline-secondary fw-semibold px-2.5" onclick="printTable('roomsTable')" title="Print Table" style="font-size:11.5px;">
                     <i class="fa-solid fa-print me-1"></i> Print
                 </button>
             </div>
@@ -91,7 +94,7 @@
                                     $roomThumb = (!empty($r->images) && is_array($r->images)) ? $r->images[0] : null;
                                 @endphp
                                 @if($roomThumb)
-                                    <img src="{{ $roomThumb }}" width="48" height="38" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
+                                    <img src="{{ media_url($roomThumb) }}" width="48" height="38" style="object-fit:cover; border-radius:4px; flex-shrink:0; border:1px solid #e2e8f0;" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1590490360182-c33d57733427?w=120&h=80&fit=crop'">
                                 @else
                                     <div style="width:48px; height:38px; border-radius:4px; background:#f0f7ff; color:#2067e1; display:flex; align-items:center; justify-content:center; font-size:15px; flex-shrink:0; border:1px solid #d0e2ff;">
                                         <i class="fa-solid fa-bed"></i>
@@ -154,7 +157,7 @@
                                 </button>
 
                                 {{-- Delete Form --}}
-                                <form action="{{ route('vendor.rooms.destroy', [$property->id, $r->id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete room category: {{ $r->name }}?');" class="d-inline m-0">
+                                <form action="{{ route('vendor.rooms.destroy', [$property->id, $r->id]) }}" method="POST" data-confirm="Are you sure you want to delete room category: {{ $r->name }}?" onsubmit="return confirm(this.dataset.confirm);" class="d-inline m-0">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="btn btn-sm btn-light border text-danger" title="Delete Room" style="width:30px; height:30px; padding:0; display:inline-flex; align-items:center; justify-content:center; border-radius:4px; font-size:12px;">
@@ -781,42 +784,6 @@ function filterBedType(bed) {
     });
 }
 
-/**
- * Enterprise Table Export Tools (Copy, Excel, CSV, PDF)
- */
-function exportTableData(type) {
-    const table = document.getElementById('roomsTable');
-    if (!table) return;
-
-    let rows = [];
-    const trs = table.querySelectorAll('tr');
-    trs.forEach(tr => {
-        let rowData = [];
-        const thsOrTds = tr.querySelectorAll('th, td');
-        // Exclude the last action column
-        for (let i = 0; i < thsOrTds.length - 1; i++) {
-            rowData.push(thsOrTds[i].innerText.replace(/(\r\n|\n|\r)/gm, " ").trim());
-        }
-        if (rowData.length > 0) rows.push(rowData);
-    });
-
-    if (type === 'copy') {
-        const text = rows.map(r => r.join('\t')).join('\n');
-        navigator.clipboard.writeText(text).then(() => {
-            alert('✅ Room Inventory copied to clipboard!');
-        });
-    } else if (type === 'csv' || type === 'excel') {
-        let csvContent = "data:text/csv;charset=utf-8," + rows.map(e => e.map(cell => `"${cell.replace(/"/g, '""')}"`).join(",")).join("\n");
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        link.setAttribute("download", `room_inventory_${new Date().toISOString().slice(0,10)}.${type === 'excel' ? 'xls' : 'csv'}`);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-    } else if (type === 'pdf') {
-        window.print();
-    }
-}
+// Copy / Excel / CSV / PDF / Print use the shared table helpers in layouts/vendor.blade.php.
 </script>
 @endsection

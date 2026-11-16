@@ -142,7 +142,8 @@ class VendorController extends Controller
             $videoUrl = $request->video_url ?: null;
         }
 
-        $property = Property::create([
+        $property = DB::transaction(function () use ($request, $primaryImage, $videoUrl, $galleryImages, $vendorId) {
+            $prop = Property::create([
             'name'                     => $request->name,
             'slug'                     => Str::slug($request->name) . '-' . time(),
             'type'                     => $request->type,
@@ -182,13 +183,14 @@ class VendorController extends Controller
             'total_reviews'            => $request->has('total_reviews') ? (int)$request->total_reviews : 128,
             'is_featured'              => false,
             'status'                   => 'pending',
+            'cancellation_policy'      => $request->cancellation_policy ?: null,
             'vendor_id'                => $vendorId,
         ]);
 
         // Auto-create default room type for newly created property
         try {
             \App\Models\Room::create([
-                'property_id'     => $property->id,
+                'property_id'     => $prop->id,
                 'name'            => 'Standard Deluxe Room',
                 'bed_type'        => '1 King Bed or 2 Twin Beds',
                 'view_type'       => 'City View',
@@ -211,12 +213,15 @@ class VendorController extends Controller
                 \App\Models\Message::create([
                     'sender_id'   => $vendorId,
                     'receiver_id' => $admin->id,
-                    'property_id' => $property->id,
+                    'property_id' => $prop->id,
                     'subject'     => '🏢 New Property Submitted for Review',
-                    'message'     => "Vendor partner submitted listing '{$property->name}' ({$property->city}) for admin review & approval.",
+                    'message'     => "Vendor partner submitted listing '{$prop->name}' ({$prop->city}) for admin review & approval.",
                 ]);
             }
         } catch (\Exception $e) {}
+
+            return $prop;
+        });
 
         return redirect()->route('vendor.properties.index')
             ->with('success', 'Property submitted for admin review! It will go live once approved.');
@@ -395,7 +400,8 @@ class VendorController extends Controller
 
         $wasRejected = $property->status === 'rejected';
 
-        $property->update([
+        DB::transaction(function () use ($property, $request, $primaryImage, $videoUrl, $finalGallery, $wasRejected) {
+            $property->update([
             'name'                     => $request->name,
             'type'                     => $request->type ?? $property->type,
             'city'                     => $request->city ?? $property->city,
@@ -432,9 +438,11 @@ class VendorController extends Controller
             'feature_snippet'          => $request->has('feature_snippet') ? $request->feature_snippet : $property->feature_snippet,
             'ribbon_badge'             => $request->has('ribbon_badge') ? $request->ribbon_badge : $property->ribbon_badge,
             'is_sold_out'              => $request->boolean('is_sold_out'),
+            'cancellation_policy'      => $request->cancellation_policy ?: $property->cancellation_policy,
             'status'                   => $wasRejected ? 'pending' : $property->status,
             'rejection_reason'         => $wasRejected ? null : $property->rejection_reason,
-        ]);
+            ]);
+        });
 
         $msg = $wasRejected
             ? '"' . $property->name . '" updated and resubmitted for admin review!'

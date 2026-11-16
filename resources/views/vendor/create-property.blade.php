@@ -186,6 +186,18 @@
                             <option value="Pets Allowed on Request">Pets Allowed on Request</option>
                         </select>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> Cancellation &amp; Refund Policy
+                        </label>
+                        <input type="text" name="cancellation_policy" class="form-control form-control-sm" value="{{ old('cancellation_policy') }}" placeholder="e.g. Free cancellation up to 48 hours before check-in. Non-refundable within 48 hours." style="font-size:13px; height:38px;">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">
+                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> House Rules &amp; Deposit Policies
+                        </label>
+                        <textarea name="house_rules" class="form-control form-control-sm" rows="2" placeholder="e.g. Valid national NID / passport required at check-in. Minimum check-in age is 18. Marriage certificate or proof of relationship required for couples." style="font-size:13px;">{{ old('house_rules') }}</textarea>
+                    </div>
                 </div>
 
                 {{-- SECTION 2: PRICING --}}

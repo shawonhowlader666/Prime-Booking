@@ -189,6 +189,18 @@
                             <option value="Pets Allowed on Request" {{ old('pets_policy', $property->pets_policy) == 'Pets Allowed on Request' ? 'selected' : '' }}>Pets Allowed on Request</option>
                         </select>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">
+                            <i class="fa-solid fa-shield-halved text-success me-1"></i> Cancellation &amp; Refund Policy
+                        </label>
+                        <input type="text" name="cancellation_policy" class="form-control" value="{{ old('cancellation_policy', $property->cancellation_policy) }}" placeholder="e.g. Free cancellation up to 48 hours before check-in. Non-refundable within 48 hours.">
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">
+                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> House Rules &amp; Deposit Policies
+                        </label>
+                        <textarea name="house_rules" class="form-control" rows="2" placeholder="e.g. Valid national NID / passport required at check-in. Minimum check-in age is 18. Marriage certificate or proof of relationship required for couples.">{{ old('house_rules', $property->house_rules) }}</textarea>
+                    </div>
                 </div>
             </div>
 

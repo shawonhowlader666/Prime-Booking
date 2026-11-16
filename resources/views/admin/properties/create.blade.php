@@ -203,6 +203,13 @@
                     <textarea name="house_rules" class="form-control" rows="2" placeholder="e.g. Valid national NID / passport required at check-in. Minimum check-in age is 18. Marriage certificate or proof of relationship required for couples. Security deposit payable in cash or card upon arrival." style="font-size:13px; border-radius:4px; padding:10px 14px;">{{ old('house_rules') }}</textarea>
                     <small class="text-muted" style="font-size:11px;">Guests will see this under 'Property Policies' on the public hotel page</small>
                 </div>
+                <div class="col-12">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">
+                        <i class="fa-solid fa-shield-halved text-success me-1"></i> Cancellation &amp; Refund Policy
+                    </label>
+                    <input type="text" name="cancellation_policy" class="form-control" value="{{ old('cancellation_policy') }}" placeholder="e.g. Free cancellation up to 48 hours before check-in. Non-refundable within 48 hours." style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                    <small class="text-muted" style="font-size:11px;">Displayed on checkout and printed on guest booking vouchers</small>
+                </div>
             </div>
 
             {{-- 2. PRICING & POLICIES --}}

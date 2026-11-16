@@ -6,8 +6,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\TourPackage;
+use App\Models\SystemMessage;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class AdminTourPackageController extends Controller
 {
@@ -41,8 +44,27 @@ class AdminTourPackageController extends Controller
     public function toggleStatus(int $id): RedirectResponse
     {
         $package = TourPackage::findOrFail($id);
-        $package->status = ($package->status === 'active') ? 'inactive' : 'active';
-        $package->save();
+
+        DB::transaction(function () use ($package) {
+            $package->status = ($package->status === 'active') ? 'inactive' : 'active';
+            $package->is_active = ($package->status === 'active');
+            $package->save();
+
+            Cache::forget('tour_packages_active');
+
+            if ($package->vendor_id && $package->status === 'active') {
+                try {
+                    SystemMessage::create([
+                        'sender_id'    => auth()->id() ?? 1,
+                        'recipient_id' => $package->vendor_id,
+                        'subject'      => 'Tour Package Approved: ' . $package->title,
+                        'message'      => "Congratulations! Your tour package '{$package->title}' has been verified, approved, and is now live on Prime Booking.",
+                        'type'         => 'notification',
+                        'is_read'      => false,
+                    ]);
+                } catch (\Throwable $e) {}
+            }
+        });
 
         return redirect()->back()->with('success', "Package {$package->title} status updated to {$package->status}.");
     }

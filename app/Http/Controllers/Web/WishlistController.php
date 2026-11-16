@@ -65,6 +65,7 @@ class WishlistController extends Controller
             return response()->json([
                 'success'       => true,
                 'is_wishlisted' => $isWishlisted,
+                'is_favorite'   => $isWishlisted,
                 'message'       => $msg,
             ]);
         }

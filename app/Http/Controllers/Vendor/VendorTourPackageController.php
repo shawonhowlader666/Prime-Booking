@@ -10,6 +10,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Cache;
 
 class VendorTourPackageController extends Controller
 {
@@ -53,25 +55,34 @@ class VendorTourPackageController extends Controller
             'max_seats'        => 'required|integer|min:1',
         ]);
 
-        $inclusionsList = array_filter(array_map('trim', explode("\n", $request->input('inclusions', ''))));
-        $highlightsList = array_filter(array_map('trim', explode("\n", $request->input('highlights', ''))));
+        $inclusionsList = array_values(array_filter(array_map('trim', explode("\n", str_replace(',', "\n", $request->input('inclusions', ''))))));
+        $highlightsList = array_values(array_filter(array_map('trim', explode("\n", str_replace(',', "\n", $request->input('highlights', ''))))));
 
-        $package = new TourPackage();
-        $package->vendor_id        = auth()->id();
-        $package->title            = $validated['title'];
-        $package->slug             = Str::slug($validated['title']) . '-' . Str::random(5);
-        $package->destination      = $validated['destination'];
-        $package->duration_days    = $validated['duration_days'];
-        $package->duration_nights  = $validated['duration_nights'];
-        $package->price_per_person = $validated['price_per_person'];
-        $package->discount_price   = $validated['discount_price'] ?? null;
-        $package->featured_image   = $validated['featured_image'];
-        $package->inclusions       = $inclusionsList;
-        $package->highlights       = $highlightsList;
-        $package->status           = 'pending';
-        $package->max_seats        = $validated['max_seats'];
-        $package->available_seats  = $validated['max_seats'];
-        $package->save();
+        DB::transaction(function () use ($validated, $inclusionsList, $highlightsList) {
+            $package = new TourPackage();
+            $package->vendor_id        = auth()->id();
+            $package->title            = $validated['title'];
+            $package->slug             = Str::slug($validated['title']) . '-' . Str::random(5);
+            $package->destination      = $validated['destination'];
+            $package->duration_days    = $validated['duration_days'];
+            $package->duration_nights  = $validated['duration_nights'];
+            $package->days             = $validated['duration_days'] . ' Days';
+            $package->price_per_person = $validated['price_per_person'];
+            $package->price            = $validated['price_per_person'];
+            $package->discount_price   = $validated['discount_price'] ?? null;
+            $package->featured_image   = $validated['featured_image'];
+            $package->image_url        = $validated['featured_image'];
+            $package->inclusions       = $inclusionsList;
+            $package->includes         = $inclusionsList;
+            $package->highlights       = $highlightsList;
+            $package->status           = 'pending';
+            $package->is_active        = false;
+            $package->max_seats        = $validated['max_seats'];
+            $package->available_seats  = $validated['max_seats'];
+            $package->save();
+
+            Cache::forget('tour_packages_active');
+        });
 
         return redirect()->route('vendor.packages.index')->with('success', 'Tour Package submitted for admin approval! It will go live once approved.');
     }
@@ -98,21 +109,29 @@ class VendorTourPackageController extends Controller
             'max_seats'        => 'required|integer|min:1',
         ]);
 
-        $inclusionsList = array_filter(array_map('trim', explode("\n", $request->input('inclusions', ''))));
-        $highlightsList = array_filter(array_map('trim', explode("\n", $request->input('highlights', ''))));
+        $inclusionsList = array_values(array_filter(array_map('trim', explode("\n", str_replace(',', "\n", $request->input('inclusions', ''))))));
+        $highlightsList = array_values(array_filter(array_map('trim', explode("\n", str_replace(',', "\n", $request->input('highlights', ''))))));
 
-        $package->update([
-            'title'            => $validated['title'],
-            'destination'      => $validated['destination'],
-            'duration_days'    => $validated['duration_days'],
-            'duration_nights'  => $validated['duration_nights'],
-            'price_per_person' => $validated['price_per_person'],
-            'discount_price'   => $validated['discount_price'] ?? null,
-            'featured_image'   => $validated['featured_image'] ?? $package->featured_image,
-            'inclusions'       => !empty($inclusionsList) ? $inclusionsList : $package->inclusions,
-            'highlights'       => !empty($highlightsList) ? $highlightsList : $package->highlights,
-            'max_seats'        => $validated['max_seats'],
-        ]);
+        DB::transaction(function () use ($package, $validated, $inclusionsList, $highlightsList) {
+            $package->update([
+                'title'            => $validated['title'],
+                'destination'      => $validated['destination'],
+                'duration_days'    => $validated['duration_days'],
+                'duration_nights'  => $validated['duration_nights'],
+                'days'             => $validated['duration_days'] . ' Days',
+                'price_per_person' => $validated['price_per_person'],
+                'price'            => $validated['price_per_person'],
+                'discount_price'   => $validated['discount_price'] ?? null,
+                'featured_image'   => $validated['featured_image'] ?? $package->featured_image,
+                'image_url'        => $validated['featured_image'] ?? $package->image_url,
+                'inclusions'       => !empty($inclusionsList) ? $inclusionsList : $package->inclusions,
+                'includes'         => !empty($inclusionsList) ? $inclusionsList : $package->includes,
+                'highlights'       => !empty($highlightsList) ? $highlightsList : $package->highlights,
+                'max_seats'        => $validated['max_seats'],
+            ]);
+
+            Cache::forget('tour_packages_active');
+        });
 
         return redirect()->route('vendor.packages.index')->with('success', 'Tour Package updated successfully.');
     }

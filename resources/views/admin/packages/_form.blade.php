@@ -11,17 +11,29 @@
                 <i class="fa-solid fa-suitcase-rolling me-2 text-primary"></i> Package Information
             </div>
             <div class="row g-3">
-                <div class="col-12">
+                <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Title <span class="text-danger">*</span></label>
                     <input type="text" name="title" class="form-control" value="{{ old('title', $package?->title) }}" placeholder="e.g. Bangkok & Phuket Fantasy" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Days / Duration <span class="text-danger">*</span></label>
-                    <input type="text" name="days" class="form-control" value="{{ old('days', $package?->days) }}" placeholder="e.g. 5D/4N or 14 Days" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Destination City / Area <span class="text-danger">*</span></label>
+                    <input type="text" name="destination" class="form-control" value="{{ old('destination', $package?->destination) }}" placeholder="e.g. Sundarbans, Khulna" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Duration (Days) <span class="text-danger">*</span></label>
+                    <input type="number" name="duration_days" class="form-control" value="{{ old('duration_days', $package?->duration_days ?? 1) }}" placeholder="3" min="1" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Duration (Nights)</label>
+                    <input type="number" name="duration_nights" class="form-control" value="{{ old('duration_nights', $package?->duration_nights ?? 0) }}" placeholder="2" min="0" style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                </div>
+                <div class="col-md-3">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Price (BDT ৳) <span class="text-danger">*</span></label>
-                    <input type="number" name="price" class="form-control" value="{{ old('price', $package?->price) }}" placeholder="e.g. 45000" step="0.01" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                    <input type="number" name="price" class="form-control" value="{{ old('price', $package?->price_per_person ?? $package?->price) }}" placeholder="e.g. 45000" step="0.01" required style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Discount Price (৳)</label>
+                    <input type="number" name="discount_price" class="form-control" value="{{ old('discount_price', $package?->discount_price) }}" placeholder="e.g. 39999" step="0.01" style="font-size:13px; border-radius:4px; height:38px; padding:0 12px;">
                 </div>
                 <div class="col-md-6">
                     <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:5px;">Badge Text</label>

@@ -9,6 +9,7 @@ use App\Models\Review;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\DB;
 
 class VendorReviewController extends Controller
 {
@@ -43,9 +44,11 @@ class VendorReviewController extends Controller
         $review = Review::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
             ->findOrFail($reviewId);
 
-        $review->vendor_reply    = trim($validated['vendor_reply']);
-        $review->replied_at      = now();
-        $review->save();
+        DB::transaction(function () use ($review, $validated) {
+            $review->vendor_reply = trim($validated['vendor_reply']);
+            $review->replied_at   = now();
+            $review->save();
+        });
 
         return back()->with('success', 'Vendor response reply posted to guest review!');
     }

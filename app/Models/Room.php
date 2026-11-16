@@ -14,7 +14,20 @@ class Room extends Model
     public const TYPE_SUPER_DELUXE = 'super_deluxe';
     public const TYPE_SUITE        = 'suite';
 
-    protected $touches = ['property'];
+    protected static function booted(): void
+    {
+        static::saved(function (Room $room) {
+            if ($room->property_id) {
+                Property::where('id', $room->property_id)->update(['updated_at' => now()]);
+            }
+        });
+
+        static::deleted(function (Room $room) {
+            if ($room->property_id) {
+                Property::where('id', $room->property_id)->update(['updated_at' => now()]);
+            }
+        });
+    }
 
     protected $fillable = [
         'property_id',
@@ -31,6 +44,7 @@ class Room extends Model
         'available_rooms',
         'breakfast_included',
         'free_cancellation',
+        'cancellation_policy',
         'facilities',
         'amenities',
         'images',

@@ -1135,9 +1135,9 @@ $adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'pb-control-gate-99');
 Route::get("/{$adminSecretSlug}", [OAuthController::class, 'showAdminLogin'])->name('admin.login');
 Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
 
-// Decoy / Honeypot: Block public probing on standard admin paths with 404 Not Found
-Route::any('/admin/login', function () {
-    abort(404);
+// Admin Portal Entrance & Aliases
+Route::get('/admin/login', function () {
+    return redirect()->route('admin.login');
 });
 Route::any('/administrator', function () {
     abort(404);
@@ -1146,12 +1146,12 @@ Route::any('/wp-admin', function () {
     abort(404);
 });
 
-// /admin route: Only accessible if already logged in as admin, otherwise 404
+// /admin route: Accessible to authenticated admins, otherwise redirects to admin login
 Route::get('/admin', function () {
     if (auth()->check() && (auth()->user()->isAdmin() || auth()->user()->role === 'super_admin')) {
         return redirect()->route('admin.dashboard');
     }
-    abort(404);
+    return redirect()->route('admin.login');
 });
 
 // Dedicated Vendor Partner Portal Login Routes

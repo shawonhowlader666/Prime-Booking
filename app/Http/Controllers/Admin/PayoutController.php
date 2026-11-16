@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Payout;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PayoutController extends Controller
 {
@@ -110,24 +111,26 @@ class PayoutController extends Controller
             $updateData['processed_at'] = now();
         }
 
-        $payout->update($updateData);
+        DB::transaction(function () use ($payout, $updateData, $request, $oldStatus) {
+            $payout->update($updateData);
 
-        // Auto-record payout debit transaction in general ledger
-        if ($request->status === 'paid' && $oldStatus !== 'paid') {
-            app(\App\Services\AccountingService::class)->recordManualEntry([
-                'txn_reference'     => $request->reference_number ?: ('TXN-PO-' . strtoupper(\Illuminate\Support\Str::random(8))),
-                'type'              => 'payout',
-                'category'          => 'vendor_settlement',
-                'vendor_id'         => $payout->vendor_id,
-                'gross_amount'      => (float) $payout->amount,
-                'commission_amount' => 0.00,
-                'gateway_fee'       => 0.00,
-                'net_amount'        => (float) $payout->amount,
-                'payment_method'    => strtolower($payout->payment_method ?? 'bank_transfer'),
-                'description'       => "Disbursed Vendor Settlement Payout #{$payout->id} to {$payout->vendor_name}",
-                'notes'             => "Account: {$payout->account_details} | Ref: " . ($request->reference_number ?? $payout->reference_number),
-            ]);
-        }
+            // Auto-record payout debit transaction in general ledger
+            if ($request->status === 'paid' && $oldStatus !== 'paid') {
+                app(\App\Services\AccountingService::class)->recordManualEntry([
+                    'txn_reference'     => $request->reference_number ?: ('TXN-PO-' . strtoupper(\Illuminate\Support\Str::random(8))),
+                    'type'              => 'payout',
+                    'category'          => 'vendor_settlement',
+                    'vendor_id'         => $payout->vendor_id,
+                    'gross_amount'      => (float) $payout->amount,
+                    'commission_amount' => 0.00,
+                    'gateway_fee'       => 0.00,
+                    'net_amount'        => (float) $payout->amount,
+                    'payment_method'    => strtolower($payout->payment_method ?? 'bank_transfer'),
+                    'description'       => "Disbursed Vendor Settlement Payout #{$payout->id} to {$payout->vendor_name}",
+                    'notes'             => "Account: {$payout->account_details} | Ref: " . ($request->reference_number ?? $payout->reference_number),
+                ]);
+            }
+        });
 
         return back()->with('success', "Payout #{$payout->id} status updated to " . strtoupper($request->status) . " and ledger synced successfully!");
     }

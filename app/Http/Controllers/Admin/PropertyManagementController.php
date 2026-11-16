@@ -488,27 +488,36 @@ class PropertyManagementController extends Controller
     }
 
     /** Explicitly approve a vendor property and publish it live */
-    public function approve($id)
+    public function approve(Request $request, $id)
     {
         $property = Property::findOrFail($id);
-        $property->update([
-            'status'           => 'active',
-            'approved_at'      => now(),
-            'rejection_reason' => null,
-        ]);
 
-        // Dispatch System Notification to Vendor Partner
-        if ($property->vendor_id) {
-            try {
-                \App\Models\Message::create([
-                    'sender_id'   => auth()->id() ?? 1,
-                    'receiver_id' => $property->vendor_id,
-                    'property_id' => $property->id,
-                    'subject'     => '🎉 Property Approved & Published Live',
-                    'message'     => "Congratulations! Your property '{$property->name}' has been reviewed and approved by admin. It is now live on the platform for guest bookings!",
-                ]);
-            } catch (\Exception $e) {}
-        }
+        DB::transaction(function () use ($property, $request) {
+            $data = [
+                'status'           => 'active',
+                'approved_at'      => now(),
+                'rejection_reason' => null,
+            ];
+
+            if ($request->filled('commission_rate')) {
+                $data['commission_rate'] = (float) $request->input('commission_rate');
+            }
+
+            $property->update($data);
+
+            // Dispatch System Notification to Vendor Partner
+            if ($property->vendor_id) {
+                try {
+                    \App\Models\Message::create([
+                        'sender_id'   => auth()->id() ?? 1,
+                        'receiver_id' => $property->vendor_id,
+                        'property_id' => $property->id,
+                        'subject'     => '🎉 Property Approved & Published Live',
+                        'message'     => "Congratulations! Your property '{$property->name}' has been reviewed and approved by admin. It is now live on the platform for guest bookings!",
+                    ]);
+                } catch (\Exception $e) {}
+            }
+        });
 
         return back()->with('success', '✅ Property "' . $property->name . '" has been approved and is now live on the website!');
     }
@@ -523,24 +532,26 @@ class PropertyManagementController extends Controller
         $property = Property::findOrFail($id);
         $reason   = $request->input('rejection_reason') ?: 'Listing details did not meet platform quality guidelines.';
 
-        $property->update([
-            'status'           => 'rejected',
-            'rejected_at'      => now(),
-            'rejection_reason' => $reason,
-        ]);
+        DB::transaction(function () use ($property, $reason) {
+            $property->update([
+                'status'           => 'rejected',
+                'rejected_at'      => now(),
+                'rejection_reason' => $reason,
+            ]);
 
-        // Dispatch System Notification to Vendor Partner
-        if ($property->vendor_id) {
-            try {
-                \App\Models\Message::create([
-                    'sender_id'   => auth()->id() ?? 1,
-                    'receiver_id' => $property->vendor_id,
-                    'property_id' => $property->id,
-                    'subject'     => '⚠️ Property Listing Review Update',
-                    'message'     => "Your property listing '{$property->name}' requires changes before publishing. Admin Feedback: {$reason}",
-                ]);
-            } catch (\Exception $e) {}
-        }
+            // Dispatch System Notification to Vendor Partner
+            if ($property->vendor_id) {
+                try {
+                    \App\Models\Message::create([
+                        'sender_id'   => auth()->id() ?? 1,
+                        'receiver_id' => $property->vendor_id,
+                        'property_id' => $property->id,
+                        'subject'     => '⚠️ Property Listing Review Update',
+                        'message'     => "Your property listing '{$property->name}' requires changes before publishing. Admin Feedback: {$reason}",
+                    ]);
+                } catch (\Exception $e) {}
+            }
+        });
 
         return back()->with('success', '⚠️ Property "' . $property->name . '" has been rejected with feedback provided to vendor.');
     }

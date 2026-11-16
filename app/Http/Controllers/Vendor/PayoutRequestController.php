@@ -7,41 +7,35 @@ namespace App\Http\Controllers\Vendor;
 use App\Http\Controllers\Controller;
 use App\Models\Booking;
 use App\Models\Payout;
+use App\Services\AccountingService;
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\DB;
 use Illuminate\View\View;
 
 class PayoutRequestController extends Controller
 {
+    public function __construct(
+        protected AccountingService $accountingService
+    ) {}
+
     /**
      * Show vendor's financial ledger and payout request history.
      * GET /vendor/payouts
      */
     public function index(): View
     {
-        $vendorId = auth()->id();
+        $vendorId = (int) auth()->id();
 
-        // Calculate total earnings from completed/confirmed bookings for vendor's properties
-        $totalRevenue = Booking::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereIn('booking_status', ['confirmed', 'completed'])
-            ->sum('total_price');
+        // Exact Double-Entry Fintech Engine Calculation (Matches Admin Ledger perfectly)
+        $acc = $this->accountingService->getSingleVendorAccounting($vendorId);
 
-        // Platform commission 12% (OTA standard rate)
-        $commissionRate = 0.12;
-        $platformCommission = round($totalRevenue * $commissionRate, 2);
-        $netEarnings = $totalRevenue - $platformCommission;
-
-        // Total paid out so far
-        $totalPaidOut = Payout::where('vendor_id', $vendorId)
-            ->where('status', 'paid')
-            ->sum('amount');
-
-        // Pending payouts
-        $totalPending = Payout::where('vendor_id', $vendorId)
-            ->where('status', 'pending')
-            ->sum('amount');
-
-        $availableBalance = max(0, $netEarnings - $totalPaidOut - $totalPending);
+        $totalRevenue       = (float) $acc['gross_revenue'];
+        $platformCommission = (float) $acc['commission_paid'];
+        $netEarnings        = (float) $acc['net_earnings'];
+        $totalPaidOut       = (float) $acc['payouts_paid'];
+        $totalPending       = (float) $acc['payouts_pending'];
+        $availableBalance   = (float) $acc['withdrawable_balance'];
 
         $payouts = Payout::where('vendor_id', $vendorId)
             ->latest()
@@ -64,7 +58,7 @@ class PayoutRequestController extends Controller
      */
     public function store(Request $request): RedirectResponse
     {
-        $vendorId = auth()->id();
+        $vendorId = (int) auth()->id();
 
         $validated = $request->validate([
             'amount'         => 'required|numeric|min:500',
@@ -72,31 +66,27 @@ class PayoutRequestController extends Controller
             'account_details'=> 'required|string|max:255',
         ]);
 
-        // Re-verify available balance
-        $totalRevenue = Booking::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
-            ->whereIn('booking_status', ['confirmed', 'completed'])
-            ->sum('total_price');
-
-        $netEarnings = $totalRevenue * 0.88; // 12% platform commission
-        $totalPaidOut = Payout::where('vendor_id', $vendorId)->where('status', 'paid')->sum('amount');
-        $totalPending = Payout::where('vendor_id', $vendorId)->where('status', 'pending')->sum('amount');
-        $availableBalance = max(0, $netEarnings - $totalPaidOut - $totalPending);
+        // Re-verify available balance through AccountingService (Zero-Paisa Discrepancy Guarantee)
+        $acc = $this->accountingService->getSingleVendorAccounting($vendorId);
+        $availableBalance = (float) $acc['withdrawable_balance'];
 
         if ($validated['amount'] > $availableBalance) {
-            return back()->with('error', 'Requested amount exceeds your available balance for withdrawal.');
+            return back()->with('error', "Requested amount (৳{$validated['amount']}) exceeds your verified available balance (৳{$availableBalance}) for withdrawal.");
         }
 
         $user = auth()->user();
-        Payout::create([
-            'vendor_id'       => $vendorId,
-            'vendor_name'     => $user->name ?? 'Vendor Partner',
-            'amount'          => $validated['amount'],
-            'payment_method'  => $validated['payout_method'],
-            'account_details' => $validated['account_details'],
-            'account_number'  => $validated['account_details'],
-            'status'          => 'pending',
-            'requested_at'    => now(),
-        ]);
+        DB::transaction(function () use ($vendorId, $user, $validated) {
+            Payout::create([
+                'vendor_id'       => $vendorId,
+                'vendor_name'     => $user->name ?? 'Vendor Partner',
+                'amount'          => $validated['amount'],
+                'payment_method'  => $validated['payout_method'],
+                'account_details' => $validated['account_details'],
+                'account_number'  => $validated['account_details'],
+                'status'          => 'pending',
+                'requested_at'    => now(),
+            ]);
+        });
 
         return redirect()->route('vendor.payouts.index')->with('success', 'Payout withdrawal request submitted successfully! Admin will process within 24 hours.');
     }

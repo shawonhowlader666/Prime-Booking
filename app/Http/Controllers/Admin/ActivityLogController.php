@@ -30,7 +30,7 @@ class ActivityLogController extends Controller
             );
         }
 
-        $logs = $query->paginate(50);
+        $logs = $query->paginate(per_page(50));
 
         return view('admin.activity-log', compact('logs'));
     }

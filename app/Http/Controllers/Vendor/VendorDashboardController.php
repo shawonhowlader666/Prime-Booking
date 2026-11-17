@@ -61,7 +61,7 @@ class VendorDashboardController extends Controller
 
             return [
                 'total_properties' => $properties->count(),
-                'active_listings'  => $properties->where('status', 'active')->count(),
+                'active_listings'  => $properties->whereIn('status', \App\Models\Property::LIVE_STATUSES)->count(),
                 'pending_listings' => $properties->where('status', 'pending')->count(),
                 'total_bookings'   => $bookings->count(),
                 'pending_bookings' => $bookings->filter(fn($b) => ($b->status ?? $b->booking_status ?? '') === 'pending')->count(),

@@ -26,11 +26,13 @@ class EnterpriseOtaUpgradeTest extends TestCase
     {
         $service = app(SocialProofService::class);
 
-        // 1. Active Viewers
-        $viewers = $service->getActiveViewers(101);
-        $this->assertIsInt($viewers);
-        $this->assertGreaterThanOrEqual(2, $viewers);
-        $this->assertLessThanOrEqual(14, $viewers);
+        // 1. Active viewers are measured: none until real sessions view the page, each session counted once.
+        $this->assertSame(0, $service->getActiveViewers(101));
+        $service->recordView(101, 'session-a');
+        $service->recordView(101, 'session-a');
+        $service->recordView(101, 'session-b');
+        $service->recordView(101, 'session-c');
+        $this->assertSame(2, $service->getActiveViewers(101), 'Three distinct sessions, minus the viewer themself.');
 
         // 2. Urgency Badge for low inventory
         $room = (new Room())->forceFill(['id' => 1, 'name' => 'Deluxe Suite']);

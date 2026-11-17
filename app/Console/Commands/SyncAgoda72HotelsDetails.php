@@ -145,7 +145,7 @@ class SyncAgoda72HotelsDetails extends Command
             ],
             'neeshorgo' => [
                 'feature_snippet' => 'Panoramic Bay of Bengal Horizon & Scenic Marine Drive Views',
-                'ribbon_badge'    => 'Agoda Preferred',
+                'ribbon_badge'    => 'Prime Preferred',
                 'nearest_landmark'=> 'Marine Drive (Direct Sea View)',
                 'location_score'  => 8.9,
                 'no_credit_card'  => true,
@@ -264,7 +264,7 @@ class SyncAgoda72HotelsDetails extends Command
             ],
             'amari' => [
                 'feature_snippet' => 'Stunning Breeze Terrace Rooftop Pool & Downtown City Views',
-                'ribbon_badge'    => 'Agoda Preferred',
+                'ribbon_badge'    => 'Prime Preferred',
                 'nearest_landmark'=> 'Gulshan Commercial Avenue (100m)',
                 'location_score'  => 9.3,
                 'no_credit_card'  => false,
@@ -300,7 +300,7 @@ class SyncAgoda72HotelsDetails extends Command
             ],
             'the way' => [
                 'feature_snippet' => 'Boutique Urban Design in Gulshan 2 with State-of-the-Art Suites',
-                'ribbon_badge'    => 'Agoda Luxury Boutique',
+                'ribbon_badge'    => 'Prime Luxury Boutique',
                 'nearest_landmark'=> 'Gulshan 2 Quiet Lane (150m)',
                 'location_score'  => 9.1,
                 'no_credit_card'  => true,

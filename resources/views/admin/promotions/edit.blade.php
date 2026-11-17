@@ -25,13 +25,14 @@
             <i class="fa-solid fa-save me-1"></i> Save Changes
         </button>
         <a href="{{ route('admin.promotions.index') }}" class="btn btn-outline-secondary">Cancel</a>
-        <form action="{{ route('admin.promotions.destroy', $promotion) }}" method="POST" class="ms-auto"
-              onsubmit="return confirm('Delete this promotion permanently?')">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn btn-outline-danger btn-sm">
+            <button form="adminDeletePromotionForm" type="submit" class="btn btn-outline-danger btn-sm">
                 <i class="fa-solid fa-trash me-1"></i> Delete
             </button>
-        </form>
     </div>
 </form>
+<form id="adminDeletePromotionForm" action="{{ route('admin.promotions.destroy', $promotion) }}" method="POST" class="d-none"
+              onsubmit="return confirm('Delete this promotion permanently?')">
+    @csrf @method('DELETE')
+</form>
+
 @endsection

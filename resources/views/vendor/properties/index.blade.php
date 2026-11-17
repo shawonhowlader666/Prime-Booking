@@ -247,7 +247,7 @@
                                             <form action="{{ route('vendor.properties.toggle-status', $property->id) }}" method="POST" class="d-inline">
                                                  @csrf
                                                  <button type="submit" class="dropdown-item py-1.5">
-                                                     <i class="fa-solid fa-toggle-on me-2 text-warning"></i> {{ $property->status === 'active' ? 'Deactivate' : 'Activate' }}
+                                                     <i class="fa-solid fa-toggle-on me-2 text-warning"></i> {{ in_array($property->status, \App\Models\Property::LIVE_STATUSES, true) ? 'Deactivate' : 'Activate' }}
                                                  </button>
                                             </form>
                                         @else

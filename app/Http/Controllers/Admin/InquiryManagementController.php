@@ -32,7 +32,7 @@ class InquiryManagementController extends Controller
                 });
             }
 
-            $inquiries = $query->paginate(20)->withQueryString();
+            $inquiries = $query->paginate(per_page(20))->withQueryString();
 
             $stats = [
                 'total'     => Inquiry::count(),

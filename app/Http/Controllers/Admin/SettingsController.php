@@ -92,6 +92,8 @@ class SettingsController extends Controller
             'social_whatsapp'           => SiteSetting::get('social_whatsapp', ''),
             'social_linkedin'           => SiteSetting::get('social_linkedin', ''),
             'social_twitter'            => SiteSetting::get('social_twitter', ''),
+            'app_store_url'             => SiteSetting::get('app_store_url', ''),
+            'play_store_url'            => SiteSetting::get('play_store_url', ''),
 
             // SMS Gateway & Dynamic Templates
             'sms_provider'                  => SiteSetting::get('sms_provider', 'bulksmsbd'),
@@ -171,6 +173,7 @@ class SettingsController extends Controller
             // Social Media
             'social_facebook', 'social_instagram', 'social_youtube',
             'social_whatsapp', 'social_linkedin', 'social_twitter',
+            'app_store_url', 'play_store_url',
             // SMS Gateway & Templates
             'sms_provider', 'sms_api_url', 'sms_sender_id', 'sms_api_key', 'sms_api_secret',
             'sms_template_guest_confirmed', 'sms_template_vendor_alert', 'sms_template_payment_paid',

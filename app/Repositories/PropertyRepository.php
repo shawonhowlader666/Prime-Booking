@@ -143,7 +143,7 @@ class PropertyRepository
     {
         $cacheKey = 'search:' . md5(json_encode($params, JSON_THROW_ON_ERROR));
 
-        return Cache::remember($cacheKey, self::TTL_SEARCH, function () use ($params): array {
+        $result = Cache::remember($cacheKey, self::TTL_SEARCH, function () use ($params): array {
             $query = $this->buildSearchQuery($params);
 
             $perPage = (int) ($params['per_page'] ?? 12);
@@ -196,6 +196,56 @@ class PropertyRepository
                 'expanded_radius_km'  => $expandedRadius,
             ];
         });
+
+        // Live inventory is read fresh on every request; only the hotel list is cached.
+        $this->markDateAvailability((array) $result['results'], $params);
+
+        return $result;
+    }
+
+    /**
+     * Flag each hotel on the page as sold out (or "only N left") for the searched dates,
+     * the way the detail page does, using one batch of queries for the whole page.
+     *
+     * @param array<int, Property> $items
+     */
+    private function markDateAvailability(array $items, array $params): void
+    {
+        $properties = array_values(array_filter($items, fn ($p) => $p instanceof Property));
+        if ($properties === [] || empty($params['check_in']) || empty($params['check_out'])) {
+            return;
+        }
+
+        try {
+            $start = \Carbon\Carbon::parse((string) $params['check_in'])->startOfDay();
+            $end   = \Carbon\Carbon::parse((string) $params['check_out'])->startOfDay();
+        } catch (\Throwable) {
+            return;
+        }
+        if ($end->lte($start) || $start->diffInDays($end) > 60) {
+            return;
+        }
+
+        $roomsWanted = max(1, (int) ($params['rooms'] ?? 1));
+        $perRoom     = (int) ceil(max(1, (int) ($params['guests'] ?? 1)) / $roomsWanted);
+
+        $rooms = \App\Models\Room::whereIn('property_id', array_map(fn ($p) => $p->id, $properties))
+            ->get(['id', 'property_id', 'status', 'total_rooms', 'max_guests', 'max_adults', 'max_children']);
+
+        $free = app(\App\Services\InventoryService::class)->minFreeUnitsForRooms($rooms, $start, $end);
+        $byProperty = $rooms->groupBy('property_id');
+
+        foreach ($properties as $property) {
+            $left = 0;
+            foreach ($byProperty->get($property->id, collect()) as $room) {
+                $sleeps = (int) ($room->max_guests ?: ((int) $room->max_adults + (int) $room->max_children));
+                if ($sleeps >= $perRoom && ($free[$room->id] ?? 0) >= $roomsWanted) {
+                    $left += $free[$room->id];
+                }
+            }
+            $property->setAttribute('available_rooms_for_dates', $left);
+            $property->setAttribute('sold_out_for_dates', $left === 0);
+        }
     }
 
     /**
@@ -359,6 +409,34 @@ class PropertyRepository
         if (!empty($params['free_cancel'])) {
             $query->where('free_cancellation', 1);
         }
+        // "Pay at the hotel" is a site-wide checkout option: every hotel offers it or none does.
+        if (!empty($params['pay_at_hotel']) && (string) \App\Models\SiteSetting::get('allow_pay_at_hotel', '1') === '0') {
+            $query->whereRaw('1 = 0');
+        }
+
+        // ── Area / neighbourhood filter ─────────────────────────────────
+        $areas = array_filter(array_map(fn ($a) => trim((string) $a), (array) ($params['area'] ?? [])));
+        if (!empty($areas)) {
+            $query->where(function ($aq) use ($areas) {
+                foreach ($areas as $area) {
+                    $like = '%' . addcslashes($area, '%_\\') . '%';
+                    $aq->orWhere('city', 'LIKE', $like)
+                       ->orWhere('address', 'LIKE', $like)
+                       ->orWhere('nearest_landmark', 'LIKE', $like);
+                }
+            });
+        }
+
+        // ── Capacity: a room type on sale that fits the party ───────────
+        // N rooms for G guests needs a room type with at least N units that sleeps ceil(G / N).
+        $roomsWanted  = max(1, (int) ($params['rooms'] ?? 1));
+        $guestsWanted = max(1, (int) ($params['guests'] ?? 1));
+        $perRoom      = (int) ceil($guestsWanted / $roomsWanted);
+        $query->whereHas('rooms', function ($rq) use ($roomsWanted, $perRoom) {
+            $rq->where('status', 'active')
+               ->where('total_rooms', '>=', $roomsWanted)
+               ->whereRaw('COALESCE(NULLIF(max_guests, 0), COALESCE(max_adults, 0) + COALESCE(max_children, 0)) >= ?', [$perRoom]);
+        });
 
         // ── Bed preference & Room features filters ──────────────────────
         $bedTypes = (array)($params['bed_type'] ?? []);
@@ -390,27 +468,7 @@ class PropertyRepository
         if ($lat !== null && $lng !== null && ($sortBy === 'featured' || $sortBy === 'distance')) {
             // Preserves Haversine nearest distance order from scopeNearCoordinate
         } else {
-            if ($sortBy === 'featured' && str_contains(strtolower($destination), 'cox')) {
-                // Exact Agoda Desktop live display order for Cox's Bazar (Best Western #1, Sea Pearl #2)
-                $query->orderByRaw("CASE 
-                    WHEN id = 16 THEN 1
-                    WHEN id = 12 THEN 2
-                    WHEN id = 19 THEN 3
-                    WHEN id = 55 THEN 4
-                    WHEN id = 15 THEN 5
-                    WHEN id = 13 THEN 6
-                    WHEN id = 17 THEN 7
-                    WHEN id = 26 THEN 8
-                    WHEN id = 36 THEN 9
-                    WHEN id = 23 THEN 10
-                    WHEN id = 18 THEN 11
-                    WHEN id = 29 THEN 12
-                    WHEN id = 25 THEN 13
-                    ELSE 99 
-                END ASC")->orderByDesc('rating_score');
-            } else {
-                $query->sortBy($sortBy);
-            }
+            $query->sortBy($sortBy);
         }
 
         return $query;

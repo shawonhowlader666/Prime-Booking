@@ -89,13 +89,11 @@ class InventoryService
     {
         $from = $startDate->format('Y-m-d');
         $to   = $endDate->format('Y-m-d');
-        $capacity = max(0, (int) ($room->total_rooms ?? 1));
 
         $overrides = RoomAvailability::where('room_id', $room->id)
             ->where('date', '>=', $from)
             ->where('date', '<', $to)
-            ->get(['date', 'available_qty', 'is_blocked'])
-            ->keyBy(fn ($row) => Carbon::parse($row->date)->format('Y-m-d'));
+            ->get(['date', 'available_qty', 'is_blocked']);
 
         $bookings = $this->activeBookingsQuery($room->id, $from, $to)
             ->get(['check_in', 'check_out', 'rooms_count']);
@@ -107,10 +105,90 @@ class InventoryService
             ->when($ignoreHoldToken, fn ($q) => $q->where('token', '!=', $ignoreHoldToken))
             ->get(['check_in', 'check_out', 'rooms_count']);
 
+        return $this->freeUnitsByNight((int) ($room->total_rooms ?? 1), $overrides, $bookings, $holds, $startDate, $endDate);
+    }
+
+    /**
+     * Fewest free units on any night of [start, end) for many rooms at once — three queries
+     * in total however many rooms are passed. Used by search to flag sold-out hotels.
+     *
+     * @param iterable<Room> $rooms
+     * @return array<int,int> room id => fewest free units on any night (0 = sold out / not on sale)
+     */
+    public function minFreeUnitsForRooms(iterable $rooms, Carbon $startDate, Carbon $endDate): array
+    {
+        $rooms = collect($rooms)->keyBy('id');
+        if ($rooms->isEmpty() || $endDate->lte($startDate)) {
+            return [];
+        }
+
+        $ids  = $rooms->keys()->map(fn ($id) => (int) $id)->all();
+        $from = $startDate->format('Y-m-d');
+        $to   = $endDate->format('Y-m-d');
+
+        $overrides = RoomAvailability::whereIn('room_id', $ids)
+            ->where('date', '>=', $from)
+            ->where('date', '<', $to)
+            ->get(['room_id', 'date', 'available_qty', 'is_blocked'])
+            ->groupBy('room_id');
+
+        $bookings = $this->overlappingBookings(Booking::whereIn('room_id', $ids), $from, $to)
+            ->get(['room_id', 'check_in', 'check_out', 'rooms_count'])
+            ->groupBy('room_id');
+
+        $holds = RoomHold::whereIn('room_id', $ids)
+            ->where('expires_at', '>', now())
+            ->where('check_in', '<', $to)
+            ->where('check_out', '>', $from)
+            ->get(['room_id', 'check_in', 'check_out', 'rooms_count'])
+            ->groupBy('room_id');
+
+        $result = [];
+        foreach ($rooms as $id => $room) {
+            if (($room->status ?? 'active') !== 'active') {
+                $result[(int) $id] = 0;
+                continue;
+            }
+            $nights = $this->freeUnitsByNight(
+                (int) ($room->total_rooms ?? 1),
+                $overrides->get($id, collect()),
+                $bookings->get($id, collect()),
+                $holds->get($id, collect()),
+                $startDate,
+                $endDate
+            );
+            $result[(int) $id] = $nights === [] ? 0 : min($nights);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param iterable<object> $overrides rows with date, available_qty, is_blocked
+     * @param iterable<object> $bookings  rows with check_in, check_out, rooms_count
+     * @param iterable<object> $holds     rows with check_in, check_out, rooms_count
+     * @return array<string,int>
+     */
+    private function freeUnitsByNight(int $capacity, iterable $overrides, iterable $bookings, iterable $holds, Carbon $startDate, Carbon $endDate): array
+    {
+        $capacity = max(0, $capacity);
+        $byDate = collect($overrides)->keyBy(fn ($row) => Carbon::parse($row->date)->format('Y-m-d'));
+
+        $occupying = [];
+        foreach ([$bookings, $holds] as $set) {
+            foreach ($set as $row) {
+                $occupying[] = [
+                    Carbon::parse($row->check_in)->format('Y-m-d'),
+                    Carbon::parse($row->check_out)->format('Y-m-d'),
+                    max(1, (int) $row->rooms_count),
+                ];
+            }
+        }
+
         $result = [];
         foreach (CarbonPeriod::create($startDate, $endDate->copy()->subDay()) as $date) {
             $dateStr  = $date->format('Y-m-d');
-            $override = $overrides->get($dateStr);
+            $override = $byDate->get($dateStr);
 
             if ($override && $override->is_blocked) {
                 $result[$dateStr] = 0;
@@ -120,13 +198,9 @@ class InventoryService
             $base = $override ? min($capacity, max(0, (int) $override->available_qty)) : $capacity;
 
             $taken = 0;
-            foreach ([$bookings, $holds] as $set) {
-                foreach ($set as $row) {
-                    $in  = Carbon::parse($row->check_in)->format('Y-m-d');
-                    $out = Carbon::parse($row->check_out)->format('Y-m-d');
-                    if ($in <= $dateStr && $out > $dateStr) {
-                        $taken += max(1, (int) $row->rooms_count);
-                    }
+            foreach ($occupying as [$in, $out, $count]) {
+                if ($in <= $dateStr && $out > $dateStr) {
+                    $taken += $count;
                 }
             }
 
@@ -142,7 +216,12 @@ class InventoryService
      */
     public function activeBookingsQuery(int $roomId, string $from, string $to)
     {
-        return Booking::where('room_id', $roomId)
+        return $this->overlappingBookings(Booking::where('room_id', $roomId), $from, $to);
+    }
+
+    private function overlappingBookings($query, string $from, string $to)
+    {
+        return $query
             ->whereIn('status', ['pending', 'confirmed'])
             ->where('check_in', '<', $to)
             ->where('check_out', '>', $from)

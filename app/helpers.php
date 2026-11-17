@@ -22,3 +22,15 @@ if (!function_exists('media_url')) {
         return \App\Services\Media\MediaService::url($path, $fallback);
     }
 }
+
+if (!function_exists('per_page')) {
+    /**
+     * Rows per page chosen in a list's "per page" selector, limited to the offered sizes.
+     */
+    function per_page(int $default = 15): int
+    {
+        $requested = (int) request('per_page', $default);
+
+        return in_array($requested, [10, 15, 20, 25, 50, 100], true) ? $requested : $default;
+    }
+}

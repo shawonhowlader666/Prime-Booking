@@ -144,6 +144,13 @@
                         <label class="form-label">Nearest Landmark / Distance</label>
                         <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark', $property->nearest_landmark) }}" placeholder="e.g. 2 mins walk from Beach Point, 3.2 km from Airport">
                     </div>
+                <div class="col-12">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">What's Nearby (shown on the hotel page &amp; map)</label>
+                    <textarea name="nearby_places_text" class="form-control" rows="5" style="font-size:13px; font-family:monospace;"
+                        placeholder="One place per line:  Name | distance | category&#10;Kolatoli Beach Point | 200 m | beach&#10;Cox's Bazar Airport (CXB) | 3.8 km | airport&#10;Sugandha Market | 1.1 | shopping">{{ old('nearby_places_text', $property->nearby_places_text) }}</textarea>
+                    <small class="text-muted" style="font-size:11.5px;">Distance in km or m. Category (optional): {{ implode(', ', array_keys(\App\Models\Property::NEARBY_CATEGORIES)) }}.</small>
+                    @error('nearby_places_text')<div class="text-danger small">{{ $message }}</div>@enderror
+                </div>
                     <div class="col-md-6">
                         <label class="form-label">Real-Time GPS Coordinates (Lat, Long)</label>
                         <div style="display:flex; gap:8px;">
@@ -216,7 +223,7 @@
                     </div>
                     <div class="col-12">
                         <label class="form-label">
-                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> House Rules, Check-in &amp; Deposit Policies (Agoda Extranet Standard)
+                            <i class="fa-solid fa-clipboard-check text-primary me-1"></i> House Rules, Check-in &amp; Deposit Policies (Prime Booking Standard)
                         </label>
                         <textarea name="house_rules" class="form-control" rows="2" placeholder="e.g. Valid national NID / passport required at check-in. Minimum check-in age is 18. Marriage certificate or proof of relationship required for couples. Security deposit payable in cash or card upon arrival.">{{ old('house_rules', $property->house_rules) }}</textarea>
                         <small class="text-muted" style="font-size:11px;">Guests will see this under 'Property Policies' on the public hotel page</small>
@@ -281,19 +288,19 @@
                 </div>
             </div>
 
-            {{-- STEP: Agoda Card Highlights & Marketing Badges --}}
+            {{-- STEP: Prime Booking Card Highlights & Marketing Badges --}}
             <div class="form-card mb-3" style="border-left: 4px solid #2067e1;">
                 <div class="form-section-title" style="color: #2067e1;">
-                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Agoda Search Card Highlights &amp; Marketing Badges
+                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Prime Booking Card Highlights &amp; Marketing Badges
                 </div>
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label fw-bold">Card Feature Snippet / Key Highlights (Agoda Bottom Line)</label>
+                        <label class="form-label fw-bold">Card Feature Snippet / Key Highlights (Card Bottom Highlight)</label>
                         <input type="text" name="feature_snippet" class="form-control" 
                                value="{{ old('feature_snippet', $property->feature_snippet) }}" 
                                placeholder="e.g. Panoramic Sea Views from 12th Floor, Five-Minute Walk to Kolatoly Beach">
                         <small class="text-muted" style="font-size:11.5px;">
-                            Appears at the bottom of the hotel card with a sparkle icon (Exact Agoda feature snippet).
+                            Appears at the bottom of the hotel card with a sparkle icon (Feature highlight snippet).
                         </small>
                     </div>
                     <div class="col-md-6">
@@ -302,7 +309,7 @@
                                value="{{ old('ribbon_badge', $property->ribbon_badge) }}" 
                                placeholder="e.g. Best rated 5-star hotels or Top Beach Resort (Leave blank for none)">
                         <small class="text-muted" style="font-size:11.5px;">
-                            Displays an authentic Agoda blue ribbon over the hotel photo.
+                            Displays a Prime Booking blue ribbon over the hotel photo.
                         </small>
                     </div>
                     <div class="col-md-3">

@@ -31,7 +31,7 @@ class ReviewManagementController extends Controller
             $query->where('rating', (int)$request->rating);
         }
 
-        $reviews = $query->latest()->paginate(20)->appends($request->all());
+        $reviews = $query->latest()->paginate(per_page(20))->appends($request->all());
 
         $stats = [
             'total'    => Review::count(),

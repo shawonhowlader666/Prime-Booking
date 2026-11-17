@@ -32,7 +32,7 @@ class PromotionController extends Controller
             $query->where('is_active', (bool)$request->status);
         }
 
-        $promotions = $query->paginate(20)->withQueryString();
+        $promotions = $query->paginate(per_page(20))->withQueryString();
 
         $stats = [
             'total'          => Promotion::count(),

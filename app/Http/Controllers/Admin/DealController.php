@@ -11,7 +11,7 @@ class DealController extends Controller
 {
     public function index()
     {
-        $deals = Deal::ordered()->paginate(15);
+        $deals = Deal::ordered()->paginate(per_page(15));
         return view('admin.deals.index', compact('deals'));
     }
 

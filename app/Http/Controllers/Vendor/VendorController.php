@@ -223,7 +223,12 @@ class VendorController extends Controller
             return back()->with('error', 'This property is currently ' . ucfirst($property->status) . ' and cannot be activated until reviewed and approved by admin.');
         }
 
-        $newStatus = $property->status === 'active' ? 'inactive' : 'active';
+        // Live (active or published) goes offline; an offline listing goes back live only with a room on sale.
+        $isLive = in_array($property->status, Property::LIVE_STATUSES, true);
+        if (!$isLive && !$property->rooms()->where('status', 'active')->where('price_per_night', '>', 0)->exists()) {
+            return back()->with('error', 'Add at least one active room with a price before activating this listing.');
+        }
+        $newStatus = $isLive ? 'inactive' : 'active';
         $property->update(['status' => $newStatus]);
         return back()->with('success', 'Listing status changed to ' . ucfirst($newStatus) . '.');
     }

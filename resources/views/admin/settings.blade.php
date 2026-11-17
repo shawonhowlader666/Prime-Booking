@@ -634,6 +634,14 @@
                                     <label class="saas-label"><i class="fa-brands fa-twitter text-info me-1"></i> X (Twitter) Profile URL</label>
                                     <input type="url" name="social_twitter" class="form-control saas-input" value="{{ old('social_twitter', $siteSettings['social_twitter']) }}" placeholder="https://x.com/primebooking">
                                 </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-apple me-1"></i> iOS App Store URL</label>
+                                    <input type="url" name="app_store_url" class="form-control saas-input" value="{{ old('app_store_url', $siteSettings['app_store_url']) }}" placeholder="https://apps.apple.com/... (leave empty to hide)">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="saas-label"><i class="fa-brands fa-google-play me-1"></i> Google Play URL</label>
+                                    <input type="url" name="play_store_url" class="form-control saas-input" value="{{ old('play_store_url', $siteSettings['play_store_url']) }}" placeholder="https://play.google.com/... (leave empty to hide)">
+                                </div>
                             </div>
                         </div>
                     </div>

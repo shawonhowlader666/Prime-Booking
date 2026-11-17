@@ -21,6 +21,12 @@ use Illuminate\Http\RedirectResponse;
  */
 class PropertyDetailController extends Controller
 {
+    /** Optional 1-5 star scores a guest can give per category. */
+    private const REVIEW_CATEGORY_FIELDS = [
+        'cleanliness_score', 'location_score', 'service_score',
+        'facilities_score', 'comfort_score', 'value_score',
+    ];
+
     public function __construct(
         private readonly PropertyRepository $repository
     ) {}
@@ -56,6 +62,7 @@ class PropertyDetailController extends Controller
 
         // Live Social Proof & Demand Signals
         $socialProofService = app(\App\Services\SocialProofService::class);
+        $socialProofService->recordView((int) $property->id, (string) $request->session()->getId());
         $socialProof = $socialProofService->getSignals($property);
 
         // Google SEO Schema (JSON-LD)
@@ -115,7 +122,7 @@ class PropertyDetailController extends Controller
         $validated = $request->validate([
             'rating'  => 'required|integer|min:1|max:5',
             'comment' => 'required|string|min:5|max:2000',
-        ]);
+        ] + array_fill_keys(self::REVIEW_CATEGORY_FIELDS, 'nullable|integer|min:1|max:5'));
 
         $fail = function (string $message, int $status = 403) use ($request) {
             return $request->wantsJson() || $request->ajax()
@@ -162,7 +169,10 @@ class PropertyDetailController extends Controller
             'rating'      => (int) $validated['rating'],
             'comment'     => $comment,
             'status'      => $status,
-        ]);
+        ] + array_map(
+            fn ($v) => $v === null ? null : (int) $v,
+            array_intersect_key($validated, array_flip(self::REVIEW_CATEGORY_FIELDS))
+        ));
 
         $message = $status === 'flagged'
             ? 'Your review has been submitted for moderation.'

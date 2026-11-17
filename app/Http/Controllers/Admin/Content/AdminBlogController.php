@@ -85,7 +85,7 @@ class AdminBlogController extends Controller
             });
         }
 
-        $posts = $query->latest('id')->paginate(12)->withQueryString();
+        $posts = $query->latest('id')->paginate(per_page(12))->withQueryString();
 
         return view('admin.blog.index', compact('posts'));
     }

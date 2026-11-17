@@ -130,7 +130,7 @@
 
     // Convert all gallery images to fully-qualified public / storage URLs (Zero broken image paths)
     $gallery = $gallery->map(function ($img) {
-        return media_url($img, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80');
+        return media_url($img, '/images/placeholder-hotel.svg');
     })->values();
 
     // Dynamic Agoda Photo & Video Categorization Collection (Encapsulated on Property Model)
@@ -1328,14 +1328,12 @@
                 {{-- Badges (Top Value & Best seller) + Wishlist Heart --}}
                 <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 10px;">
                     <div class="d-flex align-items-center" style="gap: 6px;">
-                        <span class="d-inline-flex align-items-center justify-content-center text-white"
-                            style="background: #f15600; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                            Top Value
-                        </span>
-                        <span class="d-inline-flex align-items-center justify-content-center text-white"
-                            style="background: #d42e2e; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3; letter-spacing: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                            Best seller
-                        </span>
+                        @if (!empty($property->ribbon_badge))
+                            <span class="d-inline-flex align-items-center justify-content-center text-white"
+                                style="background: #2067e1; font-size: 11px; font-weight: 700; border-radius: 3px; padding: 2.5px 7px; line-height: 1.3;">
+                                {{ $property->ribbon_badge }}
+                            </span>
+                        @endif
                     </div>
 
                     {{-- Wishlist Heart Button --}}
@@ -1373,10 +1371,7 @@
 
             {{-- Right Card 1: Review Score Box with Sub-scores AND Customer Review Snippets (Agoda 1:1 Parity) --}}
             @php
-                $cleanScoreVal = (float) ($property->sub_scores['cleanliness'] ?? 8.2);
-                $facScoreVal = (float) ($property->sub_scores['facilities'] ?? 7.8);
-                $servScoreVal = (float) ($property->sub_scores['service'] ?? 7.8);
-                $valScoreVal = (float) ($property->sub_scores['value'] ?? 7.5);
+                $snippetReviews = ($reviews ?? collect())->filter(fn ($r) => trim((string) $r->comment) !== '')->take(4);
             @endphp
             <div id="reviews" class="card agoda-card-border mb-3"
                 style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 16px !important; background: #ffffff;">
@@ -1404,528 +1399,80 @@
                     </div>
                 </div>
 
-                {{-- 2x2 Sub-scores Grid with Blue Numbers and Progress Bars ("niche dag") --}}
-                <div class="row g-2 mb-3" style="font-size: 12px; line-height: 1.4;">
-                    {{-- Cleanliness --}}
-                    <div class="col-6 pe-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="color: #1e293b; font-size: 12px;">Cleanliness</span>
-                            <span
-                                style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($cleanScoreVal, 1) }}</span>
-                        </div>
-                        <div
-                            style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
-                            <div
-                                style="width: {{ min(100, max(10, round(($cleanScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Facilities --}}
-                    <div class="col-6 ps-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="color: #1e293b; font-size: 12px;">Facilities</span>
-                            <span
-                                style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($facScoreVal, 1) }}</span>
-                        </div>
-                        <div
-                            style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden; margin-bottom: 10px;">
-                            <div
-                                style="width: {{ min(100, max(10, round(($facScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Service --}}
-                    <div class="col-6 pe-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="color: #1e293b; font-size: 12px;">Service</span>
-                            <span
-                                style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($servScoreVal, 1) }}</span>
-                        </div>
-                        <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-                            <div
-                                style="width: {{ min(100, max(10, round(($servScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;">
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Value for money --}}
-                    <div class="col-6 ps-2">
-                        <div class="d-flex justify-content-between align-items-center mb-1">
-                            <span style="color: #1e293b; font-size: 12px;">Value for money</span>
-                            <span
-                                style="color: #2067e1; font-weight: 700; font-size: 12px;">{{ number_format($valScoreVal, 1) }}</span>
-                        </div>
-                        <div style="height: 3px; background: #e2e8f0; border-radius: 2px; overflow: hidden;">
-                            <div
-                                style="width: {{ min(100, max(10, round(($valScoreVal / 10) * 100))) }}%; height: 100%; background: #2067e1; border-radius: 2px;">
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                {{-- Customer Review Snippets Track (Inside this same Card!) --}}
+                {{-- Latest real guest reviews --}}
+                @if ($snippetReviews->isNotEmpty())
                 <div class="position-relative mt-2 pt-1">
-                    <div class="d-flex gap-2 overflow-hidden align-items-stretch" style="margin-right: -4px;">
-                        {{-- Snippet Card 1 --}}
-                        <div
-                            style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff;">
-                            <div class="mb-2"
-                                style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
-                                Great Location, Impeccably<br>Clean – Highly Recommended!
+                    <div class="d-flex gap-2 overflow-auto align-items-stretch" style="scrollbar-width: none;">
+                        @foreach ($snippetReviews as $sr)
+                            <div style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff;">
+                                <div class="mb-2" style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; max-height: 32px; overflow: hidden;">
+                                    {{ \Illuminate\Support\Str::limit(trim((string) $sr->comment), 90) }}
+                                </div>
+                                <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
+                                    <strong class="text-dark" style="font-weight: 700;">{{ \Illuminate\Support\Str::limit($sr->guest_name ?: 'Verified guest', 18) }}</strong>
+                                    <span style="color: #64748b;">{{ number_format(min(10, (float) $sr->rating * 2), 1) }}/10</span>
+                                </div>
                             </div>
-                            <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
-                                {{-- BD Flag Badge --}}
-                                <span class="d-inline-flex align-items-center justify-content-center"
-                                    style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
-                                    <span
-                                        style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
-                                </span>
-                                <strong class="text-dark" style="font-weight: 700; color: #1e293b;">MD I.</strong>
-                                <span style="color: #64748b;">Bangladesh</span>
-                            </div>
-                        </div>
-
-                        {{-- Snippet Card 2 (Peeking) --}}
-                        <div
-                            style="flex: 0 0 68%; border: 1px solid #dddfe2; border-radius: 8px; padding: 10px 12px; background: #ffffff; opacity: 0.95;">
-                            <div class="mb-2"
-                                style="font-size: 11.5px; font-weight: 600; color: #1e293b; line-height: 1.35; height: 32px; overflow: hidden;">
-                                Services ...<br>also ...
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5" style="font-size: 11px;">
-                                <span class="d-inline-flex align-items-center justify-content-center"
-                                    style="width: 14px; height: 10px; background: #006a4e; border-radius: 1px; position: relative; overflow: hidden; flex-shrink: 0;">
-                                    <span
-                                        style="width: 6px; height: 6px; background: #f42a41; border-radius: 50%; display: block;"></span>
-                                </span>
-                                <strong class="text-dark" style="font-weight: 700; color: #1e293b;">Sha...</strong>
-                                <span style="color: #64748b;">Bangladesh</span>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
-
-                    {{-- Circular Next Button Overlapping --}}
-                    <button type="button"
-                        class="btn btn-light rounded-circle position-absolute top-50 d-flex align-items-center justify-content-center p-0"
+                    <a href="#guest-reviews" class="btn btn-light rounded-circle position-absolute top-50 d-flex align-items-center justify-content-center p-0"
                         style="right: 8px; transform: translateY(-50%); width: 28px; height: 28px; border: 1px solid #cbd5e1; background: #ffffff; box-shadow: 0 2px 6px rgba(0,0,0,0.18); z-index: 5;"
-                        onclick="document.getElementById('reviews')?.scrollIntoView({behavior:'smooth'});"
-                        title="View more reviews">
+                        title="Read all reviews" aria-label="Read all reviews">
                         <i class="fa-solid fa-chevron-right" style="font-size: 11px; color: #1e293b;"></i>
-                    </button>
+                    </a>
                 </div>
+                @else
+                <div class="mt-2 small text-muted">No guest reviews yet. Reviews are written by guests after their stay.</div>
+                @endif
             </div>
-
-            {{-- Left Card 2: Highlights (Agoda 1:1 Parity with Screenshot) --}}
+            {{-- Highlights: quotes from this property's own approved guest reviews (4 or 5 stars). --}}
+            @php
+                $highlightReviews = ($reviews ?? collect())
+                    ->filter(fn ($r) => (float) $r->rating >= 4 && mb_strlen(trim((string) $r->comment)) >= 15)
+                    ->take(3);
+            @endphp
+            @if ($highlightReviews->isNotEmpty())
             <div class="card agoda-card-border mb-3"
                 style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 20px 24px !important; background: #ffffff;">
-                <h5 class="fw-bold mb-3.5"
-                    style="font-size: 18px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-weight: 800; color: #222222;">
-                    Highlights</h5>
-
-                <div class="d-flex flex-column" style="gap: 18px;">
-                    {{-- 1. Great for children --}}
-                    <div class="d-flex align-items-center gap-3">
-                        <img loading="lazy" decoding="async"
-                            src="{{ asset('images/agoda-highlights/highlight-1.png') }}" class="flex-shrink-0"
-                            style="width: 48px; height: 48px; object-fit: contain;" alt="Great for children">
-                        <div>
-                            <strong class="fw-bold" style="font-size: 14px; color: #222222;">Great for children</strong>
-                        </div>
-                    </div>
-
-                    {{-- 2. Highly rated by couple travelers --}}
-                    <div class="d-flex align-items-start gap-3">
-                        <img loading="lazy" decoding="async"
-                            src="{{ asset('images/agoda-highlights/highlight-2.png') }}" class="flex-shrink-0"
-                            style="width: 48px; height: 48px; object-fit: contain;"
-                            alt="Highly rated by couple travelers">
-                        <div style="font-size: 14px; line-height: 1.35;">
-                            <div class="fw-bold mb-0.5" style="font-size: 14px; color: #222222;">Highly rated by couple
-                                travelers</div>
-                            <div style="font-size: 12.5px; color: #555555;">“We had a wonderful honeymoon here.”</div>
-                        </div>
-                    </div>
-
-                    {{-- 3. Great overall atmosphere --}}
-                    <div class="d-flex align-items-start gap-3">
-                        <img loading="lazy" decoding="async"
-                            src="{{ asset('images/agoda-highlights/highlight-3.png') }}" class="flex-shrink-0"
-                            style="width: 48px; height: 48px; object-fit: contain;" alt="Great overall atmosphere">
-                        <div style="font-size: 14px; line-height: 1.35;">
-                            <div class="fw-bold mb-0.5" style="font-size: 14px; color: #222222;">Great overall
-                                atmosphere</div>
-                            <div style="font-size: 12.5px; color: #555555;">“Again, this was a pleasant experience
-                                overall.”</div>
-                        </div>
-                    </div>
-
-                    {{-- 4. Top property facilities --}}
-                    <div class="d-flex align-items-start gap-3">
-                        <img loading="lazy" decoding="async"
-                            src="{{ asset('images/agoda-highlights/highlight-4.png') }}" class="flex-shrink-0"
-                            style="width: 48px; height: 48px; object-fit: contain;" alt="Top property facilities">
-                        <div style="font-size: 14px; line-height: 1.35;">
-                            <div><strong style="color: #222222; font-weight: 700;">Top property facilities</strong>
-                                <span style="font-size: 13px; color: #555555;">- Overall stays feel enjoyable for many
-                                    guests, and several reviews say...</span>
+                <h5 class="fw-bold mb-3.5" style="font-size: 18px; font-weight: 800; color: #222222;">What guests liked</h5>
+                <div class="d-flex flex-column" style="gap: 16px;">
+                    @foreach ($highlightReviews as $hr)
+                        <div class="d-flex align-items-start gap-3">
+                            <span class="flex-shrink-0 d-inline-flex align-items-center justify-content-center rounded-circle"
+                                style="width: 40px; height: 40px; background: #eef4ff; color: #2067e1; font-weight: 800;">
+                                {{ number_format(min(10, (float) $hr->rating * 2), 1) }}
+                            </span>
+                            <div style="font-size: 13.5px; line-height: 1.4; color: #333;">
+                                <div>“{{ \Illuminate\Support\Str::limit(trim((string) $hr->comment), 160) }}”</div>
+                                <div class="mt-1" style="font-size: 12px; color: #6b7280;">
+                                    {{ $hr->guest_name ?: 'Verified guest' }} · {{ optional($hr->created_at)->format('M Y') }}
+                                </div>
                             </div>
-                            <div class="mt-0.5" style="font-size: 12.5px; color: #555555;">“Best 5 star hotel around
-                                cox's Bazar.”</div>
                         </div>
-                    </div>
-
-                    {{-- 5. Professional guest services --}}
-                    <div class="d-flex align-items-start gap-3">
-                        <img loading="lazy" decoding="async"
-                            src="{{ asset('images/agoda-highlights/highlight-5.png') }}" class="flex-shrink-0"
-                            style="width: 48px; height: 48px; object-fit: contain;" alt="Professional guest services">
-                        <div style="font-size: 14px; line-height: 1.35;">
-                            <div><strong style="color: #222222; font-weight: 700;">Professional guest services</strong>
-                                <span style="font-size: 13px; color: #555555;">- Hospitality stands out, with courteous
-                                    staff, quick service, and 24-ho...</span>
-                            </div>
-                            <div class="mt-0.5" style="font-size: 12.5px; color: #555555;">“Services, Swimming pool and
-                                also out side view is nice.”</div>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
+            @endif
 
-            {{-- Staycation offers available Card (Exact 1:1 Agoda Parity) --}}
-            <div class="card agoda-card-border mb-3"
-                style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px !important; background: #ffffff;">
-                <div style="margin-bottom: 16px;">
-                    <h5
-                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; color: #2a2a2e; margin: 0 0 4px 0; line-height: 1.3;">
-                        Staycation offers available
-                    </h5>
-                    <div
-                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 14px; font-weight: 400; color: #2a2a2e; line-height: 1.4;">
-                        Get special benefits for your stay
-                    </div>
+            {{-- Facilities: this property's own amenity list --}}
+            @if (!empty($amenitiesList))
+            <div class="card agoda-card-border mb-3" style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 20px 24px !important; background: #ffffff;">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <h5 class="fw-bold m-0" style="font-size: 18px; color: #222;">Facilities</h5>
+                    @if (count($amenitiesList) > 8)
+                        <a href="#facilities" class="small fw-bold text-decoration-none">See all {{ count($amenitiesList) }}</a>
+                    @endif
                 </div>
-
-                {{-- Horizontal Scrollable Sub-cards (Food & Drinks, Wellness, Activities, Sports & Entertainment) --}}
-                <div class="position-relative">
-                    <div id="staycationScrollTrack" class="d-flex align-items-stretch overflow-x-auto"
-                        style="gap: 12px; scroll-behavior: smooth; padding-bottom: 6px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
-
-                        {{-- Card 1: Food and Drinks --}}
-                        <div class="d-flex flex-column justify-content-between"
-                            style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
-                            <div>
-                                <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
-                                    <img loading="lazy" decoding="async"
-                                        src="{{ asset('images/staycation-icons/food-drinks.png') }}"
-                                        style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;"
-                                        alt="Food and Drinks">
-                                    <strong
-                                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Food
-                                        and Drinks</strong>
-                                </div>
-                                <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Room service [24-hour]</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Coffee shop</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Room service</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="text-align: right; margin-top: auto;">
-                                <a href="#facilities"
-                                    style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"
-                                    onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See
-                                    all amenities</a>
-                            </div>
+                <div class="row g-2" style="font-size: 14px; color: #333;">
+                    @foreach (array_slice($amenitiesList, 0, 8) as $am)
+                        <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                            <i class="fa-solid fa-check text-success" style="font-size: 12px;"></i>
+                            <span>{{ is_array($am) ? ($am['name'] ?? '') : $am }}</span>
                         </div>
-
-                        {{-- Card 2: Wellness --}}
-                        <div class="d-flex flex-column justify-content-between"
-                            style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
-                            <div>
-                                <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
-                                    <img loading="lazy" decoding="async"
-                                        src="{{ asset('images/staycation-icons/wellness.png') }}"
-                                        style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;"
-                                        alt="Wellness">
-                                    <strong
-                                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Wellness</strong>
-                                </div>
-                                <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Salon</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Fitness center</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Spa</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="text-align: right; margin-top: auto;">
-                                <a href="#facilities"
-                                    style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"
-                                    onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See
-                                    all amenities</a>
-                            </div>
-                        </div>
-
-                        {{-- Card 3: Activities --}}
-                        <div class="d-flex flex-column justify-content-between"
-                            style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
-                            <div>
-                                <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
-                                    <img loading="lazy" decoding="async"
-                                        src="{{ asset('images/staycation-icons/activities.png') }}"
-                                        style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;"
-                                        alt="Activities">
-                                    <strong
-                                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Activities</strong>
-                                </div>
-                                <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Swimming pool [indoor]</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>On-site activity</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Water park</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="text-align: right; margin-top: auto;">
-                                <a href="#facilities"
-                                    style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"
-                                    onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See
-                                    all amenities</a>
-                            </div>
-                        </div>
-
-                        {{-- Card 4: Sports & Entertainment --}}
-                        <div class="d-flex flex-column justify-content-between"
-                            style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
-                            <div>
-                                <div class="d-flex align-items-center gap-2" style="margin-bottom: 14px;">
-                                    <img loading="lazy" decoding="async"
-                                        src="{{ asset('images/staycation-icons/sports.png') }}"
-                                        style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;"
-                                        alt="Sports & Entertainment">
-                                    <strong
-                                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Sports
-                                        &amp; Entertainment</strong>
-                                </div>
-                                <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Game room</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Tennis court</span>
-                                    </div>
-                                    <div
-                                        style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00805a"
-                                            stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"
-                                            style="flex-shrink: 0; margin-top: 2px;">
-                                            <polyline points="20 6 9 17 4 12" />
-                                        </svg>
-                                        <span>Hiking trails</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="text-align: right; margin-top: auto;">
-                                <a href="#facilities"
-                                    style="color: #2067e1; font-size: 12.5px; font-weight: 500; text-decoration: none; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"
-                                    onclick="event.preventDefault(); document.getElementById('facilities')?.scrollIntoView({behavior:'smooth'});">See
-                                    all amenities</a>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    {{-- Floating Next Carousel Chevron Button --}}
-                    <button type="button"
-                        class="btn btn-light rounded-circle shadow-sm position-absolute top-50 end-0 translate-middle-y d-flex align-items-center justify-content-center p-0"
-                        style="width: 32px; height: 32px; border: 1px solid #dddfe2; background: #ffffff; z-index: 5; margin-right: -10px;"
-                        title="Next"
-                        onclick="document.getElementById('staycationScrollTrack').scrollBy({left: 220, behavior: 'smooth'});">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e" stroke-width="2.5"
-                            stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="9 18 15 12 9 6" />
-                        </svg>
-                    </button>
+                    @endforeach
                 </div>
             </div>
-
-            {{-- Facilities Card (Exact 1:1 Agoda Parity) --}}
-            <div id="facilities" class="card agoda-card-border mb-4"
-                style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px !important; background: #ffffff;">
-                <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 18px;">
-                    <h5
-                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 18px; font-weight: 700; color: #2a2a2e; margin: 0; line-height: 1.3;">
-                        Facilities</h5>
-                    <a href="javascript:void(0)" class="fw-bold text-decoration-none"
-                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #2067e1; font-size: 14px; font-weight: 700;"
-                        data-bs-toggle="modal" data-bs-target="#facilitiesModal">See all</a>
-                </div>
-
-                <div
-                    style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13.5px; color: #2a2a2e;">
-                    {{-- Column 1 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Private beach</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Spa</span>
-                        </div>
-                    </div>
-
-                    {{-- Column 2 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Free Wi-Fi</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Front desk [24-hour]</span>
-                        </div>
-                    </div>
-
-                    {{-- Column 3 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Swimming pool</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Fitness center</span>
-                        </div>
-                    </div>
-
-                    {{-- Column 4 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Free parking</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Restaurants</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            @endif
         </div>
 
         {{-- Right Column Sidebar Widgets --}}
@@ -1935,7 +1482,7 @@
             @php
                 $firstRoom = $property->rooms->first();
                 $dealPrice = $firstRoom ? $firstRoom->price_per_night : $property->price_per_night;
-                $dealRoomName = $firstRoom ? $firstRoom->name : 'Deluxe Room with Sea View and Balcony';
+                $dealRoomName = $firstRoom ? $firstRoom->name : '';
                 $dealThumb = !empty($firstRoom->images) && is_array($firstRoom->images) && count($firstRoom->images) > 0
                     ? media_url($firstRoom->images[0])
                     : ($gallery[1] ?? $gallery[0]);
@@ -1974,8 +1521,9 @@
                             <path
                                 d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                         </svg>
-                        <span>2 adults</span>
+                        <span>{{ (int) ($firstRoom->max_adults ?? 2) }} {{ (int) ($firstRoom->max_adults ?? 2) === 1 ? 'adult' : 'adults' }}</span>
                     </div>
+                    @if ((int) ($firstRoom->max_children ?? 0) > 0)
                     <div class="d-flex align-items-center gap-1.5" style="color: #16a34a; font-weight: 600;">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="#16a34a">
                             <path
@@ -1983,6 +1531,8 @@
                         </svg>
                         <span>Your kid can stay for FREE!</span>
                     </div>
+                    @endif
+                    @if ($firstRoom && $firstRoom->breakfast_included)
                     <div class="d-flex align-items-center gap-1.5" style="color: #16a34a; font-weight: 600;">
                         <svg viewBox="0 0 24 24" width="13" height="13" fill="#16a34a">
                             <path
@@ -1990,6 +1540,7 @@
                         </svg>
                         <span>Breakfast included</span>
                     </div>
+                    @endif
                 </div>
 
                 <a href="#rooms"
@@ -2006,7 +1557,7 @@
                 <div style="padding: 12px 12px 0 12px;">
                     <div class="position-relative text-center overflow-hidden"
                         style="height: 130px; border-radius: 4px; background: #eef2f6; cursor: pointer;"
-                        data-bs-toggle="modal" data-bs-target="#hotelDetailMapModal"
+                        data-bs-toggle="modal" data-bs-target="#interactiveMapModal"
                         title="Click to view full interactive map">
                         {{-- Agoda SVG Road Grid Pattern --}}
                         <svg class="w-100 h-100 position-absolute top-0 start-0" style="pointer-events: none;"
@@ -2061,6 +1612,8 @@
                         <span>{{ ($property->location_score ?? 8.8) >= 8.5 ? 'Excellent location' : 'Great location' }}</span>
                     </div>
 
+                    @php $parkingAmenity = collect($amenitiesList)->first(fn ($a) => is_string($a) && stripos($a, 'parking') !== false); @endphp
+                    @if ($parkingAmenity)
                     {{-- Parking Row (Agoda 1:1 Match) --}}
                     <div class="d-flex align-items-center justify-content-between py-2.5 border-top"
                         style="font-size: 13px; border-color: #e2e8f0 !important;">
@@ -2078,174 +1631,37 @@
                         <span
                             style="color: #00805a; font-weight: 700; font-size: 13px; letter-spacing: 0.3px;">FREE</span>
                     </div>
+                    @endif
 
                     <div class="border-top pt-2 d-flex flex-column flex-grow-1 justify-content-between"
                         style="border-color: #e2e8f0 !important;">
                         @php
-                            $propCity = strtolower((string) ($property->city ?? ''));
-                            $propAddress = strtolower((string) ($property->address ?? ''));
-                            $propName = strtolower((string) ($property->name ?? ''));
-                            $nearestLmk = $property->nearest_landmark ?? null;
-
+                            // Places entered by admin/vendor for this hotel (nearest first).
+                            $iconFor = [
+                                'beach' => 'umbrella-beach', 'nature' => 'tree', 'transport' => 'road',
+                                'train' => 'road', 'airport' => 'plane',
+                            ];
                             $transportList = [];
-
-                            // 1. If property has nearest_landmark specified in admin/DB, place it first!
-                            if (!empty($nearestLmk)) {
+                            if (!empty($property->nearest_landmark)) {
+                                $transportList[] = ['name' => $property->nearest_landmark, 'dist' => '', 'icon' => 'landmark'];
+                            }
+                            foreach ($property->nearby_list as $np) {
+                                if (strcasecmp($np['name'], (string) $property->nearest_landmark) === 0) {
+                                    continue;
+                                }
                                 $transportList[] = [
-                                    'name' => $nearestLmk,
-                                    'dist' => '0.2 km',
-                                    'icon' => 'umbrella-beach'
+                                    'name' => $np['name'],
+                                    'dist' => $np['distance'] ?? '',
+                                    'icon' => $iconFor[$np['category']] ?? 'landmark',
                                 ];
-                            }
-
-                            // COX'S BAZAR HOTELS: Distinguish Kolatoli/Sugandha/City Center vs Inani Beach vs Himchari
-                            if (str_contains($propCity, 'cox') || str_contains($propAddress, 'cox') || str_contains($propAddress, 'kolatoli') || str_contains($propAddress, 'inani') || str_contains($propName, 'heritage') || str_contains($propName, 'pearl') || str_contains($propName, 'seagull') || str_contains($propName, 'sayeman')) {
-                                $isInani = str_contains($propAddress, 'inani') || str_contains($propName, 'pearl') || str_contains($propName, 'royal tulip');
-                                $isLaboni = str_contains($propAddress, 'laboni') || str_contains($propName, 'seagull') || str_contains($propName, 'ocean paradise');
-
-                                if ($isInani) {
-                                    // Inani Area
-                                    $landmarks = [
-                                        ['name' => "Inani Beach (Coral Beach)", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Marine Drive (Inani Section)", 'dist' => '0.3 km', 'icon' => 'road'],
-                                        ['name' => "Himchari National Park", 'dist' => '14.2 km', 'icon' => 'tree'],
-                                        ['name' => "Kolatoli Beach Point", 'dist' => '22.5 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Cox's Bazar Airport (CXB)", 'dist' => '26.8 km', 'icon' => 'plane'],
-                                        ['name' => "Laboni Beach Market", 'dist' => '25.0 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Shah Amanat International Airport", 'dist' => '145.0 km', 'icon' => 'plane'],
-                                    ];
-                                } elseif ($isLaboni) {
-                                    // Laboni Beach Area
-                                    $landmarks = [
-                                        ['name' => "Laboni Beach Point", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Burmese Market", 'dist' => '0.8 km', 'icon' => 'landmark'],
-                                        ['name' => "Sugandha Beach Point", 'dist' => '1.2 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Cox's Bazar Airport (CXB)", 'dist' => '2.8 km', 'icon' => 'plane'],
-                                        ['name' => "Kolatoli Beach", 'dist' => '2.1 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Himchari Waterfall", 'dist' => '10.5 km', 'icon' => 'tree'],
-                                        ['name' => "Inani Beach", 'dist' => '24.5 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Shah Amanat International Airport", 'dist' => '122.0 km', 'icon' => 'plane'],
-                                    ];
-                                } else {
-                                    // Kolatoli / Sugandha / Main Hotel Zone (Best Western Heritage, Sayeman, Long Beach, etc.)
-                                    $landmarks = [
-                                        ['name' => "Kolatoli Beach Point", 'dist' => '0.2 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Marine Drive Starting Point", 'dist' => '0.3 km', 'icon' => 'road'],
-                                        ['name' => "Sugandha Beach Point", 'dist' => '1.1 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Laboni Beach Point", 'dist' => '2.4 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Cox's Bazar Airport (CXB)", 'dist' => '3.8 km', 'icon' => 'plane'],
-                                        ['name' => "Himchari National Park", 'dist' => '8.6 km', 'icon' => 'tree'],
-                                        ['name' => "Radiant Fish World", 'dist' => '3.2 km', 'icon' => 'landmark'],
-                                        ['name' => "Inani Beach", 'dist' => '22.4 km', 'icon' => 'umbrella-beach'],
-                                        ['name' => "Shah Amanat International Airport", 'dist' => '125.0 km', 'icon' => 'plane'],
-                                    ];
-                                }
-                            } elseif (str_contains($propCity, 'dhaka') || str_contains($propAddress, 'dhaka') || str_contains($propAddress, 'gulshan') || str_contains($propAddress, 'banani') || str_contains($propAddress, 'uttara')) {
-                                $isGulshan = str_contains($propAddress, 'gulshan') || str_contains($propAddress, 'banani');
-                                $isUttara = str_contains($propAddress, 'uttara') || str_contains($propAddress, 'airport');
-
-                                if ($isGulshan) {
-                                    $landmarks = [
-                                        ['name' => "Gulshan 2 Circle", 'dist' => '0.5 km', 'icon' => 'landmark'],
-                                        ['name' => "Gulshan Lake Park", 'dist' => '0.8 km', 'icon' => 'tree'],
-                                        ['name' => "Banani Road 11 (Dining Hub)", 'dist' => '1.2 km', 'icon' => 'landmark'],
-                                        ['name' => "Jamuna Future Park", 'dist' => '3.8 km', 'icon' => 'landmark'],
-                                        ['name' => "Hatirjheel Promenade", 'dist' => '3.4 km', 'icon' => 'tree'],
-                                        ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '7.8 km', 'icon' => 'plane'],
-                                        ['name' => "Dhaka Cantonment Station", 'dist' => '5.2 km', 'icon' => 'road'],
-                                        ['name' => "Kamalapur Railway Station", 'dist' => '9.5 km', 'icon' => 'road'],
-                                    ];
-                                } elseif ($isUttara) {
-                                    $landmarks = [
-                                        ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '2.1 km', 'icon' => 'plane'],
-                                        ['name' => "Uttara Sector 3 Lake Park", 'dist' => '0.9 km', 'icon' => 'tree'],
-                                        ['name' => "Airport Railway Station", 'dist' => '1.8 km', 'icon' => 'road'],
-                                        ['name' => "Jamuna Future Park", 'dist' => '5.5 km', 'icon' => 'landmark'],
-                                        ['name' => "Gulshan 2 Circle", 'dist' => '8.2 km', 'icon' => 'landmark'],
-                                        ['name' => "Dhaka Elevated Expressway", 'dist' => '1.2 km', 'icon' => 'road'],
-                                    ];
-                                } else {
-                                    // Central Dhaka / Dhanmondi / Motijheel / Panthapath
-                                    $landmarks = [
-                                        ['name' => "Dhanmondi Lake", 'dist' => '1.2 km', 'icon' => 'tree'],
-                                        ['name' => "National Parliament House", 'dist' => '2.5 km', 'icon' => 'landmark'],
-                                        ['name' => "Bashundhara City Mall", 'dist' => '1.5 km', 'icon' => 'landmark'],
-                                        ['name' => "Lalbagh Fort", 'dist' => '3.8 km', 'icon' => 'landmark'],
-                                        ['name' => "Kamalapur Railway Station", 'dist' => '4.2 km', 'icon' => 'road'],
-                                        ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '13.5 km', 'icon' => 'plane'],
-                                    ];
-                                }
-                            } elseif (str_contains($propCity, 'chittagong') || str_contains($propCity, 'chattogram') || str_contains($propAddress, 'chittagong') || str_contains($propAddress, 'chattogram')) {
-                                $landmarks = [
-                                    ['name' => "GEC Circle / Nasirabad", 'dist' => '0.6 km', 'icon' => 'landmark'],
-                                    ['name' => "Chittagong War Cemetery", 'dist' => '1.8 km', 'icon' => 'landmark'],
-                                    ['name' => "Foy's Lake & Concord Amusement Park", 'dist' => '3.5 km', 'icon' => 'tree'],
-                                    ['name' => "Chittagong Railway Station", 'dist' => '2.8 km', 'icon' => 'road'],
-                                    ['name' => "Naval Beach / Karnaphuli River", 'dist' => '8.5 km', 'icon' => 'umbrella-beach'],
-                                    ['name' => "Shah Amanat International Airport (CGP)", 'dist' => '12.4 km', 'icon' => 'plane'],
-                                    ['name' => "Patenga Sea Beach", 'dist' => '14.2 km', 'icon' => 'umbrella-beach'],
-                                ];
-                            } elseif (str_contains($propCity, 'sylhet') || str_contains($propAddress, 'sylhet') || str_contains($propCity, 'sreemangal') || str_contains($propAddress, 'sreemangal')) {
-                                if (str_contains($propCity, 'sreemangal') || str_contains($propAddress, 'sreemangal')) {
-                                    $landmarks = [
-                                        ['name' => "Lawachara National Park", 'dist' => '4.5 km', 'icon' => 'tree'],
-                                        ['name' => "Madhabpur Lake & Tea Estate", 'dist' => '12.0 km', 'icon' => 'tree'],
-                                        ['name' => "Baikka Beel Wetland Sanctuary", 'dist' => '15.5 km', 'icon' => 'tree'],
-                                        ['name' => "Sreemangal Railway Station", 'dist' => '2.2 km', 'icon' => 'road'],
-                                        ['name' => "Osmani International Airport (ZYL)", 'dist' => '88.0 km', 'icon' => 'plane'],
-                                    ];
-                                } else {
-                                    $landmarks = [
-                                        ['name' => "Hazrat Shah Jalal Mazar Sharif", 'dist' => '1.2 km', 'icon' => 'landmark'],
-                                        ['name' => "Keane Bridge & Surma River", 'dist' => '1.8 km', 'icon' => 'landmark'],
-                                        ['name' => "Shah Paran Mazar Sharif", 'dist' => '6.8 km', 'icon' => 'landmark'],
-                                        ['name' => "Osmani International Airport (ZYL)", 'dist' => '7.5 km', 'icon' => 'plane'],
-                                        ['name' => "Malnicherra Tea Estate", 'dist' => '5.2 km', 'icon' => 'tree'],
-                                        ['name' => "Ratargul Swamp Forest", 'dist' => '22.0 km', 'icon' => 'tree'],
-                                        ['name' => "Jaflong Zero Point", 'dist' => '54.0 km', 'icon' => 'umbrella-beach'],
-                                    ];
-                                }
-                            } elseif (str_contains($propCity, 'kuakata') || str_contains($propAddress, 'kuakata')) {
-                                $landmarks = [
-                                    ['name' => "Kuakata Sea Beach (Sunrise Point)", 'dist' => '0.3 km', 'icon' => 'umbrella-beach'],
-                                    ['name' => "Jhaubon & Eco Park", 'dist' => '2.5 km', 'icon' => 'tree'],
-                                    ['name' => "Fatrar Char (Mangrove Forest)", 'dist' => '8.0 km', 'icon' => 'tree'],
-                                    ['name' => "Barishal Airport (BZL)", 'dist' => '102.0 km', 'icon' => 'plane'],
-                                    ['name' => "Hazrat Shahjalal International Airport", 'dist' => '295.0 km', 'icon' => 'plane'],
-                                ];
-                            } else {
-                                $cName = $property->city ?: 'City Center';
-                                $landmarks = [
-                                    ['name' => $cName . " Central Plaza", 'dist' => '0.8 km', 'icon' => 'landmark'],
-                                    ['name' => $cName . " Public Park", 'dist' => '1.5 km', 'icon' => 'tree'],
-                                    ['name' => $cName . " Central Bus Terminal", 'dist' => '2.4 km', 'icon' => 'road'],
-                                    ['name' => $cName . " Main Railway Station", 'dist' => '3.5 km', 'icon' => 'road'],
-                                    ['name' => "Hazrat Shahjalal International Airport (DAC)", 'dist' => '45.0 km', 'icon' => 'plane'],
-                                ];
-                            }
-
-                            foreach ($landmarks as $lm) {
-                                $already = false;
-                                $lmLower = strtolower($lm['name']);
-                                foreach ($transportList as $ex) {
-                                    $exLower = strtolower($ex['name']);
-                                    if (
-                                        $lmLower === $exLower ||
-                                        (str_contains($lmLower, 'kolatoli') && str_contains($exLower, 'kolatoli')) ||
-                                        (str_contains($lmLower, 'inani') && str_contains($exLower, 'inani')) ||
-                                        (str_contains($lmLower, 'laboni') && str_contains($exLower, 'laboni')) ||
-                                        (str_contains($lmLower, 'airport') && str_contains($exLower, 'airport') && str_contains($lmLower, 'cox') && str_contains($exLower, 'cox'))
-                                    ) {
-                                        $already = true;
-                                        break;
-                                    }
-                                }
-                                if (!$already) {
-                                    $transportList[] = $lm;
-                                }
                             }
                             $transportList = array_slice($transportList, 0, 7);
                         @endphp
+                        @if(empty($transportList))
+                            <div class="text-muted py-2 border-top" style="font-size: 13px;">
+                                {{ $property->address ?: $property->city }}
+                            </div>
+                        @endif
 
                         {{-- Airports & Transportation List (Exact Agoda Parity) --}}
                         <div class="d-flex flex-column pt-1"
@@ -2299,7 +1715,7 @@
                             <a href="javascript:void(0)"
                                 class="text-decoration-none fw-bold d-inline-flex align-items-center gap-1"
                                 style="color: #0b66c2; font-size: 13.5px;" data-bs-toggle="modal"
-                                data-bs-target="#hotelDetailMapModal">
+                                data-bs-target="#interactiveMapModal">
                                 <span>See nearby places</span>
                                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0b66c2"
                                     stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -2320,7 +1736,7 @@
                 style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-size: 24px; font-weight: 700; color: #111827;">
                 Select your room
             </h2>
-            <a href="javascript:void(0)" class="text-decoration-none d-inline-flex align-items-center gap-2"
+            <a href="{{ route('terms') }}#price-match" class="text-decoration-none d-inline-flex align-items-center gap-2"
                 style="color: #2067da; font-size: 14px; font-weight: 700; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;"
                 data-bs-toggle="modal" data-bs-target="#bestPriceGuaranteeModal">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#111827" stroke-width="2"
@@ -2633,12 +2049,16 @@
                         $rImages = [asset('images/logo.png')];
                     }
                     $rImages = array_values(array_map(function ($img) {
-                        return media_url($img, asset('images/agoda/sea_pearl_resort.jpg'));
+                        return media_url($img, asset('images/logo.png'));
                     }, $rImages));
 
                     // Dynamic Pricing & Discount Calculations
                     $roomPrice = (float) ($roomAvailability[$room->id]['nightly_rate'] ?? $room->price_per_night);
-                    $discountPercent1 = (int) ($property->discount_percent ?? 0);
+                    // The room's own "was" price first; otherwise the hotel-level discount.
+                    $roomWas = (float) ($room->original_price ?? 0);
+                    $discountPercent1 = $roomWas > (float) $room->price_per_night
+                        ? (int) round((1 - (float) $room->price_per_night / $roomWas) * 100)
+                        : (int) ($property->discount_percent ?? 0);
                     $hasDeal = $discountPercent1 > 0 && $discountPercent1 < 95;
                     $origPrice1 = $hasDeal ? round($roomPrice / (1 - ($discountPercent1 / 100))) : $roomPrice;
                     $voucher1 = 0;
@@ -4263,11 +3683,14 @@
                 <h4 class="fw-bold text-dark mb-0"
                     style="font-size: 18px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: #0f172a;">
                     Amenities and facilities</h4>
+                @if(isset($property->sub_scores['facilities']))
+                @php $facScore = (float) $property->sub_scores['facilities']; @endphp
                 <div class="text-end">
-                    <strong class="d-block" style="color: #2067e1; font-size: 13.5px; font-weight: 800;">Exceptional
-                        {{ number_format((float) ($property->sub_scores['facilities'] ?? 10.0), 1) }}</strong>
+                    <strong class="d-block" style="color: #2067e1; font-size: 13.5px; font-weight: 800;">{{ $facScore >= 9 ? 'Exceptional' : ($facScore >= 8 ? 'Excellent' : ($facScore >= 7 ? 'Very good' : 'Good')) }}
+                        {{ number_format($facScore, 1) }}</strong>
                     <span class="text-secondary" style="font-size: 11.5px; color: #64748b;">Facilities</span>
                 </div>
+                @endif
             </div>
 
             <div class="row g-4" style="font-size: 13px;">
@@ -4428,7 +3851,7 @@
 
 
         {{-- 13. Reviews Section Card (Agoda 1:1 Exact Carbon Copy Parity) --}}
-        <div id="reviews" class="card bg-white mb-4 shadow-none"
+        <div id="guest-reviews" class="card bg-white mb-4 shadow-none"
             style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px 28px !important;">
             {{-- Top Header Row: Title & Verified Badge --}}
             <div class="d-flex justify-content-between align-items-baseline mb-4 flex-wrap gap-2">
@@ -4473,93 +3896,32 @@
                 <div class="col-lg-10 col-md-9">
                     <div class="row g-x-5 g-y-3" style="font-size: 13px;">
                         @php
-                            $subClean = $property->sub_scores['cleanliness'] ?? 10.0;
-                            $subLoc = $property->sub_scores['location'] ?? 10.0;
-                            $subService = $property->sub_scores['service'] ?? 10.0;
-                            $subFacilities = $property->sub_scores['facilities'] ?? 10.0;
-                            $subComfort = $property->sub_scores['room_comfort_and_quality'] ?? 10.0;
-                            $subValue = $property->sub_scores['value'] ?? 10.0;
+                            // Averages of the category scores guests gave in approved reviews.
+                            $subLabels = [
+                                'cleanliness' => 'Cleanliness', 'location' => 'Location', 'service' => 'Service',
+                                'facilities' => 'Facilities', 'room_comfort_and_quality' => 'Room comfort and quality',
+                                'value' => 'Value for money',
+                            ];
+                            $subScores = array_intersect_key($property->sub_scores, $subLabels);
                         @endphp
 
-                        {{-- Left Subscore Column --}}
-                        <div class="col-md-6 d-flex flex-column gap-3 pe-md-4">
-                            <div>
+                        @forelse($subScores as $subKey => $subVal)
+                            <div class="col-md-6 {{ $loop->odd ? 'pe-md-4' : 'ps-md-4' }}">
                                 <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: #334155; font-weight: 500;">Cleanliness</span>
-                                    <strong
-                                        style="color: #137333; font-weight: 700;">{{ number_format((float) $subClean, 1) }}</strong>
+                                    <span style="color: #334155; font-weight: 500;">{{ $subLabels[$subKey] }}</span>
+                                    <strong style="color: #137333; font-weight: 700;">{{ number_format((float) $subVal, 1) }}</strong>
                                 </div>
                                 <div class="progress" style="height: 4px; background: #e2e8f0; border-radius: 2px;">
                                     <div class="progress-bar"
-                                        style="width: {{ min(100, round((float) $subClean * 10)) }}%; background-color: #137333 !important;">
+                                        style="width: {{ min(100, round((float) $subVal * 10)) }}%; background-color: #137333 !important;">
                                     </div>
                                 </div>
                             </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: #334155; font-weight: 500;">Location</span>
-                                    <strong
-                                        style="color: #137333; font-weight: 700;">{{ number_format((float) $subLoc, 1) }}</strong>
-                                </div>
-                                <div class="progress" style="height: 4px; background: #e2e8f0; border-radius: 2px;">
-                                    <div class="progress-bar"
-                                        style="width: {{ min(100, round((float) $subLoc * 10)) }}%; background-color: #137333 !important;">
-                                    </div>
-                                </div>
+                        @empty
+                            <div class="col-12 text-muted" style="font-size: 13px;">
+                                Category scores appear once guests rate their stay.
                             </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: #334155; font-weight: 500;">Service</span>
-                                    <strong
-                                        style="color: #137333; font-weight: 700;">{{ number_format((float) $subService, 1) }}</strong>
-                                </div>
-                                <div class="progress" style="height: 4px; background: #e2e8f0; border-radius: 2px;">
-                                    <div class="progress-bar"
-                                        style="width: {{ min(100, round((float) $subService * 10)) }}%; background-color: #137333 !important;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {{-- Right Subscore Column --}}
-                        <div class="col-md-6 d-flex flex-column gap-3 ps-md-4">
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: #334155; font-weight: 500;">Facilities</span>
-                                    <strong
-                                        style="color: #137333; font-weight: 700;">{{ number_format((float) $subFacilities, 1) }}</strong>
-                                </div>
-                                <div class="progress" style="height: 4px; background: #e2e8f0; border-radius: 2px;">
-                                    <div class="progress-bar"
-                                        style="width: {{ min(100, round((float) $subFacilities * 10)) }}%; background-color: #137333 !important;">
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: #334155; font-weight: 500;">Room comfort and quality</span>
-                                    <strong
-                                        style="color: #137333; font-weight: 700;">{{ number_format((float) $subComfort, 1) }}</strong>
-                                </div>
-                                <div class="progress" style="height: 4px; background: #e2e8f0; border-radius: 2px;">
-                                    <div class="progress-bar"
-                                        style="width: {{ min(100, round((float) $subComfort * 10)) }}%; background-color: #137333 !important;">
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <div class="d-flex justify-content-between mb-1">
-                                    <span style="color: #334155; font-weight: 500;">Value for money</span>
-                                    <strong
-                                        style="color: #137333; font-weight: 700;">{{ number_format((float) $subValue, 1) }}</strong>
-                                </div>
-                                <div class="progress" style="height: 4px; background: #e2e8f0; border-radius: 2px;">
-                                    <div class="progress-bar"
-                                        style="width: {{ min(100, round((float) $subValue * 10)) }}%; background-color: #137333 !important;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                 </div>
             </div>
@@ -4571,19 +3933,7 @@
                         style="top: -9px; left: 14px; font-size: 11px; color: #2067e1; z-index: 5;">
                         Guest Type
                     </span>
-                    <select class="form-select shadow-none fw-bold" id="guestTypeFilterSelect"
-                        onchange="filterReviewsByGuestType(this.value);"
-                        style="border: 1.5px solid #2067e1; border-radius: 8px !important; min-height: 48px; font-size: 13.5px; color: #1e293b; padding-left: 14px; cursor: pointer;">
-                        <option value="all" selected>All guests ({{ $revCount }})</option>
-                        <option value="couples">Couples
-                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.6))) }})</option>
-                        <option value="solo">Solo travelers
-                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.2))) }})</option>
-                        <option value="family">Families
-                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.2))) }})</option>
-                        <option value="business">Business travelers
-                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.1))) }})</option>
-                    </select>
+                    <span class="fw-bold" style="font-size: 14px;">All guests ({{ $revCount }})</span>
                 </div>
             </div>
 
@@ -4609,21 +3959,22 @@
                 @if(!empty($guestList) && count($guestList) > 0)
                     @foreach($guestList as $rev)
                         @php
-                            $rScore = number_format((float) ($rev->rating ?? 10.0), 1);
-                            $rType = $rev->guest_type ?? ($rev->traveler_type ?? 'Business traveler');
-                            $rTitle = !empty($rev->title) ? $rev->title : 'Exceptional stay! Beautiful 5-star style interior, spotless apartment, smooth check-in, great location, and an amazing host.';
+                            $rScoreNum = min(10, (float) $rev->rating * 2);
+                            $rScore = number_format($rScoreNum, 1);
+                            $rType = $rev->guest_type ?? ($rev->traveler_type ?? 'Verified stay');
+                            $rTitle = trim((string) ($rev->title ?? ''));
                         @endphp
                         <div class="row g-4 align-items-start verified-review-card pb-3"
-                            data-guest-type="{{ strtolower($rType) }}" data-score="{{ (float) ($rev->rating ?? 10.0) }}">
+                            data-guest-type="{{ strtolower($rType) }}" data-score="{{ $rScoreNum }}" data-date="{{ optional($rev->created_at)->timestamp ?? 0 }}" data-helpful="{{ (int) ($rev->helpful_count ?? 0) }}">
                             {{-- Left Column: Score, Author & Traveler Tag --}}
                             <div class="col-lg-3 col-md-4">
                                 <h5 class="fw-bold text-primary mb-2"
                                     style="font-size: 17.5px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: #2067e1 !important;">
-                                    {{ $rScore }} {{ (float) $rScore >= 9 ? 'Exceptional' : 'Excellent' }}
+                                    {{ $rScore }} {{ $rScoreNum >= 9 ? 'Exceptional' : ($rScoreNum >= 8 ? 'Excellent' : ($rScoreNum >= 7 ? 'Very good' : ($rScoreNum >= 6 ? 'Good' : 'Fair'))) }}
                                 </h5>
                                 <div class="d-flex align-items-center gap-1.5 text-dark fw-bold mb-1" style="font-size: 13px;">
                                     <i class="fa-solid fa-globe text-secondary" style="font-size: 12px;"></i>
-                                    <span>{{ $rev->user->name ?? 'Rashed' }}</span>
+                                    <span>{{ $rev->guest_name ?: ($rev->user->name ?? 'Verified guest') }}</span>
                                 </div>
                                 <div class="d-flex align-items-center gap-1.5 text-secondary"
                                     style="font-size: 12px; color: #64748b;">
@@ -4637,10 +3988,12 @@
                                 <div class="p-3.5 rounded-3 bg-light"
                                     style="background: #f8fafc !important; border: 1px solid #f1f5f9; border-radius: 10px !important;">
                                     {{-- Quote Header --}}
+                                    @if ($rTitle !== '')
                                     <strong class="d-block text-dark mb-2.5"
                                         style="font-size: 13.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">
                                         “{{ $rTitle }}”
                                     </strong>
+                                    @endif
 
                                     {{-- Comment with Green Plus Icon (Agoda Signature) --}}
                                     <div class="d-flex align-items-start gap-2.5 text-secondary mb-3"
@@ -4651,13 +4004,13 @@
                                             <i class="fa-solid fa-plus"></i>
                                         </span>
                                         <div>
-                                            {{ $rev->comment ?: 'The apartment was exceptionally clean and exactly as shown in the photos. The interior was beautifully designed with a luxurious 5-star hotel feel, making our stay both comfortable and relaxing. The location was convenient, and the host was friendly, responsive, and helpful throughout our stay. Check-in was smooth, and all the essential amenities were provided. We truly enjoyed our time here and would highly recommend this property to anyone looking for a premium stay.' }}
+                                            {{ $rev->comment }}
                                         </div>
                                     </div>
 
                                     {{-- Review Date --}}
                                     <div class="text-secondary" style="font-size: 11.5px; color: #64748b;">
-                                        Reviewed {{ $rev->created_at ? $rev->created_at->format('F d, Y') : 'July 05, 2026' }}
+                                        Reviewed {{ optional($rev->created_at)->format('F d, Y') }}
                                     </div>
                                 </div>
 
@@ -4666,78 +4019,18 @@
                                     style="font-size: 12px; color: #334155;">
                                     <span>Did you find this review helpful?</span>
                                     <a href="javascript:void(0)" class="fw-bold text-decoration-none" style="color: #2067e1;"
-                                        onclick="this.textContent='Thank you!';">Yes</a>
+                                        onclick="voteReview(this, {{ (int) ($rev->id ?? 0) }}, 'helpful')">Yes</a>
                                     <span class="text-muted">|</span>
                                     <a href="javascript:void(0)" class="fw-bold text-decoration-none" style="color: #2067e1;"
-                                        onclick="this.textContent='Noted';">No</a>
+                                        onclick="voteReview(this, {{ (int) ($rev->id ?? 0) }}, 'unhelpful')">No</a>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 @else
-                    {{-- Default Dynamic Carbon Copy Fallback Review --}}
-                    <div class="row g-4 align-items-start verified-review-card pb-3" data-guest-type="business"
-                        data-score="10.0">
-                        {{-- Left Column --}}
-                        <div class="col-lg-3 col-md-4">
-                            <h5 class="fw-bold text-primary mb-2"
-                                style="font-size: 17.5px; font-weight: 800; font-family: 'Plus Jakarta Sans', sans-serif; color: #2067e1 !important;">
-                                10.0 Exceptional
-                            </h5>
-                            <div class="d-flex align-items-center gap-1.5 text-dark fw-bold mb-1" style="font-size: 13px;">
-                                <i class="fa-solid fa-globe text-secondary" style="font-size: 12px;"></i>
-                                <span>Rashed</span>
-                            </div>
-                            <div class="d-flex align-items-center gap-1.5 text-secondary"
-                                style="font-size: 12px; color: #64748b;">
-                                <i class="fa-regular fa-id-badge" style="font-size: 12px;"></i>
-                                <span>Business traveler</span>
-                            </div>
-                        </div>
-
-                        {{-- Right Column --}}
-                        <div class="col-lg-9 col-md-8">
-                            <div class="p-3.5 rounded-3 bg-light"
-                                style="background: #f8fafc !important; border: 1px solid #f1f5f9; border-radius: 10px !important;">
-                                <strong class="d-block text-dark mb-2.5"
-                                    style="font-size: 13.5px; font-weight: 700; line-height: 1.4; color: #0f172a;">
-                                    “Exceptional stay! Beautiful 5-star style interior, spotless apartment, smooth check-in,
-                                    great location, and an amazing host.”
-                                </strong>
-                                <div class="d-flex align-items-start gap-2.5 text-secondary mb-3"
-                                    style="font-size: 12.5px; line-height: 1.6; color: #334155;">
-                                    <span
-                                        class="d-inline-flex align-items-center justify-content-center rounded-circle flex-shrink-0 text-white mt-0.5"
-                                        style="width: 17px; height: 17px; background-color: #16a34a; font-size: 10px; font-weight: 900;">
-                                        <i class="fa-solid fa-plus"></i>
-                                    </span>
-                                    <div>
-                                        The apartment was exceptionally clean and exactly as shown in the photos. The
-                                        interior was beautifully designed with a luxurious 5-star hotel feel, making our
-                                        stay both comfortable and relaxing. The location was convenient, and the host was
-                                        friendly, responsive, and helpful throughout our stay. Check-in was smooth, and all
-                                        the essential amenities were provided. We truly enjoyed our time here and would
-                                        highly recommend this property to anyone looking for a premium stay.
-                                    </div>
-                                </div>
-
-                                {{-- Review Date --}}
-                                <div class="text-secondary" style="font-size: 11.5px; color: #64748b;">
-                                    Reviewed July 05, 2026
-                                </div>
-                            </div>
-
-                            {{-- Helpful Feedback Links (Agoda 1:1 Screenshot Parity) --}}
-                            <div class="d-flex justify-content-end align-items-center gap-2 mt-2"
-                                style="font-size: 12px; color: #334155;">
-                                <span>Did you find this review helpful?</span>
-                                <a href="javascript:void(0)" class="fw-bold text-decoration-none" style="color: #2067e1;"
-                                    onclick="this.textContent='Thank you!';">Yes</a>
-                                <span class="text-muted">|</span>
-                                <a href="javascript:void(0)" class="fw-bold text-decoration-none" style="color: #2067e1;"
-                                    onclick="this.textContent='Noted';">No</a>
-                            </div>
-                        </div>
+                    <div class="text-center text-muted py-4">
+                        <div class="fw-bold text-dark mb-1">No reviews yet</div>
+                        <div class="small">Reviews on Prime Booking are written only by guests who stayed here.</div>
                     </div>
                 @endif
             </div>
@@ -4777,10 +4070,15 @@
                     style="min-height: 240px; background: #e5e3df;">
                     {{-- OpenStreetMap Universal Interactive Map Embed (100% Reliable, Never Blocked) --}}
                     @php
-                        $mapLat = (float) ($property->latitude ?: 21.4272);
-                        $mapLng = (float) ($property->longitude ?: 92.0058);
-                        $osmBbox = ($mapLng - 0.018) . '%2C' . ($mapLat - 0.012) . '%2C' . ($mapLng + 0.018) . '%2C' . ($mapLat + 0.012);
-                        $osmEmbedUrl = "https://www.openstreetmap.org/export/embed.html?bbox={$osmBbox}&layer=mapnik&marker={$mapLat}%2C{$mapLng}";
+                        // Real GPS when the hotel has it; otherwise the map searches the hotel's address.
+                        if (!empty($property->latitude) && !empty($property->longitude)) {
+                            $mapLat = (float) $property->latitude;
+                            $mapLng = (float) $property->longitude;
+                            $osmBbox = ($mapLng - 0.018) . '%2C' . ($mapLat - 0.012) . '%2C' . ($mapLng + 0.018) . '%2C' . ($mapLat + 0.012);
+                            $osmEmbedUrl = "https://www.openstreetmap.org/export/embed.html?bbox={$osmBbox}&layer=mapnik&marker={$mapLat}%2C{$mapLng}";
+                        } else {
+                            $osmEmbedUrl = 'https://maps.google.com/maps?q=' . urlencode(trim($property->name . ', ' . $property->address . ', ' . $property->city)) . '&z=15&output=embed';
+                        }
                     @endphp
                     <iframe width="100%" height="100%"
                         style="border:0; min-height: 260px; filter: saturate(1.1) contrast(1.05);" loading="lazy"
@@ -4790,10 +4088,10 @@
                     {{-- Agoda Floating White Property Card Pin on Map --}}
                     <div class="position-absolute top-50 start-50 translate-middle shadow-lg rounded-2 bg-white d-flex align-items-center gap-2 p-1.5 pe-3"
                         style="z-index: 10; border: 1px solid #cbd5e1; max-width: 90%; pointer-events: auto;">
-                        <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}"
+                        <img src="{{ media_url($gallery[0] ?? $property->primary_image, '/images/placeholder-hotel.svg') }}"
                             alt="{{ $property->name }}"
                             style="width: 54px; height: 42px; object-fit: cover; border-radius: 4px; flex-shrink: 0;"
-                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
+                            onerror="this.onerror=null; this.src='/images/placeholder-hotel.svg';">
                         <div style="line-height: 1.25;">
                             <strong class="d-block text-dark text-truncate"
                                 style="font-size: 12.5px; font-weight: 700; max-width: 260px;">
@@ -4806,7 +4104,7 @@
                                 <span class="text-muted">|</span>
                                 <span
                                     class="text-secondary fw-semibold">{{ $scoreLabel }}
-                                    {{ number_format((float) ($property->sub_scores['location'] ?? $scoreNum), 1) }}</span>
+                                    {{ number_format((float) ($property->sub_scores['location'] ?? $property->location_score ?: $scoreNum), 1) }}</span>
                             </div>
                         </div>
                     </div>
@@ -4919,10 +4217,10 @@
                     <div class="position-absolute top-50 start-50 translate-middle" style="z-index: 10;">
                         <div class="bg-white rounded-3 shadow-md p-2 d-flex align-items-center gap-2"
                             style="border: 1px solid #cbd5e1; width: 260px;">
-                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}"
+                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, '/images/placeholder-hotel.svg') }}"
                                 class="rounded-2" style="width: 45px; height: 45px; object-fit: cover; flex-shrink: 0;"
                                 alt="{{ $property->name }}"
-                                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
+                                onerror="this.onerror=null; this.src='/images/placeholder-hotel.svg';">
                             <div class="text-truncate">
                                 <strong class="d-block text-dark text-truncate"
                                     style="font-size: 12px; max-width: 180px;">{{ $property->name }}</strong>
@@ -4949,16 +4247,16 @@
             <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: thin;">
                 @php
                     $destinations = [
-                        ['name' => 'Cox\'s Bazar', 'tag' => 'Beach resort capital', 'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Sajek Valley', 'tag' => 'Kingdom of clouds', 'img' => 'https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Sylhet', 'tag' => 'Tea gardens & lakes', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Sreemangal', 'tag' => 'Rainforest stays', 'img' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Bandarban', 'tag' => 'Misty hill peaks', 'img' => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Saint Martin', 'tag' => 'Coral island paradise', 'img' => 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Kuakata', 'tag' => 'Sunrise & sunset beach', 'img' => 'https://images.unsplash.com/photo-1510414842594-a61c69b5ae57?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Sundarbans', 'tag' => 'Mangrove safari cruise', 'img' => 'https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Dhaka', 'tag' => 'Capital & 5-star hotels', 'img' => 'https://images.unsplash.com/photo-1519501025264-65ba15a82390?auto=format&fit=crop&w=400&q=80'],
-                        ['name' => 'Rangamati', 'tag' => 'Kaptai lake & hills', 'img' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'],
+                        ['name' => 'Cox\'s Bazar', 'tag' => 'Beach resort capital', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Sajek Valley', 'tag' => 'Kingdom of clouds', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Sylhet', 'tag' => 'Tea gardens & lakes', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Sreemangal', 'tag' => 'Rainforest stays', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Bandarban', 'tag' => 'Misty hill peaks', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Saint Martin', 'tag' => 'Coral island paradise', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Kuakata', 'tag' => 'Sunrise & sunset beach', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Sundarbans', 'tag' => 'Mangrove safari cruise', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Dhaka', 'tag' => 'Capital & 5-star hotels', 'img' => '/images/placeholder-hotel.svg'],
+                        ['name' => 'Rangamati', 'tag' => 'Kaptai lake & hills', 'img' => '/images/placeholder-hotel.svg'],
                     ];
                 @endphp
                 @foreach($destinations as $dest)
@@ -5041,31 +4339,42 @@
                             </div>
                         @endif
 
-                        {{-- Proximity Breakdown (Walking & Driving Estimation) --}}
+                        {{-- What's nearby: places entered by admin/vendor, with approximate travel time --}}
+                        @if(!empty($property->nearby_list))
                         <div class="mt-3.5 pt-3 border-top">
                             <div class="d-flex align-items-center gap-2.5 text-dark mb-2.5"
                                 style="font-size: 13px; font-weight: 700;">
                                 <i class="fa-solid fa-person-walking text-primary flex-shrink-0"
                                     style="width: 18px; font-size: 15px; text-align: center;"></i>
-                                <span>Proximity &amp; Travel Highlights:</span>
+                                <span>What's nearby:</span>
                             </div>
                             <div class="d-flex flex-column gap-2">
-                                @foreach($property->proximity_breakdown as $prox)
+                                @foreach($property->nearby_list as $prox)
+                                    @php
+                                        $km = $prox['distance_km'];
+                                        // ~4.8 km/h walking up to 1.5 km, ~24 km/h city driving beyond.
+                                        $eta = $km === null ? null : ($km <= 1.5
+                                            ? max(1, (int) round($km * 12.5)) . ' min walk'
+                                            : max(1, (int) round($km * 2.5)) . ' min drive');
+                                    @endphp
                                     <div class="d-flex align-items-center justify-content-between p-2.5 rounded-2 bg-white border"
                                         style="font-size: 12.5px;">
                                         <div class="d-flex align-items-center gap-2.5">
-                                            <i class="{{ $prox['icon'] }} flex-shrink-0"
+                                            <i class="fa-solid {{ $prox['icon'] }} text-primary flex-shrink-0"
                                                 style="width: 18px; text-align: center; font-size: 13.5px;"></i>
                                             <span class="text-dark fw-semibold">{{ $prox['name'] }}</span>
                                         </div>
+                                        @if($prox['distance'])
                                         <span class="badge bg-light text-dark border fw-bold px-2 py-1"
                                             style="font-size: 11px;">
-                                            {{ $prox['distance'] }} ({{ $prox['time_est'] }})
+                                            {{ $prox['distance'] }} (~{{ $eta }})
                                         </span>
+                                        @endif
                                     </div>
                                 @endforeach
                             </div>
                         </div>
+                        @endif
                     </div>
 
                     @if(!empty($property->contact_phone) || !empty($property->contact_email))
@@ -5100,22 +4409,27 @@
 
                 <div class="col-lg-7">
                     @php
-                        $mapLat = (float) ($property->latitude ?? 21.4272);
-                        $mapLng = (float) ($property->longitude ?? 92.0058);
+                        if (!empty($property->latitude) && !empty($property->longitude)) {
+                            $mapLat = (float) $property->latitude;
+                            $mapLng = (float) $property->longitude;
+                            $locMapUrl = 'https://www.openstreetmap.org/export/embed.html?bbox=' . ($mapLng - 0.02) . '%2C' . ($mapLat - 0.012) . '%2C' . ($mapLng + 0.02) . '%2C' . ($mapLat + 0.012) . "&layer=mapnik&marker={$mapLat}%2C{$mapLng}";
+                        } else {
+                            $locMapUrl = 'https://maps.google.com/maps?q=' . urlencode(trim($property->name . ', ' . $property->address . ', ' . $property->city)) . '&z=15&output=embed';
+                        }
                     @endphp
                     <div class="rounded-3 overflow-hidden border shadow-xs h-100 position-relative"
                         style="min-height: 420px; background: #e2e8f0;">
                         <iframe width="100%" height="100%"
                             style="border:0; min-height: 420px; width: 100%; display: block;" loading="lazy"
-                            src="https://www.openstreetmap.org/export/embed.html?bbox={{ $mapLng - 0.02 }}%2C{{ $mapLat - 0.012 }}%2C{{ $mapLng + 0.02 }}%2C{{ $mapLat + 0.012 }}&layer=mapnik&marker={{ $mapLat }}%2C{{ $mapLng }}"></iframe>
+                            src="{{ $locMapUrl }}"></iframe>
 
                         {{-- Floating Custom Pin Banner on Map --}}
                         <div class="position-absolute bottom-0 start-0 m-3 p-2.5 bg-white rounded-3 shadow border d-flex align-items-center gap-2.5"
                             style="z-index: 10; max-width: 85%;">
-                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}"
+                            <img src="{{ media_url($gallery[0] ?? $property->primary_image, '/images/placeholder-hotel.svg') }}"
                                 style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; flex-shrink: 0;"
                                 alt="{{ $property->name }}"
-                                onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
+                                onerror="this.onerror=null; this.src='/images/placeholder-hotel.svg';">
                             <div class="text-truncate">
                                 <strong class="d-block text-dark text-truncate"
                                     style="font-size: 13px;">{{ $property->name }}</strong>
@@ -5566,17 +4880,17 @@
                 <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: none;">
                     @php
                         $places = [
-                            ['name' => "Cox's Bazar", 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Sylhet', 'img' => 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Saint Martin', 'img' => 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Sreemangal', 'img' => 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Sajek Valley', 'img' => 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Bandarban', 'img' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Rangamati', 'img' => 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Kuakata', 'img' => 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Sundarbans', 'img' => 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Chittagong', 'img' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80'],
-                            ['name' => 'Dhaka', 'img' => 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=400&q=80'],
+                            ['name' => "Cox's Bazar", 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Sylhet', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Saint Martin', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Sreemangal', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Sajek Valley', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Bandarban', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Rangamati', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Kuakata', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Sundarbans', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Chittagong', 'img' => '/images/placeholder-hotel.svg'],
+                            ['name' => 'Dhaka', 'img' => '/images/placeholder-hotel.svg'],
                         ];
                     @endphp
                     @foreach($places as $pl)
@@ -5611,16 +4925,16 @@
                 <div class="d-flex gap-3 overflow-x-auto pb-2" style="scrollbar-width: none;">
                     @php
                         $trending = [
-                            ['city' => "Cox's Bazar", 'division' => 'Chittagong Division', 'img' => 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Dhaka', 'division' => 'Dhaka Division', 'img' => 'https://images.unsplash.com/photo-1513635269975-59663e0ac1ad?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Sylhet', 'division' => 'Sylhet Division', 'img' => 'https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Chittagong', 'division' => 'Chittagong Division', 'img' => 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Sreemangal', 'division' => 'Moulvibazar', 'img' => 'https://images.unsplash.com/photo-1596701062351-8c2c14d1fdd0?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Bandarban', 'division' => 'Hill Tracts', 'img' => 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Rangamati', 'division' => 'Kaptai Lake', 'img' => 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Kuakata', 'division' => 'Patuakhali', 'img' => 'https://images.unsplash.com/photo-1519046904884-53103b34b206?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Rajshahi', 'division' => 'Rajshahi Division', 'img' => 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=400&q=80'],
-                            ['city' => 'Khulna', 'division' => 'Khulna Division', 'img' => 'https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=400&q=80'],
+                            ['city' => "Cox's Bazar", 'division' => 'Chittagong Division', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Dhaka', 'division' => 'Dhaka Division', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Sylhet', 'division' => 'Sylhet Division', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Chittagong', 'division' => 'Chittagong Division', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Sreemangal', 'division' => 'Moulvibazar', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Bandarban', 'division' => 'Hill Tracts', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Rangamati', 'division' => 'Kaptai Lake', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Kuakata', 'division' => 'Patuakhali', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Rajshahi', 'division' => 'Rajshahi Division', 'img' => '/images/placeholder-hotel.svg'],
+                            ['city' => 'Khulna', 'division' => 'Khulna Division', 'img' => '/images/placeholder-hotel.svg'],
                         ];
                     @endphp
                     @foreach($trending as $trend)
@@ -6436,9 +5750,11 @@
                 </div>
                 <div class="d-flex align-items-center gap-2">
                     @php
-                        $lat = $property->latitude ?: '23.8759';
-                        $lng = $property->longitude ?: '90.3795';
-                        $googleDirUrl = "https://www.google.com/maps/dir/?api=1&destination={$lat},{$lng}";
+                        $hasGps = !empty($property->latitude) && !empty($property->longitude);
+                        $lat = $hasGps ? $property->latitude : null;
+                        $lng = $hasGps ? $property->longitude : null;
+                        $placeQuery = urlencode(trim($property->name . ', ' . $property->address . ', ' . $property->city));
+                        $googleDirUrl = 'https://www.google.com/maps/dir/?api=1&destination=' . ($hasGps ? "{$lat},{$lng}" : $placeQuery);
                     @endphp
                     <a href="{{ $googleDirUrl }}" target="_blank"
                         class="btn btn-primary btn-sm fw-bold px-3 py-1.5 rounded-pill"
@@ -6450,16 +5766,12 @@
             </div>
             <div class="modal-body p-0 position-relative" style="height: 550px; background: #e2e8f0;">
                 @php
-                    $mLat = (float) ($lat ?: 21.4272);
-                    $mLng = (float) ($lng ?: 92.0058);
-                    $mOsmBbox = ($mLng - 0.02) . '%2C' . ($mLat - 0.015) . '%2C' . ($mLng + 0.02) . '%2C' . ($mLat + 0.015);
-                    $mOsmUrl = "https://www.openstreetmap.org/export/embed.html?bbox={$mOsmBbox}&layer=mapnik&marker={$mLat}%2C{$mLng}";
-                @endphp
-                @php
                     $rawEmbed = $property->map_embed_url ?? '';
                     $isSafeGoogleEmbed = str_contains($rawEmbed, 'output=embed') || str_contains($rawEmbed, 'google.com/maps/embed');
                     $isOsmEmbed = str_contains($rawEmbed, 'openstreetmap.org');
-                    $finalMapUrl = ($isSafeGoogleEmbed || $isOsmEmbed) ? $rawEmbed : "https://maps.google.com/maps?q={$mLat},{$mLng}&hl=en&z=15&output=embed";
+                    $finalMapUrl = ($isSafeGoogleEmbed || $isOsmEmbed) && str_starts_with($rawEmbed, 'https://')
+                        ? $rawEmbed
+                        : 'https://maps.google.com/maps?q=' . ($hasGps ? "{$lat},{$lng}" : $placeQuery) . '&hl=en&z=15&output=embed';
                 @endphp
                 <iframe src="{{ $finalMapUrl }}" class="w-100 h-100 border-0" allowfullscreen loading="lazy"></iframe>
 
@@ -6467,10 +5779,10 @@
                 <div class="position-absolute top-0 start-0 m-3 bg-white p-3 rounded-3 shadow-lg border"
                     style="max-width: 320px; z-index: 10; border-color: #cbd5e1 !important;">
                     <div class="d-flex gap-2.5">
-                        <img src="{{ media_url($gallery[0] ?? $property->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80') }}"
+                        <img src="{{ media_url($gallery[0] ?? $property->primary_image, '/images/placeholder-hotel.svg') }}"
                             class="rounded-2" style="width: 70px; height: 60px; object-fit: cover; flex-shrink: 0;"
                             alt="{{ $property->name }}"
-                            onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=120&q=80';">
+                            onerror="this.onerror=null; this.src='/images/placeholder-hotel.svg';">
                         <div>
                             <strong class="d-block text-dark fw-bold"
                                 style="font-size: 13px; line-height: 1.2;">{{ Str::limit($property->name, 26) }}</strong>
@@ -6481,15 +5793,27 @@
                                 {{ $scoreLabel }}</span>
                         </div>
                     </div>
+                    @if(!empty($property->nearest_landmark))
                     <div class="mt-2.5 pt-2 border-top text-secondary small" style="font-size: 11.5px;">
                         <i class="fa-solid fa-person-walking text-primary me-1"></i>
-                        <strong>{{ $property->nearest_landmark ?: 'Near central transit point' }}</strong>
+                        <strong>{{ $property->nearest_landmark }}</strong>
                     </div>
+                    @endif
+                    @if(!empty($property->nearby_list))
+                    <ul class="list-unstyled mt-2 pt-2 border-top mb-0" style="font-size: 11.5px; max-height: 220px; overflow-y: auto;">
+                        @foreach($property->nearby_list as $np)
+                            <li class="d-flex justify-content-between gap-2 py-1">
+                                <span class="text-dark"><i class="fa-solid {{ $np['icon'] }} text-muted me-1" style="width:14px;"></i>{{ $np['name'] }}</span>
+                                @if($np['distance'])<span class="text-secondary fw-semibold flex-shrink-0">{{ $np['distance'] }}</span>@endif
+                            </li>
+                        @endforeach
+                    </ul>
+                    @endif
                 </div>
             </div>
             <div class="modal-footer border-top py-2.5 px-4 bg-light d-flex align-items-center justify-content-between">
                 <small class="text-muted" style="font-size: 12px;">GPS Coordinates:
-                    <code>{{ $lat }}, {{ $lng }}</code></small>
+                    <code>{{ $hasGps ? $lat . ", " . $lng : "Not provided" }}</code></small>
                 <button type="button" class="btn btn-secondary btn-sm px-4 fw-bold"
                     data-bs-dismiss="modal">Close</button>
             </div>
@@ -7685,4 +7009,124 @@
     </div>
 </div>
 
+<script>
+function voteReview(el, reviewId, type) {
+    if (!reviewId) return;
+    var token = document.querySelector('meta[name="csrf-token"]');
+    fetch('/api/v1/reviews/' + reviewId + '/vote', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': token ? token.content : '' },
+        body: JSON.stringify({ type: type })
+    }).then(function (r) { return r.json(); }).then(function (d) {
+        var box = el.parentElement;
+        if (box) box.textContent = d && d.message ? d.message : 'Thank you for your feedback!';
+    }).catch(function () {});
+}
+</script>
+<script>
+/**
+ * Room filter pills: a room stays visible only if it matches every active filter.
+ * Each room card carries data-<filter>="true|false" attributes rendered from the database.
+ */
+(function () {
+    var active = new Set();
+
+    function apply() {
+        var cards = document.querySelectorAll('#available_rooms_list .agoda-room-listing-card');
+        var shown = 0;
+        cards.forEach(function (card) {
+            var ok = true;
+            active.forEach(function (key) {
+                if (card.getAttribute('data-' + key) !== 'true') ok = false;
+            });
+            card.style.display = ok ? '' : 'none';
+            if (ok) shown++;
+        });
+
+        var empty = document.getElementById('roomFilterEmpty');
+        if (!empty) {
+            empty = document.createElement('div');
+            empty.id = 'roomFilterEmpty';
+            empty.className = 'alert alert-light border text-center my-3';
+            empty.innerHTML = 'No rooms match these filters. <a href="#" id="roomFilterClear" class="fw-bold">Clear filters</a>';
+            var list = document.getElementById('available_rooms_list');
+            if (list) list.prepend(empty);
+            document.getElementById('roomFilterClear').addEventListener('click', function (e) {
+                e.preventDefault();
+                active.clear();
+                document.querySelectorAll('.agoda-room-filter-pill.active').forEach(function (b) {
+                    b.classList.remove('active');
+                    b.setAttribute('aria-pressed', 'false');
+                });
+                apply();
+            });
+        }
+        empty.style.display = (active.size && shown === 0) ? '' : 'none';
+    }
+
+    window.toggleRoomFilter = function (key, btn) {
+        if (active.has(key)) { active.delete(key); } else { active.add(key); }
+        if (btn) {
+            btn.classList.toggle('active', active.has(key));
+            btn.setAttribute('aria-pressed', active.has(key) ? 'true' : 'false');
+        }
+        apply();
+    };
+})();
+</script>
+<script>
+(function () {
+    // Number of rooms per room type: updates the label and the Book link for that room.
+    window.toggleAgodaRoomDropdown = function (btn, e) {
+        if (e) { e.preventDefault(); e.stopPropagation(); }
+        var wrap = btn.closest('.agoda-room-selector-wrapper');
+        var pop = wrap && wrap.querySelector('.agoda-room-dropdown-popover');
+        if (!pop) return;
+        document.querySelectorAll('.agoda-room-dropdown-popover').forEach(function (p) { if (p !== pop) p.classList.add('d-none'); });
+        pop.classList.toggle('d-none');
+    };
+
+    window.selectAgodaRoomCount = function (item, num, label) {
+        var wrap = item.closest('.agoda-room-selector-wrapper');
+        if (!wrap) return;
+        var lbl = wrap.querySelector('.agoda-room-pill-label');
+        if (lbl) lbl.textContent = label;
+        wrap.querySelectorAll('.agoda-room-popover-item').forEach(function (it) {
+            var sel = Number(it.getAttribute('data-value')) === Number(num);
+            it.style.color = sel ? '#0b66c2' : '';
+            it.style.fontWeight = sel ? '700' : '';
+        });
+        var pop = wrap.querySelector('.agoda-room-dropdown-popover');
+        if (pop) pop.classList.add('d-none');
+
+        var card = wrap.closest('.agoda-room-listing-card') || document;
+        card.querySelectorAll('a[href*="/book/"]').forEach(function (a) {
+            var u = new URL(a.href, window.location.origin);
+            u.searchParams.set('rooms', String(num));
+            a.href = u.toString();
+        });
+    };
+
+    document.addEventListener('click', function (e) {
+        if (!e.target.closest('.agoda-room-selector-wrapper')) {
+            document.querySelectorAll('.agoda-room-dropdown-popover').forEach(function (p) { p.classList.add('d-none'); });
+        }
+    });
+
+    // Review sorting
+    window.sortReviewsList = function (mode) {
+        var box = document.getElementById('verifiedReviewsContainer');
+        if (!box) return;
+        var cards = Array.prototype.slice.call(box.querySelectorAll('.verified-review-card'));
+        var key = { recent: 'date', highest: 'score', lowest: 'score', helpful: 'helpful' }[mode] || 'date';
+        cards.sort(function (a, b) {
+            var x = Number(a.getAttribute('data-' + key)) || 0, y = Number(b.getAttribute('data-' + key)) || 0;
+            return mode === 'lowest' ? x - y : y - x;
+        });
+        cards.forEach(function (c) { box.appendChild(c); });
+    };
+
+    window.filterReviewsByGuestType = function () {};
+})();
+</script>
 @endsection

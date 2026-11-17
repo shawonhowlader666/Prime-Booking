@@ -81,7 +81,7 @@ class VIPLoyaltyController extends Controller
             });
         }
 
-        $users = $query->latest()->paginate(15);
+        $users = $query->latest()->paginate(per_page(15));
 
         // Fetch aggregate booking stats for paginated users in 1 fast query
         $userIds = $users->pluck('id')->toArray();

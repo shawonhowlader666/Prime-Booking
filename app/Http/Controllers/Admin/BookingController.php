@@ -57,7 +57,7 @@ class BookingController extends Controller
             });
         }
 
-        $perPage = (int) $request->input('per_page', 20);
+        $perPage = per_page(20);
         $bookings = $query->paginate($perPage)->withQueryString();
 
         // ── Fail-Safe Real Time Financial & Booking KPI Statistics

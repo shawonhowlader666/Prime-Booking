@@ -23,34 +23,6 @@ class CouponService
 
         $coupon = Coupon::where('code', $cleanCode)->first();
 
-        // Ensure system promotional codes (Agoda 1:1 Parity) are always active
-        if (!$coupon && in_array($cleanCode, ['PRIME10', 'APP10', 'PRIMECASH8', 'SAVEAPP10'])) {
-            try {
-                $coupon = Coupon::firstOrCreate(
-                    ['code' => $cleanCode],
-                    [
-                        'type'       => 'percentage',
-                        'amount'     => $cleanCode === 'PRIMECASH8' ? 8.0 : 10.0,
-                        'min_spend'  => 500.0,
-                        'status'     => 'active',
-                        'expires_at' => now()->addYears(2)->toDateString(),
-                    ]
-                );
-            } catch (\Exception $e) {
-                // Fallback mock
-                $coupon = (object)[
-                    'code'        => $cleanCode,
-                    'type'        => 'percentage',
-                    'amount'      => $cleanCode === 'PRIMECASH8' ? 8.0 : 10.0,
-                    'status'      => 'active',
-                    'min_spend'   => 500.0,
-                    'expires_at'  => null,
-                    'usage_limit' => null,
-                    'used_count'  => 0
-                ];
-            }
-        }
-
         if (!$coupon) {
             return ['valid' => false, 'discount' => 0.0, 'message' => "Coupon '{$cleanCode}' is invalid."];
         }

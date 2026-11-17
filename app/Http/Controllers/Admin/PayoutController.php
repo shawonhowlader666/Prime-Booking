@@ -26,7 +26,7 @@ class PayoutController extends Controller
             $query->whereDate('created_at', '<=', $request->end_date);
         }
 
-        $payouts = $query->paginate(15)->withQueryString();
+        $payouts = $query->paginate(per_page(15))->withQueryString();
 
         return view('admin.payouts.index', compact('payouts'));
     }

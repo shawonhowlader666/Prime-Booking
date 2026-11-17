@@ -35,7 +35,7 @@ class AdminSupportController extends Controller
             });
         }
 
-        $tickets = $query->orderByDesc('created_at')->paginate(20)->withQueryString();
+        $tickets = $query->orderByDesc('created_at')->paginate(per_page(20))->withQueryString();
 
         // KPI stats
         $stats = [

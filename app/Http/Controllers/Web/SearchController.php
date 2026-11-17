@@ -96,7 +96,7 @@ class SearchController extends Controller
 
         // Top-tier Edge & Browser Caching for Guest Search & Destination Pages
         if (!headers_sent() && !auth()->check()) {
-            header('Cache-Control: public, max-age=120, s-maxage=300, stale-while-revalidate=600');
+            header('Cache-Control: private, max-age=0, must-revalidate');
         }
 
         return view('pages.search-results', [

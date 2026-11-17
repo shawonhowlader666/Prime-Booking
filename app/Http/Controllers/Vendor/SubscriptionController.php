@@ -43,10 +43,10 @@ class SubscriptionController extends Controller
                 'commission' => '8%',
                 'color' => '#1890ff',
                 'max_props' => 15,
-                'placement' => 'Agoda Preferred #1 Badge',
+                'placement' => 'Prime Preferred #1 Badge',
                 'analytics' => 'Real-Time Revenue Analytics',
                 'support' => '24/7 Phone & Chat Support',
-                'features' => ['Up to 15 Property Listings', 'Agoda Preferred Badge', 'Featured Search Priority', 'Channel Manager API Key', '24/7 Dedicated Manager'],
+                'features' => ['Up to 15 Property Listings', 'Prime Preferred Badge', 'Featured Search Priority', 'Channel Manager API Key', '24/7 Dedicated Manager'],
                 'popular' => true,
             ],
             [

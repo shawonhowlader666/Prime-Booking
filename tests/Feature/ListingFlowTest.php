@@ -383,6 +383,158 @@ class ListingFlowTest extends TestCase
         $this->assertSame(0, (int) $property->total_reviews);
         $this->assertEquals(0.0, (float) $property->rating_score, 'No reviews means no score.');
     }
+    public function test_nearby_places_are_saved_from_the_form_and_shown_instead_of_invented_ones(): void
+    {
+        $property = $this->listing(['name' => 'Harbour Lights Hotel', 'city' => "Cox's Bazar"]);
+
+        $this->actingAs($this->vendor)->put(route('vendor.properties.update', $property->id), $this->hotelForm([
+            'name' => $property->name, 'price_per_night' => 5000,
+            'nearby_places_text' => "Cox's Bazar Airport (CXB) | 3.8 km\nKolatoli Beach Point | 200 m | beach\n<b>Bad</b> | | nonsense\n\n",
+        ]))->assertRedirect();
+
+        $places = $property->refresh()->nearby_list;
+        $this->assertCount(3, $places);
+        $this->assertSame('Kolatoli Beach Point', $places[0]['name'], 'Nearest place comes first.');
+        $this->assertSame('200 m', $places[0]['distance']);
+        $this->assertSame('airport', $places[1]['category'], 'Category is guessed from the name when left out.');
+        $this->assertSame('Bad', $places[2]['name'], 'Markup is stripped.');
+        $this->assertNull($places[2]['distance_km']);
+
+        $this->get("/hotels/{$property->id}")->assertOk()
+            ->assertSee('Kolatoli Beach Point')
+            ->assertSee('data-bs-target="#interactiveMapModal"', false)
+            ->assertDontSee('#hotelDetailMapModal', false)
+            ->assertDontSee('Himchari National Park')
+            ->assertDontSee('Laboni Beach Point');
+    }
+
+    public function test_search_respects_party_size_area_and_live_availability(): void
+    {
+        $small = $this->listing(['name' => 'Kolatoli Small Inn', 'city' => "Cox's Bazar", 'address' => 'Kolatoli Road']);
+        $big   = $this->listing(['name' => 'Inani Family Resort', 'city' => "Cox's Bazar", 'address' => 'Inani Beach']);
+        Room::create([
+            'property_id' => $big->id, 'name' => 'Family Suite', 'price_per_night' => 9000, 'total_rooms' => 1,
+            'max_adults' => 4, 'max_children' => 2, 'max_guests' => 6, 'status' => 'active',
+        ]);
+        $this->listing(['name' => 'Closed Hotel', 'city' => "Cox's Bazar"])->rooms()->update(['status' => 'inactive']);
+
+        $in  = now()->addDays(20)->toDateString();
+        $out = now()->addDays(22)->toDateString();
+        $q   = fn (array $extra) => '/search?' . http_build_query(['destination' => "Cox's Bazar", 'check_in' => $in, 'check_out' => $out] + $extra);
+
+        // A party of 5 in one room only fits the family suite; a hotel with nothing on sale never shows.
+        $this->get($q(['guests' => 5, 'rooms' => 1]))->assertOk()
+            ->assertSee('Inani Family Resort')->assertDontSee('Kolatoli Small Inn')->assertDontSee('Closed Hotel');
+        $this->get($q(['guests' => 2]))->assertOk()->assertSee('Kolatoli Small Inn')->assertSee('Inani Family Resort');
+
+        // Area filter matches the hotel's address.
+        $this->get($q(['guests' => 2, 'area' => ['Inani']]))->assertOk()
+            ->assertSee('Inani Family Resort')->assertDontSee('Kolatoli Small Inn');
+
+        // Both Deluxe King units booked for those nights: the card says so, from live inventory.
+        Booking::create([
+            'booking_reference' => 'FULL-1', 'property_id' => $small->id, 'room_id' => $small->rooms()->first()->id,
+            'user_id' => $this->user('customer')->id, 'guest_name' => 'G', 'guest_email' => 'g@example.com',
+            'guest_phone' => '01700000000', 'check_in' => $in, 'check_out' => $out, 'rooms_count' => 2,
+            'guests' => 2, 'nights' => 2, 'total_price' => 10000, 'total_amount' => 10000,
+            'payment_status' => 'paid', 'status' => 'confirmed',
+        ]);
+        $this->get($q(['guests' => 2, 'area' => ['Kolatoli']]))->assertOk()
+            ->assertSee('Kolatoli Small Inn')->assertSee('Sold out on your dates');
+
+        // "Pay at the hotel" finds nothing when the site has switched that payment option off.
+        \App\Models\SiteSetting::set('allow_pay_at_hotel', '0');
+        Cache::flush();
+        $this->get($q(['guests' => 2, 'pay_at_hotel' => 1]))->assertOk()->assertDontSee('Inani Family Resort');
+    }
+
+    public function test_status_toggles_treat_published_as_live_and_need_a_room_to_go_live(): void
+    {
+        $live = $this->listing(['status' => 'published']);
+        $this->actingAs($this->vendor)->post(route('vendor.properties.toggle-status', $live->id));
+        $this->assertSame('inactive', $live->refresh()->status, 'A published listing can be switched off.');
+
+        $empty = Property::create([
+            'vendor_id' => $this->vendor->id, 'name' => 'No Rooms Yet', 'slug' => 'no-rooms-' . Str::random(5),
+            'type' => 'hotel', 'city' => 'Dhaka', 'address' => 'Banani', 'price_per_night' => 4000,
+            'status' => 'pending', 'description' => 'Pending listing without any room types yet.',
+        ]);
+        $this->actingAs($this->admin)->post(route('admin.properties.toggle-status', $empty->id));
+        $this->assertSame('pending', $empty->refresh()->status, 'Nothing to sell, so it cannot go live.');
+
+        $this->actingAs($this->admin)->post(route('admin.properties.bulk-action'), ['ids' => [$empty->id], 'bulk_action' => 'approve']);
+        $this->assertSame('pending', $empty->refresh()->status, 'Bulk approve follows the same rule.');
+    }
+
+    public function test_promo_codes_exist_only_when_the_admin_keeps_them_active(): void
+    {
+        $service = app(\App\Services\CouponService::class);
+        $this->assertFalse($service->validate('APP10', 5000)['valid'], 'Codes are never invented in code.');
+        $this->assertSame(0, \App\Models\Coupon::where('code', 'APP10')->count());
+
+        // Seeded once by migration, then an ordinary admin-managed coupon.
+        $this->assertSame('active', \App\Models\Coupon::where('code', 'PRIMECASH8')->value('status'));
+        $this->postJson(route('rewards.activate'))->assertOk()->assertJson(['active' => true, 'amount' => '8%']);
+
+        \App\Models\Coupon::where('code', 'PRIMECASH8')->update(['status' => 'inactive']);
+        $this->postJson(route('rewards.activate'))->assertStatus(410)->assertJson(['active' => false]);
+        $this->assertFalse($service->validate('PRIMECASH8', 5000)['valid']);
+    }
+
+    public function test_each_room_shows_its_own_was_price_and_hotels_without_photos_show_no_stock_images(): void
+    {
+        $property = $this->listing(['name' => 'Plain Hotel']);
+        $room = $property->rooms()->first();
+
+        $this->actingAs($this->vendor)->put(route('vendor.rooms.update', [$property->id, $room->id]), [
+            'name' => 'Deluxe King', 'price_per_night' => 5000, 'original_price' => 6250, 'max_adults' => 2,
+        ])->assertRedirect();
+        $this->assertEquals(6250.0, (float) $room->refresh()->original_price);
+
+        $this->actingAs($this->vendor)->put(route('vendor.rooms.update', [$property->id, $room->id]), [
+            'name' => 'Deluxe King', 'price_per_night' => 5000, 'original_price' => 4000, 'max_adults' => 2,
+        ]);
+        $this->assertNull($room->refresh()->original_price, 'A "was" price below the price is not a discount.');
+
+        $room->update(['original_price' => 6250]);
+        $this->get("/hotels/{$property->id}")->assertOk()
+            ->assertSee('-20%', false)
+            ->assertDontSee('images.unsplash.com', false);
+        $this->assertCount(1, $property->gallery_images, 'No stock photos are added to a hotel without pictures.');
+    }
+
+    public function test_category_scores_come_from_guest_reviews_only(): void
+    {
+        $property = $this->listing();
+
+        $this->get("/hotels/{$property->id}")->assertOk()
+            ->assertSee('Category scores appear once guests rate their stay.');
+        $this->assertSame([], $property->sub_scores, 'No reviews means no category scores.');
+
+        $guest = $this->user('customer');
+        Booking::create([
+            'booking_reference' => 'STAY-2', 'property_id' => $property->id, 'user_id' => $guest->id, 'guest_name' => 'G',
+            'guest_email' => $guest->email, 'guest_phone' => '01700000000',
+            'check_in' => now()->subDays(3)->toDateString(), 'check_out' => now()->subDays(1)->toDateString(),
+            'guests' => 2, 'nights' => 2, 'total_price' => 10000, 'total_amount' => 10000,
+            'payment_status' => 'paid', 'status' => 'completed',
+        ]);
+
+        $this->actingAs($guest)->post(route('hotels.review.store', $property->id), [
+            'rating' => 4, 'comment' => 'Spotless room, a bit far from the beach.',
+            'cleanliness_score' => 5, 'location_score' => 3, 'value_score' => 9,
+        ])->assertSessionHasErrors('value_score');
+
+        $this->actingAs($guest)->post(route('hotels.review.store', $property->id), [
+            'rating' => 4, 'comment' => 'Spotless room, a bit far from the beach.',
+            'cleanliness_score' => 5, 'location_score' => 3,
+        ]);
+
+        $property = Property::find($property->id);
+        $this->assertSame(['cleanliness' => 10.0, 'location' => 6.0], $property->sub_scores);
+        $this->assertEquals(6.0, (float) $property->location_score, 'Map card location score follows guests.');
+    }
+
     // ── Accounts ─────────────────────────────────────────────────────────
 
     public function test_registration_sends_a_verification_link_that_verifies_the_email(): void

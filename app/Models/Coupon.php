@@ -58,4 +58,30 @@ class Coupon extends Model
     {
         $this->attributes['status'] = $value ? 'active' : 'inactive';
     }
+    /**
+     * A site-wide code that can be advertised right now: exists, active, not expired,
+     * not used up and not tied to one hotel. Null when the admin has switched it off.
+     */
+    public static function advertisable(string $code): ?self
+    {
+        $coupon = static::where('code', strtoupper(trim($code)))->where('status', 'active')->first();
+        if (!$coupon || $coupon->property_id || $coupon->vendor_id) {
+            return null;
+        }
+        if ($coupon->expires_at && $coupon->expires_at->copy()->endOfDay()->isPast()) {
+            return null;
+        }
+        if ($coupon->usage_limit && $coupon->used_count >= $coupon->usage_limit) {
+            return null;
+        }
+        return $coupon;
+    }
+
+    /** "10%" or "৳500" for display. */
+    public function getDisplayAmountAttribute(): string
+    {
+        return in_array(strtolower((string) $this->type), ['percentage', 'percent'], true)
+            ? rtrim(rtrim(number_format((float) $this->amount, 2), '0'), '.') . '%'
+            : '৳' . number_format((float) $this->amount);
+    }
 }

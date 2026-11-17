@@ -77,7 +77,7 @@ class Property extends Model
         'primary_image', 'featured_image', 'image', 'video_url', 'commission_rate',
         'images', 'amenities', 'is_featured', 'status',
         'rooms_left', 'no_credit_card_required', 'location_score',
-        'nearest_landmark', 'free_cancellation',
+        'nearest_landmark', 'nearby_places', 'free_cancellation',
         'latitude', 'longitude', 'map_embed_url', 'postal_code',
         'checkin_time', 'checkout_time', 'contact_phone', 'contact_email', 'house_rules',
         'total_floors', 'total_rooms_count', 'year_built', 'languages_spoken', 'pets_policy',
@@ -90,6 +90,7 @@ class Property extends Model
         'images'                  => 'array',
         'amenities'               => 'array',
         'languages_spoken'        => 'array',
+        'nearby_places'           => 'array',
         'is_featured'             => 'boolean',
         'is_sold_out'             => 'boolean',
         'price_per_night'         => 'decimal:2',
@@ -251,7 +252,7 @@ class Property extends Model
     {
         return media_url(
             $this->primary_image,
-            'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80'
+            '/images/placeholder-hotel.svg'
         );
     }
 
@@ -284,6 +285,37 @@ class Property extends Model
         return null;
     }
 
+    /**
+     * How complete the listing is compared with a full OTA hotel page, and what is missing.
+     * Uses rooms_count / rooms_without_photos_count when the query loaded them.
+     *
+     * @return array{score: int, missing: list<string>}
+     */
+    public function getCompletenessAttribute(): array
+    {
+        $images = is_array($this->images) ? $this->images : [];
+        $categorised = count(array_filter($images, fn ($i) => is_array($i) && !empty($i['category'])));
+        $checks = [
+            'Cover photo'                    => !empty($this->primary_image),
+            'At least 10 photos'             => count($images) >= 10,
+            'Photos sorted into categories'  => $images !== [] && $categorised === count($images),
+            'Description (200+ characters)'  => mb_strlen(strip_tags((string) $this->description)) >= 200,
+            'GPS location'                   => !empty($this->latitude) && !empty($this->longitude),
+            "3+ nearby places"               => count((array) $this->nearby_places) >= 3,
+            '10+ amenities'                  => count((array) $this->amenities) >= 10,
+            'House rules'                    => trim((string) $this->house_rules) !== '',
+            'Cancellation policy'            => trim((string) $this->cancellation_policy) !== '',
+            'Contact phone'                  => trim((string) $this->contact_phone) !== '',
+            'At least one room type'         => (int) ($this->rooms_count ?? $this->rooms()->count()) > 0,
+            'Photos for every room'          => (int) ($this->rooms_without_photos_count ?? 0) === 0,
+        ];
+        $missing = array_keys(array_filter($checks, fn ($ok) => !$ok));
+
+        return [
+            'score'   => (int) round((count($checks) - count($missing)) / count($checks) * 100),
+            'missing' => $missing,
+        ];
+    }
     /** Star rating as Unicode stars string (e.g. "★★★★☆"). */
     public function getStarsAttribute(): string
     {
@@ -457,13 +489,14 @@ class Property extends Model
     /** Sort by a validated sort key. Defaults to featured → rating. */
     public function scopeSortBy(Builder $query, string $sortKey): Builder
     {
+        // Every order ends on id so pages never repeat or skip a hotel when values tie.
         return match ($sortKey) {
-            'distance'   => $query->orderBy('distance_km'),
-            'price_low'  => $query->orderBy('price_per_night'),
-            'price_high' => $query->orderByDesc('price_per_night'),
-            'rating'     => $query->orderByDesc('rating_score'),
+            'distance'   => $query->orderBy('distance_km')->orderBy('id'),
+            'price_low'  => $query->orderBy('price_per_night')->orderBy('id'),
+            'price_high' => $query->orderByDesc('price_per_night')->orderBy('id'),
+            'rating'     => $query->orderByDesc('rating_score')->orderByDesc('total_reviews')->orderBy('id'),
             'newest'     => $query->orderByDesc('id'),
-            default      => $query->orderByDesc('is_featured')->orderByDesc('rating_score'),
+            default      => $query->orderByDesc('is_featured')->orderByDesc('rating_score')->orderByDesc('total_reviews')->orderBy('id'),
         };
     }
 
@@ -545,193 +578,131 @@ class Property extends Model
         return number_format($dist, 1) . ' km';
     }
 
-    /**
-     * Algorithmic Proximity & Travel Time Breakdown (Walking vs Driving)
-     * Average walking speed = 80 m/min (4.8 km/h). Average driving speed = 24 km/h (2.5 min/km).
-     *
-     * @return array<int, array{category: string, icon: string, name: string, distance: string, time_est: string, mode: string}>
-     */
-    public function getProximityBreakdownAttribute(): array
-    {
-        $city = $this->city ?: ($this->location?->name ?? 'City');
-        $landmark = $this->nearest_landmark ?: "{$city} Point";
+    /** Categories offered for a nearby place, with the icon shown next to it. */
+    public const NEARBY_CATEGORIES = [
+        'landmark'  => 'fa-landmark',
+        'beach'     => 'fa-umbrella-beach',
+        'nature'    => 'fa-tree',
+        'shopping'  => 'fa-bag-shopping',
+        'dining'    => 'fa-utensils',
+        'religious' => 'fa-building-columns',
+        'transport' => 'fa-bus',
+        'train'     => 'fa-train',
+        'airport'   => 'fa-plane',
+        'hospital'  => 'fa-hospital',
+    ];
 
-        return [
-            [
-                'category' => 'Top Landmark & Spot',
-                'icon'     => 'fa-solid fa-umbrella-beach text-primary',
-                'name'     => $landmark,
-                'distance' => '250 m',
-                'time_est' => '3 mins walk',
-                'mode'     => 'walking',
-            ],
-            [
-                'category' => 'Local Dining & Cafes',
-                'icon'     => 'fa-solid fa-utensils text-danger',
-                'name'     => "{$city} Traditional Dining Quarter",
-                'distance' => '400 m',
-                'time_est' => '5 mins walk',
-                'mode'     => 'walking',
-            ],
-            [
-                'category' => 'Transit & Transport Hub',
-                'icon'     => 'fa-solid fa-bus text-warning',
-                'name'     => "{$city} Central Bus Terminal",
-                'distance' => '1.5 km',
-                'time_est' => '4 mins drive',
-                'mode'     => 'driving',
-            ],
-            [
-                'category' => 'Airport & Long Distance Terminal',
-                'icon'     => 'fa-solid fa-plane-departure text-info',
-                'name'     => "{$city} Domestic / Regional Airport",
-                'distance' => '3.8 km',
-                'time_est' => '9 mins drive',
-                'mode'     => 'driving',
-            ],
-        ];
+    /** Category guessed from a place name when the editor left it out. */
+    public static function guessNearbyCategory(string $name): string
+    {
+        $n = strtolower($name);
+        return match (true) {
+            str_contains($n, 'airport')                                              => 'airport',
+            str_contains($n, 'railway') || str_contains($n, 'train')                 => 'train',
+            str_contains($n, 'bus') || str_contains($n, 'terminal') || str_contains($n, 'ghat') => 'transport',
+            str_contains($n, 'beach') || str_contains($n, 'sea')                     => 'beach',
+            str_contains($n, 'park') || str_contains($n, 'lake') || str_contains($n, 'forest') || str_contains($n, 'garden') || str_contains($n, 'waterfall') => 'nature',
+            str_contains($n, 'mall') || str_contains($n, 'market') || str_contains($n, 'bazar') => 'shopping',
+            str_contains($n, 'mosque') || str_contains($n, 'mazar') || str_contains($n, 'temple') || str_contains($n, 'church') => 'religious',
+            str_contains($n, 'hospital') || str_contains($n, 'clinic')               => 'hospital',
+            str_contains($n, 'restaurant') || str_contains($n, 'cafe')               => 'dining',
+            default                                                                  => 'landmark',
+        };
     }
 
     /**
-     * Algorithmic Sub-Scores (Agoda / Booking.com standard breakdown)
+     * Places near the hotel as entered by admin/vendor, nearest first.
+     *
+     * @return list<array{name: string, distance_km: ?float, distance: ?string, category: string, icon: string}>
+     */
+    public function getNearbyListAttribute(): array
+    {
+        $raw = $this->nearby_places;
+        $places = [];
+        foreach (is_array($raw) ? $raw : [] as $p) {
+            $name = trim((string) ($p['name'] ?? ''));
+            if ($name === '') {
+                continue;
+            }
+            $km  = isset($p['distance_km']) && is_numeric($p['distance_km']) ? (float) $p['distance_km'] : null;
+            $cat = (string) ($p['category'] ?? '');
+            $cat = array_key_exists($cat, self::NEARBY_CATEGORIES) ? $cat : self::guessNearbyCategory($name);
+            $places[] = [
+                'name'        => $name,
+                'distance_km' => $km,
+                'distance'    => $km === null ? null : ($km < 1 ? round($km * 1000) . ' m' : number_format($km, 1) . ' km'),
+                'category'    => $cat,
+                'icon'        => self::NEARBY_CATEGORIES[$cat],
+            ];
+        }
+
+        usort($places, fn ($a, $b) => ($a['distance_km'] ?? PHP_FLOAT_MAX) <=> ($b['distance_km'] ?? PHP_FLOAT_MAX));
+
+        return $places;
+    }
+
+    /** Nearby places as editable text, one per line: "Name | 1.2 | category". */
+    public function getNearbyPlacesTextAttribute(): string
+    {
+        return implode("\n", array_map(
+            fn ($p) => $p['name'] . ' | ' . ($p['distance_km'] ?? '') . ' | ' . $p['category'],
+            $this->nearby_list
+        ));
+    }
+
+    /** Back-compat for the API resource: nearby places in the old {name, distance, icon} shape. */
+    public function getNearbyLandmarksListAttribute(): array
+    {
+        return array_map(fn ($p) => [
+            'name'     => $p['name'],
+            'distance' => $p['distance'],
+            'icon'     => $p['icon'],
+        ], $this->nearby_list);
+    }
+
+    /**
+     * Guest category scores on the 10-point scale, averaged from approved reviews that
+     * rated that category. A category nobody rated is left out (the page hides it).
+     *
      * @return array<string, float>
      */
     public function getSubScoresAttribute(): array
     {
-        $base = (float)($this->rating_score ?: 8.7);
-        return [
-            'Cleanliness'  => round(min(10.0, max(7.0, $base + 0.1)), 1),
-            'Service'      => round(min(10.0, max(7.0, $base + 0.2)), 1),
-            'Facilities'   => round(min(10.0, max(7.0, $base - 0.1)), 1),
-            'Location'     => round(min(10.0, max(7.0, (float)($this->location_score ?: ($base + 0.3)))), 1),
-            'Value'        => round(min(10.0, max(7.0, $base + 0.1)), 1),
-        ];
-    }
-
-    /**
-     * Algorithmic Structured AI Highlights
-     * @return array<string, array{title: string, desc: string, count: int}>
-     */
-    public function getAiHighlightsAttribute(): array
-    {
-        $city = $this->city ?: ($this->location?->name ?? 'Local');
-        return [
-            'location'    => [
-                'title' => 'Location',
-                'desc'  => "Close-to-key spots: repeated mentions of proximity to {$city} transport, metro transit, and top local dining.",
-                'count' => 12,
-            ],
-            'host'        => [
-                'title' => 'Host & Hospitality',
-                'desc'  => "Friendly, helpful staff provide travel advice and create a welcoming, approachable atmosphere.",
-                'count' => 10,
-            ],
-            'cleanliness' => [
-                'title' => 'Room Cleanliness',
-                'desc'  => "Clean and hygienic rooms and common areas, with several guests praising overall cleanliness.",
-                'count' => 5,
-            ],
-            'airport'     => [
-                'title' => 'Airport Access',
-                'desc'  => "Convenient for airport arrivals and departures, highly recommended for short and long stays.",
-                'count' => 5,
-            ],
-            'value'       => [
-                'title' => 'Value for Money',
-                'desc'  => "Good value for money and reasonable pricing noted by multiple guests with fair cost.",
-                'count' => 5,
-            ],
-            'atmosphere'  => [
-                'title' => 'Overall Atmosphere',
-                'desc'  => "Serene, welcoming atmosphere and a 'home away from home' feeling throughout the stay.",
-                'count' => 4,
-            ],
-        ];
-    }
-
-    /**
-     * Formatted List of Nearby Landmarks with Distances (Agoda 5-spot Rich Breakdown)
-     * @return array<int, array{name: string, distance: string, icon: string}>
-     */
-    public function getNearbyLandmarksListAttribute(): array
-    {
-        $city = trim((string)($this->city ?: ($this->location?->name ?? 'Dhaka')));
-        $cLower = strtolower($city);
-
-        $citySpots = [
-            'chittagong' => [
-                ['name' => 'Chandanpura Mosque', 'distance' => '470 m', 'icon' => 'fa-building-columns'],
-                ['name' => 'Wali Khan Mosque', 'distance' => '490 m', 'icon' => 'fa-building-columns'],
-                ['name' => 'Baatighar Bookshop', 'distance' => '950 m', 'icon' => 'fa-bag-shopping'],
-                ['name' => 'Chittagong Commonwealth War Cemetery', 'distance' => '1.2 km', 'icon' => 'fa-location-dot'],
-                ['name' => 'AnderKilla Shahi Jame Mosque', 'distance' => '1.4 km', 'icon' => 'fa-building-columns'],
-            ],
-            'dhaka' => [
-                ['name' => 'Lalbagh Fort', 'distance' => '450 m', 'icon' => 'fa-building-columns'],
-                ['name' => 'Ahsan Manzil Museum', 'distance' => '620 m', 'icon' => 'fa-landmark'],
-                ['name' => 'Gulshan 2 Circle Market', 'distance' => '850 m', 'icon' => 'fa-bag-shopping'],
-                ['name' => 'Dhaka Airport Terminal', 'distance' => '1.5 km', 'icon' => 'fa-plane'],
-                ['name' => 'Hatirjheel Scenic Promenade', 'distance' => '1.8 km', 'icon' => 'fa-location-dot'],
-            ],
-            'cox\'s bazar' => [
-                ['name' => 'Laboni Beach Point', 'distance' => '320 m', 'icon' => 'fa-umbrella-beach'],
-                ['name' => 'Sugandha Beach Market', 'distance' => '480 m', 'icon' => 'fa-bag-shopping'],
-                ['name' => 'Kolatoli Beach Walkway', 'distance' => '750 m', 'icon' => 'fa-location-dot'],
-                ['name' => 'Inani Beach Coral Shore', 'distance' => '1.6 km', 'icon' => 'fa-location-dot'],
-                ['name' => 'Himchari Waterfall & National Park', 'distance' => '2.1 km', 'icon' => 'fa-tree'],
-            ],
-            'sylhet' => [
-                ['name' => 'Hazrat Shah Jalal Mazar', 'distance' => '400 m', 'icon' => 'fa-building-columns'],
-                ['name' => 'Keane Bridge Landmark', 'distance' => '650 m', 'icon' => 'fa-location-dot'],
-                ['name' => 'Zindabazar Commercial Center', 'distance' => '800 m', 'icon' => 'fa-bag-shopping'],
-                ['name' => 'Lakkatura Tea Garden', 'distance' => '1.3 km', 'icon' => 'fa-tree'],
-                ['name' => 'Sylhet Railway Station', 'distance' => '1.7 km', 'icon' => 'fa-train'],
-            ],
-            'sundarban' => [
-                ['name' => 'Khulna Launch Ghat Terminal', 'distance' => '350 m', 'icon' => 'fa-ship'],
-                ['name' => 'Mongla Port Gate', 'distance' => '500 m', 'icon' => 'fa-location-dot'],
-                ['name' => 'Sundarbans Eco Tour Point', 'distance' => '850 m', 'icon' => 'fa-tree'],
-                ['name' => 'Karamjal Wildlife Breeding Center', 'distance' => '1.2 km', 'icon' => 'fa-tree'],
-                ['name' => 'Harbaria Eco Walkway', 'distance' => '1.5 km', 'icon' => 'fa-location-dot'],
-            ],
-            'khulna' => [
-                ['name' => 'Khulna Railway Station', 'distance' => '420 m', 'icon' => 'fa-train'],
-                ['name' => 'Shibbari More Commercial Hub', 'distance' => '580 m', 'icon' => 'fa-bag-shopping'],
-                ['name' => 'Rupsha River Bridge Walk', 'distance' => '900 m', 'icon' => 'fa-location-dot'],
-                ['name' => 'Gollamari Memorial Monument', 'distance' => '1.1 km', 'icon' => 'fa-landmark'],
-                ['name' => 'Khulna Launch Ghat', 'distance' => '1.4 km', 'icon' => 'fa-ship'],
-            ],
-        ];
-
-        // 1. Check direct city match
-        foreach ($citySpots as $cKey => $spots) {
-            if (str_contains($cLower, $cKey) || str_contains($cKey, $cLower)) {
-                return $spots;
-            }
+        if (!$this->exists) {
+            return [];
         }
 
-        // 2. If vendor set a custom landmark string in DB
-        if (!empty($this->nearest_landmark)) {
-            $parts = explode('•', $this->nearest_landmark);
-            $list = [];
-            foreach ($parts as $idx => $p) {
-                $trimmed = trim($p);
-                if (!empty($trimmed)) {
-                    $dist = ($idx === 0) ? '350 m' : (($idx + 1) * 300 . ' m');
-                    $list[] = ['name' => $trimmed, 'distance' => $dist, 'icon' => 'fa-location-dot'];
+        return once(function () {
+            $map = [
+                'cleanliness'              => 'cleanliness_score',
+                'location'                 => 'location_score',
+                'service'                  => 'service_score',
+                'facilities'               => 'facilities_score',
+                'room_comfort_and_quality' => 'comfort_score',
+                'value'                    => 'value_score',
+            ];
+
+            $select = [];
+            foreach ($map as $key => $col) {
+                $select[] = "AVG({$col}) as {$key}";
+            }
+
+            $row = \Illuminate\Support\Facades\DB::table('reviews')
+                ->where('property_id', $this->id)
+                ->where('status', 'approved')
+                ->selectRaw(implode(', ', $select))
+                ->first();
+
+            $scores = [];
+            foreach (array_keys($map) as $key) {
+                $avg = $row?->{$key};
+                if ($avg !== null) {
+                    $scores[$key] = round(min(10.0, (float) $avg * 2), 1);
                 }
             }
-            if (count($list) >= 3) return array_slice($list, 0, 5);
-        }
 
-        // 3. Authentic Default City Generation (Always 5 full spots)
-        return [
-            ['name' => "{$city} Jame Mosque & Center", 'distance' => '450 m', 'icon' => 'fa-building-columns'],
-            ['name' => "{$city} Central Bazaar & Market", 'distance' => '520 m', 'icon' => 'fa-bag-shopping'],
-            ['name' => "{$city} Main Bus & Transit Terminal", 'distance' => '890 m', 'icon' => 'fa-bus'],
-            ['name' => "{$city} Municipal Park & Walkway", 'distance' => '1.2 km', 'icon' => 'fa-tree'],
-            ['name' => "{$city} Railway & Express Station", 'distance' => '1.5 km', 'icon' => 'fa-train'],
-        ];
+            return $scores;
+        });
     }
 
     /**
@@ -740,16 +711,11 @@ class Property extends Model
      */
     public function getGalleryImagesAttribute(): array
     {
-        $primary = media_url($this->primary_image, 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80');
+        $primary = media_url($this->primary_image, '/images/placeholder-hotel.svg');
         $imgs = is_array($this->images) ? $this->images : (json_decode($this->images ?? '[]', true) ?: []);
         if (empty($imgs)) {
-            return [
-                $primary,
-                'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
-                'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?auto=format&fit=crop&w=800&q=80'
-            ];
+            // Only the hotel's own cover photo; never padded with pictures of other places.
+            return [$primary];
         }
         return array_values(array_map(fn($img) => media_url(is_array($img) ? ($img['url'] ?? '') : $img), $imgs));
     }
@@ -831,7 +797,7 @@ class Property extends Model
             $propVideo = '/storage/branding/Prime_booking_brand_intro_20261007105650.mp4';
         }
         if (!empty($propVideo)) {
-            $firstImg = !empty($this->primary_image) ? media_url($this->primary_image) : asset('images/agoda/sea_pearl_resort.jpg');
+            $firstImg = !empty($this->primary_image) ? media_url($this->primary_image) : asset('images/logo.png');
             $galleryCategorized['videos'][] = [
                 'url' => media_url($propVideo),
                 'poster' => $firstImg,
@@ -852,7 +818,7 @@ class Property extends Model
                     $rImgs = [$r->primary_image];
                 }
                 foreach ($rImgs as $rImg) {
-                    $cleanRImg = media_url($rImg, asset('images/agoda/sea_pearl_resort.jpg'));
+                    $cleanRImg = media_url($rImg, asset('images/logo.png'));
                     if (isset($seenUrls[$cleanRImg])) continue;
                     $seenUrls[$cleanRImg] = true;
 
@@ -894,7 +860,7 @@ class Property extends Model
             $gUrl = is_array($gItem) ? ($gItem['url'] ?? '') : (string)$gItem;
             if (empty($gUrl)) continue;
 
-            $cleanGUrl = media_url($gUrl, asset('images/agoda/sea_pearl_resort.jpg'));
+            $cleanGUrl = media_url($gUrl, asset('images/logo.png'));
             if (isset($seenUrls[$cleanGUrl])) continue;
             $seenUrls[$cleanGUrl] = true;
 

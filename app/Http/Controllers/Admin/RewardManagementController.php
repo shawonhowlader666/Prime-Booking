@@ -20,7 +20,7 @@ class RewardManagementController extends Controller
             $query->where('status', $status);
         }
 
-        $payouts = $query->paginate(15);
+        $payouts = $query->paginate(per_page(15));
 
         $stats = [
             'total_points_in_circulation' => (int) UserReward::sum('points_balance'),

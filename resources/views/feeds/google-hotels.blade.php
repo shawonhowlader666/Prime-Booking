@@ -3,19 +3,29 @@
     <language>en</language>
     <date_time>{{ now()->toIso8601String() }}</date_time>
     @foreach($properties as $prop)
+    {{-- Only the hotel's own data: a field the listing does not have is left out, never guessed. --}}
     <listing>
         <id>{{ $prop->id }}</id>
         <name>{{ $prop->name }}</name>
         <address format="simple">{{ $prop->address ?: ($prop->city . ', Bangladesh') }}</address>
-        <city>{{ $prop->city ?: "Cox's Bazar" }}</city>
-        <province>Chittagong</province>
-        <postal_code>4700</postal_code>
+        @if(!empty($prop->city))
+        <city>{{ $prop->city }}</city>
+        @endif
+        @if(!empty($prop->postal_code))
+        <postal_code>{{ $prop->postal_code }}</postal_code>
+        @endif
         <country>BD</country>
-        <latitude>{{ (float)($prop->latitude ?: 21.4272) }}</latitude>
-        <longitude>{{ (float)($prop->longitude ?: 92.0058) }}</longitude>
-        <phone>+8801606352642</phone>
+        @if(!empty($prop->latitude) && !empty($prop->longitude))
+        <latitude>{{ (float) $prop->latitude }}</latitude>
+        <longitude>{{ (float) $prop->longitude }}</longitude>
+        @endif
+        @if(!empty($prop->contact_phone))
+        <phone>{{ $prop->contact_phone }}</phone>
+        @endif
         <category>hotel</category>
-        <star_rating>{{ (int)($prop->star_rating ?: 4) }}</star_rating>
+        @if(!empty($prop->star_rating))
+        <star_rating>{{ (int) $prop->star_rating }}</star_rating>
+        @endif
         <landing_page>{{ url('/hotels/' . $prop->id) }}</landing_page>
     </listing>
     @endforeach

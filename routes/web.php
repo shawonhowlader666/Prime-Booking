@@ -70,7 +70,7 @@ Route::get('/api/health', function () {
 // Official Google Hotel Center XML Feed (Google Travel Free Booking Links)
 Route::get('/feeds/google-hotels.xml', function () {
     $properties = \App\Models\Property::active()
-        ->select('id', 'name', 'address', 'city', 'latitude', 'longitude', 'star_rating', 'primary_image', 'price_per_night')
+        ->select('id', 'name', 'address', 'city', 'postal_code', 'contact_phone', 'latitude', 'longitude', 'star_rating', 'primary_image', 'price_per_night')
         ->get();
     return response()->view('feeds.google-hotels', compact('properties'))->header('Content-Type', 'application/xml; charset=utf-8');
 })->name('feeds.google.hotels');
@@ -594,6 +594,22 @@ Route::middleware(['throttle:120,1,web-l590'])->withoutMiddleware('web')->group(
     Route::post('/payment/ssl/ipn', [PaymentCallbackController::class, 'sslIpn'])->name('payment.ssl.ipn');
 });
 
+// Anonymous feed of real recent bookings for the site-wide notification
+Route::get('/api/social-proof/recent', fn (\App\Services\SocialProofService $sp) => response()->json(['items' => $sp->recentBookingsFeed()]))
+    ->middleware('throttle:60,1,social-proof')->name('social-proof.recent');
+
+// "Activate rewards" widget: remembers the choice for this session so checkout applies
+// the PRIMECASH8 coupon — only while the admin keeps that coupon active.
+Route::post('/api/activate-rewards', function (\Illuminate\Http\Request $request) {
+    $coupon = \App\Models\Coupon::advertisable('PRIMECASH8');
+    if (!$coupon) {
+        $request->session()->forget('prime_rewards_active');
+        return response()->json(['active' => false, 'message' => 'This offer is not available right now.'], 410);
+    }
+    $request->session()->put('prime_rewards_active', true);
+    return response()->json(['active' => true, 'code' => $coupon->code, 'amount' => $coupon->display_amount]);
+})->middleware('throttle:20,1')->name('rewards.activate');
+
 // Wishlist & Favorites Routes
 Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
 Route::get('/my-wishlist', [WishlistController::class, 'index'])->name('wishlist');
@@ -744,18 +760,18 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
 
     // ── Featured Destinations ─────────────────────────────────────────────
     Route::get('/featured-destinations', [FeaturedDestinationController::class, 'index'])->name('featured-destinations.index');
-    Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('admin.destinations.index')->name('destinations.index');
+    Route::get('/destinations', [FeaturedDestinationController::class, 'index'])->name('destinations.index');
     Route::get('/featured-destinations/create', [FeaturedDestinationController::class, 'create'])->name('featured-destinations.create');
-    Route::get('/destinations/create', [FeaturedDestinationController::class, 'create'])->name('admin.destinations.create')->name('destinations.create');
+    Route::get('/destinations/create', [FeaturedDestinationController::class, 'create'])->name('destinations.create');
     Route::post('/featured-destinations', [FeaturedDestinationController::class, 'store'])->name('featured-destinations.store');
-    Route::post('/destinations', [FeaturedDestinationController::class, 'store'])->name('admin.destinations.store')->name('destinations.store');
+    Route::post('/destinations', [FeaturedDestinationController::class, 'store'])->name('destinations.store');
     Route::get('/featured-destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('featured-destinations.edit');
-    Route::get('/destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('admin.destinations.edit')->name('destinations.edit');
+    Route::get('/destinations/{destination}/edit', [FeaturedDestinationController::class, 'edit'])->name('destinations.edit');
     Route::put('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('featured-destinations.update');
-    Route::put('/destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('admin.destinations.update')->name('destinations.update');
+    Route::put('/destinations/{destination}', [FeaturedDestinationController::class, 'update'])->name('destinations.update');
     Route::post('/featured-destinations/reorder', [FeaturedDestinationController::class, 'reorder'])->name('featured-destinations.reorder');
     Route::post('/featured-destinations/ajax-add', [FeaturedDestinationController::class, 'ajaxStore'])->name('featured-destinations.ajax-add');
-    Route::delete('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('featured-destinations.destroy')->name('destinations.destroy');
+    Route::delete('/featured-destinations/{destination}', [FeaturedDestinationController::class, 'destroy'])->name('featured-destinations.destroy');
 
     // ── Platform / Site Settings ──────────────────────────────────────────
     Route::get('/site-settings', [SiteSettingsController::class, 'index'])->name('site-settings.index');
@@ -916,10 +932,10 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
                 'openssl'   => extension_loaded('openssl'),
             ],
             'metrics'         => [
-                'active_properties' => \App\Models\Property::where('status', 'active')->count(),
+                'active_properties' => \App\Models\Property::active()->count(),
                 'total_bookings'    => \App\Models\Booking::count(),
                 'total_users'       => \App\Models\User::count(),
-                'unapproved_reviews'=> \App\Models\Review::where('is_approved', 0)->count(),
+                'unapproved_reviews'=> \App\Models\Review::whereIn('status', ['pending', 'flagged'])->count(),
             ],
         ];
 

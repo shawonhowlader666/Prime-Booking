@@ -67,7 +67,7 @@ class FeaturedDestinationController extends Controller
         Cache::forget('featured_destinations');
         $this->log('created', $dest);
 
-        return redirect()->route('destinations.index')
+        return redirect()->route('admin.destinations.index')
             ->with('success', "\"{$dest->city}\" destination banner added successfully.");
     }
 
@@ -108,7 +108,7 @@ class FeaturedDestinationController extends Controller
         Cache::forget('featured_destinations');
         $this->log('updated', $dest);
 
-        return redirect()->route('destinations.index')->with('success', "\"{$dest->city}\" destination updated.");
+        return redirect()->route('admin.destinations.index')->with('success', "\"{$dest->city}\" destination updated.");
     }
 
     public function create()
@@ -147,7 +147,7 @@ class FeaturedDestinationController extends Controller
         $this->log('deleted', $dest);
         $dest->delete();
         Cache::forget('featured_destinations');
-        return redirect()->route('destinations.index')->with('success', "\"{$city}\" destination removed.");
+        return redirect()->route('admin.destinations.index')->with('success', "\"{$city}\" destination removed.");
     }
 
     private function log(string $action, FeaturedDestination $dest): void

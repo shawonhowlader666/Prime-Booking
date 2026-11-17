@@ -10,18 +10,9 @@ class CouponController extends Controller
 {
     public function index()
     {
-        $coupons = Coupon::latest()->paginate(20);
+        $coupons = Coupon::latest()->paginate(per_page(20));
 
         return view('admin.coupons.index', compact('coupons'));
-    }
-
-    private function getMockCoupons()
-    {
-        return collect([
-            (object)['id'=>1,'code'=>'PRIME10','type'=>'percentage','amount'=>10,'min_spend'=>5000,'expires_at'=>'2026-12-31','usage_limit'=>500,'used_count'=>42,'status'=>'active'],
-            (object)['id'=>2,'code'=>'SUNDARBAN500','type'=>'fixed','amount'=>500,'min_spend'=>15000,'expires_at'=>'2026-10-31','usage_limit'=>200,'used_count'=>89,'status'=>'active'],
-            (object)['id'=>3,'code'=>'NEWUSER20','type'=>'percentage','amount'=>20,'min_spend'=>3000,'expires_at'=>null,'usage_limit'=>null,'used_count'=>14,'status'=>'active'],
-        ]);
     }
 
     public function store(Request $request)

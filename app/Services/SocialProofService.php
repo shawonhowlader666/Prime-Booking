@@ -13,23 +13,47 @@ use Illuminate\Support\Facades\Cache;
 /**
  * SocialProofService
  * ──────────────────
- * Generates dynamic, data-driven urgency & social proof indicators (Agoda / Booking.com standard)
- * to boost search-to-booking conversion.
+ * Urgency and social-proof signals built only from real activity on the site.
+ * When there is nothing real to say, the methods return null / zero and the
+ * page shows nothing. Invented demand signals mislead guests and breach
+ * consumer-protection rules, so there are no fallbacks here.
  */
 class SocialProofService
 {
+    /** Viewers are counted in 5-minute buckets; the last three buckets form the "now" window. */
+    private const VIEW_BUCKET_SECONDS = 300;
+    private const VIEW_WINDOW_BUCKETS = 3;
+
     /**
-     * Get live viewer count for a given property.
-     * Uses deterministic hash + time-decay for organic feel.
+     * Record that a browser session is looking at a property. Each session is counted once per bucket.
      */
-    public function getActiveViewers(int $propertyId): int
+    public function recordView(int $propertyId, string $sessionId): void
     {
-        $cacheKey = "property_viewers_{$propertyId}";
-        return (int) Cache::remember($cacheKey, 180, function () use ($propertyId) {
-            $base = (crc32((string) $propertyId) % 6) + 3; // 3 to 8 viewers
-            $timeMod = (int) (date('G') / 4); // variation depending on time of day
-            return max(2, min(14, $base + $timeMod));
-        });
+        if ($propertyId <= 0 || $sessionId === '') {
+            return;
+        }
+
+        $bucket = intdiv(time(), self::VIEW_BUCKET_SECONDS);
+        $ttl    = self::VIEW_BUCKET_SECONDS * (self::VIEW_WINDOW_BUCKETS + 1);
+
+        if (Cache::add("pv:{$propertyId}:{$bucket}:" . sha1($sessionId), 1, $ttl)) {
+            Cache::add("pv:{$propertyId}:{$bucket}", 0, $ttl);
+            Cache::increment("pv:{$propertyId}:{$bucket}");
+        }
+    }
+
+    /**
+     * Distinct sessions that viewed this property in the last ~15 minutes, excluding the caller.
+     */
+    public function getActiveViewers(int $propertyId, int $excludeSelf = 1): int
+    {
+        $bucket = intdiv(time(), self::VIEW_BUCKET_SECONDS);
+        $total  = 0;
+        for ($i = 0; $i < self::VIEW_WINDOW_BUCKETS; $i++) {
+            $total += (int) Cache::get("pv:{$propertyId}:" . ($bucket - $i), 0);
+        }
+
+        return max(0, $total - $excludeSelf);
     }
 
     /**
@@ -40,12 +64,13 @@ class SocialProofService
         $cacheKey = "recent_booking_info_{$property->id}";
         return Cache::remember($cacheKey, 300, function () use ($property) {
             $recent = Booking::where('property_id', $property->id)
+                ->whereIn('status', ['confirmed', 'completed'])
                 ->where('created_at', '>=', now()->subHours(48))
                 ->latest()
                 ->first();
 
             if ($recent) {
-                $minsAgo = max(4, $recent->created_at->diffInMinutes(now()));
+                $minsAgo = max(1, (int) $recent->created_at->diffInMinutes(now()));
                 if ($minsAgo < 60) {
                     return "Booked {$minsAgo} minutes ago";
                 }
@@ -53,20 +78,15 @@ class SocialProofService
                 return "Booked {$hoursAgo} hours ago";
             }
 
-            // Organic city-level fallback
-            $cityRecent = Booking::whereHas('property', function ($q) use ($property) {
-                $q->where('city', $property->city);
-            })->where('created_at', '>=', now()->subHours(24))->latest()->first();
+            // City-level signal from real bookings only.
+            $cityCount = Booking::whereIn('status', ['confirmed', 'completed'])
+                ->where('created_at', '>=', now()->subHours(24))
+                ->whereIn('property_id', Property::active()->where('city', $property->city)->select('id'))
+                ->count();
 
-            if ($cityRecent) {
-                $minsAgo = max(12, $cityRecent->created_at->diffInMinutes(now()));
-                if ($minsAgo < 60) {
-                    return "Booked in {$property->city} {$minsAgo}m ago";
-                }
-                return "Last booked in {$property->city} today";
-            }
-
-            return "High demand in {$property->city} today";
+            return $cityCount > 0
+                ? "{$cityCount} " . ($cityCount === 1 ? 'booking' : 'bookings') . " in {$property->city} in the last 24 hours"
+                : null;
         });
     }
 
@@ -124,18 +144,45 @@ class SocialProofService
     }
 
     /**
+     * Recent confirmed bookings for the site-wide notification. Guests are never named.
+     *
+     * @return list<array{property:string, city:string, minutes_ago:int, url:string}>
+     */
+    public function recentBookingsFeed(int $limit = 5): array
+    {
+        return Cache::remember('social_proof_feed', 120, function () use ($limit) {
+            return Booking::query()
+                ->whereIn('status', ['confirmed', 'completed'])
+                ->where('created_at', '>=', now()->subHours(24))
+                ->whereHas('property', fn ($q) => $q->active())
+                ->with('property:id,name,city,slug')
+                ->latest('id')
+                ->limit($limit)
+                ->get(['id', 'property_id', 'created_at'])
+                ->map(fn ($b) => [
+                    'property'    => (string) $b->property->name,
+                    'city'        => (string) $b->property->city,
+                    'minutes_ago' => max(1, (int) $b->created_at->diffInMinutes(now())),
+                    'url'         => $b->property->slug ? route('hotel.show', $b->property->slug) : route('hotels.show', $b->property_id),
+                ])
+                ->values()
+                ->all();
+        });
+    }
+
+    /**
      * Get aggregate signals for a property (viewers, urgency text, popularity).
      */
     public function getSignals(Property $property): array
     {
         $viewers = $this->getActiveViewers((int) $property->id);
         $recentText = $this->getRecentBookingInfo($property);
-        $isPopular = $viewers >= 5 || (float)($property->rating_score ?? 0) >= 8.5;
+        $isPopular = $viewers >= 5 || ((int) ($property->total_reviews ?? 0) >= 10 && (float) ($property->rating_score ?? 0) >= 8.5);
 
         return [
-            'viewing_now'  => $viewers,
+            'viewing_now'  => $viewers >= 2 ? $viewers : 0,
             'is_popular'   => $isPopular,
-            'urgency_text' => $recentText ?: "🔥 High demand: Multiple guests booked in {$property->city} today.",
+            'urgency_text' => $recentText,
         ];
     }
 }

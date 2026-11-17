@@ -23,7 +23,6 @@ class PropertyResource extends JsonResource
             'star_rating'             => $this->star_rating,
             'rating_score'            => (float)$this->rating_score,
             'sub_scores'              => $this->sub_scores,
-            'ai_highlights'           => $this->ai_highlights,
             'total_reviews'           => $this->total_reviews,
             'address'                 => $this->address,
             'description'             => $this->description,

@@ -14,6 +14,12 @@ class Review extends Model
         'user_id',
         'guest_name',
         'rating',
+        'cleanliness_score',
+        'location_score',
+        'service_score',
+        'facilities_score',
+        'comfort_score',
+        'value_score',
         'comment',
         'helpful_count',
         'unhelpful_count',
@@ -24,6 +30,12 @@ class Review extends Model
 
     protected $casts = [
         'rating'          => 'float',
+        'cleanliness_score' => 'integer',
+        'location_score'    => 'integer',
+        'service_score'     => 'integer',
+        'facilities_score'  => 'integer',
+        'comfort_score'     => 'integer',
+        'value_score'       => 'integer',
         'helpful_count'   => 'integer',
         'unhelpful_count' => 'integer',
         'replied_at'      => 'datetime',
@@ -62,10 +74,16 @@ class Review extends Model
             $rawAvg = (float) $approvedReviews->avg('rating');
             // Ratings are stored as 1-5 stars; the listing shows the 10-point equivalent.
             $scaledScore = round(min(10.0, $rawAvg * 2.0), 1);
-            $property->update([
+            $locationAvg = (clone $approvedReviews)->avg('location_score');
+            $update = [
                 'rating_score'  => $scaledScore,
                 'total_reviews' => $count,
-            ]);
+            ];
+            // Location score on the map card follows guests who rated location; otherwise the admin value stays.
+            if ($locationAvg !== null) {
+                $update['location_score'] = round(min(10.0, (float) $locationAvg * 2.0), 1);
+            }
+            $property->update($update);
         } else {
             // No approved reviews: the listing is unrated. The site shows "New" instead of a score.
             $property->update([

@@ -277,6 +277,11 @@
                         </div>
 
                         <div class="col-12 col-md-4">
+                            <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">Original Price (struck through)</label>
+                            <input type="number" name="original_price" class="form-control form-control-sm" value="{{ old('original_price') }}" placeholder="Optional" step="0.01" min="0" style="height:36px; font-size:13px;">
+                        </div>
+
+                        <div class="col-12 col-md-4">
                             <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">
                                 <i class="fa-solid fa-ruler-combined" style="color:#64748b; margin-right:6px;"></i> Room Size (m²)
                             </label>
@@ -547,6 +552,11 @@
                                 <i class="fa-solid fa-bangladeshi-taka-sign" style="color:#64748b; margin-right:6px;"></i> Base Price (৳ / Night) <span class="text-danger">*</span>
                             </label>
                             <input type="number" name="price_per_night" class="form-control form-control-sm" value="{{ $r->price_per_night }}" required step="0.01" min="0" style="height:36px; font-size:13px; border:1px solid #d9d9d9; border-radius:4px;">
+                        </div>
+
+                        <div class="col-12 col-md-4">
+                            <label class="form-label mb-1.5" style="font-size:11.5px; font-weight:700; color:#475569; text-transform:uppercase;">Original Price (struck through)</label>
+                            <input type="number" name="original_price" class="form-control form-control-sm" value="{{ $r->original_price }}" placeholder="Optional" step="0.01" min="0" style="height:36px; font-size:13px;">
                         </div>
 
                         <div class="col-12 col-md-4">

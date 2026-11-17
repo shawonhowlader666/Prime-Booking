@@ -160,9 +160,19 @@
         {{-- FOOTER --}}
         <div class="footer">
             <div class="social">
-                <a href="#" title="Facebook">f</a>
-                <a href="#" title="Instagram">in</a>
-                <a href="#" title="WhatsApp" style="background:#25d366;">w</a>
+                @php
+                    $mailSocial = [
+                        ['social_facebook', 'Facebook', 'f', ''],
+                        ['social_instagram', 'Instagram', 'in', ''],
+                        ['social_whatsapp', 'WhatsApp', 'w', 'background:#25d366;'],
+                    ];
+                @endphp
+                @foreach($mailSocial as [$key, $title, $label, $style])
+                    @php $url = (string) \App\Models\SiteSetting::get($key, ''); @endphp
+                    @if(preg_match('#^https?://#i', $url))
+                        <a href="{{ $url }}" title="{{ $title }}" style="{{ $style }}">{{ $label }}</a>
+                    @endif
+                @endforeach
             </div>
             <p>
                 <strong>PRIME BOOKING</strong> — Bangladesh's Premium Travel & Hotel Booking Platform<br>

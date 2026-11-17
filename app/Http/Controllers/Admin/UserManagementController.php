@@ -32,7 +32,7 @@ class UserManagementController extends Controller
             );
         }
 
-        $users = $query->paginate(25)->withQueryString();
+        $users = $query->paginate(per_page(25))->withQueryString();
 
         $stats = [
             'total'     => User::count(),
@@ -53,7 +53,7 @@ class UserManagementController extends Controller
         $bookings = Booking::with('property:id,name,city,primary_image')
             ->where('user_id', $id)
             ->latest()
-            ->paginate(10);
+            ->paginate(per_page(10));
         $properties = Property::where('vendor_id', $id)->latest()->get();
 
         return view('admin.users.show', compact('user', 'bookings', 'properties'));

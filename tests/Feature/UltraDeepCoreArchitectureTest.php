@@ -417,7 +417,7 @@ class UltraDeepCoreArchitectureTest extends TestCase
     public function test_search_controller_filtering_and_sorting_engine(): void
     {
         // Create 2 distinct properties in different cities with different prices
-        Property::create([
+        $cox = Property::create([
             'name'            => 'Cox Bay Luxury Resort',
             'slug'            => 'cox-bay-luxury-' . uniqid(),
             'type'            => 'Resort',
@@ -429,7 +429,7 @@ class UltraDeepCoreArchitectureTest extends TestCase
             'is_featured'     => 1,
         ]);
 
-        Property::create([
+        $sylhet = Property::create([
             'name'            => 'Sylhet Tea Estate Cottage',
             'slug'            => 'sylhet-tea-estate-' . uniqid(),
             'type'            => 'Hotel',
@@ -440,6 +440,14 @@ class UltraDeepCoreArchitectureTest extends TestCase
             'status'          => 'active',
             'is_featured'     => 1,
         ]);
+
+        // Search lists only hotels with a room on sale.
+        foreach ([$cox, $sylhet] as $p) {
+            \App\Models\Room::create([
+                'property_id' => $p->id, 'name' => 'Standard', 'price_per_night' => $p->price_per_night,
+                'total_rooms' => 3, 'max_adults' => 2, 'max_children' => 0, 'max_guests' => 2, 'status' => 'active',
+            ]);
+        }
 
         // Search by location: Cox's Bazar
         $searchCox = $this->get('/search?destination=Cox');

@@ -157,6 +157,10 @@
                                 value="{{ old('price_per_night') }}" placeholder="12500" required>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Original Price (shown struck through)</label>
+                        <input type="number" name="original_price" class="form-control" step="0.01" min="0" value="{{ old('original_price') }}" placeholder="Leave empty for no discount">
+                    </div>
                     <div class="col-md-3">
                         <label class="form-label">Extra Bed</label>
                         <div class="form-check form-switch mt-2">

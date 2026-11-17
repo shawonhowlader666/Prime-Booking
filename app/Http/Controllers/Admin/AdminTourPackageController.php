@@ -21,7 +21,7 @@ class AdminTourPackageController extends Controller
      */
     public function index(): View
     {
-        $packages = TourPackage::with('vendor')->latest()->paginate(15);
+        $packages = TourPackage::with('vendor')->latest()->paginate(per_page(15));
         $totalCount = TourPackage::count();
         $activeCount = TourPackage::where('status', 'active')->count();
 
@@ -34,7 +34,7 @@ class AdminTourPackageController extends Controller
      */
     public function bookings(): View
     {
-        $bookings = \App\Models\PackageBooking::with('package', 'user')->latest()->paginate(20);
+        $bookings = \App\Models\PackageBooking::with('package', 'user')->latest()->paginate(per_page(20));
         return view('admin.packages.bookings', compact('bookings'));
     }
 

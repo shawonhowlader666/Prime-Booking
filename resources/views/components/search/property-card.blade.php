@@ -246,10 +246,16 @@
     // Badges
     $ribbonText        = trim((string) $get('ribbon_badge', ''));
     $hasRibbon         = $ribbonText !== '';
-    $isSoldOut         = (bool) $get('is_sold_out', false);
+    // Live inventory for the searched dates (set by the search, never cached).
+    $roomsLeftForDates = $get('available_rooms_for_dates');
+    $isSoldOut         = (bool) $get('is_sold_out', false) || (bool) $get('sold_out_for_dates', false);
     $hasStillAvailable = false;
     $stillAvailableText = '';
-    $bookingUrgencyText = $isSoldOut ? 'Sold out on your dates' : null;
+    $bookingUrgencyText = $isSoldOut
+        ? 'Sold out on your dates'
+        : ($roomsLeftForDates !== null && (int) $roomsLeftForDates > 0 && (int) $roomsLeftForDates <= 5
+            ? 'Only ' . (int) $roomsLeftForDates . ' ' . ((int) $roomsLeftForDates === 1 ? 'room' : 'rooms') . ' left on our site!'
+            : null);
     $hasBoosted        = false;
     $hasSeaView        = false;
     $hasCreditCardNote = (bool) $get('no_credit_card_required', false);
@@ -390,7 +396,7 @@
                 <div class="agoda-carousel-arrow-wrap agoda-arrow-prev is-disabled" id="prev_arrow_{{ $id }}">
                   <button aria-label="Previous property image" onclick="event.stopPropagation(); event.preventDefault(); changeAgodaSlide({{ $id }}, -1);" type="button" class="agoda-carousel-nav-btn">
                     <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; justify-content: center;">
-                      <svg viewBox="0 0 1 1" role="presentation" style="width: 16px; height: 16px; fill: #252c38; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/b87316f3.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/b87316f3.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#252c38"></rect></svg>
+                      <svg viewBox="0 0 1 1" role="presentation" style="width: 16px; height: 16px; fill: #252c38; mask: url(&quot;/images/icons/chevron-left.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/chevron-left.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#252c38"></rect></svg>
                     </span>
                   </button>
                 </div>
@@ -399,7 +405,7 @@
                 <div class="agoda-carousel-arrow-wrap agoda-arrow-next {{ $totalImgs <= 1 ? 'is-disabled' : '' }}" id="next_arrow_{{ $id }}">
                   <button aria-label="Next property image" onclick="event.stopPropagation(); event.preventDefault(); changeAgodaSlide({{ $id }}, 1);" type="button" class="agoda-carousel-nav-btn">
                     <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; justify-content: center;">
-                      <svg viewBox="0 0 1 1" role="presentation" style="width: 16px; height: 16px; fill: #252c38; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/01ed12e8.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/01ed12e8.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#252c38"></rect></svg>
+                      <svg viewBox="0 0 1 1" role="presentation" style="width: 16px; height: 16px; fill: #252c38; mask: url(&quot;/images/icons/chevron-right.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/chevron-right.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#252c38"></rect></svg>
                     </span>
                   </button>
                 </div>
@@ -414,7 +420,7 @@
               <div class="agoda-heart-wrap">
                 <button data-testid="save-to-trip-entry-button" aria-label="Save to trip" onclick="event.stopPropagation(); event.preventDefault(); toggleAgodaWishlist({{ $id }}, this);" type="button" class="agoda-heart-btn {{ $isSaved ? 'is-saved' : '' }}">
                   <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; justify-content: center;">
-                    <svg viewBox="0 0 1 1" role="presentation" style="width: 20px; height: 20px; fill: {{ $isSaved ? '#e12d46' : '#252c38' }}; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/72463b93.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/72463b93.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="{{ $isSaved ? '#e12d46' : '#252c38' }}"></rect></svg>
+                    <svg viewBox="0 0 1 1" role="presentation" style="width: 20px; height: 20px; fill: {{ $isSaved ? '#e12d46' : '#252c38' }}; mask: url(&quot;/images/icons/heart.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/heart.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="{{ $isSaved ? '#e12d46' : '#252c38' }}"></rect></svg>
                   </span>
                 </button>
               </div>
@@ -439,7 +445,7 @@
                           <span class="ScreenReaderOnly" style="display: none !important;">{{ $stars }} stars out of 5</span>
                           @for($s = 0; $s < $stars; $s++)
                             <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 2px;">
-                              <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; fill: #ff9800; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/d473e92d.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#ff9800"></rect></svg>
+                              <svg viewBox="0 0 1 1" role="presentation" class="abb64-fill-product-rating-hotels" style="width: 14px; height: 14px; fill: #ff9800; mask: url(&quot;/images/icons/star.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/star.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#ff9800"></rect></svg>
                             </span>
                           @endfor
                         </div>
@@ -453,7 +459,7 @@
                   <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-inline">
                     <button data-element-name="ssr-property-card-address" type="button" class="TextLink__TextLinkStyled-sc-upxc4y-1 jwdswZ agoda-address-btn" style="border: 0 !important; background: transparent !important; padding: 0 !important; outline: none !important; box-shadow: none !important; text-align: left; display: inline-flex; align-items: center;" onclick="event.stopPropagation(); event.preventDefault(); openHotelOnMap({{ $id }}, '{{ addslashes($displayName) }}');">
                       <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 6px;">
-                        <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #2067e1; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/75768cdf.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/75768cdf.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2067e1"></rect></svg>
+                        <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #2067e1; mask: url(&quot;/images/icons/map-pin.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/map-pin.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2067e1"></rect></svg>
                       </span>
                       <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN gJjGjY TextLink__TextStyled-sc-upxc4y-0 jgXvXU" label="{{ $locationLabel }} - View on map"><span style="color: #2067e1;">{{ $locationLabel }} - </span><span class="LinkText LinkText--underlined" style="color: #2067e1; text-decoration: underline; margin-left: 2px;">View on map</span></span>
                     </button>
@@ -484,7 +490,7 @@
                   @if($hasSeaView)
                     <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background-color: #f0f7ff; border: 1px solid #bae0fd; padding: 0 6px; border-radius: 2px; display: inline-flex; align-items: center; gap: 6px;">
                       <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline">
-                        <svg viewBox="0 0 1 1" role="presentation" style="width: 13px; height: 13px; fill: #0283df; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/05eb4e81.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/05eb4e81.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#0283df"></rect></svg>
+                        <svg viewBox="0 0 1 1" role="presentation" style="width: 13px; height: 13px; fill: #0283df; mask: url(&quot;/images/icons/waves.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/waves.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#0283df"></rect></svg>
                       </span>
                       <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN" style="color: #0283df; font-size: 11px; font-weight: 600;">Sea View</span>
                     </div>
@@ -503,7 +509,7 @@
               <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-mt-auto abb64-mb-2">
                 <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-flex abb64-items-center abb64-gap-1">
                   <span style="color: #737373; font-size: 11.5px; line-height: 1.4; display: inline-flex; align-items: center; gap: 6px;">
-                    <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 6px;"><svg viewBox="0 0 1 1" role="presentation" style="width: 12px; height: 12px; fill: #535b6a; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/68235b99.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/68235b99.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#535b6a"></rect></svg></span>
+                    <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline" style="display: inline-flex; align-items: center; margin-right: 6px;"><svg viewBox="0 0 1 1" role="presentation" style="width: 12px; height: 12px; fill: #535b6a; mask: url(&quot;/images/icons/sparkle.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/sparkle.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#535b6a"></rect></svg></span>
                     <span>{{ $highlightUsp }}</span>
                   </span>
                 </div>
@@ -541,7 +547,7 @@
                         <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-max-w-full">
                           <div data-element-name="consolidated-applied-discount-badge" class="abb64-box abb64-bg-feedback-positive-subtle abb64-fill-inherit abb64-text-inherit abb64-items-center abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background: #e8f5e9; padding: 0 8px; border-radius: 2px; display: inline-flex; align-items: center; white-space: nowrap;">
                             <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 6px;">
-                              <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #2e7d32; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/e409eac2.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/e409eac2.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2e7d32"></rect></svg>
+                              <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #2e7d32; mask: url(&quot;/images/icons/tag.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/tag.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#2e7d32"></rect></svg>
                             </span>
                             <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN kTnccA" style="color: #2e7d32; font-size: 11px; font-weight: 600; white-space: nowrap;">{{ $currencyCode }} {{ $couponVal }} applied</span>
                           </div>
@@ -553,7 +559,7 @@
                         <div class="abb64-box abb64-fill-inherit abb64-text-inherit abb64-max-w-full">
                           <div class="abb64-box abb64-bg-product-price-subtle abb64-fill-inherit abb64-text-inherit abb64-w-full abb64-items-start abb64-self-start abb64-inline-flex abb64-flex-row abb64-justify-center abb64-text-start abb64-p-0 abb64-px-8 abb64-py-4 abb64-rounded-2" style="height: 22px; background: #fdf2f2; padding: 0 8px; border-radius: 2px; display: inline-flex; align-items: center; white-space: nowrap;">
                             <span role="img" aria-hidden="true" class="abb64-inline-flex abb64-align-baseline abb64-mr-4" style="margin-right: 6px;">
-                              <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #d32f2f; mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/273a5e4f.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;https://cdn6.agoda.net/cdn-design-system/icons/273a5e4f.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#d32f2f"></rect></svg>
+                              <svg viewBox="0 0 1 1" role="presentation" style="width: 14px; height: 14px; fill: #d32f2f; mask: url(&quot;/images/icons/price-drop.svg&quot;) left top / contain no-repeat; -webkit-mask: url(&quot;/images/icons/price-drop.svg&quot;) left top / contain no-repeat;"><rect width="100%" height="100%" fill="#d32f2f"></rect></svg>
                             </span>
                             <span class="sc-aXZVg Typographystyled__TypographyStyled-sc-1uoovui-0 ifcRDN bvUylf" style="color: #d32f2f; font-size: 11px; font-weight: 600; white-space: nowrap;">Value Pick</span>
                           </div>

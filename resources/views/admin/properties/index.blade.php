@@ -206,6 +206,7 @@
                             <th>City / Location</th>
                             <th>Base Price/Night</th>
                             <th>Rating</th>
+                            <th>Completeness</th>
                             <th>Featured</th>
                             <th>Status</th>
                             <th style="text-align:right;">Actions</th>
@@ -245,6 +246,11 @@
                             <td><strong style="font-size:12.5px; color:#334155;"><i class="fa-solid fa-location-dot me-1 text-danger"></i> {{ $p->city ?? 'Bangladesh' }}</strong></td>
                             <td><strong style="color:#2067e1; font-size:13px;">BDT {{ number_format($p->price_per_night ?? 0) }}</strong></td>
                             <td><span style="color:#ff9f43; font-size:12px;">{{ str_repeat('★', $p->star_rating ?? 5) }}</span></td>
+                            @php $comp = $p->completeness; $compColor = $comp['score'] >= 90 ? '#16a34a' : ($comp['score'] >= 60 ? '#d97706' : '#dc2626'); @endphp
+                            <td title="{{ $comp['missing'] ? 'Missing: ' . implode(', ', $comp['missing']) : 'Complete' }}">
+                                <strong style="color:{{ $compColor }}; font-size:12.5px;">{{ $comp['score'] }}%</strong>
+                                @if($comp['missing'])<div style="font-size:10.5px; color:#64748b; max-width:180px; white-space:normal;">{{ implode(', ', array_slice($comp['missing'], 0, 3)) }}@if(count($comp['missing']) > 3) +{{ count($comp['missing']) - 3 }} more @endif</div>@endif
+                            </td>
                             <td>
                                 @if($p->is_featured ?? false)
                                     <span class="badge-status confirmed">Featured</span>
@@ -253,7 +259,7 @@
                                 @endif
                             </td>
                             <td>
-                                @if(($p->status ?? '') == 'active')
+                                @if(in_array($p->status ?? '', \App\Models\Property::LIVE_STATUSES, true))
                                     <span class="badge-status active">Active</span>
                                 @elseif(($p->status ?? '') == 'pending')
                                     <span class="badge-status pending" style="background:#fff7e6; color:#d46b08; border:1px solid #ffd591; padding:3px 8px; border-radius:4px; font-weight:600; font-size:11.5px;">Pending Review</span>
@@ -310,8 +316,8 @@
                                                 <form action="{{ route('admin.properties.toggle-status', $p->id) }}" method="POST" class="m-0">
                                                     @csrf
                                                     <button type="submit" class="dropdown-item py-1.5 px-3 text-secondary">
-                                                        <i class="fa-solid {{ ($p->status ?? 'active') == 'active' ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }} me-2"></i> 
-                                                        {{ ($p->status ?? 'active') == 'active' ? 'Deactivate' : 'Approve / Activate' }}
+                                                        <i class="fa-solid {{ in_array($p->status ?? '', \App\Models\Property::LIVE_STATUSES, true) ? 'fa-toggle-on text-success' : 'fa-toggle-off text-secondary' }} me-2"></i> 
+                                                        {{ in_array($p->status ?? '', \App\Models\Property::LIVE_STATUSES, true) ? 'Deactivate' : 'Approve / Activate' }}
                                                     </button>
                                                 </form>
                                             </li>
@@ -336,7 +342,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="9" class="text-center py-5" style="background:#ffffff;">
+                            <td colspan="10" class="text-center py-5" style="background:#ffffff;">
                                 <div style="max-width:340px; margin:0 auto; padding:24px 0;">
                                     <div style="width:68px; height:68px; border-radius:50%; background:#f8fafc; color:#94a3b8; display:inline-flex; align-items:center; justify-content:center; font-size:30px; margin-bottom:14px; border:1px solid #e2e8f0; box-shadow:0 2px 6px rgba(0,0,0,0.02);">
                                         <i class="fa-solid fa-hotel"></i>

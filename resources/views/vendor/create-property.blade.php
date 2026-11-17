@@ -118,6 +118,13 @@
                         <input type="text" name="nearest_landmark" class="form-control form-control-sm" value="{{ old('nearest_landmark') }}"
                             placeholder="e.g. Kolatoli Beach Point (150m)" style="font-size:13px; height:38px;">
                     </div>
+                <div class="col-12">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">What's Nearby (shown on the hotel page &amp; map)</label>
+                    <textarea name="nearby_places_text" class="form-control" rows="5" style="font-size:13px; font-family:monospace;"
+                        placeholder="One place per line:  Name | distance | category&#10;Kolatoli Beach Point | 200 m | beach&#10;Cox's Bazar Airport (CXB) | 3.8 km | airport&#10;Sugandha Market | 1.1 | shopping">{{ old('nearby_places_text') }}</textarea>
+                    <small class="text-muted" style="font-size:11.5px;">Distance in km or m. Category (optional): {{ implode(', ', array_keys(\App\Models\Property::NEARBY_CATEGORIES)) }}.</small>
+                    @error('nearby_places_text')<div class="text-danger small">{{ $message }}</div>@enderror
+                </div>
                     <div class="col-md-6">
                         <label class="form-label fw-bold text-dark mb-1" style="font-size:12.5px;">Real-Time GPS Coordinates (Lat, Long)</label>
                         <div style="display:flex; gap:8px;">
@@ -226,22 +233,22 @@
                     </div>
                 </div>
 
-                {{-- AGODA SEARCH CARD HIGHLIGHTS & MARKETING BADGES --}}
+                {{-- PRIME BOOKING SEARCH CARD HIGHLIGHTS & MARKETING BADGES --}}
                 <div class="border-bottom pb-2.5 mb-3 mt-4">
                     <h5 class="fw-bold text-dark mb-0 d-flex align-items-center" style="font-size:14.5px; color:#2067e1;">
                         <i class="fa-solid fa-wand-magic-sparkles text-primary me-2" style="font-size:15px; width:18px;"></i>
-                        <span>Agoda Search Card Highlights &amp; Marketing Badges</span>
+                        <span>Prime Booking Card Highlights &amp; Marketing Badges</span>
                     </h5>
                 </div>
                 <div class="p-3.5 border rounded bg-light mb-4" style="border-left: 4px solid #2067e1 !important;">
                     <div class="row g-3">
                         <div class="col-12">
-                            <label class="form-label fw-bold" style="font-size:12.5px;">Card Feature Snippet / Key Highlights (Agoda Bottom Line)</label>
+                            <label class="form-label fw-bold" style="font-size:12.5px;">Card Feature Snippet / Key Highlights (Card Bottom Highlight)</label>
                             <input type="text" name="feature_snippet" class="form-control" 
                                    value="{{ old('feature_snippet') }}" 
                                    placeholder="e.g. Panoramic Sea Views from 12th Floor, Five-Minute Walk to Kolatoly Beach">
                             <small class="text-muted" style="font-size:11.5px;">
-                                Appears at the bottom of the hotel card with a sparkle icon (Exact Agoda feature snippet).
+                                Appears at the bottom of the hotel card with a sparkle icon (Feature highlight snippet).
                             </small>
                         </div>
                         <div class="col-md-6">

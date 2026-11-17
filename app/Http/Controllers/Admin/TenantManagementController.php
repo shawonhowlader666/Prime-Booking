@@ -12,7 +12,7 @@ class TenantManagementController extends Controller
     {
         $company = config('company');
 
-        $tenants = Tenant::with('user:id,email,name')->withCount(['properties', 'rooms'])->latest()->paginate(15);
+        $tenants = Tenant::with('user:id,email,name')->withCount(['properties', 'rooms'])->latest()->paginate(per_page(15));
 
         return view('admin.tenants.index', compact('company', 'tenants'));
     }

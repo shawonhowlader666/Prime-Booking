@@ -21,7 +21,7 @@ class AdminDestinationController extends Controller
     {
         $destinations = Destination::withCount('properties')
             ->orderBy('sort_order', 'asc')
-            ->paginate(15);
+            ->paginate(per_page(15));
 
         return view('admin.destinations.index', compact('destinations'));
     }

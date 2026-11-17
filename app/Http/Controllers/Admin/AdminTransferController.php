@@ -13,7 +13,7 @@ class AdminTransferController extends Controller
     {
         $company = config('company');
 
-        $transfers = AirportTransfer::latest()->paginate(15);
+        $transfers = AirportTransfer::latest()->paginate(per_page(15));
         $bookings  = TransferBooking::with('transfer')->latest()->take(10)->get();
 
         return view('admin.transfers.index', compact('company', 'transfers', 'bookings'));
@@ -65,7 +65,7 @@ class AdminTransferController extends Controller
 
     public function bookings()
     {
-        $bookings = TransferBooking::with(['transfer', 'user'])->latest()->paginate(20);
+        $bookings = TransferBooking::with(['transfer', 'user'])->latest()->paginate(per_page(20));
         return view('admin.transfers.bookings', compact('bookings'));
     }
 

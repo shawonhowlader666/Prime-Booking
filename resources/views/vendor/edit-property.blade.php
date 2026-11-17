@@ -125,6 +125,13 @@
                         <label class="form-label">Nearest Landmark / Distance</label>
                         <input type="text" name="nearest_landmark" class="form-control" value="{{ old('nearest_landmark', $property->nearest_landmark) }}" placeholder="e.g. 2 mins walk from Beach Point">
                     </div>
+                <div class="col-12">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">What's Nearby (shown on the hotel page &amp; map)</label>
+                    <textarea name="nearby_places_text" class="form-control" rows="5" style="font-size:13px; font-family:monospace;"
+                        placeholder="One place per line:  Name | distance | category&#10;Kolatoli Beach Point | 200 m | beach&#10;Cox's Bazar Airport (CXB) | 3.8 km | airport&#10;Sugandha Market | 1.1 | shopping">{{ old('nearby_places_text', $property->nearby_places_text) }}</textarea>
+                    <small class="text-muted" style="font-size:11.5px;">Distance in km or m. Category (optional): {{ implode(', ', array_keys(\App\Models\Property::NEARBY_CATEGORIES)) }}.</small>
+                    @error('nearby_places_text')<div class="text-danger small">{{ $message }}</div>@enderror
+                </div>
                     <div class="col-md-6">
                         <label class="form-label">Real-Time GPS Coordinates (Lat, Long)</label>
                         <div style="display:flex; gap:8px;">
@@ -235,19 +242,19 @@
                 </div>
             </div>
 
-            {{-- Agoda Search Card Highlights & Marketing Badges --}}
+            {{-- Prime Booking Search Card Highlights & Marketing Badges --}}
             <div class="form-card mb-3" style="border-left: 4px solid #2067e1;">
                 <div class="form-section-title" style="color: #2067e1;">
-                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Agoda Search Card Highlights &amp; Marketing Badges
+                    <i class="fa-solid fa-wand-magic-sparkles me-1"></i> Prime Booking Card Highlights &amp; Marketing Badges
                 </div>
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label fw-bold">Card Feature Snippet / Key Highlights (Agoda Bottom Line)</label>
+                        <label class="form-label fw-bold">Card Feature Snippet / Key Highlights (Card Bottom Highlight)</label>
                         <input type="text" name="feature_snippet" class="form-control" 
                                value="{{ old('feature_snippet', $property->feature_snippet) }}" 
                                placeholder="e.g. Panoramic Sea Views from 12th Floor, Five-Minute Walk to Kolatoly Beach">
                         <small class="text-muted" style="font-size:11.5px;">
-                            Appears at the bottom of the hotel card with a sparkle icon (Exact Agoda feature snippet).
+                            Appears at the bottom of the hotel card with a sparkle icon (Feature highlight snippet).
                         </small>
                     </div>
                     <div class="col-md-4">
@@ -619,13 +626,10 @@
                         <p style="margin:0; font-size:13px; font-weight:600; color:#cf1322;">Delete this listing permanently</p>
                         <p style="margin:4px 0 0; font-size:12px; color:#8c8c8c;">This will remove "{{ $property->name }}" and all associated data. Cannot be undone.</p>
                     </div>
-                    <form action="{{ route('vendor.properties.destroy', $property->id) }}" method="POST"
-                        onsubmit="return confirm('Are you sure? This cannot be undone!')">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn-table-action danger" style="padding:8px 18px; font-size:13px; border-radius:4px;">
+                    {{-- Submits the delete form placed after the edit form (forms cannot be nested). --}}
+                        <button type="submit" form="vendorDeletePropertyForm" class="btn-table-action danger" style="padding:8px 18px; font-size:13px; border-radius:4px;">
                             <i class="fa-solid fa-trash"></i> <span>Delete Permanently</span>
                         </button>
-                    </form>
                 </div>
             </div>
 
@@ -649,6 +653,11 @@
             </div>
         </div>
 
+    </form>
+
+    <form id="vendorDeletePropertyForm" action="{{ route('vendor.properties.destroy', $property->id) }}" method="POST" class="d-none"
+        onsubmit="return confirm('Are you sure? This cannot be undone!')">
+        @csrf @method('DELETE')
     </form>
 
 </div>

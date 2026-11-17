@@ -128,16 +128,19 @@
         <a href="{{ route('admin.destinations.index') }}" class="btn btn-outline-secondary">Cancel</a>
 
         @if(isset($destination))
-        <form action="{{ route('admin.destinations.destroy', $destination) }}" method="POST"
-              class="ms-auto" onsubmit="return confirm('Remove {{ $destination->city }}?')">
-            @csrf @method('DELETE')
-            <button type="submit" class="btn btn-outline-danger btn-sm">
+            <button form="adminDeleteDestinationForm" type="submit" class="btn btn-outline-danger btn-sm ms-auto">
                 <i class="fa-solid fa-trash me-1"></i> Delete
             </button>
-        </form>
         @endif
     </div>
 </form>
+@if(isset($destination))
+<form id="adminDeleteDestinationForm" action="{{ route('admin.destinations.destroy', $destination) }}" method="POST" class="d-none"
+      onsubmit="return confirm('Remove {{ $destination->city }}?')">
+    @csrf @method('DELETE')
+</form>
+@endif
+
 
 @push('scripts')
 <script>

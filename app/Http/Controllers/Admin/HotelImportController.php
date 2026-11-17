@@ -55,7 +55,7 @@ class HotelImportController extends Controller
             'total_properties' => Property::count(),
             'total_cities'     => Property::whereNotNull('city')->distinct()->count('city'),
             'total_rooms'      => Room::count(),
-            'active_published' => Property::where('status', 'active')->count(),
+            'active_published' => Property::active()->count(),
         ];
 
         $savedCookie   = SiteSetting::get('ota_saved_cookie_agoda', '');

@@ -200,6 +200,10 @@
                                 value="{{ old('price_per_night', $room->price_per_night) }}" required>
                         </div>
                     </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Original Price (shown struck through)</label>
+                        <input type="number" name="original_price" class="form-control" step="0.01" min="0" value="{{ old('original_price', $room->original_price) }}" placeholder="Leave empty for no discount">
+                    </div>
                     <div class="col-md-3">
                         <label class="form-label">Extra Bed</label>
                         <div class="form-check form-switch mt-2">
@@ -271,13 +275,9 @@
                 </div>
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:4px 0;">
                     <p style="margin:0; font-size:12.5px; color:#8c8c8c;">Remove "{{ $room->name }}" from {{ $property->name }} permanently.</p>
-                    <form action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST"
-                        onsubmit="return confirm('Delete room type permanently?')">
-                        @csrf @method('DELETE')
-                        <button type="submit" class="btn-table-action danger" style="padding:8px 18px; border-radius:4px;">
+                        <button form="adminDeleteRoomForm" type="submit" class="btn-table-action danger" style="padding:8px 18px; border-radius:4px;">
                             <i class="fa-solid fa-trash"></i> <span>Delete Room</span>
                         </button>
-                    </form>
                 </div>
             </div>
 
@@ -291,6 +291,11 @@
             </div>
 
         </form>
+<form id="adminDeleteRoomForm" action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" class="d-none"
+      onsubmit="return confirm('Delete room type permanently?')">
+    @csrf @method('DELETE')
+</form>
+
     </div>
 </div>
 

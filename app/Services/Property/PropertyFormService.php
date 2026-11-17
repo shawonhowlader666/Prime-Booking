@@ -43,6 +43,7 @@ class PropertyFormService
             'original_price'    => 'nullable|numeric|min:0|max:99999999',
             'description'       => 'required|string|min:20|max:20000',
             'nearest_landmark'  => 'nullable|string|max:255',
+            'nearby_places_text' => 'nullable|string|max:10000',
             'latitude'          => 'nullable|numeric|between:-90,90',
             'longitude'         => 'nullable|numeric|between:-180,180',
             'map_embed_url'     => 'nullable|string|max:2000',
@@ -136,6 +137,10 @@ class PropertyFormService
             }
         }
 
+        if ($creating || $request->has('nearby_places_text')) {
+            $attrs['nearby_places'] = $this->nearbyPlaces((string) $request->input('nearby_places_text', ''));
+        }
+
         if ($creating || $request->has('languages_spoken')) {
             $attrs['languages_spoken'] = array_values(array_unique(array_filter(
                 array_map('trim', (array) $request->input('languages_spoken', ['English', 'Bengali']))
@@ -166,6 +171,47 @@ class PropertyFormService
     }
 
     /** Fields only the platform may set. */
+    /**
+     * Nearby places typed one per line as "Name | distance | category".
+     * Distance accepts "1.2", "1.2 km" or "350 m"; category is optional and guessed from the name.
+     *
+     * @return list<array{name: string, distance_km: ?float, category: string}>
+     */
+    private function nearbyPlaces(string $text): array
+    {
+        $places = [];
+        $seen = [];
+        foreach (preg_split('/\R/', $text) as $line) {
+            $parts = array_map('trim', explode('|', $line));
+            $name  = mb_substr(strip_tags($parts[0] ?? ''), 0, 150);
+            if ($name === '' || isset($seen[mb_strtolower($name)])) {
+                continue;
+            }
+            $seen[mb_strtolower($name)] = true;
+
+            $km = null;
+            if (preg_match('/^(\d+(?:\.\d+)?)\s*(km|m)?$/i', str_replace(',', '.', $parts[1] ?? ''), $m)) {
+                $km = (float) $m[1];
+                if (strtolower($m[2] ?? '') === 'm') {
+                    $km /= 1000;
+                }
+                $km = round(min($km, 20000), 3);
+            }
+
+            $category = strtolower($parts[2] ?? '');
+            if (!array_key_exists($category, Property::NEARBY_CATEGORIES)) {
+                $category = Property::guessNearbyCategory($name);
+            }
+
+            $places[] = ['name' => $name, 'distance_km' => $km, 'category' => $category];
+            if (count($places) >= 30) {
+                break;
+            }
+        }
+
+        return $places;
+    }
+
     private function adminOnly(Request $request, ?Property $property): array
     {
         $creating = $property === null;

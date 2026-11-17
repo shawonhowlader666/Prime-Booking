@@ -43,10 +43,12 @@
             </select>
 
             {{-- Date Range --}}
-            <select class="form-select form-select-sm" style="width:auto; min-width:145px; height:32px; font-size:12px; border-radius:4px; border-color:#cbd5e1; background-color:#fff;">
-                <option selected>Last 30 Days (Aug 2026)</option>
-                <option>Last 7 Days</option>
-                <option>This Quarter</option>
+            <select class="form-select form-select-sm" style="width:auto; min-width:145px; height:32px; font-size:12px; border-radius:4px; border-color:#cbd5e1; background-color:#fff;" aria-label="Revenue period"
+                onchange="const u = new URL(window.location.href); this.value ? u.searchParams.set('days', this.value) : u.searchParams.delete('days'); window.location.href = u.toString();">
+                <option value="" @selected(empty($stats['days']))>All time</option>
+                <option value="7" @selected(($stats['days'] ?? null) === 7)>Last 7 days</option>
+                <option value="30" @selected(($stats['days'] ?? null) === 30)>Last 30 days</option>
+                <option value="90" @selected(($stats['days'] ?? null) === 90)>Last 90 days</option>
             </select>
 
             {{-- Search Orders --}}
@@ -300,7 +302,7 @@
                                 </td>
                                 <td style="font-size:12px; color:#595959;">{{ $prop->city }}</td>
                                 <td><strong style="color:var(--primary);">{{ $prop->bookings_count ?? 0 }}</strong></td>
-                                <td><span class="badge-status {{ $prop->status == 'active' ? 'active' : 'pending' }}">{{ ucfirst($prop->status) }}</span></td>
+                                <td><span class="badge-status {{ in_array($prop->status, \App\Models\Property::LIVE_STATUSES, true) ? 'active' : 'pending' }}">{{ ucfirst($prop->status) }}</span></td>
                             </tr>
                         @empty
                             <tr><td colspan="5" style="text-align:center; padding:20px; color:#8c8c8c; font-size:12.5px;">No property data yet</td></tr>

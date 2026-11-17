@@ -23,6 +23,7 @@ class RoomFormService
             'name'              => 'required|string|min:2|max:255',
             'bed_type'          => ($room ? 'nullable' : 'required') . '|string|max:255',
             'price_per_night'   => 'required|numeric|min:1|max:99999999',
+            'original_price'    => 'nullable|numeric|min:0|max:99999999',
             'max_adults'        => 'required|integer|min:1|max:30',
             'max_children'      => 'nullable|integer|min:0|max:20',
             'room_size_sqm'     => 'nullable|integer|min:1|max:5000',
@@ -79,6 +80,12 @@ class RoomFormService
             } elseif ($creating) {
                 $attrs[$field] = $field === 'bed_type' ? 'Double Bed' : $default;
             }
+        }
+
+        // "Was" price only when it is higher than the selling price.
+        if ($creating || $request->has('original_price')) {
+            $was = (float) $request->input('original_price', 0);
+            $attrs['original_price'] = $was > $attrs['price_per_night'] ? round($was, 2) : null;
         }
 
         if ($request->has('cancellation_policy')) {

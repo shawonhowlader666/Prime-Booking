@@ -2746,6 +2746,44 @@
     }
 
     // ── 8. COLUMN VISIBILITY (GEAR POPUP) ────────────────────────────
+    /**
+     * "Select" button: adds (or removes) a checkbox column so rows can be picked,
+     * with a header checkbox that selects every visible row.
+     */
+    function toggleSelectAll(tableId, btn) {
+        var table = document.getElementById(tableId);
+        if (!table) return;
+        var on = !table.classList.contains('select-mode');
+        table.classList.toggle('select-mode', on);
+        if (btn) btn.classList.toggle('active', on);
+
+        table.querySelectorAll('.row-select-cell').forEach(function (c) { c.remove(); });
+        if (!on) return;
+
+        var headRow = table.tHead && table.tHead.rows[0];
+        if (headRow) {
+            var th = document.createElement('th');
+            th.className = 'row-select-cell';
+            th.style.width = '36px';
+            th.innerHTML = '<input type="checkbox" aria-label="Select all rows">';
+            headRow.insertBefore(th, headRow.firstChild);
+            th.querySelector('input').addEventListener('change', function (e) {
+                table.querySelectorAll('tbody tr').forEach(function (tr) {
+                    if (tr.style.display === 'none') return;
+                    var cb = tr.querySelector('.row-select-cell input');
+                    if (cb) cb.checked = e.target.checked;
+                });
+            });
+        }
+        Array.prototype.forEach.call(table.tBodies, function (tb) {
+            Array.prototype.forEach.call(tb.rows, function (tr) {
+                var td = document.createElement('td');
+                td.className = 'row-select-cell';
+                td.innerHTML = '<input type="checkbox" aria-label="Select row">';
+                tr.insertBefore(td, tr.firstChild);
+            });
+        });
+    }
     function toggleColVis(tableId, btn) {
         const dropId = 'colVisDropdown_' + tableId;
         const drop = document.getElementById(dropId);

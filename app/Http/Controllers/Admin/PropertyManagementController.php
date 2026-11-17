@@ -35,7 +35,7 @@ class PropertyManagementController extends Controller
 
         $statsRaw = $statsQuery->selectRaw("
             COUNT(*) as total,
-            COUNT(CASE WHEN status = 'active' THEN 1 END) as active,
+            COUNT(CASE WHEN status IN ('active', 'published') THEN 1 END) as active,
             COUNT(CASE WHEN status = 'pending' THEN 1 END) as pending,
             COUNT(CASE WHEN is_featured = 1 THEN 1 END) as featured,
             COUNT(CASE WHEN status = 'inactive' THEN 1 END) as inactive
@@ -54,9 +54,12 @@ class PropertyManagementController extends Controller
             ->select([
                 'id', 'vendor_id', 'name', 'slug', 'type', 'city',
                 'star_rating', 'address', 'price_per_night', 'primary_image',
-                'status', 'is_featured', 'created_at'
+                'status', 'is_featured', 'created_at',
+                // for the completeness column
+                'images', 'description', 'latitude', 'longitude', 'nearby_places', 'amenities',
+                'house_rules', 'cancellation_policy', 'contact_phone',
             ])
-            ->withCount(['rooms', 'bookings']);
+            ->withCount(['rooms', 'bookings', 'rooms as rooms_without_photos_count' => fn ($q) => $q->where(fn ($w) => $w->whereNull('images')->orWhere('images', '[]')->orWhere('images', ''))]);
 
         if ($request->filled('source') && $request->source !== 'all') {
             if ($request->source === 'vendor') {
@@ -76,6 +79,8 @@ class PropertyManagementController extends Controller
         if ($request->filled('status') && $request->status !== 'all') {
             if ($request->status === 'featured') {
                 $query->where('is_featured', true);
+            } elseif ($request->status === 'active') {
+                $query->whereIn('status', Property::LIVE_STATUSES);   // "published" listings are live too
             } else {
                 $query->where('status', $request->status);
             }
@@ -89,7 +94,7 @@ class PropertyManagementController extends Controller
             });
         }
 
-        $properties = $query->latest('id')->paginate(15)->withQueryString();
+        $properties = $query->latest('id')->paginate(per_page(15))->withQueryString();
         $vendors = User::where('role', 'vendor')->orderBy('name')->get(['id', 'name']);
 
         return view('admin.properties.index', compact('properties', 'stats', 'vendors'));
@@ -247,8 +252,15 @@ class PropertyManagementController extends Controller
     {
         $property  = Property::findOrFail($id);
         $oldStatus = $property->status;
-        $newStatus = $property->status === 'active' ? 'inactive' : 'active';
-        $property->update(['status' => $newStatus]);
+        $isLive    = in_array($oldStatus, Property::LIVE_STATUSES, true);
+
+        // Going live needs something to sell, exactly like approve().
+        if (!$isLive && !\App\Models\Room::where('property_id', $property->id)->where('status', 'active')->where('price_per_night', '>', 0)->exists()) {
+            return back()->with('error', '"' . $property->name . '" has no bookable room type yet. Add at least one active room with a price before publishing.');
+        }
+
+        $newStatus = $isLive ? 'inactive' : 'active';
+        $property->update(['status' => $newStatus] + ($oldStatus === 'pending' ? ['approved_at' => now(), 'rejection_reason' => null] : []));
         $msg = $oldStatus === 'pending'
             ? 'Property "' . $property->name . '" approved and published live!'
             : 'Property status changed to ' . ucfirst($newStatus) . '.';
@@ -341,8 +353,19 @@ class PropertyManagementController extends Controller
         }
 
         if ($action === 'approve') {
-            Property::whereIn('id', $ids)->update(['status' => 'active']);
-            return back()->with('success', '✅ Selected ' . count($ids) . ' properties approved and published live!');
+            // Same rule as a single approval: only listings with a room on sale can go live.
+            $bookable = Property::whereIn('id', $ids)
+                ->whereHas('rooms', fn ($q) => $q->where('status', 'active')->where('price_per_night', '>', 0))
+                ->pluck('id');
+            Property::whereIn('id', $bookable)->update(['status' => 'active', 'rejection_reason' => null]);
+            Property::whereIn('id', $bookable)->whereNull('approved_at')->update(['approved_at' => now()]);
+
+            $skipped = count($ids) - $bookable->count();
+            $msg = '✅ ' . $bookable->count() . ' properties approved and published live.';
+            if ($skipped > 0) {
+                $msg .= " {$skipped} skipped: no active room with a price yet.";
+            }
+            return back()->with($skipped > 0 && $bookable->isEmpty() ? 'error' : 'success', $msg);
         }
 
         if ($action === 'deactivate') {

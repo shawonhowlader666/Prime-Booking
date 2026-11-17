@@ -13,7 +13,7 @@ class TourPackageController extends Controller
 {
     public function index()
     {
-        $packages = TourPackage::with('vendor')->ordered()->paginate(15);
+        $packages = TourPackage::with('vendor')->ordered()->paginate(per_page(15));
         return view('admin.packages.index', compact('packages'));
     }
 

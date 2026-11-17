@@ -46,6 +46,7 @@ class Room extends Model
         'room_size_sqm',
         'bed_type',
         'price_per_night',
+        'original_price',
         'total_rooms',
         'available_rooms',
         'breakfast_included',
@@ -97,6 +98,7 @@ class Room extends Model
     }
 
     protected $casts = [
+        'original_price'     => 'decimal:2',
         'facilities' => 'array',
         'images' => 'array',
         'bathroom_features' => 'array',

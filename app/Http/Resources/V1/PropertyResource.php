@@ -90,8 +90,13 @@ class PropertyResource extends JsonResource
      *  - Relative path (e.g. "properties/img.jpg") → asset('storage/...')
      *  - Empty/null → return Unsplash fallback
      */
-    private function resolveImageUrl(?string $path): string
+    private function resolveImageUrl(mixed $path): string
     {
+        if (is_array($path)) {
+            $path = $path['url'] ?? $path['path'] ?? null;
+        }
+        $path = is_string($path) ? trim($path) : null;
+
         $fallback = 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80';
 
         if (empty($path)) {
@@ -104,6 +109,6 @@ class PropertyResource extends JsonResource
         }
 
         // Relative → storage URL
-        return asset('storage/' . ltrim($path, '/'));
+        return media_url($path);
     }
 }

@@ -220,6 +220,7 @@
         <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
             <form action="{{ route('vendor.rooms.store', $property->id) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+<input type="hidden" name="_full_form" value="1">
                 <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
                     <div>
                         <h6 class="modal-title fw-bold text-dark m-0 d-flex align-items-center" style="font-size:15px;">
@@ -399,6 +400,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="extra_bed_allowed" value="0">
                                     <input class="form-check-input me-2" type="checkbox" name="extra_bed_allowed" value="1" id="addExtraBedCheck" style="cursor:pointer; width:34px; height:18px; margin:0;">
                                     <label class="form-check-label fw-bold text-dark mb-0" for="addExtraBedCheck" style="font-size:12.5px; cursor:pointer;">
                                         Extra Bed / Rollaway Allowed
@@ -409,6 +411,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="breakfast_included" value="0">
                                     <input class="form-check-input me-2" type="checkbox" name="breakfast_included" value="1" id="addBreakfastCheck" style="cursor:pointer; width:34px; height:18px; margin:0;">
                                     <label class="form-check-label fw-bold text-dark mb-0" for="addBreakfastCheck" style="font-size:12.5px; cursor:pointer;">
                                         Free Breakfast Included
@@ -419,6 +422,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="free_cancellation" value="0">
                                     <input class="form-check-input me-2" type="checkbox" name="free_cancellation" value="1" id="addCancelCheck" checked style="cursor:pointer; width:34px; height:18px; margin:0;">
                                     <label class="form-check-label fw-bold text-dark mb-0" for="addCancelCheck" style="font-size:12.5px; cursor:pointer;">
                                         Free Cancellation Allowed
@@ -453,6 +457,7 @@
         <div class="modal-content" style="border-radius:8px; border:none; box-shadow:0 10px 40px rgba(0,0,0,0.15);">
             <form action="{{ route('vendor.rooms.update', [$property->id, $r->id]) }}" method="POST" enctype="multipart/form-data">
                 @csrf
+<input type="hidden" name="_full_form" value="1">
                 @method('PUT')
                 <div class="modal-header border-bottom py-2.5 px-4" style="background:#f8fafc; border-radius:8px 8px 0 0;">
                     <div>
@@ -674,6 +679,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="extra_bed_allowed" value="0">
                                     <input class="form-check-input me-2" type="checkbox" name="extra_bed_allowed" value="1" id="editExtraBedCheck{{ $r->id }}" {{ $r->extra_bed_allowed ? 'checked' : '' }} style="cursor:pointer; width:34px; height:18px; margin:0;">
                                     <label class="form-check-label fw-bold text-dark mb-0" for="editExtraBedCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
                                         Extra Bed / Rollaway Allowed
@@ -684,6 +690,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="breakfast_included" value="0">
                                     <input class="form-check-input me-2" type="checkbox" name="breakfast_included" value="1" id="editBreakfastCheck{{ $r->id }}" {{ $r->breakfast_included ? 'checked' : '' }} style="cursor:pointer; width:34px; height:18px; margin:0;">
                                     <label class="form-check-label fw-bold text-dark mb-0" for="editBreakfastCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
                                         Free Breakfast Included
@@ -694,6 +701,7 @@
                         <div class="col-12 col-md-4">
                             <div class="p-3 rounded-2 border h-100 d-flex align-items-center" style="background:#fafafa;">
                                 <div class="form-check form-switch m-0 d-flex align-items-center gap-2">
+                                    <input type="hidden" name="free_cancellation" value="0">
                                     <input class="form-check-input me-2" type="checkbox" name="free_cancellation" value="1" id="editCancelCheck{{ $r->id }}" {{ $r->free_cancellation ? 'checked' : '' }} style="cursor:pointer; width:34px; height:18px; margin:0;">
                                     <label class="form-check-label fw-bold text-dark mb-0" for="editCancelCheck{{ $r->id }}" style="font-size:12.5px; cursor:pointer;">
                                         Free Cancellation Allowed

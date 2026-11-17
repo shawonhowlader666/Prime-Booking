@@ -245,9 +245,15 @@
                         <option value="inactive" {{ old('status') == 'inactive' ? 'selected' : '' }}>Inactive — Draft Mode</option>
                     </select>
                 </div>
+                <div class="col-md-4">
+                    <label class="form-label" style="font-size:12.5px; font-weight:600; color:#1e293b; margin-bottom:6px;">Platform Commission (%)</label>
+                    <input type="number" step="0.01" min="0" max="100" name="commission_rate" class="form-control"
+                        value="{{ old('commission_rate', 12) }}" style="font-size:13px; border-radius:4px; height:38px; padding:0 14px;">
+                </div>
                 <div class="col-md-12">
                     <div class="p-3 bg-light border d-flex align-items-center gap-4 flex-wrap" style="border-radius:4px;">
                         <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                            <input type="hidden" name="is_featured" value="0">
                             <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="isFeatured"
                                 {{ old('is_featured') ? 'checked' : '' }} style="cursor:pointer; margin-top:0;">
                             <label class="form-check-label fw-bold text-dark mb-0" for="isFeatured" style="font-size:12.5px; cursor:pointer;">
@@ -255,6 +261,7 @@
                             </label>
                         </div>
                         <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                            <input type="hidden" name="free_cancellation" value="0">
                             <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="freeCancel"
                                 {{ old('free_cancellation', '1') ? 'checked' : '' }} style="cursor:pointer; margin-top:0;">
                             <label class="form-check-label fw-bold text-success mb-0" for="freeCancel" style="font-size:12.5px; cursor:pointer;">
@@ -262,6 +269,7 @@
                             </label>
                         </div>
                         <div class="form-check form-switch mb-0 d-flex align-items-center gap-2">
+                            <input type="hidden" name="no_credit_card_required" value="0">
                             <input class="form-check-input" type="checkbox" name="no_credit_card_required" value="1" id="noCC"
                                 {{ old('no_credit_card_required', '1') ? 'checked' : '' }} style="cursor:pointer; margin-top:0;">
                             <label class="form-check-label fw-bold text-primary mb-0" for="noCC" style="font-size:12.5px; cursor:pointer;">
@@ -302,29 +310,30 @@
                     <div class="col-md-3">
                         <label class="form-label fw-bold" style="font-size:12.5px;">Rooms Remaining / Urgency</label>
                         <input type="number" name="rooms_left" class="form-control" 
-                               value="{{ old('rooms_left', 5) }}" min="0" max="99">
+                               value="{{ old('rooms_left', 0) }}" min="0" max="99">
                         <small class="text-muted" style="font-size:11px;">e.g. "1 still available" if 1-5</small>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold" style="font-size:12.5px;">Location Score (Out of 10)</label>
                         <input type="number" step="0.1" name="location_score" class="form-control" 
-                               value="{{ old('location_score', 8.8) }}" min="1" max="10">
+                               value="{{ old('location_score') }}" min="0" max="10">
                         <small class="text-muted" style="font-size:11px;">e.g. 9.1 Location score</small>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold" style="font-size:12.5px;">Guest Rating Score (Out of 10)</label>
                         <input type="number" step="0.1" name="rating_score" class="form-control" 
-                               value="{{ old('rating_score', 8.8) }}" min="1" max="10">
+                               value="{{ old('rating_score') }}" min="0" max="10">
                         <small class="text-muted" style="font-size:11px;">e.g. 9.2 Exceptional</small>
                     </div>
                     <div class="col-md-3">
                         <label class="form-label fw-bold" style="font-size:12.5px;">Total Reviews Count</label>
                         <input type="number" name="total_reviews" class="form-control" 
-                               value="{{ old('total_reviews', 128) }}" min="0">
+                               value="{{ old('total_reviews', 0) }}" min="0">
                         <small class="text-muted" style="font-size:11px;">e.g. 1,280 reviews</small>
                     </div>
                     <div class="col-md-6">
                         <div class="form-check form-switch pt-1">
+                            <input type="hidden" name="is_sold_out" value="0">
                             <input class="form-check-input" type="checkbox" name="is_sold_out" value="1" id="createIsSoldOut"
                                 {{ old('is_sold_out') ? 'checked' : '' }}>
                             <label class="form-check-label fw-bold text-danger" for="createIsSoldOut" style="font-size:12.5px;">

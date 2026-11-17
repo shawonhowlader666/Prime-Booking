@@ -35,21 +35,23 @@
                 chr(64) . 'type' => 'Rating',
                 'ratingValue' => (int) ($property->star_rating ?? 4),
             ],
-            'priceRange' => 'BDT ' . number_format((float) ($property->price_per_night ?? 2500)) . ' - ' . number_format((float) ($property->price_per_night ?? 2500) * 2.5),
+            'priceRange' => 'BDT ' . number_format((float) ($property->min_room_price ?? $property->price_per_night)) . ($property->relationLoaded('rooms') && $property->rooms->isNotEmpty() ? ' - ' . number_format((float) $property->rooms->max('price_per_night')) : ''),
             'address' => [
                 chr(64) . 'type' => 'PostalAddress',
                 'streetAddress' => $property->address ?? $property->city ?? 'Bangladesh',
                 'addressLocality' => $property->city ?? 'Dhaka',
                 'addressCountry' => 'BD',
             ],
-            'aggregateRating' => [
+        ];
+        if ((int) ($property->total_reviews ?? 0) > 0 && (float) ($property->rating_score ?? 0) > 0) {
+            $schemaHotel['aggregateRating'] = [
                 chr(64) . 'type' => 'AggregateRating',
-                'ratingValue' => number_format((float) ($property->rating_score ?? $property->rating ?? 9.0), 1),
+                'ratingValue' => number_format((float) $property->rating_score, 1),
                 'bestRating' => '10',
                 'worstRating' => '1',
-                'reviewCount' => max(5, (int) ($property->reviews_count ?? $property->total_reviews ?? 28)),
-            ],
-        ];
+                'reviewCount' => (int) $property->total_reviews,
+            ];
+        }
         if (!empty($property->latitude) && !empty($property->longitude)) {
             $schemaHotel['geo'] = [
                 chr(64) . 'type' => 'GeoCoordinates',
@@ -103,8 +105,9 @@
     use App\Services\CurrencyService;
     use Carbon\Carbon;
 
-    $checkinCarbon = request('checkin') ? Carbon::parse(request('checkin')) : Carbon::tomorrow();
-    $checkoutCarbon = request('checkout') ? Carbon::parse(request('checkout')) : Carbon::tomorrow()->addDay();
+    $checkinCarbon = Carbon::parse($checkIn);
+    $checkoutCarbon = Carbon::parse($checkOut);
+    $roomAvailability = $roomAvailability ?? [];
     $guestStr = request('guests') ?: '3 adults, 1 child';
     $guestCount = intval(preg_replace('/[^0-9]/', '', (string) $guestStr)) ?: 2;
     $roomsCountStr = request('rooms') ?: '2 rooms';
@@ -116,17 +119,13 @@
     if (!empty($propGallery)) {
         $gallery = $gallery->merge($propGallery);
     }
-    $fallbacks = [
-        'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-        'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80',
-        'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=800&q=80',
-    ];
-    while ($gallery->count() < 7) {
-        $gallery->push($fallbacks[$gallery->count() % count($fallbacks)]);
+    $gallery = $gallery->map(fn ($img) => is_array($img) ? ($img['url'] ?? null) : $img)->filter()->unique()->values();
+    $ownPhotoCount = $gallery->count();
+    if ($ownPhotoCount === 0) {
+        $gallery->push(asset('images/logo.png'));
+    }
+    for ($gi = 0; $gallery->count() < 7; $gi++) {
+        $gallery->push($gallery[$gi % max(1, $ownPhotoCount)]);
     }
 
     // Convert all gallery images to fully-qualified public / storage URLs (Zero broken image paths)
@@ -139,11 +138,13 @@
 
     $amenitiesList = is_array($property->amenities) && count($property->amenities) > 0
         ? $property->amenities
-        : ['Free Wi-Fi', 'Free parking', 'Pets allowed', 'Air conditioning in public area', 'English', 'Internet services'];
+        : [];
 
-    $scoreNum = (float) ($property->rating_score ?? 8.7);
-    $score = number_format($scoreNum, 1);
-    $totalReviewsInt = (int) ($property->total_reviews ?: 6);
+    $totalReviewsInt = (int) ($property->total_reviews ?? 0);
+    $hasReviews = $totalReviewsInt > 0 && (float) $property->rating_score > 0;
+    $scoreNum = $hasReviews ? (float) $property->rating_score : 0.0;
+    $score = $hasReviews ? number_format($scoreNum, 1) : 'New';
+    $scoreLabel = !$hasReviews ? 'No reviews yet' : ($scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : ($scoreNum >= 7 ? 'Very good' : ($scoreNum >= 6 ? 'Good' : 'Review score'))));
     $revCount = number_format($totalReviewsInt);
     $nights = $checkinCarbon->diffInDays($checkoutCarbon) ?: 1;
     $isWishlisted = auth()->check() && \App\Models\Wishlist::where('user_id', auth()->id())->where('property_id', $property->id)->exists();
@@ -1391,7 +1392,7 @@
                         <div class="d-flex align-items-baseline justify-content-between">
                             <strong
                                 style="font-size: 17px; font-weight: 700; color: #2067e1; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                                {{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : ($scoreNum >= 7 ? 'Very good' : 'Good')) }}
+                                {{ $scoreLabel }}
                             </strong>
                             <a href="#reviews" class="text-decoration-none"
                                 style="color: #2067e1; font-size: 13px; font-weight: 600;">See all</a>
@@ -2599,8 +2600,8 @@
 
                     // Filter match booleans (Exact match for the 12 Agoda filters)
                     $isNonSmoking = !str_contains(strtolower($rSmoking), 'smoking allowed') && !str_contains(strtolower($rSmoking), 'permit');
-                    $hasBreakfast = boolval($room->breakfast_included ?? true);
-                    $hasFreeCancel = boolval($room->free_cancellation ?? true);
+                    $hasBreakfast = (bool) $room->breakfast_included;
+                    $hasFreeCancel = (bool) $room->free_cancellation;
                     $bedLower = strtolower(($room->bed_type ?: $rBedStr) . ' ' . ($room->name ?: ''));
                     $isQueen = str_contains($bedLower, 'queen');
                     $isKing = str_contains($bedLower, 'king');
@@ -2613,65 +2614,40 @@
                     $isFamily = ($rAdults >= 3 || $rKids >= 2 || str_contains(strtolower($room->name), 'family') || str_contains(strtolower($room->name), 'triple'));
                     $is2Bedrooms = ($rBathrooms >= 2 || str_contains(strtolower($room->name), 'suite') || str_contains(strtolower($room->name), '2 bedroom') || str_contains(strtolower($room->name), 'presidential') || str_contains(strtolower($room->name), 'ambassador'));
 
-                    // Real-Time Dynamic Urgency Stock Engine
-                    $roomStock = isset($room->total_rooms) && $room->total_rooms !== null
-                        ? (int) $room->total_rooms
-                        : (isset($room->available_rooms) && $room->available_rooms !== null ? (int) $room->available_rooms : 5);
-
-                    $reqCheckIn = request('check_in') ?: request('checkin');
-                    $reqCheckOut = request('check_out') ?: request('checkout');
-                    $bookedCount = 0;
-                    try {
-                        if (\Illuminate\Support\Facades\Schema::hasTable('bookings')) {
-                            $bQuery = \App\Models\Booking::where('room_id', $room->id)
-                                ->whereIn('status', ['confirmed', 'paid', 'approved', 'active']);
-                            if ($reqCheckIn && $reqCheckOut) {
-                                $bQuery->where(function ($q) use ($reqCheckIn, $reqCheckOut) {
-                                    $q->whereBetween('check_in', [$reqCheckIn, $reqCheckOut])
-                                        ->orWhereBetween('check_out', [$reqCheckIn, $reqCheckOut]);
-                                });
-                            }
-                            $bookedCount = $bQuery->count();
-                        }
-                    } catch (\Throwable $e) {
-                        $bookedCount = 0;
-                    }
-                    $availableRoomsLeft = max(0, $roomStock - $bookedCount);
+                    // Units free on every night of the selected stay (bookings, holds and vendor blocks applied).
+                    $availableRoomsLeft = (int) ($roomAvailability[$room->id]['rooms_left'] ?? 0);
 
                     // Resolve dynamic photos for this room carousel
                     $galleryArr = $gallery instanceof \Illuminate\Support\Collection ? $gallery->all() : (array) ($gallery ?? []);
                     $rImages = !empty($room->images) && is_array($room->images) && count($room->images) > 0
                         ? $room->images
                         : [];
-                    if (empty($rImages) && !empty($galleryArr)) {
-                        $rImages = array_slice($galleryArr, ($rIdx * 2) % max(1, count($galleryArr)), 4);
+                    // A room without its own photos shows the hotel cover, never other rooms' or random gallery photos.
+                    if (empty($rImages) && !empty($property->primary_image)) {
+                        $rImages = [$property->primary_image];
                     }
                     if (empty($rImages) && !empty($room->primary_image)) {
                         $rImages = [$room->primary_image];
                     }
                     if (empty($rImages)) {
-                        $rImages = ['https://cdn6.agoda.net/images/accommodation/other/default.jpg'];
+                        $rImages = [asset('images/logo.png')];
                     }
                     $rImages = array_values(array_map(function ($img) {
                         return media_url($img, asset('images/agoda/sea_pearl_resort.jpg'));
                     }, $rImages));
 
                     // Dynamic Pricing & Discount Calculations
-                    $roomPrice = (float) ($room->price_per_night ?: 3500);
-                    $discountPercent1 = 18;
-                    if (!empty($property->discount_percent) && $property->discount_percent > 0) {
-                        $discountPercent1 = (int) $property->discount_percent;
-                    } elseif (!empty($property->discount_percentage) && $property->discount_percentage > 0) {
-                        $discountPercent1 = (int) $property->discount_percentage;
-                    }
-                    $origPrice1 = round($roomPrice / (1 - ($discountPercent1 / 100)));
-                    $voucher1 = round($roomPrice * 0.14);
+                    $roomPrice = (float) ($roomAvailability[$room->id]['nightly_rate'] ?? $room->price_per_night);
+                    $discountPercent1 = (int) ($property->discount_percent ?? 0);
+                    $hasDeal = $discountPercent1 > 0 && $discountPercent1 < 95;
+                    $origPrice1 = $hasDeal ? round($roomPrice / (1 - ($discountPercent1 / 100))) : $roomPrice;
+                    $voucher1 = 0;
                     $finalPrice1 = $roomPrice;
 
-                    $discountPercent2 = max(10, $discountPercent1 - 1);
-                    $finalPrice2 = round($roomPrice * 1.05);
-                    $origPrice2 = round($finalPrice2 / (1 - ($discountPercent2 / 100)));
-                    $voucher2 = $voucher1;
+                    $discountPercent2 = $discountPercent1;
+                    $finalPrice2 = $roomPrice;
+                    $origPrice2 = $origPrice1;
+                    $voucher2 = 0;
 
                     $minPropertyPrice = $property->rooms->min('price_per_night');
                     $isLowestInProperty = ($roomPrice <= $minPropertyPrice);
@@ -2679,15 +2655,7 @@
                     // Agoda Dynamic Rate Plans / Offer Display (1 Full-Height Offer vs 2 Stacked Offers)
                     // If room specifies offers_count in data, respect it.
                     // Otherwise, provide 2 offers on lead/popular rooms (e.g. index 0, 2) and 1 full-height offer on others, exactly like Agoda!
-                    $hasSecondOffer = true;
-                    if (request()->has('offers')) {
-                        $hasSecondOffer = (request('offers') == '2');
-                    } elseif (isset($room->offers_count) && $room->offers_count !== null) {
-                        $hasSecondOffer = ((int) $room->offers_count >= 2);
-                    } else {
-                        // Alternate between 2 stacked offers and 1 full-height offer (Agoda standard)
-                        $hasSecondOffer = ($rIdx % 2 === 0);
-                    }
+                    $hasSecondOffer = false;
                 @endphp
                 @if($availableRoomsLeft <= 0 || $room->status === 'sold_out' || $room->status === 'unavailable')
                     {{-- Agoda 1:1 Exact Carbon-Copy Sold-Out / Unavailable Room Card --}}
@@ -3248,17 +3216,17 @@
                                     @elseif($isLowestInProperty || $rIdx === 0)
                                         <div
                                             style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
-                                            {{ $discountPercent1 }}% off today! Lowest price available!
+                                            {{ $hasDeal ? $discountPercent1 . '% off today! ' : '' }}Lowest price available!
                                         </div>
                                     @elseif($rIdx === 1)
                                         <div
                                             style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
-                                            Special Member Deal! Save {{ $discountPercent1 }}%
+                                            {{ $hasDeal ? 'Save ' . $discountPercent1 . '% today' : 'Popular choice' }}
                                         </div>
                                     @elseif($rIdx === 2)
                                         <div
                                             style="background: #c52924; color: #ffffff; font-size: 11.5px; font-weight: 700; padding: 5px 16px; width: 100% !important; display: block; line-height: 1.35; letter-spacing: 0.2px; box-sizing: border-box;">
-                                            Prime Exclusive Deal! Save {{ max(10, $discountPercent1 - 2) }}%
+                                            {{ $hasDeal ? 'Prime deal: save ' . $discountPercent1 . '%' : 'Great value' }}
                                         </div>
                                     @elseif($rIdx === 3)
                                         <div
@@ -3407,6 +3375,7 @@
                                         <div class="col-md-4 agoda-room-subcol-price text-end d-flex flex-column justify-content-start"
                                             style="border-right: 1px solid #d2d9e3; padding: {{ $hasSecondOffer ? '14px 18px' : '16px 20px' }} !important;">
                                             @if($isLowestInProperty || $rIdx === 0)
+                                                @if($hasDeal)
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5"
                                                     style="font-size: 12.5px; color: #737373;">
                                                     <span
@@ -3417,11 +3386,7 @@
                                                     <span
                                                         style="color: #ba2a26; font-weight: 700; margin-left: 2px;">-{{ $discountPercent1 }}%</span>
                                                 </div>
-                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto"
-                                                    style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
-                                                    <x-agoda-icon name="cash" size="12" color="#007a50" />
-                                                    {{ \App\Services\CurrencyService::format($voucher1) }} applied
-                                                </div>
+                                                @endif
                                                 <div class="fw-bold"
                                                     style="color: #ba2a26; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
                                                     <span
@@ -3429,18 +3394,13 @@
                                                         class="agoda-final-price-num">{{ number_format(\App\Services\CurrencyService::convert($finalPrice1)) }}</span>
                                                 </div>
                                             @else
+                                                @if($hasDeal)
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5"
                                                     style="font-size: 12.5px; color: #737373;">
                                                     <span
                                                         style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice1) }}</span>
                                                 </div>
-                                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Price after
-                                                    Cashback</div>
-                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto"
-                                                    style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
-                                                    <x-agoda-icon name="cash" size="12" color="#007a50" />
-                                                    {{ \App\Services\CurrencyService::format($voucher1) }} applied
-                                                </div>
+                                                @endif
                                                 <div class="fw-bold"
                                                     style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
                                                     <span
@@ -3508,7 +3468,7 @@
                                                     <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular' }} fa-heart fs-6"
                                                         style="color: {{ $isWishlisted ? '#dc2626' : '#475569' }};"></i>
                                                 </button>
-                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}"
+                                                <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id }}&check_in={{ $checkIn }}&check_out={{ $checkOut }}&guests={{ (int) $guests }}&rooms={{ max(1, (int) request('rooms', 1)) }}"
                                                     class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn"
                                                     style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
                                                     <span style="font-size: 15px; font-weight: 700;">Book</span>
@@ -3523,7 +3483,7 @@
                                                 <div
                                                     style="font-size: 11.5px; color: #ba2a26; font-weight: 700; text-align: center; margin-top: 2px;">
                                                     Our last room!</div>
-                                            @elseif(!$hasSecondOffer && ($room->free_cancellation ?? true))
+                                            @elseif(!$hasSecondOffer && $room->free_cancellation)
                                                 <div
                                                     style="font-size: 12.5px; color: #00805a; font-weight: 700; text-align: center; margin-top: 2px;">
                                                     + Free Cancellation</div>
@@ -3641,18 +3601,13 @@
                                             {{-- Sub-col 2: Pricing Breakdown --}}
                                             <div class="col-md-4 agoda-room-subcol-price text-end d-flex flex-column justify-content-start"
                                                 style="border-right: 1px solid #d2d9e3; padding: 14px 18px !important;">
+                                                @if($hasDeal)
                                                 <div class="d-flex align-items-center justify-content-end gap-1 mb-0.5"
                                                     style="font-size: 12.5px; color: #737373;">
                                                     <span
                                                         style="text-decoration: line-through;">{{ \App\Services\CurrencyService::format($origPrice2) }}</span>
                                                 </div>
-                                                <div style="font-size: 12px; color: #64748b; margin-bottom: 2px;">Price after
-                                                    Cashback</div>
-                                                <div class="d-inline-flex align-items-center gap-1 px-2 py-0.5 rounded mb-2 ms-auto"
-                                                    style="background: #e6f7ec; border: 1px solid #b7ebc6; color: #007a50; font-size: 11.5px; font-weight: 700; width: fit-content;">
-                                                    <x-agoda-icon name="cash" size="12" color="#007a50" />
-                                                    {{ \App\Services\CurrencyService::format($voucher2) }} applied
-                                                </div>
+                                                @endif
                                                 <div class="fw-bold"
                                                     style="color: #222222; font-size: 26px; line-height: 1; letter-spacing: -0.5px;">
                                                     <span
@@ -3719,7 +3674,7 @@
                                                         <i class="{{ $isWishlisted ? 'fa-solid text-danger' : 'fa-regular' }} fa-heart fs-6"
                                                             style="color: {{ $isWishlisted ? '#dc2626' : '#475569' }};"></i>
                                                     </button>
-                                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id ?? 101 }}&check_in={{ request('check_in', request('checkin', $checkinCarbon->format('Y-m-d'))) }}&check_out={{ request('check_out', request('checkout', $checkoutCarbon->format('Y-m-d'))) }}&guests={{ request('guests', 2) }}"
+                                                    <a href="{{ route('booking.form', $property->id) }}?room_id={{ $room->id }}&check_in={{ $checkIn }}&check_out={{ $checkOut }}&guests={{ (int) $guests }}&rooms={{ max(1, (int) request('rooms', 1)) }}"
                                                         class="btn flex-grow-1 text-white d-flex flex-column align-items-center justify-content-center agoda-book-btn"
                                                         style="background: #1765c7; border-radius: 20px; height: 42px; text-decoration: none; padding: 2px 10px; line-height: 1.15;">
                                                         <span style="font-size: 15px; font-weight: 700;">Book</span>
@@ -4499,12 +4454,12 @@
                     <div class="position-relative d-inline-block">
                         <div class="d-flex align-items-center justify-content-center text-white fw-bold shadow-xs"
                             style="width: 82px; height: 62px; background-color: #2067e1; border-radius: 18px 18px 18px 0 !important; font-size: 32px; font-weight: 800; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                            {{ round((float) $score) ?: 10 }}
+                            {{ $hasReviews ? round($scoreNum) : '–' }}
                         </div>
                     </div>
                     <div class="mt-2">
                         <strong class="d-block text-dark" style="font-size: 15px; font-weight: 800;">
-                            {{ $scoreNum >= 9 ? 'Exceptional' : ($scoreNum >= 8 ? 'Excellent' : 'Very Good') }}
+                            {{ $scoreLabel }}
                         </strong>
                         <span class="d-flex align-items-center gap-1 mt-0.5"
                             style="font-size: 12.5px; color: #2067e1; font-weight: 600;">
@@ -4621,13 +4576,13 @@
                         style="border: 1.5px solid #2067e1; border-radius: 8px !important; min-height: 48px; font-size: 13.5px; color: #1e293b; padding-left: 14px; cursor: pointer;">
                         <option value="all" selected>All guests ({{ $revCount }})</option>
                         <option value="couples">Couples
-                            ({{ number_format(max(1, (int) round($totalReviewsInt * 0.6))) }})</option>
+                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.6))) }})</option>
                         <option value="solo">Solo travelers
-                            ({{ number_format(max(1, (int) round($totalReviewsInt * 0.2))) }})</option>
+                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.2))) }})</option>
                         <option value="family">Families
-                            ({{ number_format(max(1, (int) round($totalReviewsInt * 0.2))) }})</option>
+                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.2))) }})</option>
                         <option value="business">Business travelers
-                            ({{ number_format(max(1, (int) round($totalReviewsInt * 0.1))) }})</option>
+                            ({{ number_format(max(0, (int) round($totalReviewsInt * 0.1))) }})</option>
                     </select>
                 </div>
             </div>
@@ -4850,7 +4805,7 @@
                                 </span>
                                 <span class="text-muted">|</span>
                                 <span
-                                    class="text-secondary fw-semibold">{{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }}
+                                    class="text-secondary fw-semibold">{{ $scoreLabel }}
                                     {{ number_format((float) ($property->sub_scores['location'] ?? $scoreNum), 1) }}</span>
                             </div>
                         </div>
@@ -4972,7 +4927,7 @@
                                 <strong class="d-block text-dark text-truncate"
                                     style="font-size: 12px; max-width: 180px;">{{ $property->name }}</strong>
                                 <small class="text-primary fw-bold" style="font-size: 11px;">|
-                                    {{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }}
+                                    {{ $scoreLabel }}
                                     {{ number_format((float) ($property->rating_score ?? 8.9), 1) }}</small>
                             </div>
                         </div>
@@ -6523,7 +6478,7 @@
                                 @for($i = 0; $i < max(1, min(5, (int) ($property->star_rating ?? 3))); $i++)★@endfor
                             </div>
                             <span class="badge bg-success" style="font-size: 10px;">{{ $score }}
-                                {{ $scoreNum >= 9 ? 'Exceptional' : 'Excellent' }}</span>
+                                {{ $scoreLabel }}</span>
                         </div>
                     </div>
                     <div class="mt-2.5 pt-2 border-top text-secondary small" style="font-size: 11.5px;">
@@ -7730,4 +7685,4 @@
     </div>
 </div>
 
-@endsectioneta
+@endsection

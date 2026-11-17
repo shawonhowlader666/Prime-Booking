@@ -33,5 +33,5 @@ Route::prefix('accounts')->group(function () {
     });
 
     // ── Public Rate-Limited Checkout Estimator ─────────────────────────────
-    Route::post('/rewards/estimate',          [AccountingApiController::class, 'estimateRewards'])->middleware('throttle:30,1')->name('api.v1.accounts.rewards.estimate');
+    Route::post('/rewards/estimate',          [AccountingApiController::class, 'estimateRewards'])->middleware('throttle:30,1,api-rewards-estimate')->name('api.v1.accounts.rewards.estimate');
 });

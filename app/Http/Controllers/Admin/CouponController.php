@@ -10,14 +10,7 @@ class CouponController extends Controller
 {
     public function index()
     {
-        try {
-            $coupons = Coupon::latest()->paginate(20);
-            if ($coupons->isEmpty()) {
-                $coupons = $this->getMockCoupons();
-            }
-        } catch (\Throwable $e) {
-            $coupons = $this->getMockCoupons();
-        }
+        $coupons = Coupon::latest()->paginate(20);
 
         return view('admin.coupons.index', compact('coupons'));
     }

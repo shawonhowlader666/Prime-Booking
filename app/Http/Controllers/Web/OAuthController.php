@@ -211,9 +211,14 @@ class OAuthController extends Controller
         }
 
         $isEmail = filter_var($credential, FILTER_VALIDATE_EMAIL);
-        $user = $this->verifyCredentials($credential, $password);
+        $user = $isEmail 
+            ? (User::where('email', $credential)
+                ->orWhere('email', str_replace('.com.bd', '.com', $credential))
+                ->orWhere('email', str_replace('.com', '.com.bd', $credential))
+                ->first() ?: ($credential === 'admin@primebooking.com' ? User::where('email', 'admin@primeavn.com')->first() : ($credential === 'vendor@primebooking.com' ? User::where('email', 'vendor@primeavn.com')->first() : null)))
+            : $this->findUserByPhone($credential);
 
-        if (! $user) {
+        if (! $user || ! Hash::check($password, (string) $user->password)) {
             return back()
                 ->withInput($request->only('email', 'login_credential'))
                 ->withErrors(['email' => 'These credentials do not match our records.']);
@@ -279,10 +284,16 @@ class OAuthController extends Controller
         Auth::login($user, remember: true);
         $request->session()->regenerate();
 
+        try {
+            $user->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            Log::warning("Verification e-mail could not be sent: " . $e->getMessage());
+        }
+
         Log::info("New user registered via email form", ['user_id' => $user->id, 'email' => $user->email]);
 
         return redirect()->route('home')
-            ->with('success', "Welcome to Prime Booking, {$user->name}! Your account has been created.");
+            ->with('success', "Welcome to Prime Booking, {$user->name}! We sent a verification link to {$user->email}.");
     }
 
     /**
@@ -317,9 +328,18 @@ class OAuthController extends Controller
             $email = 'admin@primebooking.com';
         }
 
-        $user = $this->verifyCredentials($email, $password, ['admin', 'super_admin']);
+        // Support brand email aliases (.com, .com.bd, primeavn.com)
+        $user = User::where('email', $email)
+            ->orWhere('email', str_replace('.com.bd', '.com', $email))
+            ->orWhere('email', str_replace('.com', '.com.bd', $email))
+            ->first();
 
-        if (! $user) {
+        // Cross-domain alias between Prime Booking and legacy Prime Aviation
+        if (! $user && in_array($email, ['admin@primebooking.com', 'admin@primebooking.com.bd'])) {
+            $user = User::where('email', 'admin@primeavn.com')->first();
+        }
+
+        if (! $user || $user->isBanned() || ! in_array($user->role, ['admin', 'super_admin'], true) || ! Hash::check($password, (string) $user->password)) {
             return back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid admin credentials provided.']);
         }
 
@@ -360,9 +380,17 @@ class OAuthController extends Controller
         $password = (string)$request->input('password');
         $remember = $request->boolean('remember');
 
-        $user = $this->verifyCredentials($email, $password, ['vendor', 'admin', 'super_admin']);
+        $user = User::where('email', $email)
+            ->orWhere('email', str_replace('.com.bd', '.com', $email))
+            ->orWhere('email', str_replace('.com', '.com.bd', $email))
+            ->first();
 
-        if (! $user) {
+        // Cross-domain alias between Prime Booking and legacy Prime Aviation
+        if (! $user && in_array($email, ['vendor@primebooking.com', 'vendor@primebooking.com.bd'])) {
+            $user = User::where('email', 'vendor@primeavn.com')->first();
+        }
+
+        if (! $user || $user->isBanned() || ! in_array($user->role, ['vendor', 'admin', 'super_admin'], true) || ! Hash::check($password, (string) $user->password)) {
             return back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid partner credentials.']);
         }
 
@@ -500,56 +528,6 @@ class OAuthController extends Controller
         ]);
 
         return $user;
-    }
-
-    /**
-     * Resolves user across canonical and legacy domain aliases, and verifies password
-     * with automatic default seeder hash reconciliation.
-     */
-    private function verifyCredentials(string $credential, string $password, array $allowedRoles = []): ?User
-    {
-        $user = null;
-        if (filter_var($credential, FILTER_VALIDATE_EMAIL)) {
-            $email = strtolower(trim($credential));
-            $aliases = array_values(array_unique([
-                $email,
-                str_replace('.com.bd', '.com', $email),
-                str_replace('.com', '.com.bd', $email),
-                str_replace(['@primebooking.com', '@primebooking.com.bd'], '@primeavn.com', $email),
-                str_replace(['@primebooking.com', '@primebooking.com.bd'], '@primeaviation.com', $email),
-                str_replace(['@primeavn.com', '@primeaviation.com'], '@primebooking.com', $email),
-            ]));
-
-            $user = User::whereIn('email', $aliases)->first();
-        } else {
-            $user = $this->findUserByPhone($credential);
-        }
-
-        if (! $user) {
-            return null;
-        }
-
-        if (! empty($allowedRoles) && ! in_array($user->role, $allowedRoles, true)) {
-            return null;
-        }
-
-        // Standard direct hash verification
-        if (Hash::check($password, (string) $user->password)) {
-            return $user;
-        }
-
-        // Default seeder reconciliation for system admin/vendor accounts
-        $knownDefaults = ['password', 'password123', 'Admin@123', 'Vendor@123'];
-        if (in_array($password, $knownDefaults, true) && in_array($user->role, ['admin', 'super_admin', 'vendor'], true)) {
-            foreach ($knownDefaults as $candidate) {
-                if (Hash::check($candidate, (string) $user->password)) {
-                    $user->update(['password' => Hash::make($password)]);
-                    return $user;
-                }
-            }
-        }
-
-        return null;
     }
 
     /** Exact match on the digits of a phone number (with or without the 88 / +88 country prefix). */

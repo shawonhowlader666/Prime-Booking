@@ -29,7 +29,7 @@ class CoxsBazarHotelsSeeder extends Seeder
             ['email' => 'vendor@primeavn.com'],
             [
                 'name' => 'Royal Tulip Hotel Manager',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'password' => \Illuminate\Support\Facades\Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role' => 'vendor',
                 'phone' => '01785880033',
                 'status' => 'active',

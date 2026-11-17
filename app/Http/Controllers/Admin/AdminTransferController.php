@@ -13,37 +13,6 @@ class AdminTransferController extends Controller
     {
         $company = config('company');
 
-        // Seed default routes if empty
-        if (AirportTransfer::count() === 0) {
-            AirportTransfer::create([
-                'pickup_location'  => 'Hazrat Shahjalal Int\'l Airport (DAC)',
-                'dropoff_location' => 'Gulshan-2 / Banani, Dhaka',
-                'vehicle_type'     => 'Sedan (Toyota Allion / Premio)',
-                'price'            => 2500.00,
-                'capacity'         => 4,
-                'luggage_capacity' => 2,
-                'is_active'        => true,
-            ]);
-            AirportTransfer::create([
-                'pickup_location'  => 'Hazrat Shahjalal Int\'l Airport (DAC)',
-                'dropoff_location' => 'Radisson Blu / Uttara, Dhaka',
-                'vehicle_type'     => 'Microbus (Toyota HiAce)',
-                'price'            => 4500.00,
-                'capacity'         => 8,
-                'luggage_capacity' => 6,
-                'is_active'        => true,
-            ]);
-            AirportTransfer::create([
-                'pickup_location'  => 'Cox\'s Bazar Airport (CXB)',
-                'dropoff_location' => 'Inani Beach Resorts, Cox\'s Bazar',
-                'vehicle_type'     => 'SUV (Toyota Prado)',
-                'price'            => 3800.00,
-                'capacity'         => 5,
-                'luggage_capacity' => 4,
-                'is_active'        => true,
-            ]);
-        }
-
         $transfers = AirportTransfer::latest()->paginate(15);
         $bookings  = TransferBooking::with('transfer')->latest()->take(10)->get();
 

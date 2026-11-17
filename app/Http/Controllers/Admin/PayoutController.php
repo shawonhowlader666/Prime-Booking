@@ -12,41 +12,6 @@ class PayoutController extends Controller
 {
     public function index(Request $request)
     {
-        // Seed default sample payouts if DB table is empty
-        if (Payout::count() === 0) {
-            $vendor = User::where('role', 'vendor')->first();
-            Payout::create([
-                'vendor_id'        => $vendor?->id,
-                'vendor_name'      => 'Ocean Paradise Resort & Spa',
-                'amount'           => 145000.00,
-                'payment_method'   => 'bKash Merchant',
-                'account_details'  => '01770887733',
-                'reference_number' => 'TRX-BK-998822',
-                'status'           => 'paid',
-                'notes'            => 'Monthly hotel settlement payout via bKash',
-            ]);
-            Payout::create([
-                'vendor_id'        => $vendor?->id,
-                'vendor_name'      => 'Sundarban Cruise Line Ltd',
-                'amount'           => 120000.00,
-                'payment_method'   => 'Dutch Bangla Bank (DBBL)',
-                'account_details'  => 'A/C: 124.110.45892 (Gulshan Branch)',
-                'reference_number' => '',
-                'status'           => 'pending',
-                'notes'            => 'Cruise ship booking payout request',
-            ]);
-            Payout::create([
-                'vendor_id'        => $vendor?->id,
-                'vendor_name'      => 'Sajek Eco Cottages Group',
-                'amount'           => 65000.00,
-                'payment_method'   => 'Nagad Personal',
-                'account_details'  => '01819887766',
-                'reference_number' => 'NG-TX-445511',
-                'status'           => 'paid',
-                'notes'            => 'Weekly eco-resort settlement payout',
-            ]);
-        }
-
         $query = Payout::with('vendor')->latest();
 
         if ($request->filled('status') && $request->status !== 'all') {
@@ -69,12 +34,13 @@ class PayoutController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'vendor_id'        => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('users', 'id')->where('role', 'vendor')],
             'vendor_name'      => 'required|string|max:255',
-            'amount'           => 'required|numeric|min:1',
+            'amount'           => 'required|numeric|min:1|max:99999999',
             'payment_method'   => 'required|string|max:100',
             'account_details'  => 'required|string|max:255',
             'reference_number' => 'nullable|string|max:100',
-            'notes'            => 'nullable|string',
+            'notes'            => 'nullable|string|max:2000',
         ]);
 
         Payout::create($validated + ['status' => 'pending']);
@@ -100,6 +66,15 @@ class PayoutController extends Controller
         $payout = Payout::findOrFail($id);
         $oldStatus = $payout->status;
 
+        // A payout is settled exactly once. Re-opening a paid or rejected payout would let the
+        // same money be recorded in the ledger twice.
+        if ($oldStatus !== 'pending') {
+            return back()->with('error', "Payout #{$payout->id} is already " . strtoupper((string) $oldStatus) . ' and cannot be changed.');
+        }
+        if ($request->status === 'pending') {
+            return back();
+        }
+
         $updateData = [
             'status'           => $request->status,
             'reference_number' => $request->reference_number ?? $payout->reference_number,
@@ -112,6 +87,11 @@ class PayoutController extends Controller
         }
 
         DB::transaction(function () use ($payout, $updateData, $request, $oldStatus) {
+            // Re-read under a lock so two admins clicking "paid" together settle it once.
+            $locked = Payout::whereKey($payout->id)->lockForUpdate()->first();
+            if (!$locked || $locked->status !== 'pending') {
+                return;
+            }
             $payout->update($updateData);
 
             // Auto-record payout debit transaction in general ledger

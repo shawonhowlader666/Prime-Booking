@@ -260,6 +260,12 @@ class PropertyManagementController extends Controller
     {
         $property = Property::findOrFail($id);
 
+        $request->validate(['commission_rate' => 'nullable|numeric|min:0|max:100']);
+
+        if (!\App\Models\Room::where('property_id', $property->id)->where('status', 'active')->where('price_per_night', '>', 0)->exists()) {
+            return back()->with('error', '"' . $property->name . '" has no bookable room type yet. Add at least one active room with a price before publishing.');
+        }
+
         DB::transaction(function () use ($property, $request) {
             $data = [
                 'status'           => 'active',

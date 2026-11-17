@@ -218,7 +218,21 @@ class BookingController extends Controller
     public function destroy($id)
     {
         $booking = Booking::findOrFail($id);
-        $booking->delete();
+
+        // Money records must stay traceable. A booking that was paid, has ledger entries or is
+        // still active is cancelled, not deleted.
+        $hasMoney = in_array($booking->payment_status, ['paid', 'refunded', 'refund_pending'], true)
+            || \App\Models\AccountingLedger::where('booking_id', $booking->id)->exists()
+            || \App\Models\PaymentTransaction::where('booking_id', $booking->id)->where('status', 'verified')->exists();
+
+        if ($hasMoney || in_array($booking->status, ['pending', 'confirmed'], true)) {
+            return back()->with('error', "Booking #{$booking->booking_reference} has payment records or is still active. Cancel it instead of deleting it.");
+        }
+
+        \Illuminate\Support\Facades\DB::transaction(function () use ($booking) {
+            \App\Models\BookingAddon::where('booking_id', $booking->id)->delete();
+            $booking->delete();
+        });
         return redirect()->route('admin.bookings.index')->with('success', 'Booking record deleted permanently.');
     }
 }

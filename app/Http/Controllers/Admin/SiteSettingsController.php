@@ -28,14 +28,20 @@ class SiteSettingsController extends Controller
     /** Update all settings at once (grouped form submit) */
     public function update(Request $request)
     {
-        $settings = $request->input('settings', []);
+        $request->validate([
+            'settings'   => 'nullable|array|max:500',
+            'settings.*' => 'nullable',
+        ]);
+
+        $settings = (array) $request->input('settings', []);
 
         foreach ($settings as $key => $value) {
-            SiteSetting::set($key, $value ?? '');
+            if (!is_string($key) || !preg_match('/^[A-Za-z0-9_.\-]{1,100}$/', $key)) {
+                continue;
+            }
+            // SiteSetting::set() also drops that key's cache entry.
+            SiteSetting::set($key, is_array($value) ? $value : (string) ($value ?? ''));
         }
-
-        // Clear all cached settings
-        Cache::flush(); // or selectively delete setting keys
 
         try {
             ActivityLog::create([
@@ -56,8 +62,8 @@ class SiteSettingsController extends Controller
     public function updateSingle(Request $request)
     {
         $request->validate([
-            'key'   => 'required|string',
-            'value' => 'nullable|string',
+            'key'   => ['required', 'string', 'max:100', 'regex:/^[A-Za-z0-9_.\-]+$/'],
+            'value' => 'nullable|string|max:60000',
         ]);
 
         SiteSetting::set($request->key, $request->value ?? '');

@@ -12,41 +12,7 @@ class TenantManagementController extends Controller
     {
         $company = config('company');
 
-        // Seed default sample tenants if DB table is empty
-        if (Tenant::count() === 0) {
-            Tenant::create([
-                'name' => 'Royal Tulip Resort Group',
-                'owner_name' => 'Kazi Tanvir',
-                'email' => 'vendor@royaltulip.com',
-                'phone' => '01711223344',
-                'saas_plan' => 'Enterprise',
-                'commission_rate' => 5.00,
-                'status' => 'active',
-                'notes' => '5-star luxury resort partner in Cox\'s Bazar',
-            ]);
-            Tenant::create([
-                'name' => 'Sundarban Cruise Line Ltd',
-                'owner_name' => 'Captain Rafiq',
-                'email' => 'vendor@sundarbancruise.com',
-                'phone' => '01819887766',
-                'saas_plan' => 'Pro Partner',
-                'commission_rate' => 8.00,
-                'status' => 'active',
-                'notes' => 'Premium ship cruise operator in Khulna & Mongla',
-            ]);
-            Tenant::create([
-                'name' => 'Sajek Eco Cottages Association',
-                'owner_name' => 'Chakma Travel',
-                'email' => 'vendor@sajekeco.com',
-                'phone' => '01912334455',
-                'saas_plan' => 'Starter',
-                'commission_rate' => 12.00,
-                'status' => 'active',
-                'notes' => 'Eco-resorts and mountain cottages group in Rangamati',
-            ]);
-        }
-
-        $tenants = Tenant::withCount(['properties', 'rooms'])->latest()->paginate(15);
+        $tenants = Tenant::with('user:id,email,name')->withCount(['properties', 'rooms'])->latest()->paginate(15);
 
         return view('admin.tenants.index', compact('company', 'tenants'));
     }

@@ -45,6 +45,21 @@ class PaymentGateway extends Model
         return $query->where('is_active', true);
     }
 
+    /**
+     * Seeders and older defaults stored sample strings in the credential columns.
+     * Those are not real keys; treat them as empty.
+     */
+    public static function realCredential(mixed $value): string
+    {
+        $value = trim((string) $value);
+
+        if ($value === '' || preg_match('/sandbox_|_sandbox|sample|_test$|test_|_prime$|store_passwd|store_id|store_pass|MERCHANT_0|^0177\d{7}$|^CASH_DESK$/i', $value)) {
+            return '';
+        }
+
+        return $value;
+    }
+
     /** Helper: is this gateway in live (production) mode? */
     public function isLive(): bool
     {

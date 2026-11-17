@@ -175,11 +175,17 @@ class BookingLifecycleService
         }
 
         if ($done) {
-            try {
-                app(NotificationService::class)->sendBookingCancellation($booking->fresh(['property']));
-            } catch (\Throwable $e) {
-                Log::warning("Cancellation notification failed for {$booking->booking_reference}: " . $e->getMessage());
-            }
+            $bookingId = $booking->id;
+            \Illuminate\Support\defer(function () use ($bookingId) {
+                try {
+                    $fresh = Booking::with('property')->find($bookingId);
+                    if ($fresh) {
+                        app(NotificationService::class)->sendBookingCancellation($fresh);
+                    }
+                } catch (\Throwable $e) {
+                    Log::warning("Cancellation notification failed for booking {$bookingId}: " . $e->getMessage());
+                }
+            });
         }
 
         return $done;
@@ -300,11 +306,18 @@ class BookingLifecycleService
             Log::warning("Confirmation e-mail failed for {$booking->booking_reference}: " . $e->getMessage());
         }
 
-        try {
-            app(NotificationService::class)->sendBookingConfirmation($booking);
-        } catch (\Throwable $e) {
-            Log::warning("Confirmation SMS failed for {$booking->booking_reference}: " . $e->getMessage());
-        }
+        // SMS gateways can take seconds to answer. Send after the response has gone to the guest.
+        $bookingId = $booking->id;
+        \Illuminate\Support\defer(function () use ($bookingId) {
+            try {
+                $fresh = Booking::with(['property', 'room'])->find($bookingId);
+                if ($fresh) {
+                    app(NotificationService::class)->sendBookingConfirmation($fresh);
+                }
+            } catch (\Throwable $e) {
+                Log::warning("Confirmation SMS failed for booking {$bookingId}: " . $e->getMessage());
+            }
+        });
     }
 
     private function recordTransaction(Booking $booking, string $gateway, ?string $txnId, float $amount, string $status, array $raw): void

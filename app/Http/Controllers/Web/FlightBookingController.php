@@ -47,7 +47,7 @@ class FlightBookingController extends Controller
                 'duration' => '1h 05m',
                 'price' => 4800,
                 'baggage' => '20 kg Check-in + 7 kg Cabin',
-                'seats_left' => 4,
+                'seats_left' => null,
             ],
             [
                 'id' => 'FL-8802',
@@ -58,7 +58,7 @@ class FlightBookingController extends Controller
                 'duration' => '1h 05m',
                 'price' => 5200,
                 'baggage' => '20 kg Check-in + 7 kg Cabin',
-                'seats_left' => 7,
+                'seats_left' => null,
             ],
             [
                 'id' => 'FL-8803',
@@ -69,7 +69,7 @@ class FlightBookingController extends Controller
                 'duration' => '1h 05m',
                 'price' => 4600,
                 'baggage' => '20 kg Check-in + 7 kg Cabin',
-                'seats_left' => 2,
+                'seats_left' => null,
             ],
             [
                 'id' => 'FL-8804',
@@ -80,7 +80,7 @@ class FlightBookingController extends Controller
                 'duration' => '1h 05m',
                 'price' => 5500,
                 'baggage' => '25 kg Check-in + 7 kg Cabin',
-                'seats_left' => 9,
+                'seats_left' => null,
             ],
         ];
 
@@ -90,52 +90,52 @@ class FlightBookingController extends Controller
     public function book(Request $request)
     {
         $validated = $request->validate([
-            'flight_number' => 'required|string',
-            'airline_name'  => 'required|string',
-            'origin'        => 'required|string',
-            'destination'   => 'required|string',
-            'departure_time'=> 'required|string',
-            'flight_date'   => 'required|string',
-            'passenger_name'=> 'required|string|max:100',
-            'passenger_phone'=> 'required|string|max:20',
-            'passenger_email'=> 'required|email',
-            'amount'        => 'required|numeric',
+            'flight_number'  => 'required|string|max:20',
+            'airline_name'   => 'required|string|max:100',
+            'origin'         => 'required|string|max:100',
+            'destination'    => 'required|string|max:100',
+            'departure_time' => 'required|string|max:30',
+            'flight_date'    => 'required|date|after_or_equal:today',
+            'passenger_name' => 'required|string|min:2|max:100',
+            'passenger_phone'=> ['required', 'string', 'max:20', 'regex:/^\+?[0-9\s\-()]{7,20}$/'],
+            'passenger_email'=> 'required|email|max:150',
+            'amount'         => 'nullable|numeric|min:0',
         ]);
 
-        $pnr = 'PNR-' . strtoupper(Str::random(6));
-        $ticketData = array_merge($validated, [
-            'pnr' => $pnr,
-            'seat' => rand(1, 28) . array_rand(['A' => 1, 'B' => 1, 'C' => 1, 'D' => 1]),
-            'status' => 'ISSUED & CONFIRMED',
+        $reference = 'FLT-' . strtoupper(Str::random(8));
+
+        // We are not an airline GDS: the request goes to the ticketing desk, who confirm
+        // the real fare and seat with the airline and then issue the ticket.
+        \App\Models\Inquiry::create(array_intersect_key([
+            'user_id'      => auth()->id(),
+            'name'         => trim($validated['passenger_name']),
+            'phone'        => trim($validated['passenger_phone']),
+            'email'        => strtolower(trim($validated['passenger_email'])),
+            'subject'      => "Flight ticket request {$reference}",
+            'service_type' => 'Flight Ticket Request',
+            'destination'  => $validated['destination'],
+            'travel_date'  => $validated['flight_date'],
+            'passengers'   => 1,
+            'message'      => "Flight request {$reference}: {$validated['airline_name']} {$validated['flight_number']}, {$validated['origin']} to {$validated['destination']} on {$validated['flight_date']} at {$validated['departure_time']}.",
+            'status'       => 'pending',
+        ], array_flip(\Illuminate\Support\Facades\Schema::getColumnListing('inquiries'))));
+
+        session()->put("ticket_{$reference}", array_merge($validated, [
+            'pnr'       => $reference,
+            'seat'      => 'Assigned at ticketing',
+            'status'    => 'REQUEST RECEIVED - NOT A TICKET',
             'issued_at' => now()->format('Y-m-d H:i:s'),
-        ]);
+            'amount'    => (float) ($validated['amount'] ?? 0),
+        ]));
 
-        session()->put("ticket_{$pnr}", $ticketData);
-
-        return redirect()->route('flights.voucher', $pnr)->with('success', 'Flight ticket issued successfully!');
+        return redirect()->route('flights.voucher', $reference)
+            ->with('success', 'Your flight request has been received. Our ticketing team will call you to confirm the fare and issue your ticket.');
     }
 
     public function voucher(string $pnr)
     {
         $ticket = session("ticket_{$pnr}");
-        if (!$ticket) {
-            $ticket = [
-                'pnr' => $pnr,
-                'flight_number' => 'BS-141',
-                'airline_name' => 'US-Bangla Airlines',
-                'origin' => 'Dhaka (DAC)',
-                'destination' => "Cox's Bazar (CXB)",
-                'departure_time' => '07:30 AM',
-                'flight_date' => now()->addDays(2)->format('Y-m-d'),
-                'passenger_name' => auth()->user()->name ?? 'Guest Passenger',
-                'passenger_phone' => '+880 1700-000000',
-                'passenger_email' => auth()->user()->email ?? 'passenger@primeavn.com',
-                'amount' => 4800,
-                'seat' => '12A',
-                'status' => 'ISSUED & CONFIRMED',
-                'issued_at' => now()->format('Y-m-d H:i:s'),
-            ];
-        }
+        abort_if(!$ticket, 404);
 
         return view('pages.flight-voucher', compact('ticket'));
     }

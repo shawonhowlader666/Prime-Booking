@@ -18,7 +18,7 @@ class SettingsController extends Controller
             'site_name'                 => SiteSetting::get('site_name', 'PRIME BOOKING'),
             'site_tagline'              => SiteSetting::get('site_tagline', "Bangladesh's #1 Hotel & Flight Platform"),
             'primary_color'             => SiteSetting::get('primary_color', '#1890ff'),
-            'site_logo'                 => SiteSetting::get('site_logo', asset('assets/img/logo.png')),
+            'site_logo'                 => SiteSetting::get('site_logo', asset('images/logo.png')),
             'site_favicon'              => SiteSetting::get('site_favicon', asset('favicon.ico')),
             'default_currency'          => SiteSetting::get('currency', 'BDT'),
             'default_language'          => SiteSetting::get('default_language', 'en'),
@@ -131,8 +131,8 @@ class SettingsController extends Controller
 
         $request->validate([
             'avatar'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
-            'site_logo_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:5120',
-            'site_favicon_file' => 'nullable|file|mimes:ico,png,svg|max:2048',
+            'site_logo_file'    => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'site_favicon_file' => 'nullable|file|mimes:ico,png|max:2048',
         ]);
 
         // Profile Avatar Upload

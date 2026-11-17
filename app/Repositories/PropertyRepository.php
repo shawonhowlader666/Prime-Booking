@@ -173,7 +173,8 @@ class PropertyRepository
             }
 
             $apiProperties = [];
-            if ($paginator->isEmpty() && !empty($params['destination'])) {
+            // Sample listings are for local demos only. A live site never shows hotels it cannot sell.
+            if (config('services.catalog.demo_listings') && $paginator->isEmpty() && !empty($params['destination'])) {
                 $apiService = new \App\Services\External\HotelSearchApiService();
                 $apiProperties = $apiService->searchLiveHotels((string) $params['destination'], $perPage);
                 $items = $apiProperties;
@@ -511,7 +512,7 @@ class PropertyRepository
             ])
             ->find($id);
 
-        if ($dbProp) {
+        if ($dbProp || !config('services.catalog.demo_listings')) {
             return $dbProp;
         }
 

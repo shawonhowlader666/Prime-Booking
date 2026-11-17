@@ -31,41 +31,22 @@ class PropertyDetailController extends Controller
      */
     public function show(Request $request, int|string $id): View|RedirectResponse
     {
-        // Support both numeric ID and slug
-        if (is_numeric($id)) {
-            $property = $this->repository->findWithRooms((int) $id);
-        } else {
-            $property = $this->repository->findBySlug((string) $id);
+        $property = $this->resolveProperty($id);
+
+        // An unknown hotel is a 404. Showing some other hotel instead misleads guests and search engines.
+        abort_if(! $property, 404);
+
+        // /hotels/{id} and /property/{slug} are aliases: send everything to one canonical URL.
+        if (! is_numeric($id) && $property->slug && $property->slug !== (string) $id) {
+            return redirect()->route('hotel.show', ['slug' => $property->slug] + $request->query(), 301);
         }
 
-        if (! $property) {
-            $property = \App\Models\Property::with('rooms')->first();
+        // Only rooms that are actually on sale.
+        if ($property->relationLoaded('rooms')) {
+            $property->setRelation('rooms', $property->rooms->filter(
+                fn ($room) => ($room->status ?? 'active') === 'active'
+            )->sortBy('price_per_night')->values());
         }
-
-        if (! $property) {
-            $property = new \App\Models\Property([
-                'id' => is_numeric($id) ? (int)$id : 1,
-                'name' => 'Sea Shell Service Apartment',
-                'slug' => 'sea-shell-service-apartment',
-                'city' => 'Dhaka',
-                'address' => 'House#06 Road-21, Sector 4, Uttara, Dhaka, Bangladesh, 1230',
-                'price_per_night' => 14500,
-                'rating_score' => 8.7,
-                'total_reviews' => 6,
-                'star_rating' => 4,
-                'description' => 'Conveniently situated in the Uttara part of Dhaka, this property puts you close to attractions and interesting dining options.',
-                'primary_image' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=1200&q=80',
-                'images' => [
-                    'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=600&q=80',
-                    'https://images.unsplash.com/photo-1540541338287-41700207dee6?auto=format&fit=crop&w=600&q=80',
-                    'https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=600&q=80',
-                    'https://images.unsplash.com/photo-1584132967334-10e028bd69f7?auto=format&fit=crop&w=600&q=80',
-                ],
-                'amenities' => ['Free Wi-Fi', 'Free parking', 'Pets allowed', 'Air conditioning in public area', 'English', 'Internet services'],
-            ]);
-            $property->rooms = collect();
-        }
-
         // Smart Algorithmic Recommendations (Multi-Attribute Jaccard & Proximity)
         $recommendationService = app(\App\Services\RecommendationService::class);
         $related = $recommendationService->getSimilarProperties($property, 4);
@@ -89,19 +70,28 @@ class PropertyDetailController extends Controller
             ->limit(10)
             ->get();
 
-        // Check-in/out from query string (carry over from search)
-        $checkIn  = $request->query('check_in',  now()->format('Y-m-d'));
-        $checkOut = $request->query('check_out', now()->addDays(2)->format('Y-m-d'));
-        $guests   = (int) $request->query('guests', 2);
-
-        // Night count for price calculation
+        // Stay dates carried over from search. Anything unparseable or in the past falls back to sensible defaults.
+        [$checkIn, $checkOut] = $this->stayDates($request->query('check_in'), $request->query('check_out'));
+        $guests = min(40, max(1, (int) $request->query('guests', $request->query('adults', 2))));
         $nights = max(1, (int) \Carbon\Carbon::parse($checkIn)->diffInDays(\Carbon\Carbon::parse($checkOut)));
 
-        // Top-tier Edge & Browser Caching for Hotel Detail (Agoda & Booking.com standard)
-        if (!headers_sent() && !auth()->check()) {
-            header('Cache-Control: public, max-age=300, s-maxage=900, stale-while-revalidate=1800');
+        // Real availability for the selected dates, per room type.
+        $inventory = app(\App\Services\InventoryService::class);
+        $pricing   = app(\App\Services\DynamicPricingService::class);
+        $roomAvailability = [];
+        foreach ($property->rooms as $room) {
+            if ($room->exists) {
+                $check = $inventory->checkAvailability((int) $room->id, $checkIn, $checkOut, 1);
+                $stay  = $pricing->calculateStayPrice($room, $checkIn, $checkOut, 1);
+                $roomAvailability[$room->id] = [
+                    'available'    => (bool) $check['is_available'],
+                    'rooms_left'   => (int) ($check['min_available'] ?? 0),
+                    'nightly_rate' => (float) $stay['avg_nightly_rate'],
+                    'stay_total'   => (float) $stay['final_price'],
+                ];
+            }
         }
-
+        view()->share('roomAvailability', $roomAvailability);
         return view('pages.hotel-detail', compact(
             'property',
             'related',
@@ -112,6 +102,7 @@ class PropertyDetailController extends Controller
             'checkOut',
             'guests',
             'nights',
+            'roomAvailability',
         ));
     }
 
@@ -122,53 +113,110 @@ class PropertyDetailController extends Controller
     public function submitReview(Request $request, int|string $id): RedirectResponse|\Illuminate\Http\JsonResponse
     {
         $validated = $request->validate([
-            'guest_name' => 'nullable|string|max:255',
-            'rating'     => 'required|numeric|min:1|max:10',
-            'comment'    => 'required|string|min:5|max:2000',
+            'rating'  => 'required|integer|min:1|max:5',
+            'comment' => 'required|string|min:5|max:2000',
         ]);
 
-        $propertyId = is_numeric($id) ? (int)$id : 1;
-        $user = auth()->user();
-        $guestName = $user ? $user->name : ($validated['guest_name'] ?? 'Verified Guest');
+        $fail = function (string $message, int $status = 403) use ($request) {
+            return $request->wantsJson() || $request->ajax()
+                ? response()->json(['success' => false, 'message' => $message], $status)
+                : redirect()->back()->with('error', $message);
+        };
 
-        // AI Sentiment Analysis & Auto-flagging
-        $analyzer = app(\App\Services\AI\SentimentAnalyzer::class);
-        $sentimentResult = $analyzer->analyze($validated['comment'], (float)$validated['rating']);
-
-        $status = $sentimentResult['is_flagged'] ? 'flagged' : 'pending';
-
-        $review = Review::create([
-            'property_id'     => $propertyId,
-            'user_id'         => $user?->id,
-            'guest_name'      => e(strip_tags($guestName)),
-            'rating'          => (float) $validated['rating'],
-            'comment'         => e(strip_tags($validated['comment'])),
-            'status'          => $status,
-        ]);
-
-        // Auto-approve clean reviews and update property average rating & count
-        if ($status !== 'flagged') {
-            $review->update(['status' => 'approved']);
-
-            $avgRating = Review::where('property_id', $propertyId)->where('status', 'approved')->avg('rating');
-            $reviewCount = Review::where('property_id', $propertyId)->where('status', 'approved')->count();
-
-            Property::where('id', $propertyId)->update([
-                'rating_score'  => round((float)($avgRating ?: $validated['rating']), 1),
-                'total_reviews' => $reviewCount,
-            ]);
+        $user = $request->user();
+        if (! $user) {
+            return $fail('Please sign in to review a stay.', 401);
         }
+
+        $property = is_numeric($id) ? Property::find((int) $id) : Property::where('slug', (string) $id)->first();
+        if (! $property) {
+            return $fail('Property not found.', 404);
+        }
+
+        // Reviews come only from guests who actually stayed: a confirmed or completed
+        // booking at this property whose check-in date has arrived.
+        $stayed = \App\Models\Booking::where('property_id', $property->id)
+            ->where('user_id', $user->id)
+            ->whereIn('status', ['confirmed', 'completed'])
+            ->where('check_in', '<=', now()->toDateString())
+            ->exists();
+
+        if (! $stayed) {
+            return $fail('Only guests who have stayed at this property can review it.');
+        }
+
+        if (Review::where('property_id', $property->id)->where('user_id', $user->id)->exists()) {
+            return $fail('You have already reviewed this property.', 422);
+        }
+
+        $comment = trim(strip_tags($validated['comment']));
+
+        $sentiment = app(\App\Services\AI\SentimentAnalyzer::class)->analyze($comment, (float) $validated['rating'] * 2);
+        $status    = ! empty($sentiment['is_flagged']) ? 'flagged' : 'approved';
+
+        // Saving the review recalculates the property's score and review count (Review::booted).
+        $review = Review::create([
+            'property_id' => $property->id,
+            'user_id'     => $user->id,
+            'guest_name'  => $user->name,
+            'rating'      => (int) $validated['rating'],
+            'comment'     => $comment,
+            'status'      => $status,
+        ]);
+
+        $message = $status === 'flagged'
+            ? 'Your review has been submitted for moderation.'
+            : 'Thank you! Your verified review has been published.';
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
                 'success'   => true,
-                'message'   => $status === 'flagged' ? 'Your review has been submitted for moderation.' : 'Thank you! Your verified review has been published.',
-                'sentiment' => $sentimentResult['sentiment'],
-                'review'    => $review,
+                'message'   => $message,
+                'sentiment' => $sentiment['sentiment'] ?? null,
+                'review'    => $review->only(['id', 'rating', 'comment', 'status', 'guest_name']),
             ]);
         }
 
-        return redirect()->back()->with('success', $status === 'flagged' ? 'Your review has been submitted for moderation.' : 'Thank you! Your verified review has been published.');
+        return redirect()->back()->with('success', $message);
+    }
+
+    /** Active property by numeric id or slug, with its rooms. */
+    private function resolveProperty(int|string $id): ?Property
+    {
+        return is_numeric($id)
+            ? $this->repository->findWithRooms((int) $id)
+            : $this->repository->findBySlug((string) $id);
+    }
+
+    /** @return array{0:string,1:string} check-in / check-out as Y-m-d */
+    private function stayDates(mixed $in, mixed $out): array
+    {
+        $parse = function (mixed $value): ?\Carbon\Carbon {
+            if (! is_string($value) || ! preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
+                return null;
+            }
+            try {
+                return \Carbon\Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
+            } catch (\Throwable $e) {
+                return null;
+            }
+        };
+
+        $checkIn  = $parse($in);
+        $checkOut = $parse($out);
+        $today    = now()->startOfDay();
+
+        if (! $checkIn || $checkIn->lt($today)) {
+            $checkIn = $today->copy();
+        }
+        if (! $checkOut || $checkOut->lte($checkIn)) {
+            $checkOut = $checkIn->copy()->addDays($out ? 1 : 2);
+        }
+        if ($checkIn->diffInDays($checkOut) > 60) {
+            $checkOut = $checkIn->copy()->addDays(60);
+        }
+
+        return [$checkIn->toDateString(), $checkOut->toDateString()];
     }
 
     /**
@@ -177,15 +225,8 @@ class PropertyDetailController extends Controller
      */
     public function brochure(int|string $id): View
     {
-        if (is_numeric($id)) {
-            $property = $this->repository->findWithRooms((int) $id);
-        } else {
-            $property = $this->repository->findBySlug((string) $id);
-        }
-
-        if (! $property) {
-            $property = Property::with('rooms')->firstOrFail();
-        }
+        $property = $this->resolveProperty($id);
+        abort_if(! $property, 404);
 
         return view('pages.hotel-brochure-print', compact('property'));
     }
@@ -202,7 +243,8 @@ class PropertyDetailController extends Controller
             'message' => 'required|string|max:1000',
         ]);
 
-        $property = is_numeric($id) ? Property::find($id) : Property::where('slug', $id)->first();
+        $property = is_numeric($id) ? Property::active()->find((int) $id) : Property::active()->where('slug', (string) $id)->first();
+        abort_if(! $property, 404);
 
         \App\Models\Inquiry::create([
             'property_id'  => $property?->id,

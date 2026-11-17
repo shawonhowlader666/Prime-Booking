@@ -19,7 +19,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'admin@primeavn.com'],
             [
                 'name' => 'PRIME BOOKING Admin',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role' => 'admin',
                 'phone' => '01770887733',
                 'status' => 'active',
@@ -31,7 +31,7 @@ class DatabaseSeeder extends Seeder
             ['email' => 'vendor@primeavn.com'],
             [
                 'name' => 'Royal Tulip Hotel Manager',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role' => 'vendor',
                 'phone' => '01785880033',
                 'status' => 'active',

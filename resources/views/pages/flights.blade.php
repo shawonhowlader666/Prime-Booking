@@ -8,7 +8,7 @@
         
         {{-- Flight Search Bar Header --}}
         <div class="card border-0 rounded-4 shadow-sm p-4 mb-4 bg-white">
-            <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Book Domestic Flights in Bangladesh</h4>
+            <h4 class="fw-bold text-dark mb-3"><i class="fa-solid fa-plane-departure text-primary me-2"></i> Request Domestic Flight Tickets in Bangladesh</h4>
             
             <form action="{{ route('flights.index') }}" method="GET" class="row g-3 align-items-center">
                 <div class="col-md-3">
@@ -96,7 +96,6 @@
                         {{-- Baggage & Seats --}}
                         <div class="col-md-2 text-center">
                             <small class="text-dark fw-semibold d-block"><i class="fa-solid fa-suitcase me-1 text-primary"></i> {{ $f['baggage'] }}</small>
-                            <span class="badge bg-danger-subtle text-danger rounded-pill px-2 py-1 mt-1 font-semibold" style="font-size: 10.5px;">Only {{ $f['seats_left'] }} seats left!</span>
                         </div>
 
                         {{-- Price & Book Button --}}
@@ -119,7 +118,7 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content rounded-4 border-0 shadow-lg p-3">
                         <div class="modal-header border-0 pb-0">
-                            <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-ticket text-primary me-2"></i> Book Ticket — {{ $f['flight_number'] }}</h5>
+                            <h5 class="modal-title fw-bold text-dark"><i class="fa-solid fa-ticket text-primary me-2"></i> Request Ticket — {{ $f['flight_number'] }}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                         </div>
                         <div class="modal-body">
@@ -141,7 +140,7 @@
                                         <span>Date &amp; Time:</span> <strong>{{ $date }} at {{ $f['departure_time'] }}</strong>
                                     </div>
                                     <div class="d-flex justify-content-between">
-                                        <span>Ticket Fare:</span> <strong class="text-primary fs-6">{{ \App\Services\CurrencyService::format($f['price']) }}</strong>
+                                        <span>Indicative fare (confirmed by our ticketing team):</span> <strong class="text-primary fs-6">{{ \App\Services\CurrencyService::format($f['price']) }}</strong>
                                     </div>
                                 </div>
 

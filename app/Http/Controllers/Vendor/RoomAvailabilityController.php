@@ -97,10 +97,11 @@ class RoomAvailabilityController extends Controller
 
         $validated = $request->validate([
             'room_id'    => 'required|exists:rooms,id',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date',
-            'price'      => 'nullable|numeric|min:0',
+            'start_date' => 'required|date|after_or_equal:today',
+            'end_date'   => 'required|date|after_or_equal:start_date|before:' . now()->addDays(731)->toDateString(),
+            'price'      => 'nullable|numeric|min:1|max:99999999',
             'is_blocked' => 'nullable|boolean',
+            'available_qty' => 'nullable|integer|min:0|max:10000',
         ]);
 
         $room = Room::whereHas('property', fn($q) => $q->where('vendor_id', $vendorId))
@@ -111,8 +112,10 @@ class RoomAvailabilityController extends Controller
         $end       = Carbon::parse($validated['end_date']);
         $isBlocked = $request->boolean('is_blocked');
         $price     = $request->filled('price') ? (float)$validated['price'] : null;
+        $qty       = $request->filled('available_qty') ? min((int) $validated['available_qty'], (int) $room->total_rooms) : null;
 
-        // Atomic Bulk Upsert: 1 single high-performance SQL query regardless of range length
+        // One upsert for the whole range. New rows start with the room's full inventory;
+        // only the fields the vendor actually filled in are changed on existing rows.
         $records = [];
         $now = now();
         for ($date = $start->copy(); $date->lte($end); $date->addDay()) {
@@ -120,18 +123,19 @@ class RoomAvailabilityController extends Controller
                 'room_id'       => $room->id,
                 'date'          => $date->format('Y-m-d'),
                 'price'         => $price,
+                'available_qty' => $qty ?? (int) $room->total_rooms,
                 'is_blocked'    => $isBlocked,
                 'created_at'    => $now,
                 'updated_at'    => $now,
             ];
         }
 
-        if (!empty($records)) {
-            RoomAvailability::upsert(
-                $records,
-                ['room_id', 'date'],
-                ['price', 'is_blocked', 'updated_at']
-            );
+        $update = ['is_blocked', 'updated_at'];
+        if ($price !== null) { $update[] = 'price'; }
+        if ($qty !== null)   { $update[] = 'available_qty'; }
+
+        foreach (array_chunk($records, 500) as $chunk) {
+            RoomAvailability::upsert($chunk, ['room_id', 'date'], $update);
         }
 
         // Invalidate Redis/application caches for this room across all date scopes
@@ -166,8 +170,8 @@ class RoomAvailabilityController extends Controller
 
         $validated = $request->validate([
             'room_id'          => 'required|exists:rooms,id',
-            'start_date'       => 'required|date',
-            'end_date'         => 'required|date|after_or_equal:start_date',
+            'start_date'       => 'required|date|after_or_equal:today',
+            'end_date'         => 'required|date|after_or_equal:start_date|before:' . now()->addDays(731)->toDateString(),
             'surge_percentage' => 'required|numeric|min:1|max:100',
         ]);
 
@@ -190,6 +194,7 @@ class RoomAvailabilityController extends Controller
                     'room_id'       => $room->id,
                     'date'          => $date->format('Y-m-d'),
                     'price'         => $surgePrice,
+                    'available_qty' => (int) $room->total_rooms,
                     'is_blocked'    => false,
                     'created_at'    => $now,
                     'updated_at'    => $now,
@@ -201,7 +206,8 @@ class RoomAvailabilityController extends Controller
             RoomAvailability::upsert(
                 $records,
                 ['room_id', 'date'],
-                ['price', 'is_blocked', 'updated_at']
+                // A surge changes the price only. It must not reopen a date the vendor closed.
+                ['price', 'updated_at']
             );
         }
 

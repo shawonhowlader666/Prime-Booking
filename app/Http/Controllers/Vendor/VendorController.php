@@ -574,15 +574,16 @@ class VendorController extends Controller
         $avgValue = $totalBookings > 0 ? round($grossRevenue / $validBookings, 2) : 0;
 
         // 12-Month aggregated data for Chart.js
+        $monthExpr = DB::connection()->getDriverName() === 'sqlite' ? "CAST(strftime('%m', created_at) AS INTEGER)" : 'MONTH(created_at)';
         $monthlyRevenueRaw = (clone $bookingsQuery)
             ->whereNotIn('status', ['cancelled'])
-            ->selectRaw('MONTH(created_at) as month_num, SUM(total_price) as rev, COUNT(*) as cnt')
+            ->selectRaw($monthExpr . ' as month_num, SUM(total_price) as rev, COUNT(*) as cnt')
             ->groupBy('month_num')
             ->pluck('rev', 'month_num')
             ->toArray();
 
         $monthlyBookingsRaw = (clone $bookingsQuery)
-            ->selectRaw('MONTH(created_at) as month_num, COUNT(*) as cnt')
+            ->selectRaw($monthExpr . ' as month_num, COUNT(*) as cnt')
             ->groupBy('month_num')
             ->pluck('cnt', 'month_num')
             ->toArray();

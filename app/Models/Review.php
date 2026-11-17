@@ -60,8 +60,8 @@ class Review extends Model
         $count = $approvedReviews->count();
         if ($count > 0) {
             $rawAvg = (float) $approvedReviews->avg('rating');
-            // If rawAvg is on a 5-star scale, scale to Agoda 10-point standard
-            $scaledScore = ($rawAvg <= 5.0) ? round($rawAvg * 2.0, 1) : round($rawAvg, 1);
+            // Ratings are stored as 1-5 stars; the listing shows the 10-point equivalent.
+            $scaledScore = round(min(10.0, $rawAvg * 2.0), 1);
             $property->update([
                 'rating_score'  => $scaledScore,
                 'total_reviews' => $count,

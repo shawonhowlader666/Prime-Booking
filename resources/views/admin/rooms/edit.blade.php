@@ -27,7 +27,8 @@
         @endif
 
         <form action="{{ route('admin.rooms.update', [$property->id, $room->id]) }}" method="POST" enctype="multipart/form-data">
-            @csrf @method('PUT')
+            @csrf
+<input type="hidden" name="_full_form" value="1"> @method('PUT')
 
             <div class="form-card mb-3">
                 <div class="form-section-title"><i class="fa-solid fa-bed me-1"></i> Room Details</div>
@@ -202,6 +203,7 @@
                     <div class="col-md-3">
                         <label class="form-label">Extra Bed</label>
                         <div class="form-check form-switch mt-2">
+                            <input type="hidden" name="extra_bed_allowed" value="0">
                             <input class="form-check-input" type="checkbox" name="extra_bed_allowed" value="1"
                                 id="extraBedCheck" {{ old('extra_bed_allowed', $room->extra_bed_allowed) ? 'checked' : '' }}>
                             <label class="form-check-label" for="extraBedCheck" style="font-size:13px;">Allowed</label>
@@ -210,6 +212,7 @@
                     <div class="col-md-3">
                         <label class="form-label">Breakfast</label>
                         <div class="form-check form-switch mt-2">
+                            <input type="hidden" name="breakfast_included" value="0">
                             <input class="form-check-input" type="checkbox" name="breakfast_included" value="1"
                                 id="breakfastCheck" {{ old('breakfast_included', $room->breakfast_included) ? 'checked' : '' }}>
                             <label class="form-check-label" for="breakfastCheck" style="font-size:13px;">Included</label>
@@ -218,6 +221,7 @@
                     <div class="col-md-3">
                         <label class="form-label">Cancellation</label>
                         <div class="form-check form-switch mt-2">
+                            <input type="hidden" name="free_cancellation" value="0">
                             <input class="form-check-input" type="checkbox" name="free_cancellation" value="1"
                                 id="cancelCheck" {{ old('free_cancellation', $room->free_cancellation) ? 'checked' : '' }}>
                             <label class="form-check-label" for="cancelCheck" style="font-size:13px;">Free</label>

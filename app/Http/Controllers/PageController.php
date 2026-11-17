@@ -229,46 +229,6 @@ class PageController extends Controller
 
     public function deals()
     {
-        // Auto-seed default deals if table is empty
-        if (\App\Models\Deal::count() === 0) {
-            \App\Models\Deal::create([
-                'title'          => 'Early Bird Flash Sale: Cox\'s Bazar',
-                'subtitle'       => 'Save up to 45% on top oceanfront resorts when booking ahead.',
-                'discount_pct'   => 45,
-                'original_price' => 8500,
-                'sale_price'     => 4675,
-                'valid_until'    => now()->addDays(5)->setTime(23, 59, 59),
-                'badge_text'     => 'Flash Deal',
-                'type'           => 'hotel',
-                'link_url'       => route('search.index') . '?city=Cox%27s+Bazar',
-                'is_active'      => true,
-            ]);
-            \App\Models\Deal::create([
-                'title'          => 'Sylhet Nature Retreat Escape',
-                'subtitle'       => 'Complimentary breakfast + 30% off on premium tea estate cottages.',
-                'discount_pct'   => 30,
-                'original_price' => 6200,
-                'sale_price'     => 4340,
-                'valid_until'    => now()->addDays(3)->setTime(18, 0, 0),
-                'badge_text'     => 'Weekend Special',
-                'type'           => 'hotel',
-                'link_url'       => route('search.index') . '?city=Sylhet',
-                'is_active'      => true,
-            ]);
-            \App\Models\Deal::create([
-                'title'          => 'Dhaka Luxury Suites Weekend Staycation',
-                'subtitle'       => 'Executive King Suites with late check-out included.',
-                'discount_pct'   => 25,
-                'original_price' => 12000,
-                'sale_price'     => 9000,
-                'valid_until'    => now()->addDays(7)->setTime(23, 59, 59),
-                'badge_text'     => 'VIP Exclusive',
-                'type'           => 'hotel',
-                'link_url'       => route('search.index') . '?city=Dhaka',
-                'is_active'      => true,
-            ]);
-        }
-
         $deals = \App\Models\Deal::where('is_active', true)->latest('id')->get();
         $coupons = \App\Models\Coupon::where('status', 'active')
             ->where(function($q) {

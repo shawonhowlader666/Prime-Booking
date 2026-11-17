@@ -19,7 +19,7 @@ class PropertySeeder extends Seeder
             ['email' => 'admin@primeaviation.com'],
             [
                 'name'     => 'Super Admin',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role'     => 'super_admin',
                 'status'   => 'active',
                 'phone'    => '01700000001',
@@ -30,7 +30,7 @@ class PropertySeeder extends Seeder
             ['email' => 'vendor@primeaviation.com'],
             [
                 'name'     => 'Dhaka Hotels Ltd',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role'     => 'vendor',
                 'status'   => 'active',
                 'phone'    => '01700000002',
@@ -41,7 +41,7 @@ class PropertySeeder extends Seeder
             ['email' => 'vendor2@primeaviation.com'],
             [
                 'name'     => 'Sundarban Cruise Co',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role'     => 'vendor',
                 'status'   => 'active',
                 'phone'    => '01700000003',
@@ -52,7 +52,7 @@ class PropertySeeder extends Seeder
             ['email' => 'customer@primeaviation.com'],
             [
                 'name'     => 'Test Customer',
-                'password' => Hash::make('password'),
+                'password' => Hash::make(app()->environment('production') ? IlluminateSupportStr::random(40) : 'password'),
                 'role'     => 'customer',
                 'status'   => 'active',
                 'phone'    => '01711223344',

@@ -17,6 +17,12 @@ class Room extends Model
     protected static function booted(): void
     {
         static::saved(function (Room $room) {
+            if ($room->wasChanged('total_rooms')) {
+                RoomAvailability::where('room_id', $room->id)
+                    ->where('available_qty', '>', (int) $room->total_rooms)
+                    ->update(['available_qty' => (int) $room->total_rooms]);
+            }
+
             if ($room->property_id) {
                 Property::where('id', $room->property_id)->update(['updated_at' => now()]);
             }

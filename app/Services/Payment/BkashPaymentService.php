@@ -37,12 +37,19 @@ class BkashPaymentService
 
         $settings = is_array($gateway?->settings) ? $gateway->settings : [];
 
-        $this->isActive  = $gateway ? (bool) $gateway->is_active : true;
-        $this->isSandbox = $gateway ? (bool) $gateway->is_sandbox : true;
-        $this->appKey    = (string) (!empty($gateway?->api_key) ? $gateway->api_key : config('services.bkash.app_key', ''));
-        $this->appSecret = (string) (!empty($gateway?->api_secret) ? $gateway->api_secret : config('services.bkash.app_secret', ''));
-        $this->username  = (string) (!empty($gateway?->merchant_id) ? $gateway->merchant_id : config('services.bkash.username', ''));
-        $this->password  = (string) (!empty($settings['password']) ? $settings['password'] : config('services.bkash.password', ''));
+        $dbKey    = PaymentGateway::realCredential($gateway?->api_key);
+        $dbSecret = PaymentGateway::realCredential($gateway?->api_secret);
+        $dbUser   = PaymentGateway::realCredential($settings['username'] ?? $gateway?->merchant_id);
+        $dbPass   = PaymentGateway::realCredential($settings['password'] ?? '');
+        $fromVault = $dbKey !== '' && $dbSecret !== '' && $dbUser !== '' && $dbPass !== '';
+
+        // Vault credentials win when complete; otherwise the BKASH_* environment values are used.
+        $this->isActive  = $fromVault ? (bool) $gateway->is_active : true;
+        $this->isSandbox = $fromVault ? (bool) $gateway->is_sandbox : (bool) config('services.bkash.is_sandbox', true);
+        $this->appKey    = $fromVault ? $dbKey : (string) config('services.bkash.app_key', '');
+        $this->appSecret = $fromVault ? $dbSecret : (string) config('services.bkash.app_secret', '');
+        $this->username  = $fromVault ? $dbUser : (string) config('services.bkash.username', '');
+        $this->password  = $fromVault ? $dbPass : (string) config('services.bkash.password', '');
 
         $this->baseUrl = $this->isSandbox
             ? 'https://tokenized.sandbox.bka.sh/v1.2.0-beta/tokenized/checkout'

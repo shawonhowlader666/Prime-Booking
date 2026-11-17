@@ -33,10 +33,15 @@ class SSLCommerzPaymentService
             Log::warning('SSLCommerz gateway config unavailable: ' . $e->getMessage());
         }
 
-        $this->isActive      = $gateway ? (bool) $gateway->is_active : true;
-        $this->isSandbox     = $gateway ? (bool) $gateway->is_sandbox : (bool) config('services.sslcommerz.is_sandbox', true);
-        $this->storeId       = (string) (!empty($gateway?->merchant_id) ? $gateway->merchant_id : config('services.sslcommerz.store_id', ''));
-        $this->storePassword = (string) (!empty($gateway?->api_secret) ? $gateway->api_secret : config('services.sslcommerz.store_password', ''));
+        $dbStoreId  = PaymentGateway::realCredential($gateway?->merchant_id);
+        $dbPassword = PaymentGateway::realCredential($gateway?->api_secret);
+        $fromVault  = $dbStoreId !== '' && $dbPassword !== '';
+
+        // Vault credentials win when present; otherwise the SSLCZ_* environment values are used.
+        $this->isActive      = $fromVault ? (bool) $gateway->is_active : true;
+        $this->isSandbox     = $fromVault ? (bool) $gateway->is_sandbox : (bool) config('services.sslcommerz.is_sandbox', true);
+        $this->storeId       = $fromVault ? $dbStoreId : (string) config('services.sslcommerz.store_id', '');
+        $this->storePassword = $fromVault ? $dbPassword : (string) config('services.sslcommerz.store_password', '');
 
         $this->baseUrl = $this->isSandbox
             ? 'https://sandbox.sslcommerz.com'

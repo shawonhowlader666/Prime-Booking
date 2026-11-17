@@ -70,6 +70,7 @@ return [
         'app_secret' => env('BKASH_APP_SECRET'),
         'username'   => env('BKASH_USERNAME'),
         'password'   => env('BKASH_PASSWORD'),
+        'is_sandbox' => env('BKASH_IS_SANDBOX', true),
     ],
 
     'sms' => [
@@ -81,6 +82,11 @@ return [
     'payments' => [
         // Simulated gateway pages for local development. Always off in production.
         'allow_simulation' => env('PAYMENT_ALLOW_SIMULATION', true),
+    ],
+
+    'catalog' => [
+        // Hard-coded sample hotels shown when a search has no real results. Never enable in production.
+        'demo_listings' => env('DEMO_LISTINGS', false),
     ],
 
     'indexnow' => [

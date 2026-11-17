@@ -742,6 +742,8 @@ class AccountingService
 
         $now = now();
         Booking::with('property:id,commission_rate,vendor_id,name')
+            ->where('payment_status', 'paid')
+            ->whereNotIn('id', AccountingLedger::query()->whereNotNull('booking_id')->where('type', 'credit')->select('booking_id'))
             ->select(['id', 'booking_reference', 'property_id', 'user_id', 'total_price', 'total_amount', 'payment_method', 'status', 'created_at', 'updated_at'])
             ->chunkById(200, function ($bookings) use ($now) {
                 $rows = [];
@@ -773,11 +775,9 @@ class AccountingService
                         'updated_at'        => $b->updated_at ?? $now,
                     ];
                 }
-                AccountingLedger::upsert(
-                    $rows,
-                    ['booking_id'],
-                    ['commission_amount', 'gateway_fee', 'net_amount', 'status', 'description', 'updated_at']
-                );
+                if ($rows !== []) {
+                    AccountingLedger::insert($rows);
+                }
             });
 
         Cache::put('ledger_is_populated', true, 300);

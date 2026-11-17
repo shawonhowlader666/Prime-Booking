@@ -250,41 +250,9 @@
                             Appears at the bottom of the hotel card with a sparkle icon (Exact Agoda feature snippet).
                         </small>
                     </div>
-                    <div class="col-md-6">
-                        <label class="form-label fw-bold">Top Photo Ribbon Badge (Top Left Corner of Image)</label>
-                        <input type="text" name="ribbon_badge" class="form-control" 
-                               value="{{ old('ribbon_badge', $property->ribbon_badge) }}" 
-                               placeholder="e.g. Best rated 5-star hotels or Top Beach Resort (Leave blank for none)">
-                        <small class="text-muted" style="font-size:11.5px;">
-                            Displays an authentic Agoda blue ribbon over the hotel photo.
-                        </small>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Rooms Remaining / Urgency</label>
-                        <input type="number" name="rooms_left" class="form-control" 
-                               value="{{ old('rooms_left', $property->rooms_left ?? 5) }}" min="0" max="99">
-                        <small class="text-muted" style="font-size:11px;">e.g. "1 still available" if 1-5</small>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Location Score (Out of 10)</label>
-                        <input type="number" step="0.1" name="location_score" class="form-control" 
-                               value="{{ old('location_score', $property->location_score ?? 8.8) }}" min="1" max="10">
-                        <small class="text-muted" style="font-size:11px;">e.g. 9.1 Location score</small>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Guest Rating Score (Out of 10)</label>
-                        <input type="number" step="0.1" name="rating_score" class="form-control" 
-                               value="{{ old('rating_score', $property->rating_score ?? 8.8) }}" min="1" max="10">
-                        <small class="text-muted" style="font-size:11px;">e.g. 9.2 Exceptional</small>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label fw-bold">Total Reviews Count</label>
-                        <input type="number" name="total_reviews" class="form-control" 
-                               value="{{ old('total_reviews', $property->total_reviews ?? 128) }}" min="0">
-                        <small class="text-muted" style="font-size:11px;">e.g. 1,280 reviews</small>
-                    </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch pt-2">
+                            <input type="hidden" name="free_cancellation" value="0">
                             <input class="form-check-input" type="checkbox" name="free_cancellation" value="1" id="vendorFreeCancelCheck"
                                 {{ old('free_cancellation', $property->free_cancellation ?? true) ? 'checked' : '' }}>
                             <label class="form-check-label fw-bold text-success" for="vendorFreeCancelCheck" style="font-size:12.5px;">
@@ -294,6 +262,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch pt-2">
+                            <input type="hidden" name="no_credit_card_required" value="0">
                             <input class="form-check-input" type="checkbox" name="no_credit_card_required" value="1" id="vendorNoCreditCheck"
                                 {{ old('no_credit_card_required', $property->no_credit_card_required ?? false) ? 'checked' : '' }}>
                             <label class="form-check-label fw-bold text-primary" for="vendorNoCreditCheck" style="font-size:12.5px;">
@@ -303,6 +272,7 @@
                     </div>
                     <div class="col-md-4">
                         <div class="form-check form-switch pt-2">
+                            <input type="hidden" name="is_sold_out" value="0">
                             <input class="form-check-input" type="checkbox" name="is_sold_out" value="1" id="vendorIsSoldOutCheck"
                                 {{ old('is_sold_out', $property->is_sold_out ?? false) ? 'checked' : '' }}>
                             <label class="form-check-label fw-bold text-danger" for="vendorIsSoldOutCheck" style="font-size:12.5px;">

@@ -10,6 +10,12 @@ class EnsureDefaultUsersSeeder extends Seeder
 {
     public function run(): void
     {
+        // Demo accounts with a known password must never exist on a live site.
+        if (app()->environment("production")) {
+            $this->command?->warn("EnsureDefaultUsersSeeder skipped in production. Use: php artisan users:set-password");
+            return;
+        }
+
         // 1. Super Admin Account
         User::updateOrCreate(
             ['email' => 'admin@primebooking.com'],

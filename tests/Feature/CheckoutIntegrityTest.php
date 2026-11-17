@@ -340,6 +340,39 @@ class CheckoutIntegrityTest extends TestCase
         $this->assertNotSame('hijacked', $inquiry->fresh()->reply);
     }
 
+    public function test_setting_a_price_on_the_calendar_does_not_shrink_inventory(): void
+    {
+        $vendor = User::findOrFail($this->property->vendor_id);
+        $in = now()->addDays(20)->toDateString();
+
+        $this->actingAs($vendor)->post(route("vendor.availability.update-range"), [
+            "room_id" => $this->room->id, "start_date" => $in, "end_date" => $in, "price" => 7000, "is_blocked" => 0,
+        ])->assertRedirect();
+
+        $check = app(InventoryService::class)->checkAvailability($this->room->id, $in, now()->addDays(21)->toDateString(), 3);
+        $this->assertTrue($check["is_available"], "All 3 rooms must still be sellable after a price change.");
+
+        // Updating only the block flag keeps the custom price.
+        $this->actingAs($vendor)->post(route("vendor.availability.update-range"), [
+            "room_id" => $this->room->id, "start_date" => $in, "end_date" => $in, "is_blocked" => 1,
+        ]);
+        $row = \App\Models\RoomAvailability::where("room_id", $this->room->id)->firstOrFail();
+        $this->assertEquals(7000.0, (float) $row->price);
+        $this->assertTrue((bool) $row->is_blocked);
+        $this->assertFalse(app(InventoryService::class)->checkAvailability($this->room->id, $in, now()->addDays(21)->toDateString())["is_available"]);
+    }
+
+    public function test_browsing_does_not_use_up_the_booking_or_login_rate_limits(): void
+    {
+        // A guest typing in the search box fires many autocomplete requests.
+        for ($i = 0; $i < 40; $i++) {
+            $this->get('/api/search/autocomplete?q=dha' . $i);
+        }
+
+        $this->book()->assertOk();
+        $this->post(route('login.post'), ['email' => 'nobody@example.com', 'password' => 'x'])->assertStatus(302);
+    }
+
     public function test_vendor_cannot_export_or_import_ical_for_another_vendors_room(): void
     {
         $other = User::create([

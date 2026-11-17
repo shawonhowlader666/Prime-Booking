@@ -126,7 +126,7 @@ Route::post('/api/seo/ping-indexnow', function () {
         'urls_count' => count($payload['urlList']),
         'timestamp' => now()->toIso8601String(),
     ]);
-})->middleware(['auth', 'role:admin,super_admin', 'throttle:6,60'])->name('seo.ping.indexnow');
+})->middleware(['auth', 'role:admin,super_admin', 'throttle:6,60,web-l129'])->name('seo.ping.indexnow');
 
 // Public Front-end Routes
 Route::get('/', [PageController::class, 'index'])->name('home');
@@ -149,7 +149,7 @@ Route::get('/googled74242121875ab00.html', function () {
     return response("google-site-verification: googled74242121875ab00.html", 200, ['Content-Type' => 'text/html']);
 });
 
-Route::middleware(['throttle:120,1'])->group(function () {
+Route::middleware(['throttle:120,1,web-l152'])->group(function () {
     Route::get('/api/search/autocomplete', [App\Http\Controllers\Web\AutocompleteController::class, 'search'])->name('search.autocomplete');
     Route::post('/api/search/log-query', [App\Http\Controllers\Web\AutocompleteController::class, 'logSelection'])->name('search.log.selection');
     Route::get('/api/geo/locations', [App\Http\Controllers\Web\AutocompleteController::class, 'geoLocations'])->name('geo.locations');
@@ -213,10 +213,10 @@ Route::get('/hotels/{id}/brochure', [PropertyDetailController::class, 'brochure'
 Route::get('/property/{slug}', [PropertyDetailController::class, 'show'])->name('property.show');
 Route::get('/property/{slug}/preview', [\App\Http\Controllers\Web\PropertyPreviewController::class, 'preview'])->name('property.preview');
 Route::get('/property/{slug}/brochure', [PropertyDetailController::class, 'brochure'])->name('property.brochure');
-Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store')->middleware('throttle:5,1');
-Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store')->middleware('throttle:5,1');
-Route::post('/hotels/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('hotels.inquire')->middleware('throttle:5,1');
-Route::post('/property/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('property.inquire')->middleware('throttle:5,1');
+Route::post('/hotels/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('hotels.review.store')->middleware('throttle:5,1,web-l216');
+Route::post('/property/{id}/review', [PropertyDetailController::class, 'submitReview'])->name('property.review.store')->middleware('throttle:5,1,web-l217');
+Route::post('/hotels/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('hotels.inquire')->middleware('throttle:5,1,web-l218');
+Route::post('/property/{id}/inquire', [PropertyDetailController::class, 'submitInquiry'])->name('property.inquire')->middleware('throttle:5,1,web-l219');
 
 // Informational & Marketing Public Routes
 Route::get('/about', [PageController::class, 'about'])->name('about');
@@ -241,34 +241,34 @@ Route::get('/blog/{slug}', [\App\Http\Controllers\Web\BlogController::class, 'sh
 Route::get('/packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages.index');
 Route::get('/tour-packages', [App\Http\Controllers\Web\TourPackageController::class, 'index'])->name('packages');
 Route::get('/packages/{slug}', [App\Http\Controllers\Web\TourPackageController::class, 'show'])->name('packages.show');
-Route::post('/packages/book', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->middleware('throttle:15,1')->name('packages.book');
+Route::post('/packages/book', [App\Http\Controllers\Web\TourPackageController::class, 'book'])->middleware('throttle:15,1,web-l244')->name('packages.book');
 Route::get('/packages/voucher/{reference}', [App\Http\Controllers\Web\TourPackageController::class, 'voucher'])->name('packages.voucher');
 
 // Domestic Flight Booking Routes
 Route::get('/flights', [App\Http\Controllers\Web\FlightBookingController::class, 'index'])->name('flights.index');
-Route::post('/flights/book', [App\Http\Controllers\Web\FlightBookingController::class, 'book'])->middleware('throttle:15,1')->name('flights.book');
+Route::post('/flights/book', [App\Http\Controllers\Web\FlightBookingController::class, 'book'])->middleware('throttle:15,1,web-l249')->name('flights.book');
 Route::get('/flights/voucher/{pnr}', [App\Http\Controllers\Web\FlightBookingController::class, 'voucher'])->name('flights.voucher');
 
 // Airport Taxi & Transfer Routes
 Route::get('/transfers', [App\Http\Controllers\Web\TransferBookingController::class, 'index'])->name('transfers.index');
-Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->middleware('throttle:15,1')->name('transfers.book');
+Route::post('/transfers/book', [App\Http\Controllers\Web\TransferBookingController::class, 'store'])->middleware('throttle:15,1,web-l254')->name('transfers.book');
 Route::get('/transfers/voucher/{reference}', [App\Http\Controllers\Web\TransferBookingController::class, 'voucher'])->name('transfers.voucher');
 
 // Public Guest Inquiry Form Submission Routes
-Route::post('/inquiry', [InquiryController::class, 'store'])->middleware('throttle:10,1')->name('inquiry.store');
-Route::post('/inquiries/store', [InquiryController::class, 'store'])->middleware('throttle:10,1')->name('inquiries.store');
+Route::post('/inquiry', [InquiryController::class, 'store'])->middleware('throttle:10,1,web-l258')->name('inquiry.store');
+Route::post('/inquiries/store', [InquiryController::class, 'store'])->middleware('throttle:10,1,web-l259')->name('inquiries.store');
 
-Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->whereNumber('propertyId')->middleware('throttle:60,1')->name('booking.form');
-Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->whereNumber('propertyId')->middleware('throttle:20,1')->name('booking.store');
-Route::post('/api/checkout/quote', [BookingFlowController::class, 'quote'])->middleware('throttle:90,1')->name('checkout.quote');
-Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->middleware('throttle:40,1')->name('booking.confirmation');
-Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'downloadVoucher'])->middleware('throttle:40,1')->name('booking.voucher');
-Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->middleware('throttle:40,1')->name('booking.voucher.download');
-Route::get('/booking/invoice/{reference}', [BookingFlowController::class, 'downloadInvoice'])->middleware('throttle:40,1')->name('booking.invoice');
-Route::get('/booking/invoice/{reference}/download', [BookingFlowController::class, 'downloadInvoice'])->middleware('throttle:40,1')->name('booking.invoice.download');
+Route::get('/book/{propertyId}', [BookingFlowController::class, 'showForm'])->whereNumber('propertyId')->middleware('throttle:60,1,web-l261')->name('booking.form');
+Route::post('/book/{propertyId}', [BookingFlowController::class, 'store'])->whereNumber('propertyId')->middleware('throttle:20,1,web-l262')->name('booking.store');
+Route::post('/api/checkout/quote', [BookingFlowController::class, 'quote'])->middleware('throttle:90,1,web-l263')->name('checkout.quote');
+Route::get('/booking/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->middleware('throttle:40,1,web-l264')->name('booking.confirmation');
+Route::get('/booking/voucher/{reference}', [BookingFlowController::class, 'downloadVoucher'])->middleware('throttle:40,1,web-l265')->name('booking.voucher');
+Route::get('/booking/voucher/{reference}/download', [BookingFlowController::class, 'downloadVoucher'])->middleware('throttle:40,1,web-l266')->name('booking.voucher.download');
+Route::get('/booking/invoice/{reference}', [BookingFlowController::class, 'downloadInvoice'])->middleware('throttle:40,1,web-l267')->name('booking.invoice');
+Route::get('/booking/invoice/{reference}/download', [BookingFlowController::class, 'downloadInvoice'])->middleware('throttle:40,1,web-l268')->name('booking.invoice.download');
 Route::get('/my-bookings', [BookingFlowController::class, 'myBookings'])->name('booking.history');
-Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->middleware('throttle:10,1')->name('booking.cancel');
-Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->middleware('throttle:60,1')->name('coupon.validate');
+Route::post('/my-bookings/{reference}/cancel', [BookingFlowController::class, 'cancelBooking'])->middleware('throttle:10,1,web-l270')->name('booking.cancel');
+Route::post('/api/coupon/validate', [BookingFlowController::class, 'validateCouponAjax'])->middleware('throttle:60,1,web-l271')->name('coupon.validate');
 
 // Legacy WooCommerce / WordPress product URLs: forward to checkout when the target is known.
 Route::get('/product/{slug?}', function (\Illuminate\Http\Request $request, $slug = null) {
@@ -386,7 +386,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'is_available'       => $hasAnyAvailable,
             'rooms_availability' => $availableRooms,
         ]);
-    })->middleware('throttle:60,1')->name('property.check-availability');
+    })->middleware('throttle:60,1,web-l389')->name('property.check-availability');
 
     // ── Dynamic Booking Price Preview (the same calculator the checkout charges with) ──
     Route::post('/booking/price-preview', function (\Illuminate\Http\Request $request, \App\Services\Booking\BookingPriceCalculator $calculator) {
@@ -440,7 +440,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'total'           => $quote['total'],
             'formatted_total' => '৳' . number_format($quote['total']),
         ]);
-    })->middleware('throttle:90,1')->name('booking.price-preview');
+    })->middleware('throttle:90,1,web-l443')->name('booking.price-preview');
 
     // ── Monthly Room Availability Calendar Feed (real inventory and rates) ──
     Route::get('/property/{id}/availability-calendar', function (\Illuminate\Http\Request $request, $id, \App\Services\InventoryService $inventory) {
@@ -496,7 +496,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'month'       => $startDate->format('F Y'),
             'calendar'    => $calendarDays,
         ]);
-    })->middleware('throttle:60,1')->name('property.availability-calendar');
+    })->middleware('throttle:60,1,web-l499')->name('property.availability-calendar');
 
     // ── Real-Time Hotel Price Drop Alert Subscription ──────────────────────
     Route::post('/price-alert/subscribe', function (\Illuminate\Http\Request $request) {
@@ -528,7 +528,7 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'message' => "🔔 Price alert created! We'll notify {$email} as soon as the rate for {$property->name} drops.",
             'alert'   => $alert,
         ]);
-    })->middleware('throttle:10,1')->name('price-alert.subscribe');
+    })->middleware('throttle:10,1,web-l531')->name('price-alert.subscribe');
 
     // ── Real-Time Multi-Currency Rates & Active Symbols ───────────────────
     Route::get('/currency/rates', function () {
@@ -569,11 +569,11 @@ Route::prefix('api/v1')->name('api.v1.')->group(function () {
             'helpful_count'   => $review->fresh()->helpful_count,
             'unhelpful_count' => $review->fresh()->unhelpful_count,
         ]);
-    })->middleware('throttle:20,1')->name('reviews.vote');
+    })->middleware('throttle:20,1,web-l572')->name('reviews.vote');
 });
 
 // Payment Gateway Routes (bKash & SSLCommerz)
-Route::middleware(['throttle:60,1'])->group(function () {
+Route::middleware(['throttle:60,1,web-l576'])->group(function () {
     Route::get('/payment/pending/{reference}', [PaymentCallbackController::class, 'pending'])->name('payment.pending');
 
     Route::get('/payment/bkash/sandbox/{reference}', [PaymentCallbackController::class, 'bkashSandboxRedirect'])->name('payment.bkash.sandbox-redirect');
@@ -587,7 +587,7 @@ Route::middleware(['throttle:60,1'])->group(function () {
 // SSLCommerz posts back from its own domain, so the browser does not send our session
 // cookie. Running these without the web (session / cookie / CSRF) stack keeps the guest's
 // existing login intact; they are handed over with a signed URL instead.
-Route::middleware(['throttle:120,1'])->withoutMiddleware('web')->group(function () {
+Route::middleware(['throttle:120,1,web-l590'])->withoutMiddleware('web')->group(function () {
     Route::post('/payment/ssl/success', [PaymentCallbackController::class, 'sslSuccess'])->name('payment.ssl.success');
     Route::post('/payment/ssl/fail', [PaymentCallbackController::class, 'sslFail'])->name('payment.ssl.fail');
     Route::post('/payment/ssl/cancel', [PaymentCallbackController::class, 'sslCancel'])->name('payment.ssl.cancel');
@@ -668,7 +668,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
             return response()->streamDownload($callback, $filename, [
                 'Content-Type' => 'application/sql',
             ]);
-        })->middleware('throttle:2,1')->name('system.backup.download');
+        })->middleware('throttle:2,1,web-l671')->name('system.backup.download');
     });
 
     // Property Management
@@ -727,7 +727,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'role:admin,super_ad
     // ── Master Financial Accounts & General Ledger ─────────────────────
     Route::get('/accounts', [App\Http\Controllers\Admin\AccountingController::class, 'index'])->name('accounts.index');
     Route::get('/accounts/ledger', [App\Http\Controllers\Admin\AccountingController::class, 'ledger'])->name('accounts.ledger');
-    Route::post('/accounts/manual-entry', [App\Http\Controllers\Admin\AccountingController::class, 'storeManualEntry'])->middleware('throttle:30,1')->name('accounts.manual-entry');
+    Route::post('/accounts/manual-entry', [App\Http\Controllers\Admin\AccountingController::class, 'storeManualEntry'])->middleware('throttle:30,1,web-l730')->name('accounts.manual-entry');
     Route::get('/accounts/ledger/export', [App\Http\Controllers\Admin\AccountingController::class, 'exportLedger'])->name('accounts.ledger.export');
     Route::get('/accounts/vendor-statements', [App\Http\Controllers\Admin\AccountingController::class, 'vendorStatements'])->name('accounts.vendor-statements');
     Route::get('/accounts/vendor-statements/{vendorId}/print', [App\Http\Controllers\Admin\AccountingController::class, 'printVendorStatement'])->name('accounts.vendor-statements.print');
@@ -1006,7 +1006,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
 
         $result = $iCalService->importExternalIcs($room, $request->ics_url);
         return back()->with($result['success'] ? 'success' : 'error', $result['message']);
-    })->whereNumber('roomId')->middleware('throttle:10,1')->name('rooms.ical.import');
+    })->whereNumber('roomId')->middleware('throttle:10,1,web-l1009')->name('rooms.ical.import');
 
     // ── Promotions ─────────────────────────────────────────────
     Route::get('/promotions',                 [VendorPromotionController::class, 'index'])->name('promotions.index');
@@ -1030,7 +1030,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
 
     // ── Payouts ────────────────────────────────────────────────
     Route::get('/payouts',    [App\Http\Controllers\Vendor\PayoutRequestController::class, 'index'])->name('payouts.index');
-    Route::post('/payouts',   [App\Http\Controllers\Vendor\PayoutRequestController::class, 'store'])->middleware('throttle:15,1')->name('payouts.store');
+    Route::post('/payouts',   [App\Http\Controllers\Vendor\PayoutRequestController::class, 'store'])->middleware('throttle:15,1,web-l1033')->name('payouts.store');
 
     // ── SaaS Plans ─────────────────────────────────────────────
     Route::get('/plans',           [SubscriptionController::class, 'index'])->name('plans.index');
@@ -1062,7 +1062,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
 
 // Agoda 1:1 Booking & Checkout Flow Routes
 Route::get('/checkout', [BookingFlowController::class, 'index'])->name('checkout.index');
-Route::post('/checkout/process', [BookingFlowController::class, 'process'])->middleware('throttle:20,1')->name('checkout.process');
+Route::post('/checkout/process', [BookingFlowController::class, 'process'])->middleware('throttle:20,1,web-l1065')->name('checkout.process');
 Route::get('/checkout/confirmation/{reference}', [BookingFlowController::class, 'confirmation'])->name('checkout.confirmation');
 
 Route::get('/trips', [PageController::class, 'trips'])->name('trips');
@@ -1106,7 +1106,7 @@ Route::match(['get', 'post'], '/auth/{provider}/callback', [OAuthController::cla
 Route::post('/auth/social/demo-select', [OAuthController::class, 'demoSelect'])->name('auth.social.demo-select');
 
 // Email modal continuation
-Route::post('/auth/email', [OAuthController::class, 'handleEmail'])->name('auth.modal.email')->middleware('throttle:5,1');
+Route::post('/auth/email', [OAuthController::class, 'handleEmail'])->name('auth.modal.email')->middleware('throttle:5,1,web-l1109');
 
 // Logout
 Route::post('/auth/logout', [OAuthController::class, 'logout'])->name('auth.logout');
@@ -1117,23 +1117,23 @@ Route::post('/auth/logout', [OAuthController::class, 'logout'])->name('auth.logo
 
 Route::get('/login',    [OAuthController::class, 'showLogin'])->name('login');
 Route::get('/signin',   [OAuthController::class, 'showLogin'])->name('signin');
-Route::post('/login',   [OAuthController::class, 'loginWithPassword'])->name('login.post')->middleware('throttle:5,1');
+Route::post('/login',   [OAuthController::class, 'loginWithPassword'])->name('login.post')->middleware('throttle:5,1,web-l1120');
 Route::get('/register', [OAuthController::class, 'showRegister'])->name('register');
-Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1');
+Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1,web-l1122');
 Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
 // Password Reset & Recovery
 Route::get('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
-Route::post('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:5,1');
+Route::post('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:5,1,web-l1127');
 Route::get('/reset-password/{token}', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'showResetForm'])->name('password.reset');
-Route::post('/reset-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1');
+Route::post('/reset-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'resetPassword'])->name('password.update')->middleware('throttle:5,1,web-l1129');
 
 // 🛡️ Enterprise Secret Admin Entrance (Stealth Protection against automated bots and scanners)
 $adminSecretSlug = env('ADMIN_LOGIN_SLUG', 'pb-control-gate-99');
 
 // Official Stealth Admin Login Route (Secret Entrance Only)
 Route::get("/{$adminSecretSlug}", [OAuthController::class, 'showAdminLogin'])->name('admin.login');
-Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1');
+Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1,web-l1136');
 
 // Admin Portal Entrance & Aliases
 Route::get('/admin/login', function () {
@@ -1156,7 +1156,7 @@ Route::get('/admin', function () {
 
 // Dedicated Vendor Partner Portal Login Routes
 Route::get('/vendor/login', [OAuthController::class, 'showVendorLogin'])->name('vendor.login');
-Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('vendor.login.post')->middleware('throttle:5,1');
+Route::post('/vendor/login', [OAuthController::class, 'loginVendor'])->name('vendor.login.post')->middleware('throttle:5,1,web-l1159');
 
 
 // ── Universal Storage Fallback & Media Streamer (Strict Anti-Traversal) ────
@@ -1212,10 +1212,32 @@ Route::get('/pointsmax/programs', function () {
 Route::post('/pointsmax/link', [PageController::class, 'linkPointsmaxProgram'])->name('pointsmax.link');
 Route::delete('/pointsmax/unlink/{id}', [PageController::class, 'unlinkPointsmaxProgram'])->name('pointsmax.unlink');
 
+// ── E-mail verification ──
+Route::middleware("auth")->group(function () {
+    Route::get("/email/verify", fn () => view("auth.verify-email"))->name("verification.notice");
+
+    Route::get("/email/verify/{id}/{hash}", function (\Illuminate\Foundation\Auth\EmailVerificationRequest $request) {
+        $request->fulfill();
+        return redirect()->route("verification.notice")->with("status", "Email verified.");
+    })->middleware(["signed", "throttle:6,1,web-l1222"])->name("verification.verify");
+
+    Route::post("/email/verification-notification", function (\Illuminate\Http\Request $request) {
+        if ($request->user()->hasVerifiedEmail()) {
+            return redirect()->route("verification.notice");
+        }
+        try {
+            $request->user()->sendEmailVerificationNotification();
+        } catch (\Throwable $e) {
+            report($e);
+            return back()->with("error", "We could not send the e-mail right now. Please try again in a few minutes.");
+        }
+        return back()->with("status", "A new verification link has been sent.");
+    })->middleware("throttle:3,1,web-l1235")->name("verification.send");
+});
 // ── Authenticated User Financial & Account State Mutations ──
 Route::middleware(['auth'])->group(function () {
     Route::post('/api/user/subscription/update', [PageController::class, 'updateSubscriptionSetting'])->name('api.user.subscription.update');
-    Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit')->middleware('throttle:5,1');
+    Route::post('/rewards/payout', [PageController::class, 'submitRewardPayout'])->name('rewards.payout.submit')->middleware('throttle:5,1,web-l1240');
 });
 
 

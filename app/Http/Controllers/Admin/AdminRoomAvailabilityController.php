@@ -169,9 +169,9 @@ class AdminRoomAvailabilityController extends Controller
         $validated = $request->validate([
             'room_id'    => 'required|exists:rooms,id',
             'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date',
+            'end_date'   => 'required|date|after_or_equal:start_date|before:' . now()->addDays(731)->toDateString(),
             'action'     => 'required|in:block,unblock,set_price,reset_price',
-            'price'      => 'nullable|numeric|min:0',
+            'price'      => 'required_if:action,set_price|nullable|numeric|min:1|max:99999999',
         ]);
 
         $room = Room::findOrFail($validated['room_id']);
@@ -186,15 +186,17 @@ class AdminRoomAvailabilityController extends Controller
                     'room_id' => $room->id,
                     'date'    => $dateStr,
                 ]);
+                if (!$record->exists) {
+                    // A new calendar row starts with the room's full inventory.
+                    $record->available_qty = (int) $room->total_rooms;
+                }
 
                 switch ($validated['action']) {
                     case 'block':
                         $record->is_blocked = 1;
-                        $record->status = 'blocked';
                         break;
                     case 'unblock':
                         $record->is_blocked = 0;
-                        $record->status = 'available';
                         break;
                     case 'set_price':
                         if (isset($validated['price']) && (float)$validated['price'] > 0) {
@@ -202,7 +204,8 @@ class AdminRoomAvailabilityController extends Controller
                         }
                         break;
                     case 'reset_price':
-                        $record->price = (float) $room->price_per_night;
+                        // No override: the room's base rate (and weekend rules) apply again.
+                        $record->price = null;
                         break;
                 }
 

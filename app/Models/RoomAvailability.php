@@ -22,7 +22,6 @@ class RoomAvailability extends Model
         'is_blocked',
         'is_closed',
         'is_available',
-        'status',
     ];
 
     protected $casts = [

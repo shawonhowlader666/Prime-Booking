@@ -42,33 +42,6 @@ class LoginController extends Controller
             return redirect()->intended(route('profile'))->with('success', 'Signed in successfully!');
         }
 
-        // Demo Sign-in Bypass for Instant Review (Admin / Vendor / User demo login)
-        if ($password === '123456' || $password === 'admin123' || $password === 'vendor123') {
-            $role = 'user';
-            if (str_contains(strtolower($credential), 'admin') || $password === 'admin123') {
-                $role = 'admin';
-            } elseif (str_contains(strtolower($credential), 'vendor') || $password === 'vendor123') {
-                $role = 'vendor';
-            }
-
-            session([
-                'auth_user' => (object)[
-                    'name' => ucfirst($role) . ' User',
-                    'email' => $credential,
-                    'phone' => '01770887733',
-                    'role' => $role,
-                ]
-            ]);
-
-            if ($role === 'admin') {
-                return redirect()->route('admin.dashboard')->with('success', 'Logged in as Super Admin!');
-            } elseif ($role === 'vendor') {
-                return redirect()->route('vendor.dashboard')->with('success', 'Logged in as Hotel Vendor Partner!');
-            }
-
-            return redirect()->route('profile')->with('success', 'Logged in successfully!');
-        }
-
         return back()->withErrors([
             'login_credential' => 'The provided credentials do not match our records.',
         ])->onlyInput('login_credential');

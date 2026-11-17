@@ -49,8 +49,12 @@ class VendorPromotionController extends Controller
             'value'          => 'required|numeric|min:1',
             'min_spend'      => 'nullable|numeric|min:0',
             'expires_at'     => 'required|date|after:today',
-            'property_id'    => 'nullable|exists:properties,id',
+            'property_id'    => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('properties', 'id')->where('vendor_id', auth()->id())],
         ]);
+
+        if ($validated['type'] === 'percent' && (float) $validated['value'] > 90) {
+            return back()->withInput()->with('error', 'A percentage discount cannot be more than 90%.');
+        }
 
         $coupon = new Coupon();
         $coupon->vendor_id    = auth()->id();
@@ -83,10 +87,13 @@ class VendorPromotionController extends Controller
             'amount'      => 'nullable|numeric|min:1',
             'min_spend'   => 'nullable|numeric|min:0',
             'expires_at'  => 'nullable|date',
-            'property_id' => 'nullable|exists:properties,id',
+            'property_id' => ['nullable', 'integer', \Illuminate\Validation\Rule::exists('properties', 'id')->where('vendor_id', auth()->id())],
         ]);
 
         $val = $validated['amount'] ?? $validated['value'] ?? $coupon->amount;
+        if (in_array($validated['type'], ['percent', 'percentage'], true) && (float) $val > 90) {
+            return back()->withInput()->with('error', 'A percentage discount cannot be more than 90%.');
+        }
         $coupon->update([
             'code'        => strtoupper(trim($validated['code'])),
             'type'        => $validated['type'],

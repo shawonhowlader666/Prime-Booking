@@ -163,6 +163,27 @@ class RoomFormService
             $kept[] = $img;
         }
 
+        // Apply drag & drop reordered sequence of existing images
+        if ($request->has('existing_images_order') && is_array($request->input('existing_images_order'))) {
+            $orderedRefs = array_map('strval', (array) $request->input('existing_images_order'));
+            $reorderedKept = [];
+            foreach ($orderedRefs as $ref) {
+                foreach ($kept as $k) {
+                    if ($k === $ref || MediaService::url($k) === $ref) {
+                        if (!in_array($k, $reorderedKept, true)) {
+                            $reorderedKept[] = $k;
+                        }
+                    }
+                }
+            }
+            foreach ($kept as $k) {
+                if (!in_array($k, $reorderedKept, true)) {
+                    $reorderedKept[] = $k;
+                }
+            }
+            $kept = $reorderedKept;
+        }
+
         $files = (array) $request->file('image_files', []);
         if ($request->file('image_file')) {
             $files[] = $request->file('image_file');

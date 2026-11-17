@@ -53,49 +53,14 @@
                         </select>
                     </div>
 
-                    {{-- Existing Room Photos Gallery Manager --}}
+                    {{-- Existing Room Photos Gallery Manager with Drag & Drop and Instant + Add Photo Tile --}}
                     @php
                         $rPhotos = is_array($room->images) ? $room->images : (json_decode($room->images ?? '[]', true) ?: []);
                     @endphp
-                    @if(!empty($rPhotos) && count($rPhotos) > 0)
-                    <div class="col-12">
-                        <div class="card border-0 shadow-sm" style="background:#f8fafc; border:1px solid #cbd5e1 !important; border-radius:6px;">
-                            <div class="card-header bg-white py-2 px-3 border-bottom d-flex align-items-center justify-content-between">
-                                <span class="fw-bold text-dark" style="font-size:12.5px;">
-                                    <i class="fa-solid fa-images text-primary me-1.5"></i> Current Room Photos ({{ count($rPhotos) }})
-                                </span>
-                                <small class="text-muted" style="font-size:11px;">Select checkbox to remove any photo</small>
-                            </div>
-                            <div class="card-body p-2.5">
-                                <div class="row g-2" style="max-height: 240px; overflow-y: auto;">
-                                    @foreach($rPhotos as $pIdx => $pUrl)
-                                    <div class="col-md-3 col-sm-4 col-6">
-                                        <div class="p-1.5 bg-white rounded border position-relative d-flex flex-column gap-1">
-                                            <div class="rounded overflow-hidden" style="height: 80px; background:#000;">
-                                                <img src="{{ media_url($pUrl) }}" class="w-100 h-100" style="object-fit:cover;" alt="Room Photo" loading="lazy">
-                                            </div>
-                                            <div class="form-check form-check-sm mt-1 mb-0">
-                                                <input class="form-check-input" type="checkbox" name="delete_images[]" value="{{ $pUrl }}" id="delRoomImg_{{ $pIdx }}">
-                                                <label class="form-check-label text-danger fw-semibold" for="delRoomImg_{{ $pIdx }}" style="font-size:11px; cursor:pointer;">
-                                                    <i class="fa-solid fa-trash-can me-1"></i> Delete
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endif
+                    <x-room.photo-manager :photos="$rPhotos" prefix="admin_room_{{ $room->id }}" title="Current Room Photos" />
 
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-cloud-arrow-up text-primary me-1"></i> Upload More Photos (Multi-Select)</label>
-                        <input type="file" name="image_files[]" multiple accept="image/*" class="form-control">
-                        <small class="text-muted" style="font-size:11px;">You can select multiple photos at once</small>
-                    </div>
-                    <div class="col-md-6">
-                        <label class="form-label"><i class="fa-solid fa-link text-primary me-1"></i> Additional Photo URLs (one per line)</label>
+                    <div class="col-md-12">
+                        <label class="form-label text-muted" style="font-size:12px;"><i class="fa-solid fa-link text-primary me-1"></i> Additional Photo URLs (Optional, one per line)</label>
                         <textarea name="image_urls" class="form-control" rows="2" placeholder="https://.../photo1.jpg&#10;https://.../photo2.jpg"></textarea>
                     </div>
                     <div class="col-md-3">
@@ -275,9 +240,9 @@
                 </div>
                 <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; padding:4px 0;">
                     <p style="margin:0; font-size:12.5px; color:#8c8c8c;">Remove "{{ $room->name }}" from {{ $property->name }} permanently.</p>
-                        <button form="adminDeleteRoomForm" type="submit" class="btn-table-action danger" style="padding:8px 18px; border-radius:4px;">
-                            <i class="fa-solid fa-trash"></i> <span>Delete Room</span>
-                        </button>
+                    <button type="submit" form="deleteRoomForm" class="btn-table-action danger" style="padding:8px 18px; border-radius:4px;">
+                        <i class="fa-solid fa-trash"></i> <span>Delete Room</span>
+                    </button>
                 </div>
             </div>
 
@@ -291,11 +256,10 @@
             </div>
 
         </form>
-<form id="adminDeleteRoomForm" action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST" class="d-none"
-      onsubmit="return confirm('Delete room type permanently?')">
-    @csrf @method('DELETE')
-</form>
-
+        <form id="deleteRoomForm" action="{{ route('admin.rooms.destroy', [$property->id, $room->id]) }}" method="POST"
+            onsubmit="return confirm('Delete room type permanently?')" class="d-none">
+            @csrf @method('DELETE')
+        </form>
     </div>
 </div>
 

@@ -4028,7 +4028,7 @@
                 onclick="const d = document.getElementById('fullAboutUsDesc'); if(d) d.classList.toggle('d-none');">Read
                 more</a>
             <div id="fullAboutUsDesc" class="d-none mt-2 text-secondary" style="font-size: 13px; line-height: 1.55;">
-                {{ $property->description ?: 'This property is dedicated to providing guests with premium comfort, modern conveniences, and warm hospitality for an unforgettable stay.' }}
+                {!! $property->description ?: 'This property is dedicated to providing guests with premium comfort, modern conveniences, and warm hospitality for an unforgettable stay.' !!}
             </div>
         </div>
     </div>
@@ -4226,19 +4226,19 @@
                         <p class="text-secondary mb-0" style="font-size: 13px; line-height: 1.6; color: #475569;">
                             The <strong>{{ $property->name }}</strong> offers a comfortable and well-appointed stay in
                             {{ $property->city ?: 'Bangladesh' }} with {{ $property->rooms->count() ?: 1 }} room
-                            {{ $property->rooms->count() > 1 ? 'types' : 'type' }} and modern conveniences.
-                            {{ Str::limit($property->description, 180, '...') }}
+                            {{ $property->rooms->count() > 1 ? 'types' : 'type' }}.
+                            {{ Str::limit(strip_tags($property->description), 180, '...') }}
                         </p>
                     </div>
 
-                    {{-- Section 2: Modern Amenities --}}
+                    {{-- Section 2: Property Highlights & Facilities --}}
                     <div class="mb-3">
                         <h5 class="fw-bold text-dark mb-1.5" style="font-size: 16px; font-weight: 800; color: #1e293b;">
-                            Modern Amenities
+                            Property Highlights &amp; Facilities
                         </h5>
                         <p class="text-secondary mb-2" style="font-size: 13px; line-height: 1.6; color: #475569;">
-                            Guests enjoy free Wi-Fi, air-conditioning, and 24/7 hospitality. The property includes
-                            {{ is_array($property->amenities) ? implode(', ', array_slice($property->amenities, 0, 5)) : 'free Wi-Fi, air conditioning, and room service' }}.
+                            Guests enjoy dedicated hospitality and scenic surroundings. The property includes
+                            {{ is_array($property->amenities) ? implode(', ', array_slice($property->amenities, 0, 5)) : 'complimentary breakfast, room service, and scenic views' }}.
                         </p>
                     </div>
 
@@ -4252,7 +4252,7 @@
                         <div id="fullMoreAboutPropertyDesc"
                             class="d-none mt-2 p-3 bg-light rounded-3 text-secondary border"
                             style="font-size: 12.5px; line-height: 1.6;">
-                            {{ $property->description ?: 'This property is committed to delivering a superior guest experience with dedicated staff, spotless rooms, and round-the-clock assistance.' }}
+                            {!! $property->description ?: 'This property is committed to delivering a superior guest experience with dedicated staff, spotless rooms, and round-the-clock assistance.' !!}
                         </div>
                     </div>
                 </div>

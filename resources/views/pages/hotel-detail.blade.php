@@ -1606,6 +1606,13 @@
                     </div>
                 </div>
 
+                @php
+                    $rawPropAmenities = is_array($property->amenities) ? $property->amenities : (json_decode($property->amenities ?? '[]', true) ?: []);
+                    $amenitiesStr = strtolower(json_encode($rawPropAmenities));
+                    $hasPool = str_contains($amenitiesStr, 'pool') || str_contains($amenitiesStr, 'swimming');
+                    $hasSpa = str_contains($amenitiesStr, 'spa') || str_contains($amenitiesStr, 'massage');
+                    $hasGym = str_contains($amenitiesStr, 'gym') || str_contains($amenitiesStr, 'fitness');
+                @endphp
                 {{-- Horizontal Scrollable Sub-cards (Food & Drinks, Wellness, Activities, Sports & Entertainment) --}}
                 <div class="position-relative">
                     <div id="staycationScrollTrack" class="d-flex align-items-stretch overflow-x-auto"
@@ -1662,7 +1669,7 @@
                             </div>
                         </div>
 
-                        {{-- Card 2: Wellness --}}
+                        {{-- Card 2: Wellness & Nature --}}
                         <div class="d-flex flex-column justify-content-between"
                             style="width: 215px; min-width: 215px; background: #f7f9fa; border-radius: 8px; padding: 16px; flex-shrink: 0;">
                             <div>
@@ -1672,7 +1679,7 @@
                                         style="width: 34px; height: 34px; object-fit: contain; flex-shrink: 0;"
                                         alt="Wellness">
                                     <strong
-                                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Wellness</strong>
+                                        style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 14px; font-weight: 700; color: #2a2a2e; line-height: 1.2;">Wellness &amp; Nature</strong>
                                 </div>
                                 <div class="d-flex flex-column" style="gap: 8px; margin-bottom: 14px;">
                                     <div
@@ -1682,7 +1689,7 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Salon</span>
+                                        <span>Open-air relaxation &amp; breeze</span>
                                     </div>
                                     <div
                                         style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -1691,7 +1698,11 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Fitness center</span>
+                                        @if($hasGym ?? false)
+                                            <span>Fitness center</span>
+                                        @else
+                                            <span>Beach &amp; nature trail</span>
+                                        @endif
                                     </div>
                                     <div
                                         style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -1700,7 +1711,11 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Spa</span>
+                                        @if($hasSpa ?? false)
+                                            <span>Spa &amp; Wellness</span>
+                                        @else
+                                            <span>Coconut grove &amp; stargazing</span>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -1732,7 +1747,11 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Swimming pool [indoor]</span>
+                                        @if($hasPool ?? false)
+                                            <span>Swimming pool</span>
+                                        @else
+                                            <span>Direct beach &amp; shore access</span>
+                                        @endif
                                     </div>
                                     <div
                                         style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -1741,7 +1760,7 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>On-site activity</span>
+                                        <span>On-site beach activity</span>
                                     </div>
                                     <div
                                         style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -1750,7 +1769,7 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Water park</span>
+                                        <span>Island sunset &amp; sea view</span>
                                     </div>
                                 </div>
                             </div>
@@ -1792,7 +1811,7 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Tennis court</span>
+                                        <span>Outdoor &amp; beach recreation</span>
                                     </div>
                                     <div
                                         style="display: flex; align-items: flex-start; gap: 8px; font-size: 13px; color: #4a4a4a; line-height: 1.35; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
@@ -1801,7 +1820,7 @@
                                             style="flex-shrink: 0; margin-top: 2px;">
                                             <polyline points="20 6 9 17 4 12" />
                                         </svg>
-                                        <span>Hiking trails</span>
+                                        <span>Coastal walking trails</span>
                                     </div>
                                 </div>
                             </div>
@@ -1830,6 +1849,10 @@
             </div>
 
             {{-- Facilities Card (Exact 1:1 Agoda Parity) --}}
+            @php
+                $rawPropAmenities = is_array($property->amenities) ? $property->amenities : (json_decode($property->amenities ?? '[]', true) ?: []);
+                $topFacilities = !empty($rawPropAmenities) ? array_slice($rawPropAmenities, 0, 8) : ['Free Wi-Fi', 'Front desk [24-hour]', 'Beachfront', 'Restaurant', 'Balcony / Terrace', 'Daily housekeeping', 'Room service', 'Power backup'];
+            @endphp
             <div id="facilities" class="card agoda-card-border mb-4"
                 style="border: 1px solid #dddfe2 !important; border-radius: 4px !important; padding: 24px !important; background: #ffffff;">
                 <div class="d-flex align-items-center justify-content-between" style="margin-bottom: 18px;">
@@ -1843,85 +1866,20 @@
 
                 <div
                     style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px 24px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; font-size: 13.5px; color: #2a2a2e;">
-                    {{-- Column 1 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Private beach</span>
+                    @foreach(array_chunk($topFacilities, 2) as $colFacilities)
+                        <div class="d-flex flex-column" style="gap: 10px;">
+                            @foreach($colFacilities as $facilityItem)
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
+                                        style="flex-shrink: 0;">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg>
+                                    <span>{{ is_array($facilityItem) ? ($facilityItem['name'] ?? $facilityItem['label'] ?? '') : $facilityItem }}</span>
+                                </div>
+                            @endforeach
                         </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Spa</span>
-                        </div>
-                    </div>
-
-                    {{-- Column 2 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Free Wi-Fi</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Front desk [24-hour]</span>
-                        </div>
-                    </div>
-
-                    {{-- Column 3 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Swimming pool</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Fitness center</span>
-                        </div>
-                    </div>
-
-                    {{-- Column 4 --}}
-                    <div class="d-flex flex-column" style="gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Free parking</span>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 8px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2a2a2e"
-                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                                style="flex-shrink: 0;">
-                                <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            <span>Restaurants</span>
-                        </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
 

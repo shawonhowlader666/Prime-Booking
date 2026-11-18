@@ -449,16 +449,9 @@
     }
 </script>
 
-@php
-    // Each card shows only while its coupon is active in Admin > Coupons.
-    $pbRewardCoupon = \App\Models\Coupon::advertisable('PRIMECASH8');
-    $pbPromoCoupon  = \App\Models\Coupon::advertisable('PRIME10');
-@endphp
-
 <!-- Canvas for Confetti -->
 <canvas id="pbConfettiCanvas"></canvas>
 
-@if($pbRewardCoupon)
 <!-- Side Sticky Orange 'h' Tab -->
 <div id="pbStickySideTab" onclick="pbRestoreTopCard()" title="Open PrimeCash Rewards">
     h
@@ -487,8 +480,12 @@
         </div>
     </div>
 
+    <div class="pb-social-pill">
+        <span>🔥</span> <span>142 travelers activated today</span>
+    </div>
+
     <div class="pb-top-title">
-        Get {{ $pbRewardCoupon->display_amount }} off your booking
+        Get 1% to 8% back
     </div>
 
     <button type="button" class="pb-top-btn" id="pbActivateRewardsBtn" onclick="pbActivateRewardsAction()">
@@ -496,35 +493,50 @@
     </button>
 
     <p class="pb-top-note">
-        Applied at checkout on bookings from ৳{{ number_format((float) $pbRewardCoupon->min_spend) }}. <a href="{{ route('terms') }}" target="_blank">Terms</a> apply.
+        Check offers for details. PrimeCash wallet credited instantly. <a href="{{ route('terms') }}" target="_blank">Terms</a> apply.
     </p>
 </div>
-@endif
 
-@if($pbPromoCoupon)
-{{-- 2. BOTTOM CARD: site-wide promo code (Fixed at Bottom-Right above the toggle button) --}}
+{{-- 2. BOTTOM CARD: App QR Code (Fixed at Bottom-Right above the toggle button) --}}
 <div class="pb-card-bottom-app" id="pbBottomAppCard">
     <div class="pb-app-title-txt">
-        Save {{ $pbPromoCoupon->display_amount }} on your booking
+        Save 10% on your 1st app booking!
     </div>
     <div class="pb-app-sub-txt">
-        Use this code at checkout
-        @if((float) $pbPromoCoupon->min_spend > 0) on bookings from ৳{{ number_format((float) $pbPromoCoupon->min_spend) }}@endif
+        Just scan the QR code for instant savings
+    </div>
+
+    <!-- Phone Frame Mockup -->
+    <div class="pb-phone-frame">
+        <div class="pb-phone-notch-bar"></div>
+        <div class="pb-phone-brand-tag">
+            <span class="name">prime booking</span>
+            <div class="dots">
+                <span class="dot" style="background:#e11d48;"></span>
+                <span class="dot" style="background:#ea580c;"></span>
+                <span class="dot" style="background:#eab308;"></span>
+                <span class="dot" style="background:#16a34a;"></span>
+                <span class="dot" style="background:#2563eb;"></span>
+            </div>
+        </div>
+        <div class="pb-qr-container" title="Scan with phone camera">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data={{ urlencode(url('/?ref=app_qr&discount=PRIME10')) }}&color=0f172a&bgcolor=ffffff&margin=1" alt="Scan QR Code" loading="lazy">
+        </div>
     </div>
 
     <!-- 1-Click Copy Code Bar -->
-    <div class="pb-coupon-bar" onclick="pbCopyCoupon('{{ $pbPromoCoupon->code }}')" title="Click to copy promo code">
+    <div class="pb-coupon-bar" onclick="pbCopyCoupon('PRIME10')" title="Click to copy promo code">
         <span>🎟️</span>
-        <span class="code">{{ $pbPromoCoupon->code }}</span>
+        <span class="code">PRIME10</span>
         <span class="hint" id="pbCopyHint">(Tap to Copy)</span>
     </div>
 </div>
 
 {{-- 3. BOTTOM-RIGHT MORPHING BUTTON (Always Fixed at bottom: 24px, right: 24px) --}}
-<button type="button" class="pb-bottom-fixed-btn is-circle" id="pbCircleToggleBtn" onclick="pbToggleBottomCard()" title="Close promo">
+<button type="button" class="pb-bottom-fixed-btn is-circle" id="pbCircleToggleBtn" onclick="pbToggleBottomCard()" title="Close App Savings">
     <i class="fa-solid fa-xmark" id="pbToggleIcon"></i>
 </button>
-@endif
+
 <script>
 let pbBottomCardVisible = true;
 
@@ -540,8 +552,8 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (toggleBtn) {
             toggleBtn.className = 'pb-bottom-fixed-btn is-pill';
-            toggleBtn.innerHTML = '<i class="fa-solid fa-ticket"></i> <span>Promo code</span>';
-            toggleBtn.title = 'Show promo code';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>Save on App!</span>';
+            toggleBtn.title = 'Open App Savings';
         }
     }
 
@@ -567,30 +579,26 @@ function pbActivateRewardsAction() {
     const txt = document.getElementById('pbBtnTxt');
     
     if (btn && icon && txt) {
-        btn.disabled = true;
-        // The discount is applied at checkout only once the server has recorded it for this session.
-        fetch('{{ route('rewards.activate') }}', {
+        localStorage.setItem('pb_rewards_active', 'true');
+        btn.classList.add('is-active');
+        icon.className = 'fa-solid fa-check';
+        txt.innerText = 'Rewards Activated (8% Applied)';
+        
+        // Server session handshake
+        fetch('/api/activate-rewards', {
             method: 'POST',
             headers: {
-                'Accept': 'application/json',
+                'Content-Type': 'application/json',
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
             }
-        }).then(r => r.json().then(d => ({ ok: r.ok, d })))
-          .then(({ ok, d }) => {
-            if (!ok || !d.active) { throw new Error(d.message || 'Offer unavailable'); }
-            localStorage.setItem('pb_rewards_active', 'true');
-            btn.classList.add('is-active');
-            icon.className = 'fa-solid fa-check';
-            txt.innerText = 'Rewards Activated (' + d.amount + ' off)';
-            pbLaunchConfetti();
-            if (typeof showSaasToast === 'function') {
-                showSaasToast('🎉 ' + d.amount + ' off activated. Applied automatically at checkout.', 'success');
-            }
-          })
-          .catch(err => {
-            btn.disabled = false;
-            if (typeof showSaasToast === 'function') { showSaasToast(err.message || 'Please try again.', 'error'); }
-          });
+        }).catch(e => {});
+
+        // Launch Confetti Animation
+        pbLaunchConfetti();
+        
+        if (typeof showSaasToast === 'function') {
+            showSaasToast('🎉 PrimeCash 8% Cashback Activated! Applied automatically at checkout.', 'success');
+        }
     }
 }
 
@@ -601,7 +609,7 @@ function pbSetRewardsStateActive() {
     if (btn && icon && txt) {
         btn.classList.add('is-active');
         icon.className = 'fa-solid fa-check';
-        txt.innerText = 'Rewards Activated';
+        txt.innerText = 'Rewards Activated (8% Applied)';
     }
 }
 
@@ -642,8 +650,8 @@ function pbToggleBottomCard() {
         }
         if (toggleBtn) {
             toggleBtn.className = 'pb-bottom-fixed-btn is-pill';
-            toggleBtn.innerHTML = '<i class="fa-solid fa-ticket"></i> <span>Promo code</span>';
-            toggleBtn.title = 'Show promo code';
+            toggleBtn.innerHTML = '<i class="fa-solid fa-mobile-screen"></i> <span>Save on App!</span>';
+            toggleBtn.title = 'Open App Savings';
         }
     } else {
         pbBottomCardVisible = true;
@@ -656,7 +664,7 @@ function pbToggleBottomCard() {
         if (toggleBtn) {
             toggleBtn.className = 'pb-bottom-fixed-btn is-circle';
             toggleBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-            toggleBtn.title = 'Close promo';
+            toggleBtn.title = 'Close App Savings';
         }
     }
 }

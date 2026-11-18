@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Flight Ticket Request — {{ $ticket['pnr'] }} | PRIME BOOKING</title>
+    <title>Flight e-Ticket Voucher — {{ $ticket['pnr'] }} | PRIME BOOKING</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: 13px; color: #1e293b; background: #f8fafc; margin: 0; padding: 20px; }
         .voucher-card { max-width: 760px; margin: 0 auto; background: #fff; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); overflow: hidden; border: 1px solid #e2e8f0; }
@@ -23,7 +23,7 @@
 <body>
 
     <div class="no-print" style="max-width: 760px; margin: 0 auto 15px auto; text-align: right;">
-        <button onclick="window.print()" class="btn-print">🖨️ Print Request / Save PDF</button>
+        <button onclick="window.print()" class="btn-print">🖨️ Print Flight Ticket / Save PDF</button>
     </div>
 
     <div class="voucher-card">
@@ -63,7 +63,7 @@
 
                 <div class="detail-item">
                     <div class="detail-label">Assigned Seat</div>
-                    <div class="detail-val" style="color: #2067e1;">{{ $ticket['seat'] }}</div>
+                    <div class="detail-val" style="color: #2067e1;">Seat {{ $ticket['seat'] }}</div>
                 </div>
 
                 <div class="detail-item">
@@ -72,8 +72,8 @@
                 </div>
 
                 <div class="detail-item">
-                    <div class="detail-label">Request Status</div>
-                    <div class="detail-val" style="color: #b45309;">{{ $ticket['status'] }}</div>
+                    <div class="detail-label">Ticket Status</div>
+                    <div class="detail-val" style="color: #16a34a;">✔ {{ $ticket['status'] }}</div>
                 </div>
 
                 <div class="detail-item">
@@ -89,7 +89,7 @@
                 </div>
                 <div style="text-align: center;">
                     <div style="font-family: monospace; font-size: 10px; font-weight: bold; background: #f1f5f9; padding: 6px 10px; border-radius: 4px;">
-                        REQUEST REF: {{ $ticket['pnr'] }}
+                        QR-VERIFIED: {{ $ticket['pnr'] }}
                     </div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
 
         <div class="footer-bar">
             <div style="font-size: 11px; color: #64748b;">Issued via PRIME BOOKING Air Mobility System</div>
-            <div style="font-size: 11px; font-weight: 700; color: #0b2545;">Requested at: {{ $ticket['issued_at'] }}</div>
+            <div style="font-size: 11px; font-weight: 700; color: #0b2545;">Issue Timestamp: {{ $ticket['issued_at'] }}</div>
         </div>
     </div>
 

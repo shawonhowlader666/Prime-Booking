@@ -169,7 +169,7 @@
             {{-- Left Sidebar Skeleton (Map + Filter Categories) --}}
             <div style="width: 260px; flex-shrink: 0;" class="d-none d-lg-block">
                 {{-- Agoda Authentic Map Card Skeleton with bkg-map-entry.svg --}}
-                <div style="height: 110px; border-radius: 10px; border: 1px solid #cbd5e1; position: relative; overflow: hidden; margin-bottom: 20px; background: #e2e8f0 url('{{ asset('images/icons/map-preview.svg') }}') center/cover no-repeat; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <div style="height: 110px; border-radius: 10px; border: 1px solid #cbd5e1; position: relative; overflow: hidden; margin-bottom: 20px; background: #e2e8f0 url('{{ asset('images/agoda/bkg-map-entry.svg') }}') center/cover no-repeat; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
                     {{-- Central Location Marker Pin --}}
                     <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 26px; height: 26px; border-radius: 50%; background: #f59e0b; border: 3px solid #ffffff; box-shadow: 0 2px 8px rgba(0,0,0,0.25);"></div>
                 </div>
@@ -245,7 +245,7 @@
     {{-- 4. Centered Interstitial Modal Dialog ("Just a moment!") --}}
     <div class="agoda-interstitial-dialog">
         <div class="agoda-mascot-parachute-wrap">
-            <img src="{{ asset('images/logo-icon.png') }}" alt="Prime Booking" />
+            <img src="{{ asset('images/agoda/agoji-parachute.gif') }}" alt="Prime Booking" />
         </div>
         <h3 class="agoda-interstitial-title">Just a moment!</h3>
         <p class="agoda-interstitial-desc">We're finding great stays for your dates and destination.</p>

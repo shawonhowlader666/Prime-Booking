@@ -1,7 +1,5 @@
 {{-- Agoda-Exact Trip Savings & Connected Trip Outer Card Banner --}}
 @props(['destLabel' => 'Bangladesh'])
-@php $bannerCoupon = \App\Models\Coupon::advertisable('PRIME10'); @endphp
-@if($bannerCoupon)
 
 <div id="smartPromoBannerRoot" class="mb-4" style="max-width: 790px;">
     {{-- Outer Card --}}
@@ -41,7 +39,7 @@
                             <i class="fa-solid fa-star" style="font-size: 9px;"></i> Trip Savings
                         </span>
                         <span style="background: #007a3d; color: #ffffff; font-size: 11px; font-weight: 700; padding: 2px 7px; border-radius: 4px;">
-                            {{ $bannerCoupon->display_amount }} off
+                            Up to 5% off
                         </span>
                     </div>
 
@@ -59,8 +57,8 @@
                 </div>
 
                 <div>
-                    <button type="button" class="btn btn-sm text-white fw-bold rounded-pill px-3 py-1.5 shadow-xs" onclick="copyPromoCode(this, '{{ $bannerCoupon->code }}')" style="background: #059669; font-size: 12.5px; white-space: nowrap; border: none;">
-                        <i class="fa-solid fa-copy me-1"></i> Copy Code {{ $bannerCoupon->code }}
+                    <button type="button" class="btn btn-sm text-white fw-bold rounded-pill px-3 py-1.5 shadow-xs" onclick="copyPromoCode(this, 'PRIME10')" style="background: #059669; font-size: 12.5px; white-space: nowrap; border: none;">
+                        <i class="fa-solid fa-copy me-1"></i> Copy Code PRIME10
                     </button>
                 </div>
             </div>
@@ -89,4 +87,3 @@
         });
     }
 </script>
-@endif

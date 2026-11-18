@@ -88,7 +88,7 @@
     
     {{-- 1. Official Agoda Map Entry Card (Exact Agoda Image 2 Parity) --}}
     <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 112px; cursor: pointer; border-radius: 6px 6px 0 0; background: #e8ecf2; border-bottom: 1px solid #e5e7eb;" onclick="openAgodaMapModal()" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to see area map">
-        <img src="{{ asset('images/icons/map-preview.svg') }}" onerror="this.onerror=null; this.src='/images/icons/map-preview.svg';" alt="Map" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+        <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" onerror="this.onerror=null; this.src='https://cdn6.agoda.net/images/MAPS-1213/default/bkg-map-entry.svg';" alt="Map" style="width: 100%; height: 100%; object-fit: cover; display: block;">
         {{-- Centered Red Map Pin --}}
         <div class="position-absolute" style="top: 14px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;">
             <i class="fa-solid fa-location-dot" style="font-size: 26px; color: #e03126; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));"></i>
@@ -389,12 +389,10 @@
                     <span class="agoda-check-label">Book without a credit card</span>
                 </label>
 
-                @if((string) \App\Models\SiteSetting::get('allow_pay_at_hotel', '1') !== '0')
                 <label class="agoda-check-row">
                     <input type="checkbox" name="pay_at_hotel" value="1" @checked(request('pay_at_hotel')) onchange="triggerSidebarSubmit()">
                     <span class="agoda-check-label">Pay at the hotel</span>
                 </label>
-                @endif
             </div>
         </form>
     </div>

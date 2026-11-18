@@ -118,19 +118,6 @@
                                                         </select>
                                                     </div>
                                                 </div>
-                                                <div class="row g-2 mb-3">
-                                                    @foreach(['cleanliness_score' => 'Cleanliness', 'location_score' => 'Location', 'service_score' => 'Service', 'facilities_score' => 'Facilities', 'comfort_score' => 'Room comfort', 'value_score' => 'Value for money'] as $catField => $catLabel)
-                                                        <div class="col-6">
-                                                            <label class="form-label text-muted small mb-1">{{ $catLabel }}</label>
-                                                            <select name="{{ $catField }}" class="form-select form-select-sm">
-                                                                <option value="">Skip</option>
-                                                                @for($s = 5; $s >= 1; $s--)
-                                                                    <option value="{{ $s }}">{{ $s }} / 5</option>
-                                                                @endfor
-                                                            </select>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
                                                 <div class="mb-3">
                                                     <label class="form-label fw-bold text-dark small">Your Experience Feedback</label>
                                                     <textarea name="comment" class="form-control rounded-3" rows="4" placeholder="How was the room, cleanliness, staff, and location?" required></textarea>

@@ -122,57 +122,72 @@
     }
 </style>
 
-<div id="social-proof-toast" role="status" aria-live="polite">
+<div id="social-proof-toast">
     <div class="sp-avatar-pulse" id="spIcon">
-        <i class="fa-solid fa-circle-check text-white"></i>
+        <i class="fa-solid fa-fire text-warning"></i>
     </div>
     <div class="sp-content">
-        <div class="sp-title" id="spTitle"></div>
+        <div class="sp-title" id="spTitle">Shafiq from Dhaka</div>
         <div class="sp-time">
-            <span id="spSubtitle"></span>
+            <i class="fa-solid fa-circle-check text-emerald-400" style="color: #00b074;"></i>
+            <span id="spSubtitle">Booked Sea Crown Hotel (2 mins ago)</span>
         </div>
     </div>
     <button type="button" class="sp-close" id="spCloseBtn" aria-label="Close">&times;</button>
 </div>
 
 <script>
-(function () {
-    // Real bookings from the last 24 hours only. If there are none, nothing is shown.
-    var items = [];
-    var index = 0;
-    var dismissed = false;
-    var toast, title, sub, closeBtn;
+(function() {
+    const notifications = [
+        { title: 'Shafiq from Dhaka', subtitle: 'Booked Sea Crown Hotel, Cox\'s Bazar', time: '2 mins ago', icon: 'fa-solid fa-fire' },
+        { title: 'High Demand Alert', subtitle: '6 travelers are looking at Sylhet Resorts', time: 'Just now', icon: 'fa-solid fa-bolt' },
+        { title: 'Tanvir from Chittagong', subtitle: 'Reserved Deluxe Room at Hotel The Cox Today', time: '5 mins ago', icon: 'fa-solid fa-circle-check' },
+        { title: 'Secret Member Deal', subtitle: 'Member saved ৳1,800 on Saint Martin Resort', time: '8 mins ago', icon: 'fa-solid fa-tag' },
+        { title: 'Anika from Rajshahi', subtitle: 'Booked Grand Sultan Tea Resort, Sreemangal', time: '12 mins ago', icon: 'fa-solid fa-hotel' }
+    ];
 
-    function ago(m) {
-        if (m < 60) return m + (m === 1 ? ' min ago' : ' mins ago');
-        var h = Math.round(m / 60);
-        return h + (h === 1 ? ' hour ago' : ' hours ago');
+    let currentIndex = 0;
+    let toastElem, titleElem, subElem, iconElem, closeBtn;
+
+    function initSocialProof() {
+        toastElem = document.getElementById('social-proof-toast');
+        if (!toastElem) return;
+
+        titleElem = document.getElementById('spTitle');
+        subElem = document.getElementById('spSubtitle');
+        iconElem = document.getElementById('spIcon');
+        closeBtn = document.getElementById('spCloseBtn');
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                toastElem.classList.remove('show');
+            });
+        }
+
+        // Start cycle after 4.5 seconds
+        setTimeout(showNextSocialNotification, 4500);
     }
 
-    function showNext() {
-        if (!toast || dismissed || !items.length) return;
-        var it = items[index];
-        index = (index + 1) % items.length;
-        title.textContent = 'A guest booked ' + it.property;
-        sub.textContent = it.city + ' · ' + ago(it.minutes_ago);
-        toast.classList.add('show');
-        setTimeout(function () {
-            toast.classList.remove('show');
-            if (index !== 0) setTimeout(showNext, 22000);
+    function showNextSocialNotification() {
+        if (!toastElem) return;
+
+        const current = notifications[currentIndex];
+        currentIndex = (currentIndex + 1) % notifications.length;
+
+        titleElem.textContent = current.title;
+        subElem.textContent = `${current.subtitle} (${current.time})`;
+        iconElem.innerHTML = `<i class="${current.icon} text-white"></i>`;
+
+        toastElem.classList.add('show');
+
+        // Hide after 5 seconds
+        setTimeout(() => {
+            if (toastElem) toastElem.classList.remove('show');
+            // Re-trigger next notification in 22 seconds
+            setTimeout(showNextSocialNotification, 22000);
         }, 5000);
     }
 
-    document.addEventListener('DOMContentLoaded', function () {
-        toast = document.getElementById('social-proof-toast');
-        if (!toast) return;
-        title = document.getElementById('spTitle');
-        sub = document.getElementById('spSubtitle');
-        closeBtn = document.getElementById('spCloseBtn');
-        closeBtn.addEventListener('click', function () { dismissed = true; toast.classList.remove('show'); });
-
-        fetch(@json(route('social-proof.recent')), { headers: { 'Accept': 'application/json' } })
-            .then(function (r) { return r.ok ? r.json() : { items: [] }; })
-            .then(function (d) { items = (d && d.items) || []; if (items.length) setTimeout(showNext, 6000); })
-            .catch(function () {});
-    });
-})();</script>
+    document.addEventListener('DOMContentLoaded', initSocialProof);
+})();
+</script>

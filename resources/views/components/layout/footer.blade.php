@@ -74,39 +74,31 @@
                 </ul>
             </div>
 
-            @php
-                // Shown only when the admin has published app store links (Settings > Social).
-                $safeUrl = fn ($u) => preg_match('#^https?://#i', (string) $u) ? (string) $u : null;
-                $appStoreUrl = $safeUrl(\App\Models\SiteSetting::get('app_store_url', ''));
-                $playStoreUrl = $safeUrl(\App\Models\SiteSetting::get('play_store_url', ''));
-            @endphp
             <!-- Column 5: Get the app -->
             <div class="col-6 col-md-4 col-lg-3">
-                @if($appStoreUrl || $playStoreUrl)
                 <h6 style="font-weight: 700; font-size: 14px; color: #1b2631; margin-bottom: 14px;">{{ __('Get the app') }}</h6>
                 <ul class="list-unstyled" style="display: flex; flex-direction: column; gap: 10px;">
-                    @if($appStoreUrl)<li><a href="{{ $appStoreUrl }}" target="_blank" rel="noopener" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">iOS app</a></li>@endif
-                    @if($playStoreUrl)<li><a href="{{ $playStoreUrl }}" target="_blank" rel="noopener" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Android app</a></li>@endif
+                    <li><a href="#" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">iOS app</a></li>
+                    <li><a href="#" style="text-decoration: none; font-size: 13px; color: #2067e1; font-weight: 400;">Android app</a></li>
                 </ul>
 
                 <!-- App Store Buttons (Agoda style) -->
                 <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 8px;">
-                    @if($appStoreUrl)<a href="{{ $appStoreUrl }}" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px; background: #1b2631; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; width: fit-content;">
+                    <a href="#" style="display: flex; align-items: center; gap: 8px; background: #1b2631; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; width: fit-content;">
                         <i class="fa-brands fa-apple" style="font-size: 20px;"></i>
                         <div style="line-height: 1.2;">
                             <div style="font-size: 9px; opacity: 0.8;">Download on the</div>
                             <div style="font-size: 13px; font-weight: 700;">App Store</div>
                         </div>
-                    </a>@endif
-                    @if($playStoreUrl)<a href="{{ $playStoreUrl }}" target="_blank" rel="noopener" style="display: flex; align-items: center; gap: 8px; background: #1b2631; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; width: fit-content;">
+                    </a>
+                    <a href="#" style="display: flex; align-items: center; gap: 8px; background: #1b2631; color: #fff; text-decoration: none; padding: 8px 14px; border-radius: 8px; width: fit-content;">
                         <i class="fa-brands fa-google-play" style="font-size: 18px; color: #4ade80;"></i>
                         <div style="line-height: 1.2;">
                             <div style="font-size: 9px; opacity: 0.8;">Get it on</div>
                             <div style="font-size: 13px; font-weight: 700;">Google Play</div>
                         </div>
-                    </a>@endif
+                    </a>
                 </div>
-                @endif
 
                 <!-- Contact Info -->
                 <div style="margin-top: 20px;">

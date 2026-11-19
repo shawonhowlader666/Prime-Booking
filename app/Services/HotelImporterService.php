@@ -504,7 +504,8 @@ class HotelImporterService
             }
         }
         if (empty($amenities)) {
-            $amenities = ['Free WiFi', 'Air Conditioning', 'Swimming Pool', 'Breakfast Included', '24/7 Room Service'];
+            // Strict OTA integrity: do not fabricate AC, swimming pools, or spas if not provided
+            $amenities = [];
         }
 
         // Determine Property Type & Available Inventory
@@ -636,7 +637,7 @@ class HotelImporterService
                 'total_rooms'        => rand(5, 15),
                 'breakfast_included' => $r['breakfast_included'],
                 'free_cancellation'  => $r['free_cancellation'],
-                'facilities'         => ['Free Wi-Fi', 'Air Conditioning', 'Flat-screen TV', 'Ensuite Bathroom', 'Balcony View'],
+                'facilities'         => ['Free Wi-Fi', 'Ensuite Bathroom'],
                 'images'             => $property->images ?? [$property->primary_image],
             ]);
         }

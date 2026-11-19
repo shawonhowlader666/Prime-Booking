@@ -37,7 +37,7 @@ class OtaHotelNormalizerService
             'original_price'          => (float)($payload['original_price'] ?? round($price * 1.25)),
             'primary_image'           => $payload['primary_image'] ?? $payload['image'] ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=800',
             'images'                  => (array)($payload['images'] ?? $payload['gallery'] ?? []),
-            'amenities'               => (array)($payload['amenities'] ?? ['WiFi', 'Air Conditioning', 'Free Breakfast', 'Parking', '24/7 Front Desk']),
+            'amenities'               => (array)($payload['amenities'] ?? []),
             'is_featured'             => (bool)($payload['is_featured'] ?? false),
             'status'                  => 'active',
             'free_cancellation'       => (bool)($payload['free_cancellation'] ?? true),

@@ -414,6 +414,12 @@ class PropertyRepository
             $query->whereRaw('1 = 0');
         }
 
+        // ── Sidebar text search (hotel name, area, address) ─────────────
+        $textQuery = trim((string) ($params['q'] ?? ''));
+        if ($textQuery !== '') {
+            $query->keyword($textQuery);
+        }
+
         // ── Area / neighbourhood filter ─────────────────────────────────
         $areas = array_filter(array_map(fn ($a) => trim((string) $a), (array) ($params['area'] ?? [])));
         if (!empty($areas)) {

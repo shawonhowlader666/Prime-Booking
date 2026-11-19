@@ -84,26 +84,43 @@
     }
 </style>
 
-<div class="card border-0 rounded-3 overflow-hidden mb-4 bg-white" style="border: 1px solid #e5e7eb !important; border-radius: 6px !important;">
-    
-    {{-- 1. Official Agoda Map Entry Card (Exact Agoda Image 2 Parity) --}}
-    <div class="position-relative text-center p-0 overflow-hidden agoda-map-trigger-card" style="height: 112px; cursor: pointer; border-radius: 6px 6px 0 0; background: #e8ecf2; border-bottom: 1px solid #e5e7eb;" onclick="openAgodaMapModal()" data-bs-toggle="modal" data-bs-target="#interactiveMapModal" title="Click to see area map">
-        <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" onerror="this.onerror=null; this.src='https://cdn6.agoda.net/images/MAPS-1213/default/bkg-map-entry.svg';" alt="Map" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-        {{-- Centered Red Map Pin --}}
-        <div class="position-absolute" style="top: 14px; left: 50%; transform: translateX(-50%); z-index: 10; pointer-events: none;">
-            <i class="fa-solid fa-location-dot" style="font-size: 26px; color: #e03126; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.25));"></i>
-        </div>
-        {{-- SEE AREA White Pill Button --}}
-        <div class="position-absolute" style="bottom: 10px; left: 50%; transform: translateX(-50%); z-index: 10;">
-            <span style="background: #ffffff; color: #2a2a2e; font-weight: 700; font-size: 12px; padding: 4px 16px; border-radius: 9999px; box-shadow: 0 1px 4px rgba(0,0,0,0.18); display: inline-block; letter-spacing: 0.5px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">
-                SEE AREA
-            </span>
-        </div>
-    </div>
+{{-- The search page is a standalone (non-Bootstrap) layout, so the few utilities this sidebar needs are defined here. --}}
+<style>
+    .pb-filter { background: #fff; border: 1px solid #e5e7eb; border-radius: 6px; overflow: hidden; margin-bottom: 24px; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+    .pb-filter .d-none { display: none !important; }
+    .pb-filter-body { padding: 16px; }
+    .pb-map-card { position: relative; display: block; width: 100%; height: 125px; padding: 0; border: 0; border-bottom: 1px solid #e5e7eb; background: #fff; cursor: pointer; text-align: center; overflow: hidden; }
+    .pb-map-card img { width: 100%; height: 85px; object-fit: cover; display: block; }
+    .pb-map-card .pb-map-pin { position: absolute; top: 18px; left: 50%; transform: translateX(-50%); pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,.3)); }
+    .pb-map-card .pb-map-label { height: 40px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 13.5px; color: #2a2a2e; letter-spacing: .5px; }
+    .pb-map-card:hover .pb-map-label { color: #2067e1; }
+    .pb-filter-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; padding-bottom: 8px; border-bottom: 1px solid #e5e7eb; }
+    .pb-filter-head h6 { margin: 0; font-size: 14px; font-weight: 700; color: #2a2a2e; }
+    .pb-link { font-size: 11.5px; font-weight: 700; color: #2067e1; text-decoration: none; background: none; border: 0; padding: 0; cursor: pointer; }
+    .pb-text-search { position: relative; }
+    .pb-text-search svg { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); }
+    .pb-text-search input { width: 100%; box-sizing: border-box; height: 38px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 12px 0 34px; font-size: 13px; color: #2a2a2e; outline: none; }
+    .pb-text-search input:focus, .pb-geo-select:focus { border-color: #2067e1; box-shadow: 0 0 0 2px rgba(32,103,225,.15); }
+    .pb-geo-select { width: 100%; box-sizing: border-box; height: 36px; border: 1.5px solid #dcdfe4; border-radius: 4px; padding: 0 10px; font-size: 12.5px; font-weight: 500; color: #2a2a2e; background: #fff; outline: none; margin-bottom: 8px; cursor: pointer; }
+</style>
 
-    <div class="p-3">
+<div class="pb-filter" id="filterSidebarRoot">
+
+    {{-- 1. Map entry card: opens the map of the hotels on this page --}}
+    <button type="button" class="pb-map-card agoda-map-trigger-card" onclick="if (window.openAgodaMapModal) openAgodaMapModal();" title="Search on map" aria-label="Search on map">
+        <img src="{{ asset('images/agoda/bkg-map-entry.svg') }}" alt="">
+        <svg class="pb-map-pin" width="26" height="34" viewBox="0 0 24 32" aria-hidden="true"><path fill="#e03126" d="M12 0C5.4 0 0 5.3 0 11.9 0 20.8 12 32 12 32s12-11.2 12-20.1C24 5.3 18.6 0 12 0z"/><circle cx="12" cy="12" r="4.5" fill="#fff"/></svg>
+        <span class="pb-map-label">SEARCH ON MAP</span>
+    </button>
+
+    <div class="pb-filter-body">
+        <div class="pb-filter-head">
+            <h6>Filter by</h6>
+            <a href="{{ route('search.index', array_filter(request()->only(['destination', 'search_type', 'check_in', 'check_out', 'guests', 'rooms', 'children']))) }}" class="pb-link">CLEAR ALL</a>
+        </div>
+
         <form action="{{ route('search.index') }}" method="GET" id="filterSidebarForm">
-            <input type="hidden" name="destination" value="{{ request('destination') }}">
+            <input type="hidden" name="destination" id="sidebarDestinationInput" value="{{ request('destination') }}">
             <input type="hidden" name="search_type" value="{{ request('search_type', 'hotel') }}">
             <input type="hidden" name="check_in" value="{{ request('check_in') }}">
             <input type="hidden" name="check_out" value="{{ request('check_out') }}">
@@ -120,6 +137,59 @@
             @if(request('lng'))
                 <input type="hidden" name="lng" value="{{ request('lng') }}">
             @endif
+            @if(request('children'))
+                <input type="hidden" name="children" value="{{ request('children') }}">
+            @endif
+
+            {{-- 2. Text search: hotel name, area or address --}}
+            <div class="agoda-filter-group" style="padding-bottom: 14px; margin-bottom: 16px;">
+                <div class="pb-text-search">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#687176" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+                    <input type="search" name="q" id="outerSearchTextInput" value="{{ request('q') }}" maxlength="100" placeholder="Text search" aria-label="Search by hotel name or area"
+                           onkeydown="if (event.key === 'Enter') { event.preventDefault(); triggerSidebarSubmit(); }"
+                           onsearch="triggerSidebarSubmit()">
+                </div>
+            </div>
+
+            {{-- 2.1 Location / Area: cascading division → district → upazila picker --}}
+            @php
+                $geoConfig = config('bangladesh-geo.divisions', []);
+                $selectedDivision = (string) request('division', '');
+                $selectedDistrict = (string) request('district', '');
+                $selectedUpazila  = (string) request('upazila', '');
+                $hasGeo = $selectedDivision !== '' || $selectedDistrict !== '' || $selectedUpazila !== '';
+            @endphp
+            <div class="agoda-filter-group" id="locationFilterWidget" style="padding-bottom: 10px; margin-bottom: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <span class="agoda-filter-title" style="margin: 0;">Location / Area</span>
+                    <button type="button" id="resetLocationBtn" class="pb-link {{ $hasGeo ? '' : 'd-none' }}">Reset</button>
+                </div>
+
+                <select name="division" id="divisionSelectFilter" class="pb-geo-select" aria-label="Select region">
+                    <option value="">Select region...</option>
+                    @foreach($geoConfig as $divKey => $divInfo)
+                        <option value="{{ $divKey }}" @selected($selectedDivision === (string) $divKey)>{{ $divInfo['name'] ?? $divKey }}</option>
+                    @endforeach
+                </select>
+
+                <div id="geoDistrictContainer" class="{{ $selectedDivision !== '' ? '' : 'd-none' }}">
+                    <select name="district" id="districtSelectFilter" class="pb-geo-select" aria-label="Select city or district">
+                        <option value="">Select city / district...</option>
+                        @foreach(($geoConfig[$selectedDivision]['districts'] ?? []) as $distKey => $distInfo)
+                            <option value="{{ $distKey }}" @selected($selectedDistrict === (string) $distKey)>{{ $distInfo['name'] ?? $distKey }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div id="geoUpazilaContainer" class="{{ ($selectedDivision !== '' && $selectedDistrict !== '') ? '' : 'd-none' }}">
+                    <select name="upazila" id="upazilaSelectFilter" class="pb-geo-select" aria-label="Select area">
+                        <option value="">Select area / spot...</option>
+                        @foreach(($geoConfig[$selectedDivision]['districts'][$selectedDistrict]['upazilas'] ?? []) as $upazilaName)
+                            <option value="{{ $upazilaName }}" @selected($selectedUpazila === (string) $upazilaName)>{{ $upazilaName }}</option>
+                        @endforeach
+                    </select>
+                </div>
+            </div>
 
             {{-- 3. Budget Range Box (100% Exact Agoda Floating MIN / MAX Parity) --}}
             @php
@@ -489,53 +559,135 @@
         }, 500);
     }
 
+    // Regions of the page that depend on the filters. Each is swapped in place after an AJAX filter change.
+    var SWAP_IDS = ['searchPageRightColumn', 'breadcrumb', 'resultsMapData'];
+    var inFlight = null;
+
     window.triggerSidebarSubmit = function() {
         var form = document.getElementById('filterSidebarForm');
-        var resultsContainer = document.getElementById('searchResultsContainer') || document.getElementById('contentContainer') || document.querySelector('.hotel-list-container');
-        if (!resultsContainer || !form) {
-            if (form) form.submit();
-            return;
-        }
+        if (!form) return;
+        var main = document.getElementById('searchPageRightColumn');
+        if (!main || !window.fetch || !window.DOMParser) { form.submit(); return; }
 
-        resultsContainer.style.opacity = '0.4';
-        resultsContainer.style.transition = 'opacity 0.15s ease';
-
-        var formData = new FormData(form);
         var params = new URLSearchParams();
-        for (var pair of formData.entries()) {
-            if (pair[1] !== '' && pair[1] !== null) {
-                params.append(pair[0], pair[1]);
-            }
-        }
-
+        new FormData(form).forEach(function(value, key) {
+            if (value !== '' && value !== null) params.append(key, value);
+        });
         var targetUrl = form.action + '?' + params.toString();
-        fetch(targetUrl, {
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+
+        if (inFlight) inFlight.abort();
+        inFlight = window.AbortController ? new AbortController() : null;
+        main.style.transition = 'opacity 0.15s ease';
+        main.style.opacity = '0.4';
+
+        fetch(targetUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, signal: inFlight ? inFlight.signal : undefined })
+        .then(function(res) {
+            if (!res.ok) throw new Error('HTTP ' + res.status);
+            return res.text();
         })
-        .then(function(res) { return res.text(); })
         .then(function(html) {
-            var parser = new DOMParser();
-            var doc = parser.parseFromString(html, 'text/html');
-            
-            var newFeed = doc.getElementById('searchResultsContainer') || doc.getElementById('contentContainer') || doc.querySelector('.hotel-list-container');
-            if (newFeed && resultsContainer) {
-                resultsContainer.innerHTML = newFeed.innerHTML;
-            }
-            
-            var newCount = doc.querySelector('[data-element-name="properties-available-text"]') || doc.getElementById('resultsCount');
-            var curCount = document.querySelector('[data-element-name="properties-available-text"]') || document.getElementById('resultsCount');
-            if (newCount && curCount) {
-                curCount.innerHTML = newCount.innerHTML;
-            }
-            resultsContainer.style.opacity = '1';
+            var doc = new DOMParser().parseFromString(html, 'text/html');
+            SWAP_IDS.forEach(function(id) {
+                var fresh = doc.getElementById(id);
+                var current = document.getElementById(id);
+                if (fresh && current) current.innerHTML = fresh.innerHTML;
+            });
+            if (doc.title) document.title = doc.title;
+            main.style.opacity = '1';
             history.pushState(null, '', targetUrl);
+            document.dispatchEvent(new CustomEvent('search:results-updated'));
         })
         .catch(function(err) {
-            console.error('Sidebar AJAX error:', err);
-            resultsContainer.style.opacity = '1';
+            if (err && err.name === 'AbortError') return;
+            main.style.opacity = '1';
             form.submit();
         });
     };
+
+    // Back/forward after AJAX filtering: reload so results match the URL.
+    window.addEventListener('popstate', function() { window.location.reload(); });
+
+    // ── Location / Area cascading picker (division → district → upazila) ──
+    var geoData = @json(config('bangladesh-geo.divisions', []));
+    var divisionSelect = document.getElementById('divisionSelectFilter');
+    var districtSelect = document.getElementById('districtSelectFilter');
+    var upazilaSelect  = document.getElementById('upazilaSelectFilter');
+    var districtBox    = document.getElementById('geoDistrictContainer');
+    var upazilaBox     = document.getElementById('geoUpazilaContainer');
+    var resetGeoBtn    = document.getElementById('resetLocationBtn');
+    var destInput      = document.getElementById('sidebarDestinationInput');
+    var originalDest   = destInput ? destInput.value : '';
+
+    function fillSelect(select, placeholder, entries) {
+        select.innerHTML = '';
+        var first = document.createElement('option');
+        first.value = '';
+        first.textContent = placeholder;
+        select.appendChild(first);
+        entries.forEach(function(e) {
+            var opt = document.createElement('option');
+            opt.value = e.value;
+            opt.textContent = e.label;
+            select.appendChild(opt);
+        });
+    }
+
+    // The picked area replaces the typed destination, otherwise "Cox's Bazar" + "Dhaka" would match nothing.
+    function syncDestinationWithGeo() {
+        if (!destInput) return;
+        var div = divisionSelect.value, dist = districtSelect.value, upz = upazilaSelect.value;
+        if (upz) {
+            destInput.value = upz;
+        } else if (dist) {
+            destInput.value = dist;
+        } else if (div) {
+            destInput.value = '';
+        } else {
+            destInput.value = originalDest;
+        }
+        if (resetGeoBtn) resetGeoBtn.classList.toggle('d-none', !div);
+    }
+
+    if (divisionSelect && districtSelect && upazilaSelect) {
+        divisionSelect.addEventListener('change', function() {
+            var div = this.value;
+            var districts = (geoData[div] && geoData[div].districts) || {};
+            fillSelect(districtSelect, 'Select city / district...', Object.keys(districts).map(function(k) {
+                return { value: k, label: districts[k].name || k };
+            }));
+            fillSelect(upazilaSelect, 'Select area / spot...', []);
+            districtBox.classList.toggle('d-none', !div);
+            upazilaBox.classList.add('d-none');
+            syncDestinationWithGeo();
+            triggerSidebarSubmit();
+        });
+
+        districtSelect.addEventListener('change', function() {
+            var div = divisionSelect.value, dist = this.value;
+            var upazilas = (dist && geoData[div] && geoData[div].districts[dist] && geoData[div].districts[dist].upazilas) || [];
+            fillSelect(upazilaSelect, 'Select area / spot...', upazilas.map(function(u) { return { value: u, label: u }; }));
+            upazilaBox.classList.toggle('d-none', !upazilas.length);
+            syncDestinationWithGeo();
+            triggerSidebarSubmit();
+        });
+
+        upazilaSelect.addEventListener('change', function() {
+            syncDestinationWithGeo();
+            triggerSidebarSubmit();
+        });
+
+        if (resetGeoBtn) {
+            resetGeoBtn.addEventListener('click', function() {
+                divisionSelect.value = '';
+                fillSelect(districtSelect, 'Select city / district...', []);
+                fillSelect(upazilaSelect, 'Select area / spot...', []);
+                districtBox.classList.add('d-none');
+                upazilaBox.classList.add('d-none');
+                syncDestinationWithGeo();
+                triggerSidebarSubmit();
+            });
+        }
+    }
 
     // Initialize slider on load
     if (minRange && maxRange) {

@@ -29,6 +29,7 @@ class SearchRequest extends FormRequest
     {
         return [
             'destination'  => ['nullable', 'string', 'max:150'],
+            'q'            => ['nullable', 'string', 'max:100'],
             'division'     => ['nullable', 'string', 'max:100'],
             'district'     => ['nullable', 'string', 'max:100'],
             'upazila'      => ['nullable', 'string', 'max:100'],
@@ -146,6 +147,7 @@ class SearchRequest extends FormRequest
     {
         return [
             'destination'  => $this->destination(),
+            'q'            => trim((string) ($this->validated()['q'] ?? '')),
             'division'     => trim((string) ($this->validated()['division'] ?? '')),
             'district'     => trim((string) ($this->validated()['district'] ?? '')),
             'upazila'      => trim((string) ($this->validated()['upazila'] ?? '')),

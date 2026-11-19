@@ -42,10 +42,22 @@
     </div>
 </div>
 
+<script type="application/json" id="resultsMapData">@json($mapHotels)</script>
+
 <script>
 (function () {
-    var HOTELS = @json($mapHotels);
-    var map = null, markers = {};
+    var HOTELS = [];
+    var map = null, markers = {}, markerLayer = null, loadedData = null;
+
+    // Hotel list lives in #resultsMapData so AJAX filtering can swap it.
+    function readHotels() {
+        var el = document.getElementById("resultsMapData");
+        var raw = el ? el.textContent : "[]";
+        if (raw === loadedData) return false;
+        loadedData = raw;
+        try { HOTELS = JSON.parse(raw) || []; } catch (e) { HOTELS = []; }
+        return true;
+    }
 
     function loadLeaflet(cb) {
         if (window.L) return cb();
@@ -82,11 +94,14 @@
     function render(focusId) {
         var empty = document.getElementById('resultsMapEmpty');
         var box = document.getElementById('resultsMap');
+        var changed = readHotels();
         if (!HOTELS.length) {
             box.style.display = 'none';
             empty.style.display = '';
             return;
         }
+        box.style.display = '';
+        empty.style.display = 'none';
         loadLeaflet(function () {
             if (!map) {
                 map = L.map('resultsMap');
@@ -94,8 +109,14 @@
                     maxZoom: 19,
                     attribution: '&copy; OpenStreetMap contributors'
                 }).addTo(map);
+                markerLayer = L.layerGroup().addTo(map);
+                changed = true;
+            }
+            if (changed) {
+                markerLayer.clearLayers();
+                markers = {};
                 HOTELS.forEach(function (h) {
-                    markers[h.id] = L.marker([h.lat, h.lng]).addTo(map).bindPopup(
+                    markers[h.id] = L.marker([h.lat, h.lng]).addTo(markerLayer).bindPopup(
                         '<strong>' + escapeHtml(h.name) + '</strong><br>' + escapeHtml(h.price) +
                         ' / night<br><a href="' + h.url + '">View hotel</a>'
                     );

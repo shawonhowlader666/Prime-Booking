@@ -984,6 +984,7 @@ Route::prefix('vendor')->name('vendor.')->middleware(['auth', 'role:vendor,admin
     // ── Vendor Room CRUD ───────────────────────────────────────
     Route::get('/properties/{propertyId}/rooms',                      [App\Http\Controllers\Vendor\VendorRoomController::class, 'index'])->name('rooms.index');
     Route::post('/properties/{propertyId}/rooms',                     [App\Http\Controllers\Vendor\VendorRoomController::class, 'store'])->name('rooms.store');
+    Route::get('/properties/{propertyId}/rooms/{roomId}/edit',        [App\Http\Controllers\Vendor\VendorRoomController::class, 'edit'])->name('rooms.edit');
     Route::put('/properties/{propertyId}/rooms/{roomId}',             [App\Http\Controllers\Vendor\VendorRoomController::class, 'update'])->name('rooms.update');
     Route::delete('/properties/{propertyId}/rooms/{roomId}',          [App\Http\Controllers\Vendor\VendorRoomController::class, 'destroy'])->name('rooms.destroy');
     Route::get('/properties/{propertyId}/rooms/{roomId}/availability', [RoomAvailabilityController::class, 'index'])->name('rooms.availability');

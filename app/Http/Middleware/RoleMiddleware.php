@@ -22,6 +22,9 @@ class RoleMiddleware
     {
         // Must be authenticated
         if (!auth()->check()) {
+            if ($request->is('admin*')) {
+                abort(404);
+            }
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Unauthenticated.'], 401);
             }
@@ -45,6 +48,9 @@ class RoleMiddleware
             $allowedRoles[] = 'super_admin';
         }
         if (!empty($allowedRoles) && !in_array($user->role, $allowedRoles, true)) {
+            if ($request->is('admin*')) {
+                abort(404);
+            }
             if ($request->expectsJson()) {
                 return response()->json(['success' => false, 'message' => 'Access denied. Insufficient permissions.'], 403);
             }

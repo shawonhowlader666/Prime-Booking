@@ -1153,15 +1153,14 @@ Route::get("/{$adminSecretSlug}", [OAuthController::class, 'showAdminLogin'])->n
 Route::post("/{$adminSecretSlug}", [OAuthController::class, 'loginAdmin'])->name('admin.login.post')->middleware('throttle:5,1,web-l1136');
 
 // Decoy / Honeypot: Block public probing on standard admin paths with 404 Not Found
-Route::any('/admin/login', function () {
-    abort(404);
-});
-Route::any('/administrator', function () {
-    abort(404);
-});
-Route::any('/wp-admin', function () {
-    abort(404);
-});
+Route::any('/admin/login', fn () => abort(404));
+Route::any('/admin/signin', fn () => abort(404));
+Route::any('/admin-login', fn () => abort(404));
+Route::any('/administrator', fn () => abort(404));
+Route::any('/wp-admin', fn () => abort(404));
+Route::any('/backend', fn () => abort(404));
+Route::any('/backend/login', fn () => abort(404));
+Route::any('/cpanel', fn () => abort(404));
 
 // /admin route: Only accessible to authenticated admins, otherwise 404 Not Found
 Route::get('/admin', function () {

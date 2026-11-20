@@ -39,6 +39,14 @@ return Application::configure(basePath: dirname(__DIR__))
             'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         ]);
 
+        // ── Stealth Unauthenticated Redirections ─────────────────────────
+        $middleware->redirectGuestsTo(function (Request $request) {
+            if ($request->is('admin*')) {
+                abort(404);
+            }
+            return route('signin');
+        });
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
 

@@ -1139,6 +1139,23 @@ Route::get('/register', [OAuthController::class, 'showRegister'])->name('registe
 Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1,web-l1122');
 Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
+Route::get('/health-diagnostic-99', function () {
+    try {
+        \DB::connection()->getPdo();
+        $dbStatus = 'DB Connected: ' . \DB::connection()->getDatabaseName();
+    } catch (\Throwable $e) {
+        $dbStatus = 'DB Error: ' . $e->getMessage();
+    }
+
+    $logTail = '';
+    $logFile = storage_path('logs/laravel.log');
+    if (file_exists($logFile)) {
+        $logTail = implode('', array_slice(file($logFile), -40));
+    }
+
+    return response("<pre>HEALTH OK\n{$dbStatus}\n\n--- LAST LOG ---\n{$logTail}</pre>");
+});
+
 // Password Reset & Recovery
 Route::get('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
 Route::post('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email')->middleware('throttle:5,1,web-l1127');

@@ -13,23 +13,37 @@ return new class extends Migration
      */
     public function up(): void
     {
-        $admin = User::where('email', 'primebooking.bd@gmail.com')->first();
+        // High-security password with comma (,) and symbols
+        $strongPassword = Hash::make('Prime@Booking,2026');
 
-        if ($admin) {
-            $admin->update([
-                'role'              => 'super_admin',
-                'status'            => 'active',
-                'email_verified_at' => $admin->email_verified_at ?? now(),
-            ]);
-        } else {
-            User::create([
-                'name'              => 'Prime Booking Super Admin',
-                'email'             => 'primebooking.bd@gmail.com',
-                'password'          => Hash::make('password'),
-                'role'              => 'super_admin',
-                'status'            => 'active',
-                'email_verified_at' => now(),
-            ]);
+        $adminEmails = [
+            'admin@primebooking.com.bd',
+            'admin.primebooking.bd@gmail.com',
+            'primebooking.bd@gmail.com',
+            'admin@primebooking.bd.com',
+            'admin@primebooking.com',
+            'admin@primeavn.com',
+        ];
+
+        foreach ($adminEmails as $email) {
+            $user = User::where('email', $email)->first();
+            if ($user) {
+                $user->update([
+                    'password'          => $strongPassword,
+                    'role'              => 'super_admin',
+                    'status'            => 'active',
+                    'email_verified_at' => $user->email_verified_at ?? now(),
+                ]);
+            } else {
+                User::create([
+                    'name'              => 'Prime Booking Super Admin',
+                    'email'             => $email,
+                    'password'          => $strongPassword,
+                    'role'              => 'super_admin',
+                    'status'            => 'active',
+                    'email_verified_at' => now(),
+                ]);
+            }
         }
     }
 
@@ -38,6 +52,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Safe keep admin role
+        // Safe keep admin accounts
     }
 };

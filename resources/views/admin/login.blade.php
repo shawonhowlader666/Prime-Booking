@@ -276,8 +276,8 @@
                 <i class="fa-solid fa-key" style="color: #38bdf8;"></i> Auto-fill Official Admin Credentials
             </button>
             <div class="text-center" style="font-size: 11.5px; color: #94a3b8;">
-                <i class="fa-solid fa-circle-info me-1" style="color: #38bdf8;"></i>
-                Default: <strong style="color: #f1f5f9;">primebooking.bd@gmail.com</strong> • Pass: <strong style="color: #f1f5f9;">password</strong>
+                <i class="fa-solid fa-shield-halved me-1" style="color: #38bdf8;"></i>
+                Protected Gate: <strong style="color: #f1f5f9;">admin@primebooking.com.bd</strong>
             </div>
         </form>
 
@@ -292,8 +292,8 @@
 
     <script>
         function fillAdminCreds() {
-            document.getElementById('adminEmail').value = 'primebooking.bd@gmail.com';
-            document.getElementById('adminPassword').value = 'password';
+            document.getElementById('adminEmail').value = 'admin@primebooking.com.bd';
+            document.getElementById('adminPassword').value = 'Prime@Booking,2026';
         }
 
         // Password Show/Hide Toggle

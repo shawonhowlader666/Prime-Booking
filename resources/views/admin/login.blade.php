@@ -250,9 +250,18 @@
             </div>
 
             <!-- Submit Button -->
-            <button type="submit" class="btn btn-admin-submit">
+            <button type="submit" class="btn btn-admin-submit mb-3">
                 Sign In to Admin Portal <i class="fa-solid fa-arrow-right ms-2"></i>
             </button>
+
+            <!-- Quick Auto-Fill Helper -->
+            <button type="button" class="demo-autofill-btn mb-2" onclick="fillAdminCreds()">
+                <i class="fa-solid fa-key" style="color: #38bdf8;"></i> Auto-fill Official Admin Credentials
+            </button>
+            <div class="text-center" style="font-size: 11.5px; color: #94a3b8;">
+                <i class="fa-solid fa-circle-info me-1" style="color: #38bdf8;"></i>
+                Default: <strong style="color: #f1f5f9;">admin@primebooking.com</strong> • Pass: <strong style="color: #f1f5f9;">password</strong>
+            </div>
         </form>
 
         <!-- Back to Website -->
@@ -265,6 +274,11 @@
     </div>
 
     <script>
+        function fillAdminCreds() {
+            document.getElementById('adminEmail').value = 'admin@primebooking.com';
+            document.getElementById('adminPassword').value = 'password';
+        }
+
         // Password Show/Hide Toggle
         const toggleBtn = document.getElementById('togglePasswordBtn');
         const passInput = document.getElementById('adminPassword');

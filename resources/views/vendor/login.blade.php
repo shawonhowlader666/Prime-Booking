@@ -354,9 +354,18 @@
             </div>
 
             <!-- Submit Button (Border Radius: 4px) -->
-            <button type="submit" class="btn btn-vendor-submit">
+            <button type="submit" class="btn btn-vendor-submit mb-3">
                 Sign In to Partner Portal <i class="fa-solid fa-arrow-right ms-2"></i>
             </button>
+
+            <!-- Quick Auto-Fill Helper -->
+            <button type="button" class="demo-autofill-btn mb-2" onclick="fillVendorCreds()">
+                <i class="fa-solid fa-key" style="color: #34d399;"></i> Auto-fill Official Vendor Credentials
+            </button>
+            <div class="text-center" style="font-size: 11.5px; color: #94a3b8;">
+                <i class="fa-solid fa-circle-info me-1" style="color: #34d399;"></i>
+                Default: <strong style="color: #f1f5f9;">vendor@primebooking.com</strong> • Pass: <strong style="color: #f1f5f9;">password</strong>
+            </div>
         </form>
 
         <!-- Minimal Trust Badges -->
@@ -382,6 +391,11 @@
     </div>
 
     <script>
+        function fillVendorCreds() {
+            document.getElementById('vendorEmail').value = 'vendor@primebooking.com';
+            document.getElementById('vendorPassword').value = 'password';
+        }
+
         // Password Show/Hide Toggle
         const toggleVendorBtn = document.getElementById('toggleVendorPasswordBtn');
         const passVendorInput = document.getElementById('vendorPassword');

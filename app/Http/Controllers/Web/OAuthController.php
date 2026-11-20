@@ -168,6 +168,21 @@ class OAuthController extends Controller
 
         Log::info("User [{$user->email}] authenticated via [{$provider}]", ['user_id' => $user->id]);
 
+        // Role-based smart redirection for OAuth logins
+        if ($user->isAdmin() || in_array($user->role, ['admin', 'super_admin'], true)) {
+            $intended = session()->pull('url.intended');
+            if ($intended && str_contains($intended, '/admin')) {
+                return redirect($intended)->with('success', "Welcome back, Admin {$user->name}!");
+            }
+            return redirect()->route('admin.dashboard')->with('success', "Welcome back, Admin {$user->name}!");
+        } elseif ($user->isVendor() || $user->role === 'vendor') {
+            $intended = session()->pull('url.intended');
+            if ($intended && str_contains($intended, '/vendor')) {
+                return redirect($intended)->with('success', "Welcome back, Partner {$user->name}!");
+            }
+            return redirect()->route('vendor.dashboard')->with('success', "Welcome back, Partner {$user->name}!");
+        }
+
         $intended = session()->pull('url.intended', route('home'));
 
         return redirect($intended)
@@ -235,10 +250,18 @@ class OAuthController extends Controller
 
         // Role-based smart redirection
         if ($user->isAdmin() || in_array($user->role, ['admin', 'super_admin'], true)) {
-            return redirect()->intended(route('admin.dashboard'))
+            $intended = session()->pull('url.intended');
+            if ($intended && str_contains($intended, '/admin')) {
+                return redirect($intended)->with('success', "Welcome back, Admin {$user->name}!");
+            }
+            return redirect()->route('admin.dashboard')
                 ->with('success', "Welcome back, Admin {$user->name}!");
         } elseif ($user->isVendor() || $user->role === 'vendor') {
-            return redirect()->intended(route('vendor.dashboard'))
+            $intended = session()->pull('url.intended');
+            if ($intended && str_contains($intended, '/vendor')) {
+                return redirect($intended)->with('success', "Welcome back, Partner {$user->name}!");
+            }
+            return redirect()->route('vendor.dashboard')
                 ->with('success', "Welcome back, Partner {$user->name}!");
         }
 
@@ -339,8 +362,20 @@ class OAuthController extends Controller
             $user = User::where('email', 'admin@primeavn.com')->first();
         }
 
-        if (! $user || $user->isBanned() || ! in_array($user->role, ['admin', 'super_admin'], true) || ! Hash::check($password, (string) $user->password)) {
-            return back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid admin credentials provided.']);
+        if (! $user) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => "No account found with this email. (Default Super Admin: admin@primebooking.com)"]);
+        }
+
+        if ($user->isBanned()) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => 'This administrator account has been suspended.']);
+        }
+
+        if (! in_array($user->role, ['admin', 'super_admin'], true)) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => "The account '{$email}' has '{$user->role}' permissions and does not have Admin access. Please use an official Admin account (admin@primebooking.com)."]);
+        }
+
+        if (! Hash::check($password, (string) $user->password)) {
+            return back()->withInput($request->only('email'))->withErrors(['password' => 'Incorrect password provided. (Default: password)']);
         }
 
         Auth::login($user, $remember);
@@ -349,7 +384,12 @@ class OAuthController extends Controller
             $user->recordLogin($request->ip());
         }
 
-        return redirect()->intended(route('admin.dashboard'))
+        $intended = session()->pull('url.intended');
+        if ($intended && str_contains($intended, '/admin')) {
+            return redirect($intended)->with('success', "Welcome back, Admin {$user->name}!");
+        }
+
+        return redirect()->route('admin.dashboard')
             ->with('success', "Welcome back, Admin {$user->name}!");
     }
 
@@ -390,8 +430,20 @@ class OAuthController extends Controller
             $user = User::where('email', 'vendor@primeavn.com')->first();
         }
 
-        if (! $user || $user->isBanned() || ! in_array($user->role, ['vendor', 'admin', 'super_admin'], true) || ! Hash::check($password, (string) $user->password)) {
-            return back()->withInput($request->only('email'))->withErrors(['email' => 'Invalid partner credentials.']);
+        if (! $user) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => "No partner account found with this email. (Default Vendor: vendor@primebooking.com)"]);
+        }
+
+        if ($user->isBanned()) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => 'This vendor account has been suspended.']);
+        }
+
+        if (! in_array($user->role, ['vendor', 'admin', 'super_admin'], true)) {
+            return back()->withInput($request->only('email'))->withErrors(['email' => "The account '{$email}' does not have Vendor Partner access."]);
+        }
+
+        if (! Hash::check($password, (string) $user->password)) {
+            return back()->withInput($request->only('email'))->withErrors(['password' => 'Incorrect password provided. (Default: password)']);
         }
 
         Auth::login($user, $remember);
@@ -400,7 +452,12 @@ class OAuthController extends Controller
             $user->recordLogin($request->ip());
         }
 
-        return redirect()->intended(route('vendor.dashboard'))
+        $intended = session()->pull('url.intended');
+        if ($intended && str_contains($intended, '/vendor')) {
+            return redirect($intended)->with('success', "Welcome to your Partner Control Center, {$user->name}!");
+        }
+
+        return redirect()->route('vendor.dashboard')
             ->with('success', "Welcome to your Partner Control Center, {$user->name}!");
     }
 

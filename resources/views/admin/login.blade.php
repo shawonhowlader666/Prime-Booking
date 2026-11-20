@@ -214,6 +214,23 @@
         @endif
 
 
+        <!-- Google 1-Click Super Admin Sign In -->
+        <a href="{{ route('oauth.redirect', 'google') }}" class="btn btn-outline-light w-100 mb-3 d-flex align-items-center justify-content-center gap-2 fw-semibold" style="height: 44px; border: 1px solid rgba(255,255,255,0.22); background: rgba(255,255,255,0.07); font-size: 13.5px; border-radius: 4px !important; color: #fff; text-decoration: none; transition: all 0.2s ease;">
+            <svg width="18" height="18" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
+                <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
+            </svg>
+            <span>Continue with Google</span>
+        </a>
+
+        <div class="d-flex align-items-center gap-2 mb-3">
+            <hr class="flex-grow-1 m-0" style="border-color: rgba(255,255,255,0.15);">
+            <span class="text-slate-400" style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: #94a3b8;">OR ENTER CREDENTIALS</span>
+            <hr class="flex-grow-1 m-0" style="border-color: rgba(255,255,255,0.15);">
+        </div>
+
         <!-- Login Form -->
         <form action="{{ route('admin.login.post') }}" method="POST">
             @csrf
@@ -222,7 +239,7 @@
             <div class="mb-3">
                 <label for="adminEmail" class="form-label fw-semibold" style="font-size: 12.5px; color: #cbd5e1;">Administrator Email</label>
                 <div class="position-relative">
-                    <input type="email" name="email" id="adminEmail" class="form-control form-control-custom ps-5" placeholder="admin@primebooking.com" value="{{ old('email') }}" required autocomplete="email">
+                    <input type="email" name="email" id="adminEmail" class="form-control form-control-custom ps-5" placeholder="primebooking.bd@gmail.com" value="{{ old('email', 'primebooking.bd@gmail.com') }}" required autocomplete="email">
                     <i class="fa-solid fa-envelope position-absolute" style="left: 16px; top: 15px; color: #64748b; font-size: 14px;"></i>
                 </div>
             </div>
@@ -260,7 +277,7 @@
             </button>
             <div class="text-center" style="font-size: 11.5px; color: #94a3b8;">
                 <i class="fa-solid fa-circle-info me-1" style="color: #38bdf8;"></i>
-                Default: <strong style="color: #f1f5f9;">admin@primebooking.com</strong> • Pass: <strong style="color: #f1f5f9;">password</strong>
+                Default: <strong style="color: #f1f5f9;">primebooking.bd@gmail.com</strong> • Pass: <strong style="color: #f1f5f9;">password</strong>
             </div>
         </form>
 
@@ -275,7 +292,7 @@
 
     <script>
         function fillAdminCreds() {
-            document.getElementById('adminEmail').value = 'admin@primebooking.com';
+            document.getElementById('adminEmail').value = 'primebooking.bd@gmail.com';
             document.getElementById('adminPassword').value = 'password';
         }
 

@@ -16,7 +16,18 @@ class EnsureDefaultUsersSeeder extends Seeder
             return;
         }
 
-        // 1. Super Admin Account
+        // 1. Super Admin Accounts
+        User::updateOrCreate(
+            ['email' => 'primebooking.bd@gmail.com'],
+            [
+                'name'              => 'Prime Booking Super Admin',
+                'password'          => Hash::make('password'),
+                'role'              => 'super_admin',
+                'status'            => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
+
         User::updateOrCreate(
             ['email' => 'admin@primebooking.com'],
             [

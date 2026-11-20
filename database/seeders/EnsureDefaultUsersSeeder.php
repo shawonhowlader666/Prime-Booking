@@ -16,30 +16,19 @@ class EnsureDefaultUsersSeeder extends Seeder
             return;
         }
 
-        // 1. Super Admin Accounts with High-Security Password (with comma)
+        // 1. Single Exclusive Super Admin Account (High-Security Password with comma)
         $adminPassword = Hash::make('Prime@Booking,2026');
 
-        $adminEmails = [
-            'admin@primebooking.com.bd',
-            'admin.primebooking.bd@gmail.com',
-            'primebooking.bd@gmail.com',
-            'admin@primebooking.bd.com',
-            'admin@primebooking.com',
-            'admin@primeavn.com',
-        ];
-
-        foreach ($adminEmails as $aEmail) {
-            User::updateOrCreate(
-                ['email' => $aEmail],
-                [
-                    'name'              => 'Prime Booking Super Admin',
-                    'password'          => $adminPassword,
-                    'role'              => 'super_admin',
-                    'status'            => 'active',
-                    'email_verified_at' => now(),
-                ]
-            );
-        }
+        User::updateOrCreate(
+            ['email' => 'admin.primebooking.bd@gmail.com'],
+            [
+                'name'              => 'Prime Booking Super Admin',
+                'password'          => $adminPassword,
+                'role'              => 'super_admin',
+                'status'            => 'active',
+                'email_verified_at' => now(),
+            ]
+        );
 
         User::updateOrCreate(
             ['email' => 'admin@primeavn.com'],

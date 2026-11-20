@@ -13,37 +13,35 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // High-security password with comma (,) and symbols
-        $strongPassword = Hash::make('Prime@Booking,2026');
+        $superAdminEmail = 'admin.primebooking.bd@gmail.com';
+        $strongPassword  = Hash::make('Prime@Booking,2026');
 
-        $adminEmails = [
-            'admin@primebooking.com.bd',
-            'admin.primebooking.bd@gmail.com',
+        // Demote any old test accounts so there is ONLY ONE single Super Admin
+        User::whereIn('email', [
             'primebooking.bd@gmail.com',
             'admin@primebooking.bd.com',
-            'admin@primebooking.com',
-            'admin@primeavn.com',
-        ];
+            'admin@primeaviation.com',
+        ])->update(['role' => 'customer']);
 
-        foreach ($adminEmails as $email) {
-            $user = User::where('email', $email)->first();
-            if ($user) {
-                $user->update([
-                    'password'          => $strongPassword,
-                    'role'              => 'super_admin',
-                    'status'            => 'active',
-                    'email_verified_at' => $user->email_verified_at ?? now(),
-                ]);
-            } else {
-                User::create([
-                    'name'              => 'Prime Booking Super Admin',
-                    'email'             => $email,
-                    'password'          => $strongPassword,
-                    'role'              => 'super_admin',
-                    'status'            => 'active',
-                    'email_verified_at' => now(),
-                ]);
-            }
+        // Ensure ONLY admin.primebooking.bd@gmail.com is the master Super Admin
+        $user = User::where('email', $superAdminEmail)->first();
+        if ($user) {
+            $user->update([
+                'name'              => 'Prime Booking Super Admin',
+                'password'          => $strongPassword,
+                'role'              => 'super_admin',
+                'status'            => 'active',
+                'email_verified_at' => $user->email_verified_at ?? now(),
+            ]);
+        } else {
+            User::create([
+                'name'              => 'Prime Booking Super Admin',
+                'email'             => $superAdminEmail,
+                'password'          => $strongPassword,
+                'role'              => 'super_admin',
+                'status'            => 'active',
+                'email_verified_at' => now(),
+            ]);
         }
     }
 

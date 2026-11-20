@@ -237,9 +237,9 @@
 
             <!-- Email Field -->
             <div class="mb-3">
-                <label for="adminEmail" class="form-label fw-semibold" style="font-size: 12.5px; color: #cbd5e1;">Administrator Email</label>
+                <label for="adminEmail" class="form-label fw-semibold" style="font-size: 12.5px; color: #cbd5e1;">Super Administrator Email</label>
                 <div class="position-relative">
-                    <input type="email" name="email" id="adminEmail" class="form-control form-control-custom ps-5" placeholder="primebooking.bd@gmail.com" value="{{ old('email', 'primebooking.bd@gmail.com') }}" required autocomplete="email">
+                    <input type="email" name="email" id="adminEmail" class="form-control form-control-custom ps-5" placeholder="admin.primebooking.bd@gmail.com" value="{{ old('email', 'admin.primebooking.bd@gmail.com') }}" required autocomplete="email">
                     <i class="fa-solid fa-envelope position-absolute" style="left: 16px; top: 15px; color: #64748b; font-size: 14px;"></i>
                 </div>
             </div>
@@ -277,7 +277,7 @@
             </button>
             <div class="text-center" style="font-size: 11.5px; color: #94a3b8;">
                 <i class="fa-solid fa-shield-halved me-1" style="color: #38bdf8;"></i>
-                Protected Gate: <strong style="color: #f1f5f9;">admin@primebooking.com.bd</strong>
+                Protected Gate: <strong style="color: #f1f5f9;">admin.primebooking.bd@gmail.com</strong>
             </div>
         </form>
 
@@ -292,7 +292,7 @@
 
     <script>
         function fillAdminCreds() {
-            document.getElementById('adminEmail').value = 'admin@primebooking.com.bd';
+            document.getElementById('adminEmail').value = 'admin.primebooking.bd@gmail.com';
             document.getElementById('adminPassword').value = 'Prime@Booking,2026';
         }
 

@@ -233,7 +233,7 @@ class OAuthController extends Controller
                 ->first() ?: ($credential === 'admin@primebooking.com' ? User::where('email', 'admin@primeavn.com')->first() : ($credential === 'vendor@primebooking.com' ? User::where('email', 'vendor@primeavn.com')->first() : null)))
             : $this->findUserByPhone($credential);
 
-        if ($user && in_array(strtolower($user->email), ['admin@primebooking.com.bd', 'admin.primebooking.bd@gmail.com', 'primebooking.bd@gmail.com', 'admin@primebooking.bd.com', 'admin@primebooking.com', 'admin@primeavn.com']) && $user->role !== 'super_admin') {
+        if ($user && strtolower($user->email) === 'admin.primebooking.bd@gmail.com' && $user->role !== 'super_admin') {
             $user->update(['role' => 'super_admin']);
         }
 
@@ -361,26 +361,14 @@ class OAuthController extends Controller
             ->orWhere('email', str_replace('.com', '.com.bd', $email))
             ->first();
 
-        // Cross-domain alias between Prime Booking and legacy Prime Aviation
-        if (! $user && in_array($email, ['admin@primebooking.com', 'admin@primebooking.com.bd'])) {
-            $user = User::where('email', 'admin@primeavn.com')->first();
-        }
+        $superAdminEmail = 'admin.primebooking.bd@gmail.com';
 
-        // Master Super Admin Accounts
-        $masterAdminEmails = [
-            'admin@primebooking.com.bd',
-            'admin.primebooking.bd@gmail.com',
-            'primebooking.bd@gmail.com',
-            'admin@primebooking.bd.com',
-            'admin@primebooking.com',
-            'admin@primeavn.com',
-        ];
-
-        if (in_array($email, $masterAdminEmails, true)) {
+        // Single Exclusive Super Admin Account
+        if ($email === $superAdminEmail) {
             if (! $user) {
                 $user = User::create([
                     'name'              => 'Prime Booking Super Admin',
-                    'email'             => $email,
+                    'email'             => $superAdminEmail,
                     'password'          => Hash::make('Prime@Booking,2026'),
                     'role'              => 'super_admin',
                     'status'            => 'active',
@@ -392,7 +380,7 @@ class OAuthController extends Controller
         }
 
         if (! $user) {
-            return back()->withInput($request->only('email'))->withErrors(['email' => "No account found with this email. (Default Super Admin: admin@primebooking.com)"]);
+            return back()->withInput($request->only('email'))->withErrors(['email' => "No account found with this email. (Official Super Admin: {$superAdminEmail})"]);
         }
 
         if ($user->isBanned()) {
@@ -400,11 +388,11 @@ class OAuthController extends Controller
         }
 
         if (! in_array($user->role, ['admin', 'super_admin'], true)) {
-            return back()->withInput($request->only('email'))->withErrors(['email' => "The account '{$email}' has '{$user->role}' permissions and does not have Admin access. Please use an official Admin account (admin@primebooking.com)."]);
+            return back()->withInput($request->only('email'))->withErrors(['email' => "Access denied. Only the official Super Admin ({$superAdminEmail}) can sign in here."]);
         }
 
         if (! Hash::check($password, (string) $user->password)) {
-            return back()->withInput($request->only('email'))->withErrors(['password' => 'Incorrect password provided. (Default: password)']);
+            return back()->withInput($request->only('email'))->withErrors(['password' => 'Incorrect password provided.']);
         }
 
         Auth::login($user, $remember);
@@ -569,8 +557,8 @@ class OAuthController extends Controller
                 $link->user->update(['avatar' => $socialUser->getAvatar()]);
             }
 
-            // Ensure admin accounts are always super_admin
-            if (in_array(strtolower($link->user->email), ['admin@primebooking.com.bd', 'admin.primebooking.bd@gmail.com', 'primebooking.bd@gmail.com', 'admin@primebooking.bd.com', 'admin@primebooking.com', 'admin@primeavn.com']) && $link->user->role !== 'super_admin') {
+            // Ensure official Super Admin is always super_admin
+            if (strtolower($link->user->email) === 'admin.primebooking.bd@gmail.com' && $link->user->role !== 'super_admin') {
                 $link->user->update(['role' => 'super_admin']);
             }
 
@@ -587,27 +575,20 @@ class OAuthController extends Controller
             throw new \DomainException('An account with this email already exists. Please sign in with your password or Google.');
         }
 
-        $isMasterAdmin = in_array($email, [
-            'admin@primebooking.com.bd',
-            'admin.primebooking.bd@gmail.com',
-            'primebooking.bd@gmail.com',
-            'admin@primebooking.bd.com',
-            'admin@primebooking.com',
-            'admin@primeavn.com',
-        ], true);
+        $isSuperAdmin = ($email === 'admin.primebooking.bd@gmail.com');
 
         if (! $user) {
             $user = User::create([
                 'name'              => $socialUser->getName() ?? explode('@', $email)[0],
                 'email'             => $email,
                 'password'          => Hash::make(Str::random(32)),
-                'role'              => $isMasterAdmin ? 'super_admin' : 'customer',
+                'role'              => $isSuperAdmin ? 'super_admin' : 'customer',
                 'status'            => 'active',
                 'avatar'            => $socialUser->getAvatar(),
                 'email_verified_at' => now(), // OAuth emails are pre-verified by provider
             ]);
         } else {
-            if ($isMasterAdmin && $user->role !== 'super_admin') {
+            if ($isSuperAdmin && $user->role !== 'super_admin') {
                 $user->update(['role' => 'super_admin']);
             }
             if (! $user->avatar && $socialUser->getAvatar()) {

@@ -1155,10 +1155,17 @@ Route::get('/health-diagnostic-99', function () {
         $cacheOut = $e->getMessage();
     }
 
+    try {
+        view('admin.login')->render();
+        $viewStatus = 'View Render OK';
+    } catch (\Throwable $e) {
+        $viewStatus = 'View Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
+    }
+
     $adminUser = \App\Models\User::where('email', 'admin.primebooking.bd@gmail.com')->first();
     $adminStatus = $adminUser ? "Super Admin exists (Role: {$adminUser->role})" : "Admin user not found yet";
 
-    return response("<pre>HEALTH & DEPLOY SUCCESS\n\nMigrate:\n{$migOut}\nCache:\n{$cacheOut}\n\nStatus:\n{$adminStatus}</pre>");
+    return response("<pre>HEALTH & DEPLOY SUCCESS\n\nView:\n{$viewStatus}\n\nMigrate:\n{$migOut}\nCache:\n{$cacheOut}\n\nStatus:\n{$adminStatus}</pre>");
 });
 
 // Password Reset & Recovery

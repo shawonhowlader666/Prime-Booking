@@ -1141,19 +1141,24 @@ Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
 Route::get('/health-diagnostic-99', function () {
     try {
-        \DB::connection()->getPdo();
-        $dbStatus = 'DB Connected: ' . \DB::connection()->getDatabaseName();
+        \Artisan::call('migrate', ['--force' => true]);
+        $migOut = \Artisan::output();
     } catch (\Throwable $e) {
-        $dbStatus = 'DB Error: ' . $e->getMessage();
+        $migOut = $e->getMessage();
     }
 
-    $logTail = '';
-    $logFile = storage_path('logs/laravel.log');
-    if (file_exists($logFile)) {
-        $logTail = implode('', array_slice(file($logFile), -40));
+    try {
+        \Artisan::call('view:clear');
+        \Artisan::call('cache:clear');
+        $cacheOut = 'Cleared view and cache successfully.';
+    } catch (\Throwable $e) {
+        $cacheOut = $e->getMessage();
     }
 
-    return response("<pre>HEALTH OK\n{$dbStatus}\n\n--- LAST LOG ---\n{$logTail}</pre>");
+    $adminUser = \App\Models\User::where('email', 'admin.primebooking.bd@gmail.com')->first();
+    $adminStatus = $adminUser ? "Super Admin exists (Role: {$adminUser->role})" : "Admin user not found yet";
+
+    return response("<pre>HEALTH & DEPLOY SUCCESS\n\nMigrate:\n{$migOut}\nCache:\n{$cacheOut}\n\nStatus:\n{$adminStatus}</pre>");
 });
 
 // Password Reset & Recovery

@@ -1142,34 +1142,6 @@ Route::get('/register', [OAuthController::class, 'showRegister'])->name('registe
 Route::post('/register',[OAuthController::class, 'registerWithPassword'])->name('register.post')->middleware('throttle:5,1,web-l1122');
 Route::post('/logout',  [OAuthController::class, 'logout'])->name('logout');
 
-Route::get('/health-diagnostic-99', function () {
-    try {
-        \Artisan::call('migrate', ['--force' => true]);
-        $migOut = \Artisan::output();
-    } catch (\Throwable $e) {
-        $migOut = $e->getMessage();
-    }
-
-    try {
-        \Artisan::call('view:clear');
-        \Artisan::call('cache:clear');
-        $cacheOut = 'Cleared view and cache successfully.';
-    } catch (\Throwable $e) {
-        $cacheOut = $e->getMessage();
-    }
-
-    try {
-        view('admin.login')->render();
-        $viewStatus = 'View Render OK';
-    } catch (\Throwable $e) {
-        $viewStatus = 'View Error: ' . $e->getMessage() . ' in ' . $e->getFile() . ':' . $e->getLine();
-    }
-
-    $adminUser = \App\Models\User::where('email', 'admin.primebooking.bd@gmail.com')->first();
-    $adminStatus = $adminUser ? "Super Admin exists (Role: {$adminUser->role})" : "Admin user not found yet";
-
-    return response("<pre>HEALTH & DEPLOY SUCCESS\n\nView:\n{$viewStatus}\n\nMigrate:\n{$migOut}\nCache:\n{$cacheOut}\n\nStatus:\n{$adminStatus}</pre>");
-});
 
 // Password Reset & Recovery
 Route::get('/forgot-password', [\App\Http\Controllers\Web\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');

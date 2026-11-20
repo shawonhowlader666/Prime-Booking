@@ -1114,6 +1114,9 @@ Route::match(['get', 'post'], '/auth/{provider}/redirect', [OAuthController::cla
     ->name('auth.social.redirect')
     ->where('provider', 'google|facebook|apple');
 
+// OAuth alias helper for admin portal
+Route::get('/oauth/{provider}/redirect', fn (string $provider) => redirect()->route('auth.social.redirect', $provider))->name('oauth.redirect');
+
 // Step 2: Handle provider callback & auto login/register
 Route::match(['get', 'post'], '/auth/{provider}/callback', [OAuthController::class, 'callback'])
     ->name('auth.social.callback')
